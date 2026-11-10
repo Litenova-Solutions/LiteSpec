@@ -60,7 +60,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Statement:** Every command use case MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
 
-**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states the reason of `required`, `optional`, or `none` with its target, or the exemption with its justification, so each omission becomes a visible statement. Commands are audited by default with reason `none`. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of hunting for missing calls.
+**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of hunting for missing calls.
 
 **Example:** A storefront browse command declares an exemption because a public catalog read is not a sensitive action.
 
@@ -322,11 +322,11 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Applies to:** artifact: any
 
-**Statement:** An audit record MUST NOT contain a credential, token, session identifier, encryption key, or payment instrument value.
+**Statement:** An audit record MUST NOT contain a secret, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, or a payment instrument value.
 
 **Rationale:** The trail is retained, widely readable, and append-only, which is the worst combination for a secret: retention extends the exposure and append-only removes the repair. A credential or payment value written once stays readable for the whole retention period. Secrets and payment values therefore travel in the systems built to hold them, never in the trail.
 
-**Reviewed for:** Which records contain a credential, token, session identifier, key, or payment value? Look at the stored audit rows.
+**Reviewed for:** Which records contain a secret or a payment instrument value? Look at the stored audit rows.
 
 ### Exclude Personal Data Beyond Actor Identity
 

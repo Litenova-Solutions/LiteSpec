@@ -138,4 +138,31 @@ public sealed class CliArgsTests
         Assert.False(LastResort.WantsJson(["model", "--format", "text"]));
         Assert.False(LastResort.WantsJson(["model"]));
     }
+
+    /// <summary>Under JSON format a usage error writes one error object on standard output and nothing on standard error.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact]
+    public void Model_Check_Usage_Error_Under_Json_Writes_One_Error_Object()
+    {
+        var result = Cli.Run("model", "check", "--format", "json", "--bogus");
+
+        Assert.Equal(2, result.Status);
+        Assert.Equal("", result.Stderr);
+        var error = JsonNode.Parse(result.Stdout)!.AsObject();
+        Assert.Contains("--bogus", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
+    }
+
+    /// <summary>Under JSON format a root without a project file writes the same one error object.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact]
+    public void Model_Check_Unreadable_Project_Under_Json_Writes_One_Error_Object()
+    {
+        using var temp = Cli.Temp("model-json-error");
+        var result = Cli.Run("model", "check", "--root", temp.Path, "--format", "json");
+
+        Assert.Equal(2, result.Status);
+        Assert.Equal("", result.Stderr);
+        var error = JsonNode.Parse(result.Stdout)!.AsObject();
+        Assert.Contains("holds no .litespec/project.json", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
+    }
 }

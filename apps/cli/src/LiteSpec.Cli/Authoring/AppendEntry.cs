@@ -124,31 +124,18 @@ static partial class AppendEntry
             return 2;
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(NewCommand.Usage);
-            return 2;
+            return openExit;
         }
 
-        ConsumerConfig config;
         IReadOnlyList<Record> records;
 
         try
         {
-            config = ConsumerConfig.Load(root);
             records = RecordReader.Read(config).Records;
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {

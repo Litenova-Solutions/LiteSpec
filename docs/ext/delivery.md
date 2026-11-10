@@ -5,7 +5,7 @@
 
 ## Intent
 
-Delivery holds the release, deployment and operations rules a project adds when running the product for other people takes a formal regime: release readiness gates, artifact promotion, branch protection, deployment and rollback, backup and restore, alerting and on-call routing, the supply-chain gate, and container image build, rollout and runtime limits. A project that only needs the core checks, contracts and review flow in the baseline carries none of it. A team that operates the product in production selects it, so each release deploys, recovers and answers alerts by a written procedure instead of improvisation, with container releases shipping the same image bytes they tested.
+Delivery holds the release, deployment and operations rules a project adds when running the product for other people takes a formal regime: release readiness gates, artifact promotion, deployment and rollback, backup and restore, alerts and runbooks, the supply-chain gate, container image build, rollout and runtime limits, and agent handoff. A project that only needs the core checks, contracts and review flow in the baseline carries none of it. A team that operates the product in production selects it, so each release deploys, recovers and answers alerts by a written procedure instead of improvisation, with container releases shipping the same image bytes they tested.
 
 ## Activation
 
@@ -13,7 +13,7 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The consumer enables `delivery` when it operates the product for other people in production, promotes one artifact through staging and production, or needs a formal release gate, deployment and rollback path, alerting regime, or supply-chain gate beyond the baseline checks. It also enables `delivery` when production or staging deploys the API, the Worker, or a frontend as a container image.
+The consumer enables `delivery` when it operates the product for other people in production, promotes one artifact through staging and production, or needs a formal release gate, deployment and rollback path, alerting and runbook regime, or supply-chain gate beyond the baseline checks. It also enables `delivery` when production or staging deploys the API, the Worker, or a frontend as a container image, or when one agent starts another on the same tree.
 
 ## Baseline Relationship
 
@@ -75,11 +75,11 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: any
 
-**Statement:** A release MUST provide CI, tested deployment and rollback paths, current operating limits, and the runbooks those limits name.
+**Statement:** A release MUST provide tested deployment and rollback paths, current operating limits, and the runbooks those limits name.
 
-**Rationale:** CI, tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without them, each deployment improvises and each incident starts from scratch.
+**Rationale:** Tested deployment and rollback paths, current limits, and the runbooks those limits name make every release repeatable and every failure recoverable. Without them, each deployment improvises and each incident starts from scratch.
 
-**Reviewed for:** Which releases lack current CI, deployment, rollback, limits, or runbooks? Look at the delivery evidence beside the release.
+**Reviewed for:** Which releases lack deployment, rollback, limits, or runbooks? Look at the delivery evidence beside the release.
 
 ### Record Release Evidence
 
@@ -256,6 +256,70 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 **Example:** Claimwick's month-end load harness writes `.litespec/proof/checks/2026-11-20-month-end-load.json` holding `"check": "month-end-load"`, `"passed": true`, `"value": "99.4 percent acknowledged within two seconds"`, and `"ranOn": "2026-11-20"`, and `requirement/expense-submission.month-end-submissions` names `month-end-load` in its `check`.
 
 **Reviewed for:** Which drill or measuring harness runs lack a check result file naming the requirement's `check` under `paths.checkResults`? Look at the harness run records beside the files under `paths.checkResults`.
+
+### Name the Requirement and Runbook on Every Alert
+
+**ID:** `litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** Every alert rule MUST carry a `requirement` label naming the quality requirement it measures and a `runbook` label naming the runbook that answers it, both as record identifiers.
+
+**Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states.
+
+**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/expense-submission.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
+
+**Checked by:** `litespec model check` reports `alert-link-missing` (level S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
+
+### Cover Every Quality Requirement with an Alert or a Check
+
+**ID:** `litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:requirement
+
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a gap exception.
+
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with a reason, an exit and an expiry date, instead of passing silently.
+
+**Example:** `requirement/expense-submission.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
+
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no gap exception covering `quality-alert-missing` lists in its `subject`.
+
+### Point Each Operations File at Its Decision
+
+**ID:** `litespec/ext/delivery#point-each-operations-file-at-its-decision`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, exception, or provision it carries out.
+
+**Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
+
+**Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
+
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, exception, or provision, and counts the file toward `decision-unimplemented`.
+
+### Name Every Runbook from an Alert, Job, Reaction or Failure Policy
+
+**ID:** `litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:runbook
+
+**Statement:** Every runbook record MUST be named by at least one alert, job, reaction or failure policy.
+
+**Rationale:** A runbook nobody names answers no failure: an alert, a job, a reaction or a failure policy is the caller that sends a person to the procedure, and without that link the procedure waits undiscovered while the failure it answers is handled from memory. Naming each runbook from at least one caller keeps every procedure reachable from the event that needs it.
+
+**Example:** Claimwick's job `send-event-change-notices` names `runbook/clear-stuck-notices` in its `runbook` field, so the procedure is reachable from the work that needs it.
+
+**Checked by:** `litespec model check` reports `runbook-unused` (level A) for a runbook record that no alert label, job, reaction or failure policy names.
 
 ### Define Backup and Restore Behavior
 
@@ -451,6 +515,99 @@ Declaring all five before production makes each alert answerable the first time 
 **Example:** Claimwick accepts `MIT`, `Apache-2.0`, and `BSD-3-Clause` in `dependencies.licenses`, so a direct package under `AGPL-3.0-only` that no decision admits is reported.
 
 **Checked by:** `litespec model check` reports `dependency-license-unknown` (level S) for a direct package whose license the project does not accept and no `admits` entry names.
+
+### Close Incident Exceptions Within Seven Days
+
+**ID:** `litespec/ext/delivery#close-incident-exceptions-within-seven-days`
+
+**Strength:** rule
+
+**Applies to:** artifact: record:exception
+
+**Statement:** A production incident fix that ships before its records are updated MUST carry an incident exception expiring within seven days.
+
+**Rationale:** A production incident ships its fix at once. The incident exception records what shipped and why, and the records are updated before it expires. An expired exception is a blocking finding, so the gap stays visible until the records close it.
+
+**Reviewed for:** Which incident fixes lack an exception, or carry an expired one? Look at the exception records beside each fix.
+
+### Write a Brief Before Delegating
+
+**ID:** `litespec/ext/delivery#write-a-brief-before-delegating`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** An agent that starts another agent MUST give it a written brief stating goal, context, sources, and output.
+
+**Rationale:** Two agents sharing one tree collide without a written split of goal, context, sources, and output. The brief states what the worker owns and what it builds on. When workers collide, the defect lies in the brief rather than in either worker.
+
+**Example:** A brief carries four sections, each answering one question for the worker.
+
+```text
+Goal: the change the worker owns.
+Context: the repository facts the change builds on.
+Sources: the records and pages to read first.
+Output: the files to change and the report to write.
+```
+
+**Reviewed for:** Which briefs lack goal, context, sources, or output? Look at the briefs the delegating agent wrote.
+
+### Restrict a Worker to Its Paths
+
+**ID:** `litespec/ext/delivery#restrict-a-worker-to-its-paths`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** A delegated worker MUST stay inside the paths its brief names and commit nothing.
+
+**Rationale:** The brief names the paths the worker may change. A worker that stays inside them cannot rewrite what another worker owns. One that roams the whole tree overwrites parallel work and commits what nobody asked for.
+
+**Checked by:** `git diff --name-only` lists only the brief's named paths. The worker commits nothing.
+
+### Ask Only Unanswered Questions
+
+**ID:** `litespec/ext/delivery#ask-only-unanswered-questions`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** A delegated worker MUST ask no question its brief answers.
+
+**Rationale:** The brief answers the questions the delegating agent already settled. A worker that re-asks them spends a round trip on a reading failure. Questions stay for what the brief leaves genuinely unanswered.
+
+**Reviewed for:** Which worker questions repeat answers the brief gives? Look at the worker questions beside the brief.
+
+### Verify Before Accepting Worker Output
+
+**ID:** `litespec/ext/delivery#verify-before-accepting-worker-output`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** A delegating agent MUST re-run the verification its brief names before accepting worker output.
+
+**Rationale:** The delegating agent owns the result, so it re-runs the verification the brief named and watches it pass. A done claim without that run is a claim, not evidence. Accepting on trust moves the worker's defect into the delegating agent's change.
+
+**Reviewed for:** Which accepted outputs lack a watched verification run? Look at the verification runs the delegating agent reports.
+
+### Hold Back Example Rows from the Implementing Worker
+
+**ID:** `litespec/ext/delivery#hold-back-example-rows-from-the-implementing-worker`
+
+**Strength:** rule
+
+**Applies to:** artifact: any
+
+**Statement:** A delegating agent MUST check a delegated refusal or calculation implementation against example rows held back from the worker that wrote it.
+
+**Rationale:** Example rows given to the implementing worker become the values the implementation is tuned to pass, so the check proves nothing. Rows held back stay an independent verdict: the delegating agent runs them after the worker finishes, and the implementation passes or fails on unseen cases.
+
+**Reviewed for:** Which delegated refusal or calculation implementations were checked only against rows the worker saw? Look at the held-back rows and the check runs.
 
 ### Build Release Images in Stages
 

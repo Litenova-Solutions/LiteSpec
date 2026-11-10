@@ -1,24 +1,18 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
 
 namespace LiteSpec.Model;
 
 /// <summary>
-///     Finds every written record: page records, entries and terms.
+///     Finds every written record under the consumer's roots: the records each record file
+///     yields, the glossary terms, and the derived refusal results. The file rules that decide
+///     what a record is live in <see cref="RecordFiles"/>; this reader adds the consumer's
+///     own rules: which files it walks, the explanation beside each file, and the derived results.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordReader
 {
-    /// <summary>Container page styles: record files that hold entries but no page record.</summary>
-    static readonly HashSet<string> ContainerStyles = new(StringComparer.Ordinal)
-    {
-        RecordTypes.PermissionList,
-        RecordTypes.EntryPointList,
-        RecordTypes.SettingSet,
-        RecordTypes.RuleSet,
-        RecordTypes.RetentionSchedule,
-    };
+    /// <summary>The From of a transition that creates the instance.</summary>
+    public const string Creation = "-";
 
     /// <summary>Reads every record under the configured roots.</summary>
     /// <param name="config">The consumer configuration holding the record roots and glossary.</param>
@@ -121,7 +115,11 @@ static class RecordReader
         return string.Equals(firstLine, "---", StringComparison.Ordinal);
     }
 
-    /// <summary>Reads one record file into records, an explanation body and problems, all appended in place.</summary>
+    /// <summary>
+    ///     Reads one record file into records, its explanation body and problems, all appended in place.
+    ///     The page record and its entries come from <see cref="RecordFiles.Scan"/>; the explanation
+    ///     beside the file is the consumer's own.
+    /// </summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
     /// <param name="file">The absolute path of the record file to read.</param>
     /// <param name="records">The records read so far, appended in place.</param>
@@ -134,96 +132,29 @@ static class RecordReader
         List<PageBody> bodies,
         List<Finding> problems)
     {
-        var text = SourceTree.Read(file);
+        var scan = RecordFiles.Scan(file, SourceTree.Read(file));
 
-        if (!RecordFile.TryParse(text, out var root, out var tree, out var parseError))
+        problems.AddRange(scan.Problems);
+
+        if (scan.Root is null)
         {
-            problems.Add(new Finding(
-                "record-invalid",
-                $"Record file '{file}' could not be read: {parseError}",
-                file,
-                ErrorLine(parseError),
-                null));
             return;
         }
 
-        string? pageId = null;
+        var explanationFile = RecordFile.ExplanationPathOf(file);
+        var explanation = File.Exists(explanationFile) ? SourceTree.Read(explanationFile) : null;
+        var pageId = scan.Records.FirstOrDefault(entry => !entry.IsEntry)?.Id;
 
-        var type = root.ValueKind == JsonValueKind.Object ? StringField(root, RecordFields.Type) : null;
-
-        if (type is null || (!RecordTypes.All.Contains(type) && !ContainerStyles.Contains(type)))
+        foreach (var entry in scan.Records)
         {
-            problems.Add(new Finding(
-                "record-invalid",
-                type is null
-                    ? $"Record file '{file}' holds no record: its top level names no record type."
-                    : $"Record file '{file}' holds no record: type '{type}' is neither a record type nor a container page style.",
-                file,
-                1,
-                null));
-        }
-        else if (RecordTypes.All.Contains(type))
-        {
-            var explanationFile = RecordFile.ExplanationPathOf(file);
-            var explanation = File.Exists(explanationFile) ? SourceTree.Read(explanationFile) : null;
-            var record = BuildRecord(
-                config, root, file, 1, false, null,
-                explanation is null ? null : explanationFile, explanation);
-
-            pageId = record.Id;
-            records.Add(record);
-
-            if (explanation is not null)
-            {
-                bodies.Add(new PageBody(explanationFile, explanation, 1, pageId));
-            }
-        }
-        else
-        {
-            var explanationFile = RecordFile.ExplanationPathOf(file);
-
-            if (File.Exists(explanationFile))
-            {
-                bodies.Add(new PageBody(explanationFile, SourceTree.Read(explanationFile), 1, null));
-            }
+            records.Add(entry.IsEntry
+                ? BuildRecord(config, entry, null, null)
+                : BuildRecord(config, entry, explanation is null ? null : explanationFile, explanation));
         }
 
-        if (root.ValueKind == JsonValueKind.Object
-            && root.TryGetProperty(RecordFields.Records, out var entries)
-            && entries.ValueKind == JsonValueKind.Array)
+        if (explanation is not null)
         {
-            var lines = tree.TryGetProperty(RecordFields.Records, out var treeRecords)
-                && treeRecords.Kind == JsonKind.Array
-                    ? treeRecords.Items
-                    : null;
-            var index = 0;
-
-            foreach (var entry in entries.EnumerateArray())
-            {
-                var line = lines is not null && index < lines.Count ? lines[index].Line : 1;
-                index++;
-
-                if (entry.ValueKind != JsonValueKind.Object)
-                {
-                    continue;
-                }
-
-                var entryType = StringField(entry, RecordFields.Type);
-
-                if (!RecordTypes.All.Contains(entryType ?? ""))
-                {
-                    problems.Add(new Finding(
-                        "field-invalid",
-                        $"Entry type '{entryType ?? "missing"}' is not a record type.",
-                        file,
-                        line,
-                        pageId));
-                    continue;
-                }
-
-                records.Add(BuildRecord(
-                    config, entry, file, line, true, pageId, null, null));
-            }
+            bodies.Add(new PageBody(explanationFile, explanation, 1, pageId));
         }
     }
 
@@ -269,47 +200,30 @@ static class RecordReader
         bodies.Add(new PageBody(file, parsed.Body, parsed.BodyStartLine, null));
     }
 
-    /// <summary>The From of a transition that creates the instance.</summary>
-    public const string Creation = "-";
-
-    /// <summary>Builds one record from its element.</summary>
+    /// <summary>Builds one CLI record from the record the file reader yielded.</summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <param name="element">The written element carrying the record fields.</param>
-    /// <param name="file">The absolute path of the record file.</param>
-    /// <param name="line">The 1-based line of the record in its file.</param>
-    /// <param name="isEntry">Whether the record is an entry on its page rather than the page itself.</param>
-    /// <param name="pageId">The id of the carrying page, or null for a page record.</param>
+    /// <param name="indexed">The record the file reader yielded.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
-    /// <returns>The built record.</returns>
+    /// <returns>The built record, with its qualified identifier and its fields as JSON.</returns>
     private static Record BuildRecord(
         ConsumerConfig config,
-        JsonElement element,
-        string file,
-        int line,
-        bool isEntry,
-        string? pageId,
+        IndexRecord indexed,
         string? explanationFile,
-        string? explanation)
-    {
-        var type = StringField(element, RecordFields.Type) ?? "";
-        var id = StringField(element, RecordFields.Id) ?? "";
-
-        return new()
+        string? explanation) => new()
         {
-            Type = type,
-            Id = id,
-            QualifiedId = QualifiedIdentifier.Of(type, id, file, config),
-            Title = StringField(element, RecordFields.Title) ?? "",
-            File = file,
-            Line = line,
+            Type = indexed.Type,
+            Id = indexed.Id,
+            QualifiedId = QualifiedIdentifier.Of(indexed.Type, indexed.Id, indexed.File, config),
+            Title = indexed.Title,
+            File = indexed.File,
+            Line = indexed.Line,
             ExplanationFile = explanationFile,
             Explanation = explanation,
-            IsEntry = isEntry,
-            PageId = pageId,
-            Raw = element.Clone(),
+            IsEntry = indexed.IsEntry,
+            PageId = indexed.PageId,
+            Raw = RecordFile.ElementOf(indexed.Tree),
         };
-    }
 
     /// <summary>
     ///     Derives the generic refusal results: forbidden for every use case with a permission
@@ -373,17 +287,15 @@ static class RecordReader
     /// <returns>The derived result record, marked derived and carried by the use-case page.</returns>
     private static Record DerivedResult(ConsumerConfig config, Record useCase, string id, string title, string meaning, string code)
     {
-        var json = new JsonObject
-        {
-            [RecordFields.Type] = RecordTypes.Result,
-            [RecordFields.Id] = id,
-            [RecordFields.Title] = title,
-            [RecordFields.Outcome] = "refusal",
-            [RecordFields.Code] = code,
-            [RecordFields.Meaning] = meaning,
-        }.ToJsonString();
-
-        using var document = JsonDocument.Parse(json);
+        var fields = JsonText.ObjectOf(
+        [
+            new(RecordFields.Type, JsonText.Text(RecordTypes.Result)),
+            new(RecordFields.Id, JsonText.Text(id)),
+            new(RecordFields.Title, JsonText.Text(title)),
+            new(RecordFields.Outcome, JsonText.Text("refusal")),
+            new(RecordFields.Code, JsonText.Text(code)),
+            new(RecordFields.Meaning, JsonText.Text(meaning)),
+        ]);
 
         return new Record
         {
@@ -396,7 +308,7 @@ static class RecordReader
             IsEntry = true,
             PageId = useCase.Id,
             Derived = true,
-            Raw = document.RootElement.Clone(),
+            Raw = RecordFile.ElementOf(fields),
         };
     }
 
@@ -411,51 +323,46 @@ static class RecordReader
             return;
         }
 
-        var text = SourceTree.Read(config.GlossaryPath);
+        JsonText tree;
 
-        if (!RecordFile.TryParse(text, out var root, out var tree, out var error))
+        try
+        {
+            tree = YamlText.Parse(SourceTree.Read(config.GlossaryPath));
+        }
+        catch (JsonTextException exception)
         {
             problems.Add(new Finding(
-                "field-invalid", $"The glossary is not YAML: {error}",
-                config.GlossaryPath, ErrorLine(error), null));
+                "field-invalid", $"The glossary is not YAML: {exception.Message}",
+                config.GlossaryPath, exception.Line, null));
             return;
         }
 
-        if (root.ValueKind != JsonValueKind.Object
-            || !root.TryGetProperty(RecordFields.Terms, out var terms)
-            || terms.ValueKind != JsonValueKind.Array)
+        if (tree.Kind != JsonKind.Object
+            || !tree.TryGetProperty(RecordFields.Terms, out var terms)
+            || terms.Kind != JsonKind.Array)
         {
             return;
         }
 
-        var lines = tree.TryGetProperty(RecordFields.Terms, out var treeTerms)
-            && treeTerms.Kind == JsonKind.Array
-                ? treeTerms.Items
-                : null;
-        var index = 0;
-
-        foreach (var term in terms.EnumerateArray())
+        foreach (var term in terms.Items)
         {
-            var line = lines is not null && index < lines.Count ? lines[index].Line : 1;
-            index++;
-
-            if (term.ValueKind != JsonValueKind.Object)
+            if (term.Kind != JsonKind.Object)
             {
                 continue;
             }
 
-            var termId = StringField(term, RecordFields.Id) ?? "";
+            var termId = StringOf(term, RecordFields.Id) ?? "";
 
             records.Add(new Record
             {
                 Type = RecordTypes.Term,
                 Id = termId,
                 QualifiedId = QualifiedIdentifier.Of(RecordTypes.Term, termId, config.GlossaryPath, config),
-                Title = StringField(term, RecordFields.Term) ?? "",
+                Title = StringOf(term, RecordFields.Term) ?? "",
                 File = config.GlossaryPath,
-                Line = line,
+                Line = term.Line,
                 IsEntry = true,
-                Raw = term.Clone(),
+                Raw = RecordFile.ElementOf(term),
             });
         }
     }
@@ -476,29 +383,10 @@ static class RecordReader
             StringComparer.Ordinal);
     }
 
-    /// <summary>Reads one optional string field of an element.</summary>
-    /// <param name="element">The element to read.</param>
+    /// <summary>Reads one optional string field of a tree object.</summary>
+    /// <param name="node">The tree object to read.</param>
     /// <param name="name">The field name to read.</param>
     /// <returns>The field string value, or null when the field is missing or not a string.</returns>
-    private static string? StringField(JsonElement element, string name) =>
-        element.ValueKind == JsonValueKind.Object
-        && element.TryGetProperty(name, out var value)
-        && value.ValueKind == JsonValueKind.String
-            ? value.GetString()
-            : null;
-
-    /// <summary>The 1-based line a parse error names, or 1 when it names none.</summary>
-    /// <param name="error">The parse error, ending in "at line N.".</param>
-    /// <returns>The named line, or 1.</returns>
-    private static int ErrorLine(string error)
-    {
-        const string marker = "at line ";
-        var at = error.LastIndexOf(marker, StringComparison.Ordinal);
-
-        return at >= 0
-            && int.TryParse(error[(at + marker.Length)..].TrimEnd('.'), out var line)
-            && line > 0
-                ? line
-                : 1;
-    }
+    private static string? StringOf(JsonText node, string name) =>
+        node.TryGetProperty(name, out var value) ? value.GetString() : null;
 }

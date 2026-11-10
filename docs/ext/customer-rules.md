@@ -1,11 +1,11 @@
-# Customer Automation
+# Customer Rules and Hooks
 
 **Stack:** any
 **Layer:** application
 
 ## Intent
 
-Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the catalog those rules draw from, the tenant instances as data, and the may and may-not contract on hooks. A project selects it when tenants compose automation or the product calls customer hooks.
+Some products let customers build their own rules from triggers, conditions, and actions, and call customer endpoints when those rules fire. This page states the catalog those rules draw from, the tenant instances as data, and the may and may-not contract on hooks. A project selects it when tenants compose customer rules or the product calls customer hooks.
 
 ## Activation
 
@@ -13,23 +13,23 @@ Activation scope: `project`.
 
 Applicable specification kinds: None.
 
-The project selects `automation` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it: they stay Behavior records either way.
+The project selects `customer-rules` when tenants compose their own rules or customer endpoints receive hook calls. Product-owned reactions and jobs do not select it: they stay Behavior records either way.
 
 ## Baseline Relationship
 
-This extension replaces no baseline provision. It switches on no record type: it divides automation into catalog records and tenant data.
+This extension replaces no baseline provision. It switches on no record type: it divides customer rules into catalog records and tenant data.
 
 Developers own the `catalog` of triggers, conditions, and actions as records, while each tenant `instance` stays tenant data. Each hook carries a may contract stating what the customer endpoint relies on and a may-not contract stating what it never assumes.
 
 ## Standards
 
-### Record the Automation Catalog
+### Record the Customer Rules Catalog
 
-**ID:** `litespec/ext/automation#record-the-automation-catalog`
+**ID:** `litespec/ext/customer-rules#record-the-customer-rules-catalog`
 
 **Strength:** rule
 
-**Statement:** Each trigger, condition, and action in the automation catalog MUST be a record.
+**Statement:** Each trigger, condition, and action in the customer rules catalog MUST be a record.
 
 **Rationale:** The catalog is the product's promise surface: every tenant rule is built from it. Each entry as a record pins what it does, what it costs, and what it refuses, so tenant rules compose from parts the team stands behind.
 
@@ -39,11 +39,11 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### Treat Tenant Rules as Data
 
-**ID:** `litespec/ext/automation#treat-tenant-rules-as-data`
+**ID:** `litespec/ext/customer-rules#treat-tenant-rules-as-data`
 
 **Strength:** rule
 
-**Statement:** A tenant automation instance MUST live as tenant data, not as a record.
+**Statement:** A tenant rule instance MUST live as tenant data, not as a record.
 
 **Rationale:** Tenants write thousands of rules the team never sees, and recording each one would halt both sides. The catalog carries the records instead: instances compose only catalog entries, so the unrecorded part is the composition, never the parts.
 
@@ -53,7 +53,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### Refuse Unknown Catalog Entries
 
-**ID:** `litespec/ext/automation#refuse-unknown-catalog-entries`
+**ID:** `litespec/ext/customer-rules#refuse-unknown-catalog-entries`
 
 **Strength:** rule
 
@@ -67,7 +67,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### Version Catalog Entries
 
-**ID:** `litespec/ext/automation#version-catalog-entries`
+**ID:** `litespec/ext/customer-rules#version-catalog-entries`
 
 **Strength:** rule
 
@@ -81,7 +81,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### State What a Hook May Rely On
 
-**ID:** `litespec/ext/automation#state-what-a-hook-may-rely-on`
+**ID:** `litespec/ext/customer-rules#state-what-a-hook-may-rely-on`
 
 **Strength:** rule
 
@@ -95,7 +95,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### State What a Hook May Not Assume
 
-**ID:** `litespec/ext/automation#state-what-a-hook-may-not-assume`
+**ID:** `litespec/ext/customer-rules#state-what-a-hook-may-not-assume`
 
 **Strength:** rule
 
@@ -109,7 +109,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### Isolate Hook Failures from the Trigger
 
-**ID:** `litespec/ext/automation#isolate-hook-failures-from-the-trigger`
+**ID:** `litespec/ext/customer-rules#isolate-hook-failures-from-the-trigger`
 
 **Strength:** rule
 
@@ -125,7 +125,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 ### Bound Tenant Rule Runs per Period
 
-**ID:** `litespec/ext/automation#bound-tenant-rule-runs-per-period`
+**ID:** `litespec/ext/customer-rules#bound-tenant-rule-runs-per-period`
 
 **Strength:** default
 
@@ -135,7 +135,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Rationale:** One tenant's runaway rule can starve every other tenant's automation. A monthly cap from the catalog default bounds the damage, and the tenant raises it by asking instead of by accident.
 
-**Reviewed for:** Each stored instance carries a monthly run cap, or the automation documentation names the cap scheme.
+**Reviewed for:** Each stored instance carries a monthly run cap, or the customer rules documentation names the cap scheme.
 
 ## Dependencies
 

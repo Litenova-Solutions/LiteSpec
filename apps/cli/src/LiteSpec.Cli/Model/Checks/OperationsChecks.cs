@@ -10,10 +10,10 @@ namespace LiteSpec.Model.Checks;
 ///     runbook and carries its measure's numbers, every quality requirement is
 ///     watched, and every operations file points at its decision.
 /// </summary>
-/// <follows>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</follows>
+/// <follows>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</follows>
 /// <follows>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</follows>
-/// <follows>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</follows>
-/// <follows>litespec/quality/operations#point-each-operations-file-at-its-decision</follows>
+/// <follows>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</follows>
+/// <follows>litespec/ext/delivery#point-each-operations-file-at-its-decision</follows>
 internal static class OperationsChecks
 {
     /// <summary>Runs alert-link-missing, alert-threshold-drift, quality-alert-missing and the operations-file marks.</summary>

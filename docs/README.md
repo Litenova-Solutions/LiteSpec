@@ -162,12 +162,12 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Model Context Protocol](ext/mcp.md): the server a product ships so an LLM client can call its public API.
 - [Multitenancy](ext/tenancy.md): tenant isolation across authorization, storage, jobs, and recovery for one shared deployment.
 - [Plans and Entitlements](ext/plans.md): plans, entitlements, and feature gating for a product that sells tiers.
-- [Durable and Live Delivery](ext/outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure, and live transport where measured polling cannot meet the update target.
-- [Jobs and Queues](ext/jobs.md): recurring, delayed, ingested, carried, and heavy work, and human-cleared queues, with leases that survive restarts.
+- [Live Delivery](ext/realtime.md): server-sent events and interactive messaging where measured polling cannot meet the update target.
+- [Durable Delivery](ext/outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
+- [Jobs and Queues](ext/jobs.md): recurring, delayed, and heavy work, and human-cleared queues, with leases that survive restarts.
 - [Release Stage](ext/stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
-- [Agent Delegation](ext/delegation.md): briefs and containment for one agent starting another on the same tree.
 - [Devices](ext/devices.md): the entry-point protocol block: messages, version rule, client rules, nonce, and offline uploads.
-- [Customer Automation](ext/automation.md): customer-composed rules and hooks with a may and may-not contract.
+- [Customer Rules and Hooks](ext/customer-rules.md): customer-composed rules and hooks with a may and may-not contract.
 - [Model Assistance](ext/ai.md): model-mediated queries with a closed tools set, structure-only scenarios, and a pinned stub.
 
 ## Reference

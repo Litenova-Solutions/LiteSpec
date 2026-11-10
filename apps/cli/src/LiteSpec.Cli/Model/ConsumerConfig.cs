@@ -43,9 +43,6 @@ sealed class ConsumerConfig
     public IReadOnlyDictionary<string, int> RefusalStatuses { get; private set; } =
         new Dictionary<string, int>(StringComparer.Ordinal);
 
-    /// <summary>Gets the refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
-    public IReadOnlyList<string> RefusalPrefixes { get; private set; } = [];
-
     /// <summary>
     ///     Gets the refusal codes the project composes at run time from a key, each a template with one <c>{key}</c>
     ///     placeholder, such as the conflict a commit answers for a lost uniqueness key.
@@ -150,12 +147,12 @@ sealed class ConsumerConfig
 
         using var document = JsonDocument.Parse(text);
 
-        if (!ProjectSettings.TryParse(text, out var settings, out var error))
+        if (!ProjectPaths.TryRead(file, text, out var projectPaths, out var error) || projectPaths is null)
         {
             throw new InvalidOperationException(error!);
         }
 
-        config.Marks = settings.Marks;
+        config.Marks = projectPaths.Settings.Marks;
 
         var paths = document.RootElement.TryGetProperty("paths", out var found)
             && found.ValueKind == JsonValueKind.Object
@@ -285,10 +282,11 @@ sealed class ConsumerConfig
         }
 
         // Records live under the record roots that paths.docs names, which default
-        // to the one LiteSpec folder at the repository root.
-        config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
-        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
-        config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
+        // to the one LiteSpec folder at the repository root. The paths come from
+        // the shared reader the analyzers use too.
+        config.RecordRoots = [.. projectPaths.DocsRoots.Select(Native)];
+        config.GlossaryPath = Native(projectPaths.GlossaryPath);
+        config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
         config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules", reportDefault: true);
         config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
         config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
@@ -408,7 +406,6 @@ sealed class ConsumerConfig
 
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
-            config.RefusalPrefixes = ReadNames(refusals, "prefixes");
             config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
         }
 
@@ -665,6 +662,11 @@ sealed class ConsumerConfig
     /// <returns>The absolute combined path.</returns>
     private static string Combine(string root, string relative) =>
         Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+
+    /// <summary>Converts a resolved path written with forward slashes to the operating system's form.</summary>
+    /// <param name="path">The absolute path with forward slashes, as <see cref="ProjectPaths" /> resolves it.</param>
+    /// <returns>The absolute path with the operating system's separators.</returns>
+    private static string Native(string path) => Path.GetFullPath(path.Replace('/', Path.DirectorySeparatorChar));
 
     /// <summary>
     ///     Resolves one path, expanding a single segment wildcard to the first match.

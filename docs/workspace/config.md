@@ -49,7 +49,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **Strength:** rule
 
-**Statement:** A tracked configuration file MUST contain only safe defaults and placeholders.
+**Statement:** A tracked configuration file MUST keep secrets out of tracked and observable data, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and contain only safe defaults and placeholders.
 
 **Rationale:** A tracked file reaches every clone and stays in history after deletion. Local development uses user secrets and hosted environments use the deployment platform, so no real value needs to be tracked. Safe defaults and placeholders keep the tracked file runnable as documentation.
 

@@ -175,6 +175,12 @@ public static class RecordTypes
         "configuration", "glossary", "example-cast",
     };
 
+    /// <summary>Container page styles: record files that hold entries without a record of their own.</summary>
+    public static readonly HashSet<string> ContainerStyles = new HashSet<string>(StringComparer.Ordinal)
+    {
+        PermissionList, EntryPointList, SettingSet, RuleSet, RetentionSchedule,
+    };
+
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {

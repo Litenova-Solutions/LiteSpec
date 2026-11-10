@@ -15,16 +15,17 @@ namespace LiteSpec.Book;
 static class BookCommand
 {
     /// <summary>The command's usage text.</summary>
-    public const string Usage =
-        "Usage: litespec book [--root <folder>] [--out <folder>] [--editor <template>]\n"
-        + "\n"
-        + "Options:\n"
-        + "  --root <folder>      The consumer root to read. Defaults to the consumer found from the working directory.\n"
-        + "  --out <folder>       The folder to write the static site to. Defaults to `.litespec/book` under the consumer root.\n"
-        + "  --editor <template>  The editor link template with {root}, {path} and {line}, or \"none\" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.\n"
-        + "  --help               Print this text and exit.\n"
-        + "\n"
-        + "Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error, a missing carried release, or a missing or broken lexicon page.\n";
+    public const string Usage = """
+        Usage: litespec book [--root <folder>] [--out <folder>] [--editor <template>]
+
+        Options:
+          --root <folder>      The consumer root to read. Defaults to the consumer found from the working directory.
+          --out <folder>       The folder to write the static site to. Defaults to `.litespec/book` under the consumer root.
+          --editor <template>  The editor link template with {root}, {path} and {line}, or "none" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.
+          --help               Print this text and exit.
+
+        Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error, a missing carried release, or a missing or broken lexicon page.
+        """;
 
     /// <summary>The default editor link template, with its three placeholders.</summary>
     public const string DefaultEditor = "vscode://file/{root}/{path}:{line}";
@@ -41,14 +42,13 @@ static class BookCommand
         var parsed = ParseArgs(args);
         if (parsed.Help)
         {
-            Console.Out.Write(Usage);
+            Console.WriteLine(Usage);
             return 0;
         }
 
         if (parsed.Error is not null)
         {
-            Console.Error.Write($"{parsed.Error}\n{Usage}");
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
         string root;
@@ -59,22 +59,19 @@ static class BookCommand
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Root}': {exception.Message}");
-            return 2;
+            return LastResort.Fail($"Invalid root '{parsed.Root}': {exception.Message}", json: false, code: 2);
         }
 
         if (!Directory.Exists(root))
         {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' does not exist.", json: false, code: 2);
         }
 
         // Without a project file every path falls back to a default, and the
         // book would render a folder that is not a consumer at all.
         if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
-            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json: false, code: 2);
         }
 
         ConsumerConfig config;
@@ -85,13 +82,11 @@ static class BookCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
+            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json: false, code: 2);
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
-            return 2;
+            return LastResort.Fail(exception.Message, json: false, code: 2);
         }
 
         string liteSpecRoot;
@@ -101,8 +96,7 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot find the carried LiteSpec release: {exception.Message}\n");
-            return 2;
+            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         BookLexicon lexicon;
@@ -112,8 +106,7 @@ static class BookCommand
         }
         catch (BookLexiconException exception)
         {
-            Console.Error.Write($"Cannot load the book words from '{exception.File}': {exception.Message}\n");
-            return 2;
+            return LastResort.Fail($"Cannot load the book words from '{exception.File}': {exception.Message}", json: false, code: 2);
         }
 
         ProjectModel model;
@@ -123,35 +116,28 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot build the model from '{root}': {exception.Message}\n");
-            return 1;
+            return LastResort.Fail($"Cannot build the model from '{root}': {exception.Message}", json: false, code: 1);
         }
 
-        var (modelFindings, known) = Checker.Check(model);
-        var findings = modelFindings.ToList();
+        // The book takes the findings that model check takes, at the claimed level, so the two never disagree.
+        List<Finding> findings;
+        IReadOnlyList<Finding> known;
 
-        // The consumer pass reads the project file, the record pages,
-        // the glossary and the controlled UI into the same finding
-        // shape, so the book shows the whole consumer.
         try
         {
-            var consumerRun = new ConsumerRun(root);
-            consumerRun.Execute();
-            findings.AddRange(consumerRun.Errors);
+            (findings, known) = ModelCommand.Collect(model, root);
         }
         catch (FailFast fail)
         {
-            Console.Error.WriteLine(fail.Message);
-            return fail.Code;
+            return LastResort.Fail(fail.Message, json: false, code: fail.Code);
         }
 
-        model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)FindingJson(config, model, finding))]);
-        model.KnownJson = new JsonArray([.. known.Select(gap => (JsonNode?)KnownJson(config, gap))]);
+        model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)ModelCommand.AsJson(config, finding, ModelCommand.Decide(model, config, finding, release: false)))]);
+        model.KnownJson = new JsonArray([.. known.Select(gap => (JsonNode?)ModelCommand.AsKnownJson(config, gap))]);
 
         if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
         {
-            Console.Error.Write("The built model holds no records array.\n");
-            return 1;
+            return LastResort.Fail("The built model holds no records array.", json: false, code: 1);
         }
 
         store["intentCoverage"] = BookIntentCoverage.ToJson(IntentCoverage.Compute(model));
@@ -167,8 +153,7 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot write to '{outDir}': {exception.Message}\n");
-            return 1;
+            return LastResort.Fail($"Cannot write to '{outDir}': {exception.Message}", json: false, code: 1);
         }
     }
 
@@ -289,64 +274,6 @@ static class BookCommand
 
         return new Parsed(false, null, parsed.Value("--out"), parsed.Value("--root"), parsed.Value("--editor"));
     }
-
-    /// <summary>
-    ///     Decides one finding's severity the way <c>model check</c> does without flags:
-    ///     TypeScript findings take the handshake qualification, Roslyn findings stay
-    ///     qualified, and a finding with no reader is qualified.
-    /// </summary>
-    /// <param name="model">The built project model the finding belongs to.</param>
-    /// <param name="config">The consumer configuration of the project.</param>
-    /// <param name="finding">The finding to decide.</param>
-    /// <returns>The severity of the finding.</returns>
-    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding) =>
-        Severity.Of(
-            finding,
-            (finding.Code == "reader-missing" && config.IsContinuousIntegration) || finding.Reader switch
-            {
-                Finding.TypeScriptReader => model.TypeScriptQualified,
-                Finding.RoslynReader => true,
-                _ => true,
-            },
-            config.IsContinuousIntegration);
-
-    /// <summary>One standing finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
-    /// <param name="config">The consumer configuration, for the relative path.</param>
-    /// <param name="model">The built project model the finding belongs to.</param>
-    /// <param name="finding">The finding to project.</param>
-    /// <returns>The JSON object for the finding.</returns>
-    static JsonObject FindingJson(ConsumerConfig config, ProjectModel model, Finding finding)
-    {
-        var severity = Decide(model, config, finding);
-
-        return new JsonObject
-        {
-            ["code"] = finding.Code,
-            ["level"] = finding.Tier,
-            ["outcome"] = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
-            ["reason"] = null,
-            ["message"] = finding.Message,
-            ["path"] = config.Relative(finding.Path),
-            ["line"] = finding.Line,
-            ["subject"] = finding.Subject,
-        };
-    }
-
-    /// <summary>One known-gap finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
-    /// <param name="config">The consumer configuration, for the relative path.</param>
-    /// <param name="finding">The known-gap finding to project.</param>
-    /// <returns>The JSON object for the known-gap finding.</returns>
-    static JsonObject KnownJson(ConsumerConfig config, Finding finding) => new()
-    {
-        ["code"] = finding.Code,
-        ["level"] = finding.Tier,
-        ["outcome"] = "known",
-        ["reason"] = null,
-        ["message"] = finding.Message,
-        ["path"] = config.Relative(finding.Path),
-        ["line"] = finding.Line,
-        ["subject"] = finding.Subject,
-    };
 
     /// <summary>One layer's display label from the lexicon, else the layer key itself.</summary>
     /// <param name="lexicon">The book lexicon that holds the layer labels.</param>

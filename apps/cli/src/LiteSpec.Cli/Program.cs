@@ -59,9 +59,5 @@ int Version()
     return 0;
 }
 
-int Unknown(string command)
-{
-    Console.Error.WriteLine($"Unknown command '{command}'.");
-    Console.Error.WriteLine(usage);
-    return 2;
-}
+int Unknown(string command) =>
+    LastResort.UsageError($"Unknown command '{command}'.", usage, json: false);

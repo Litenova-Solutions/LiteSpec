@@ -119,7 +119,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Applies to:** artifact: any
 
-**Statement:** Tool descriptions and logs MUST exclude secrets and personal data from every field they carry.
+**Statement:** Tool descriptions and logs MUST exclude secrets, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and personal data from every field they carry.
 
 **Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond the consent that collected it. Descriptions and logs name the fields without carrying the values.
 

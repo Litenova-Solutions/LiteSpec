@@ -12,11 +12,10 @@ Each extension below states its own activation criterion and whether it applies 
 
 Selected once for the whole project:
 
-- [Agent Delegation](delegation.md): briefs and containment for one agent starting another on the same tree.
 - [AI Assistance](ai.md): closed tool sets, structure-only scenarios, and pinned stubs for queries a model mediates.
 - [API Compatibility](compat.md): versioning and retirement for APIs with public, partner, mobile, or independently deployed consumers.
 - [Audit Trail](audit.md): tamper-resistant evidence of who attempted what in data another party owns.
-- [Customer Automation](automation.md): customer-composed rules and hooks for a product whose tenants automate their own work.
+- [Customer Rules and Hooks](customer-rules.md): customer-composed rules and hooks for a product whose tenants automate their own work.
 - [Delivery](delivery.md): release readiness gates, image build and rollout, deployment and rollback, backup and restore, alerting and the supply-chain gate for a product operated in production.
 - [Localization](locale.md): locales, catalogs, and formatting for a product that ships in more than one locale.
 - [Model Context Protocol](mcp.md): the server a product ships so an LLM client can call its public API.
@@ -33,8 +32,9 @@ Selected per record, for the use cases, entry points, jobs, journeys, modules, r
 - [Connected Devices](devices.md): protocol blocks with messages, version rules, and offline uploads for entry points that devices reach.
 - [Data Lifecycle](lifecycle.md): retention, deletion, archival, and restore behavior for records with a lifetime duty.
 - [External Integrations](integrations.md): provider isolation, failure mapping, and boundary tests for use cases that call outside systems.
-- [Durable and Live Delivery](outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure, and live transport where measured polling cannot meet the update target.
-- [Jobs and Queues](jobs.md): recurring, delayed, ingested, carried, and heavy work, and human-cleared queues, with leases that survive restarts.
+- [Durable Delivery](outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
+- [Jobs and Queues](jobs.md): recurring, delayed, and heavy work, and human-cleared queues, with leases that survive restarts.
+- [Live Delivery](realtime.md): live transport for updates a measured target requires faster than polling.
 
 ## Stack Extensions
 

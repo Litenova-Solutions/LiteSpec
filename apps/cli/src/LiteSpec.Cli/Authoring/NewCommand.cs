@@ -168,6 +168,13 @@ static class NewCommand
                 return 2;
             }
 
+            if (type == "feature" && homeName is null)
+            {
+                Console.Error.WriteLine("New feature needs a module: use litespec new feature <module>.<name>.");
+                Console.Error.WriteLine(Usage);
+                return 2;
+            }
+
             if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
             {
                 Console.Error.WriteLine(grammar);
@@ -199,31 +206,18 @@ static class NewCommand
             name = "";
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return openExit;
         }
 
-        ConsumerConfig config;
         IReadOnlyList<Record> records;
 
         try
         {
-            config = ConsumerConfig.Load(root);
             records = RecordReader.Read(config).Records;
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
@@ -343,36 +337,14 @@ static class NewCommand
             return 2;
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return openExit;
         }
 
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
-        {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
-            return 1;
-        }
-
+        var root = config.Root;
         var templateFile = $"{style}.md";
 
         if (ReadTemplate(templateFile) is not { } template)

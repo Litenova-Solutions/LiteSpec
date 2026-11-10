@@ -249,7 +249,7 @@ apps/api/src/{ProjectName}.WebApi/
 
 Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.json` states for the property tests that `litespec/backend/testing#prove-every-calculation-with-property-tests` names and the model-based tests that `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test` names.
 
-The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
+The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
 
 **Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
 

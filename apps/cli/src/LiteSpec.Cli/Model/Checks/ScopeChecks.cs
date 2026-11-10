@@ -5,7 +5,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>The scope checks: every runbook is named by an alert, a job, a reaction or a failure policy.</summary>
-/// <follows>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</follows>
+/// <follows>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</follows>
 internal static class ScopeChecks
 {
     /// <summary>Runs runbook-unused.</summary>

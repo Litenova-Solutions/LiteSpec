@@ -111,7 +111,7 @@ public sealed class LinkExportTests
     }
 
     /// <summary>Wave5 Objects Export Their Ids As Links.</summary>
-    /// <proves>litespec/ext/jobs#state-each-step-compensation</proves>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void Wave5_Objects_Export_Their_Ids_As_Links()
     {

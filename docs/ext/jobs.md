@@ -5,21 +5,17 @@
 
 ## Intent
 
-Work that outlives a request runs in a Worker: scheduled jobs from a timetable, ingest pipelines over outside records, engine-carried sagas, and reports too heavy for a request, while people clear queued items through claimed listings. This page states how each kind records its work, runs it once, and recovers. A project selects it for recurring, delayed, ingested, carried, heavy, or human-cleared work.
+Work that outlives a request runs in a Worker: scheduled jobs from a timetable and reports too heavy for a request, while people clear queued items through claimed listings. This page states how each kind records its work, runs it once, and recovers. A project selects it for recurring, delayed, heavy, or human-cleared work.
 
 ## Activation
 
 Activation scope: `local`.
 
-Applicable specification kinds: `job`, `use-case`, `journey`, `aggregate`.
+Applicable specification kinds: `job`, `use-case`, `journey`.
 
 The consumer enables `jobs` for recurring, delayed, or calendar-based work. Each schedule lives on a job record with its `kind`, `schedule`, and run fields, as the [automation page](../core/automation.md) states. Selecting it replaces `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request` for scheduled work: a Worker runs the scheduler.
 
 For human queues, a project selects `jobs` for a use case when the use case lists work items people claim or clears items in bulk. Ordinary reads and single-item commands do not select it.
-
-For ingest, a project selects `jobs` for a job when the job ingests outside records through drop and enrich steps. A job that drives product sagas or sends notifications does not select it.
-
-For engine-carried sagas, a project selects `jobs` for a saga aggregate when a workflow engine carries it. A saga driven by reactions or jobs does not select it.
 
 For reports, a use case selects `jobs` for one documented query or export that the normal request path cannot serve: complex relational SQL, a large result, long processing, output in object storage, or a latency budget beyond a normal request. The use case page carries the measurements that prove the normal path falls short.
 
@@ -29,7 +25,7 @@ This extension replaces `litespec/backend/architecture#declare-the-execution-hos
 
 The job, setting, and runbook records belong to the core. Schedules bound their retention with setting records and operators recover through runbook records. The request budget and each report bound live in setting records.
 
-A listing query states its `claim` mode and its `score`, while a bulk money command states its `preview` and its `confirmBy` code. An ingest job lists its `steps` in run order, names its closed `dropReasons` set, and states its `buffer` policy. Each query reading ingested data states the freshness consequence its readers observe. A carried saga sets `carriedBy: workflow`, maps each engine step to exactly one use case, and states each step's compensation. The engine's retry and timeout configuration stays in Implementation, outside the records. Ordinary queries stay under `litespec/backend/persistence#query-through-the-read-session`; the report provisions govern only the reads whose cost or duration exceeds that path.
+A listing query states its `claim` mode and its `score`, while a bulk money command states its `preview` and its `confirmBy` code. Ordinary queries stay under `litespec/backend/persistence#query-through-the-read-session`; the report provisions govern only the reads whose cost or duration exceeds that path.
 
 ## Standards
 
@@ -69,11 +65,11 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Applies to:** artifact: job
 
-**Statement:** A job driving a saga MUST name where resume state lives in its `cursor`.
+**Statement:** A job that works through items in batches MUST name where resume state lives in its `cursor`.
 
-**Rationale:** A batch that fails halfway resumes instead of restarting: the cursor holds where the run stopped, beside the saga state it drives. Without it, the next run replays finished items or skips unfinished ones, and a scenario covering the remainder resumes has no stated position to assert.
+**Rationale:** A batch that fails halfway resumes instead of restarting: the cursor holds where the run stopped. Without it, the next run replays finished items or skips unfinished ones, and a scenario covering the remainder resumes has no stated position to assert.
 
-**Reviewed for:** Each job driving a saga names its resume position in its cursor, with a scenario covering the remainder after a halfway failure.
+**Reviewed for:** Each batch job names its resume position in its cursor, with a scenario covering the remainder after a halfway failure.
 
 ### Run Manual Jobs Under Their Guard
 
@@ -571,198 +567,6 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Reviewed for:** The bulk money commands ask for the out-of-band code before moving money.
 
-### Declare Ingest Steps in Order
-
-**ID:** `litespec/ext/jobs#declare-ingest-steps-in-order`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** An ingest job MUST list its steps in run order with each step marked drop or enrich.
-
-**Rationale:** Order is the pipeline's meaning: enriching before dropping wastes work, and dropping before enriching loses context. Listing the steps in run order with each kind marked lets a reader replay the pipeline in their head.
-
-**Example:** The catalog ingest lists `drop-duplicates`, then `enrich-prices`, then `drop-below-threshold`.
-
-**Reviewed for:** The ingest job records list steps in run order with each marked drop or enrich.
-
-### Define the Closed Drop Reason Set
-
-**ID:** `litespec/ext/jobs#define-the-closed-drop-reason-set`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** An ingest job MUST name the closed set of reasons a step drops a record.
-
-**Rationale:** A dropped record with no reason is indistinguishable from a lost one. A closed set forces each drop to say why in words the team chose, so operators count drops by reason instead of guessing.
-
-**Example:** The catalog ingest names `duplicate`, `below-threshold`, and `poison` as its only drop reasons.
-
-**Reviewed for:** The ingest job records name the closed drop reasons with no drop outside them.
-
-### Record One Drop Reason per Dropped Record
-
-**ID:** `litespec/ext/jobs#record-one-drop-reason-per-dropped-record`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** Each record a step drops MUST carry one reason from the closed set.
-
-**Rationale:** The set alone promises nothing until each drop cites it. One reason on each dropped record turns the set into evidence: every drop answers why, in the team's own words.
-
-**Example:** A feed row dropped for matching an existing SKU carries `duplicate`.
-
-**Reviewed for:** The dropped records each carry one reason from the job's closed set.
-
-### Read Enrichment Data from Declared Sources
-
-**ID:** `litespec/ext/jobs#read-enrichment-data-from-declared-sources`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** An enrich step MUST read only the sources its job declares.
-
-**Rationale:** Enrichment pulls outside data into product records: prices, categories, ratings. An undeclared source smuggles values no record explains, so each enrich step reads only the sources its job names.
-
-**Example:** The `enrich-prices` step reads the vendor price list its job declares, and nothing else.
-
-**Reviewed for:** The enrich steps read only the sources named on their job records.
-
-### Bound the Ingest Buffer
-
-**ID:** `litespec/ext/jobs#bound-the-ingest-buffer`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** An ingest job MUST state its buffer policy with capacity and overflow behavior.
-
-**Rationale:** Feeds burst: a vendor resends a week of rows, a file lands twice. The buffer holds the surge, and the policy states how much it holds and what happens past that: block the feed, drop the oldest, or page an operator. Without the policy, the first surge picks the behavior.
-
-**Example:** The catalog ingest buffers ten thousand rows and blocks the feed past that until the buffer drains.
-
-**Reviewed for:** The ingest job records state buffer capacity with the overflow behavior past it.
-
-### Expose Drop Counts per Reason
-
-**ID:** `litespec/ext/jobs#expose-drop-counts-per-reason`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** An ingest job MUST expose a count of dropped records per reason.
-
-**Rationale:** Drop counts are the pipeline's pulse: a spike in `poison` means a broken feed, a spike in `duplicate` means a double send. Per-reason counts turn each drop into a signal the team watches.
-
-**Example:** The catalog dashboard shows twelve `poison` drops in the last hour beside zero `duplicate` drops.
-
-**Reviewed for:** The pipeline dashboards show dropped-record counts split by reason.
-
-### State the Freshness Consequence
-
-**ID:** `litespec/ext/jobs#state-the-freshness-consequence`
-
-**Strength:** rule
-
-**Applies to:** artifact: job
-
-**Statement:** Each query reading ingested data MUST state the freshness its readers observe.
-
-**Rationale:** Ingested data lags: the buffer, the batch window, and the enrich calls all take time. The query states what its readers observe, a bounded object with its window or an advisory object with its authority, so a stale price reads as declared behavior instead of a defect.
-
-**Example:** The catalog search query states `{"mode": "bounded", "within": "PT15M"}`, matching the ingest job's quarter-hour window.
-
-**Reviewed for:** The queries over ingested data state the freshness their readers observe.
-
-### Declare the Engine Carrier
-
-**ID:** `litespec/ext/jobs#declare-the-engine-carrier`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** A saga carried by a workflow engine MUST set `carriedBy: workflow`.
-
-**Rationale:** A reader meeting a saga asks first what moves it: reactions, jobs, or an engine. The carrier marker answers that question on the aggregate itself, so nobody hunts the engine console for a saga reactions and jobs drive.
-
-**Example:** The hold aggregate sets `carriedBy: workflow` while the loan aggregate stays driven by reactions and jobs.
-
-**Reviewed for:** The engine-carried aggregates set carriedBy workflow on their aggregate records.
-
-### Map Each Engine Step to One Use Case
-
-**ID:** `litespec/ext/jobs#map-each-engine-step-to-one-use-case`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** Each engine step MUST map to exactly one use case.
-
-**Rationale:** An engine step with no use case is behavior no record describes, and a step mapped to two use cases is two behaviors wearing one name. One step and one use case keep the engine definition and the records in lockstep: the map reads both ways.
-
-**Example:** The engine step `cancel-hold` maps to `use-case/lending.cancel-hold` and to nothing else.
-
-**Reviewed for:** The engine definition lists one use case beside each step with no step sharing or missing.
-
-### State Each Step Compensation
-
-**ID:** `litespec/ext/jobs#state-each-step-compensation`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** Each mapped engine step MUST name its compensation as a use-case object or a none object with the reason.
-
-**Rationale:** Engines fail mid-saga: a step times out, a worker crashes, a saga aborts. The compensation is the step's undo as `{"mode": "use-case", "useCase": "use-case/..."}`, and a step with no undo says so as `{"mode": "none", "reason": "..."}`, so recovery follows the record instead of improvising.
-
-**Example:** The step `cancel-hold` names `{"mode": "use-case", "useCase": "use-case/lending.place-hold"}` as its compensation, while `borrow-copy` names `{"mode": "none", "reason": "the copy has left the shelf"}`.
-
-**Reviewed for:** Which mapped steps lack a compensation object naming its use case or its reason? Look at the map beside the process.
-
-### Reject Unmapped Engine Steps
-
-**ID:** `litespec/ext/jobs#reject-unmapped-engine-steps`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** An engine step with no mapped use case MUST fail `behavior-unrecorded`.
-
-**Rationale:** The map is the whole contract of this extension: every step answers to a use case. A step outside the map is unrecorded behavior by definition, so it fails the same check as code with no record.
-
-**Example:** A new engine step added in the console with no use case behind it fails `behavior-unrecorded` at the next check.
-
-**Reviewed for:** Which engine steps map to no use case? Look at the aggregate record beside the engine definition.
-
-### Keep Engine Retry Configuration in Implementation
-
-**ID:** `litespec/ext/jobs#keep-engine-retry-configuration-in-implementation`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** Engine retry and timeout configuration MUST live in code outside the records.
-
-**Rationale:** Retry counts, backoff curves, and step timeouts tune operations, not behavior: they change with load and incidents, not with product decisions. Records state what each step does and undoes, while code holds the knobs operators turn.
-
-**Example:** The engine's five-attempt retry with exponential backoff lives in the worker configuration, while the records name only the step and its compensation.
-
-**Reviewed for:** Retry counts, backoff curves, and step timeouts live in worker code with none in the records.
-
 ### Record Reporting Need
 
 **ID:** `litespec/ext/jobs#record-reporting-need`
@@ -1040,38 +844,6 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 **Rationale:** Age is the honest fallback: the item waiting longest goes first. Any other fallback works when the queue states it.
 
 **Reviewed for:** Queues without a score list oldest first, or the queue documentation names another fallback order.
-
-### Discard Poison Records After Three Attempts
-
-**ID:** `litespec/ext/jobs#discard-poison-records-after-three-attempts`
-
-**Strength:** default
-
-**Applies to:** artifact: job
-
-**Default:** A record that fails parsing three times is dropped with the poison reason.
-
-**Replacement:** A project names its poison threshold in its pipeline documentation.
-
-**Rationale:** One bad row must not stall the feed forever, and one strict parse must not drop rows a retry would save. Three attempts split the difference, and the poison reason keeps the casualty visible.
-
-**Reviewed for:** Unparsable rows drop as poison after three attempts, or the pipeline documentation names another threshold.
-
-### Name Engine Steps After Use Cases
-
-**ID:** `litespec/ext/jobs#name-engine-steps-after-use-cases`
-
-**Strength:** default
-
-**Applies to:** artifact: aggregate
-
-**Default:** Each engine step carries the id of its mapped use case.
-
-**Replacement:** A project records its engine step naming convention in its workflow documentation.
-
-**Rationale:** A step named after its use case needs no map to read: the name is the map. Any other naming works when the map stays beside the process.
-
-**Reviewed for:** Engine steps carry their use-case ids, or the workflow documentation records the naming convention.
 
 ### Keep Report Definitions in Application
 

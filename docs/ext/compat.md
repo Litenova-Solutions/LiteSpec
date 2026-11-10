@@ -349,20 +349,6 @@ This extension switches on no optional record type.
 
 **Reviewed for:** Which first-party clients skip compiling or exercising the changed contract? Look at the client test runs.
 
-### Declare Published Facts as Integration Events
-
-**ID:** `litespec/ext/compat#declare-published-facts-as-integration-events`
-
-**Strength:** rule
-
-**Applies to:** artifact: record:integration-event
-
-**Statement:** A fact consumed outside the product MUST be declared as an integration event with its direction, payload, and trust.
-
-**Rationale:** A consumer outside the product reads the fact without reading the product's code, so the integration-event record states what the consumer may rely on: the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record. An undeclared fact reaches outside consumers as an implementation detail that changes without notice.
-
-**Reviewed for:** Which outside-consumed facts lack an integration-event record with direction, payload, and trust? Look at the integration-event records beside the outside consumers.
-
 ### Classify Integration Event Changes
 
 **ID:** `litespec/ext/compat#classify-integration-event-changes`

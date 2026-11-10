@@ -25,7 +25,6 @@ static class RulesCommand
     /// <summary>Runs the rules command.</summary>
     /// <param name="args">The command arguments, the target first.</param>
     /// <returns>The exit code: 0 listed, 1 unknown target, 2 usage error or unreadable input.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
     public static int Run(string[] args)
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
@@ -44,16 +43,12 @@ static class RulesCommand
 
         if (parsed.Error is { } error)
         {
-            Console.Error.WriteLine(error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var target])
         {
-            Console.Error.WriteLine("Rules needs a path or record id.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError("Rules needs a path or record id.", Usage, json: false);
         }
 
         string root;
@@ -64,22 +59,19 @@ static class RulesCommand
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            return 2;
+            return LastResort.Fail($"Invalid root '{parsed.Value("--root")}': {exception.Message}", json: false, code: 2);
         }
 
         if (!Directory.Exists(root))
         {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' does not exist.", json: false, code: 2);
         }
 
         // Without a project file the selection is unknown, and the command
         // would list provisions for stacks the consumer never selected.
         if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
-            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json: false, code: 2);
         }
 
         ConsumerConfig config;
@@ -90,13 +82,11 @@ static class RulesCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
+            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json: false, code: 2);
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
-            return 2;
+            return LastResort.Fail(exception.Message, json: false, code: 2);
         }
 
         string home;
@@ -107,43 +97,32 @@ static class RulesCommand
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine($"Cannot find the carried LiteSpec release: {exception.Message}");
-            return 2;
+            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         if (LoadManifest(home) is not { } manifest)
         {
-            Console.Error.WriteLine($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.");
-            return 2;
+            return LastResort.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
         }
 
         var backendStack = LiteSpec.Authoring.Layout.Stacks(manifest)
             .FirstOrDefault(stack => stack.Kind == "backend" && config.Stacks.Contains(stack.Id, StringComparer.Ordinal))
             ?.Id ?? "";
 
-        try
+        var context = PathContext.Resolve(config, backendStack, target);
+
+        if (context is null)
         {
-            var context = PathContext.Resolve(config, backendStack, target);
-
-            if (context is null)
-            {
-                Console.Error.WriteLine($"No file or record '{target}'.");
-                return 1;
-            }
-
-            var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
-            var conventions = ConventionStore.Load(config);
-            var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-            var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
-
-            Print(context, results, parsed.Has("--full"), config.Conformance);
-            return 0;
+            return LastResort.Fail($"No file or record '{target}'.", json: false, code: 1);
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"Failed: {exception.Message}");
-            return 1;
-        }
+
+        var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
+        var conventions = ConventionStore.Load(config);
+        var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
+
+        Print(context, results, parsed.Has("--full"), config.Conformance);
+        return 0;
     }
 
     /// <summary>Reads the release manifest object, or null when it cannot be read.</summary>

@@ -3,8 +3,11 @@ using System.Text.Json.Nodes;
 namespace LiteSpec;
 
 /// <summary>
-///     The last-resort handler for an unexpected exception in a command:
-///     one line and exit code 1, never a stack trace.
+///     The last-resort handler for an unexpected exception in a command, and the one
+///     way a command reports a failure: one line and exit code 1 for an exception, never
+///     a stack trace. Under <c>--format json</c> a failure is one object with one
+///     <c>error</c> string on standard output; otherwise it is the message on standard
+///     error, with the usage text after a usage error.
 /// </summary>
 /// <follows>litespec/core/release#report-verification-exactly</follows>
 internal static class LastResort
@@ -45,7 +48,7 @@ internal static class LastResort
     {
         if (json)
         {
-            stdout.WriteLine(new JsonObject { ["error"] = exception.Message }.ToJsonString());
+            stdout.WriteLine(Json(exception.Message));
         }
         else
         {
@@ -54,6 +57,48 @@ internal static class LastResort
 
         return 1;
     }
+
+    /// <summary>Writes one failure in the requested format and returns its exit code.</summary>
+    /// <param name="message">The failure message.</param>
+    /// <param name="json">True when the caller requested JSON output.</param>
+    /// <param name="code">The exit code the command returns.</param>
+    /// <returns>The exit code, <paramref name="code"/>.</returns>
+    public static int Fail(string message, bool json, int code)
+    {
+        if (json)
+        {
+            Console.Out.WriteLine(Json(message));
+        }
+        else
+        {
+            Console.Error.WriteLine(message);
+        }
+
+        return code;
+    }
+
+    /// <summary>Writes a usage error: the message and the usage text in text, the failure object in JSON. Returns exit code 2.</summary>
+    /// <param name="message">The usage error message.</param>
+    /// <param name="usage">The command's usage text, written after the message in text output.</param>
+    /// <param name="json">True when the caller requested JSON output.</param>
+    /// <returns>Exit code 2.</returns>
+    public static int UsageError(string message, string usage, bool json)
+    {
+        if (json)
+        {
+            return Fail(message, json, 2);
+        }
+
+        Console.Error.WriteLine(message);
+        Console.Error.WriteLine(usage);
+        return 2;
+    }
+
+    /// <summary>The JSON text of one failure: an object with one <c>error</c> string, the shape every JSON failure takes.</summary>
+    /// <param name="message">The failure message.</param>
+    /// <returns>The JSON text written with the shared serializer options.</returns>
+    public static string Json(string message) =>
+        CliJson.Serialize(new JsonObject { ["error"] = message });
 
     /// <summary>True when the arguments ask for <c>--format json</c>.</summary>
     /// <param name="args">The command arguments to scan for a JSON format request.</param>

@@ -9,13 +9,6 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#give-every-record-one-parent</follows>
 static class QualifiedIdentifier
 {
-    /// <summary>Fixed type folders inside <c>behavior/modules/&lt;m&gt;/</c>; any other subfolder is an aggregate.</summary>
-    static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
-    {
-        "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "integration-events", "external-systems",
-    };
-
     /// <summary>Computes the qualified identifier of one record.</summary>
     /// <param name="type">The record type in kebab case.</param>
     /// <param name="id">The record identifier.</param>
@@ -220,7 +213,7 @@ static class QualifiedIdentifier
             var next = segments[moduleAt + 2];
 
             if (!next.Contains('.', StringComparison.Ordinal)
-                && !BehaviorModuleFolders.Contains(next)
+                && !RecordFolders.BehaviorModuleFolders.Contains(next)
                 && IsBehaviorModules(segments, moduleAt))
             {
                 aggregate = next;

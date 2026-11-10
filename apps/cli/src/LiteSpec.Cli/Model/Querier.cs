@@ -9,9 +9,6 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/agent#select-task-context</follows>
 static class Querier
 {
-    /// <summary>The JSON options query output uses: indented, with LF newlines.</summary>
-    private static readonly JsonSerializerOptions QueryOptions = new() { WriteIndented = true, NewLine = "\n" };
-
     /// <summary>Queries one id or qualified identifier, or null when no record holds it.</summary>
     /// <param name="model">The built project model to query.</param>
     /// <param name="id">The record id or qualified identifier to print.</param>
@@ -95,7 +92,7 @@ static class Querier
             ["computed"] = computed,
         };
 
-        return query.ToJsonString(QueryOptions);
+        return CliJson.Serialize(query);
     }
 
     /// <summary>One record's computed completion as its JSON object.</summary>

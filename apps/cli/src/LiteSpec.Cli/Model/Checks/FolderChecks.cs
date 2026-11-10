@@ -20,13 +20,6 @@ internal static class FolderChecks
         "goals", "problems", "constraints", "decisions", "research", "features",
     };
 
-    /// <summary>Fixed type folders under <c>behavior/modules/&lt;m&gt;/</c>; any other subfolder is an aggregate.</summary>
-    private static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
-    {
-        "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
-        "integration-events", "external-systems",
-    };
-
     /// <summary>Type folders under <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>.</summary>
     private static readonly HashSet<string> BehaviorAggregateFolders = new(StringComparer.Ordinal)
     {
@@ -68,41 +61,6 @@ internal static class FolderChecks
     {
         "bin", "obj", "TestResults", "node_modules", ".git",
         ".svelte-kit", "build", "dist", "coverage",
-    };
-
-    /// <summary>Where each record type lives, in the words the placement table uses.</summary>
-    private static readonly Dictionary<string, string> ExpectedHome = new(StringComparer.Ordinal)
-    {
-        ["product"] = "the product lives in 'intent/product.yaml'",
-        ["goal"] = "goals live in 'intent/goals/' or 'intent/modules/<m>/goals/'",
-        ["problem"] = "problems live in 'intent/problems/' or 'intent/modules/<m>/problems/'",
-        ["feature"] = "features live in 'intent/modules/<m>/features/'",
-        ["requirement"] = "requirements live in their feature file under 'intent/modules/<m>/features/'",
-        ["constraint"] = "constraints live in 'intent/constraints/' or 'intent/modules/<m>/constraints/'",
-        ["decision"] = "decisions live in 'intent/decisions/', 'intent/modules/<m>/decisions/', 'implementation/decisions/' or 'implementation/modules/<m>/decisions/'",
-        ["research"] = "research lives in 'intent/research/' or 'intent/modules/<m>/research/'",
-        ["journey"] = "journeys live in 'intent/journeys/'",
-        ["actor"] = "actors live in 'intent/actors/'",
-        ["role"] = "roles live in 'intent/roles/'",
-        ["module"] = "modules live in 'intent/modules/<m>/module.yaml'",
-        ["term"] = "terms live in 'glossary.yaml'",
-        ["aggregate"] = "aggregates live in 'behavior/modules/<m>/<aggregate>/aggregate.yaml'",
-        ["use-case"] = "use cases live in 'behavior/modules/<m>/<aggregate>/' or 'behavior/modules/<m>/use-cases/'",
-        ["result"] = "results live in their use case file",
-        ["scenario"] = "scenarios live in their use case file",
-        ["event"] = "events live in 'aggregate.yaml' or under '<aggregate>/events/'",
-        ["rule"] = "rules live in 'behavior/rules/', 'behavior/modules/<m>/rules/' or 'behavior/modules/<m>/<aggregate>/rules/'",
-        ["reaction"] = "reactions live in 'behavior/modules/<m>/reactions/'",
-        ["job"] = "jobs live in 'behavior/modules/<m>/jobs/'",
-        ["notification"] = "notifications live in 'behavior/modules/<m>/notifications/'",
-        ["setting"] = "settings live in 'behavior/modules/<m>/settings/'",
-        ["integration-event"] = "integration events live in 'behavior/modules/<m>/integration-events/'",
-        ["permission"] = "permissions live in 'behavior/modules/<m>/permissions.yaml'",
-        ["entry-point"] = "entry points live in 'behavior/entry-points/<entry-point>/entry-point.yaml'",
-        ["screen"] = "screens live in 'behavior/entry-points/<entry-point>/screens/'",
-        ["external-system"] = "external systems live in 'behavior/external-systems/' or 'behavior/modules/<m>/external-systems/'",
-        ["runbook"] = "runbooks live in 'implementation/runbooks/' or 'implementation/modules/<m>/runbooks/'",
-        ["exception"] = "exceptions live in 'governance/exceptions/' or 'governance/modules/<m>/exceptions/'",
     };
 
     /// <summary>Reports folder-invalid, module-undeclared and record-placement-invalid.</summary>
@@ -374,7 +332,7 @@ internal static class FolderChecks
 
             if (full.Length == 4)
             {
-                if (BehaviorModuleFolders.Contains(full[3]))
+                if (RecordFolders.BehaviorModuleFolders.Contains(full[3]))
                 {
                     return true;
                 }
@@ -387,7 +345,7 @@ internal static class FolderChecks
                 return HoldsAggregate(directory);
             }
 
-            if (BehaviorModuleFolders.Contains(full[3]))
+            if (RecordFolders.BehaviorModuleFolders.Contains(full[3]))
             {
                 return false;
             }
@@ -575,7 +533,7 @@ internal static class FolderChecks
             {
                 findings.Add(new Finding(
                     "record-placement-invalid",
-                    $"Term '{record.Id}' sits in '{Display(folders)}', but {ExpectedHome[RecordTypes.Term]}.",
+                    $"Term '{record.Id}' sits in '{Display(folders)}', but {Expected(RecordTypes.Term)}.",
                     record.File, record.Line, SubjectOf(record)));
             }
 
@@ -599,11 +557,11 @@ internal static class FolderChecks
                 record.File, record.Line, SubjectOf(record)));
         }
 
-        if (!Placed(record.Type, folders, fileName, flat))
+        if (!RecordFolders.Places(record.Type, folders, fileName, flat))
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
-                $"{Label(record.Type)} '{record.Id}' sits in '{Display(folders)}', but {ExpectedHome[record.Type]}.",
+                $"{Label(record.Type)} '{record.Id}' sits in '{Display(folders)}', but {Expected(record.Type)}.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }
@@ -646,100 +604,11 @@ internal static class FolderChecks
         return char.ToUpperInvariant(words[0]) + words[1..];
     }
 
-    /// <summary>Whether the record file sits in a folder and level its type allows.</summary>
+    /// <summary>Where a record of the type lives, as a finding says it.</summary>
     /// <param name="type">The record type identifier.</param>
-    /// <param name="folders">The record file folders anchored at the record layer.</param>
-    /// <param name="fileName">The record file name.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
-    /// <returns>True when the folders and file name match the type's home; otherwise false.</returns>
-    private static bool Placed(string type, string[] folders, string fileName, HashSet<string> flat)
-    {
-        return type switch
-        {
-            "product" => folders is ["intent"] && fileName == "product.yaml",
-            "goal" => InTypeFolders(folders, "intent", "goals"),
-            "problem" => InTypeFolders(folders, "intent", "problems"),
-            "feature" => folders is ["intent", "modules", _, "features"],
-            "requirement" => folders is ["intent", "modules", _, "features"],
-            "constraint" => InTypeFolders(folders, "intent", "constraints"),
-            "decision" => InTypeFolders(folders, "intent", "decisions") || InTypeFolders(folders, "implementation", "decisions"),
-            "research" => InTypeFolders(folders, "intent", "research"),
-            "journey" => folders is ["intent", "journeys"],
-            "actor" => folders is ["intent", "actors"],
-            "role" => folders is ["intent", "roles"],
-            "module" => folders is ["intent", "modules", _] && fileName == "module.yaml",
-            "aggregate" => (InAggregate(folders, flat) && fileName == "aggregate.yaml")
-                || (folders is ["behavior", "modules", var flatModule] && fileName == "aggregate.yaml" && flat.Contains(flatModule)),
-            "use-case" => UseCaseFile(folders, fileName, flat),
-            "result" => UseCaseFile(folders, fileName, flat),
-            "scenario" => UseCaseFile(folders, fileName, flat),
-            "event" => EventFile(folders, fileName, flat),
-            "rule" => folders is ["behavior", "rules"]
-                || folders is ["behavior", "modules", _, "rules"]
-                || (folders is ["behavior", "modules", var ruleModule, var aggregate, "rules"] && IsAggregateName(aggregate, ruleModule, flat)),
-            "reaction" => folders is ["behavior", "modules", _, "reactions"],
-            "job" => folders is ["behavior", "modules", _, "jobs"],
-            "notification" => folders is ["behavior", "modules", _, "notifications"],
-            "setting" => folders is ["behavior", "modules", _, "settings"],
-            "integration-event" => folders is ["behavior", "modules", _, "integration-events"],
-            "permission" => folders is ["behavior", "modules", _] && fileName == "permissions.yaml",
-            "entry-point" => folders is ["behavior", "entry-points", _] && fileName == "entry-point.yaml",
-            "screen" => folders is ["behavior", "entry-points", _, "screens"],
-            "external-system" => folders is ["behavior", "external-systems"]
-                || folders is ["behavior", "modules", _, "external-systems"],
-            "runbook" => folders is ["implementation", "runbooks"]
-                || folders is ["implementation", "modules", _, "runbooks"],
-            "exception" => folders is ["governance", "exceptions"]
-                || folders is ["governance", "modules", _, "exceptions"],
-            _ => false,
-        };
-    }
-
-    /// <summary>Whether the folders are a product or module type folder.</summary>
-    /// <param name="folders">The record file folders anchored at the record layer.</param>
-    /// <param name="layer">The record layer: intent or implementation.</param>
-    /// <param name="folder">The type folder name.</param>
-    /// <returns>True for <c>&lt;layer&gt;/&lt;folder&gt;/</c> or <c>&lt;layer&gt;/modules/&lt;m&gt;/&lt;folder&gt;/</c>; otherwise false.</returns>
-    private static bool InTypeFolders(string[] folders, string layer, string folder) =>
-        (folders is [var first, var second] && first == layer && second == folder)
-        || (folders is [var head, "modules", _, var tail] && head == layer && tail == folder);
-
-    /// <summary>Whether the folders are an aggregate folder: under a behavior module, beside the fixed type folders.</summary>
-    /// <param name="folders">The record file folders anchored at the record layer.</param>
-    /// <param name="flat">The modules that keep their records flat, whose <c>events/</c> folder holds events.</param>
-    /// <returns>True for <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>; otherwise false.</returns>
-    private static bool InAggregate(string[] folders, HashSet<string> flat) =>
-        folders is ["behavior", "modules", var module, var aggregate] && IsAggregateName(aggregate, module, flat);
-
-    /// <summary>
-    ///     Whether the folder name is an aggregate name: not a fixed type folder, and not the events folder of a
-    ///     flat module. In a module with aggregate folders, <c>events</c> names an aggregate such as an event.
-    /// </summary>
-    /// <param name="name">The folder name under test.</param>
-    /// <param name="module">The module folder the name sits under.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
-    /// <returns>True when the name holds an aggregate; otherwise false.</returns>
-    private static bool IsAggregateName(string name, string module, HashSet<string> flat) =>
-        !BehaviorModuleFolders.Contains(name) && (name != "events" || !flat.Contains(module));
-
-    /// <summary>Whether the file is a use case file: under an aggregate, under <c>use-cases/</c>, or flat under its module.</summary>
-    /// <param name="folders">The record file folders anchored at the record layer.</param>
-    /// <param name="fileName">The record file name.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
-    /// <returns>True when a use case, result or scenario lives in the file; otherwise false.</returns>
-    private static bool UseCaseFile(string[] folders, string fileName, HashSet<string> flat) =>
-        (InAggregate(folders, flat) && fileName != "aggregate.yaml")
-        || folders is ["behavior", "modules", _, "use-cases"]
-        || (folders is ["behavior", "modules", var module] && flat.Contains(module) && fileName != "aggregate.yaml" && fileName != "permissions.yaml");
-
-    /// <summary>Whether the file is an event file: an <c>aggregate.yaml</c> or under an <c>events/</c> folder.</summary>
-    /// <param name="folders">The record file folders anchored at the record layer.</param>
-    /// <param name="fileName">The record file name.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
-    /// <returns>True when an event lives in the file; otherwise false.</returns>
-    private static bool EventFile(string[] folders, string fileName, HashSet<string> flat) =>
-        (InAggregate(folders, flat) && fileName == "aggregate.yaml")
-        || (folders is ["behavior", "modules", var eventModule, var aggregate, "events"] && IsAggregateName(aggregate, eventModule, flat))
-        || (folders is ["behavior", "modules", var flatAggregate] && fileName == "aggregate.yaml" && flat.Contains(flatAggregate))
-        || (folders is ["behavior", "modules", var flatEvents, "events"] && flat.Contains(flatEvents));
+    /// <returns>The phrase, from the folder map; a requirement lives in its feature file, which the phrase names.</returns>
+    private static string Expected(string type) =>
+        type == RecordTypes.Requirement
+            ? "requirements live in their feature file under 'intent/modules/<m>/features/'"
+            : RecordFolders.Phrase(type);
 }

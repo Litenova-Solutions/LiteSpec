@@ -40,20 +40,7 @@ static class ManifestSelectionChecks
     public static void CheckManifest(ConsumerRun run)
     {
         var projectFile = ConsumerRoot.ProjectFile(run.Root);
-        JsonNode? manifest = null;
-        var manifestFile = Path.Join(run.StandardsRoot, "litespec.manifest.json");
-
-        if (File.Exists(manifestFile))
-        {
-            try
-            {
-                manifest = run.ReadJson(manifestFile);
-            }
-            catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
-            {
-                ConsumerRun.FailInput($"litespec.manifest.json: not valid JSON ({cause.Message})");
-            }
-        }
+        var manifest = run.ReadManifest();
 
         // Adopting a release means accepting its complete contract, so the project
         // records the release it reviewed. A mismatch means the installed tool

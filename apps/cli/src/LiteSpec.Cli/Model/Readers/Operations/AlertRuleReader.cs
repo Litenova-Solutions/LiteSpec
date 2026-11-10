@@ -4,7 +4,7 @@ namespace LiteSpec.Model.Readers.Operations;
 ///     Reads alert rules from the groups files the project lists in paths.alerts.
 ///     Groups hold rules, each rule named by alert or title and carrying labels.
 /// </summary>
-/// <follows>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</follows>
+/// <follows>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</follows>
 static class AlertRuleReader
 {
     /// <summary>Reads every alert rule under the configured alert paths.</summary>

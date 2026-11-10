@@ -64,127 +64,6 @@ Choose the symbol with code in the header only when the finance screens and the 
 
 **Reviewed for:** Which built money text differs from the wireframe its catalog entry chose? Open the built codes, symbols, and red negatives beside the catalog entry recording the chosen option and its reason.
 
-#### `currency-code-and-two-decimals-everywhere`: Currency Code and Two Decimals, Everywhere
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** A code is unambiguous and independent of reader locale. It reads the same in English and Dutch.
-
-**Cost:** A code is wider than a symbol. A narrow money column holds fewer rows. A Dutch reader pays a translation cost on every glance.
-
-#### `symbol-and-two-decimals-with-the-currency-in-the-header`: Symbol and Two Decimals, with the Currency in the Header
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "State" "Paid (EUR)"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
-```
-
-**Rationale:** Many European products use this shape. The header says Paid in EUR. The symbol never stands alone. Assistive tech and WCAG 1.4.1 need the code beside it.
-
-**Cost:** The symbol assumes one locale. The euro sign fits Harbor and Pine. It fails for an account in another currency. A screen reader has no clear way to read it aloud.
-
-**Reference:** WCAG 1.4.1
-
-#### `code-and-decimals-only-where-there-are-cents`: Code and Decimals Only Where There Are Cents
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  region "Spending"
-    fact "Travel" "EUR 54,180"
-    fact "Meals" "EUR 6,020"
-    fact "Lodging" "EUR 3,150"
-    fact "Total claimed" "EUR 63,350"
-  region "Fees"
-    fact "Booking fee" "−EUR 332.92"
-    fact "Card fee" "−EUR 120.40"
-    fact "Net paid out" "EUR 62,896.68"
-```
-
-**Rationale:** Whole euros write as EUR 45. Amounts with cents write as EUR 45.45. A column of whole amounts reads as integers. That shape helps a reader find one amount.
-
-**Cost:** The decimal point moves between rows. It breaks the alignment tabular figures exist for. Mixed rows are harder to scan.
-
-#### `code-in-the-label-and-a-symbol-in-the-cell`: Code in the Label and a Symbol in the Cell
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "State" "Paid, in euros"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "€125.00"
-```
-
-**Rationale:** The label names the currency in words. The cell carries the euro sign. A screen reader hears Paid in euros. A sighted reader sees the sign.
-
-**Cost:** Two carriers for one fact. The label grows, and the column header stops being a field name.
-
-#### `the-customer-s-currency-beside-the-company-s`: The Spender's Currency Beside the Company's
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. 41 were filed in another currency."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "Spender paid" "Company pays"
-      item: text "EXP-1027" · text "Elin Lindqvist" · text "8 Oct 2026, 09:31" · text "GBP 42.00" · text "EUR 48.30"
-```
-
-**Rationale:** Where a company pays across currencies the cell carries both figures. It shows what the spender paid. It shows what the company pays. One row holds both with no second table.
-
-**Cost:** Two figures make the widest money cell. The reader works out which one answers the question that day.
-
-#### `no-currency-at-all-because-the-account-has-one`: No Currency at All, Because the Account Has One
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Every amount is in euros."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "125.00"
-```
-
-**Rationale:** A product with one currency writes no currency. It writes 125.00 right aligned. The account page states the currency once. The interface trusts that statement.
-
-**Cost:** An export or pasted figure loses its currency. Support conversations happen around such figures. The form fails when the company adds a second currency.
-
 #### `code-and-decimals-with-the-column-totals-at-the-foot`: Code and Decimals, with the Column Totals at the Foot
 
 ```wireframe
@@ -251,31 +130,6 @@ page
 
 **Reference:** Stripe dashboard
 
-#### `money-out-in-parentheses-the-accounting-way`: Money Out in Parentheses, the Accounting Way
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  region "Spending"
-    fact "Travel" "EUR 54,180.00"
-    fact "Meals" "EUR 6,020.00"
-    fact "Lodging" "EUR 3,150.00"
-  region "Reversals and fees"
-    fact "Reversals" "EUR (1,550.00)"
-    fact "Booking fee" "EUR (332.92)"
-    fact "Net paid out" "EUR 61,346.68"
-```
-
-**Rationale:** Xero and QuickBooks write a negative in parentheses. Printed annual accounts do the same. A bookkeeper reads it without translation. Parentheses are harder to miss than a minus at small size.
-
-**Cost:** A reader outside accounting can read (120.40) as a note. It differs from the payment provider form. The two screens for reconciliation disagree.
-
-**Reference:** Xero, QuickBooks
-
 ### Statement That Adds Up
 
 **ID:** `litespec/frontend/patterns/money-time-density#statement-that-adds-up`
@@ -318,57 +172,6 @@ page
 
 **Cost:** The count repeats 1,204 twice. A reader opens the expenses list to find which expenses a line holds.
 
-#### `a-statement-where-every-line-links-to-its-records`: A Statement Where Every Line Links to Its Records
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Every figure opens the records behind it."
-    action "Download"
-  region "Spending"
-    fact "Travel, 1,204 lines" "EUR 54,180.00"
-    link "Open travel EUR 54,180.00"
-    fact "Meals, 1,204 lines" "EUR 6,020.00"
-    link "Open meals EUR 6,020.00"
-    fact "Total claimed" "EUR 63,350.00"
-  region "Reversals and fees"
-    fact "Reversals, 31 lines" "−EUR 1,550.00"
-    link "Open reversals"
-```
-
-**Rationale:** Every figure links to the records behind it. Stripe balance summary works this way. A statement without audit links asks for trust.
-
-**Cost:** A column of links adds noise to numbers. Each link needs a real filtered list. A built address may miss the figure.
-
-**Reference:** Stripe
-
-#### `the-paid-out-month-beside-the-month-still-running`: The Paid-Out Month Beside the Month Still Running
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Closed on 30 September. Finance paid out by 5 October."
-    action "Download"
-  region "September, closed"
-    fact "Spending, 1,204 lines" "EUR 63,350.00"
-    fact "Reversals and fees" "−EUR 2,003.32"
-    fact "Paid out to spenders" "EUR 61,346.68"
-    text "This figure will not change."
-  region "October so far"
-    fact "Spending, 418 lines" "EUR 20,900.00"
-    fact "Reversals and fees" "−EUR 697.22"
-    fact "Net so far" "EUR 20,202.78"
-    text "This one moves with every expense."
-```
-
-**Rationale:** A paid-out month states the past. The running month states the present. The closed month sits beside the running figure. Each reads as a different moment.
-
-**Cost:** Two figures share one page and only one is final. A reader can take the wrong one. Every figure needs its date.
-
 #### `a-statement-with-no-count-on-any-line`: A Statement with No Count on Any Line
 
 ```wireframe
@@ -394,54 +197,6 @@ page
 **Cost:** A reader cannot check a missing payment. The count is the only completeness check.
 
 **Reference:** Shopify
-
-#### `a-statement-with-each-fee-marked-by-who-set-it`: A Statement with Each Fee Marked by Who Set It
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  region "Spending after reversals"
-    fact "Travel and lodging" "EUR 57,330.00"
-    fact "Meals" "EUR 6,020.00"
-    fact "Reversals, 31 lines" "−EUR 1,550.00"
-  region "Fees taken at each payment"
-    fact "Booking fee" "−EUR 332.92"
-    status "Agency price" neutral
-    fact "Card fee" "−EUR 120.40"
-    status "Bank price" info
-    fact "Total fees" "−EUR 453.32"
-```
-
-**Rationale:** Two fee lines name who set them. One is the agency price and one is the bank price. The month separates what it spent from what each service took.
-
-**Cost:** Two marked lines form a rule to learn. The second section repeats the plan. The billing page already states the plan.
-
-#### `the-whole-figure-first-the-lines-under-it`: The Whole Figure First, the Lines Under It
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "October 2026"
-  header
-    heading "October so far"
-    text "As at 8 Oct 2026, 14:22. September is closed and paid out."
-  region "Net paid out"
-    figure "EUR 20,152.78"
-    fact "Travel, 418 lines" "EUR 18,810.00"
-    fact "Meals" "EUR 2,090.00"
-    fact "Reversals, 12 lines" "−EUR 540.00"
-    fact "Held for dispute EXP-1031" "−EUR 50.00"
-    message "Finance holds EUR 50.00 while the bank decides EXP-1031." caution
-```
-
-**Rationale:** One number opens the page. Stripe balance page opens this way. The lines below prove the figure. A business answers with one figure and checks with the rest.
-
-**Cost:** The headline invites reading alone. A reader can miss the held dispute. The held amount stays hidden below.
-
-**Reference:** Stripe
 
 #### `a-statement-that-ends-in-the-payouts-it-became`: A Statement That Ends in the Payouts It Became
 
@@ -470,45 +225,6 @@ page
 **Cost:** A payout can span two months. The difference is zero only for a closed month. The page explains that edge in one line.
 
 **Reference:** Stripe
-
-#### `a-statement-with-last-month-beside-this-one`: A Statement with Last Month Beside This One
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Beside August 2026, with the change in money."
-    action "Download"
-  region "Comparison"
-    table 6 "Line" "August 2026" "September 2026" "Change"
-      item: text "Travel" · text "EUR 41,220.00" · text "EUR 54,180.00" · text "+EUR 12,960.00"
-    text muted "August held 918 expenses. September held 1,148 expenses."
-```
-
-**Rationale:** This month sits beside last month with a change column. Xero comparative profit and loss works this way. Finance reads the trend without opening two pages. The change uses money, not percent.
-
-**Cost:** Four money columns need a wide page. The table scrolls sideways on a phone with line names pinned. A new company sees zeros that need explanation.
-
-**Reference:** Xero
-
-#### `one-column-per-product-line`: One Column per Cost Centre
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026, by cost centre"
-    text "The same statement, One Column per Cost Centre."
-    action "Download"
-  region "Lines"
-    table 4 "Line" "Amsterdam sales" "Rotterdam sales" "Utrecht sales" "Total"
-      item: text "Travel" · text "EUR 44,955.00" · text "EUR 9,225.00" · text "EUR 0.00" · text "EUR 54,180.00"
-```
-
-**Rationale:** The same lines gain One Column per Cost Centre. A total column closes the row. A weak line reads beside the line that carried the month.
-
-**Cost:** Three money columns miss a phone width. The table scrolls sideways with line names pinned. Booking fees split across lines in a way readers do not expect.
 
 ### Writing a Moment
 
@@ -547,62 +263,6 @@ page
 
 **Cost:** Minutes add noise a week later. A reader cannot tell which zone a message used.
 
-#### `absolute-with-a-relative-under-it`: Absolute with a Relative Under It
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted Europe/Amsterdam" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32, 12 seconds ago" · text "EUR 125.00"
-```
-
-**Rationale:** The moment and its age share one column. An incident hunt needs the relative. A statement check needs the absolute. Both are present.
-
-**Cost:** Two lines make every row taller. A relative time goes stale without refresh.
-
-#### `relative-only-for-a-list-of-things-that-just-happened`: Relative Only, for a List of Things That Just Happened
-
-```wireframe
-page
-  breadcrumb "Home" "Spenders" "Messages"
-  header
-    heading "Messages"
-    text "Only people who said yes to the kind."
-    action "Write a message"
-  field "Search messages" search
-  region "Messages"
-    table 4 "Message" "Kind" "State" "Sent"
-      item: text "Receipt reminder" · text "Reminder" · status "Scheduled" info · text "10 hours ago"
-```
-
-**Rationale:** Every row is recent. The relative time is the whole answer. A payout log read on the day needs minutes ago and nothing else.
-
-**Cost:** Nothing here can be cited. A reader cannot say at 22:41. An audit question from March has no answer on the page.
-
-#### `a-date-with-no-year-when-the-year-is-obvious`: A Date with No Year When the Year Is Obvious
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Departures"
-  header
-    heading "Departures"
-    text "This week soonest first. All times are Europe/Amsterdam."
-  region "This week"
-    list 4
-      item: text "Rotterdam client visit" · text "Fri, 9 Oct 2026, 08:00 to 12:00" · text "Amsterdam office" · status "Scheduled" info
-    text "12 of 40 seats."
-```
-
-**Rationale:** The departures list writes weekday, date, and place. It keeps the year. A departures list crosses years. A reader in November plans for March.
-
-**Cost:** The year adds noise for lists within one year. It widens a column in a table of six.
-
 #### `grouped-by-day-so-the-column-is-the-day`: Grouped by Day, so the Column Is the Day
 
 ```wireframe
@@ -622,49 +282,6 @@ page
 **Rationale:** A list of events takes the day as its shape. The date becomes a heading, not a column. The row keeps what matters.
 
 **Cost:** It is no longer sortable as a column. It is no longer a table. Sorting moves to the toolbar. A group heading adds another row to read.
-
-#### `the-relative-first-the-absolute-behind-it`: The Relative First, the Absolute Behind It
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "12 seconds ago" · text "EUR 125.00"
-  region "Note"
-    text muted "Sorted by the exact moment newest first. Every time is Europe/Amsterdam."
-```
-
-**Rationale:** GitHub writes days ago in the list. The exact moment waits one hover away. Recent work scans by recency. The absolute stays on the record and in the export.
-
-**Cost:** A relative goes stale without refresh. Hover misses on a phone. The column sorts by a hidden value. A note under the table explains the sort.
-
-**Reference:** GitHub
-
-#### `the-weekday-with-the-date-inside-seven-days`: The Weekday with the Date Inside Seven Days
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Departures"
-  header
-    heading "Departures"
-    text "The next trips, soonest first."
-  region "This week"
-    list 4
-      item: text "Rotterdam client visit" · text "Tomorrow, Fri 9 Oct, 08:00 to 12:00" · text "Amsterdam office" · status "Scheduled" info
-    text muted "Trips within seven days name the weekday. Later trips carry the year."
-```
-
-**Rationale:** Google Calendar and Linear name the weekday near term. They write full date with year beyond that. The near future plans by weekday. The cutoff appears once under the list.
-
-**Cost:** Two forms break the one form rule by design. The cutoff needs learning. A reader with a March message still gets the full date.
-
-**Reference:** Google Calendar, Linear
 
 #### `a-time-with-the-zone-on-every-value`: A Time with the Zone on Every Value
 
@@ -727,28 +344,6 @@ page
 
 **Cost:** Walking a quarter takes four clicks. A dropdown to jump stays beside it.
 
-#### `period-tabs-that-read-as-a-choice`: Period Tabs That Read as a Choice
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements"
-  header
-    heading "Statements"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  tabs "August 2026" "September 2026" "October 2026"
-    region "September 2026"
-      fact "Travel and lodging" "EUR 57,330.00"
-      fact "Total claimed" "EUR 63,350.00"
-      fact "Net paid out" "EUR 62,896.68"
-```
-
-**Rationale:** Months read as tabs, not buttons. GOV.UK uses this shape for comparison periods. It reads as a choice.
-
-**Cost:** Three or four months fit and a year does not. Carbon warns tabs fail where readers compare across groups. Overflow hides the rest of the year.
-
-**Reference:** GOV.UK, Carbon
-
 #### `a-range-with-presets-and-typeable-bounds`: A Range with Presets and Typeable Bounds
 
 ```wireframe
@@ -776,32 +371,6 @@ page
 
 **Reference:** Carbon
 
-#### `both-because-a-report-needs-a-month-and-a-chart-needs-a-rang`: Both, Because a Report Needs a Month and a Chart Needs a Range
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Spending"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-  region "The month"
-    fact "Travel and lodging" "EUR 57,330.00"
-    fact "Total claimed" "EUR 63,350.00"
-    fact "Net paid out" "EUR 62,896.68"
-  region "Spending per day"
-    action "7 days"
-    action "30 days"
-    action "90 days"
-    image "Spending per day, line chart"
-    text muted "A different period from the statement above."
-```
-
-**Rationale:** The statement takes a month with chevrons. The daily chart takes a range with presets. Each control fits its question. That fit argues for two controls.
-
-**Cost:** Two period controls can disagree. A reader sets September and last 30 days. The page shows two answers to one question.
-
 #### `the-period-as-a-filter-chip-in-the-toolbar`: The Period as a Filter Chip, in the Toolbar
 
 ```wireframe
@@ -824,78 +393,6 @@ page
 **Rationale:** The period sits as one filter among several. It sits with other narrowing choices. It removes like any of them.
 
 **Cost:** The period is the page subject, not a refinement. A filter row demotes the one thing the report covers.
-
-#### `preset-chips-that-open-a-calendar`: Preset Chips That Open a Calendar
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Spending"
-  header
-    heading "Spending"
-    text "9 September to 8 October 2026. All 30 days."
-    action "Download"
-  region "Range"
-    action "Today"
-    action "Last 7 days"
-    action "Last 30 days"
-    action "Custom"
-    grid 31
-      item: text "8"
-    text muted "The calendar opens from Custom. 8 October is today."
-```
-
-**Rationale:** Stripe dashboard answers common ranges in one click. It opens a calendar for the rest. The control stays small until precision is needed. The chosen range writes back in words. An export check reads those words.
-
-**Cost:** Bounds hide until the calendar opens. A reader cannot see what Custom covers. Keyboard entry needs a typeable path beside the calendar, not inside it.
-
-**Reference:** Stripe
-
-#### `month-and-year-as-two-selects`: Month and Year as Two Selects
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  field "Month" select = "September"
-  field "Year" select = "2026"
-  region "Spending"
-    fact "Travel and lodging" "EUR 57,330.00"
-    fact "Total claimed" "EUR 63,350.00"
-  region "Fees"
-    fact "Booking fee" "−EUR 332.92"
-    fact "Net paid out" "EUR 62,896.68"
-```
-
-**Rationale:** Shopify reports pick month and year as two selects. Jumping from March to October takes two clicks with no calendar. The heading states the period in words. The download carries those words.
-
-**Cost:** No custom range exists here. A chart of 30 rolling days needs another control. Two selects read as a form. That reading invites an Apply button the page does not need.
-
-**Reference:** Shopify
-
-#### `a-date-range-across-the-top-typed-as-the-only-control`: A Date Range Across the Top, Typed, as the Only Control
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "The period"
-    field "From" = "01/09/2026"
-    field "To" = "30/09/2026"
-    action "Apply"
-    text muted "1,148 expenses. Europe/Amsterdam."
-  region "Expenses"
-    table 3 "Expense" "Spender" "Submitted" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
-```
-
-**Rationale:** One control stays always visible. It always shows the current range in words. A reader who exported the wrong range sees what it covered.
-
-**Cost:** A reader who wants last month types it. Typing two dates is slower than one click. Presets exist for that speed and this removes them.
 
 ### How Much Fits Before It Breaks
 
@@ -987,110 +484,6 @@ page
 
 **Cost:** Rows of expense numbers and amounts cannot show spenders. It works only when the reader arrives with an expense number.
 
-#### `three-densities-on-the-same-table`: Three Densities on the Same Table
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. 40 pixels a row."
-    action "Download"
-  field "Rows" select = "40"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 3 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** Carbon defines five heights. This option keeps three. It offers 24 to scan, 32 to work, and 40 to read. A reader sets it once.
-
-**Cost:** Screenshot tests hold three versions of every page. The setting is per reader. Two colleagues can see different screens.
-
-**Reference:** Carbon
-
-#### `long-content-that-wraps-rather-than-truncates`: Long Content That Wraps Rather Than Truncates
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Long names wrap rather than cut."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 3 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Rotterdam client visit autumn offsite" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 125.00"
-```
-
-**Rationale:** Nothing gets an ellipsis. A long trip name wraps to a third line. The row grows. Uneven heights are the honest cost.
-
-**Cost:** Rows of different heights break the scan line. A column of wrapped names is harder to compare than short ones.
-
-#### `a-wide-table-that-scrolls-with-its-first-column-pinned`: A Wide Table That Scrolls with Its First Column Pinned
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 4 "Expense" "Trip" "Spender" "Paid"
-      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "EUR 125.00"
-    text muted "Scroll sideways for the rest. The expense stays pinned."
-```
-
-**Rationale:** Linear and Notion pin the name column while the rest scrolls. A seven-column table stays readable without dropping anything. The pinned cell keeps the card background.
-
-**Cost:** The pinned column narrows everything else. A second pinned column takes more than the screen allows. The scroll hint is part of the pattern.
-
-**Reference:** Linear, Notion
-
-#### `one-line-per-row-tap-to-open-the-rest`: One Line per Row, Tap to Open the Rest
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses, newest first."
-    action "Download"
-  field "Expense or spender" search
-  region "Expenses"
-    list 4
-      item: text "EXP-1036" · text "Tom Becker" · text "Rotterdam client visit" · text "8 Oct 2026, 09:30" · status "Paid" positive · action "Close"
-```
-
-**Rationale:** Shopify mobile orders show one line per order. A tap opens the row in place. The open row carries spender, trip, and state. Many expenses fit a phone with no dropped column.
-
-**Cost:** Comparing spenders takes a tap per row. The open row stays open across refresh. One open row at a time is the rule.
-
-**Reference:** Shopify
-
-#### `a-number-too-large-for-the-column`: A Number Too Large for the Column
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    action "Download"
-  field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1025" · text "Tom Becker" · text "6 Oct 2026, 11:20" · status "Paid" positive · text "EUR 1.28M"
-    text muted "Large figures shorten to keep the width. Hover for the exact amount."
-```
-
-**Rationale:** A figure that misses the column shortens. It writes 54.2k for 54,180. The column keeps its width at every scale.
-
-**Cost:** A rounded figure is not a money figure. A reader cannot read the exact amount in the cell. It needs a tooltip or second read. Never use it in a statement.
-
 ### Counting Things
 
 **ID:** `litespec/frontend/patterns/money-time-density#counting-things`
@@ -1157,47 +550,6 @@ page
 
 **Reference:** Carbon
 
-#### `the-count-on-the-tab-and-in-the-filter-nowhere-else`: The Count on the Tab and in the Filter, Nowhere Else
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses from 96 spenders."
-    field "Search" search
-  tabs "All 268" "Needs attention 12" "Awaiting payout 31" "Reversed 18"
-    region "All"
-      table 3 "Expense" "Spender" "Submitted" "Paid"
-        item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** A count appears where a reader is about to choose: on a tab, beside a filter option. Anywhere else it is a number about a number.
-
-**Cost:** A reader on a list with no tabs and no filters has nowhere to see the size. The pagination range is the only measure left.
-
-#### `no-count-at-all-only-the-work`: No Count at All, Only the Work
-
-```wireframe
-page
-  header
-    heading "Good afternoon, Alex"
-    text "Two things need you today."
-    action primary "New expense"
-  region "Needs attention"
-    list 2
-      item: text "Close out the Okafor audit" · text muted "The review is complete." · action "Close out"
-  region "Trips"
-    list 2
-      item: text "Rotterdam client visit" · text muted "Sat 14 Mar 2026, 08:00 to 12:00" · status "Active" positive · action "Open trip"
-```
-
-**Rationale:** The home page holds the things that need doing and no figures. A count is a report, and this page is a queue.
-
-**Cost:** A first-time reader opening the dashboard learns nothing about the size of what they signed up for. The Carbon split is that a queue and a metrics dashboard answer different questions.
-
-**Reference:** Carbon
-
 #### `counts-with-the-report-that-produces-them`: Counts with the Report That Produces Them
 
 ```wireframe
@@ -1214,65 +566,6 @@ page
 **Rationale:** Each figure names the report that reads it, so a reader who wants a number elsewhere can get it. A figure typed into a page is wrong from the next commit. These figures are read on demand.
 
 **Cost:** A report name beside every figure is system language on a page where the reader only wants the number. It belongs in documentation, not in the product, unless the reader can open the report from it.
-
-#### `counts-that-say-when-they-were-read`: Counts That Say When They Were Read
-
-```wireframe
-page
-  header
-    heading "Good afternoon, Alex"
-    text "Two things need you today."
-    action primary "New expense"
-  region "Claimed this month"
-    grid 3
-      card "Claimed this month"
-        figure "9,412"
-        text "Lines across every trip"
-        text muted "Read 2 min ago"
-        action quiet "Refresh"
-```
-
-**Rationale:** Vercel analytics write the read time under each figure with a refresh beside it. Two colleagues seeing different numbers then have the reason on the page. A count without its moment is a claim. With its moment, it is a dated fact.
-
-**Cost:** Refresh is another read per tile, and a page of six tiles tempts six reads on every visit. The times also age while the page sits open, so a stale page says so rather than hiding it.
-
-**Reference:** Vercel
-
-#### `counts-as-progress-against-a-target`: Counts as Progress Against a Target
-
-```wireframe
-page
-  header
-    heading "Good afternoon, Alex"
-    text "Two things need you today."
-    action primary "New expense"
-  region "Against the targets you set"
-    list 3
-      item: text "Rotterdam trip spend" · text muted "Target EUR 10,000 by 14 Mar 2026" · text "9,412" · image "Target bar, 94 percent spent"
-```
-
-**Rationale:** Shopify goals and GitHub milestones draw the count against its target, so 9,412 reads as nearly full. The target is the company figure, stated beside the bar.
-
-**Cost:** A target that was never set says so rather than showing 0 percent. A target met early sits at 100 percent while the month runs on. Both need words the page would rather not spend.
-
-**Reference:** Shopify, GitHub
-
-#### `a-count-with-its-own-date-so-it-stops-being-a-claim`: A Count with Its Own Date, so It Stops Being a Claim
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "September 2026"
-  header
-    heading "How the last month went"
-    text "Every figure as at 8 Oct 2026, 14:22, Europe/Amsterdam."
-  region "September"
-    list 6
-      item: text "Lines claimed" · text "9,412" · text muted "as at 8 Oct 2026, 14:22"
-```
-
-**Rationale:** Every figure carries the moment it was true. A number that moves now says when it was last read, which turns an unanchored claim into a dated fact.
-
-**Cost:** A date under every figure is a wall of dates. It is a data product rather than a dashboard.
 
 ### Spending over Time
 
@@ -1337,28 +630,6 @@ page
 
 **Reference:** Vercel
 
-#### `an-area-chart-with-the-weekly-average-beside-it`: An Area Chart with the Weekly Average Beside It
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, spending"
-    text "Claimed so far, week by week from the quarter start."
-    action "Download"
-  region "Cumulative lines claimed"
-    figure "9,412 lines"
-    fact "Average" "672 a week over 14 weeks"
-    image "Cumulative lines claimed, week by week, area chart"
-    text muted "The average covers the 14 weeks since the quarter start."
-```
-
-**Rationale:** Stripe revenue charts fill under the line and state the average beside it, so the eye reads momentum and the figure reads pace. The fill makes a slow week visible as a flat stretch, not as a missing column.
-
-**Cost:** A fill under a cumulative line is decoration that can read as money sitting somewhere. The average beside it is the figure that matters, and it has to say which weeks it covers.
-
-**Reference:** Stripe
-
 #### `weekly-columns-with-the-average-marked`: Weekly Columns with the Average Marked
 
 ```wireframe
@@ -1380,48 +651,6 @@ page
 **Cost:** Weeks split the story the quarter tells: kickoff, steady filing, and year-end close. A week that holds two of them averages them away, and the final two-day column is not a week at all.
 
 **Reference:** Plausible
-
-#### `the-same-figures-as-a-table`: The Same Figures as a Table
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, spending"
-    text "The 30 days to 8 Oct 2026, by week."
-    action "Download"
-  region "By week"
-    table 6 "Week" "Lines" "Claimed"
-      item: text "8 to 14 September" · text "1,822" · text "EUR 81,990.00"
-    text muted "Claimed is lines at receipt amounts, before reversals."
-```
-
-**Rationale:** GOV.UK data guidance asks that every chart ships with its data table. A figure nobody can read exactly is a figure nobody can cite. The table is also what a screen reader reads and what the download carries.
-
-**Cost:** A table of 30 days is 30 rows, so weeks are the compromise and the compromise hides the peak day. The chart and the table then show different groupings of the same figures.
-
-**Reference:** GOV.UK
-
-#### `one-sparkline-per-channel`: One Sparkline per Cost Centre
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, spending"
-    text "9,412 lines across three cost centres."
-    action "Download"
-  region "By cost centre, last 14 weeks"
-    list 3
-      item: text "Amsterdam sales" · text muted "Lines filed against Amsterdam sales" · image "Amsterdam sales spending, sparkline" · text "7,340"
-    text muted "Each line is scaled to its own cost centre. Compare the figures, not the slopes."
-```
-
-**Rationale:** Vercel usage pages put a sparkline beside each meter, so three cost centres share one row each and the shape of each is comparable. The figure beside each line carries the exact count the line cannot.
-
-**Cost:** Three sparklines share no axis, so a steep line can mean 30 lines or 3,000. The figure beside each one is required, which makes the line a hint rather than the answer.
-
-**Reference:** Vercel
 
 ### Spending by Expense Kind
 
@@ -1464,28 +693,6 @@ page
 
 **Reference:** Shopify
 
-#### `one-stacked-bar-for-the-whole-range`: One Stacked Bar for the Whole Trip
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, by kind"
-    text "9,412 lines at receipt amounts."
-    action "Download"
-  region "The mix"
-    image "Trip mix, stacked strip"
-    list 3
-      item: text "Travel" · text "6,204" · text "EUR 279,180.00"
-    text muted "Shares are of lines claimed, not of money."
-```
-
-**Rationale:** GitHub language bars compress a whole repository into one strip with its legend as figures. This is the right shape for a trip with three kinds and one total. The strip says the mix. The legend says the money.
-
-**Cost:** A strip has no axis, so 22 percent and 24 percent are the same length to the eye. The legend carries every exact figure, which makes the strip a summary rather than the answer.
-
-**Reference:** GitHub
-
 #### `a-table-with-a-bar-in-each-row`: A Table with a Bar in Each Row
 
 ```wireframe
@@ -1526,49 +733,6 @@ page
 **Rationale:** A per-kind summary gives each kind its own tile with claimed and share. Three kinds read as three facts rather than one ranking. Tiles suit a home page where the by-variant question is asked in passing.
 
 **Cost:** Tiles cannot be sorted or compared at a glance the way bars can, and a fourth kind wraps the row. The amount each tile needs makes every tile taller than the figure it carries.
-
-#### `a-donut-with-its-legend-as-figures`: A Donut with Its Legend as Figures
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, by kind"
-    text "9,412 lines at receipt amounts."
-    action "Download"
-  region "The mix"
-    image "Kind mix, donut chart: 65.9 percent travel, 22.4 percent meals, 11.7 percent lodging"
-    list 3
-      item: text "Travel" · text "6,204" · text "EUR 279,180.00"
-    text muted "Shares are of lines claimed. The legend is the readable form of this chart."
-```
-
-**Rationale:** Linear project progress rings the whole and lists each part with its count, so the shape invites the eye and the legend answers. The donut earns its place where the mix is the message and the ranking is settled.
-
-**Cost:** An angle nobody can read exactly is decoration, so the legend carries every figure and the donut carries none. A reader who prints in black and white gets three greys and the legend.
-
-**Reference:** Linear
-
-#### `two-types-as-lines-over-the-last-30-days`: Two Types as Lines over the Last 30 Days
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Spending"
-  header
-    heading "Rotterdam client visit, by kind"
-    text "Lines per week for two kinds, last 30 days."
-    action "Download"
-  region "Travel against lodging"
-    text muted "Solid line is travel. Dashed line is lodging."
-    image "Weekly lines for travel and lodging, line chart"
-    text muted "The last column holds two days. Meals are omitted."
-```
-
-**Rationale:** Vercel analytics compare two series as lines over one axis. Travel and lodging share the weeks and diverge honestly. Lines suit the question of when lodging slowed, which no total answers.
-
-**Cost:** Two lines are the most one chart carries before the tones run out. Meals need their own chart or no line at all. Lines also share one axis, which flatters lodging by drawing it at the travel scale.
-
-**Reference:** Vercel
 
 ### Spend Against the Budget
 
@@ -1611,28 +775,6 @@ page
 
 **Cost:** One bar hides which kind is gone, so a spent taxi kind behind a half-empty budget reads as room to spare. The per-kind rows answer that, not this bar.
 
-#### `the-percentage-first-the-bar-under-it`: The Percentage First, the Bar Under It
-
-```wireframe
-page
-  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
-  header
-    heading "TRIP10, spend"
-    text "The quarter budget holds EUR 10,000."
-    action "Open budget"
-  region "Spent"
-    figure "94.1 percent"
-    text "EUR 9,412 of EUR 10,000. EUR 468 left."
-    image "Spend bar, 94 percent spent"
-    fact "Held for disputes and advances" "EUR 120"
-```
-
-**Rationale:** Kickstarter project pages lead with the funded percentage and draw the bar under it. The percentage is the sentence and the bar is the illustration. A budget at 94 percent reads as nearly gone before a single count is read.
-
-**Cost:** A percentage loves round numbers and this one is not round. The figure either shows its decimal or lies by one place in a thousand. The counts under it are required, not optional.
-
-**Reference:** Kickstarter
-
 #### `sell-through-per-variant`: Spend per Kind
 
 ```wireframe
@@ -1653,49 +795,6 @@ page
 **Cost:** Three bars share no scale unless the budgets are close, and here they are not. The budget total has to sit above the rows or the budget reads as three budgets.
 
 **Reference:** Shopify
-
-#### `the-cumulative-line-with-the-capacity-line`: The Cumulative Line with the Capacity Line
-
-```wireframe
-page
-  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
-  header
-    heading "TRIP10, spend"
-    text "Claimed so far against the budget it must fit."
-    action "Open budget"
-  region "Against the budget"
-    figure "EUR 9,412 of EUR 10,000"
-    text muted "Solid area is claimed. Line is the budget of EUR 10,000."
-    image "Cumulative spending against the budget of EUR 10,000, area chart"
-    text muted "Held money is not claimed, so it sits under the line."
-```
-
-**Rationale:** Metabase goal lines draw the target across the time series. The gap between claimed and the budget is visible at every week, not only today. The line answers when the budget burned, which a bar cannot.
-
-**Cost:** A budget line at EUR 10,000 flattens everything under it. A slow month reads as flat whether it spent EUR 300 or 600 a week. The weekly figures behind the line carry the pace, not the chart.
-
-**Reference:** Metabase
-
-#### `a-countdown-tile-with-the-caution-it-earns`: A Countdown Tile with the Caution It Earns
-
-```wireframe
-page
-  breadcrumb "Home" "Finance" "Budgets" "TRIP10"
-  header
-    heading "TRIP10, spend"
-    text "As at 8 Oct 2026, 14:22, Europe/Amsterdam."
-    action "Open budget"
-  region "Money left to spend"
-    figure "EUR 468"
-    text "Of EUR 10,000. EUR 9,412 claimed, EUR 120 held."
-    message caution "At the last 7 days pace of EUR 2,036 a week, the EUR 468 goes in about 2 days."
-```
-
-**Rationale:** Booking.com scarcity notes state what is left and at what pace it goes, because a count without a pace is not a decision. The tile says the budget runs out in about two days at the current pace, which is the refill decision.
-
-**Cost:** A pace prediction is wrong the moment spending spikes or stalls, and a wrong countdown teaches the company to ignore the tile. It states its basis and its date, which this one does and most do not.
-
-**Reference:** Booking.com
 
 #### `capacity-sold-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
 
@@ -1784,70 +883,6 @@ page
 
 **Reference:** Vercel
 
-#### `a-comparison-column-on-the-statement`: A Comparison Column on the Statement
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Beside August 2026, with the change in money."
-    action "Download"
-  region "September beside August"
-    table 4 "Line" "August" "September" "Change"
-      item: text "Spending" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up EUR 15,010.00" positive
-    text muted "August held 918 expenses. September held 1,148."
-```
-
-**Rationale:** Xero comparative profit and loss adds last period as a column with the change in money. The statement stays the statement and gains the trend. The change is in money because percent of a small August line misleads.
-
-**Cost:** Four columns of money need a wide page, so the table scrolls sideways on a phone. The scroll hides September first, which is the column the reader came for.
-
-**Reference:** Xero
-
-#### `the-comparison-in-the-heading`: The Comparison in the Heading
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Spending"
-  header
-    heading "September 2026"
-    text "Spending EUR 63,350.00, up 31.1 percent on August EUR 48,340.00."
-    action "Download"
-  region "September"
-    grid 3
-      card "Spending"
-        figure "EUR 63,350.00"
-        text "1,148 expenses"
-```
-
-**Rationale:** Linear cycle summaries state the comparison in one sentence under the heading. The page reads as a verdict rather than as a worksheet. The tiles under it stay clean figures with no pills competing for attention.
-
-**Cost:** One sentence holds one comparison, so the second KPI either shares the sentence or loses its comparison. A reader who wants the basis still has to find it in the tiles.
-
-**Reference:** Linear
-
-#### `kpis-as-a-table-with-previous-and-change`: KPIs as a Table with Previous and Change
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Spending"
-  header
-    heading "September 2026"
-    text "Every headline figure against August 2026."
-    action "Download"
-  region "Headline figures"
-    table 5 "Figure" "August" "September" "Change"
-      item: text "Spending" · text "EUR 48,340.00" · text "EUR 63,350.00" · status "Up 31.1 percent" positive
-    text muted "Percent where the basis is large, money where it is small."
-```
-
-**Rationale:** Baremetrics metrics tables list each KPI with its previous value and its change in one row, so six KPIs share one alignment. A table suits finance, where the comparison is audited rather than glanced at.
-
-**Cost:** A table of KPIs reads as a report, which is what it is. It has no place on the home page, where three tiles answer faster than six rows.
-
-**Reference:** Baremetrics
-
 #### `no-comparison-only-the-figure-with-its-date`: No Comparison, Only the Figure with Its Date
 
 ```wireframe
@@ -1934,28 +969,6 @@ page
 
 **Reference:** QuickBooks
 
-#### `one-payout-s-journey-from-sale-to-bank`: One Payout's Journey from Approval to Bank
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Payouts" "12 Oct 2026"
-  header
-    heading "EUR 8,412.55"
-    status "On its way" info
-    text "Expenses of 5 to 11 October, 418 expenses. Expected Tue 14 October."
-  region "Where it stands"
-    timeline 4
-      item: text "Sent to NL91 ABNA 0417 1643" · text muted "Mon 12 Oct 2026, 09:15"
-  region "Reversals"
-    text muted "Reversals before Monday are off. Later reversals wait for the next payout."
-```
-
-**Rationale:** The Wise transfer timeline states each step with its time. A reader waiting on money sees where it stands rather than a single pending state. The last step carries the expected date, which is the planning figure.
-
-**Cost:** A journey per payout is one page per payout, so the schedule of the month needs the list as well. Four steps for money that has not moved can also read as reassurance rather than information.
-
-**Reference:** Wise
-
 #### `past-payouts-with-their-bank-references`: Past Payouts with Their Bank References
 
 ```wireframe
@@ -1977,55 +990,6 @@ page
 **Cost:** A history answers reconciliation and nothing else: it says what went out, never what is coming. The upcoming list has to sit above it or the page plans nothing.
 
 **Reference:** Revolut Business
-
-#### `a-month-with-its-payout-days-marked`: A Month with Its Payout Days Marked
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Payouts"
-  header
-    heading "October 2026"
-    text "Payouts land on Mondays."
-    action "Download"
-  toolbar
-    action quiet "Previous month"
-    action quiet "Next month"
-  region "October 2026"
-    grid 31
-      item: text "12" · status "Payout" info
-    text muted "Marked days are payout days. 8 October is today."
-  region "Under the month"
-    list 3
-      item: text "Mon 5 Oct, paid out" · text muted "Expenses of 28 to 30 September" · text "EUR 6,117.46"
-```
-
-**Rationale:** The Google Calendar month answers "when" faster than any list, because payout Mondays form a rhythm the eye keeps. The amounts sit under the month, so the calendar plans and the list below it states.
-
-**Cost:** A month shows rhythm and hides amounts, so every figure lives below the fold of the calendar. A reader who wants the total scrolls past the pattern to find it.
-
-**Reference:** Google Calendar
-
-#### `the-next-payout-as-a-tile-the-rest-behind-a-link`: The Next Payout as a Tile, the Rest Behind a Link
-
-```wireframe
-page
-  header
-    heading "Good afternoon, Alex Morgan"
-    text "Two things need you today."
-    action primary "New expense"
-  region "Next payout"
-    card "Mon 12 Oct 2026"
-      figure "EUR 8,412.55"
-      text "Expenses of 5 to 11 October, 418 expenses."
-      link "All payouts"
-      link "September statement"
-```
-
-**Rationale:** The Monzo upcoming payments lead with the next arrival and keep the rest one tap away. This suits a home page where the payout question is asked in passing. The tile states the date, the amount, and what it holds.
-
-**Cost:** One arrival without the ones after it cannot plan a month, so the tile is a pointer rather than a page. A reader who stops at the tile mistakes the next payout for the position.
-
-**Reference:** Monzo
 
 ### Vendor's Invoice to the Company
 
@@ -2075,33 +1039,6 @@ page
 
 **Reference:** Xero
 
-#### `the-same-invoice-as-statement-lines`: The Same Invoice as Statement Lines
-
-```wireframe
-page
-  breadcrumb "Home" "Invoices" "2026-1841"
-  header
-    heading "Invoice 2026-1841"
-    status "Unpaid" caution
-    text "September 2026. Due 15 October 2026."
-    action "Download PDF"
-  region "What the vendor charged"
-    fact "Business subscription, September 2026" "EUR 49.00"
-    fact "Usage fee, 1,204 paid expenses at EUR 0.10" "EUR 120.40"
-    fact "Subtotal, excluding VAT" "EUR 169.40"
-  region "Tax"
-    fact "VAT, 21%" "EUR 35.57"
-    fact "Total VAT" "EUR 35.57"
-  region "Due 15 October 2026"
-    fact "Due" "EUR 204.97"
-```
-
-**Rationale:** The Moneybird invoice view lists the lines the way they were entered, with no document chrome. The statement shape suits a reader who checks figures rather than files documents, and it is the shape the rest of finance already uses.
-
-**Cost:** A statement is not an invoice: it carries no seller address, no VAT number, and no mandate reference. Finance can check it but cannot file it, so the document has to exist behind it.
-
-**Reference:** Moneybird
-
 #### `paid-with-the-mandate-reference-and-the-date`: Paid, with the Mandate Reference and the Date
 
 ```wireframe
@@ -2130,29 +1067,6 @@ page
 
 **Reference:** Wise
 
-#### `overdue-with-what-happens-next`: Overdue, with What Happens Next
-
-```wireframe
-page
-  breadcrumb "Home" "Invoices" "2026-1841"
-  header
-    heading "Invoice 2026-1841"
-    status "Overdue" critical
-    text "EUR 204.97 was due 15 October 2026. 5 days overdue."
-    action primary "Pay EUR 204.97"
-  message critical "The SEPA collection failed on 15 October 2026. Pay by transfer or fix the mandate."
-  region "What happens next"
-    fact "Due since 15 October 2026" "EUR 204.97"
-    fact "Pay by transfer to Claimwick, reference 2026-1841" "EUR 204.97"
-    fact "If unpaid on 29 October 2026, the plan pauses" "Plan pauses"
-```
-
-**Rationale:** The GitHub failed-payment notice states what is owed, how to pay it, and what happens if it is not paid, in that order. The company owes the vendor money on this page, so the page says the remedy before it says the consequence.
-
-**Cost:** A consequence with a date is a threat with a date, however plainly it is worded. The date is the real one from the agreement, which the page reads from the subscription.
-
-**Reference:** GitHub
-
 #### `every-invoice-with-its-state`: Every Invoice with Its State
 
 ```wireframe
@@ -2172,26 +1086,6 @@ page
 **Cost:** A list of invoices says nothing about what any invoice holds, so a surprising total needs the document. Each row opens the invoice, which must then carry the usage this list omits.
 
 **Reference:** Stripe
-
-#### `the-usage-fee-line-opened-to-its-orders`: The Usage Fee Line Opened to Its Expenses
-
-```wireframe
-page
-  breadcrumb "Home" "Invoices" "2026-1841" "Usage fee"
-  header
-    heading "Usage fee, September 2026"
-    text "EUR 120.40 for 1,204 paid expenses at EUR 0.10, on invoice 2026-1841."
-  region "Expenses behind the fee"
-    table 3 "Kind" "Paid expenses" "Fee"
-      item: text "Travel" · text "836" · text "EUR 83.60"
-    text muted "Reversed expenses carry no usage fee."
-```
-
-**Rationale:** The AWS bill breaks each line into the usage behind it, because a metered fee without its meter is a figure on trust. The per-kind counts add up to the 1,204 expenses on the invoice, which is the check finance runs.
-
-**Cost:** Usage behind every line doubles the length of every invoice, so the breakdown belongs one step behind the document. A reader who never opens it trusts the line, which is what the invoice asks.
-
-**Reference:** AWS
 
 ### Two VAT Rates on One Page
 
@@ -2263,54 +1157,6 @@ page
 
 **Reference:** Moneybird
 
-#### `a-per-rate-summary-on-the-statement`: A Per-Rate Summary on the Statement
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Statements" "September 2026"
-  header
-    heading "September 2026"
-    text "Every euro of the month under the kind it is."
-    action "Download"
-  region "Spending"
-    fact "Travel, 1,204 lines" "EUR 54,180.00"
-    fact "Meals" "EUR 6,020.00"
-    fact "Books, 126 copies" "EUR 3,150.00"
-    fact "Total claimed" "EUR 63,350.00"
-  region "VAT in that spending"
-    fact "At 21%, on nights and fees, base EUR 49,752.07" "EUR 10,447.93"
-    fact "At 9%, on books, base EUR 2,889.91" "EUR 260.09"
-    fact "Total VAT collected" "EUR 10,708.02"
-    fact "Net paid out" "EUR 61,346.68"
-```
-
-**Rationale:** The Xero tax summary groups collected VAT by rate under the spending it came from. The last group of the statement is the first draft of the return. Each line states its base, because the return taxes the base, not the gross.
-
-**Cost:** VAT on the statement repeats figures the VAT report owns, so two pages state the same tax. The statement group has to match the report to the cent, which is a second read that can disagree.
-
-**Reference:** Xero
-
-#### `rate-badges-beside-each-product`: Rate Badges Beside Each Kind
-
-```wireframe
-page
-  breadcrumb "Home" "Settings"
-  header
-    heading "Kinds and fees"
-    text "Every price includes VAT at the rate beside it."
-    action "Tax settings"
-  region "Every price with its rate"
-    list 5
-      item: text "Hotel night" · text muted "EUR 45.00, includes VAT" · status "21%" neutral · action "Edit"
-    text muted "An amount on a receipt always states that it includes VAT."
-```
-
-**Rationale:** The Shopify product tax settings show the rate beside each product. The company sees the tax where they set the amount. A wrong rate is caught at the amount, not at the return.
-
-**Cost:** A rate on the kinds page is a setting shown as a fact, and a reader may not know where to change it. Each badge opens the tax settings instead of only stating the rate.
-
-**Reference:** Shopify
-
 #### `a-vat-report-with-taxable-bases`: A VAT Report with Taxable Bases
 
 ```wireframe
@@ -2331,31 +1177,6 @@ page
 **Cost:** A report per rate says nothing about which kinds produced it, so a surprising base needs the kind spending behind it. The report opens that spending instead of only stating the base.
 
 **Reference:** Exact
-
-#### `inclusive-prices-with-a-breakdown-behind-a-note`: Inclusive Prices with a Breakdown Behind a Note
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "Ava. Rotterdam client visit."
-  region "What she claimed"
-    fact "Hotel night, 2 nights, incl. 21% VAT" "EUR 90.00"
-    fact "Booking fee, incl. 21% VAT" "EUR 10.00"
-    fact "Design book, incl. 9% VAT" "EUR 25.00"
-    fact "Paid, incl. VAT" "EUR 125.00"
-  region "VAT in that total"
-    action quiet "Show the VAT split"
-    text muted "The spender sees one total. The books see both rates."
-```
-
-**Rationale:** The Apple store shows the inclusive price with the tax behind a note, because the spender reads one figure and the books read two. The note keeps the option clean while the breakdown stays one step away.
-
-**Cost:** A breakdown behind a note is a breakdown a reader may never open, and finance opens it on every expense it checks. What the return needs should not hide behind what the spender skims past.
-
-**Reference:** Apple
 
 ### Numbers at Phone Width
 
@@ -2396,27 +1217,6 @@ page
 **Cost:** Two across at 390 pixels is 169 pixels a tile, so a long figure wraps or clips. Figures over ten characters need the single-column list, not the pair.
 
 **Reference:** Shopify
-
-#### `one-figure-per-row`: One Figure per Row
-
-```wireframe
-page
-  header
-    heading "September 2026"
-    text "Every headline figure, one per row."
-  region "Headline figures"
-    fact "Spending, 1,148 expenses" "EUR 63,350.00"
-    fact "Lines claimed, every trip" "9,412"
-    fact "Reversals, 31 lines" "EUR 1,550.00"
-  region "Net paid out"
-    fact "Net, after reversals and fees" "EUR 61,346.68"
-```
-
-**Rationale:** The Revolut account lists one figure per row with its label on the left, because a phone column is one number wide. Every amount keeps its code and its decimals, which the paired tiles cannot promise.
-
-**Cost:** One row per figure is six rows for six figures, so the page scrolls where the pairs fit. A reader comparing two figures holds one in memory while reading the other.
-
-**Reference:** Revolut
 
 #### `orders-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
 
@@ -2465,60 +1265,6 @@ page
 **Cost:** Labels short enough for 390 pixels lose the counts the full lines carry. The statement adds up but no longer says what it adds, which the full labels do.
 
 **Reference:** Xero
-
-#### `a-chart-with-half-its-labels`: A Chart with Half Its Labels
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Rotterdam client visit, spending"
-    text "30 days to 8 October 2026."
-  region "Lines per day"
-    figure "8,176"
-    text muted "Peak 8 Oct, 488."
-    image "Daily lines claimed, bar chart, 9 September to 8 October 2026"
-    text muted "Two labels at this width."
-    link "Weekly table"
-```
-
-**Rationale:** The Plausible mobile chart halves its axis labels, because two true labels beat five overlapping ones. The total above the chart carries the figure. The chart carries the shape and nothing else.
-
-**Cost:** Two labels cannot place a mid-month spike, so the shape floats between its endpoints. A reader who needs the week of a spike opens the table, which the chart must offer.
-
-**Reference:** Plausible
-
-#### `the-table-that-becomes-a-list`: The Table That Becomes a List
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses, newest first."
-  toolbar
-    field "Expense or spender" search
-  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-```wireframe compact
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses, newest first."
-  toolbar
-    field "Expense or spender" search
-  list 3
-    item: text "EXP-1042, Ava" · text muted "8 Oct, 09:32, Paid" · text "EUR 125.00"
-```
-
-**Rationale:** The GitHub mobile web turns wide tables into stacked lists under 640 pixels. The same page serves both widths without a second route. The swap follows the viewport, not the device.
-
-**Cost:** Two markups for one table need to stay in agreement. A screen reader meets the hidden one unless it is removed from the accessibility tree. The list carries every fact the table drops, including the plain ones.
-
-**Reference:** GitHub
 
 ### Showing an Identifier
 
@@ -2586,55 +1332,6 @@ page
 
 **Cost:** Some identifiers have no natural name and end up labeled by their kind, which tells a reader nothing about where to use it.
 
-#### `the-identifier-behind-a-disclosure`: The Identifier Behind a Disclosure
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "Ava. Rotterdam client visit."
-    action primary "Message spender"
-  region "The expense"
-    fact "Spender" "Ava"
-    fact "Submitted" "8 Oct 2026, 09:32"
-    fact "Paid" "EUR 125.00"
-    fact "Receipts" "2, neither matched"
-  region "Details for a support case"
-    action quiet "Show the bank reference and both receipt codes"
-    text muted "Needed only when the bank asks about this payment."
-```
-
-**Rationale:** A code a reader usually does not need is hidden behind a disclosure. It is there for a support case and out of the way otherwise.
-
-**Cost:** A hidden code is a code a reader does not know exists. On the record where a support case is likely, that is the wrong place to hide it.
-
-#### `no-identifier-because-the-reader-knows-the-record`: No Identifier, Because the Reader Knows the Record
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Ava, 8 October"
-  header
-    heading "Ava, 8 October"
-    status "Paid" positive
-    text "Rotterdam client visit. EUR 125.00."
-    action primary "Message her"
-  region "What she claimed"
-    fact "Hotel night, 2 nights" "EUR 90.00"
-    fact "Booking fee" "EUR 10.00"
-    fact "Design book" "EUR 25.00"
-    fact "Paid to the spender" "EUR 125.00"
-  region "Nights"
-    list 2
-      item: text "Hotel night" · text muted "Covers one night" · status "Unmatched" neutral
-    text muted "Nothing technical on this page."
-```
-
-**Rationale:** Nothing technical is shown. A reader who arrived by clicking the record already knows which record it is, and a code is noise to them.
-
-**Cost:** It removes the one thing a reader needs to quote in a support conversation. And a reader who arrived by address, which happens, has no way to tell two records apart.
-
 #### `the-identifier-as-the-record-s-name`: The Identifier as the Record's Name
 
 ```wireframe
@@ -2659,74 +1356,3 @@ page
 **Rationale:** Where a record has no human name, the identifier is the heading. The code is what the record is called and it is never repeated as a field.
 
 **Cost:** A code as a heading is not readable aloud. It is the right shape for a system where the code is all there is. It is the wrong shape for one where a person named the thing.
-
-#### `click-the-code-to-copy-it`: Click the Code to Copy It
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "Ava. Rotterdam client visit. Select a code to copy it."
-  region "Codes"
-    text muted "The bank reference was just copied. The confirmation lasts two seconds."
-    list 3
-      item: text "Expense number" · action "EXP-1042"
-  toast "Bank reference SH-88213 copied." positive
-```
-
-**Rationale:** Vercel copies a deployment address on click and answers "Copied", so the identifier is its own control with no button beside it. The code stays monospaced and labeled, and the confirmation is the feedback the click needs.
-
-**Cost:** There is no visible affordance until hover, so a reader may never try. Keyboard users need the code to be a real button, which it is, with its label read aloud.
-
-**Reference:** Vercel
-
-#### `a-short-code-on-the-list-the-full-one-on-the-record`: A Short Code on the List, the Full One on the Record
-
-```wireframe
-page
-  breadcrumb "Home" "Reports" "Disputes"
-  header
-    heading "Disputes"
-    text "5 open. Quote the full reference from the record."
-  toolbar
-    field "Case, expense or charge" search
-  region "Cases"
-    table 5 "Case" "Expense" "Charge" "Opened" "Held"
-      item: text "D-0182" · text "EXP-1031" · text "SH-88" · text "2 Oct 2026" · text "EUR 50.00"
-    text muted "Two charges shorten to the same four characters. Open the record for the full reference."
-  region "On the record"
-    card "Charge it disputes"
-      text "SH-88213-0042-9X"
-      text muted "The card payment itself."
-      action quiet "Copy"
-```
-
-**Rationale:** The Stripe dashboard shortens a charge identifier in the list and shows it whole on the record. A list is scanned and a record is quoted. Search accepts either form, so the short code is never a dead end.
-
-**Cost:** Shortened identifiers can collide on screen, and a reader quoting the short form in a support case forces a second question. The record must show the full reference above the fold, not behind a disclosure.
-
-**Reference:** Stripe
-
-#### `no-bare-identifier-anywhere-on-a-list`: No Bare Identifier Anywhere on a List
-
-```wireframe
-page
-  breadcrumb "Home" "Spenders" "Messages"
-  header
-    heading "Messages"
-    text "Only the people who said yes to the kind."
-    action primary "Write a message"
-  toolbar
-    field "Search messages" search
-    field "Any state" select = "Any state"
-  region "Messages"
-    table 5 "Message" "Reference" "State" "Written" "Copy"
-      item: text "No subject yet" · text "b9f0780e" · status "Draft" neutral · text "6 hours ago" · action quiet "Copy"
-    text muted "A list shows subjects, never raw codes."
-```
-
-**Rationale:** Where a record has no subject yet, the state says so and the code is behind a copy control. A list shows subjects, never raw codes.
-
-**Cost:** A draft with no subject reads as broken, and a subject is a thing the company has to write before the row is useful. That is the cost of not showing an identifier.

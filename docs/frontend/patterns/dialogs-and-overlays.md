@@ -1,12 +1,11 @@
 # Dialog and Overlay Patterns
 
 **Stack:** any
-
 **Layer:** frontend-ui
 
 ## Intent
 
-A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation, and this page shows when each overlay fits and how it opens, holds focus, and closes, as drawn options with a named default to build. The product owner chooses among the options when the team adds a confirmation, a side preview, or any floating layer. Right-sized overlays keep staff oriented: the page stays visible behind short tasks, and irreversible commands get the full attention they need.
+A dialog, drawer, popover, menu, toast, context menu, shortcut overlay, bottom sheet, or persistent bar floats above or beside the page to confirm, edit, preview, or announce without a full navigation. This page shows when each overlay fits and how it opens, holds focus, and closes, as drawn options with a named default to build. The product owner chooses among the options when the team adds a confirmation, a side preview, or any floating layer. Right-sized overlays keep staff oriented: the page stays visible behind short tasks, and irreversible commands get the full attention they need.
 
 ## Concepts
 
@@ -56,13 +55,13 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **Default:** `name-the-object-state-the-consequence-offer-the-alternative`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a bottom sheet with the title naming the object, the consequence in the body, and the actions stacked full width.
 
 **Rationale:** Keep the dialog that names the object, states the consequence in numbers, and offers the alternative in the same surface. The runner-up is the dialog with the consequence as numbers. It is the better choice wherever money moves, because the reader sees the number before confirming.
 
-Prefer the typed name only for the single most dangerous object in a deployment. Never ship the undo toast for an irreversible cancellation. An undo there is a second command rather than a reversal.
+Never ship the undo toast for an irreversible cancellation. An undo there is a second command rather than a reversal.
 
-**Reviewed for:** Which built irreversible step departs from the wireframe its catalog entry chose? Open the built typed confirms and undo offers beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built irreversible step departs from the wireframe its catalog entry chose? Open the built confirmation dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `name-the-object-state-the-consequence-offer-the-alternative`: Name the Object, State the Consequence, Offer the Alternative
 
@@ -83,77 +82,28 @@ page
     action destructive "Cancel the run"
 ```
 
-**Rationale:** The MOJ pattern: title asks, body states what it is and what happens, and the safe way out is in the same dialog. The commit button repeats the verb, as Carbon asks.
-
-**Cost:** Three pieces of copy per destructive command, in two languages, all of which have to stay true as the domain changes. The words are a second copy of the domain rules.
-
-**Reference:** MOJ
-
-#### `type-the-launch-name-to-confirm`: Type the Run Name to Confirm
-
-```wireframe
+```wireframe compact
 page
   breadcrumb "Home" "Payouts" "March payout run"
   header
     heading "March payout run"
     text "Pays Sat 14 Mar 2026. 1,204 payouts."
-  dialog "Cancel this run for good?"
-    text "1,204 spenders will be told the run is off; EUR 54,180.00 stays in the budget."
-    message "This cannot be undone." critical
-    field "Type the run name to confirm" text = "March payout run"
-    action "Keep the run"
-    action disabled "Cancel the run"
-```
-
-**Rationale:** Typing guards the single most dangerous object in a deployment. The expected string stays visible on screen. The commit button stays disabled until the typed name matches it.
-
-**Cost:** A product that asks people to type names all day trains them to copy and paste without reading. That is the reflex the pattern exists to break. One object per deployment is the ceiling, not one per record type.
-
-**Reference:** Cloudscape
-
-#### `no-dialog-at-all-act-then-offer-an-undo`: No Dialog at All: Act, Then Offer an Undo
-
-```wireframe
-page
-  breadcrumb "Home" "Payouts" "March payout run"
-  header
-    heading "March payout run"
-    status "Canceled" neutral
-    text "Canceled at 14:22. 1,204 spenders have been told."
-  region "Budget"
-    fact "Returned" "EUR 54,180.00 to the March budget"
-    fact "Messages" "1,204 sent at 14:22"
-  toast "Run canceled at 14:22. Undo stays until dismissed." critical
-```
-
-**Rationale:** The command runs and a toast names what happened with an Undo that stays until it is dismissed. Carbon keeps an action-bearing toast on screen for exactly that reason.
-
-**Cost:** On money this trains the reflex the confirmation exists to prevent. An Undo on a reversal is a second reversal command rather than a reversal of the first.
-
-**Reference:** Carbon
-
-#### `an-interruption-page-not-a-dialog`: An Interruption Page, Not a Dialog
-
-```wireframe
-page
-  breadcrumb "Home" "Payouts" "March payout run" "Cancel"
-  header
+    action "Move the run"
+  drawer bottom
     heading "Cancel the March payout run?"
-    text "Pays Sat 14 Mar 2026."
-  region "What happens if you do"
-    text "1,204 spenders keep EUR 54,180.00 of approved expenses."
-    text "Every spender gets a message saying the run is off."
-    text "Two people on the payout rota are told to stand down."
+    text "1,204 spenders await payout and will be told the run is off."
+    fact "Held" "EUR 54,180.00 back in the March budget"
     message "This cannot be undone. A canceled run cannot be scheduled again." critical
-    action "Go back and keep it"
-    action destructive "Yes, cancel the run"
+    footer
+      action "Keep the run"
+      action destructive "Cancel the run"
 ```
 
-**Rationale:** For the most serious and irreversible action, leave the page entirely. The new page says what will be lost and offers the way back as a link.
+**Rationale:** The title asks the question, the body states what the object is and what happens, and the safe way out sits in the same dialog. The commit button repeats the verb, so the last thing the reader sees says what the click does.
 
-**Cost:** A full page for one command means leaving the record and coming back, and it loses the page context that makes the consequence understandable.
+**Cost:** Three pieces of copy per destructive command, in two languages, all of which have to stay true as the domain changes. The words are a second copy of the domain rules.
 
-**Reference:** GOV.UK
+**Reference:** MOJ, Carbon
 
 #### `a-dialog-with-the-consequence-as-numbers`: A Dialog with the Consequence as Numbers
 
@@ -178,79 +128,30 @@ page
     action destructive "Reverse in full"
 ```
 
-**Rationale:** Where a command changes money, the dialog shows the money. This is the strongest form of the pattern: the reader sees the number before committing to it.
+**Rationale:** Where a command changes money, the dialog shows the money. The reader sees the number before committing to it.
 
 **Cost:** The dialog reads the number at the moment of the click, which means a read between the button and the command. On a slow connection the dialog waits.
 
-#### `a-dialog-that-says-it-cannot-act-yet`: A Dialog That Says It Cannot Act Yet
+#### `no-dialog-at-all-act-then-offer-an-undo`: No Dialog at All: Act, Then Offer an Undo
 
 ```wireframe
 page
   breadcrumb "Home" "Payouts" "March payout run"
   header
     heading "March payout run"
-    text "Pays Sat 14 Mar 2026."
-    action "Cancel the run"
-  dialog "This run cannot be canceled yet"
-    text "Two approval lines are still running on the payout rota."
-    fact "Approval lines running" "2, since 08:00"
-    fact "Receipts scanned" "184 this morning"
-    message "Close the lines first, then cancel the run." neutral
-    action disabled "Cancel the run"
-    action primary "Close the lines first"
+    status "Canceled" neutral
+    text "Canceled at 14:22. 1,204 spenders have been told."
+  region "Budget"
+    fact "Returned" "EUR 54,180.00 to the March budget"
+    fact "Messages" "1,204 sent at 14:22"
+  toast "Run canceled at 14:22. Undo stays until dismissed." critical
 ```
 
-**Rationale:** The command is blocked by a dependency. The dialog names the dependency and the command that clears it, and the commit button stays disabled with the reason beside it.
+**Rationale:** The command runs and a toast names what happened with an Undo that stays until it is dismissed.
 
-**Cost:** A dialog that cannot be completed is a dead end. Cloudscape handles this by disabling the commit control, which states the state plainly but leaves the reader needing another surface.
+**Cost:** On money this trains the reflex the confirmation exists to prevent. An Undo on a reversal is a second reversal command rather than a reversal of the first.
 
-**Reference:** Cloudscape
-
-#### `confirm-by-ticking-each-consequence`: Confirm by Ticking Each Consequence
-
-```wireframe
-page
-  breadcrumb "Home" "Payouts" "March payout run"
-  header
-    heading "March payout run"
-    text "Pays Sat 14 Mar 2026. 1,204 payouts."
-  dialog "Cancel the March payout run?"
-    text "Tick every line to show each consequence was read."
-    field "Every spender is told the run is off" checkbox
-    field "Each spender keeps their approved expenses" checkbox
-    field "The record stays and says what happened" checkbox
-    message "This cannot be undone." critical
-    action "Keep the run"
-    action destructive disabled "Cancel the run"
-```
-
-**Rationale:** Safer destructive action. The commit button stays disabled until the reader ticks every consequence line. Unlike typing one name, ticking forces the eye across each line, so the reversal route and the record-keeping are each acknowledged.
-
-**Cost:** Three checkboxes for one command is the heaviest confirmation in this pattern. Past one object per deployment it becomes the reflex click the pattern exists to break.
-
-#### `an-alert-dialog-with-the-safe-action-first`: An Alert Dialog with the Safe Action First
-
-```wireframe
-page
-  breadcrumb "Home" "Payouts" "March payout run"
-  header
-    heading "March payout run"
-    text "Pays Sat 14 Mar 2026. 1,204 payouts."
-  region "The run"
-    fact "State" "Scheduled"
-    fact "Payouts" "1,204"
-    fact "Held if canceled" "EUR 54,180.00"
-  dialog "Cancel the March payout run?"
-    message "1,204 spenders keep their approved expenses, with a message saying the run is off." critical
-    action primary "Keep the run"
-    action destructive "Cancel the run"
-```
-
-**Rationale:** One consequence in plain words, a danger icon, and focus on the safe action so Enter keeps the run. Less copy than the name-the-object option, with the same protection.
-
-**Cost:** One consequence means the other two move to the page or disappear. Where the money figure matters, the dialog with the consequence as numbers still wins because the reader never sees the amount here.
-
-**Reference:** GitHub Primer
+**Reference:** Carbon
 
 ### Short Task in a Dialog
 
@@ -262,13 +163,13 @@ page
 
 **Default:** `two-or-three-inputs-one-dialog`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-screen sheet with the fields stacked and the actions pinned at the foot.
 
 **Rationale:** Keep one dialog shape for commands with one to four inputs: title, fields, one verb, no navigation. The runner-up is the task on the page. It is the better choice for commands that repeat all day, where leaving the page costs more than the dialog saves.
 
-Prefer the page once a command carries five inputs. Never ship a dialog over a dialog. A helper that supports the nesting does not make it readable.
+Never ship a dialog over a dialog. A helper that supports the nesting does not make it readable.
 
-**Reviewed for:** Which built two-input task departs from the wireframe its catalog entry chose? Open the built small dialogs and palette runs beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built two-input task departs from the wireframe its catalog entry chose? Open the built small dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `two-or-three-inputs-one-dialog`: Two or Three Inputs, One Dialog
 
@@ -289,82 +190,28 @@ page
     action primary "Add the note"
 ```
 
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  header
+    heading "EXP-1042"
+    status "Paid" positive
+    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
+  region "Notes"
+    list 1
+      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
+  drawer bottom
+    heading "Add a note"
+    field "Note" textarea
+    field "About" select = "The spender"
+    footer
+      action "Cancel"
+      action primary "Add the note"
+```
+
 **Rationale:** One dialog shape for short commands: title, two fields, Cancel and the commit verb. This is where most short commands belong.
 
 **Cost:** A dialog is a separate surface from the page. A refusal has to be worded in the dialog rather than on the page it came from.
-
-#### `five-inputs-so-it-becomes-a-page`: Five Inputs, so It Becomes a Page
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042" "Trip" "Incidents" "New"
-  header
-    heading "Record an incident"
-    text "What happened on the trip, in plain words."
-  region "What happened"
-    field "What happened" textarea
-    field "When" text = "14/03/2026 22:41"
-    field "Where" select = "Rotterdam office"
-    field "Who was involved" select = "A colleague, named below"
-    field "Who decided" text
-    action "Cancel"
-    action primary "Record it"
-```
-
-**Rationale:** The same command once it carries five inputs. The composition rule sends it to a full page, with a linkable result that can be returned to later.
-
-**Cost:** The reader loses the page they were on. The linkable result that can be returned to later is worth it when the command has that many parts.
-
-#### `four-inputs-with-a-list-to-choose-from`: Four Inputs with a List to Choose From
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Receipt count"
-  header
-    heading "Receipt count"
-    text "Sat 14 Mar 2026 at the Rotterdam office."
-    action "Invite people to the count"
-  region "Counters"
-    list 1
-      item: text "Ben" · text muted "Finance lead"
-  dialog "Invite people to the count"
-    list 3
-      item: text "Ben" · text muted "Finance lead"
-    field "What they will do" textarea = "Count the meal receipts from 21:00."
-    field "When they are needed" text = "14/03/2026 21:00"
-    text muted "Invitations go by email and run out on 22 Mar."
-    action "Cancel"
-    action primary "Send 2 invitations"
-```
-
-**Rationale:** The large dialog size. Carbon keeps a modal for a short and infrequent task, never for repeated work. Four inputs with a list stay on the right side of that line when the command is rare.
-
-**Cost:** A 560-pixel dialog holding a table is close to a page with worse navigation. The size has to be argued case by case rather than by a rule.
-
-**Reference:** Carbon
-
-#### `a-dialog-whose-second-step-is-another-dialog`: A Dialog Whose Second Step Is Another Dialog
-
-```wireframe
-page
-  breadcrumb "Home" "Settings" "Portal"
-  header
-    heading "Portal"
-    text "The logo spenders see."
-  region "Logo"
-    field "Drop a logo here or choose a file" file
-    text muted "A square image of at most 2 MB."
-  dialog "That file is not an image"
-    text "harbor-pine-logo.psd is a design file. The portal takes JPEG, PNG or WebP."
-    action "Try another file"
-    action "Cancel"
-```
-
-**Rationale:** Refusing a file needs its own question, and the second dialog opens over the first. Base UI supports it and suppresses the child backdrop.
-
-**Cost:** Atlassian forbids dialogs that trigger other dialogs, and forbids a modal over a panel. The nesting is inaccessible and confusing. This is the pattern the project forbids.
-
-**Reference:** Base UI
 
 #### `the-task-on-the-page-not-in-a-dialog`: The Task on the Page, Not in a Dialog
 
@@ -386,86 +233,32 @@ page
 
 **Rationale:** Where the command repeats, the task is completable on the main page rather than in a modal. An inline row becomes an editing row, which is where a repeatable task belongs.
 
-**Cost:** Inline editing works only on a narrow table, and NN/g warns the row must look visibly different or people edit it by accident.
+**Cost:** Inline editing works only on a narrow table, and a row must look visibly different or people edit it by accident.
 
-**Reference:** Carbon
+**Reference:** NN/g
 
-#### `a-dialog-whose-command-needs-a-second-thing-done-first`: A Dialog Whose Command Needs a Second Thing Done First
+#### `a-dialog-whose-second-step-is-another-dialog`: A Dialog Whose Second Step Is Another Dialog
 
 ```wireframe
 page
-  breadcrumb "Home" "Expenses" "EXP-1042" "Receipts"
+  breadcrumb "Home" "Settings" "Portal"
   header
-    heading "EXP-1042"
-    text "Two receipts, neither attached."
-  region "Receipts"
-    list 1
-      item: text "RC-0C893968A2" · text muted "Train fare, 2 fares" · status "Not attached" neutral
-  dialog "Void this pickup code"
-    message "Voiding replaces the code. Ava must be sent a new one." caution
-    field "Send Ava the replacement now" checkbox
-    field "Keep the reason on the record" checkbox
+    heading "Portal"
+    text "The logo spenders see."
+  region "Logo"
+    field "Drop a logo here or choose a file" file
+    text muted "A square image of at most 2 MB."
+  dialog "That file is not an image"
+    text "harbor-pine-logo.psd is a design file. The portal takes JPEG, PNG or WebP."
+    action "Try another file"
     action "Cancel"
-    action destructive "Void and replace"
 ```
 
-**Rationale:** The task cannot proceed until a dependency is cleared. The dialog shows the dependency as a step of its own rather than opening a second dialog over itself.
+**Rationale:** Refusing a file needs its own question, and the second dialog opens over the first.
 
-**Cost:** Now the dialog is two surfaces, which Carbon says should be a page. The line between a two-step dialog and a wizard is a matter of degree.
+**Cost:** A dialog that triggers another dialog, and a modal over a panel, are both refused: the nesting is inaccessible and confusing. This is the shape the project forbids.
 
-**Reference:** Carbon
-
-#### `stay-open-for-the-next-note`: Stay Open for the Next Note
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
-  region "Notes"
-    list 2
-      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
-  dialog "Add a note"
-    field "Note" textarea
-    field "About" select = "The spender"
-    field "Add another after this" checkbox
-    action "Cancel"
-    action primary "Add the note"
-```
-
-**Rationale:** Five notes cost five dialogs and zero navigation: a checkbox in the dialog keeps it open for repeat entry. It suits receipt logging, where notes arrive in bursts.
-
-**Cost:** A dialog that stays open hides the list it appends to, so the reader cannot see the note land. Past three repeats in a row, the task belongs on the page instead.
-
-**Reference:** Linear
-
-#### `run-the-task-from-the-command-palette`: Run the Task from the Command Palette
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "3 lines for Harbor and Pine. Submitted 8 Oct 2026, 09:32."
-  region "Notes"
-    list 1
-      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
-  dialog "Add a note to EXP-1042"
-    field "Note text" text = "note: bay 2 opens at"
-    action quiet "Save as a note on EXP-1042"
-    action quiet "Save and add another"
-    action quiet "Open the full notes page"
-    text muted "Esc closes without saving."
-```
-
-**Rationale:** The way Raycast runs a scoped command: one input, results grouped by record, Enter runs without leaving the page. Staff who know the palette reuse a surface they already have.
-
-**Cost:** Invisible until opened: a reader who never presses the shortcut never learns the task exists. It suits frequent staff and fails new ones, who still need the button on the page.
-
-**Reference:** Raycast
+**Reference:** Atlassian
 
 ### Drawer Beside the List
 
@@ -477,9 +270,9 @@ page
 
 **Default:** `read-only-record-beside-the-list`
 
-**Compact:** At phone width there is no beside. The drawer takes the screen. Back returns to the list at the same scroll position, with its filters intact. The compact option is `the-drawer-at-phone-width-as-a-page-with-a-back`.
+**Compact:** The recommended option reflows: at phone width there is no beside, so the drawer takes the screen and Back returns to the list at the same scroll position with its filters intact.
 
-**Rationale:** Keep the read-only record beside the list. The list keeps its scroll and its filters while the record reads beside it, and nothing in the drawer is editable. Below 768 px the drawer becomes a full screen with a Back.
+**Rationale:** Keep the read-only record beside the list. The list keeps its scroll and its filters while the record reads beside it, and nothing in the drawer is editable.
 
 Prefer the tabbed drawer when support compares reversals across facts, history, and messages. Never ship the filter drawer. Filters belong in the toolbar, and a drawer over the results hides the list the filters describe.
 
@@ -508,68 +301,59 @@ page
     link "Open the full record"
 ```
 
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  header
+    heading "EXP-1042"
+    status "Paid" positive
+    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
+    action "Back to all expenses"
+  region "The spender"
+    fact "Name" "Ava"
+    fact "Email" "ava@harbor-pine.example"
+  region "What was bought"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Booking fee" "EUR 5.00"
+    fact "Paid" "EUR 125.00"
+  footer sticky
+    action primary "Message the spender"
+```
+
 **Rationale:** The recommended shape. The list is untouched and narrowed, the record holds facts, and the way out is back to the full record. Nothing in the drawer is editable, so it cannot become a task.
 
 **Cost:** A 420-pixel drawer on a 1440 screen leaves the list about 900 wide, which fits five columns and not eight. The screen then holds two navigations, the list and the drawer, side by side.
 
 **Reference:** Atlassian
 
-#### `the-drawer-over-the-list-with-a-scrim`: The Drawer over the List, with a Scrim
+#### `a-tabbed-drawer-the-record-its-history-its-messages`: A Tabbed Drawer: The Record, Its History, Its Messages
 
 ```wireframe
 page
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
-    text "268 expenses. Select a row to read it over the list."
+    text "268 expenses. Select a row to read it here."
   toolbar
     field "Search expenses" search
-    field "State" select = "Any state"
   table 3 "Expense" "Spender" "Paid"
     item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
   drawer right "EXP-1042"
     status "Paid" positive
-    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
-    fact "Method" "Bank transfer"
-    fact "Paid" "EUR 125.00"
-    fact "Lines" "3, none approved"
-    fact "Reversals" "None"
+    text "Ava of Harbor and Pine."
+    tabs "Record" "History" "Messages"
+      region "History"
+        timeline 3
+          item: text "Receipt resent" · text muted "8 Oct 2026, 11:02" · text muted "Eli"
     action "Resend the receipt"
     action primary "Open the record"
 ```
 
-**Rationale:** The drawer slides over the table rather than beside it, so it can be wider and hold more without squeezing the table to five columns.
+**Rationale:** The row stays selected behind while tabs divide facts from history. Three views in one drawer beat three navigations when support compares reversals.
 
-**Cost:** The row the reader is comparing against is hidden. Atlassian places the panel beside the main area and only over it at 1024 px and below, so this option breaks that guidance at desktop widths.
+**Cost:** Tabs inside a drawer are two navigations deep on one screen. Readers lose track of which tab held the fact they half-read, and the Back control has two jobs.
 
-**Reference:** Atlassian
-
-#### `the-drawer-holding-a-small-edit-list-behind`: The Drawer Holding a Small Edit, List Behind
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Select a row to change one thing."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "State"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive
-  drawer right "EXP-1042"
-    heading small "Change one thing"
-    text "The spender's expense is not affected."
-    field "Internal state" select = "Calling back"
-    field "Note" textarea
-    action "Cancel"
-    action primary "Save"
-```
-
-**Rationale:** This is the one case where a drawer beats a dialog: a record and a two-field edit together, where the reader can see the row and the record at the same time.
-
-**Cost:** Two nested sets of controls share one narrow column. Carbon says a modal is not for repeatable work, and this is repeatable work.
-
-**Reference:** Carbon
+**Reference:** Linear
 
 #### `the-drawer-as-a-filter-list-results-behind`: The Drawer as a Filter, List Results Behind
 
@@ -596,119 +380,9 @@ page
 
 **Rationale:** A drawer holds the filters rather than a record. The list updates behind it as each control changes, so the reader never leaves the results.
 
-**Cost:** Carbon keeps several filter categories out of a menu. A drawer is not a menu, but it is the same discovery problem. It covers the toolbar the reader would use to search.
+**Cost:** A drawer is not a menu, but it hides several filter categories the same way a menu does. It covers the toolbar the reader would use to search.
 
 **Reference:** Carbon
-
-#### `the-drawer-as-a-preview-opening-over-a-row`: The Drawer as a Preview, Opening over a Row
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Open a row to read it beside the list."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer right "Lines of EXP-1042"
-    fact "Train fare, 2 fares" "EUR 90.00"
-    fact "Booking fee" "EUR 5.00"
-    fact "Personal item" "EUR 30.00"
-    timeline 3
-      item: text "Paid by bank transfer" · text muted "8 Oct 2026, 09:34"
-    link "Open the full record"
-```
-
-**Rationale:** The row's second line opens in a drawer rather than navigating. That is cheap for a reader comparing two expenses, and it keeps the scroll position and the filters.
-
-**Cost:** PatternFly's own guidance reserves `primary-detail` for comparing a short list of the same type, and requires a selected state and a close control. On 268 expenses the comparison is rarer than the navigation.
-
-**Reference:** PatternFly
-
-#### `the-drawer-at-phone-width-as-a-page-with-a-back`: The Drawer at Phone Width, as a Page with a Back
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
-    action "Back to all expenses"
-  region "The spender"
-    fact "Name" "Ava"
-    fact "Email" "ava@harbor-pine.example"
-  region "What was bought"
-    fact "Train fare, 2 fares" "EUR 90.00"
-    fact "Booking fee" "EUR 5.00"
-    fact "Paid" "EUR 125.00"
-  footer sticky
-    action primary "Message the spender"
-```
-
-**Rationale:** At 390 pixels there is no room for beside, so the drawer takes the screen and Back returns to the list at the same scroll position.
-
-**Cost:** Keeping the list alive behind a full-screen view is a navigation model rather than a layout. It has to hold filters and scroll in memory, or the return is a different list.
-
-#### `a-tabbed-drawer-the-record-its-history-its-messages`: A Tabbed Drawer: The Record, Its History, Its Messages
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Select a row to read it here."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer right "EXP-1042"
-    status "Paid" positive
-    text "Ava of Harbor and Pine."
-    tabs "Record" "History" "Messages"
-      region "History"
-        timeline 3
-          item: text "Receipt resent" · text muted "8 Oct 2026, 11:02" · text muted "Eli"
-    action "Resend the receipt"
-    action primary "Open the record"
-```
-
-**Rationale:** The way Linear layers its peek view: the row stays selected behind while tabs divide facts from history. Three views in one drawer beat three navigations when support compares reversals.
-
-**Cost:** Tabs inside a drawer are two navigations deep on one screen. Readers lose track of which tab held the fact they half-read, and the Back control has two jobs.
-
-**Reference:** Linear
-
-#### `a-drawer-with-a-drag-edge`: A Drawer with a Drag Edge
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. Select a row to read it here."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer right "EXP-1042"
-    status "Paid" positive
-    fact "Submitted" "8 Oct 2026, 09:32"
-    fact "Method" "Bank transfer"
-    fact "Paid" "EUR 125.00"
-    fact "Lines" "3, none approved"
-    text muted "Drag the left edge to widen. The width is kept for this browser."
-    action "Resend the receipt"
-    action primary "Open the record"
-```
-
-**Rationale:** The way VS Code sizes its side bar: a drag edge lets the reader trade list width for record width per task. A wide lines table gets room without a navigation, and a narrow read keeps the list.
-
-**Cost:** A width the reader sets is a width the layout must remember and repair. Every stored pixel is state that follows the reader to a narrower screen, where it has to be clamped.
-
-**Reference:** VS Code
 
 ### Toast at the Edge of the Screen
 
@@ -720,13 +394,13 @@ page
 
 **Default:** `a-confirmation-that-closes-by-itself`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the toast spans the phone width above the home indicator, with one action at most.
 
-**Rationale:** Keep the self-closing confirmation for success, and the staying undo toast where an undo exists. The runner-up is the toast that links to the result. It suits commands whose result lives elsewhere, because the link going away costs nothing.
+**Rationale:** Keep the self-closing confirmation for success, where the message leaves on its own and nothing goes with it. The runner-up is the toast that links to the result. It suits commands whose result lives elsewhere, because the link going away costs nothing.
 
 Never ship two actions on one toast. Two buttons turn a transient message into a small panel with a timer. Never ship a toast as the only route to a result.
 
-**Reviewed for:** Which built edge notice departs from the wireframe its catalog entry chose? Open the built confirmations, undos, and refusal slots beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built edge notice departs from the wireframe its catalog entry chose? Open the built confirmations and linked results beside the catalog entry recording the chosen option and its reason.
 
 #### `a-confirmation-that-closes-by-itself`: A Confirmation That Closes by Itself
 
@@ -744,54 +418,32 @@ page
   toast "Receipts resent to 3 spenders." positive
 ```
 
-**Rationale:** It carries no action, so it can leave on its own. Base UI's default timeout is 5,000 milliseconds, and nothing is lost by it going.
+**Rationale:** It carries no action, so it can leave on its own. The default timeout is 5,000 milliseconds, and nothing is lost by it going.
 
-**Cost:** NN/g's own example: a reader missed an error that faded after five seconds and waited five minutes. That is fine for a success and wrong for anything else.
+**Cost:** A reader can miss an error that faded after five seconds and wait five minutes. That is fine for a success and wrong for anything else.
 
-**Reference:** Base UI
+**Reference:** Base UI, NN/g
 
-#### `a-confirmation-carrying-an-undo-which-stays`: A Confirmation Carrying an Undo, Which Stays
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses. 3 selected for resending."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  toast "Receipts resent to 3 spenders. Undo stays until dismissed." positive
-```
-
-**Rationale:** The toast carries one action and persists until it is dismissed, which is Carbon's rule for an actionable notification. Undo is the action, and nothing else competes for it.
-
-**Cost:** A toast that stays is on screen until the reader deals with it, so a page where the reader moves on accumulates one. Android's own guidance warns a snackbar's timer can take the action away.
-
-**Reference:** Carbon
-
-#### `a-refusal-which-is-not-a-toast`: A Refusal, Which Is Not a Toast
+#### `a-toast-that-links-to-the-result`: A Toast That Links to the Result
 
 ```wireframe
 page
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
-    text "268 expenses. 3 selected for resending."
-  message "2 of the 3 confirmations could not be resent. Elin Lindqvist and Ade Okafor asked for no messages." critical
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+    text "268 expenses."
+    action "Export"
+  region "Latest exports"
+    list 2
+      item: text "expenses-2026-10-08.csv" · text muted "268 rows" · action "Download"
+  toast "Your export is ready. expenses-2026-10-08.csv waits under Latest exports." positive
 ```
 
-**Rationale:** The same slot holds a refusal, to show why a failure must not be transient. An alert sits on the page and stays until the command succeeds.
+**Rationale:** The message links to the result, and the result also waits on the page. The toast going away costs nothing because the file does not go with it.
 
-**Cost:** The visual difference between a success toast and an error alert has to be learned. Carbon keeps tones off full-width bands on a page about other work.
+**Cost:** Two routes to one result need the same name in both places. Where the names drift, the reader stops trusting the link and opens the page instead.
 
-**Reference:** Carbon
+**Reference:** Vercel
 
 #### `a-toast-carrying-two-actions`: A Toast Carrying Two Actions
 
@@ -810,96 +462,9 @@ page
 
 **Rationale:** The toast offers Undo and Dismiss together, which is the shape most people reach for first.
 
-**Cost:** Material forbids it: one action per snackbar, and it may not be Dismiss. Two buttons turn a transient message into a small panel with a timer.
+**Cost:** One action per snackbar, and the action may not be Dismiss. Two buttons turn a transient message into a small panel with a timer.
 
 **Reference:** Material Design
-
-#### `a-toast-that-is-the-only-route-to-the-result`: A Toast That Is the Only Route to the Result
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-    action "Export"
-  toolbar
-    field "Search expenses" search
-  table 2 "Expense" "Spender"
-    item: text "EXP-1042" · text "Ava"
-  toast "Your export is ready. Download is only on this message." positive
-```
-
-**Rationale:** The toast says the export finished and offers Download, which is the only way to get the file. A message that vanishes takes the result with it.
-
-**Cost:** Carbon states it directly: because toasts can dismiss automatically, readers need another route to the result. This violates that rule on purpose, to show what it costs.
-
-**Reference:** Carbon
-
-#### `a-stacked-notification-area`: A Stacked Notification Area
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 expenses. 25 selected."
-  toolbar
-    field "Search reversals" search
-  table 4 "Expense" "Spender" "State" "Amount"
-    item: text "EXP-1042" · text "Ava" · status "Open" neutral · text "EUR 90.00"
-  toast "12 reversals taken as deductions." positive
-  toast "3 spenders emailed." positive
-  toast "1 reversal was refused by the bank." caution
-```
-
-**Rationale:** Three toasts stack at the bottom edge, so several commands in quick succession each say what they did. Base UI caps the viewport at three.
-
-**Cost:** A stack on a page the reader is working through covers the bottom-right of the table. That corner holds the pagination and the bulk bar.
-
-**Reference:** Base UI
-
-#### `a-toast-that-links-to-the-result`: A Toast That Links to the Result
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-    action "Export"
-  region "Latest exports"
-    list 2
-      item: text "expenses-2026-10-08.csv" · text muted "268 rows" · action "Download"
-  toast "Your export is ready. expenses-2026-10-08.csv waits under Latest exports." positive
-```
-
-**Rationale:** The way Vercel ends a deployment toast: the message links to the result, and the result also waits on the page. The toast going away costs nothing because the file does not go with it.
-
-**Cost:** Two routes to one result need the same name in both places. Where the names drift, the reader stops trusting the link and opens the page instead.
-
-**Reference:** Vercel
-
-#### `a-progress-toast-while-a-slow-command-runs`: A Progress Toast While a Slow Command Runs
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-    action "Export"
-  region "Latest exports"
-    list 1
-      item: text "expenses-2026-10-01.csv" · text muted "241 rows" · action "Download"
-  toast "Exporting 166 of 268 expenses. About a minute left." info
-```
-
-**Rationale:** The way Shopify reports a bulk export: a persistent notice with a bar and a count, dismissible only by canceling. The reader keeps working while the count climbs.
-
-**Cost:** A toast that cannot be dismissed is a band with a timer that never fires. Past five minutes it is clutter rather than feedback, and it still covers the pagination.
-
-**Reference:** Shopify
 
 ### Menu of a Row's Commands
 
@@ -911,13 +476,13 @@ page
 
 **Default:** `a-menu-with-groups-and-a-destructive-item-last`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the menu becomes a bottom sheet with thumb-sized rows, the title naming the row, and one full-width dismissal.
 
 **Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states why an item is disabled. It is the better choice where a command is often disabled, because the reason in place beats a hover.
 
 Never ship a confirmation inside a menu. A confirmation there is a dialog over a menu, the same nesting the project forbids for dialogs.
 
-**Reviewed for:** Which built row menu departs from the wireframe its catalog entry chose? Open the built grouped menus, split buttons, and search fields beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built row menu departs from the wireframe its catalog entry chose? Open the built grouped menus beside the catalog entry recording the chosen option and its reason.
 
 #### `a-menu-with-groups-and-a-destructive-item-last`: A Menu with Groups and a Destructive Item Last
 
@@ -934,15 +499,36 @@ page
   menu "Row commands"
     action "Open the record"
     action "Resend the receipt"
-    action "Reverse"
-    action disabled "Void the receipt code"
     action "Report a problem"
+    action disabled "Void the receipt code"
     action quiet "Copy the expense number"
+    action destructive "Reverse"
+```
+
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "268 expenses."
+  region "Expenses"
+    field "Expense number, name or email" search
+    table 2 "Expense" "Spender" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
+  drawer bottom
+    heading "Expense EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
+    action "Open the record"
+    action "Resend the receipt"
+    action disabled "Void the receipt code"
+    action destructive "Reverse"
+    footer
+      action "Cancel"
 ```
 
 **Rationale:** The recommended shape groups the items under small headings and puts the destructive one at the end, after a separator, in the destructive tone. Nothing is disabled without a reason.
 
-**Cost:** A menu item that is disabled gives no reason in the menu itself. The reader has to hover or press it to learn why. An explained action solves that on the page, not here.
+**Cost:** A menu item that is disabled gives no reason in the menu itself. The reader has to hover or press it to learn why.
 
 #### `a-menu-that-says-why-an-item-is-disabled`: A Menu That Says Why an Item Is Disabled
 
@@ -991,134 +577,9 @@ page
 
 **Rationale:** A destructive item opens its confirmation from inside the menu, so the menu stays and the question appears beside the row it applies to.
 
-**Cost:** The confirmation opens over the menu, which stacks two floating layers. Atlassian forbids a dialog that triggers another dialog, and the same reasoning refuses a dialog over a menu.
+**Cost:** The confirmation opens over the menu, which stacks two floating layers. A dialog that triggers another dialog is refused, and the same reasoning refuses a dialog over a menu.
 
 **Reference:** Atlassian
-
-#### `a-menu-as-a-split-button-the-first-command-and-the-rest`: A Menu as a Split Button: The First Command and the Rest
-
-```wireframe
-page
-  breadcrumb "Home" "Policies" "Train fare" "Pricing"
-  header
-    heading "Train fare"
-    status "Scheduled" info
-    text "TRAVEL-01. 412 claimed. 0 of 500 paid."
-    action primary "Publish the policy"
-    menu "More ways to publish"
-      action "Publish now, ignoring the date"
-      action "Schedule it for another time"
-      action "Save as a template"
-  region "What would be published"
-    table 3 "Policy" "Ceiling" "Claims"
-      item: text "Train fare" · text "EUR 45.00" · text "412"
-```
-
-**Rationale:** One button carries the first command and its own half carries the menu. Both stay reachable without the reader ever opening anything to find the first one.
-
-**Cost:** Two targets share one shape, and the second half is a chevron that a reader may read as open rather than the rest. It also breaks where a button would wrap.
-
-#### `no-menu-the-row-s-commands-are-all-on-the-row`: No Menu: The Row's Commands Are All on the Row
-
-```wireframe
-page
-  breadcrumb "Home" "Policies"
-  header
-    heading "Policies"
-    text "93 active."
-  toolbar
-    field "Search policies" search
-  table 3 "Policy" "Updated" "Command"
-    item: text "Train fare" · text muted "9 Oct 2026" · action "Open" · action "Publish"
-  region "The rest"
-    list 2
-      item: text "Meal policy" · text muted "7 of 400 claimed"
-```
-
-**Rationale:** One or two commands sit inline and nothing is hidden, for a row whose whole set is small. NN/g's ceiling for inline placement is two.
-
-**Cost:** Two buttons plus a checkbox plus five columns is a wide row, and it stops fitting at 24-pixel density. It also breaks the moment a third command arrives.
-
-**Reference:** NN/g
-
-#### `a-menu-on-the-page-rather-than-the-row`: A Menu on the Page Rather Than the Row
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    status "Paid" positive
-    text "Ava of Harbor and Pine. Submitted 8 Oct 2026, 09:32."
-    action primary "Message spender"
-    menu "More"
-      action "Resend the receipt"
-      action "Reverse"
-      action "Reverse part of it"
-      action disabled "Void the receipt code"
-      action quiet "Copy the expense number"
-  region "The spender"
-    fact "Name" "Ava"
-    fact "Email" "ava@harbor-pine.example"
-```
-
-**Rationale:** A page-level overflow holds every command for the record, rather than a menu per row: one menu instead of twenty-five.
-
-**Cost:** A command that applies to one record cannot live in a page-level menu. The row-menu rule gives each row its own menu. This inverts that rule.
-
-#### `a-menu-with-a-search-field-at-the-top`: A Menu with a Search Field at the Top
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  menu "Commands matching re, 4 of 7"
-    action "Open the record"
-    action "Resend the receipt"
-    action "Reverse"
-    action "Report a problem"
-```
-
-**Rationale:** The way Linear filters its command menu: typing narrows twenty commands to one without submenus. It suits rows whose command set keeps growing past what a scan can hold.
-
-**Cost:** A search field in a menu needs focus on open, which steals the keys a reader uses to move. With six commands it is furniture around a list nobody filters.
-
-**Reference:** Linear
-
-#### `grouped-commands-behind-submenus`: Grouped Commands Behind Submenus
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  menu "Row commands"
-    action "Open the record"
-    action "Resend the receipt"
-    action "Reverse"
-    action quiet "Copy the expense number"
-  menu "Reversal routes"
-    action "Reverse in full"
-    action "Reverse part of it"
-    action "Deduct from the next payout"
-```
-
-**Rationale:** The way Radix UI nests submenus, which is what the shadcn menu is built on: Reverse opens sideways into its three routes. Groups stay visible while the choice stays one hover away.
-
-**Cost:** Sideways menus punish every reader on touch, where hover does not exist. Three routes fit. A fourth means the submenu needs its own scroll, and then it is a panel.
-
-**Reference:** Radix UI
 
 ### Short Panel That Opens Beside a Control
 
@@ -1130,13 +591,34 @@ page
 
 **Default:** `a-popover-that-explains-what-a-term-means`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the panel becomes a bottom sheet with the same content and one dismissal.
 
 **Rationale:** Keep the popover that explains what a term means. A defined term carries its glossary entry where it is read, and only for terms the application has defined. The runner-up is the row preview popover. It suits dense lists where a hover card saves a navigation, and it must open on focus as well as hover.
 
 Never ship a menu and a popover for the same thing. The pair teaches that floating layers stack, and stacked layers confuse readers about which one to dismiss.
 
-**Reviewed for:** Which built hover card or hint departs from the wireframe its catalog entry chose? Open the built popovers, previews, and coach marks beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built hover card or hint departs from the wireframe its catalog entry chose? Open the built popovers and previews beside the catalog entry recording the chosen option and its reason.
+
+#### `a-popover-that-explains-what-a-term-means`: A Popover That Explains What a Term Means
+
+```wireframe
+page
+  breadcrumb "Home" "Billing" "Costs"
+  header
+    heading "What the plan costs"
+    text "Every charge on the account, and what it is for."
+  region "September charges"
+    fact "Business plan" "EUR 49.00 a month"
+    fact "Expense fee" "EUR 270.90"
+    fact "Per-line fee" "EUR 236.00"
+    fact "Total for September" "EUR 555.90"
+  popover "Expense fee"
+    text "0.5 percent of every expense total. It pays for payout handling."
+```
+
+**Rationale:** A word somebody may not know carries its glossary entry beside it. It answers the question where it is asked.
+
+**Cost:** This is only for a term the application has defined. A hint on every unfamiliar word becomes noise, and the glossary has to stay in step with the hint.
 
 #### `a-row-preview-popover-on-hover-and-focus`: A Row Preview Popover on Hover and Focus
 
@@ -1160,96 +642,6 @@ page
 **Rationale:** Hovering a receipt code shows the receipt's facts. It gives context without leaving the list and costs one read.
 
 **Cost:** A hover affordance is invisible on touch and hard to discover on desktop. It needs focus as well as hover, which means two ways to render every row.
-
-#### `a-popover-that-explains-what-a-term-means`: A Popover That Explains What a Term Means
-
-```wireframe
-page
-  breadcrumb "Home" "Billing" "Costs"
-  header
-    heading "What the plan costs"
-    text "Every charge on the account, and what it is for."
-  region "September charges"
-    fact "Business plan" "EUR 49.00 a month"
-    fact "Expense fee" "EUR 270.90"
-    fact "Per-line fee" "EUR 236.00"
-    fact "Total for September" "EUR 555.90"
-  popover "Expense fee"
-    text "0.5 percent of every expense total. It pays for payout handling."
-```
-
-**Rationale:** A word somebody may not know carries its glossary entry beside it. It answers the question where it is asked.
-
-**Cost:** This is only for a term the application has defined. A hint on every unfamiliar word becomes noise, and the glossary has to stay in step with the hint.
-
-#### `a-popover-carrying-the-whole-picker`: A Popover Carrying the Whole Picker
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "New trip"
-  header
-    heading "New trip"
-  region "Where and when"
-    field "Where" text = "Rott"
-    field "Reference" text
-    field "Arrives" text = "14/03/2026"
-  popover "Places matching Rott"
-    list 3
-      item: text "Rotterdam client site" · text muted "40 past trips"
-    action quiet "No place yet? Add one."
-```
-
-**Rationale:** The record picker list opens in a popover rather than a dialog, anchored to the field. The rest of the form stays visible behind it.
-
-**Cost:** This is the picker the forms page already describes. It only works while the list is short enough to sit under the field without leaving the viewport.
-
-#### `a-popover-for-the-calendar`: A Popover for the Calendar
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "New trip"
-  header
-    heading "New trip"
-  region "Window"
-    field "Window opens" text = "14/03/2026"
-    field "Window closes" text = "15/03/2026"
-    text muted "In the Europe/Amsterdam time zone."
-  popover "March 2026"
-    grid 31
-      item: text "14"
-    text muted "14 March is selected."
-    action quiet "Previous month"
-    action quiet "Next month"
-```
-
-**Rationale:** The date field opens a month grid in a popover rather than a dialog. The form and the calendar both stay visible, and Escape closes the calendar alone.
-
-**Cost:** APG puts the grid in a dialog, not a popover. A popover can be clipped by an overflow container, and the calendar is essential rather than advisory.
-
-**Reference:** APG
-
-#### `a-popover-on-the-copy-button-saying-what-was-copied`: A Popover on the Copy Button, Saying What Was Copied
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    text "Quote these in a message to support."
-  region "Identifiers"
-    fact "Expense" "EXP-1042"
-    action quiet "Copy"
-    fact "Receipts" "RC-0C893968A2"
-    action quiet "Copy"
-    fact "Bank reference" "SH-88213"
-    action quiet "Copy"
-  popover "Copied"
-    text "The receipt codes are on the spender message."
-```
-
-**Rationale:** Copying an identifier is a command with no visible result otherwise, so the control confirms in place rather than opening anything.
-
-**Cost:** A confirmation for a copy is easy to miss and the value is already on screen. It is politeness rather than information.
 
 #### `a-menu-and-a-popover-used-for-the-same-thing`: A Menu and a Popover Used for the Same Thing
 
@@ -1275,57 +667,6 @@ page
 
 **Cost:** A page with both holds three floating layers counting the dialog, and a reader must learn which is which. This is why a page should show one overlay at a time.
 
-#### `a-customer-hover-card-with-recent-orders`: A Spender Hover Card with Recent Expenses
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  toolbar
-    field "Search expenses" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  popover "Ava"
-    item: avatar "A" · text "Ava" · text muted "ava@harbor-pine.example"
-    fact "Expenses" "3, all paid"
-    fact "Paid in total" "EUR 215.00"
-    fact "Reversals" "None"
-    link "Open the spender"
-```
-
-**Rationale:** The way GitHub Primer draws a Hovercard: identity, facts, and one link, on hover and on focus. Support reads the spender without leaving the reversals queue.
-
-**Cost:** A card that fetches on hover fires a read per row skimmed. Without focus support it is invisible on touch, where support increasingly works.
-
-**Reference:** GitHub Primer
-
-#### `a-coach-mark-pinned-to-the-control`: A Coach Mark Pinned to the Control
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  toolbar
-    field "Search expenses" search
-    action "Export"
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  popover "Export sends a file of these expenses"
-    text "The current search and filters decide the rows."
-    action "Got it"
-    action quiet "Do not show again"
-```
-
-**Rationale:** The way Atlassian spotlights a new control: one anchored card, one fact, one dismissal. An application that already tours new staff extends a surface they know.
-
-**Cost:** A coach mark interrupts the task it annotates. Past the first week it is dismissed unread, and every new control cannot have one or none is read.
-
-**Reference:** Atlassian
-
 ### Bar That Stays While the Reader Works
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#bar-that-stays-while-the-reader-works`
@@ -1342,7 +683,7 @@ page
 
 Never ship the bar naming a deadline: a full-width caution band paints the whole page, and the tone covers work the page is not about.
 
-**Reviewed for:** Which built persistent band departs from the wireframe its catalog entry chose? Open the built unsaved-work, deadline, and read-only bars beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built persistent band departs from the wireframe its catalog entry chose? Open the built deployment and deadline bands beside the catalog entry recording the chosen option and its reason.
 
 #### `a-neutral-band-for-what-this-page-is`: A Neutral Band for What This Page Is
 
@@ -1362,64 +703,6 @@ page
 **Rationale:** A band across the back office that holds on every page, such as which deployment this is. It stays neutral, never a tone, because it is about the page rather than about work.
 
 **Cost:** A band on every page is chrome the reader cannot remove, and it competes with the heading for the top of the screen. It has to earn its height.
-
-#### `a-bar-for-unsaved-work-pinned-to-the-foot`: A Bar for Unsaved Work, Pinned to the Foot
-
-```wireframe
-page
-  breadcrumb "Home" "Settings" "Portal"
-  header
-    heading "Portal"
-    text "The accent color spenders see."
-  region "Settings"
-    field "Accent color" text = "#2563EB"
-    field "Typeface" select = "Inter"
-  footer sticky
-    text "Two changes not saved: accent color, typeface."
-    action "Discard"
-    action primary "Save"
-```
-
-**Rationale:** A bar across the bottom says what is not saved and offers Save and Discard. It answers a question the editor currently leaves open.
-
-**Cost:** It covers the bottom of the page, which on a table is where the pagination lives. A neutral band over a form is still a full-width band.
-
-#### `a-bar-naming-a-deadline-that-is-closing`: A Bar Naming a Deadline That Is Closing
-
-```wireframe
-page
-  message caution "Answering closes on 21 October. 5 disputes recall on 21 Oct if nothing is sent."
-  breadcrumb "Home" "Payouts" "Disputes"
-  header
-    heading "Disputes"
-    text "5 open. The nearest closes in 19 days."
-  region "Cases"
-    table 4 "Case" "Expense" "Amount" "Closes"
-      item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · status "19 days" caution
-```
-
-**Rationale:** A band naming the date the bank recalls, so the disputes work under it has a clock the band states.
-
-**Cost:** A full-width caution band on a page about disputes is exactly the case the tone rule forbids. The tone paints the whole page rather than the thing in that state.
-
-#### `a-bar-saying-what-is-read-only-and-why`: A Bar Saying What Is Read-Only and Why
-
-```wireframe
-page
-  message neutral "This is read-only for your role. You are Eli, support agent. Only finance can answer a dispute or issue a reversal."
-  breadcrumb "Home" "Payouts" "Disputes"
-  header
-    heading "Disputes"
-    text "5 open. The nearest closes in 19 days."
-  region "Cases"
-    table 3 "Case" "Expense" "Amount" "Closes"
-      item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · text "19 days" · action disabled "Answer"
-    message neutral "Only finance can answer a dispute. Support reads expenses and messages spenders."
-```
-
-**Rationale:** Where a whole area is read-only for this role, one band names the reason and the grant. The page below is drawn as it would be for a reader who could act.
-
-**Cost:** Every page of the area repeats the band. The reader's eye skips it after the first and then misses the one place it changes.
 
 #### `a-bar-on-the-record-page-not-the-console`: A Bar on the Record Page, Not the Console
 
@@ -1441,246 +724,23 @@ page
 
 **Cost:** The reader learns the band on one page and then has to learn that another page does not have one. A scoped band is not a deployment marker. It is a per-record notice.
 
-#### `no-bar-the-fact-goes-in-the-heading-instead`: No Bar: The Fact Goes in the Heading Instead
+#### `a-bar-naming-a-deadline-that-is-closing`: A Bar Naming a Deadline That Is Closing
 
 ```wireframe
 page
-  breadcrumb "Home" "Expenses"
+  message caution "Answering closes on 21 October. 5 disputes recall on 21 Oct if nothing is sent."
+  breadcrumb "Home" "Payouts" "Disputes"
   header
-    heading "Expenses"
-    status "Sandbox" info
-    text "Every paid expense, newest first. Nothing here is really paid."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 3 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+    heading "Disputes"
+    text "5 open. The nearest closes in 19 days."
+  region "Cases"
+    table 4 "Case" "Expense" "Amount" "Closes"
+      item: text "D-0182" · text "EXP-1034" · text "EUR 45.00" · status "19 days" caution
 ```
 
-**Rationale:** The sandbox is named in the heading and the switcher, rather than in a band. Nothing is lost and one element is removed from every page.
+**Rationale:** A band naming the date the bank recalls, so the disputes work under it has a clock the band states.
 
-**Cost:** A reader who has seen four pages without the word `sandbox` may not notice it. The heading already carries the record or the page job.
-
-#### `a-save-bar-pinned-under-the-header`: A Save Bar Pinned Under the Header
-
-```wireframe
-page
-  breadcrumb "Home" "Settings" "Portal"
-  header
-    heading "Portal"
-    text "The accent color spenders see."
-  toolbar sticky
-    text "Unsaved changes: accent color, typeface."
-    action "Discard"
-    action primary "Save"
-  region "Settings"
-    field "Accent color" text = "#2563EB"
-    field "Typeface" select = "Inter"
-```
-
-**Rationale:** The way Shopify Polaris draws its ContextualSaveBar: a dark bar under the header with Discard and Save, appearing only while the form is dirty. The actions stay in view on a long form.
-
-**Cost:** A bar that appears and disappears moves the page it sits over. Readers learn to distrust the top of every form, dirty or not.
-
-**Reference:** Shopify Polaris
-
-#### `a-band-the-reader-dismisses-for-the-session`: A Band the Reader Dismisses for the Session
-
-```wireframe
-page
-  message info "A payout settles on Friday. EUR 122.85 for the March payout run, held by the bank until then."
-  action quiet "Dismiss the announcement"
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense, newest first."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 3 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** The way GitHub Primer draws a dismissible Banner: the fact shows once per session and the close is remembered. It suits announcements, where the second reading has no value.
-
-**Cost:** A dismissed band cannot carry anything the reader must see. The first dismissal teaches that every band can go, including the next one that matters.
-
-**Reference:** GitHub Primer
-
-### Bottom Sheet on a Phone
-
-**ID:** `litespec/frontend/patterns/dialogs-and-overlays#bottom-sheet-on-a-phone`
-
-**Strength:** default
-
-**Question:** On a phone there is no beside and no center: a dialog becomes a sheet from the bottom edge. Material keeps a modal bottom sheet one swipe from dismissed, with a handle, a title, and actions stacked full width.
-
-**Default:** `order-actions-in-a-bottom-sheet`
-
-**Compact:** Every option in this pattern is the phone behavior. A dialog becomes a sheet from the bottom edge with a handle, a title naming the record, and a full-width footer. The compact option is `order-actions-in-a-bottom-sheet`.
-
-**Rationale:** Ship the expense-actions sheet for commands and the filters sheet with its sticky apply bar for filters: both keep a handle, a title, and a full-width footer above the home indicator. The half-height sheet is the runner-up where the content is genuinely long, because detents let the reader choose half or full.
-
-Never ship the sheet with no dismissal: it traps the reader on the smallest screen, where every trap costs the most.
-
-**Reviewed for:** Which built thumb-reach sheet departs from the wireframe its catalog entry chose? Open the built half, full, and filter sheets beside the catalog entry recording the chosen option and its reason.
-
-#### `order-actions-in-a-bottom-sheet`: Expense Actions in a Bottom Sheet
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer bottom
-    heading "Expense EXP-1042"
-    text "Ava · Harbor and Pine · EUR 125.00 paid."
-    action "Resend the receipt"
-    action "Reverse"
-    action quiet "Copy the expense number"
-    footer
-      action "Cancel"
-```
-
-**Rationale:** The way Material Design draws a modal bottom sheet: a handle, a title naming the record, thumb-sized rows, one full-width dismissal. The sheet is one swipe from gone, so the list behind stays the surface.
-
-**Cost:** One sheet holds one record. Bulk commands need the list rather than this, and past five rows the sheet needs its own scroll.
-
-**Reference:** Material Design
-
-#### `filters-with-a-sticky-apply-bar`: Filters with a Sticky Apply Bar
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "12 expenses match."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer bottom
-    heading "Filters"
-    text "2 applied · 12 expenses match."
-    field "State" select = "Paid"
-    field "Line" select = "Train fare"
-    footer
-      action "Clear both"
-      action primary "Show 12 results"
-```
-
-**Rationale:** The way Shopify filters a mobile list: chips for what is set, controls for the rest, and an apply bar pinned to the foot. The match count sits in the bar. The reader never loses the results behind.
-
-**Cost:** Chips wrap tall. Past six filters the sheet needs its own scroll, and the match count has to be live or it lies.
-
-**Reference:** Shopify
-
-#### `a-sheet-that-opens-half-and-expands-full`: A Sheet That Opens Half and Expands Full
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  drawer bottom
-    heading "Expense EXP-1042"
-    status "Paid" positive
-    text "Ava · EUR 125.00 paid by bank transfer."
-    text "Half height. Pull the handle for the lines and the history."
-    footer
-      action "Expand"
-```
-
-**Rationale:** The way Apple Maps stages detents: half height answers the glance, full height answers the read, and the handle invites the pull. The list behind stays visible at half.
-
-**Cost:** Two heights are two layouts to keep true. Content must read sensibly cut at half, which means the fact at the cut cannot be the one that matters.
-
-**Reference:** Apple Maps
-
-#### `a-sheet-with-a-destructive-section`: A Sheet with a Destructive Section
-
-```wireframe
-page
-  breadcrumb "Home" "Policies"
-  header
-    heading "March payout run"
-    text "Sat 14 Mar 2026 · Rotterdam client site."
-  region "The run"
-    fact "State" "Scheduled"
-    fact "Payouts" "1,204"
-  drawer bottom
-    heading "Cancel the March payout run?"
-    text "1,204 spenders · EUR 54,180.00 stays in the budget."
-    message critical "This cannot be undone. A run that has been canceled cannot be scheduled again."
-    footer
-      action destructive "Cancel the run"
-      action "Keep the run"
-```
-
-**Rationale:** The way an Apple action sheet seats the destructive row apart and last. The danger is separated, red, and below the fold of safe rows. The thumb meets safe actions first.
-
-**Cost:** Destructive at thumb reach still needs its confirm step, which this sheet cannot hold without nesting. The tap must open the full dialog, so the sheet is a detour rather than a shortcut.
-
-**Reference:** Apple
-
-#### `a-full-screen-sheet-takeover`: A Full-Screen Sheet Takeover
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    text "3 lines · Harbor and Pine."
-  region "Notes"
-    list 1
-      item: text "Harbor and Pine approved the Friday trip" · text muted "Cara, 2 Oct 2026"
-  drawer bottom
-    heading "Add a note"
-    text "Only Harbor and Pine sees these."
-    field "Note" textarea
-    field "About" select = "The spender"
-    footer
-      action "Cancel"
-      action primary "Add the note"
-```
-
-**Rationale:** The way Material draws a full-screen dialog on a phone: the sheet takes the screen while keeping the scrim behind. Dismissal still reads as dismissal rather than navigation.
-
-**Cost:** A full screen with a handle is a page that cannot link. Deep tasks deserve the route with its Back, not this.
-
-**Reference:** Material Design
-
-#### `a-sheet-with-no-handle-and-no-dismissal`: A Sheet with No Handle and No Dismissal
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 expenses to decide."
-  region "Reversals"
-    table 1 "Expense" "Spender" "Amount"
-      item: text "EXP-1035" · text "Ade Okafor" · text "EUR 45.00"
-  drawer bottom
-    heading "Choose a reversal route"
-    text "Expense EXP-1035 · Ade Okafor · EUR 45.00 · 181 days old."
-    field "Reversal route" radio = "Deduction from the next payout"
-    footer
-      action primary "Apply deduction"
-```
-
-**Rationale:** Some banking apps block the screen until a choice is made. This shows what that costs here: the reader is stuck until they pick a reversal route.
-
-**Cost:** It traps the reader on the smallest screen, where every trap costs the most. Only a command that cannot wait earns this, and a reversal route can always wait.
+**Cost:** A full-width caution band on a page about disputes is exactly the case the tone rule forbids. The tone paints the whole page rather than the thing in that state.
 
 ### Dialog with a Long Body and a Sticky Footer
 
@@ -1692,13 +752,13 @@ page
 
 **Default:** `a-scrolling-body-with-a-pinned-footer`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-screen sheet with the body scrolling under a footer pinned above the home indicator.
 
 **Rationale:** Ship the scrolling body with a pinned footer: one scrolling body, one pinned footer, nothing else. The summary pinned above the footer is the runner-up wherever money moves, because the reader sees the totals above the footer before confirming.
 
 Never ship the dialog with no pinned footer: buttons that scroll away ask the reader to agree first and find how after.
 
-**Reviewed for:** Which built scrolling dialog departs from the wireframe its catalog entry chose? Open the built pinned footers and collapsed sections beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built scrolling dialog departs from the wireframe its catalog entry chose? Open the built pinned footers beside the catalog entry recording the chosen option and its reason.
 
 #### `a-scrolling-body-with-a-pinned-footer`: A Scrolling Body with a Pinned Footer
 
@@ -1721,71 +781,30 @@ page
       action destructive "Reverse EUR 125.00"
 ```
 
-**Rationale:** The way the Stripe Dashboard pins actions on a long refund dialog: the body scrolls under a footer that never moves. The commit stays in reach and the terms stay above it.
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses" "EXP-1042"
+  header
+    heading "EXP-1042"
+    text "Ava · Harbor and Pine · EUR 125.00 paid."
+  region "What was bought"
+    fact "Train fare, 2 fares" "EUR 90.00"
+    fact "Paid to the spender" "EUR 125.00"
+  drawer bottom
+    heading "Reverse EXP-1042 in full?"
+    text "The two fares go back to drafts and claim again. The personal item sits outside the policy and is not reversed."
+    text "The reversal returns to the Harbor and Pine account. It arrives within five working days."
+    text "This payout is 31 days old, inside the 180-day window. Past it the fallbacks are a deduction or a repayment the back office only records."
+    footer
+      action "Cancel"
+      action destructive "Reverse EUR 125.00"
+```
+
+**Rationale:** The body scrolls under a footer that never moves. The commit stays in reach and the terms stay above it.
 
 **Cost:** A scrolling region inside a dialog is two scrolls on one screen. Keyboard readers must land in the body rather than behind it, or the terms are decoration.
 
 **Reference:** Stripe
-
-#### `a-pinned-header-and-footer-with-a-section-read`: A Pinned Header and Footer with a Section Read
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    text "Ava · Harbor and Pine · EUR 125.00 paid."
-  region "What was bought"
-    fact "Train fare, 2 fares" "EUR 90.00"
-    fact "Paid to the spender" "EUR 125.00"
-  dialog
-    heading "Reverse EXP-1042 in full?"
-    text "Reversing EXP-1042 · EUR 125.00 · 2 fares and personal item."
-    region "The money"
-      text "EUR 125.00 returns from Ava to the Harbor and Pine account. The personal item is not reversed."
-    region "The lines"
-      text "Both fares go back to drafts and claim again at the current ceiling."
-    region "The window"
-      text "This payout is 31 days old, inside the 180-day window."
-    region "The record"
-      text "Nothing is deleted. The expense says it was reversed, when, and who approved it."
-    footer
-      action "Cancel"
-      action destructive "Reverse EUR 125.00"
-```
-
-**Rationale:** The way Atlassian pins modal headers on long content: the record and the amount stay named while the sections scroll. The reader never wonders which expense the terms belong to.
-
-**Cost:** Pinned chrome eats a third of a phone dialog, and the body shows two lines at a time. On a short dialog the pinned header is furniture.
-
-**Reference:** Atlassian
-
-#### `sections-that-collapse`: Sections That Collapse
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    text "Ava · Harbor and Pine · EUR 125.00 paid."
-  region "What was bought"
-    fact "Train fare, 2 fares" "EUR 90.00"
-    fact "Paid to the spender" "EUR 125.00"
-  dialog
-    heading "Reverse EXP-1042 in full?"
-    list 4
-      item: text "The money" · text muted "open"
-    text "EUR 125.00 returns from Ava to the Harbor and Pine account."
-    footer
-      action "Cancel"
-      action destructive "Reverse EUR 125.00"
-```
-
-**Rationale:** The way Shopify collapses modal sections: one open at a time, the rest one tap away. Four sections read as four lines until the reader wants one.
-
-**Cost:** Collapsed sections hide the term the reader most needed. The dialog must open the section that matters for this expense, which means it must know which one that is.
-
-**Reference:** Shopify
 
 #### `a-summary-pinned-above-the-footer`: A Summary Pinned Above the Footer
 
@@ -1808,44 +827,11 @@ page
       action destructive "Reverse EUR 125.00"
 ```
 
-**Rationale:** The way Stripe pins the total above Pay: the number the click commits to stays visible while the terms scroll. The reader signs the number, not the scroll position.
+**Rationale:** The total sits above the commit action: the number the click commits to stays visible while the terms scroll. The reader signs the number, not the scroll position.
 
 **Cost:** The pinned summary duplicates the body. Where the two disagree the reader trusts the pin, and the body becomes decoration nobody checks.
 
 **Reference:** Stripe
-
-#### `a-wide-dialog-for-dense-facts`: A Wide Dialog for Dense Facts
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "EXP-1042"
-  header
-    heading "EXP-1042"
-    text "Ava · Harbor and Pine · EUR 125.00 paid."
-  region "What was bought"
-    fact "Train fare, 2 fares" "EUR 90.00"
-    fact "Paid to the spender" "EUR 125.00"
-  dialog
-    heading "Reverse EXP-1042 in full?"
-    split 1:1
-      region "Money and route"
-        fact "From the spender" "EUR 125.00"
-        fact "Route" "Original bank transfer"
-        fact "Window" "31 of 180 days used"
-      region "Lines and record"
-        fact "Lines" "2 fares, back to drafts"
-        fact "Personal item" "Not reversed"
-        fact "Record" "Kept, marked reversed"
-    footer
-      action "Cancel"
-      action destructive "Reverse EUR 125.00"
-```
-
-**Rationale:** The way Vercel widens a modal for dense settings: two columns of facts read side by side instead of stacked. Four sections fit without scrolling on a laptop.
-
-**Cost:** Wide on desktop is full-width on a phone, where the columns stack and the dialog doubles in height. The no-scroll promise holds at exactly one width.
-
-**Reference:** Vercel
 
 #### `no-pinned-footer-the-buttons-scroll-away`: No Pinned Footer: The Buttons Scroll Away
 
@@ -1878,7 +864,7 @@ page
 
 **Strength:** default
 
-**Question:** Staff who live in lists learn keys faster than clicks. Linear and GitHub both answer `?` with an overlay, grouped by where the keys work, closable with the same key.
+**Question:** Staff who live in lists learn keys faster than clicks. The application answers `?` with an overlay, grouped by where the keys work, closable with the same key.
 
 **Default:** `a-grouped-grid-of-shortcuts`
 
@@ -1888,7 +874,7 @@ page
 
 Never ship tooltips alone: they hide the catalog from the reader who would learn it fastest.
 
-**Reviewed for:** Which built shortcut list departs from the wireframe its catalog entry chose? Open the built grouped grids and palette shortcut views beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built shortcut list departs from the wireframe its catalog entry chose? Open the built grouped grids beside the catalog entry recording the chosen option and its reason.
 
 #### `a-grouped-grid-of-shortcuts`: A Grouped Grid of Shortcuts
 
@@ -1918,64 +904,11 @@ page
       action "Close"
 ```
 
-**Rationale:** The way Linear answers `?`: groups by where the keys work, each key in its own cap, and the same key closes. Staff learn the catalog in one reading.
+**Rationale:** Groups by where the keys work, each key in its own cap, and the same key closes. Staff learn the catalog in one reading.
 
 **Cost:** A catalog dialog lists keys the reader has no reason to press yet. Past twenty keys it is reference rather than learning, and reference belongs on a page.
 
 **Reference:** Linear
-
-#### `a-single-column-list`: A Single-Column List
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  dialog
-    heading "Keyboard shortcuts"
-    text "Press ? again to close."
-    list 6
-      item: text "Open this help" · text "?"
-    footer
-      action "Close"
-```
-
-**Rationale:** The way Superhuman lists every key in one column: no groups to learn, scanning top to bottom, each row one fact. Shorter to build and shorter to read.
-
-**Cost:** One column grows long. Groups would shorten the search for a key the reader half-remembers, and this list has none.
-
-**Reference:** Superhuman
-
-#### `shortcuts-inside-the-command-palette`: Shortcuts Inside the Command Palette
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  dialog
-    heading "Search and commands"
-    field "Search commands" search = "resend"
-    list 2
-      item: text "Resend the receipt for EXP-1042" · text muted "Enter to run"
-    text "? shows all shortcuts. Up and Down move. Esc closes."
-```
-
-**Rationale:** The way Raycast teaches keys in its footer: the hints sit where the keys work, so every palette visit is a lesson. No separate catalog to keep true.
-
-**Cost:** Hints teach three keys. The rest stay hidden until the full dialog opens, so this is a reminder rather than a catalog.
-
-**Reference:** Raycast
 
 #### `shortcuts-for-this-page-only`: Shortcuts for This Page Only
 
@@ -1999,38 +932,11 @@ page
       action "Close"
 ```
 
-**Rationale:** The way Figma scopes its shortcuts panel to the tool at hand, showing only the keys that work here. The list stays short enough to learn. The global keys live one link away.
+**Rationale:** The panel scopes to the tool at hand, showing only the keys that work here. The list stays short enough to learn. The global keys live one link away.
 
 **Cost:** Page-scoped lists repeat the global keys on every page or omit them. Either way the reader meets two lists where one catalog would do.
 
 **Reference:** Figma
-
-#### `a-printable-cheat-sheet-page`: A Printable Cheat Sheet Page
-
-```wireframe
-page
-  breadcrumb "Home" "Help" "Shortcuts"
-  header
-    heading "Keyboard shortcuts"
-    text "Every key the application honors."
-    action "Print"
-  split 1:1
-    region "Everywhere"
-      list 3
-        item: text "Open this help" · text "?"
-    region "Expenses list"
-      list 3
-        item: text "Search the list" · text "/"
-  region "Record"
-    list 2
-      item: text "Message the spender" · text "M"
-```
-
-**Rationale:** The way GitHub Docs prints its cheat sheet: one page, two columns, made for paper pinned beside a screen. Desk staff learn from paper faster than from a dialog.
-
-**Cost:** A page for keys is a destination nobody bookmarks. The keys are needed where the work is, and this page is never there.
-
-**Reference:** GitHub Docs
 
 #### `no-overlay-hints-only-on-tooltips`: No Overlay: Hints Only on Tooltips
 
@@ -2060,17 +966,17 @@ page
 
 **Strength:** default
 
-**Question:** A right click asks what this thing can do. Linear and VS Code answer at the pointer with the same commands the row menu holds. The menu is a shortcut rather than a second set.
+**Question:** A right click asks what this thing can do. The application answers at the pointer with the same commands the row menu holds. The menu is a shortcut rather than a second set.
 
 **Default:** `a-right-click-menu-on-a-row`
 
-**Compact:** Touch has no right click: a long press opens the same menu, with the same commands and the same order, positioned above the row. The compact option is `a-long-press-menu-on-touch`.
+**Compact:** Touch has no right click: a long press opens the same menu at the row, with the same commands in the same order.
 
 **Rationale:** Ship the right-click menu on the row: the row's own commands at the pointer, nothing added, nothing missing, closed by clicking elsewhere. The bulk-selection menu is the runner-up for bulk work, where the menu rewrites itself for the selection count.
 
 Never ship silence: it hands the gesture to the browser, whose commands act on the page rather than the record.
 
-**Reviewed for:** Which built right-click menu departs from the wireframe its catalog entry chose? Open the built row, bulk, and empty-space menus beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built right-click menu departs from the wireframe its catalog entry chose? Open the built row and bulk menus beside the catalog entry recording the chosen option and its reason.
 
 #### `a-right-click-menu-on-a-row`: A Right-Click Menu on a Row
 
@@ -2092,37 +998,11 @@ page
       action quiet "Copy the expense number"
 ```
 
-**Rationale:** The way Linear answers a right click: the row's own commands at the pointer, nothing added, nothing missing. The menu is a shortcut to the row menu rather than a second set.
+**Rationale:** The row's own commands at the pointer, nothing added, nothing missing. The menu is a shortcut to the row menu rather than a second set.
 
 **Cost:** Right click is invisible. Staff who never try it keep the row menu, and both menus must hold the same commands or one of them lies.
 
 **Reference:** Linear
-
-#### `a-context-menu-with-icons-and-shortcuts`: A Context Menu with Icons and Shortcuts
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 3 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  popover
-    menu "Expense EXP-1042"
-      action "Open the record (Enter)"
-      action "Resend the confirmation (R)"
-      action "Reverse"
-      action quiet "Copy the expense number (Ctrl C)"
-```
-
-**Rationale:** The way VS Code pairs icons with keys in its context menus: the icon scans and the key teaches. The pair stays the same everywhere the command appears.
-
-**Cost:** Icons for Reverse and Report read as decoration. A wrong icon teaches faster than no icon, and every icon is a second name to keep true in two languages.
-
-**Reference:** VS Code
 
 #### `a-context-menu-for-a-bulk-selection`: A Context Menu for a Bulk Selection
 
@@ -2143,62 +1023,11 @@ page
       action quiet "Copy 3 expense numbers (Ctrl C)"
 ```
 
-**Rationale:** The way Figma rewrites its right-click menu for a multi-selection: the count in every label, single-record commands gone. The reader cannot ask three rows to open one record.
+**Rationale:** The menu rewrites for a multi-selection: the count in every label, and the single-record commands are gone. The reader cannot ask three rows to open one record.
 
 **Cost:** The menu rewrites per count, so muscle memory for one row breaks at three. The count must be exact at the click, not at the render.
 
 **Reference:** Figma
-
-#### `a-long-press-menu-on-touch`: A Long-Press Menu on Touch
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  popover
-    menu "Expense EXP-1042"
-      action "Open the record"
-      action "Resend the receipt"
-      action "Reverse"
-      action quiet "Copy the expense number"
-```
-
-**Rationale:** The way iOS answers a long press: the same menu, opened by time rather than button. Touch staff get the shortcut without a second design to learn.
-
-**Cost:** Long press has no hover state, so discovery is zero and the delay punishes every use. It is a courtesy for those who know, not a route for those who do not.
-
-**Reference:** iOS
-
-#### `a-context-menu-on-empty-space`: A Context Menu on Empty Space
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses."
-  region "Expenses"
-    field "Expense number, name or email" search
-    table 3 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  popover
-    menu "Expenses list"
-      action "Refresh the list (R)"
-      action "Export these expenses (E)"
-      action quiet "Copy the page link"
-```
-
-**Rationale:** The way VS Code menus its explorer background: page commands where the pointer is. Refresh and Export do not need a trip to the toolbar.
-
-**Cost:** Page commands in a hidden menu compete with the toolbar that already holds them. Two homes for Export means two places to keep true.
-
-**Reference:** VS Code
 
 #### `no-menu-the-browser-default-answers`: No Menu: The Browser Default Answers
 

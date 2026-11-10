@@ -18,7 +18,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", Old, New, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<implements>{New}</implements>", File.ReadAllText(DocTag(temp.Path)));
         Assert.DoesNotContain(Old, File.ReadAllText(DocTag(temp.Path)));
         Assert.Contains($"[Implements(\"{New}\")]", File.ReadAllText(Attribute(temp.Path)));
@@ -37,7 +37,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", Old, New, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"public const string BorrowCopy = \"{Old}\";", File.ReadAllText(Unrelated(temp.Path)));
     }
 
@@ -54,7 +54,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<follows>{newDecision}</follows>", File.ReadAllText(FollowsTag(temp.Path)));
         Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsTag(temp.Path)));
         Assert.Contains($"[Follows(\"{newDecision}\")]", File.ReadAllText(FollowsAttribute(temp.Path)));
@@ -96,7 +96,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newRequirement}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newRequirement}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -116,7 +116,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", oldSystem, newSystem, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newSystem}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldSystem, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newSystem}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -136,7 +136,7 @@ public sealed class RenameMarksTests
 
         var result = Cli.Run("rename", oldEvent, newEvent, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newEvent}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldEvent, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newEvent}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));

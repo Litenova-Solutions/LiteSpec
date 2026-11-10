@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model.Readers;
 public sealed class OperationsMarkReaderTests
 {
     /// <summary>Follows Marks Are Read With The Comment Style.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Follows_Marks_Are_Read_With_The_Comment_Style()
     {
@@ -34,7 +34,7 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Marks Outside Comments And Other Verbs Are Ignored.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Marks_Outside_Comments_And_Other_Verbs_Are_Ignored()
     {
@@ -51,7 +51,7 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Markdown Files Below An Operations Folder Are Ignored.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Markdown_Files_Below_An_Operations_Folder_Are_Ignored()
     {

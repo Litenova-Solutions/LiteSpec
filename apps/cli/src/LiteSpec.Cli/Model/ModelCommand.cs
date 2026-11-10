@@ -26,7 +26,6 @@ static class ModelCommand
     /// <summary>Runs the model command: check, format, render or query.</summary>
     /// <param name="args">The command arguments, the subcommand first.</param>
     /// <returns>The exit code: 0 for success, 1 for a blocking finding or a missing record, 2 for a usage error.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
     public static int Run(string[] args)
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
@@ -55,6 +54,9 @@ static class ModelCommand
                 _ => 0,
             });
 
+        // Only check takes --format, so every other subcommand fails in text.
+        var json = parsed.Json;
+
         // A usage error is reported before --help is honoured, so an unsupported --format value fails here too.
         var usageError = parsed.Error ?? parsed.FormatError;
 
@@ -66,9 +68,7 @@ static class ModelCommand
 
         if (usageError is { } error)
         {
-            Console.Error.WriteLine(error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(error, Usage, json);
         }
 
         string root;
@@ -79,22 +79,19 @@ static class ModelCommand
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            return 2;
+            return LastResort.Fail($"Invalid root '{parsed.Value("--root")}': {exception.Message}", json, 2);
         }
 
         if (!Directory.Exists(root))
         {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' does not exist.", json, 2);
         }
 
         // Without a project file every path falls back to a default, and the
         // check would pass a folder that is not a consumer at all.
         if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
-            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
-            return 2;
+            return LastResort.Fail($"Root '{root}' holds no .litespec/project.json.", json, 2);
         }
 
         ConsumerConfig config;
@@ -105,247 +102,246 @@ static class ModelCommand
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
+            return LastResort.Fail($".litespec/project.json is not valid JSON: {exception.Message}", json, 2);
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
-            return 2;
+            return LastResort.Fail(exception.Message, json, 2);
         }
 
-        try
+        switch (command)
         {
-            switch (command)
+            case "check":
             {
-                case "check":
-                {
-                    var model = ModelBuilder.Build(config);
-                    var (modelFindings, known) = Checker.Check(model);
-                    var findings = modelFindings.ToList();
+                var model = ModelBuilder.Build(config);
+                List<Finding> findings;
+                IReadOnlyList<Finding> known;
 
-                    // The consumer pass reads the project file, the record pages,
-                    // the glossary and the controlled UI into the same finding
-                    // shape, so one command and one CI step hold the whole consumer.
-                    // Its findings take the same level filter as the model
-                    // findings, so a project claims the same part of the contract
-                    // in both passes.
+                try
+                {
+                    (findings, known) = Collect(model, root);
+                }
+                catch (FailFast fail)
+                {
+                    return LastResort.Fail(fail.Message, json, fail.Code);
+                }
+
+                model.Ledger.Save(config);
+                var release = parsed.Has("--release");
+                var all = parsed.Has("--all");
+                var sinceRef = parsed.Value("--since");
+                StagedScope.Scope? since = null;
+                IReadOnlyList<Finding> breaks = [];
+
+                if (sinceRef is not null)
+                {
+                    var (scope, sinceError) = StagedScope.Since(model, sinceRef);
+
+                    if (scope is null)
+                    {
+                        return LastResort.Fail(sinceError, json, 2);
+                    }
+
+                    since = scope;
+
                     try
                     {
-                        var consumerRun = new ConsumerRun(root);
-                        consumerRun.Execute();
-                        findings.AddRange(consumerRun.Errors);
+                        using var checkout = DiffBase.Load(config, sinceRef);
+                        breaks = ContractBreaks.Find(checkout.Model, model);
                     }
-                    catch (FailFast fail)
+                    catch (InvalidOperationException exception)
                     {
-                        Console.Error.WriteLine(fail.Message);
-                        return fail.Code;
+                        return LastResort.Fail(exception.Message, json, 2);
                     }
-
-                    findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, config.Conformance));
-
-                    model.Ledger.Save(config);
-                    var json = parsed.Json;
-                    var release = parsed.Has("--release");
-                    var all = parsed.Has("--all");
-                    var sinceRef = parsed.Value("--since");
-                    StagedScope.Scope? since = null;
-                    IReadOnlyList<Finding> breaks = [];
-
-                    if (sinceRef is not null)
-                    {
-                        var (scope, sinceError) = StagedScope.Since(model, sinceRef);
-
-                        if (scope is null)
-                        {
-                            Console.Error.WriteLine(sinceError);
-                            return 2;
-                        }
-
-                        since = scope;
-
-                        try
-                        {
-                            using var checkout = DiffBase.Load(config, sinceRef);
-                            breaks = ContractBreaks.Find(checkout.Model, model);
-                        }
-                        catch (InvalidOperationException exception)
-                        {
-                            Console.Error.WriteLine(exception.Message);
-                            return 2;
-                        }
-                    }
-
-                    var shown = findings
-                        .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, release)))
-                        .Select(entry => since is not null
-                            && entry.Severity.Outcome == Outcome.Blocking
-                            && !StagedScope.InScope(since, entry.Finding)
-                                ? (entry.Finding, Severity: new Severity(Outcome.Reported), Demoted: true)
-                                : (entry.Finding, entry.Severity, Demoted: false))
-                        .ToList();
-
-                    // A breaking contract change is the point of --since, so it
-                    // always stands: the scope never demotes it to reported. It
-                    // runs only at the level its code claims, like every finding.
-                    foreach (var breaking in breaks.Where(finding => ConformanceLevels.Runs(finding.Code, config.Conformance)))
-                    {
-                        shown.Add((breaking, Decide(model, config, breaking, release), false));
-                    }
-
-                    if (json)
-                    {
-                        var payload = new JsonObject();
-
-                        if (since is not null)
-                        {
-                            payload["scope"] = "since";
-                            payload["since"] = sinceRef;
-                            payload["changedFiles"] = since.ChangedFiles;
-                            payload["changedRecords"] = since.RecordIds.Count;
-                        }
-
-                        payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
-                        payload["known"] = new JsonArray([.. known.Select(gap => (JsonNode?)AsKnownJson(config, gap))]);
-
-                        CliJson.Write(payload);
-                    }
-                    else
-                    {
-                        if (since is not null)
-                        {
-                            Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
-                        }
-
-                        // Each listed finding prints once. The open blocking findings come first, so the lines
-                        // that fail the run lead the output however many advisory findings follow. By default
-                        // the level A findings are summarized by code in the counts below and not listed one
-                        // by one, so a passing check with many advisories stays readable; --all lists them.
-                        var blocking = shown.Where(entry => entry.Severity.Outcome == Outcome.Blocking).ToList();
-                        var advisoryCount = shown.Count(entry => entry.Finding.Tier == "A");
-                        var listed = all
-                            ? shown
-                            : shown.Where(entry => entry.Finding.Tier != "A").ToList();
-
-                        foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
-                                     .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
-                        {
-                            Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
-                        }
-
-                        foreach (var gap in known)
-                        {
-                            Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
-                        }
-
-                        if (shown.Count > 0)
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("Findings by code:");
-
-                            foreach (var group in shown
-                                .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
-                                .Select(group => (group.Key.Code, group.Key.Tier, Count: group.Count()))
-                                .OrderBy(group => LevelRank(group.Tier))
-                                .ThenByDescending(group => group.Count)
-                                .ThenBy(group => group.Code, StringComparer.Ordinal))
-                            {
-                                Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
-                            }
-                        }
-
-                        if (!all && advisoryCount > 0)
-                        {
-                            Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
-                        }
-
-                        Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {known.Count} known.");
-                    }
-
-                    return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
                 }
 
-                case "format":
+                var shown = findings
+                    .Select(finding => (Finding: finding, Severity: Decide(model, config, finding, release)))
+                    .Select(entry => since is not null
+                        && entry.Severity.Outcome == Outcome.Blocking
+                        && !StagedScope.InScope(since, entry.Finding)
+                            ? (entry.Finding, Severity: new Severity(Outcome.Reported), Demoted: true)
+                            : (entry.Finding, entry.Severity, Demoted: false))
+                    .ToList();
+
+                // A breaking contract change is the point of --since, so it
+                // always stands: the scope never demotes it to reported. It
+                // runs only at the level its code claims, like every finding.
+                foreach (var breaking in breaks.Where(finding => ConformanceLevels.Runs(finding.Code, config.Conformance)))
                 {
-                    var check = parsed.Has("--check");
-                    var (changed, invalid) = RecordFormatter.Format(config, check);
-
-                    foreach (var file in invalid)
-                    {
-                        Console.Error.WriteLine($"{file}: does not parse.");
-                    }
-
-                    foreach (var file in changed)
-                    {
-                        Console.WriteLine(file);
-                    }
-
-                    if (check)
-                    {
-                        Console.WriteLine($"{changed.Count} files would change.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{changed.Count} files rewritten.");
-                    }
-
-                    if (invalid.Count > 0)
-                    {
-                        return 2;
-                    }
-
-                    return check && changed.Count > 0 ? 1 : 0;
+                    shown.Add((breaking, Decide(model, config, breaking, release), false));
                 }
 
-                case "render":
+                if (json)
                 {
-                    var model = ModelBuilder.Build(config);
+                    var payload = new JsonObject();
 
-                    // Render writes every generated output: the fenced regions in
-                    // explanation files and documents, and the records file each
-                    // web frontend imports from its frame.
-                    var changed = Renderer.Render(model).Concat(FrontendRecords.Write(model)).ToList();
-
-                    foreach (var file in changed)
+                    if (since is not null)
                     {
-                        Console.WriteLine(file);
+                        payload["scope"] = "since";
+                        payload["since"] = sinceRef;
+                        payload["changedFiles"] = since.ChangedFiles;
+                        payload["changedRecords"] = since.RecordIds.Count;
                     }
 
-                    Console.WriteLine($"{changed.Count} files rewritten.");
-                    return 0;
-                }
+                    payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
+                    payload["known"] = new JsonArray([.. known.Select(gap => (JsonNode?)AsKnownJson(config, gap))]);
 
-                case "query":
+                    CliJson.Write(payload);
+                }
+                else
                 {
-                    if (parsed.Positionals is not [var id])
+                    if (since is not null)
                     {
-                        Console.Error.WriteLine("Query needs an id.");
-                        return 2;
+                        Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                     }
 
-                    var model = ModelBuilder.Build(config);
-                    var answer = Querier.Query(model, id);
+                    // Each listed finding prints once. The open blocking findings come first, so the lines
+                    // that fail the run lead the output however many advisory findings follow. By default
+                    // the level A findings are summarized by code in the counts below and not listed one
+                    // by one, so a passing check with many advisories stays readable; --all lists them.
+                    var blocking = shown.Where(entry => entry.Severity.Outcome == Outcome.Blocking).ToList();
+                    var advisoryCount = shown.Count(entry => entry.Finding.Tier == "A");
+                    var listed = all
+                        ? shown
+                        : shown.Where(entry => entry.Finding.Tier != "A").ToList();
 
-                    if (answer is null)
+                    foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
+                                 .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                     {
-                        Console.Error.WriteLine($"No record holds '{id}'.");
-                        return 1;
+                        Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                     }
 
-                    Console.WriteLine(answer);
-                    return 0;
+                    foreach (var gap in known)
+                    {
+                        Console.WriteLine($"{config.Relative(gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
+                    }
+
+                    if (shown.Count > 0)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("Findings by code:");
+
+                        foreach (var group in shown
+                            .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
+                            .Select(group => (group.Key.Code, group.Key.Tier, Count: group.Count()))
+                            .OrderBy(group => LevelRank(group.Tier))
+                            .ThenByDescending(group => group.Count)
+                            .ThenBy(group => group.Code, StringComparer.Ordinal))
+                        {
+                            Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
+                        }
+                    }
+
+                    if (!all && advisoryCount > 0)
+                    {
+                        Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
+                    }
+
+                    Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {known.Count} known.");
                 }
 
-                default:
-                    Console.Error.WriteLine($"Unknown command '{command}'.");
-                    return 2;
+                return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
             }
+
+            case "format":
+            {
+                var check = parsed.Has("--check");
+                var (changed, invalid) = RecordFormatter.Format(config, check);
+
+                foreach (var file in invalid)
+                {
+                    Console.Error.WriteLine($"{file}: does not parse.");
+                }
+
+                foreach (var file in changed)
+                {
+                    Console.WriteLine(file);
+                }
+
+                if (check)
+                {
+                    Console.WriteLine($"{changed.Count} files would change.");
+                }
+                else
+                {
+                    Console.WriteLine($"{changed.Count} files rewritten.");
+                }
+
+                if (invalid.Count > 0)
+                {
+                    return 2;
+                }
+
+                return check && changed.Count > 0 ? 1 : 0;
+            }
+
+            case "render":
+            {
+                var model = ModelBuilder.Build(config);
+
+                // Render writes every generated output: the fenced regions in
+                // explanation files and documents, and the records file each
+                // web frontend imports from its frame.
+                var changed = Renderer.Render(model).Concat(FrontendRecords.Write(model)).ToList();
+
+                foreach (var file in changed)
+                {
+                    Console.WriteLine(file);
+                }
+
+                Console.WriteLine($"{changed.Count} files rewritten.");
+                return 0;
+            }
+
+            case "query":
+            {
+                if (parsed.Positionals is not [var id])
+                {
+                    return LastResort.UsageError("Query needs an id.", Usage, json);
+                }
+
+                var model = ModelBuilder.Build(config);
+                var answer = Querier.Query(model, id);
+
+                if (answer is null)
+                {
+                    return LastResort.Fail($"No record holds '{id}'.", json, 1);
+                }
+
+                Console.WriteLine(answer);
+                return 0;
+            }
+
+            default:
+                return LastResort.UsageError($"Unknown command '{command}'.", Usage, json);
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"Failed: {exception.Message}");
-            return 1;
-        }
+    }
+
+    /// <summary>
+    ///     Collects a project's findings at its claimed conformance level: the model checks, then the consumer
+    ///     pass, which reads the project file, the record pages, the glossary and the controlled UI into the same
+    ///     finding shape. <c>model check</c> and the book both take their findings here, so they hold the same
+    ///     level filter and the same severity rule.
+    /// </summary>
+    /// <param name="model">The built project model to check.</param>
+    /// <param name="root">The absolute consumer root the consumer pass reads.</param>
+    /// <returns>The standing findings, consumer findings included, and the known gaps.</returns>
+    /// <exception cref="FailFast">The consumer pass stopped the run with its own exit code.</exception>
+    internal static (List<Finding> Findings, IReadOnlyList<Finding> Known) Collect(ProjectModel model, string root)
+    {
+        var (modelFindings, known) = Checker.Check(model);
+        var findings = modelFindings.ToList();
+
+        var consumerRun = new ConsumerRun(root);
+        consumerRun.Execute();
+        findings.AddRange(consumerRun.Errors);
+
+        // Consumer findings take the same level filter as the model findings, so a project
+        // claims the same part of the contract in both passes.
+        findings.RemoveAll(finding => !ConformanceLevels.Runs(finding.Code, model.Config.Conformance));
+
+        return (findings, known);
     }
 
     /// <summary>
@@ -360,7 +356,7 @@ static class ModelCommand
     /// <param name="finding">The finding to decide.</param>
     /// <param name="release">Whether release readiness makes reported findings block.</param>
     /// <returns>The severity of the finding under the release flag.</returns>
-    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, bool release)
+    internal static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding, bool release)
     {
         var severity = Severity.Of(
             finding,
@@ -420,13 +416,13 @@ static class ModelCommand
         _ => "error",
     };
 
-    /// <summary>One standing finding as its JSON object.</summary>
+    /// <summary>One standing finding as its JSON object, the shape every JSON finding list writes.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The finding to project.</param>
     /// <param name="severity">The decided severity of the finding.</param>
     /// <param name="demoted">Whether <c>--since</c> demoted the finding as unchanged.</param>
     /// <returns>The JSON object for the finding.</returns>
-    static JsonObject AsJson(ConsumerConfig config, Finding finding, Severity severity, bool demoted = false) => new()
+    internal static JsonObject AsJson(ConsumerConfig config, Finding finding, Severity severity, bool demoted = false) => new()
     {
         ["code"] = finding.Code,
         ["level"] = finding.Tier,
@@ -439,11 +435,11 @@ static class ModelCommand
         ["subject"] = finding.Subject,
     };
 
-    /// <summary>One known-gap finding as its JSON object.</summary>
+    /// <summary>One known-gap finding as its JSON object, the shape every JSON known list writes.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The known-gap finding to project.</param>
     /// <returns>The JSON object for the known-gap finding.</returns>
-    static JsonObject AsKnownJson(ConsumerConfig config, Finding finding) => new()
+    internal static JsonObject AsKnownJson(ConsumerConfig config, Finding finding) => new()
     {
         ["code"] = finding.Code,
         ["level"] = finding.Tier,

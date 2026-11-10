@@ -125,16 +125,20 @@ sealed class ConsumerRun
 
         if (!File.Exists(projectFile))
         {
-            throw new FailFast(2, $"No .litespec/project.json at {Root}");
+            throw new FailFast(2, ConsumerRoot.NoProjectMessage(Root));
         }
 
         try
         {
             Project = ReadJson(projectFile);
         }
-        catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
+        catch (JsonException cause)
         {
-            FailInput($".litespec/project.json: not valid JSON ({cause.Message})");
+            FailInput(ConsumerRoot.InvalidProjectMessage(cause.Message));
+        }
+        catch (Exception cause) when (cause is IOException or UnauthorizedAccessException)
+        {
+            FailInput($"Cannot read {ConsumerRoot.ProjectFileDisplay}: {cause.Message}");
         }
 
         var total = System.Diagnostics.Stopwatch.StartNew();
@@ -275,6 +279,39 @@ sealed class ConsumerRun
     /// <param name="file">The file to read.</param>
     /// <returns>The parsed JSON value.</returns>
     public JsonNode? ReadJson(string file) => JsonNode.Parse(ReadText(file));
+
+    /// <summary>The release manifest file name, in the pinned LiteSpec release folder.</summary>
+    public const string ManifestFileName = "litespec.manifest.json";
+
+    /// <summary>
+    ///     Reads the pinned release manifest. A release that ships no manifest reads as null,
+    ///     and a manifest that is not valid JSON ends the pass with the carried exit code.
+    /// </summary>
+    /// <returns>The parsed manifest, or null when the release ships none.</returns>
+    public JsonNode? ReadManifest()
+    {
+        var file = Path.Join(StandardsRoot, ManifestFileName);
+
+        if (!File.Exists(file))
+        {
+            return null;
+        }
+
+        try
+        {
+            return ReadJson(file);
+        }
+        catch (JsonException cause)
+        {
+            FailInput($"{ManifestFileName}: not valid JSON ({cause.Message})");
+        }
+        catch (Exception cause) when (cause is IOException or UnauthorizedAccessException)
+        {
+            FailInput($"Cannot read {ManifestFileName}: {cause.Message}");
+        }
+
+        return null;
+    }
 
     /// <summary>
     ///     Reads a schema once and reuses the parsed shape: every page validates

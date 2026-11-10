@@ -137,8 +137,7 @@
       "path": "docs/ext/outbox.md",
       "activationScope": "local",
       "applicableKinds": [
-        "use-case",
-        "journey"
+        "use-case"
       ],
       "replaces": [
         "litespec/backend/persistence#collect-events-without-a-public-unit-of-work"
@@ -148,6 +147,16 @@
         "setting",
         "runbook"
       ]
+    },
+    "realtime": {
+      "path": "docs/ext/realtime.md",
+      "activationScope": "local",
+      "applicableKinds": [
+        "use-case",
+        "journey"
+      ],
+      "replaces": [],
+      "switchesOn": []
     },
     "layer-projects": {
       "path": "docs/backend/dotnet/ext/layer-projects.md",
@@ -177,8 +186,7 @@
       "applicableKinds": [
         "job",
         "use-case",
-        "journey",
-        "aggregate"
+        "journey"
       ],
       "replaces": [
         "litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request"
@@ -190,12 +198,6 @@
     },
     "stage": {
       "path": "docs/ext/stage.md",
-      "activationScope": "project",
-      "replaces": [],
-      "switchesOn": []
-    },
-    "delegation": {
-      "path": "docs/ext/delegation.md",
       "activationScope": "project",
       "replaces": [],
       "switchesOn": []
@@ -218,8 +220,8 @@
       "replaces": [],
       "switchesOn": []
     },
-    "automation": {
-      "path": "docs/ext/automation.md",
+    "customer-rules": {
+      "path": "docs/ext/customer-rules.md",
       "activationScope": "project",
       "replaces": [],
       "switchesOn": []
@@ -296,8 +298,6 @@
       "OpenTelemetry.Instrumentation.AspNetCore": "1.19.0",
       "OpenTelemetry.Instrumentation.Http": "1.19.0",
       "OpenTelemetry.Instrumentation.Runtime": "1.19.0",
-      "Reqnroll": "3.3.4",
-      "Reqnroll.xunit.v3": "3.3.4",
       "Scalar.AspNetCore": "2.18.0",
       "Testcontainers.PostgreSql": "4.16.0",
       "WireMock.Net": "2.19.0",

@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
 namespace LiteSpec.Init;
 
@@ -114,17 +115,12 @@ static class InitCommand
             return 2;
         }
 
-        string root;
+        // init creates the project, so its root is the folder named, never a parent consumer.
+        var root = ConsumerRoot.Locate(parsed.Value("--root"), requireProject: false, out var rootExit);
 
-        try
+        if (root is null)
         {
-            root = parsed.Root();
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return rootExit;
         }
 
         var target = Path.Combine(root, ".litespec", "project.json");

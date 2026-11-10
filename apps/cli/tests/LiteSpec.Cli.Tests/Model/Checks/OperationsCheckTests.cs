@@ -8,7 +8,7 @@ namespace LiteSpec.Tests.Model.Checks;
 public sealed class OperationsCheckTests
 {
     /// <summary>An alert naming its requirement and runbook reports nothing.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_With_Requirement_And_Runbook_Passes()
     {
@@ -22,7 +22,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A Grafana rule named by title reads like a Prometheus rule named by alert.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Title_Named_Rule_Passes()
     {
@@ -36,7 +36,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert without a requirement label reports the rule.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Without_Requirement_Label_Reports()
     {
@@ -54,7 +54,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a missing requirement reports the id.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Naming_No_Requirement_Reports()
     {
@@ -72,7 +72,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a functional requirement reports the kind.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Naming_A_Functional_Requirement_Reports()
     {
@@ -88,7 +88,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert without a runbook label reports the rule.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Without_Runbook_Label_Reports()
     {
@@ -106,7 +106,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a missing runbook reports the id.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Naming_No_Runbook_Reports()
     {
@@ -123,7 +123,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a record that is no runbook reports the type.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
     public void Alert_Naming_A_Non_Runbook_Reports()
     {
@@ -171,7 +171,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement named by an alert reports nothing, even with no passing run.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
     public void Quality_Covered_By_Alert_Passes()
     {
@@ -190,7 +190,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement matched by a check result reports nothing.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
     public void Quality_Covered_By_Check_Result_Passes()
     {
@@ -208,7 +208,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement a live exception covers reports as known.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
     public void Quality_Covered_By_Exception_Reports_Known()
     {
@@ -226,7 +226,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement with no alert or check reports.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
     public void Quality_With_No_Alert_Or_Check_Reports()
     {
@@ -283,7 +283,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file pointing at its decision reports nothing and follows it.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Operations_File_With_Follows_Passes()
     {
@@ -301,7 +301,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file with no follows mark reports.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Operations_File_Without_Mark_Reports()
     {
@@ -321,7 +321,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations mark naming no decision reports.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Operations_Mark_Naming_Nothing_Reports()
     {
@@ -341,7 +341,7 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
     public void Decision_With_No_Follower_Reports_Unfollowed()
     {
