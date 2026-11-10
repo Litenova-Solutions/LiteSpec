@@ -70,7 +70,7 @@
         <None Include="../LiteSpec.Analyzers.CodeFixes/$(OutputPath)LiteSpec.Analyzers.CodeFixes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="build/LiteSpec.Analyzers.props" Pack="true" PackagePath="build" />
         <None Include="README.md" Pack="true" PackagePath="/" />
-        <None Include="../../../../assets/litespec-icon.png" Pack="true" PackagePath="icon.png" Visible="false" />
+        <None Include="../../../../assets/logo/png/icon-128.png" Pack="true" PackagePath="icon.png" Visible="false" />
         <!-- Every third-party component the package carries, with its license. -->
         <None Include="../../../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="/" />
     </ItemGroup>

@@ -27,7 +27,7 @@
 
 <header class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-5">
   <div class="flex items-center gap-2.5 whitespace-nowrap text-foreground">
-    <svg width="22" height="22" viewBox="0 0 128 128" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="9"><path d="M18 28h92" /><path d="M18 64h92" /><path d="M18 100h92" /></g><path d="M36 28 78 64 52 100" fill="none" stroke="#f8c258" stroke-linecap="round" stroke-linejoin="round" stroke-width="11" /><g fill="#f8c258" stroke="currentColor" stroke-width="5"><circle cx="36" cy="28" r="8" /><circle cx="78" cy="64" r="8" /><circle cx="52" cy="100" r="8" /></g></svg>
+    <svg width="24" height="24" viewBox="0 0 240 240" aria-hidden="true"><path fill="var(--mark-ink)" fill-rule="evenodd" d="M0 0H240V240H0ZM14 14V226H226V14Z" /><path fill="var(--mark-ink)" d="M43.68 60L57.68 60L57.68 166L83.68 166L83.68 180L43.68 180Z" /><path fill="var(--mark-symbol)" d="M97.68 60L196.32 60L196.32 74L97.68 74ZM97.68 113L196.32 113L196.32 127L97.68 127ZM97.68 166L196.32 166L196.32 180L97.68 180Z" /></svg>
     <b class="text-[15px] font-semibold tracking-tight">{projName}</b><span class="text-strong">/</span><span class="font-medium text-muted-foreground">Book</span>
   </div>
   <SearchBox bind:input={searchInput} />

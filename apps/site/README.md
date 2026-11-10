@@ -55,7 +55,7 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 | `astro.config.mjs` | Site origin `https://litespec.dev`, static output, trailing slashes, directory URLs, and the `_redirects` integration that maps `/latest` to the manifest version. |
 | `package.json` | Scripts and dependencies named above. |
 | `tsconfig.json` | The Astro strict extension and the `dist/` exclusion. |
-| `public/favicon.svg` | The browser icon. |
+| `public/favicon.svg`, `public/favicon-32.png`, `public/apple-touch-icon.png`, `public/icon-192.png`, `public/icon-512.png`, `public/og.png` | Copies of the logo files in `assets/`, described in `assets/README.md`: the browser icon, the touch and app icons, and the share image. Copy them again when the logo or the headline changes. |
 | `src/lib/spec.ts` | The one loader every page and endpoint reads. It finds the repository root, reads `litespec.manifest.yaml` with the `yaml` package, parses every page under `docs/`, attaches provisions from the generated `docs/reference/provisions.json` index, and computes selections, layers, and URLs. |
 | `src/lib/render-markdown.ts` | The Markdown to HTML pipeline with Shiki highlighting, provision cards, and wireframe option cards. |
 | `src/lib/code-blocks.ts` | The code block figure, header strip, language label, and copy button. |
@@ -113,7 +113,7 @@ It parses every `.md` file under `docs/` once. Each `Page` carries its repositor
 
 #### Design System
 
-`src/styles/site.css` owns the palette and the semantic tokens. Every component uses tokens only and never a raw color. The palette starts from the logo charcoal `#3e3643` and amber `#f8c258`: warm neutrals, an amber ramp, and three muted support hues at the same lightness and low chroma (sage, slate, clay). Tokens name roles, not values: `--bg`, `--outside`, `--border`, `--muted`, `--fg`, `--primary`, `--accent`, `--rule-*`, `--conv-*`, `--pat-*`, `--warn-*`, `--code-bg`, and `--stroke`. Rules get amber, conventions get sage, and patterns get slate. Amber marks only the current item, important text, and focus.
+`src/styles/site.css` owns the palette and the semantic tokens. Every component uses tokens only and never a raw color. The palette is warm neutrals ending in charcoal `#3e3643`, an amber ramp around `#f8c258`, and three muted support hues at the same lightness and low chroma (sage, slate, clay). The logo keeps the Litenova Solutions colors, navy `#0F1B33`, paper `#F6F7FA` and saffron `#EFA73A`, and only the mark uses them. Tokens name roles, not values: `--bg`, `--outside`, `--border`, `--muted`, `--fg`, `--primary`, `--accent`, `--rule-*`, `--conv-*`, `--pat-*`, `--warn-*`, `--code-bg`, `--mark-ink`, and `--mark-symbol`. Rules get amber, conventions get sage, and patterns get slate. Amber marks only the current item, important text, and focus.
 
 Dark mode has two paths that set the same values: the `prefers-color-scheme` media query for `:root` without `data-theme="light"`, and the explicit `:root[data-theme="dark"]` override. `ThemeSwitcher.astro` cycles `auto`, `light`, and `dark` and stores the choice in `localStorage` under `litespec-theme`. `Base.astro` reads that store before first paint, so the theme applies without a flash.
 
@@ -133,7 +133,7 @@ The frame is a centered column with visible side rails: `.frame` caps the width 
 | `src/components/Search.astro` | The search trigger and dialog. |
 | `src/components/SelectForm.astro` | The selection form with live outputs. It renders statically with the default size `small`, shape `server`, and stacks `dotnet` and `react`, then one inline script updates the tiles and the outputs as you answer. |
 | `src/components/ThemeSwitcher.astro` | The `auto`, `light`, and `dark` cycle button. |
-| `src/components/Mark.astro` | The LiteSpec mark drawn inline: charcoal lines that follow `--stroke` with the amber path and dots fixed to `#f8c258`. |
+| `src/components/Mark.astro` | The LiteSpec mark drawn inline from `assets/logo`: the frame and the L in `--mark-ink` (navy on light, paper on dark) and the three rules in `--mark-symbol` (saffron). With `name`, the horizontal lockup, which the header shows at 30px; the footer shows the mark at 24px, the smallest size the brand allows. |
 | `src/components/PatternViewer.astro` | The full-screen option viewer on pattern pages. |
 
 #### Search

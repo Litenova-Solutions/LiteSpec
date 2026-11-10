@@ -9,7 +9,8 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* The LiteSpec palette (apps/site) as shadcn tokens. highlight is LiteSpec's amber;
-   rule, convention, pattern and warn are the four callout tints. */
+   rule, convention, pattern and warn are the four callout tints; mark-ink and
+   mark-symbol are the logo's navy (paper in dark) and saffron (assets/README.md). */
 :root {
   --radius: 0.5rem;
   --background: #ffffff;
@@ -33,6 +34,8 @@
   --strong: #cfc7bd;
   --subtle-foreground: #58514c;
   --highlight: #f8c258;
+  --mark-ink: #0F1B33;
+  --mark-symbol: #EFA73A;
   --highlight-foreground: #a35f0a;
   --highlight-soft: #fdf0d3;
   --highlight-subtle: #fffaf0;
@@ -63,6 +66,7 @@
 [data-theme="dark"] {
   --background: #151217;
   --foreground: #f4f0ea;
+  --mark-ink: #F6F7FA;
   --card: #151217;
   --card-foreground: #f4f0ea;
   --popover: #1e1a21;

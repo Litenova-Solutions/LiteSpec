@@ -20,10 +20,11 @@
   src: url("/fonts/geist-mono-latin.woff2") format("woff2");
 }
 
-/* Palette. Two colors from the logo, charcoal #3e3643 and amber #f8c258, set the
-   family: warm neutrals ending in the logo charcoal, an amber ramp, and three
-   muted support hues at the same lightness and low chroma. */
+/* Palette: warm neutrals ending in charcoal #3e3643, an amber ramp around #f8c258,
+   and three muted support hues at the same lightness and low chroma. The logo keeps
+   the Litenova Solutions colors (assets/README.md) and only the mark uses them. */
 :root {
+  --brand-navy: #0F1B33; --brand-paper: #F6F7FA; --brand-saffron: #EFA73A;
   --ink-0: #ffffff; --ink-25: #fcfbf9; --ink-50: #f7f5f2; --ink-100: #efebe6; --ink-200: #e5e0d9; --ink-300: #cfc7bd;
   --ink-500: #77706a; --ink-600: #58514c; --ink-700: #3e3643; --ink-800: #2a2430; --ink-900: #19151c; --ink-950: #100d12;
   --amber-50: #fffaf0; --amber-100: #fdf0d3; --amber-200: #fbe0a4; --amber-300: #f8c258; --amber-500: #d99a1e; --amber-700: #a35f0a; --amber-800: #7a4608;
@@ -40,7 +41,7 @@
   --pat-bg: var(--slate-50); --pat-bd: var(--slate-200); --pat-fg: var(--slate-700);
   --warn-bg: var(--clay-50); --warn-bd: var(--clay-200); --warn-fg: var(--clay-700);
   --code-bg: var(--ink-25);
-  --stroke: var(--ink-700);
+  --mark-ink: var(--brand-navy); --mark-symbol: var(--brand-saffron);
 
   /* Spacing: one 4px scale, and the roles every component uses. A padding,
      margin or gap names a role when one fits and a step otherwise, never a raw
@@ -75,7 +76,7 @@
     --pat-bg: #8aa3c414; --pat-bd: #8aa3c440; --pat-fg: #adc0da;
     --warn-bg: #d0866814; --warn-bd: #d0866840; --warn-fg: #e2a58f;
     --code-bg: #1a161c;
-    --stroke: #e4dfd8;
+    --mark-ink: var(--brand-paper);
     color-scheme: dark;
   }
 }
@@ -89,7 +90,7 @@
   --pat-bg: #8aa3c414; --pat-bd: #8aa3c440; --pat-fg: #adc0da;
   --warn-bg: #d0866814; --warn-bd: #d0866840; --warn-fg: #e2a58f;
   --code-bg: #1a161c;
-  --stroke: #e4dfd8;
+  --mark-ink: var(--brand-paper);
   color-scheme: dark;
 }
 
@@ -129,8 +130,7 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 /* Header */
 .site-top { position: sticky; top: 0; z-index: 20; height: var(--top); background: var(--bg); border-bottom: 1px solid var(--border); }
 .site-top .wrap { height: 100%; display: flex; align-items: center; gap: var(--space-8); }
-.logo { display: flex; align-items: center; gap: var(--gap-inline); font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
-.logo svg { width: 22px; height: 22px; }
+.logo { display: flex; align-items: center; }
 .site-nav { display: flex; gap: var(--space-6); font-size: 14px; color: var(--muted-fg); }
 .site-nav a { position: relative; height: var(--top); display: flex; align-items: center; }
 .site-nav a:hover { color: var(--fg); }
@@ -148,7 +148,6 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .site-foot { border-top: 1px solid var(--border); }
 .site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 13px; color: var(--muted-fg); }
 .site-foot .brand { display: flex; align-items: center; gap: var(--gap-inline); }
-.site-foot .brand svg { width: 16px; height: 16px; }
 .site-foot .spacer { margin-left: auto; }
 .site-foot a:hover { color: var(--fg); }
 
