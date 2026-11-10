@@ -5,12 +5,12 @@
         parent folder do not apply inside the LiteSpec repository.
     -->
     <ItemGroup>
-        <PackageVersion Include="Markdig" Version="1.4.0" />
+        <PackageVersion Include="Markdig" Version="1.6.0" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
         <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
         <PackageVersion Include="YamlDotNet" Version="18.1.0" />
-        <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0" />
-        <PackageVersion Include="xunit.v3" Version="4.0.2" />
+        <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.14" />
+        <PackageVersion Include="xunit.v3" Version="4.0.3" />
     </ItemGroup>
 </Project>
