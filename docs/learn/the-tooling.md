@@ -45,7 +45,7 @@ The diagram below shows where each tool runs in that one change.
 
 ![One change runs litespec init, Intent records, Behavior records, litespec model check, code with analyzers, litespec model query and rules, CI gates, and litespec book, in that order.](../assets/diagrams/learn-tool-flow.svg)
 
-A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `.litespec/project.json` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the pinned release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
+A project starts once with `dotnet litespec init --preset dotnet-react --size small` at the adopted release. The command writes `.litespec/project.yaml` with shape `server`, stacks `dotnet` and `react`, and one frontend `web` at `apps/web`, stamped with the pinned release, with the agent context, glossary, and example cast beside it. It never overwrites an existing file. The [init page](../tools/init.md) lists the three presets and their selections.
 
 New records start with `dotnet litespec new`, which puts a record in its one legal folder with a correct identifier. [Records and the project model](records-and-the-model.md) explains what the team writes down in Intent and Behavior.
 
@@ -94,7 +94,7 @@ Three commands belong to the LiteSpec repository, and the rest belong to a consu
 | `litespec-maintain validate` | LiteSpec | Pages, templates, manifest, links | Diagnostics only |
 | `litespec-maintain provisions` | LiteSpec | Active standards | `.litespec/reference/provisions.md` |
 | `litespec-maintain changelog` | LiteSpec | Git ref, active standards | Provision changes in `CHANGELOG.md` |
-| `litespec init` | Consumer | Release template and preset | `.litespec/project.json` |
+| `litespec init` | Consumer | Release template and preset | `.litespec/project.yaml` |
 | `litespec new` | Consumer | Templates, folder rules | One record file |
 | `litespec rename` | Consumer | Records, marks, citations | Rewritten citations |
 | `litespec model check` | Consumer | Records, code marks, routes, test runs | Findings with levels |

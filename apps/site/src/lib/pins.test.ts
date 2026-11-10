@@ -6,11 +6,13 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse } from "yaml";
 
 // This file sits in apps/site/src/lib, so the repository root is four folders up.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 const readJson = (file: string) => JSON.parse(fs.readFileSync(path.join(root, file), "utf8")) as Record<string, any>;
+const readYaml = (file: string) => parse(fs.readFileSync(path.join(root, file), "utf8")) as Record<string, any>;
 
 /** The catalog versions in the root pnpm-workspace.yaml: the lines under "catalog:" with two-space indentation. */
 function catalog(): Map<string, string> {
@@ -32,7 +34,7 @@ function catalog(): Map<string, string> {
 const packageFiles = ["apps/site/package.json", "apps/cli/book/package.json", "apps/cli/fe-reader/package.json"];
 
 describe("npm pins", () => {
-  const manifest = readJson("litespec.manifest.json");
+  const manifest = readYaml("litespec.manifest.yaml");
   const pins = (manifest.packages?.npm ?? {}) as Record<string, string>;
   const versions = catalog();
 

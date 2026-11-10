@@ -3534,7 +3534,7 @@
       "strength": "default",
       "statement": "Assign each baseline package to the owning layer named in the table in this section.",
       "rationale": "Without an owner, a package lands in the project that first needs it and spreads from there. The table assigns each baseline package to its one owning project, so review can refuse it anywhere else. This provision states the .NET form of \u0060litespec/workspace/dependencies#assign-each-baseline-package-to-its-owning-layer\u0060.",
-      "example": "| Project | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application.Abstractions | Required LiteBus module abstractions only |\n| Application | Required LiteBus module abstractions; \u0060Marten\u0060 for the selected \u0060IQuerySession\u0060 read boundary; Microsoft abstractions used by public ports |\n| Infrastructure | \u0060Marten\u0060; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |\n| WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |\n| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |\n| ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |\n| AppHost | Aspire AppHost and resource hosting packages |\n| Domain.Tests | xUnit v3, assertions, and FsCheck |\n| Application.Tests | xUnit v3, assertions, and NSubstitute |\n| Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |\n| Architecture.Tests | xUnit v3 and assertions |\n| Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |\n\nTest projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer \u0060global.json\u0060 sets \u0060\u0022test\u0022: { \u0022runner\u0022: \u0022Microsoft.Testing.Platform\u0022 }\u0060, because the .NET 10 \u0060dotnet test\u0060 command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin \u0060litespec.manifest.json\u0060 states for the property tests that \u0060litespec/backend/testing#prove-every-calculation-with-property-tests\u0060 names and the model-based tests that \u0060litespec/backend/testing#prove-every-aggregate-with-a-model-based-test\u0060 names.\n\nThe example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval."
+      "example": "| Project | Direct package groups |\n|:---|:---|\n| Domain | None |\n| Application.Abstractions | Required LiteBus module abstractions only |\n| Application | Required LiteBus module abstractions; \u0060Marten\u0060 for the selected \u0060IQuerySession\u0060 read boundary; Microsoft abstractions used by public ports |\n| Infrastructure | \u0060Marten\u0060; LiteBus registration modules. Provider, resilience, service discovery, and configuration packages required by implemented adapters |\n| WebApi | JWT Bearer [REDACTED], ASP.NET Core OpenAPI, build-time OpenAPI generation, Scalar, and required LiteBus mediator abstractions |\n| Worker | LiteBus registration modules; the provider, resilience, and configuration packages its hosted operations need |\n| ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |\n| AppHost | Aspire AppHost and resource hosting packages |\n| Domain.Tests | xUnit v3, assertions, and FsCheck |\n| Application.Tests | xUnit v3, assertions, and NSubstitute |\n| Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |\n| Architecture.Tests | xUnit v3 and assertions |\n| Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |\n\nTest projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer \u0060global.json\u0060 sets \u0060\u0022test\u0022: { \u0022runner\u0022: \u0022Microsoft.Testing.Platform\u0022 }\u0060, because the .NET 10 \u0060dotnet test\u0060 command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin \u0060litespec.manifest.yaml\u0060 states for the property tests that \u0060litespec/backend/testing#prove-every-calculation-with-property-tests\u0060 names and the model-based tests that \u0060litespec/backend/testing#prove-every-aggregate-with-a-model-based-test\u0060 names.\n\nThe example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval."
     },
     {
       "id": "litespec/backend/dotnet/ext/layer-projects#use-this-infrastructure-layout",
@@ -3832,13 +3832,13 @@
       "anchor": "declare-dotnet-as-the-backend-stack",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does the \u0060stacks\u0060 array in \u0060.litespec/project.json\u0060 list \u0060dotnet\u0060 when the backend runs on .NET? Look at \u0060.litespec/project.json\u0060.",
+      "evidence": "Does the \u0060stacks\u0060 array in \u0060.litespec/project.yaml\u0060 list \u0060dotnet\u0060 when the backend runs on .NET? Look at \u0060.litespec/project.yaml\u0060.",
       "stack": "dotnet",
       "layer": "records",
       "artifact": "",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A project whose backend runs on .NET MUST name \u0060dotnet\u0060 in the \u0060stacks\u0060 of \u0060.litespec/project.json\u0060.",
+      "statement": "A project whose backend runs on .NET MUST name \u0060dotnet\u0060 in the \u0060stacks\u0060 of \u0060.litespec/project.yaml\u0060.",
       "rationale": "The \u0060stacks\u0060 entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.",
       "example": ""
     },
@@ -3924,7 +3924,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "The .NET stack reader MUST read every project that \u0060stackConfig.dotnet.webapi\u0060 and \u0060stackConfig.dotnet.worker\u0060 name, whether each field holds one glob string or a list of glob strings.",
-      "rationale": "A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root: it names its surface under \u0060paths.surfaces\u0060 instead.",
+      "rationale": "A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root.",
       "example": "Claimwick serves member requests from one web host and partner requests from a second web host, so \u0060webapi\u0060 lists both host projects and the reader reads the endpoints of each."
     },
     {
@@ -3985,7 +3985,7 @@
       "anchor": "write-test-results-the-model-builder-reads",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which test runs write a result outside TRX or JUnit XML, or outside \u0060paths.testResults\u0060? Look at the test run output beside \u0060paths.testResults\u0060 in \u0060.litespec/project.json\u0060.",
+      "evidence": "Which test runs write a result outside TRX or JUnit XML, or outside \u0060paths.testResults\u0060? Look at the test run output beside \u0060paths.testResults\u0060 in \u0060.litespec/project.yaml\u0060.",
       "stack": "dotnet",
       "layer": "records",
       "artifact": "",
@@ -4009,7 +4009,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "A root solution MUST list the .NET projects of more than one deployable unit, with builds, test runs, and configuration still naming the API solution.",
-      "rationale": "The API solution stays at \u0060apps/api/\u0060 and remains the one builds, test runs, and \u0060paths.apiSolution\u0060 name. A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where \u0060litespec/workspace/structure#keep-production-and-test-code-separate\u0060 puts them.",
+      "rationale": "The API solution stays at \u0060apps/api/\u0060 and remains the one builds and test runs name. A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where \u0060litespec/workspace/structure#keep-production-and-test-code-separate\u0060 puts them.",
       "example": "A workspace with an API and a command-line tool carries \u0060apps/api/{Product}.slnx\u0060, \u0060apps/cli/{Product}.Cli.slnx\u0060 where one exists, and a root \u0060{Product}.slnx\u0060 listing both sets."
     },
     {
@@ -6184,7 +6184,7 @@
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying \u0060schemas/glossary.schema.json\u0060.",
+      "statement": "A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying \u0060schemas/glossary.schema.yaml\u0060.",
       "rationale": "A glossary column headed \u0022Avoid\u0022 speaks to a reader and to nothing else: no tool can check it. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.",
       "example": "A rejection carries the scope that binds it, because a word that is right in one module is wrong in another.\n\n\u0060\u0060\u0060json\n{ \u0022id\u0022: \u0022term/customer\u0022, \u0022term\u0022: \u0022customer\u0022, \u0022meaning\u0022: \u0022A person or company that buys.\u0022,\n  \u0022rejected\u0022: [{ \u0022word\u0022: \u0022client\u0022, \u0022scope\u0022: \u0022^domain/modules/orders/\u0022,\n    \u0022reason\u0022: \u0022client names the API consumer\u0022 }] }\n\u0060\u0060\u0060"
     },
@@ -6201,7 +6201,7 @@
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST record the LiteSpec release it adopts in \u0060reviewedLiteSpecVersion\u0060 within \u0060.litespec/project.json\u0060.",
+      "statement": "A consumer MUST record the LiteSpec release it adopts in \u0060reviewedLiteSpecVersion\u0060 within \u0060.litespec/project.yaml\u0060.",
       "rationale": "A provision can gain force while keeping its ID, so an exception of kind \u0060departure\u0060 written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in \u0060reviewedLiteSpecVersion\u0060 makes adoption an explicit act and tells every reader which contract the project reviewed.",
       "example": ""
     },
@@ -7528,7 +7528,7 @@
       "conformance": "traced",
       "strength": "rule",
       "statement": "Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in \u0060refusalDictionary\u0060 or a browser test that asserts its code.",
-      "rationale": "A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its \u0060paths.frontends[]\u0060 entry, so the check reads that frontend\u0027s words rather than a convention.",
+      "rationale": "A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its \u0060frontends[]\u0060 entry, so the check reads that frontend\u0027s words rather than a convention.",
       "example": "The expense form offers \u0060use-case/spending.submit-expense\u0060, whose \u0060spending.receipt-missing\u0060 refusal has a sentence in the dictionary the Claimwick web frontend names in \u0060refusalDictionary\u0060."
     },
     {
@@ -8853,7 +8853,7 @@
       "artifact": "any",
       "conformance": "traced",
       "strength": "rule",
-      "statement": "A project MUST write each C# mark in the one style that \u0060marks\u0060 in \u0060.litespec/project.json\u0060 declares, each TypeScript mark as a typed constant, and each operations mark as a comment.",
+      "statement": "A project MUST write each C# mark in the one style that \u0060marks\u0060 in \u0060.litespec/project.yaml\u0060 declares, each TypeScript mark as a typed constant, and each operations mark as a comment.",
       "rationale": "Two styles in one language are two ways to do one job: a reader learns both, a check covers both, and a search for a record finds half its code. The C# style is a project choice made once, so every tool reads it from the project file and refuses the other style within C#. TypeScript and operations files have one form each, so a typed constant beside a C# documentation tag is two languages, not two styles. A code fix converts a mark to the form its language takes.",
       "example": "The Claimwick product declares \u0060\u0022marks\u0022: \u0022xml\u0022\u0060, so its submit-expense handler carries a documentation tag naming \u0060use-case/spending.submit-expense\u0060, and an attribute naming the same use case is reported. Its use-case module carries the same identifier as a typed constant, and its deployment file carries its \u0060follows\u0060 mark as a comment."
     },
@@ -9771,8 +9771,8 @@
       "artifact": "any",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST resolve the standards-selected stack versions from \u0060litespec.manifest.json\u0060.",
-      "rationale": "The manifest is the version authority for the stack the standards select, so every consumer resolves the same tested combination. A version pinned in prose or remembered by an agent drifts from that authority with the next manifest change. Consumer dependencies still live in package manifests and lockfiles; only the standards-selected stack versions resolve from \u0060litespec.manifest.json\u0060.",
+      "statement": "A consumer MUST resolve the standards-selected stack versions from \u0060litespec.manifest.yaml\u0060.",
+      "rationale": "The manifest is the version authority for the stack the standards select, so every consumer resolves the same tested combination. A version pinned in prose or remembered by an agent drifts from that authority with the next manifest change. Consumer dependencies still live in package manifests and lockfiles; only the standards-selected stack versions resolve from \u0060litespec.manifest.yaml\u0060.",
       "example": ""
     },
     {
@@ -10666,13 +10666,13 @@
       "anchor": "answer-the-constraints-question",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "\u0060.litespec/project.json\u0060 states which outside constraints apply, or records an empty answer.",
+      "evidence": "\u0060.litespec/project.yaml\u0060 states which outside constraints apply, or records an empty answer.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST state in \u0060.litespec/project.json\u0060 whether any outside constraint applies to the project.",
+      "statement": "A consumer MUST state in \u0060.litespec/project.yaml\u0060 whether any outside constraint applies to the project.",
       "rationale": "An outside rule the project never names is a law the product can break unknowingly. Recording the answer, even when it is empty, proves the team asked the question: an empty answer states that no outside rule binds the project. A later reader can then tell a project with no constraints from one that never looked.",
       "example": "A clinic booking system records that medical-device regulation does not apply to appointment scheduling."
     },
@@ -10683,7 +10683,7 @@
       "anchor": "claim-conformance-only-when-every-applicable-provision-holds",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "\u0060.litespec/project.json\u0060 names the declared conformance level beside the selected size, shape, stacks, and extensions; each departure from a provision that applies at that level resolves to an exception record under \u0060.litespec/governance/exceptions/\u0060, and the checks that run at that level pass.",
+      "evidence": "\u0060.litespec/project.yaml\u0060 names the declared conformance level beside the selected size, shape, stacks, and extensions; each departure from a provision that applies at that level resolves to an exception record under \u0060.litespec/governance/exceptions/\u0060, and the checks that run at that level pass.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
@@ -10723,7 +10723,7 @@
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST declare in \u0060.litespec/project.json\u0060 the conformance level it claims: \u0060records\u0060, \u0060traced\u0060 or \u0060full\u0060.",
+      "statement": "A consumer MUST declare in \u0060.litespec/project.yaml\u0060 the conformance level it claims: \u0060records\u0060, \u0060traced\u0060 or \u0060full\u0060.",
       "rationale": "A project can take the record model without LiteSpec\u0027s code layout, or trace its code to its records in a layout of its own. The level tells every tool which part of the contract the project claims, so \u0060model check\u0060, the book, \u0060rules\u0060 and the analyzers report that part and nothing else. The levels nest: \u0060traced\u0060 claims everything \u0060records\u0060 claims, and \u0060full\u0060 claims everything \u0060traced\u0060 claims. The table in The Three Conformance Levels states what each level claims, what each tool runs at that level, and what the book and \u0060rules\u0060 show.",
       "example": "The running Claimwick example declares \u0060\u0022conformance\u0022: \u0022full\u0022\u0060. A product that keeps its own folder layout and proves its records only through result files declares \u0060\u0022conformance\u0022: \u0022traced\u0022\u0060. A product that takes the record model alone and keeps its own layout and tooling declares \u0060\u0022conformance\u0022: \u0022records\u0022\u0060."
     },
@@ -10741,7 +10741,7 @@
       "conformance": "records",
       "strength": "rule",
       "statement": "A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, \u0060.litespec/\u0060, at the repository root.",
-      "rationale": "One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application\u0027s code, tests, and infrastructure. Generated output inside it stays covered by its \u0060.gitignore\u0060, so a checkout never mixes committed records with built files. Every path in \u0060.litespec/project.json\u0060 stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds \u0060.litespec/project.json\u0060.",
+      "rationale": "One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application\u0027s code, tests, and infrastructure. Generated output inside it stays covered by its \u0060.gitignore\u0060, so a checkout never mixes committed records with built files. Every path in \u0060.litespec/project.yaml\u0060 stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds \u0060.litespec/project.yaml\u0060.",
       "example": "Claimwick holds its project file, glossary, example cast, and the Intent, Behavior, Implementation, Proof, and Governance folders under \u0060examples/claimwick/.litespec/\u0060 (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places."
     },
     {
@@ -10768,7 +10768,7 @@
       "anchor": "keep-one-bounded-context",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Module pages and \u0060.litespec/project.json\u0060 name one business language and one deployment boundary, with no second of either.",
+      "evidence": "Module pages and \u0060.litespec/project.yaml\u0060 name one business language and one deployment boundary, with no second of either.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
@@ -10808,9 +10808,9 @@
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST set \u0060paths.behaviorDocs\u0060 in \u0060.litespec/project.json\u0060 to the folder that holds its Behavior records.",
+      "statement": "A consumer MUST set \u0060paths.behaviorDocs\u0060 in \u0060.litespec/project.yaml\u0060 to the folder that holds its Behavior records.",
       "rationale": "The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.",
-      "example": "\u0060\u0060\u0060json\n{ \u0022paths\u0022: { \u0022behaviorDocs\u0022: \u0022.litespec/behavior\u0022 } }\n\u0060\u0060\u0060"
+      "example": "\u0060\u0060\u0060yaml\npaths:\n  behaviorDocs: .litespec/behavior\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/scope#record-selected-extensions",
@@ -10825,7 +10825,7 @@
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST list every selected extension in \u0060selectedExtensions\u0060 in \u0060.litespec/project.json\u0060, each with its criterion.",
+      "statement": "A consumer MUST list every selected extension in \u0060selectedExtensions\u0060 in \u0060.litespec/project.yaml\u0060, each with its criterion.",
       "rationale": "The project record determines which extension boundaries apply to the project\u0027s work. Writing each selection with its criterion lets a later reader check whether the condition still holds. Without the record, extensions drift in through dependencies and prose while the checks apply a different set.",
       "example": "\u0060\u0060\u0060json\n{ \u0022id\u0022: \u0022cache\u0022, \u0022criterion\u0022: \u0022expense reads miss the latency target\u0022 }\n\u0060\u0060\u0060"
     },
@@ -10861,7 +10861,7 @@
       "strength": "rule",
       "statement": "A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the declared conformance level is \u0060records\u0060.",
       "rationale": "One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. At \u0060records\u0060 a project may leave the stacks empty or absent, or name them for information alone, since no code reader runs at that level; at \u0060traced\u0060 and \u0060full\u0060 the stacks name the code the reader and the checks govern.",
-      "example": "A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.\n\nThe running Claimwick example declares large with a server shape and two stacks in \u0060.litespec/project.json\u0060:\n\n\u0060\u0060\u0060json\n{\n  \u0022size\u0022: \u0022large\u0022,\n  \u0022shape\u0022: \u0022server\u0022,\n  \u0022stacks\u0022: [\u0022dotnet\u0022, \u0022svelte\u0022],\n  \u0022conformance\u0022: \u0022full\u0022\n}\n\u0060\u0060\u0060\n\nThe size selects the large record set, the shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.\n\nThe diagram shows the three project choices and what each decides.\n\n![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)"
+      "example": "A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.\n\nThe running Claimwick example declares large with a server shape and two stacks in \u0060.litespec/project.yaml\u0060:\n\n\u0060\u0060\u0060yaml\nsize: large\nshape: server\nstacks:\n- dotnet\n- svelte\nlayers:\n  intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec\n\u0060\u0060\u0060\n\nThe size selects the large record set, the shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.\n\nThe diagram shows the three project choices and what each decides.\n\n![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)"
     },
     {
       "id": "litespec/core/scope#select-conditional-extensions-explicitly",
@@ -10896,6 +10896,23 @@
       "statement": "Use one API deployable and one database.",
       "rationale": "One API deployable and one database keep the first architecture reviewable and operable by a small team. Each additional deployable or store adds deployment, data-consistency, and operations work that a project rarely needs at the start. A background job appears only when a process continues without an HTTP request.",
       "example": ""
+    },
+    {
+      "id": "litespec/core/scope#write-every-hand-written-litespec-file-in-yaml",
+      "heading": "Write Every Hand-Written LiteSpec File in YAML",
+      "page": "docs/core/scope.md",
+      "anchor": "write-every-hand-written-litespec-file-in-yaml",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060project-invalid\u0060 for a project file that is not \u0060.litespec/project.yaml\u0060 or lacks \u0060schemaVersion\u0060; scope: the project file.",
+      "stack": "any",
+      "layer": "workspace",
+      "artifact": "",
+      "conformance": "records",
+      "strength": "rule",
+      "statement": "A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary and the pattern catalog, in YAML that states its \u0060schemaVersion\u0060 and names its schema in a first-line \u0060# yaml-language-server: $schema=\u003Curl\u003E\u0060 comment, while files that programs exchange, such as check results, the model and \u0060--format json\u0060 output, stay JSON.",
+      "rationale": "People write these files and review them in pull requests, so one syntax with comments and no brace noise keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and \u0060schemaVersion\u0060 tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own.",
+      "example": "Claimwick\u0027s \u0060.litespec/project.yaml\u0060 starts with the comment naming \u0060https://litespec.dev/\u003Cversion\u003E/schemas/litespec-project.schema.yaml\u0060, then \u0060schemaVersion: 1\u0060, and lists its layers, size, shape and stacks as YAML keys; its check results under \u0060.litespec/proof/checks/\u0060 stay JSON files written by its harness."
     },
     {
       "id": "litespec/core/scopes#declare-the-page-scope",
@@ -11057,14 +11074,14 @@
       "anchor": "keep-the-stack-visible",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "\u0060.litespec/project.json\u0060 names each selected stack, and the root \u0060AGENTS.md\u0060 names the solution, applications, and commands.",
+      "evidence": "\u0060.litespec/project.yaml\u0060 names each selected stack, and the root \u0060AGENTS.md\u0060 names the solution, applications, and commands.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
       "conformance": "records",
       "strength": "default",
-      "statement": "Name each selected stack in \u0060.litespec/project.json\u0060 and the solution, applications, and commands in the root \u0060AGENTS.md\u0060.",
-      "rationale": "Naming each selected stack in \u0060.litespec/project.json\u0060 with the solution, applications, and commands in the root \u0060AGENTS.md\u0060 lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.",
+      "statement": "Name each selected stack in \u0060.litespec/project.yaml\u0060 and the solution, applications, and commands in the root \u0060AGENTS.md\u0060.",
+      "rationale": "Naming each selected stack in \u0060.litespec/project.yaml\u0060 with the solution, applications, and commands in the root \u0060AGENTS.md\u0060 lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.",
       "example": ""
     },
     {
@@ -11074,13 +11091,13 @@
       "anchor": "use-manifest-version-pins",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Each resolved SDK, framework, and package version matches its pin in \u0060litespec.manifest.json\u0060.",
+      "evidence": "Each resolved SDK, framework, and package version matches its pin in \u0060litespec.manifest.yaml\u0060.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
       "conformance": "records",
       "strength": "rule",
-      "statement": "A consumer MUST resolve every SDK, framework, and package version from \u0060litespec.manifest.json\u0060.",
+      "statement": "A consumer MUST resolve every SDK, framework, and package version from \u0060litespec.manifest.yaml\u0060.",
       "rationale": "The manifest owns every pin, so resolving versions anywhere else produces builds the standard never described. A version copied from prose, an example, a package search, or agent memory drifts from the pin with the next edit. One resolution source keeps every consumer on the same tested combination.",
       "example": ""
     },
@@ -11625,7 +11642,7 @@
       "conformance": "records",
       "strength": "rule",
       "statement": "Each refusal code MUST read \u0060\u003Cmodule\u003E.\u003Cnoun\u003E-\u003Cstate\u003E\u0060 and name the state, not the failure.",
-      "rationale": "The code is a public contract; \u0060invalid\u0060, \u0060failed\u0060 or \u0060error\u0060 tell an integrator nothing to do. A code naming the state tells what holds and what to change. The prefix names the module that owns the refused state, which may differ from the module of the refusing use case; a shared kernel declares its prefix in \u0060refusals.prefixes\u0060, and a code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in \u0060refusals.composed\u0060.",
+      "rationale": "The code is a public contract; \u0060invalid\u0060, \u0060failed\u0060 or \u0060error\u0060 tell an integrator nothing to do. A code naming the state tells what holds and what to change. The prefix names the module that owns the refused state, which may differ from the module of the refusing use case, and a code built at run time from a key, such as the conflict for a lost uniqueness key, declares its template in \u0060refusals.composed\u0060.",
       "example": "\u0060spending.receipt-missing\u0060 names the missing receipt; \u0060spending.receipt-invalid\u0060 hides the state behind a vague word and is reported."
     },
     {
@@ -19087,7 +19104,7 @@
       "artifact": "any",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A consumer MUST declare \u0060pre-production\u0060 or \u0060production\u0060 as its release stage in \u0060.litespec/project.json\u0060.",
+      "statement": "A consumer MUST declare \u0060pre-production\u0060 or \u0060production\u0060 as its release stage in \u0060.litespec/project.yaml\u0060.",
       "rationale": "The release stage is a project fact, not a departure from any rule, so it lives as data in the \u0060stage\u0060 selection: \u0060releaseStage\u0060 holds \u0060pre-production\u0060 or \u0060production\u0060, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.",
       "example": "A consumer with no customer data in any deployment declares the early stage.\n\n\u0060\u0060\u0060json\n{\u0022id\u0022: \u0022stage\u0022, \u0022criterion\u0022: \u0022no deployment holds customer data\u0022, \u0022releaseStage\u0022: \u0022pre-production\u0022}\n\u0060\u0060\u0060"
     },
@@ -20787,9 +20804,9 @@
       "artifact": "any",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A workspace with a controlled frontend MUST keep one pattern catalog at \u0060paths.uiPatterns\u0060 in \u0060.litespec/project.json\u0060, valid against the schema.",
+      "statement": "A workspace with a controlled frontend MUST keep one pattern catalog at \u0060paths.uiPatterns\u0060 in \u0060.litespec/project.yaml\u0060, valid against the schema.",
       "rationale": "An interface decision kept in one catalog is found before it is remade: the next author reads the entry and builds the chosen option. A decision kept in chat, in a review thread, or in one author\u0027s memory is decided again on the next page, and the two answers differ. One catalog at the configured path, valid against the schema, keeps every decision searchable and every choice comparable.",
-      "example": "The project file points at the catalog.\n\n\u0060\u0060\u0060json\n{ \u0022paths\u0022: { \u0022uiPatterns\u0022: \u0022.litespec/implementation/patterns/catalog.json\u0022 } }\n\u0060\u0060\u0060"
+      "example": "The project file points at the catalog.\n\n\u0060\u0060\u0060yaml\npaths: {}\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/frontend/patterns#keep-the-catalog-platform-neutral",
@@ -24272,7 +24289,7 @@
       "artifact": "any",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A workspace MUST install the pinned baseline from \u0060litespec.manifest.json\u0060 once, into its shared UI package.",
+      "statement": "A workspace MUST install the pinned baseline from \u0060litespec.manifest.yaml\u0060 once, into its shared UI package.",
       "rationale": "The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.",
       "example": ""
     },
@@ -24419,14 +24436,14 @@
       "anchor": "select-one-visual-authority",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports controlled frontends with no \u0060paths.uiPackage\u0060 in \u0060.litespec/project.json\u0060, and \u0060[litespec/frontend/ui#select-one-visual-authority]\u0060 for a second general-purpose visual dependency. Run it at the consumer root.",
+      "evidence": "\u0060litespec model check\u0060 reports controlled frontends with no \u0060ui.package\u0060 in \u0060.litespec/project.yaml\u0060, and \u0060[litespec/frontend/ui#select-one-visual-authority]\u0060 for a second general-purpose visual dependency. Run it at the consumer root.",
       "stack": "any",
       "layer": "frontend-ui",
       "artifact": "any",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A workspace MUST record one shared UI package in \u0060.litespec/project.json\u0060.",
-      "rationale": "Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in \u0060.litespec/project.json\u0060 settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.",
+      "statement": "A workspace MUST record one shared UI package in \u0060.litespec/project.yaml\u0060.",
+      "rationale": "Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in \u0060.litespec/project.yaml\u0060 settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.",
       "example": ""
     },
     {
@@ -24664,7 +24681,7 @@
       "conformance": "full",
       "strength": "rule",
       "statement": "The route suite and every visual golden MUST carry a \u0060proves\u0060 annotation for each UI provision, pattern provision, or quality requirement they enforce.",
-      "rationale": "The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern\u0027s look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in \u0060routeSuite\u0060 and its goldens in \u0060visualGoldens\u0060 in its \u0060paths.frontends[]\u0060 entry, so the check has a named subject instead of a convention.",
+      "rationale": "The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern\u0027s look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in \u0060routeSuite\u0060 and its goldens in \u0060visualGoldens\u0060 in its \u0060frontends[]\u0060 entry, so the check has a named subject instead of a convention.",
       "example": "Claimwick\u0027s route suite, named in its web frontend\u0027s \u0060routeSuite\u0060, carries \u0060proves(\u0022litespec/frontend/ui#check-every-route\u0022)\u0060."
     },
     {
@@ -25813,13 +25830,13 @@
       "anchor": "keep-the-approved-web-ui-dependency-boundary",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Each React frontend manifest takes UI packages only from \u0060uiBaseline\u0060, and each Svelte one only from \u0060uiBaselineSvelte\u0060, in \u0060litespec.manifest.json\u0060.",
+      "evidence": "Each React frontend manifest takes UI packages only from \u0060uiBaseline\u0060, and each Svelte one only from \u0060uiBaselineSvelte\u0060, in \u0060litespec.manifest.yaml\u0060.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
       "conformance": "full",
       "strength": "rule",
-      "statement": "A React web frontend MUST take its UI packages from the \u0060uiBaseline\u0060 in \u0060litespec.manifest.json\u0060, and a Svelte web frontend from \u0060uiBaselineSvelte\u0060.",
+      "statement": "A React web frontend MUST take its UI packages from the \u0060uiBaseline\u0060 in \u0060litespec.manifest.yaml\u0060, and a Svelte web frontend from \u0060uiBaselineSvelte\u0060.",
       "rationale": "A fixed UI baseline keeps every screen drawing from the same design system, styling, base components, icons, and utilities. Taking UI packages only from \u0060uiBaseline\u0060 for React and \u0060uiBaselineSvelte\u0060 for Svelte keeps that set reviewed and versioned in one place. Each baseline pins the design system, styling, base components, icons, and the utility packages the installed source imports directly.",
       "example": ""
     },
@@ -25836,7 +25853,7 @@
       "artifact": "",
       "conformance": "full",
       "strength": "rule",
-      "statement": "Every dependency version MUST resolve through central management or the committed lockfile, at the pin \u0060litespec.manifest.json\u0060 states where it states one.",
+      "statement": "Every dependency version MUST resolve through central management or the committed lockfile, at the pin \u0060litespec.manifest.yaml\u0060 states where it states one.",
       "rationale": "An inline version in one module file is invisible to the manifest that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place: the manifest pins the baseline stack the standards name, and the consumer\u0027s own central file or lockfile pins the product\u0027s own packages. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer\u0027s pins live beside its code, admitted by \u0060litespec/workspace/dependencies#approve-new-packages-explicitly\u0060.",
       "example": "A consumer generating invoices pins its PDF library in its central version file with a decision record. The manifest names only the baseline stack, and the pin is still central."
     },
@@ -26085,14 +26102,14 @@
       "anchor": "declare-size-and-application-stacks-in-project-config",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "\u0060.litespec/project.json\u0060 at the workspace root declares \u0060size\u0060 and one stack for the backend and for each frontend.",
+      "evidence": "\u0060.litespec/project.yaml\u0060 at the workspace root declares \u0060size\u0060 and one stack for the backend and for each frontend.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
       "conformance": "full",
       "strength": "rule",
-      "statement": "\u0060.litespec/project.json\u0060 MUST declare \u0060size\u0060 as \u0060small\u0060 or \u0060large\u0060 and one stack for the backend and for each frontend.",
-      "rationale": "Size decides which record types and test projects apply: small or large selects the project\u0027s required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in \u0060.litespec/project.json\u0060 lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.",
+      "statement": "\u0060.litespec/project.yaml\u0060 MUST declare \u0060size\u0060 as \u0060small\u0060 or \u0060large\u0060 and one stack for the backend and for each frontend.",
+      "rationale": "Size decides which record types and test projects apply: small or large selects the project\u0027s required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in \u0060.litespec/project.yaml\u0060 lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.",
       "example": ""
     },
     {
@@ -26221,7 +26238,7 @@
       "anchor": "name-frontends-by-audience",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Each directory under \u0060apps/\u0060 carries an audience name; where replaced, \u0060paths.frontends\u0060 in \u0060.litespec/project.json\u0060 names the project\u0027s own frontend names.",
+      "evidence": "Each directory under \u0060apps/\u0060 carries an audience name; where replaced, \u0060frontends\u0060 in \u0060.litespec/project.yaml\u0060 names the project\u0027s own frontend names.",
       "stack": "any",
       "layer": "workspace",
       "artifact": "",
@@ -26246,7 +26263,7 @@
       "strength": "rule",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.json\n    glossary.yaml\n    intent/\n      product.yaml\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}.yaml              requirements as entries\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}.yaml             results and scenarios as entries\n            events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      exceptions/                       create with the first exception record\n      modules/\n        {module}/\n          exceptions/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module\u0027s own name may stay flat.\n\nA record file lives at the home the [model page](../core/model.md) names for its type. An entry lives in its home file: requirements in their feature file, permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    intent/\n      product.yaml\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}.yaml              requirements as entries\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}.yaml             results and scenarios as entries\n            events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      exceptions/                       create with the first exception record\n      modules/\n        {module}/\n          exceptions/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module\u0027s own name may stay flat.\n\nA record file lives at the home the [model page](../core/model.md) names for its type. An entry lives in its home file: requirements in their feature file, permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

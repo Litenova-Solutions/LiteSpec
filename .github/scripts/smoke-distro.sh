@@ -9,26 +9,26 @@ set -eu
 
 . "$(dirname "$0")/lib.sh"
 
-# These are the tools install.sh and smoke.sh call, and jq, which smoke.sh reads the manifest with.
+# These are the tools install.sh and smoke.sh call.
 # No OpenSSL: the executable needs only the C library.
 if command -v apt-get >/dev/null 2>&1; then
   export DEBIAN_FRONTEND=noninteractive
   retry apt-get update -qq >/dev/null
-  retry apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip jq tar >/dev/null
+  retry apt-get install -y -qq --no-install-recommends bash ca-certificates curl diffutils findutils gawk gzip tar >/dev/null
 elif command -v dnf >/dev/null 2>&1; then
   # Some images ship curl-minimal, which serves install.sh and conflicts with the curl package.
-  retry dnf install -y -q bash diffutils findutils gawk gzip jq tar >/dev/null
+  retry dnf install -y -q bash diffutils findutils gawk gzip tar >/dev/null
 elif command -v zypper >/dev/null 2>&1; then
-  retry zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip jq tar >/dev/null
+  retry zypper --non-interactive --quiet install bash curl diffutils findutils gawk gzip tar >/dev/null
 elif command -v apk >/dev/null 2>&1; then
   # Alpine keeps BusyBox wget, so install.sh downloads without curl there.
-  retry apk add --no-cache -q bash coreutils diffutils findutils jq >/dev/null
+  retry apk add --no-cache -q bash coreutils diffutils findutils >/dev/null
 else
   echo "smoke-distro.sh supports apt, dnf, zypper and apk distributions." >&2
   exit 2
 fi
 
-version="$(manifest_version /src/litespec.manifest.json)"
+version="$(manifest_version /src/litespec.manifest.yaml)"
 install_dir="$(mktemp -d)"
 
 LITESPEC_INSTALL_DIR="$install_dir" sh /src/apps/cli/install/install.sh --version "$version"

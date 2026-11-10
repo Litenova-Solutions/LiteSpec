@@ -156,10 +156,10 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void AddWebFrontend(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        var paths = (JsonObject)project["paths"]!;
-        paths["frontends"] = new JsonArray(
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+
+        project["frontends"] = new JsonArray(
             new JsonObject
             {
                 ["name"] = "web",

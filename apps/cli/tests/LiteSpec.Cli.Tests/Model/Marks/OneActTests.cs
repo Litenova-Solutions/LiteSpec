@@ -118,7 +118,7 @@ public sealed class OneActTests
 
         try
         {
-            Write(temp.Path, ".litespec/project.json", """
+            Write(temp.Path, ".litespec/project.yaml", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -128,7 +128,7 @@ public sealed class OneActTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "conformance": "full",
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
                   "reviewedLiteSpecVersion": "4.1.0",
                   "owners": [
                     "lending-team"

@@ -327,9 +327,9 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Applies to:** artifact: any
 
-**Statement:** A consumer MUST resolve the standards-selected stack versions from `litespec.manifest.json`.
+**Statement:** A consumer MUST resolve the standards-selected stack versions from `litespec.manifest.yaml`.
 
-**Rationale:** The manifest is the version authority for the stack the standards select, so every consumer resolves the same tested combination. A version pinned in prose or remembered by an agent drifts from that authority with the next manifest change. Consumer dependencies still live in package manifests and lockfiles; only the standards-selected stack versions resolve from `litespec.manifest.json`.
+**Rationale:** The manifest is the version authority for the stack the standards select, so every consumer resolves the same tested combination. A version pinned in prose or remembered by an agent drifts from that authority with the next manifest change. Consumer dependencies still live in package manifests and lockfiles; only the standards-selected stack versions resolve from `litespec.manifest.yaml`.
 
 **Checked by:** `litespec model check` fails a project whose stack versions do not resolve from the manifest.
 

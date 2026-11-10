@@ -97,7 +97,7 @@ Each document style scaffolds from its template and keeps its sections in the bo
 | configuration | `templates/consumer/configuration.md` | Intent, Settings, Precedence, optional Notes |
 | index | `templates/consumer/index.md` | Intent, then navigation groups |
 
-A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type`. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.json`; the glossary document renders from it through a generated region. A module page is `.litespec/intent/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; `behavior/modules/<module>/` holds the same module name. Any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
+A document carries an optional YAML frontmatter block between `---` lines holding only a document page style in `type`. A document never holds a record type or entries, and a file named `README.md` with no frontmatter is a document. Term entries live in `.litespec/glossary.yaml`, satisfying `schemas/glossary.schema.yaml`; the glossary document renders from it through a generated region. A module page is `.litespec/intent/modules/<module>/module.yaml` and an aggregate page is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`; `behavior/modules/<module>/` holds the same module name. Any other record file keeps the name its page had, with `.yaml`. A record page that was a `README.md` becomes `<type>.yaml` in the same folder.
 
 These rules apply to every Markdown page style:
 
@@ -163,7 +163,7 @@ A Convention states a default a project may replace:
 ```markdown
 ### Use the Default Location
 
-**Default:** Store the catalog at `.litespec/implementation/patterns/catalog.json`.
+**Default:** Store the catalog at `.litespec/implementation/patterns/catalog.yaml`.
 
 **Replacement:** A project names another path in `paths.uiPatterns`.
 
@@ -324,7 +324,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Strength:** rule
 
-**Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.json`.
+**Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.yaml`.
 
 **Rationale:** A glossary column headed "Avoid" speaks to a reader and to nothing else: no tool can check it. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.
 
@@ -983,7 +983,7 @@ The figures below render from the retention schedule at build time.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.json`.
+**Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.yaml`.
 
 **Rationale:** A provision can gain force while keeping its ID, so an exception of kind `departure` written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 

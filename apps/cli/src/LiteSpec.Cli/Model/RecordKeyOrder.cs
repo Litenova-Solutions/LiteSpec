@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace LiteSpec.Model;
 
 /// <summary>
@@ -33,34 +35,31 @@ static class RecordKeyOrder
     static Dictionary<string, IReadOnlyList<string>> Load()
     {
         var orders = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-        var path = LiteSpecHome.PathTo("schemas/record.schema.json");
+        var path = LiteSpecHome.PathTo("schemas/record.schema.yaml");
 
         if (!File.Exists(path))
         {
             return orders;
         }
 
-        var schema = JsonText.Parse(File.ReadAllText(path));
-
-        if (!schema.TryGetProperty("$defs", out var definitions))
+        if (DataFile.Read(path) is not JsonObject schema || schema["$defs"] is not JsonObject definitions)
         {
             return orders;
         }
 
         var fixedKeys = new HashSet<string>(Head.Concat(Links).Concat(Tail), StringComparer.Ordinal);
 
-        foreach (var definition in definitions.Properties)
+        foreach (var definition in definitions)
         {
-            if (!definition.Value.TryGetProperty("properties", out var properties)
-                || !properties.TryGetProperty("type", out var typeSchema)
-                || !typeSchema.TryGetProperty("const", out var constant)
-                || constant.GetString() is not { } type)
+            if (definition.Value?["properties"] is not JsonObject properties
+                || properties["type"]?["const"] is not JsonValue constant
+                || !constant.TryGetValue<string>(out var type))
             {
                 continue;
             }
 
             orders[type] = Head
-                .Concat(properties.Properties.Select(property => property.Key).Where(key => !fixedKeys.Contains(key)))
+                .Concat(properties.Select(property => property.Key).Where(key => !fixedKeys.Contains(key)))
                 .Concat(Links)
                 .Concat(Tail)
                 .ToList();

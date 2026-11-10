@@ -1,11 +1,11 @@
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The file, text, and identifier helpers every validator shares.
+///     The directory walk, line, and identifier helpers every validator shares. File text and
+///     paths come from the Shared <c>FileText</c> and <c>PathText</c>.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 internal static class ValidatorSupport
@@ -70,25 +70,10 @@ internal static class ValidatorSupport
     /// <summary>The compiled pattern that splits text into lines.</summary>
     private static readonly Regex NewlineRegex = new(@"\r?\n", RegexOptions.Compiled);
 
-    /// <summary>Replaces backslashes with forward slashes in a path.</summary>
-    /// <param name="value">The path to convert.</param>
-    /// <returns>The path with forward slashes.</returns>
-    public static string Slash(string value) => value.Replace('\\', '/');
-
     /// <summary>Splits text into lines on a carriage-return or line-feed boundary.</summary>
     /// <param name="text">The text to split.</param>
     /// <returns>The lines of the text.</returns>
     public static string[] SplitLines(string text) => NewlineRegex.Split(text);
-
-    /// <summary>Reads a file as UTF-8 text from its bytes.</summary>
-    /// <param name="file">The file to read.</param>
-    /// <returns>The file text.</returns>
-    public static string ReadText(string file) => Encoding.UTF8.GetString(File.ReadAllBytes(file));
-
-    /// <summary>Removes a leading byte-order mark from text when one is present.</summary>
-    /// <param name="text">The text to trim.</param>
-    /// <returns>The text without a leading byte-order mark.</returns>
-    public static string TrimBom(string text) => text.StartsWith('\uFEFF') ? text[1..] : text;
 
     /// <summary>Joins a slash-separated relative path onto a repository root.</summary>
     /// <param name="root">The repository root.</param>

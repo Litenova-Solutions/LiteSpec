@@ -1,0 +1,478 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml'
+title: LiteSpec Consumer Project
+type: object
+additionalProperties: false
+required:
+- schemaVersion
+- project
+- size
+- layers
+- reviewedLiteSpecVersion
+- paths
+- selectedExtensions
+allOf:
+- if:
+    properties:
+      layers:
+        anyOf:
+        - required:
+          - implementation
+        - required:
+          - proof
+    required:
+    - layers
+  then:
+    required:
+    - stacks
+- if:
+    properties:
+      shape:
+        const: client-only
+    required:
+    - shape
+  then:
+    required:
+    - frontends
+- $comment: A controlled web frontend composes the shared package, so declaring one makes the package required. A workspace whose frontends are all outside the contract declares no package.
+  if:
+    required:
+    - frontends
+    properties:
+      frontends:
+        contains:
+          required:
+          - platform
+          properties:
+            platform:
+              enum:
+              - react
+              - svelte
+  then:
+    required:
+    - ui
+properties:
+  schemaVersion:
+    $comment: 'Each release pins one exact shape. A consumer adopting a later release absorbs every difference at that moment, so no minor-compatible range exists between two releases. See litespec/core/authoring#publish-each-release-as-a-complete-contract and litespec/core/authoring#exclude-cross-release-compatibility-work.'
+    const: 1
+  project:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+  size:
+    description: The size of this project. Small requires the core record types with Architecture and Integration test projects; large adds problems, features, journeys and scenarios with the Acceptance project.
+    type: string
+    enum:
+    - small
+    - large
+  layers:
+    description: The record layers this project claims, each with the practice it follows. intent and behavior take litespec. implementation and proof take litespec, the LiteSpec practice for the layer, or own, which keeps the project's own practice and checks only that code and tests mark the records they serve. A layer left out is not claimed, and no check reads it.
+    type: object
+    additionalProperties: false
+    required:
+    - intent
+    properties:
+      intent:
+        const: litespec
+      behavior:
+        const: litespec
+      implementation:
+        enum:
+        - litespec
+        - own
+      proof:
+        enum:
+        - litespec
+        - own
+    dependentRequired:
+      implementation:
+      - behavior
+      proof:
+      - behavior
+  shape:
+    description: 'The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.'
+    type: string
+    enum:
+    - server
+    - client-only
+    default: server
+  stacks:
+    description: 'The stacks this project builds with: dotnet for the backend, and one per frontend from its platform (react, svelte, blazor, or android). Required when the project claims implementation or proof; otherwise a stack is informational.'
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+      enum:
+      - dotnet
+      - react
+      - svelte
+      - blazor
+      - android
+  stackConfig:
+    description: Per-stack configuration, keyed by stack id. Each stack documents its own keys beside this schema.
+    type: object
+    properties:
+      dotnet:
+        description: Paths the model builder reads for the .NET backend. Each supports one segment wildcard expanding to the first matching folder.
+        type: object
+        additionalProperties: false
+        properties:
+          modules:
+            description: 'The modules project the model builder reads: every module with its aggregates, use cases, reactions and jobs. Defaults to apps/api/src/*.Modules. Under layer-projects it is the Application project and defaults to apps/api/src/*.Application.'
+            $ref: '#/$defs/projectPath'
+          sharedKernel:
+            description: 'The shared kernel project the model builder reads: what every module builds on and that names no module, where reasonless names are allowed. Defaults to apps/api/src/*.SharedKernel.'
+            $ref: '#/$defs/projectPath'
+          domain:
+            description: 'The Domain project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Domain with that extension and to none without it.'
+            $ref: '#/$defs/projectPath'
+          infrastructure:
+            description: 'The Infrastructure project the model builder reads, under layer-projects only. Defaults to apps/api/src/*.Infrastructure with that extension and to none without it.'
+            $ref: '#/$defs/projectPath'
+          webapi:
+            description: The web API host projects, one path each.
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              $ref: '#/$defs/projectPath'
+          worker:
+            description: The worker host projects, one path each.
+            type: array
+            minItems: 1
+            uniqueItems: true
+            items:
+              $ref: '#/$defs/projectPath'
+          templateStore:
+            description: 'The one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as {{PascalCaseName}}. Defaults to none, which leaves the template checks silent.'
+            $ref: '#/$defs/projectPath'
+    propertyNames:
+      enum:
+      - dotnet
+      - react
+      - svelte
+      - blazor
+      - android
+    additionalProperties:
+      type: object
+  frontends:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - path
+      - platform
+      properties:
+        name:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+        path:
+          $ref: '#/$defs/projectPath'
+        platform:
+          description: The frontend stack. Required on every entry, so a frontend outside the controlled UI contract declares that position instead of omitting the field.
+          type: string
+          enum:
+          - react
+          - svelte
+          - blazor
+          - android
+        entryPoint:
+          description: The browser or device entry point this frontend serves. Screens it drafts and use cases it reaches are read through this entry point.
+          type: string
+          pattern: '^entry-point/[a-z0-9][a-z0-9-]*$'
+        refusalDictionary:
+          description: 'The refusal dictionary for this frontend: the file or folder holding one sentence per refusal code, which refusal-sentence-missing reads.'
+          $ref: '#/$defs/projectPath'
+        routeSuite:
+          description: 'The route suite for this frontend: the file or folder the route-suite check reads.'
+          $ref: '#/$defs/projectPath'
+        visualGoldens:
+          description: 'The visual golden folder for this frontend: the folder holding the visual goldens the route-suite check reads.'
+          $ref: '#/$defs/projectPath'
+        ui:
+          $ref: '#/$defs/ui'
+      allOf:
+      - if:
+          required:
+          - ui
+        then:
+          required:
+          - platform
+          properties:
+            platform:
+              enum:
+              - react
+              - svelte
+      - if:
+          properties:
+            platform:
+              enum:
+              - react
+              - svelte
+          required:
+          - platform
+        then:
+          required:
+          - ui
+  ui:
+    description: The shared UI package the controlled frontends draw from.
+    type: object
+    additionalProperties: false
+    required:
+    - package
+    properties:
+      package:
+        description: 'The workspace''s one shared UI package: the registry configuration, the copied primitive source, the token stylesheet, the source lock, and the design contract. A workspace with no controlled web frontend omits it.'
+        $ref: '#/$defs/uiPackage'
+  proof:
+    description: How the model builder confirms proof claims for this project.
+    type: object
+    additionalProperties: false
+    properties:
+      jobTriggerSteps:
+        description: Steps classes whose when steps run a job, such as one that moves a simulated clock.
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[A-Z][A-Za-z0-9]*$'
+      outcomeOnlySteps:
+        description: Steps classes whose then steps state only that a request succeeded or was refused.
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[A-Z][A-Za-z0-9]*$'
+  marks:
+    description: 'The mark style every code element and test uses to name its record: xml for documentation tags, attribute for generated attributes. Defaults to xml.'
+    enum:
+    - xml
+    - attribute
+    default: xml
+  dependencies:
+    description: 'The dependency gate: the licenses every shipped package may carry without an admitting decision.'
+    type: object
+    additionalProperties: false
+    properties:
+      licenses:
+        description: SPDX license identifiers the project accepts, such as MIT and Apache-2.0.
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+  screenshots:
+    description: 'The screenshot galleries the model builder reads for screen captures: one or more repository-relative gallery folders and the file-name pattern with {route}, {theme} and {width} placeholders. Defaults to no galleries and the pattern {route}--{theme}--{width}.png.'
+    type: object
+    additionalProperties: false
+    properties:
+      galleries:
+        description: The gallery folders holding screenshot captures, one per frontend that photographs its routes.
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/projectPath'
+      pattern:
+        description: 'The capture file-name pattern, with {route} for the route slug, {theme} for the theme and {width} for the width in pixels.'
+        type: string
+        minLength: 1
+        default: '{route}--{theme}--{width}.png'
+  refusals:
+    description: The refusal codes the derived generic results carry, with the HTTP status and client vocabulary each declared code answers in.
+    type: object
+    additionalProperties: false
+    properties:
+      forbidden:
+        description: The code the derived forbidden result carries. Defaults to authorization.forbidden.
+        type: string
+        minLength: 1
+        default: authorization.forbidden
+      invalidInput:
+        description: The code the derived invalid-input result carries. Defaults to request.validation-failed.
+        type: string
+        minLength: 1
+        default: request.validation-failed
+      statuses:
+        description: The HTTP status each declared refusal code answers with, by refusal code. A test asserting the status confirms the refusal.
+        type: object
+        propertyNames:
+          minLength: 1
+        additionalProperties:
+          type: integer
+          minimum: 100
+          maximum: 599
+      aliases:
+        description: The client refusal vocabulary translated to declared codes, by client code. A test asserting the client code confirms the declared refusal.
+        type: object
+        propertyNames:
+          minLength: 1
+        additionalProperties:
+          type: string
+          minLength: 1
+      composed:
+        description: 'Refusal codes the project builds at run time from a key, each a template with one {key} placeholder after a prefix and a dot, such as uniqueness.{key}-taken for a lost uniqueness key. A code matching a template is raised where its key is a literal in the code.'
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*\.[a-z0-9-]*\{key\}[a-z0-9-]*$'
+  reviewedLiteSpecVersion:
+    description: The LiteSpec release whose complete contract this project last reviewed.
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+  paths:
+    type: object
+    additionalProperties: false
+    required:
+    - behaviorDocs
+    properties:
+      docs:
+        description: Root of the specification tree. Every Markdown file under it carries a metadata block.
+        $ref: '#/$defs/projectPath'
+      glossary:
+        description: The project glossary, validated against schemas/glossary.schema.yaml. Defaults to .litespec/glossary.yaml.
+        default: .litespec/glossary.yaml
+        $ref: '#/$defs/projectPath'
+      behaviorDocs:
+        $ref: '#/$defs/projectPath'
+      testRoots:
+        description: Directories holding automated test source. A scenario is proved from one of these, as a test whose steps call the use case and assert the result.
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/projectPath'
+      testResults:
+        description: Where the latest test run results live, so passing and failing proof is read from them. Defaults to the test result files under the test roots.
+        $ref: '#/$defs/projectPath'
+      alerts:
+        description: 'The alert rule files or folders: YAML in the shape Prometheus rule files and Grafana alert provisioning share, groups[].rules[] with labels.'
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/projectPath'
+      operations:
+        description: 'The deployment, proxy, host and CI workflow files or folders that carry follows marks in their # comments.'
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/projectPath'
+      checkResults:
+        description: Where drill and harness check results live as JSON files. Defaults to .litespec/proof/checks.
+        $ref: '#/$defs/projectPath'
+      sbom:
+        description: 'The bill of materials files or folders: SPDX or CycloneDX JSON the CI generates.'
+        type: array
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/projectPath'
+      contract:
+        description: The committed OpenAPI document, so the model check compares each operation's x-litespec-use-case with its endpoint's mark.
+        $ref: '#/$defs/projectPath'
+      apiClient:
+        description: The generated API client the frontends import, so route calls resolve to the use cases they reach.
+        $ref: '#/$defs/projectPath'
+      uiPatterns:
+        description: The workspace UI pattern catalog, validated against schemas/ui-pattern-catalog.schema.yaml, when it is not at .litespec/implementation/patterns/catalog.yaml.
+        $ref: '#/$defs/projectPath'
+  selectedExtensions:
+    description: Extensions active for this project. Each entry records the criterion that was met.
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - criterion
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+        criterion:
+          type: string
+          minLength: 1
+        releaseStage:
+          description: 'The release stage the stage extension declares: pre-production until a deployment holds customer data, production after the promotion decision.'
+          enum:
+          - pre-production
+          - production
+      allOf:
+      - if:
+          required:
+          - releaseStage
+        then:
+          properties:
+            id:
+              const: stage
+      - if:
+          properties:
+            id:
+              const: stage
+        then:
+          required:
+          - releaseStage
+$defs:
+  projectPath:
+    type: string
+    minLength: 1
+    pattern: '^(?![A-Za-z]:)(?!/)(?!.*\.\.)[^\\]+$'
+  uiPackage:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - path
+    - componentsJson
+    - primitives
+    - tokens
+    - sourceLock
+    - designContract
+    - publicExports
+    properties:
+      name:
+        type: string
+        minLength: 1
+      path:
+        $ref: '#/$defs/projectPath'
+      componentsJson:
+        $ref: '#/$defs/projectPath'
+      primitives:
+        description: The directory holding the registry source the pinned CLI copied in.
+        $ref: '#/$defs/projectPath'
+      tokens:
+        $ref: '#/$defs/projectPath'
+      sourceLock:
+        $ref: '#/$defs/projectPath'
+      designContract:
+        $ref: '#/$defs/projectPath'
+      publicExports:
+        description: The entry points applications may import. A primitive the composites are built from is not one of them.
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          minLength: 1
+  ui:
+    type: object
+    additionalProperties: false
+    required:
+    - profile
+    properties:
+      profile:
+        description: The density profile this frontend composes the shared package at.
+        type: string
+        enum:
+        - public-light
+        - application-balanced
+        - admin-dense
+      globalCss:
+        description: The one stylesheet this frontend declares, which imports the shared package's tokens.
+        $ref: '#/$defs/projectPath'

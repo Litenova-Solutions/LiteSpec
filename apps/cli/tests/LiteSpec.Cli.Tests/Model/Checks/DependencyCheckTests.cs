@@ -375,8 +375,8 @@ public sealed class DependencyCheckTests
 
     static void ConfigureSbom(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var node = DataFile.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(".litespec/proof/sbom");
         node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
@@ -385,8 +385,8 @@ public sealed class DependencyCheckTests
     static void ConfigureSbomPath(string root, string sbom)
     {
         ConfigureSbom(root);
-        var file = Path.Combine(root, ".litespec/project.json");
-        var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var node = DataFile.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(sbom);
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }

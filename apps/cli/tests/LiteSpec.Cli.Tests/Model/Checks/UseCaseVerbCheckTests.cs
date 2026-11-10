@@ -27,5 +27,5 @@ public sealed class UseCaseVerbCheckTests
     }
 
     static void WriteProject(string root) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), "{}");
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), "{}");
 }

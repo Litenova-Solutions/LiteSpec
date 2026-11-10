@@ -126,7 +126,7 @@ public sealed class ModuleLayoutReaderTests
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
         var config = ConsumerConfig.Load(temp.Path);
 
@@ -149,7 +149,7 @@ public sealed class ModuleLayoutReaderTests
         }
 
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"selectedExtensions\": [{\"id\": \"layer-projects\", \"criterion\": \"five projects\"}]}");
         var config = ConsumerConfig.Load(temp.Path);
 
@@ -172,7 +172,7 @@ public sealed class ModuleLayoutReaderTests
     static void WriteModuleProject(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
             namespace Library.Lending.Loans.UseCases.BorrowCopy;

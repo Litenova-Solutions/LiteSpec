@@ -35,7 +35,7 @@ internal static class StandardsValidator
         var diagnostics = new List<StandardsDiagnostic>();
         void Add(string relative, int line, string code, string message)
         {
-            diagnostics.Add(new StandardsDiagnostic(ValidatorSupport.Slash(relative), line, code, message));
+            diagnostics.Add(new StandardsDiagnostic(FileText.Slash(relative), line, code, message));
         }
 
         if (!Directory.Exists(resolved))
@@ -63,11 +63,11 @@ internal static class StandardsValidator
         }
 
         var context = new ValidationContext(resolved, Add);
-        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(ValidatorSupport.Slash(Path.GetRelativePath(resolved, file)))).ToList();
+        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(PathText.Relative(resolved, file))).ToList();
         var parsedPages = new List<ParsedPage>();
         foreach (var file in current)
         {
-            var relative = ValidatorSupport.Slash(Path.GetRelativePath(resolved, file));
+            var relative = PathText.Relative(resolved, file);
             if (relative.StartsWith("templates/standard/", StringComparison.Ordinal))
             {
                 continue;
@@ -79,7 +79,7 @@ internal static class StandardsValidator
                 continue;
             }
 
-            var raw = ValidatorSupport.ReadText(file);
+            var raw = FileText.ReadText(file);
             var reader = PageReader.Parse(raw);
             var prose = string.Join('\n', reader.Lines.Select((line, index) =>
                 reader.FencedLines.Contains(index + 1) || reader.GeneratedLines.Contains(index + 1) ? "" : line));
@@ -112,7 +112,7 @@ internal static class StandardsValidator
         if (File.Exists(indexFile))
         {
             var expected = Provisions.BuildIndex(resolved) + "\n";
-            var actual = ValidatorSupport.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            var actual = FileText.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actual != expected)
             {
                 Add(Provisions.IndexPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision index differs from the active standards; run litespec-maintain provisions");
@@ -127,7 +127,7 @@ internal static class StandardsValidator
         if (File.Exists(jsonFile))
         {
             var expectedJson = Provisions.BuildJson(resolved) + "\n";
-            var actualJson = ValidatorSupport.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            var actualJson = FileText.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actualJson != expectedJson)
             {
                 Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data differs from the active standards; run litespec-maintain provisions");
@@ -138,12 +138,12 @@ internal static class StandardsValidator
             Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data is missing; run litespec-maintain provisions");
         }
 
-        context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.json", "litespec.manifest.json");
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
-        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.json", "templates/consumer/project.json");
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.yaml", "templates/consumer/project.yaml");
 
         // The template index is the only map from a template file to the consumer path
         // it targets. A renamed template leaves a row pointing at nothing, and that row

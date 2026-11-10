@@ -142,9 +142,9 @@ internal sealed partial class RepositoryValidator
         var templateRoot = Path.Combine(root, "templates", "standard");
         foreach (var file in Walk(templateRoot, candidate => candidate.EndsWith(".md", StringComparison.Ordinal)))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             var virtualRelative = TemplateVirtualPath.GetValueOrDefault(Path.GetFileName(file), "docs/core/template.md");
-            var normalized = NormalizeTemplate(relative, ReadText(file));
+            var normalized = NormalizeTemplate(relative, FileText.ReadText(file));
             var templateReader = PageReader.Parse(normalized);
             var stripped = string.Join('\n', templateReader.Lines.Select((line, index) =>
                 templateReader.FencedLines.Contains(index + 1) || templateReader.GeneratedLines.Contains(index + 1) ? "" : line));
@@ -169,13 +169,13 @@ internal sealed partial class RepositoryValidator
         var readers = new Dictionary<string, PageReader>(StringComparer.Ordinal);
         foreach (var file in files)
         {
-            readers[file] = PageReader.Parse(ReadText(file));
+            readers[file] = PageReader.Parse(FileText.ReadText(file));
         }
 
         foreach (var file in files)
         {
             var reader = readers[file];
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             foreach (var link in reader.Links)
             {
                 var href = link.Target.Trim();
@@ -215,12 +215,12 @@ internal sealed partial class RepositoryValidator
                 {
                     if (!readers.TryGetValue(target, out var targetReader))
                     {
-                        targetReader = PageReader.Parse(ReadText(target));
+                        targetReader = PageReader.Parse(FileText.ReadText(target));
                     }
 
                     if (!targetReader.Anchors.Contains(anchor))
                     {
-                        add(relative, link.Line, Diagnostics.Codes.AnchorBroken, $"anchor '#{anchor}' does not exist in '{Slash(Path.GetRelativePath(root, target))}'");
+                        add(relative, link.Line, Diagnostics.Codes.AnchorBroken, $"anchor '#{anchor}' does not exist in '{PathText.Relative(root, target)}'");
                     }
                 }
             }
@@ -273,7 +273,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var lines = SplitLines(ReadText(indexFile));
+        var lines = SplitLines(FileText.ReadText(indexFile));
         for (var index = 0; index < lines.Length; index++)
         {
             var row = TemplateRowPattern().Match(lines[index]);
@@ -340,7 +340,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var schemaFile = JoinRoot(root, "schemas/record.schema.json");
+        var schemaFile = JoinRoot(root, "schemas/record.schema.yaml");
         if (!File.Exists(schemaFile))
         {
             return;
@@ -349,7 +349,7 @@ internal sealed partial class RepositoryValidator
         JsonNode? schema;
         try
         {
-            schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
+            schema = DataFile.Read(schemaFile);
         }
         catch (Exception)
         {
@@ -364,7 +364,7 @@ internal sealed partial class RepositoryValidator
 
         foreach (var file in Directory.GetFileSystemEntries(directory).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             JsonObject? template = null;
             string? type = null;
 
@@ -377,7 +377,7 @@ internal sealed partial class RepositoryValidator
                     continue;
                 }
 
-                if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out var error))
+                if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var record, out var error))
                 {
                     add(relative, 1, Diagnostics.Codes.TemplateSchema, $"record file is invalid: {error}");
                     continue;
@@ -387,10 +387,10 @@ internal sealed partial class RepositoryValidator
                 type = JsonString(template?["type"]);
                 if (type is null || type.Length == 0)
                 {
-                    // A non-record template carries its own schema's discriminator
-                    // instead of a record type, and its schema owns it, so the
-                    // record check does not apply.
-                    if (JsonString(template?["kind"]) is not null)
+                    // A LiteSpec file that is not a record, such as the project file or the
+                    // UI catalog, carries schemaVersion and its own schema, which the schema
+                    // checks read, so the record check does not apply.
+                    if (template?["schemaVersion"] is not null)
                     {
                         continue;
                     }
@@ -419,7 +419,7 @@ internal sealed partial class RepositoryValidator
             {
                 // An explanation template carries no frontmatter; a document
                 // template carries its document style between the fences.
-                var raw = ReadText(file);
+                var raw = FileText.ReadText(file);
                 if (raw.Split('\n')[0].TrimEnd('\r') != "---")
                 {
                     continue;
@@ -435,10 +435,9 @@ internal sealed partial class RepositoryValidator
                 type = JsonString(template?["type"]);
                 if (type is null || type.Length == 0)
                 {
-                    // A non-record template carries its own schema's discriminator
-                    // instead of a page style. The design contract names a kind,
-                    // and its schema owns it, so the check does not apply.
-                    if (JsonString(template?["kind"]) is not null)
+                    // A LiteSpec document that is not a page, such as the design contract,
+                    // carries schemaVersion and its own schema, so the check does not apply.
+                    if (template?["schemaVersion"] is not null)
                     {
                         continue;
                     }
@@ -1192,7 +1191,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var reader = PageReader.Parse(ReadText(file));
+        var reader = PageReader.Parse(FileText.ReadText(file));
         var routingLine = -1;
         var firstGroupLine = -1;
         var h2s = reader.Headings.Where(heading => heading.Level == 2).ToList();

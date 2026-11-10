@@ -30,7 +30,7 @@ Provider-specific provisions name the member names and configuration surface the
 
 Each aggregate runs under exactly one provider.
 
-The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.json` records which choices a consumer made.
+The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.yaml` records which choices a consumer made.
 
 ## Standards
 

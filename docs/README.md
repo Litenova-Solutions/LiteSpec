@@ -2,7 +2,7 @@
 
 ## Intent
 
-LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.json` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
+LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in `.litespec/project.yaml` (its size, shape, technology stacks, and extensions), so most readers need only a few groups.
 
 ## Which Page Do You Want
 
@@ -177,7 +177,7 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 ### CLI
 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
-- [Initialize Consumer](tools/init.md): writes `.litespec/project.json` for a new consumer from a preset.
+- [Initialize Consumer](tools/init.md): writes `.litespec/project.yaml` for a new consumer from a preset.
 - [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, and answers record queries.
 - [Book](tools/book.md): builds the project book from the records: one offline shell with the Outline and Security views.
 
@@ -202,9 +202,9 @@ The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET
 - [Provisions](reference/provisions.md): every provision ID resolved to its heading, page, and mark.
 - [Audit Obligations](reference/audit-obligations.md): the external obligations the audit extension satisfies.
 - [Decision Records](reference/decision-records.md): where a decision record lives, what it holds, and how it ends.
-- [Project File](reference/project-file.md): every field of `.litespec/project.json` and what reads it.
-- [Release Manifest](reference/manifest.md): every field of `litespec.manifest.json` and how to add a stack or extension.
-- [Schemas](reference/schemas.md): every JSON schema, the file it validates, and the command that checks it.
+- [Project File](reference/project-file.md): every field of `.litespec/project.yaml` and what reads it.
+- [Release Manifest](reference/manifest.md): every field of `litespec.manifest.yaml` and how to add a stack or extension.
+- [Formats](reference/formats.md): every file format, who writes it, its envelope, and the schema and command that check it.
 - [Published URLs](reference/published-urls.md): every URL the site serves for agents and people.
 - [Document templates](../templates/consumer/README.md): the starting files for each consumer record type.
 

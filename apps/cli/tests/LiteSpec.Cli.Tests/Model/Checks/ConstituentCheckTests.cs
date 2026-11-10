@@ -125,7 +125,7 @@ public sealed class ConstituentCheckTests
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"domain": "src/Domain"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "src", "Domain", "AuditStamp.cs");
@@ -140,7 +140,7 @@ public sealed class ConstituentCheckTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}""");
 
     static void AddRoot(ProjectModel model, string file, string root, string aggregate, int line = 5) =>

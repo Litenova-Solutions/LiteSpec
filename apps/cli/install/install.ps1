@@ -9,7 +9,7 @@ folder on the user PATH in place of any other LiteSpec version. The binary needs
 Runs on Windows PowerShell 5.1 and PowerShell 7.
 
 .PARAMETER Version
-The release to install. Without one, the script installs the release .litespec\project.json
+The release to install. Without one, the script installs the release .litespec\project.yaml
 reviews in the working directory, and else the latest release. Also read from LITESPEC_VERSION.
 
 .PARAMETER InstallDir
@@ -65,12 +65,12 @@ function Get-LatestVersion {
     return $tag.Substring(1)
 }
 
-if (-not $Version -and (Test-Path '.litespec\project.json')) {
-    $project = Get-Content '.litespec\project.json' -Raw | ConvertFrom-Json
+if (-not $Version -and (Test-Path '.litespec\project.yaml')) {
+    $line = Select-String -Path '.litespec\project.yaml' -Pattern '^reviewedLiteSpecVersion: [''"]?([^''"\s]+)' | Select-Object -First 1
 
-    if ($project.reviewedLiteSpecVersion) {
-        $Version = $project.reviewedLiteSpecVersion
-        Write-Host "Installing the release .litespec\project.json reviews: $Version"
+    if ($line) {
+        $Version = $line.Matches[0].Groups[1].Value
+        Write-Host "Installing the release .litespec\project.yaml reviews: $Version"
     }
 }
 

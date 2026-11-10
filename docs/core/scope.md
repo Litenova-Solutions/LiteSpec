@@ -12,7 +12,7 @@ LiteSpec is a standard for specification-driven development of one bounded-conte
 
 ### The Three Project Choices
 
-Three choices in `.litespec/project.json` decide everything the project must produce and every page that applies to it. The conformance level declared beside them decides which part of the contract the project claims, as The Three Conformance Levels below states.
+Three choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it. The conformance level declared beside them decides which part of the contract the project claims, as The Three Conformance Levels below states.
 
 Size decides the record set and the test projects. A small project carries the core record types with Architecture and Integration test projects. A large project adds goals, problems, features, journeys, and scenarios with the Acceptance project. A project with one web frontend and no journeys fits small; the running Claimwick example, which needs journeys, selects large.
 
@@ -22,7 +22,7 @@ Each stack decides which technology pages and checks apply. A project names one 
 
 ### The Three Conformance Levels
 
-A conformance level is the part of the LiteSpec contract a project claims. The levels nest: `traced` includes everything `records` claims, and `full` includes everything `traced` claims. A project declares one level in `.litespec/project.json` and may move to a higher level by meeting the provisions that level adds. Extensions keep working within a level as they do at every other level.
+A conformance level is the part of the LiteSpec contract a project claims. The levels nest: `traced` includes everything `records` claims, and `full` includes everything `traced` claims. A project declares one level in `.litespec/project.yaml` and may move to a higher level by meeting the provisions that level adds. Extensions keep working within a level as they do at every other level.
 
 |  | `records` | `traced` | `full` |
 |:---|:---|:---|:---|
@@ -37,11 +37,11 @@ A conformance level is the part of the LiteSpec contract a project claims. The l
 
 ### One Folder for Every LiteSpec File
 
-Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Inside it, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own; `project.json`, `glossary.yaml`, and the example cast sit at its top level; the tool builds its model in memory, keeps its working files in `model/` and writes its book to `book/` under it, and a `.gitignore` there keeps those two generated folders out of source control. Nothing of LiteSpec lives anywhere else in the repository, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name. Proof holds no authored records.
+Every file LiteSpec creates, reads, or governs in a consumer sits under one folder, `.litespec/`, at the root of the consumer's repository. Inside it, the layer folders `intent/`, `behavior/`, `implementation/`, `proof/`, and `governance/` hold the records the layers own; `project.yaml`, `glossary.yaml`, and the example cast sit at its top level; the tool builds its model in memory, keeps its working files in `model/` and writes its book to `book/` under it, and a `.gitignore` there keeps those two generated folders out of source control. Nothing of LiteSpec lives anywhere else in the repository, and no LiteSpec material sits at the repository root. Application code, tests, and infrastructure keep the places their stack pages name. Proof holds no authored records.
 
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.json` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.yaml` whether any constraint applies, and an empty answer records that none does.
 
 LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces; company operation enters only as a constraint or as dated research.
 
@@ -79,15 +79,19 @@ A consumer claims conformance at its declared conformance level when it meets ev
 
 **Example:** A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.
 
-The running Claimwick example declares large with a server shape and two stacks in `.litespec/project.json`:
+The running Claimwick example declares large with a server shape and two stacks in `.litespec/project.yaml`:
 
-```json
-{
-  "size": "large",
-  "shape": "server",
-  "stacks": ["dotnet", "svelte"],
-  "conformance": "full"
-}
+```yaml
+size: large
+shape: server
+stacks:
+- dotnet
+- svelte
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
 ```
 
 The size selects the large record set, the shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.
@@ -104,7 +108,7 @@ The diagram shows the three project choices and what each decides.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST declare in `.litespec/project.json` the conformance level it claims: `records`, `traced` or `full`.
+**Statement:** A consumer MUST declare in `.litespec/project.yaml` the conformance level it claims: `records`, `traced` or `full`.
 
 **Rationale:** A project can take the record model without LiteSpec's code layout, or trace its code to its records in a layout of its own. The level tells every tool which part of the contract the project claims, so `model check`, the book, `rules` and the analyzers report that part and nothing else. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims. The table in The Three Conformance Levels states what each level claims, what each tool runs at that level, and what the book and `rules` show.
 
@@ -124,7 +128,7 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** Posts, Authors, and Comments can be modules in one publishing context.
 
-**Reviewed for:** Module pages and `.litespec/project.json` name one business language and one deployment boundary, with no second of either.
+**Reviewed for:** Module pages and `.litespec/project.yaml` name one business language and one deployment boundary, with no second of either.
 
 ### Keep Every Record About the Software
 
@@ -160,7 +164,7 @@ The diagram shows the three project choices and what each decides.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.json`, each with its criterion.
+**Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.yaml`, each with its criterion.
 
 **Rationale:** The project record determines which extension boundaries apply to the project's work. Writing each selection with its criterion lets a later reader check whether the condition still holds. Without the record, extensions drift in through dependencies and prose while the checks apply a different set.
 
@@ -178,13 +182,13 @@ The diagram shows the three project choices and what each decides.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST state in `.litespec/project.json` whether any outside constraint applies to the project.
+**Statement:** A consumer MUST state in `.litespec/project.yaml` whether any outside constraint applies to the project.
 
 **Rationale:** An outside rule the project never names is a law the product can break unknowingly. Recording the answer, even when it is empty, proves the team asked the question: an empty answer states that no outside rule binds the project. A later reader can then tell a project with no constraints from one that never looked.
 
 **Example:** A clinic booking system records that medical-device regulation does not apply to appointment scheduling.
 
-**Reviewed for:** `.litespec/project.json` states which outside constraints apply, or records an empty answer.
+**Reviewed for:** `.litespec/project.yaml` states which outside constraints apply, or records an empty answer.
 
 ### Declare a Consumer That Has No Backend
 
@@ -224,7 +228,7 @@ The diagram shows the three project choices and what each decides.
 
 **Example:** A consumer that selects the dotnet stack and the caching extension and declares `full` claims conformance when every page those selections apply holds and their checks pass, with each departure recorded as an exception. A consumer that declares `records` claims conformance when the provisions about records hold, while its own code layout and tooling stay outside the claim.
 
-**Reviewed for:** `.litespec/project.json` names the declared conformance level beside the selected size, shape, stacks, and extensions; each departure from a provision that applies at that level resolves to an exception record under `.litespec/governance/exceptions/`, and the checks that run at that level pass.
+**Reviewed for:** `.litespec/project.yaml` names the declared conformance level beside the selected size, shape, stacks, and extensions; each departure from a provision that applies at that level resolves to an exception record under `.litespec/governance/exceptions/`, and the checks that run at that level pass.
 
 ### Point Behavior Docs at the Behavior Root
 
@@ -232,14 +236,15 @@ The diagram shows the three project choices and what each decides.
 
 **Strength:** rule
 
-**Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.json` to the folder that holds its Behavior records.
+**Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.yaml` to the folder that holds its Behavior records.
 
 **Rationale:** The builder joins records, queries, diffs, and the book from one declared root. A Behavior tree the project record never names is one the tools never see, so its records skip every check. One declared folder keeps authors and tools on the same tree.
 
 **Example:**
 
-```json
-{ "paths": { "behaviorDocs": ".litespec/behavior" } }
+```yaml
+paths:
+  behaviorDocs: .litespec/behavior
 ```
 
 **Checked by:** `litespec model check` reports `project-invalid` for a project record without `paths.behaviorDocs`.
@@ -252,11 +257,25 @@ The diagram shows the three project choices and what each decides.
 
 **Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
 
-**Rationale:** One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.json` stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.json`.
+**Rationale:** One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application's code, tests, and infrastructure. Generated output inside it stays covered by its `.gitignore`, so a checkout never mixes committed records with built files. Every path in `.litespec/project.yaml` stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds `.litespec/project.yaml`.
 
 **Example:** Claimwick holds its project file, glossary, example cast, and the Intent, Behavior, Implementation, Proof, and Governance folders under `examples/claimwick/.litespec/` (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places.
 
 **Reviewed for:** Which files created, read, or governed by LiteSpec sit outside `.litespec/`, or at the repository root? Look at the repository tree beside the project's `.litespec/` folder.
+
+### Write Every Hand-Written LiteSpec File in YAML
+
+**ID:** `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml`
+
+**Strength:** rule
+
+**Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model and `--format json` output, stay JSON.
+
+**Rationale:** People write these files and review them in pull requests, so one syntax with comments and no brace noise keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own.
+
+**Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape and stacks as YAML keys; its check results under `.litespec/proof/checks/` stay JSON files written by its harness.
+
+**Checked by:** `litespec model check` reports `project-invalid` for a project file that is not `.litespec/project.yaml` or lacks `schemaVersion`; scope: the project file.
 
 ## Conventions
 

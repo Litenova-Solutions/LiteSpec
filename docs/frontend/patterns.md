@@ -21,7 +21,7 @@ A pattern answers one recurring question. Its kind states what the question is a
 
 ### The Catalog Entry
 
-The catalog is one file valid against `schemas/ui-pattern-catalog.schema.json`. Each pattern entry carries these fields.
+The catalog is one file valid against `schemas/ui-pattern-catalog.schema.yaml`. Each pattern entry carries these fields.
 
 | Field | What it holds |
 |:---|:---|
@@ -182,14 +182,14 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 **Applies to:** artifact: any
 
-**Statement:** A workspace with a controlled frontend MUST keep one pattern catalog at `paths.uiPatterns` in `.litespec/project.json`, valid against the schema.
+**Statement:** A workspace with a controlled frontend MUST keep one pattern catalog at `paths.uiPatterns` in `.litespec/project.yaml`, valid against the schema.
 
 **Rationale:** An interface decision kept in one catalog is found before it is remade: the next author reads the entry and builds the chosen option. A decision kept in chat, in a review thread, or in one author's memory is decided again on the next page, and the two answers differ. One catalog at the configured path, valid against the schema, keeps every decision searchable and every choice comparable.
 
 **Example:** The project file points at the catalog.
 
-```json
-{ "paths": { "uiPatterns": ".litespec/implementation/patterns/catalog.json" } }
+```yaml
+paths: {}
 ```
 
 **Checked by:** `litespec model check` reports `[litespec/frontend/patterns#keep-one-pattern-catalog]` for a missing catalog, a duplicate id, an unknown group, an unknown library pattern, or a renamed option. Run it at the consumer root.

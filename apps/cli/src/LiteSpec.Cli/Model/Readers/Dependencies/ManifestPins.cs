@@ -1,4 +1,4 @@
-using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model.Readers.Dependencies;
 
@@ -25,30 +25,18 @@ sealed record ManifestPins(IReadOnlyDictionary<string, string> NuGet, IReadOnlyD
         {
             var home = LiteSpecHome.Root;
 
-            if (home is null)
+            if (home is null || !File.Exists(Path.Combine(home, LiteSpecHome.ManifestFile)))
             {
                 return new ManifestPins(nuget, npm);
             }
 
-            var file = Path.Combine(home, LiteSpecHome.ManifestFile);
-
-            if (!File.Exists(file))
-            {
-                return new ManifestPins(nuget, npm);
-            }
-
-            using var document = JsonDocument.Parse(File.ReadAllText(file));
-            var root = document.RootElement;
-
-            if (root.ValueKind == JsonValueKind.Object
-                && root.TryGetProperty("packages", out var packages)
-                && packages.ValueKind == JsonValueKind.Object)
+            if (LiteSpecHome.ReadManifest(home)["packages"] is JsonObject packages)
             {
                 AddPins(packages, "nuget", nuget);
                 AddPins(packages, "npm", npm);
             }
         }
-        catch (Exception exception) when (exception is IOException or JsonException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or JsonTextException or UnauthorizedAccessException)
         {
             return new ManifestPins(
                 new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
@@ -59,23 +47,22 @@ sealed record ManifestPins(IReadOnlyDictionary<string, string> NuGet, IReadOnlyD
     }
 
     /// <summary>Copies the ecosystem's package pins into the table, first entry winning.</summary>
-    /// <param name="packages">The manifest element that holds the package pins of one ecosystem.</param>
+    /// <param name="packages">The manifest object that holds the package pins of one ecosystem.</param>
     /// <param name="ecosystem">The ecosystem the pins belong to, such as nuget or npm.</param>
     /// <param name="pins">The pins collected so far, by package name, added to in place.</param>
-    private static void AddPins(JsonElement packages, string ecosystem, Dictionary<string, string> pins)
+    private static void AddPins(JsonObject packages, string ecosystem, Dictionary<string, string> pins)
     {
-        if (!packages.TryGetProperty(ecosystem, out var table) || table.ValueKind != JsonValueKind.Object)
+        if (packages[ecosystem] is not JsonObject table)
         {
             return;
         }
 
-        foreach (var entry in table.EnumerateObject())
+        foreach (var entry in table)
         {
-            if (entry.Name.Length > 0
-                && entry.Value.ValueKind == JsonValueKind.String
-                && entry.Value.GetString() is { Length: > 0 } version)
+            if (entry.Key.Length > 0
+                && JsonValues.AsString(entry.Value) is { Length: > 0 } version)
             {
-                pins.TryAdd(entry.Name, version);
+                pins.TryAdd(entry.Key, version);
             }
         }
     }

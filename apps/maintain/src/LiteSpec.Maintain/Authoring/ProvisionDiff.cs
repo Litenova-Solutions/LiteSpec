@@ -2,7 +2,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
 namespace LiteSpec.Authoring;
 
@@ -243,31 +245,33 @@ static class ProvisionDiff
     }
 
     /// <summary>Reads the extension names from one manifest text.</summary>
-    /// <param name="json">The manifest text.</param>
+    /// <param name="text">The manifest text, in YAML.</param>
     /// <param name="source">The source name used in failure messages.</param>
     /// <returns>The extension names, in ordinal order.</returns>
-    public static List<string> ReadExtensions(string json, string source)
+    public static List<string> ReadExtensions(string text, string source)
     {
+        JsonNode? manifest;
+
         try
         {
-            using var document = JsonDocument.Parse(json);
-
-            if (!document.RootElement.TryGetProperty("extensions", out var extensions) || extensions.ValueKind == JsonValueKind.Null)
-            {
-                return [];
-            }
-
-            if (extensions.ValueKind != JsonValueKind.Object)
-            {
-                throw new InvalidOperationException($"{source} holds an invalid manifest: extensions is not an object.");
-            }
-
-            return extensions.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal).ToList();
+            manifest = DataFile.Parse(text, yaml: true);
         }
-        catch (JsonException exception)
+        catch (JsonTextException exception)
         {
             throw new InvalidOperationException($"{source} holds an invalid manifest: {exception.Message}", exception);
         }
+
+        if (manifest?["extensions"] is null)
+        {
+            return [];
+        }
+
+        if (manifest["extensions"] is not JsonObject extensions)
+        {
+            throw new InvalidOperationException($"{source} holds an invalid manifest: extensions is not an object.");
+        }
+
+        return extensions.Select(property => property.Key).OrderBy(name => name, StringComparer.Ordinal).ToList();
     }
 
     /// <summary>Compares the old provision identities and extensions with the current ones.</summary>

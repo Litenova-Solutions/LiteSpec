@@ -110,16 +110,16 @@ sealed class UiFixture : IDisposable
     public string AppStyles => Join("apps/web/src/styles.css");
 
     /// <summary>Gets the consumer project file.</summary>
-    public string ProjectFile => Join(".litespec/project.json");
+    public string ProjectFile => Join(".litespec/project.yaml");
 
     /// <summary>Gets the source lock.</summary>
-    public string LockFile => Join("packages/ui/ui-source-lock.json");
+    public string LockFile => Join("packages/ui/ui-source-lock.yaml");
 
     /// <summary>Gets the design contract.</summary>
     public string DesignFile => Join("packages/ui/DESIGN.md");
 
     /// <summary>Gets the pattern catalog.</summary>
-    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.json");
+    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.yaml");
 
     /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");
@@ -142,7 +142,7 @@ sealed class UiFixture : IDisposable
     /// <summary>Reads a JSON file.</summary>
     /// <param name="file">The JSON file path.</param>
     /// <returns>The parsed JSON value, or null when the file holds null.</returns>
-    public static JsonNode? ReadJson(string file) => JsonNode.Parse(File.ReadAllText(file));
+    public static JsonNode? ReadJson(string file) => DataFile.Read(file);
 
     /// <summary>Writes a JSON file two-space indented with a trailing newline.</summary>
     /// <param name="file">The JSON file path.</param>
@@ -347,7 +347,7 @@ sealed class UiFixture : IDisposable
     {
         MutateProject(project =>
         {
-            ((JsonObject)project["paths"]!)["frontends"] = new JsonArray(new JsonObject
+            project["frontends"] = new JsonArray(new JsonObject
             {
                 ["name"] = "web",
                 ["path"] = "apps/web",
@@ -409,7 +409,7 @@ sealed class UiFixture : IDisposable
 
         Directory.CreateDirectory(Path.Join(HomeDir, "schemas"));
         Directory.CreateDirectory(Path.Join(HomeDir, "docs", "frontend", "patterns"));
-        File.Copy(Path.Join(Cli.Repository, "litespec.manifest.json"), Path.Join(HomeDir, "litespec.manifest.json"));
+        File.Copy(Path.Join(Cli.Repository, "litespec.manifest.yaml"), Path.Join(HomeDir, "litespec.manifest.yaml"));
         foreach (var schema in Directory.GetFiles(Path.Join(Cli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Join(HomeDir, "schemas", Path.GetFileName(schema)));
@@ -419,14 +419,14 @@ sealed class UiFixture : IDisposable
         // pattern page they read is this fixture rather than the release's own pages.
         File.WriteAllText(FixturePatternPage, FixturePatternPageText);
 
-        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/project.json"))!;
+        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/project.yaml"))!;
         ResolvePlaceholders(project);
-        var uiPackage = (JsonObject)project["paths"]!["uiPackage"]!;
+        var uiPackage = (JsonObject)project["ui"]!["package"]!;
         uiPackage["name"] = "@fixture/ui";
         uiPackage["publicExports"] = new JsonArray("@fixture/ui/floorplans");
         WriteJson(ProjectFile, project);
 
-        var sourceLock = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-source-lock.json"))!;
+        var sourceLock = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-source-lock.yaml"))!;
         WriteJson(LockFile, sourceLock);
 
         File.WriteAllText(Join("packages/ui/src/components/button.tsx"), ButtonSource);
@@ -445,7 +445,7 @@ sealed class UiFixture : IDisposable
         // The catalog travels with the consumer: the fixture copies the shipped template
         // to the path the project file names, then creates every source path the catalog
         // names, so the baseline proves the template as shipped.
-        var catalog = ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-pattern-catalog.json"))!;
+        var catalog = ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-pattern-catalog.yaml"))!;
         WriteJson(CatalogFile, catalog);
         foreach (var pattern in (JsonArray)catalog["patterns"]!)
         {

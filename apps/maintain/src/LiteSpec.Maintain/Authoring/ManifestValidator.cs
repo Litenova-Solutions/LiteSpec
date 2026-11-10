@@ -78,29 +78,29 @@ internal sealed partial class ManifestValidator
     /// <summary>Checks the manifest references, stacks, shapes, and extensions.</summary>
     /// <param name="activeIds">The active provision identifiers.</param>
     /// <param name="provisionsByPage">The provisions of each page, by relative path.</param>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckManifest reports a manifest that cannot be read or parsed as a MANIFEST_JSON diagnostic instead of crashing the validation run on malformed repository input.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CheckManifest reports a manifest that cannot be read or parsed as a MANIFEST_YAML diagnostic instead of crashing the validation run on malformed repository input.")]
     internal void CheckManifest(HashSet<string> activeIds, Dictionary<string, List<Provision>> provisionsByPage)
     {
         var root = Context.Root;
         var add = Context.Add;
-        var manifestFile = Path.Combine(root, "litespec.manifest.json");
+        var manifestFile = Path.Combine(root, LiteSpecHome.ManifestFile);
         if (!File.Exists(manifestFile))
         {
             return;
         }
 
-        JsonNode? manifest;
+        JsonObject manifest;
         try
         {
-            manifest = JsonNode.Parse(TrimBom(ReadText(manifestFile)));
+            manifest = LiteSpecHome.ReadManifest(root);
         }
         catch (Exception exception)
         {
-            add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestJson, exception.Message);
+            add(LiteSpecHome.ManifestFile, 1, Diagnostics.Codes.ManifestYaml, exception.Message);
             return;
         }
 
-        var obj = manifest as JsonObject;
+        var obj = manifest;
         var references = new List<string>();
         var agentsEntry = JsonString(obj?["agentsEntry"]);
         if (agentsEntry is not null)
@@ -144,13 +144,13 @@ internal sealed partial class ManifestValidator
             var target = JoinRoot(root, relative);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestPath, $"path '{relative}' does not exist");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.ManifestPath, $"path '{relative}' does not exist");
                 continue;
             }
 
-            if (anchor.Length > 0 && File.Exists(target) && !PageReader.Parse(ReadText(target)).Anchors.Contains(anchor))
+            if (anchor.Length > 0 && File.Exists(target) && !PageReader.Parse(FileText.ReadText(target)).Anchors.Contains(anchor))
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestAnchor, $"anchor '#{anchor}' does not exist in '{relative}'");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.ManifestAnchor, $"anchor '#{anchor}' does not exist in '{relative}'");
             }
         }
 
@@ -191,20 +191,20 @@ internal sealed partial class ManifestValidator
 
             if (Layout.KindFor(folder).Length == 0)
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
                 continue;
             }
 
             var trimmed = folder.TrimEnd('/');
             if (!Directory.Exists(JoinRoot(root, trimmed)))
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' does not exist");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' does not exist");
                 continue;
             }
 
             if (!File.Exists(JoinRoot(root, trimmed + "/stack.md")))
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' holds no 'stack.md'");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' holds no 'stack.md'");
             }
         }
     }
@@ -230,7 +230,7 @@ internal sealed partial class ManifestValidator
             {
                 if (!stacks.ContainsKey(required))
                 {
-                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' requires '{required}', which the manifest does not ship");
+                    add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackReference, $"stack '{id}' requires '{required}', which the manifest does not ship");
                 }
             }
 
@@ -238,11 +238,11 @@ internal sealed partial class ManifestValidator
             {
                 if (!stacks.ContainsKey(partner))
                 {
-                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which the manifest does not ship");
+                    add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which the manifest does not ship");
                 }
                 else if (kinds.GetValueOrDefault(partner) == "frontend")
                 {
-                    add("litespec.manifest.json", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which is a frontend stack");
+                    add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackReference, $"stack '{id}' pairs with '{partner}', which is a frontend stack");
                 }
             }
         }
@@ -273,7 +273,7 @@ internal sealed partial class ManifestValidator
             if (pagesNode.All(node => JsonString(node) is not null)
                 && new HashSet<string>(pages, StringComparer.Ordinal).Count != pagesNode.Count)
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestDuplicatePath, $"shape '{id}' contains a duplicate backend page path");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.ManifestDuplicatePath, $"shape '{id}' contains a duplicate backend page path");
             }
 
             foreach (var page in pages)
@@ -281,7 +281,7 @@ internal sealed partial class ManifestValidator
                 var rest = page.StartsWith(backendPrefix, StringComparison.Ordinal) ? page[backendPrefix.Length..] : null;
                 if (rest is null || rest.Length <= ".md".Length || rest.Contains('/') || !rest.EndsWith(".md", StringComparison.Ordinal))
                 {
-                    add("litespec.manifest.json", 1, Diagnostics.Codes.ShapePage, $"shape '{id}' backend page '{page}' is not a page directly in 'docs/backend/'");
+                    add("litespec.manifest.yaml", 1, Diagnostics.Codes.ShapePage, $"shape '{id}' backend page '{page}' is not a page directly in 'docs/backend/'");
                 }
             }
         }
@@ -312,7 +312,7 @@ internal sealed partial class ManifestValidator
             var file = $"ext/{id}.md";
             if (path != $"docs/{file}" && !folders.Any(folder => folder.Length > 0 && path == $"{folder}/{file}"))
             {
-                add("litespec.manifest.json", 1, Diagnostics.Codes.ExtensionLocation, $"extension '{id}' path '{path}' is not 'docs/ext/{id}.md' or '<stack folder>/ext/{id}.md'");
+                add("litespec.manifest.yaml", 1, Diagnostics.Codes.ExtensionLocation, $"extension '{id}' path '{path}' is not 'docs/ext/{id}.md' or '<stack folder>/ext/{id}.md'");
             }
         }
     }
@@ -347,12 +347,12 @@ internal sealed partial class ManifestValidator
 
         foreach (var file in Directory.GetFiles(docs, "*.md", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             if (Path.GetFileName(relative) != "README.md"
                 && relative.Contains("/ext/", StringComparison.Ordinal)
                 && !listed.Contains(relative))
             {
-                add(relative, 1, Diagnostics.Codes.ExtensionUnlisted, "page is in an ext/ folder but no extension in litespec.manifest.json lists it");
+                add(relative, 1, Diagnostics.Codes.ExtensionUnlisted, "page is in an ext/ folder but no extension in litespec.manifest.yaml lists it");
             }
         }
     }
@@ -412,16 +412,16 @@ internal sealed partial class ManifestValidator
 
             foreach (var file in Directory.GetFiles(directory, "*.md", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
             {
-                var relative = Slash(Path.GetRelativePath(root, file));
+                var relative = PathText.Relative(root, file);
                 if (Path.GetFileName(relative) == "README.md" || relative.Contains("/ext/", StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                var folder = Slash(Path.GetDirectoryName(relative) ?? "");
+                var folder = FileText.Slash(Path.GetDirectoryName(relative) ?? "");
                 if (!covered.Contains(folder))
                 {
-                    add(relative, 1, Diagnostics.Codes.LayerUnreachable, "page is applied by no stack selection in litespec.manifest.json");
+                    add(relative, 1, Diagnostics.Codes.LayerUnreachable, "page is applied by no stack selection in litespec.manifest.yaml");
                 }
             }
         }
@@ -451,7 +451,7 @@ internal sealed partial class ManifestValidator
 
         foreach (var file in Directory.GetFiles(docs, "*.md", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             if (Path.GetFileName(relative) == "README.md" || KnownAreas.Any(area => relative.StartsWith(area, StringComparison.Ordinal)))
             {
                 continue;
@@ -489,7 +489,7 @@ internal sealed partial class ManifestValidator
                 continue;
             }
 
-            var reader = PageReader.Parse(ReadText(file));
+            var reader = PageReader.Parse(FileText.ReadText(file));
             var activation = PageValidator.SectionBody(reader, "Activation");
             var baseline = PageValidator.SectionBody(reader, "Baseline Relationship");
             var dependencies = PageValidator.SectionBody(reader, "Dependencies");
@@ -540,7 +540,7 @@ internal sealed partial class ManifestValidator
             {
                 if (!activeIds.Contains(replaced))
                 {
-                    add("litespec.manifest.json", 1, Diagnostics.Codes.ExtensionReplacesUnknown, $"extension '{id}' replaces unknown provision '{replaced}'");
+                    add("litespec.manifest.yaml", 1, Diagnostics.Codes.ExtensionReplacesUnknown, $"extension '{id}' replaces unknown provision '{replaced}'");
                 }
 
                 var provision = own.FirstOrDefault(item => item.Id == replaced);
@@ -564,7 +564,7 @@ internal sealed partial class ManifestValidator
         var root = Context.Root;
         var add = Context.Add;
         var schemas = Path.Combine(root, "schemas");
-        var manifest = Path.Combine(root, "litespec.manifest.json");
+        var manifest = Path.Combine(root, LiteSpecHome.ManifestFile);
         if (!Directory.Exists(schemas) || !File.Exists(manifest))
         {
             return;
@@ -573,7 +573,7 @@ internal sealed partial class ManifestValidator
         string? version;
         try
         {
-            version = JsonNode.Parse(TrimBom(ReadText(manifest)))?["version"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
+            version = LiteSpecHome.ReadManifest(root)["version"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
         }
         catch (Exception)
         {
@@ -585,7 +585,7 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        foreach (var file in Directory.GetFiles(schemas, "*.json").OrderBy(name => name, StringComparer.Ordinal))
+        foreach (var file in Directory.GetFiles(schemas, "*.schema.yaml").OrderBy(name => name, StringComparer.Ordinal))
         {
             var name = Path.GetFileName(file);
             var relative = $"schemas/{name}";
@@ -593,11 +593,11 @@ internal sealed partial class ManifestValidator
             string? id;
             try
             {
-                id = JsonNode.Parse(TrimBom(ReadText(file)))?["$id"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
+                id = DataFile.Read(file)?["$id"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
             }
             catch (Exception exception)
             {
-                add(relative, 1, Diagnostics.Codes.SchemaJson, exception.Message);
+                add(relative, 1, Diagnostics.Codes.SchemaYaml, exception.Message);
                 continue;
             }
 
@@ -615,7 +615,7 @@ internal sealed partial class ManifestValidator
     /// <summary>Validates one shipped value against one shipped schema.</summary>
     /// <param name="schemaRelative">The schema path, relative to the root.</param>
     /// <param name="valueRelative">The value path, relative to the root.</param>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ValidateSchemaConsumer reports a schema, value, or validation failure as a SCHEMA_JSON diagnostic or a collected error instead of crashing the validation run on malformed repository input.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ValidateSchemaConsumer reports a schema, value, or validation failure as a SCHEMA_YAML diagnostic or a collected error instead of crashing the validation run on malformed repository input.")]
     internal void ValidateSchemaConsumer(string schemaRelative, string valueRelative)
     {
         var root = Context.Root;
@@ -631,12 +631,12 @@ internal sealed partial class ManifestValidator
         JsonNode? value;
         try
         {
-            schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
-            value = JsonNode.Parse(TrimBom(ReadText(valueFile)));
+            schema = DataFile.Read(schemaFile);
+            value = DataFile.Read(valueFile);
         }
         catch (Exception exception)
         {
-            add(valueRelative, 1, Diagnostics.Codes.SchemaJson, exception.Message);
+            add(valueRelative, 1, Diagnostics.Codes.SchemaYaml, exception.Message);
             return;
         }
 
@@ -676,7 +676,7 @@ internal sealed partial class ManifestValidator
         var projectVersion = ReadAnalyzerProjectVersion();
         if (projectVersion is not null && pin != projectVersion)
         {
-            add("litespec.manifest.json", 1, Diagnostics.Codes.ManifestAnalyzerPin, $"analyzer pin '{pin}' differs from analyzer project version '{projectVersion}'");
+            add("litespec.manifest.yaml", 1, Diagnostics.Codes.ManifestAnalyzerPin, $"analyzer pin '{pin}' differs from analyzer project version '{projectVersion}'");
         }
 
         var shipped = ReadShippedAnalyzerRules(pin);
@@ -705,7 +705,7 @@ internal sealed partial class ManifestValidator
     internal string? ReadAnalyzerPin()
     {
         var root = Context.Root;
-        var manifestFile = JoinRoot(root, "litespec.manifest.json");
+        var manifestFile = Path.Combine(root, LiteSpecHome.ManifestFile);
         if (!File.Exists(manifestFile))
         {
             return null;
@@ -713,7 +713,7 @@ internal sealed partial class ManifestValidator
 
         try
         {
-            var manifest = JsonNode.Parse(TrimBom(ReadText(manifestFile))) as JsonObject;
+            var manifest = LiteSpecHome.ReadManifest(root);
             var packages = manifest?["packages"] as JsonObject;
             var nuget = packages?["nuget"] as JsonObject;
             return JsonString(nuget?["LiteSpec.Analyzers"]);
@@ -735,7 +735,7 @@ internal sealed partial class ManifestValidator
             return null;
         }
 
-        var match = AnalyzerVersionPattern().Match(ReadText(projectFile));
+        var match = AnalyzerVersionPattern().Match(FileText.ReadText(projectFile));
         return match.Success ? match.Groups[1].Value.Trim() : null;
     }
 
@@ -759,7 +759,7 @@ internal sealed partial class ManifestValidator
         var removed = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         var current = "";
         var mode = "";
-        foreach (var line in SplitLines(ReadText(shippedFile)))
+        foreach (var line in SplitLines(FileText.ReadText(shippedFile)))
         {
             var release = AnalyzerReleasePattern().Match(line);
             if (release.Success)

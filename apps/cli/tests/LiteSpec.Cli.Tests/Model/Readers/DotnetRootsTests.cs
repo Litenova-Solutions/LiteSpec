@@ -274,7 +274,7 @@ public sealed class DotnetRootsTests
     }
 
     static void WriteProject(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), json);
 
     static void WriteSource(string root, string project, string file, string text)
     {

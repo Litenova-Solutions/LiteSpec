@@ -94,11 +94,11 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Applies to:** artifact: any
 
-**Statement:** A workspace MUST record one shared UI package in `.litespec/project.json`.
+**Statement:** A workspace MUST record one shared UI package in `.litespec/project.yaml`.
 
-**Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `.litespec/project.json` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
+**Rationale:** Two general-purpose visual systems in one workspace make every component choice ambiguous: each screen picks its source, and the product ships two looks. Recording one shared UI package in `.litespec/project.yaml` settles the source for every controlled frontend. A frontend outside the contract declares another platform and says what replaces the contract.
 
-**Checked by:** `litespec model check` reports controlled frontends with no `paths.uiPackage` in `.litespec/project.json`, and `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run it at the consumer root.
+**Checked by:** `litespec model check` reports controlled frontends with no `ui.package` in `.litespec/project.yaml`, and `[litespec/frontend/ui#select-one-visual-authority]` for a second general-purpose visual dependency. Run it at the consumer root.
 
 ### Pin the Baseline in the Shared Package
 
@@ -108,7 +108,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **Applies to:** artifact: any
 
-**Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.json` once, into its shared UI package.
+**Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.yaml` once, into its shared UI package.
 
 **Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.
 

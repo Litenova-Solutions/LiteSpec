@@ -13,7 +13,7 @@ public sealed class ReleaseVersionTests
     static string Read(params string[] parts) => File.ReadAllText(Path.Combine([Cli.Repository, .. parts]));
 
     static string Manifest() =>
-        JsonDocument.Parse(Read("litespec.manifest.json")).RootElement.GetProperty("version").GetString()!;
+        ((string?)DataFile.Read(Path.Combine(Cli.Repository, "litespec.manifest.yaml"))!["version"])!;
 
     static string PackageVersion(params string[] project) =>
         Regex.Match(Read(project), "<Version>(?<v>[^<]+)</Version>").Groups["v"].Value;
@@ -68,7 +68,7 @@ public sealed class ReleaseVersionTests
     public void The_Consumer_Template_Reviews_The_Manifest_Release() =>
         Assert.Equal(
             Manifest(),
-            JsonDocument.Parse(Read("templates", "consumer", "project.json")).RootElement.GetProperty("reviewedLiteSpecVersion").GetString());
+            (string?)DataFile.Read(Path.Combine(Cli.Repository, "templates", "consumer", "project.yaml"))!["reviewedLiteSpecVersion"]);
 
     /// <summary>Every Schema Id Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>

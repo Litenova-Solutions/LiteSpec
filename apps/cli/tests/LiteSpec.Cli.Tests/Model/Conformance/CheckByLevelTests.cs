@@ -1,3 +1,4 @@
+using LiteSpec.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
@@ -108,9 +109,9 @@ public sealed class CheckByLevelTests
     /// <param name="level">The level name: records, traced or full.</param>
     static void SetConformance(string root, string level)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        project["conformance"] = JsonValue.Create(level);
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+        project["layers"] = ConsumerFixture.Layers(level);
         File.WriteAllText(file, project.ToJsonString());
     }
 }

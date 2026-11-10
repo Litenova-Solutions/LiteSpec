@@ -111,5 +111,5 @@ public sealed class RecordNameCheckTests
     }
 
     static void WriteProject(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), json);
 }

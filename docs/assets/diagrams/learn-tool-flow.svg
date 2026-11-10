@@ -36,7 +36,7 @@
     <text x="360" y="462">litespec book</text>
   </g>
   <g style="fill: var(--muted-fg, #77706a)" font-size="12" text-anchor="middle">
-    <text x="360" y="60">write .litespec/project.json once</text>
+    <text x="360" y="60">write .litespec/project.yaml once</text>
     <text x="360" y="130">start from templates/consumer/</text>
     <text x="360" y="200">validate the project file and pages</text>
     <text x="360" y="270">analyzers flag slips as you work</text>

@@ -6,13 +6,14 @@
 // site and the CLI cannot disagree about which pages a selection applies.
 import fs from "node:fs";
 import path from "node:path";
+import { parse } from "yaml";
 
 // The repository root is the nearest folder above the working directory that holds
-// litespec.manifest.json. A bundled build moves this file, so its own URL cannot be used.
+// litespec.manifest.yaml. A bundled build moves this file, so its own URL cannot be used.
 function findRoot(): string {
   for (let dir = process.cwd(); ; dir = path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, "litespec.manifest.json"))) return dir;
-    if (path.dirname(dir) === dir) throw new Error(`No litespec.manifest.json above ${process.cwd()}`);
+    if (fs.existsSync(path.join(dir, "litespec.manifest.yaml"))) return dir;
+    if (path.dirname(dir) === dir) throw new Error(`No litespec.manifest.yaml above ${process.cwd()}`);
   }
 }
 
@@ -26,7 +27,7 @@ export interface Manifest {
   extensions: Record<string, { path: string; activationScope?: string; replaces?: string[]; applicableKinds?: string[] }>;
 }
 
-export const manifest: Manifest = JSON.parse(fs.readFileSync(path.join(root, "litespec.manifest.json"), "utf8"));
+export const manifest: Manifest = parse(fs.readFileSync(path.join(root, "litespec.manifest.yaml"), "utf8"));
 
 /** The release this build publishes, such as 4.1.0. */
 export const version = manifest.version;
@@ -240,4 +241,4 @@ export const layerUrl = (key: string) => `/${version}/layers/${key}.md`;
 export const selectionIndexUrl = (selection: Selection | string) => `/${version}/select/${typeof selection === "string" ? selection : selectionKey(selection)}/llms.txt`;
 
 /** The schema files the release ships, from schemas/. */
-export const schemaFiles = fs.readdirSync(path.join(root, "schemas")).filter((file) => file.endsWith(".json")).sort();
+export const schemaFiles = fs.readdirSync(path.join(root, "schemas")).filter((file) => file.endsWith(".schema.yaml")).sort();

@@ -86,7 +86,7 @@ public sealed class ScopeChecksTests
             """);
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec", "project.json"),
+            Path.Combine(temp.Path, ".litespec", "project.yaml"),
             """{"paths": {"alerts": ["alerts"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

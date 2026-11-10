@@ -41,7 +41,7 @@ sealed class SourceLockChecks
     public void ValidateSourceLock(string file, JsonNode? baseline, string packageRoot, JsonNode? manifest, bool baselineOverride, string platform)
     {
         var label = PathText.Relative(session.Root, file);
-        var lockNode = session.ReadJson(file, "ui-sourcelock-invalid");
+        var lockNode = session.ReadData(file, "ui-sourcelock-invalid");
         if (lockNode is null)
         {
             return;
@@ -52,7 +52,7 @@ sealed class SourceLockChecks
             session.Required(lockNode, key, label, "ui-sourcelock-invalid", file);
         }
 
-        session.SchemaCheck("ui-source-lock.schema.json", lockNode, label, "litespec/frontend/web/ui#track-source-changes", "ui-sourcelock-invalid");
+        session.SchemaCheck("ui-source-lock.schema.yaml", lockNode, label, "litespec/frontend/web/ui#track-source-changes", "ui-sourcelock-invalid");
         var cliPackage = platform == "svelte" ? "shadcn-svelte" : "shadcn";
         var expectedCli = JsonRead.Chain(manifest, "packages", "npm", cliPackage);
         var cli = JsonRead.Child(lockNode, "cli");

@@ -23,7 +23,7 @@ fi
 
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
 . "$repository/.github/scripts/lib.sh"
-version="$(manifest_version "$repository/litespec.manifest.json")"
+version="$(manifest_version "$repository/litespec.manifest.yaml")"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 unset LITESPEC_HOME
@@ -76,8 +76,8 @@ mkdir -p "$starter"
 cd "$starter"
 prepare
 litespec init --preset dotnet-react --size small --install "$install"
-test -f .litespec/project.json
-grep -q "\"reviewedLiteSpecVersion\": \"$version\"" .litespec/project.json
+test -f .litespec/project.yaml
+grep -Eq "^reviewedLiteSpecVersion: ['\"]?$version['\"]?\$" .litespec/project.yaml
 
 if [ "$install" = "standalone" ]; then
   test ! -e .config/dotnet-tools.json

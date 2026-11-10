@@ -182,7 +182,7 @@ public sealed class DotnetScenarioMarkTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"],
               "paths": {"testRoots": ["tests/Acceptance"]},

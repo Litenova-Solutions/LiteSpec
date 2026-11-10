@@ -12,7 +12,7 @@ static class BookTestBooks
     /// <param name="relative">The fixture path with forward-slash segments.</param>
     /// <returns>The parsed model object.</returns>
     public static JsonObject LoadFixture(string relative) =>
-        (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture(relative)))!;
+        (JsonObject)DataFile.Read(Cli.Fixture(relative))!;
 
     /// <summary>Writes the book for a parsed model to the folder, with the carried release's own words.</summary>
     /// <param name="model">The parsed model object that holds the records array.</param>

@@ -32,7 +32,7 @@ A citation names the cited provision by its current identifier, whether the cita
 
 ### The LiteSpec Release
 
-A LiteSpec release is a tagged snapshot of the repository, and the highest git tag names the current release. Between releases, five places name the release being prepared: the version in `litespec.manifest.json`, the topmost `CHANGELOG.md` entry, the consumer template's `reviewedLiteSpecVersion`, and the package versions in `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj` and `apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj`. Tagging that version number makes it current. The manifest lists every stack, shape, extension, and version pin the release carries. Publishing the release puts the `LiteSpec.Cli` tool packages, the standalone archives of the CLI with their checksums and install scripts, the `LiteSpec.Analyzers` package, and the site at the release version together, so every install of the CLI carries the manifest, schemas, docs, and templates the version names. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together. Each schema `$id` carries that release under `https://litespec.dev/<version>/schemas/`, so a consumer that pins the release keeps resolving the shapes it reviewed.
+A LiteSpec release is a tagged snapshot of the repository, and the highest git tag names the current release. Between releases, five places name the release being prepared: the version in `litespec.manifest.yaml`, the topmost `CHANGELOG.md` entry, the consumer template's `reviewedLiteSpecVersion`, and the package versions in `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj` and `apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj`. Tagging that version number makes it current. The manifest lists every stack, shape, extension, and version pin the release carries. Publishing the release puts the `LiteSpec.Cli` tool packages, the standalone archives of the CLI with their checksums and install scripts, the `LiteSpec.Analyzers` package, and the site at the release version together, so every install of the CLI carries the manifest, schemas, docs, and templates the version names. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together. Each schema `$id` carries that release under `https://litespec.dev/<version>/schemas/`, so a consumer that pins the release keeps resolving the shapes it reviewed.
 
 ### Release Diagnostics
 
@@ -40,8 +40,8 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
-| `MANIFEST_*` | The manifest is not valid JSON, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_JSON`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
-| `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid JSON, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_JSON`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
+| `MANIFEST_*` | The manifest is not valid YAML, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_YAML`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
+| `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid YAML, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_YAML`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
 ## Standards
 

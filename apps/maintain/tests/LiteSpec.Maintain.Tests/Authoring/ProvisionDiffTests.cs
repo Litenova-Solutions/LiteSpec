@@ -172,7 +172,7 @@ public sealed class ProvisionDiffTests
     [Fact]
     public void Read_Extensions_Reads_The_Extension_Names_In_Order()
     {
-        var extensions = ProvisionDiff.ReadExtensions(ManifestJson("delivery", "alpha"), "litespec.manifest.json");
+        var extensions = ProvisionDiff.ReadExtensions(ManifestYaml("delivery", "alpha"), "litespec.manifest.yaml");
 
         Assert.Equal(["alpha", "delivery"], extensions);
     }
@@ -182,7 +182,7 @@ public sealed class ProvisionDiffTests
     [Fact]
     public void Read_Extensions_Reads_No_Extensions_As_Empty()
     {
-        Assert.Empty(ProvisionDiff.ReadExtensions("{ \"version\": \"0.2.0\" }", "litespec.manifest.json"));
+        Assert.Empty(ProvisionDiff.ReadExtensions("version: 0.2.0\n", "litespec.manifest.yaml"));
     }
 
     /// <summary>Render writes every group with its count.</summary>
@@ -360,7 +360,7 @@ public sealed class ProvisionDiffTests
     {
         using var folder = Cli.Temp("changelog");
         StandardsFixture.Base(folder.Path);
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
 
         var result = Cli.Run("changelog", "--from", "no-such-ref", "--root", folder.Path);
@@ -377,7 +377,7 @@ public sealed class ProvisionDiffTests
         using var folder = Cli.Temp("changelog");
         Git(folder.Path, "-c", "init.defaultBranch=main", "init");
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
@@ -388,7 +388,7 @@ public sealed class ProvisionDiffTests
         Git(folder.Path, "add", "-A");
         Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
         Git(folder.Path, "tag", "v0.1.0");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha", "beta"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha", "beta"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
@@ -431,7 +431,7 @@ public sealed class ProvisionDiffTests
         using var folder = Cli.Temp("changelog");
         Git(folder.Path, "-c", "init.defaultBranch=main", "init");
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(folder.Path, "docs/core/topic.md", StandardsFixture.TopicPage);
         Git(folder.Path, "add", "-A");
         Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
@@ -458,9 +458,9 @@ public sealed class ProvisionDiffTests
 
     /// <summary>Builds a minimal manifest text from the extension names.</summary>
     /// <param name="extensions">The extension names.</param>
-    /// <returns>The manifest text.</returns>
-    static string ManifestJson(params string[] extensions) =>
-        "{\"version\": \"0.2.0\", \"extensions\": {" + string.Join(", ", extensions.Select(name => $"\"{name}\": {{}}")) + "}}";
+    /// <returns>The manifest text, in YAML.</returns>
+    static string ManifestYaml(params string[] extensions) =>
+        "version: 0.2.0\nextensions:\n" + string.Concat(extensions.Select(name => $"  {name}: {{}}\n"));
 
     /// <summary>Runs git with the arguments in the working directory, failing the test when git fails.</summary>
     /// <param name="workingDirectory">The working directory.</param>

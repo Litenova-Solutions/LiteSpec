@@ -15,12 +15,12 @@ public sealed class InputErrorTests
     public void Model_Reports_A_Malformed_Project_File_As_A_Usage_Error()
     {
         using var folder = Cli.Temp("model-json");
-        File.WriteAllText(Path.Combine(folder.Path, ".litespec/project.json"), "{ not json");
+        File.WriteAllText(Path.Combine(folder.Path, ".litespec/project.yaml"), "{ not json");
 
         var result = Cli.Run("model", "check", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains(".litespec/project.json is not valid JSON", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains(".litespec/project.yaml is not valid YAML or JSON", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Model Refuses A Root Without A Project File.</summary>
@@ -33,7 +33,7 @@ public sealed class InputErrorTests
         var result = Cli.Run("model", "check", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Model Finds The Consumer By Walking Up To The LiteSpec Folder.</summary>
@@ -46,7 +46,7 @@ public sealed class InputErrorTests
         var result = Cli.Run("model", "check", "--root", Path.Combine(fixture.Path, ".litespec", "behavior"));
 
         Assert.NotEqual(2, result.Status);
-        Assert.DoesNotContain("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
+        Assert.DoesNotContain("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Book Accepts An Option Written With An Equals Sign.</summary>

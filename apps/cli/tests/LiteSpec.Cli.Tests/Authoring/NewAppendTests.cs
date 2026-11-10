@@ -487,7 +487,7 @@ public sealed class NewAppendTests
     static TempFolder Consumer(string pageJson)
     {
         var temp = Cli.Temp("new-append");
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", pageJson);
         return temp;
     }

@@ -43,7 +43,7 @@ public sealed class RulesCommandTests
         var result = Cli.Run("rules", "--root", temp.Path, "apps/api/src/Demo/X.cs");
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("holds no .litespec/project.json", result.Output);
+        Assert.Contains("holds no .litespec/project.yaml", result.Output);
     }
 
     /// <summary>A target naming no file or record exits 1.</summary>
@@ -272,10 +272,10 @@ public sealed class RulesCommandTests
             File.Copy(file, target, overwrite: true);
         }
 
-        var project = Path.Combine(temp.Path, ".litespec", "project.json");
-        File.WriteAllText(
-            project,
-            File.ReadAllText(project).Replace("\"conformance\": \"full\"", $"\"conformance\": \"{level}\"", StringComparison.Ordinal));
+        var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
+        var declared = DataFile.Read(project)!.AsObject();
+        declared["layers"] = LiteSpec.Tests.Consumer.ConsumerFixture.Layers(level);
+        File.WriteAllText(project, declared.ToJsonString());
 
         return temp;
     }

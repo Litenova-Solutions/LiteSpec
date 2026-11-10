@@ -8,12 +8,12 @@ An audit trail proves who attempted what against which data and what each attemp
 
 Start with:
 
-- The `audit` extension selected in the consumer's `.litespec/project.json`.
+- The `audit` extension selected in the consumer's `.litespec/project.yaml`.
 - The audit adoption decision that `litespec/ext/audit#record-the-audit-adoption-decision` requires.
 - The `audit` field on each command record, which the record schema requires with no default: a level of `required`, `optional`, or `none` with its target, or an exemption with its justification.
 - A LiteBus command pipeline that commits once for each command.
 - A database account reserved for audit writes, separate from the account that writes business data.
-- The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.json`.
+- The LiteBus release pinned for the `LiteBus.*` packages in `litespec.manifest.yaml`.
 - The pipeline reference in the `docs/` folder of the [LiteBus v7 branch](https://github.com/litenova/LiteBus/tree/v7/docs), which defines the handler interfaces this guide implements.
 
 Read the [audit extension](../ext/audit.md) before this guide: it states the obligations, and this guide shows one compliant way to meet them.

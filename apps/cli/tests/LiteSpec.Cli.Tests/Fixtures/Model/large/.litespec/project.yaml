@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+project:
+  name: Fixture Library
+size: large
+shape: server
+stacks:
+- dotnet
+- svelte
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
+reviewedLiteSpecVersion: 4.1.0
+paths:
+  docs: .litespec
+  behaviorDocs: .litespec/behavior
+  glossary: .litespec/glossary.yaml
+  testRoots:
+  - apps/api/tests
+  apiClient: packages/api
+stackConfig:
+  dotnet:
+    modules: apps/api/src/Library.Application
+    domain: apps/api/src/Library.Domain
+    webapi:
+    - apps/api/src/Library.WebApi
+frontends:
+- name: catalog
+  path: apps/catalog
+  platform: svelte
+  ui:
+    profile: application-balanced
+    globalCss: apps/catalog/src/styles.css
+ui:
+  package:
+    name: '@fixture/ui'
+    path: packages/ui
+    componentsJson: packages/ui/components.json
+    primitives: packages/ui/src/components
+    tokens: packages/ui/src/styles/tokens.css
+    sourceLock: packages/ui/ui-source-lock.yaml
+    designContract: packages/ui/DESIGN.md
+    publicExports:
+    - '@fixture/ui/floorplans'
+selectedExtensions: []

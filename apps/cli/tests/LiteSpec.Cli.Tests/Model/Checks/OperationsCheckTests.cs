@@ -400,8 +400,8 @@ public sealed class OperationsCheckTests
 
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)
     {
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
         var paths = project["paths"]!.AsObject();
 
         if (alerts is not null)

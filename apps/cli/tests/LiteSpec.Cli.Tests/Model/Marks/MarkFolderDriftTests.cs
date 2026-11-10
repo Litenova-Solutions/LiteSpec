@@ -277,7 +277,7 @@ public sealed class MarkFolderDriftTests
     static ProjectModel ModuleModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
@@ -323,7 +323,7 @@ public sealed class MarkFolderDriftTests
         }
 
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"" + marks + "\", \"stackConfig\": {\"dotnet\": {" + dotnet + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 

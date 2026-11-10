@@ -53,9 +53,9 @@ public sealed class ReactScreenTests
         Write(routes, "_console/loans/$loanId.tsx", "export const Route = createFileRoute(\"/_console/loans/$loanId\")({});\n");
         Write(routes, "-components/LoanRow.tsx", "export function LoanRow() { return null; }\n");
 
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
-        project["paths"]!["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 

@@ -343,7 +343,7 @@ internal static class CodeChecks
         return declared;
     }
 
-    /// <summary>The generic refusal codes from .litespec/project.json refusals, or the defaults.</summary>
+    /// <summary>The generic refusal codes from .litespec/project.yaml refusals, or the defaults.</summary>
     /// <param name="model">The loaded project model that supplies the consumer root for the project file.</param>
     /// <returns>The forbidden and invalid-input codes the project declares, or the shared defaults.</returns>
     private static (string Forbidden, string InvalidInput) GenericRefusals(ProjectModel model)

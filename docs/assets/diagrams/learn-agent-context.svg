@@ -42,7 +42,7 @@
     <text x="550" y="474">Stop for a person</text>
   </g>
   <g style="fill: var(--muted-fg, #77706a)" font-size="12" text-anchor="middle">
-    <text x="210" y="60">AGENTS.md and .litespec/project.json</text>
+    <text x="210" y="60">AGENTS.md and .litespec/project.yaml</text>
     <text x="210" y="132">only the pages the task touches</text>
     <text x="210" y="204">litespec model query &lt;id&gt;</text>
     <text x="210" y="276">the pages the records cite</text>

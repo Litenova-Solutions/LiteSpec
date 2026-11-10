@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+project:
+  name: Claimwick
+size: large
+shape: server
+stacks:
+- dotnet
+- svelte
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
+reviewedLiteSpecVersion: 4.1.0
+paths:
+  docs: .litespec
+  behaviorDocs: .litespec/behavior
+  glossary: .litespec/glossary.yaml
+  testRoots:
+  - apps/api/tests
+  apiClient: packages/api
+  alerts:
+  - deploy/alerts
+  operations:
+  - deploy/Caddyfile
+  sbom:
+  - .litespec/proof/sbom
+stackConfig:
+  dotnet:
+    modules: apps/api/src/Claimwick.Modules
+    sharedKernel: apps/api/src/Claimwick.SharedKernel
+    templateStore: apps/api/src/Claimwick.Modules/Spending/Application/MessageTemplates.cs
+frontends:
+- name: web
+  path: apps/web
+  platform: svelte
+  entryPoint: entry-point/claimwick-app
+  routeSuite: apps/web/tests/routes
+  ui:
+    profile: application-balanced
+ui:
+  package:
+    name: '@claimwick/ui'
+    path: packages/ui
+    componentsJson: packages/ui/components.json
+    primitives: packages/ui/src/components
+    tokens: packages/ui/src/styles/tokens.css
+    sourceLock: packages/ui/ui-source-lock.yaml
+    designContract: packages/ui/DESIGN.md
+    publicExports:
+    - '@claimwick/ui/expenses'
+selectedExtensions: []
+dependencies:
+  licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-3-Clause

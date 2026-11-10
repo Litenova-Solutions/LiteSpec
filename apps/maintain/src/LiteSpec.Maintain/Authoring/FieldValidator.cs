@@ -68,7 +68,7 @@ internal sealed class FieldValidator
         StringComparer.Ordinal);
 
     /// <summary>Gets the schemas whose fields face the naming rules.</summary>
-    private static readonly string[] FieldNamingSchemas = ["schemas/record.schema.json", "schemas/glossary.schema.json"];
+    private static readonly string[] FieldNamingSchemas = ["schemas/record.schema.yaml", "schemas/glossary.schema.yaml"];
 
     /// <summary>Checks the field names of every field-naming schema.</summary>
     internal void CheckFieldNaming()
@@ -85,7 +85,11 @@ internal sealed class FieldValidator
             JsonNode? schema;
             try
             {
-                schema = JsonNode.Parse(TrimBom(ReadText(file)));
+                schema = DataFile.Read(file);
+            }
+            catch (LiteSpec.Model.JsonTextException)
+            {
+                continue;
             }
             catch (System.Text.Json.JsonException)
             {
@@ -316,7 +320,7 @@ internal sealed class FieldValidator
     private static bool IsFieldNamingScope(string relative, string name) =>
         name.EndsWith("Page", StringComparison.Ordinal)
         || FieldNamingEntries.Contains(name)
-        || (relative == "schemas/glossary.schema.json" && name == "term");
+        || (relative == "schemas/glossary.schema.yaml" && name == "term");
 
     /// <summary>Reports whether a field name ends in By or On.</summary>
     /// <param name="field">The field name.</param>

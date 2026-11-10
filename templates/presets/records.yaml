@@ -1,0 +1,4 @@
+shape: server
+layers:
+  intent: litespec
+  behavior: litespec

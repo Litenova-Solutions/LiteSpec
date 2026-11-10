@@ -40,7 +40,7 @@ static class ClassStringChecks
     // value, which it does not.
     //
     // The names below are the functional variants of the Tailwind release that
-    // `litespec.manifest.json` pins under `packages.npm.tailwindcss`. They compose,
+    // `litespec.manifest.yaml` pins under `packages.npm.tailwindcss`. They compose,
     // so `group-data-[open]` and `not-has-[a]` are one variant each. A Tailwind
     // release that adds a functional variant needs this list and a fixture case;
     // until it has both, the new variant reports as an arbitrary selector rather

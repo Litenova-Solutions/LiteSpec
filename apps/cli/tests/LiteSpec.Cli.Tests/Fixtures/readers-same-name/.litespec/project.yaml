@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+stacks:
+- dotnet
+stackConfig:
+  dotnet:
+    modules: src/Library.Application

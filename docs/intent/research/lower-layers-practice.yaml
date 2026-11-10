@@ -38,10 +38,10 @@ sources:
   - path: docs/core/access.md
     readOn: 2026-10-31
     key: access
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
-  - path: litespec.manifest.json
+  - path: litespec.manifest.yaml
     readOn: 2026-10-31
     key: litespec-manifest
 question: What do outside practice and the 2026-10-31 review show about exceptions, proof, tooling, and design wording below Intent?

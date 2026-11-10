@@ -33,7 +33,7 @@ sealed class PackageChecks
     /// <param name="platform">The package platform.</param>
     public void ValidateComponentsJson(string file, JsonNode? baseline, bool baselineOverride, string platform)
     {
-        var config = session.ReadJson(file, "ui-components-invalid");
+        var config = session.ReadData(file, "ui-components-invalid");
         if (config is null)
         {
             return;

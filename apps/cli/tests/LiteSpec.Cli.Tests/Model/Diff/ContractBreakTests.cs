@@ -254,7 +254,7 @@ public sealed class ContractBreakTests
 
         var finding = Assert.Single(findings);
         Assert.Equal("contract-break", finding.Code);
-        Assert.Equal(Path.Combine(temp.Path, ".litespec", "project.json"), finding.Path);
+        Assert.Equal(Path.Combine(temp.Path, ".litespec", "project.yaml"), finding.Path);
         Assert.Equal(1, finding.Line);
     }
 

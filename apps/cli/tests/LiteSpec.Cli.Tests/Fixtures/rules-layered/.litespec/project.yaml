@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+project:
+  name: Layered
+size: large
+shape: server
+stacks:
+- dotnet
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
+reviewedLiteSpecVersion: 4.1.0
+paths:
+  docs: .litespec
+  behaviorDocs: .litespec/behavior
+  glossary: .litespec/glossary.yaml
+  testRoots:
+  - apps/api/tests
+stackConfig:
+  dotnet:
+    modules: apps/api/src/Demo.Application
+    domain: apps/api/src/Demo.Domain
+    webapi:
+    - apps/api/src/Demo.WebApi
+    infrastructure: apps/api/src/Demo.Infrastructure
+selectedExtensions:
+- layer-projects

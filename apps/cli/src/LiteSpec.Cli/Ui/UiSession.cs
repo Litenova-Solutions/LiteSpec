@@ -82,15 +82,15 @@ sealed class UiSession
         var projectFile = ConsumerRoot.ProjectFile(Root);
         if (!File.Exists(projectFile))
         {
-            return new UiReport(2, [new Finding("project-invalid", $"No .litespec/project.json at {Root}", projectFile, 1, null)], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
+            return new UiReport(2, [new Finding("project-invalid", $"No .litespec/project.yaml at {Root}", projectFile, 1, null)], Root, null, 0, Array.Empty<UiFrontend>(), false, Array.Empty<UiFrontend>());
         }
 
-        var project = ReadJson(projectFile, "project-invalid");
+        var project = ReadData(projectFile, "project-invalid");
         // The manifest comes from the release the tool carries, the way every other command finds it.
         var manifestFile = LiteSpecHome.Root is { } home ? Path.Combine(home, LiteSpecHome.ManifestFile) : null;
-        Manifest = manifestFile is not null && File.Exists(manifestFile) ? ReadJson(manifestFile, "ui-baseline-missing") : null;
+        Manifest = manifestFile is not null && File.Exists(manifestFile) ? ReadData(manifestFile, "ui-baseline-missing") : null;
 
-        var frontends = JsonRead.Chain(project, "paths", "frontends").Node is JsonArray array
+        var frontends = JsonRead.Chain(project, "frontends").Node is JsonArray array
             ? array.ToList()
             : new List<JsonNode?>();
         var controlled = frontends.Where(frontend => PlatformOf(frontend) is "react" or "svelte").ToList();
@@ -103,7 +103,7 @@ sealed class UiSession
         var baselineNode = baseline.Found ? baseline.Node : null;
         var hasBaseline = baselineNode is not null && JsonValues.IsTruthy(baselineNode);
 
-        var uiExceptions = ReadUiExceptions(project);
+        var uiExceptions = ReadUiExceptions();
 
         // An exception carries an expiry date and stops being valid once that date
         // passes. This check is time dependent by design; every other check in this
@@ -139,19 +139,13 @@ sealed class UiSession
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
         var baselineOverride = uiExceptions.Any(exception => exception.Provision == "litespec/frontend/ui#pin-the-baseline-in-the-shared-package");
-        var pkgValue = JsonRead.Chain(project, "paths", "uiPackage");
+        var pkgValue = JsonRead.Chain(project, "ui", "package");
         var pkg = pkgValue.Found ? pkgValue.Node : null;
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
         if (controlled.Count == 0 && hasPkg)
         {
-            Add("ui-package-invalid", "paths.uiPackage is declared but no frontend declares a controlled platform (react, svelte)", projectFile);
+            Add("ui-package-invalid", "ui.package is declared but no frontend declares a controlled platform (react, svelte)", projectFile);
         }
-
-        if (controlled.Count > 0 && !hasPkg)
-        {
-            Add("ui-package-invalid", $"[litespec/frontend/ui#select-one-visual-authority] {controlled.Count} controlled frontend(s) and no paths.uiPackage", projectFile);
-        }
-
         UiSharedPackage? packageSummary = null;
         if (hasPkg)
         {
@@ -162,16 +156,7 @@ sealed class UiSession
                 Add("ui-baseline-missing", $"{label}: the LiteSpec manifest has no {baselineKey}", projectFile);
             }
 
-            foreach (var key in new[] { "name", "path", "componentsJson", "primitives", "tokens", "sourceLock", "designContract" })
-            {
-                Required(package, key, label, "ui-package-invalid", projectFile);
-            }
-
             var exports = ReadArray(package, "publicExports", label, "ui-package-invalid", projectFile);
-            if (exports.Count == 0)
-            {
-                Add("ui-package-invalid", $"{label}: publicExports must contain at least one entry point", projectFile);
-            }
 
             Unique(exports.Select(entry => new JsValue(true, entry)), $"{label}.publicExports", "ui-package-invalid", projectFile);
 
@@ -279,19 +264,6 @@ sealed class UiSession
         foreach (var frontend in controlled)
         {
             var label = $"frontend '{JsonRead.Show(JsonRead.Child(frontend, "name"))}'";
-            var uiBlock = JsonRead.Child(frontend, "ui");
-            if (!JsonRead.Truthy(uiBlock))
-            {
-                Add("ui-frontend-invalid", $"[litespec/frontend/ui#use-the-product-profiles] {label}: a controlled frontend requires a 'ui' block declaring its density profile", projectFile);
-                continue;
-            }
-
-            Required(uiBlock.Node, "profile", label, "ui-frontend-invalid", projectFile);
-            var profile = uiBlock.Node is JsonObject ? JsonRead.Child(uiBlock.Node, "profile") : new JsValue(false, null);
-            if (profile.Node is not JsonValue profileValue || !profileValue.TryGetValue<string>(out var profileText) || (profileText != "public-light" && profileText != "application-balanced" && profileText != "admin-dense"))
-            {
-                Add("ui-frontend-invalid", $"[litespec/frontend/ui#use-the-product-profiles] {label}: profile must be one of public-light, application-balanced, admin-dense", projectFile);
-            }
 
             var frontendPath = JsonRead.Child(frontend, "path");
             var frontendRoot = frontendPath is { Node: JsonValue rootValue } && rootValue.TryGetValue<string>(out var rootText) && rootText.Length > 0
@@ -304,6 +276,7 @@ sealed class UiSession
             }
 
             checkedCount++;
+            var uiBlock = JsonRead.Child(frontend, "ui");
             var globalCss = uiBlock.Node is JsonObject ? JsonRead.Child(uiBlock.Node, "globalCss") : new JsValue(false, null);
             if (JsonRead.Truthy(globalCss) && globalCss.Node is JsonValue cssValue && cssValue.TryGetValue<string>(out var cssRelative))
             {
@@ -400,6 +373,10 @@ sealed class UiSession
         {
             new CatalogChecks(this).ValidatePatternCatalog(JsonRead.Show(uiPatterns));
         }
+        else if (File.Exists(FilePath(CatalogChecks.DefaultCatalog)))
+        {
+            new CatalogChecks(this).ValidatePatternCatalog(CatalogChecks.DefaultCatalog);
+        }
 
         UiFrontend Describe(JsonNode? frontend)
         {
@@ -432,7 +409,7 @@ sealed class UiSession
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "LockPlatform reads an optional source lock and assumes React on any read or parse failure, so an unreadable lock selects the React baseline instead of crashing validation.")]
     string LockPlatform(JsonNode? project)
     {
-        var sourceLock = JsonRead.Chain(project, "paths", "uiPackage", "sourceLock");
+        var sourceLock = JsonRead.Chain(project, "ui", "package", "sourceLock");
         if (!JsonRead.Truthy(sourceLock))
         {
             return "react";
@@ -445,7 +422,7 @@ sealed class UiSession
                 return "react";
             }
 
-            var lockNode = JsonNode.Parse(File.ReadAllText(FilePath(relative)));
+            var lockNode = DataFile.Read(FilePath(relative));
             return JsonRead.Child(lockNode, "generator") is { Node: JsonValue generator } && generator.TryGetValue<string>(out var name) && name == "shadcn-svelte"
                 ? "svelte"
                 : "react";
@@ -459,18 +436,14 @@ sealed class UiSession
     // A rule override is an Exception record: .litespec/governance/exceptions/<name>.yaml
     // carrying the provision it departs from, the reason, and the expiry date.
     // The consumer validator owns the record shape; this validator reads
-    // the departure its own gates need and enforces the expiry date. The folder
-    // moves with paths.records.exception when the consumer sets it.
+    // the departure its own gates need and enforces the expiry date.
     /// <summary>
     ///     Every UI exception record the project carries.
     /// </summary>
-    /// <param name="project">The parsed project record.</param>
     /// <returns>The exception records.</returns>
-    List<UiException> ReadUiExceptions(JsonNode? project)
+    List<UiException> ReadUiExceptions()
     {
-        var folder = JsonRead.Chain(project, "paths", "records", "exception");
-        var folderName = folder is { Node: JsonValue value } && value.TryGetValue<string>(out var name) ? name : ".litespec/governance/exceptions";
-        var directory = FilePath(folderName);
+        var directory = FilePath(".litespec/governance/exceptions");
         if (!Directory.Exists(directory))
         {
             return [];
@@ -523,21 +496,21 @@ sealed class UiSession
     }
 
     /// <summary>
-    ///     Reads and parses a JSON file, recording a finding when it cannot be parsed.
+    ///     Reads and parses a YAML or JSON data file, recording a finding when it cannot be parsed.
     /// </summary>
     /// <param name="file">The file to read.</param>
     /// <param name="code">The finding code.</param>
-    /// <returns>The parsed JSON value, or null.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadJson records any read or parse failure of the file as a finding and returns null, so malformed consumer input reports instead of crashing validation.")]
-    public JsonNode? ReadJson(string file, string code)
+    /// <returns>The parsed value, or null.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "ReadData records any read or parse failure of the file as a finding and returns null, so malformed consumer input reports instead of crashing validation.")]
+    public JsonNode? ReadData(string file, string code)
     {
         try
         {
-            return JsonNode.Parse(File.ReadAllText(file));
+            return DataFile.Read(file);
         }
         catch (Exception cause)
         {
-            Add(code, $"cannot parse JSON ({cause.Message})", file);
+            Add(code, $"cannot parse YAML or JSON ({cause.Message})", file);
             return null;
         }
     }
@@ -688,7 +661,7 @@ sealed class UiSession
             return false;
         }
 
-        var schema = ReadJson(file, code);
+        var schema = ReadData(file, code);
         if (schema is null)
         {
             return false;

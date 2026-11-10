@@ -246,14 +246,13 @@ public sealed class NodeFrontendReaderTests
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte" }
-                ]
+                ], "paths": {
               }
             }
             """);

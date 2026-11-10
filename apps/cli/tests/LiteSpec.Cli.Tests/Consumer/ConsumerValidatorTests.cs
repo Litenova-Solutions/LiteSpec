@@ -169,10 +169,10 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "winforms" });
         });
-        AssertProblem(RunConsumer(folder.Path), "/paths/frontends/0/platform");
+        AssertProblem(RunConsumer(folder.Path), "/frontends/0/platform");
     }
 
     /// <summary>Reviewed version behind the installed release.</summary>

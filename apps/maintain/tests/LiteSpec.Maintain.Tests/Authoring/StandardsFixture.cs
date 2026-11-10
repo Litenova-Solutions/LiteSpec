@@ -534,7 +534,7 @@ static class StandardsFixture
     /// <param name="root">The repository root to read from, or null for the test repository.</param>
     /// <returns>The project schema text.</returns>
     public static string ShippedProjectSchema(string? root = null) =>
-        File.ReadAllText(Path.Combine(root ?? Cli.Repository, "schemas", "litespec-project.schema.json"));
+        File.ReadAllText(Path.Combine(root ?? Cli.Repository, "schemas", "litespec-project.schema.yaml"));
 
     static string Normalize(string value) => value.Replace("\r\n", "\n");
 }

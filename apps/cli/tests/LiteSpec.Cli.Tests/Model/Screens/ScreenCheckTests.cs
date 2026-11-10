@@ -279,14 +279,13 @@ public sealed class ScreenCheckTests
         Directory.CreateDirectory(Path.Combine(root, "apps", "web", "tests", "routes"));
         Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte", "routeSuite": "apps/web/tests/routes" }
-                ]
+                ], "paths": {
               }
             }
             """);
@@ -400,14 +399,13 @@ public sealed class ScreenCheckTests
         Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(Path.Combine(root, ".litespec", "refusals.json"), dictionary);
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte", "refusalDictionary": ".litespec/refusals.json" }
-                ]
+                ], "paths": {
               }
             }
             """);
@@ -415,18 +413,17 @@ public sealed class ScreenCheckTests
 
     static ProjectModel BaseModel(string root)
     {
-        if (!File.Exists(Path.Combine(root, ".litespec/project.json")))
+        if (!File.Exists(Path.Combine(root, ".litespec/project.yaml")))
         {
             Directory.CreateDirectory(Path.Combine(root, ".litespec"));
             File.WriteAllText(
-                Path.Combine(root, ".litespec/project.json"),
+                Path.Combine(root, ".litespec/project.yaml"),
                 """
                 {
                   "owners": ["lending-team"],
-                  "paths": {
-                    "frontends": [
+                  "frontends": [
                       { "name": "web", "path": "apps/web", "platform": "svelte" }
-                    ]
+                    ], "paths": {
                   }
                 }
                 """);

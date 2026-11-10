@@ -362,7 +362,7 @@ jobs:
       - name: Install and run the binary in ${{ matrix.image }}
         run: |
           . .github/scripts/lib.sh
-          version="$(manifest_version litespec.manifest.json)"
+          version="$(manifest_version litespec.manifest.yaml)"
           site="$RUNNER_TEMP/site"
           mkdir -p "$site/v$version"
           cp release/* "$site/v$version/"
@@ -429,4 +429,4 @@ jobs:
         if: matrix.image != ''
         run: |
           docker run --rm -v "$PWD:/src:ro" "${{ matrix.image }}" \
-            sh -c 'apk add --no-cache -q bash coreutils diffutils findutils jq && bash /src/.github/scripts/smoke.sh --tool /src/feed'
+            sh -c 'apk add --no-cache -q bash coreutils diffutils findutils && bash /src/.github/scripts/smoke.sh --tool /src/feed'

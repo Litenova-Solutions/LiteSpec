@@ -5,7 +5,7 @@ using System.Linq;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The paths a consumer declares in <c>.litespec/project.json</c>, read once and
+///     The paths a consumer declares in <c>.litespec/project.yaml</c>, read once and
 ///     resolved against the repository root: the record roots, the behavior docs root
 ///     and the glossary, with the mark style. The CLI and the analyzers both read the
 ///     project file through this type, so a default or a path rule is written once.
@@ -63,11 +63,11 @@ public sealed class ProjectPaths
     /// <summary>Gets the glossary path from <c>paths.glossary</c>, resolved, with forward slashes.</summary>
     public string GlossaryPath { get; }
 
-    /// <summary>Whether a path names a project file: <c>.litespec/project.json</c> at the end.</summary>
+    /// <summary>Whether a path names a project file: <c>.litespec/project.yaml</c> at the end.</summary>
     /// <param name="path">The file path as the host reports it.</param>
     /// <returns>True when the path ends in the project file's location.</returns>
     public static bool IsProjectFile(string path) =>
-        path.Replace('\\', '/').EndsWith("/.litespec/project.json", StringComparison.OrdinalIgnoreCase);
+        path.Replace('\\', '/').EndsWith("/.litespec/project.yaml", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     ///     Reads the project file text. A missing or unknown value reads as its default:
@@ -89,7 +89,7 @@ public sealed class ProjectPaths
             return false;
         }
 
-        var root = JsonText.Parse(text);
+        var root = YamlText.Parse(text);
         var repository = RepositoryRootOf(projectFile);
         JsonText? declared = null;
 

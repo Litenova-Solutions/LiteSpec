@@ -53,7 +53,7 @@ It asks before the first download; `dnx --yes` answers for it.
 
 ### Install Script
 
-The install scripts download the archive for the machine from the GitHub release, check it against the release's `SHA256SUMS`, and install it. Run in a consumer root, they install the release `.litespec/project.json` reviews; elsewhere, the latest release.
+The install scripts download the archive for the machine from the GitHub release, check it against the release's `SHA256SUMS`, and install it. Run in a consumer root, they install the release `.litespec/project.yaml` reviews; elsewhere, the latest release.
 
 On Linux and macOS, `install.sh` keeps each release in `~/.litespec/<version>` and links the active one at `~/.litespec/bin/litespec`:
 
@@ -120,7 +120,7 @@ The [.NET 10 supported OS list](https://github.com/dotnet/core/blob/main/release
 
 ## Run the CLI
 
-Run every command from the consumer root, the folder that holds `.litespec/project.json`. The command pages write the consumer form as `litespec <command>`; with the local .NET tool, type `dotnet litespec <command>`. In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`.
+Run every command from the consumer root, the folder that holds `.litespec/project.yaml`. The command pages write the consumer form as `litespec <command>`; with the local .NET tool, type `dotnet litespec <command>`. In the LiteSpec repository, run `dotnet run --project apps/cli/src/LiteSpec.Cli -- <command>`.
 
 The CLI carries its release beside its own executable; set `LITESPEC_HOME` to point it at another copy.
 
@@ -128,7 +128,7 @@ Every command accepts `--help`, and `model check` accepts `--format json` for a 
 
 ## Consumer Repository
 
-- [Initialize Consumer](init.md): writes `.litespec/project.json` for a new consumer from a preset.
+- [Initialize Consumer](init.md): writes `.litespec/project.yaml` for a new consumer from a preset.
 - [Scaffold Record](new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](rename.md): renames a record identifier and rewrites every link.
 - [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, and answers record queries.

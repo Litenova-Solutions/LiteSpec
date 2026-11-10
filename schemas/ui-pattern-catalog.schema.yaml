@@ -1,0 +1,182 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://litespec.dev/4.1.0/schemas/ui-pattern-catalog.schema.yaml'
+title: UI pattern catalog
+description: 'One decision per recurring UI question: the options considered, the option chosen, how it changes on a compact screen, and where each frontend implements it. The catalog names behavior and structure, never a component library, so one catalog serves every frontend platform.'
+type: object
+additionalProperties: false
+required:
+- schemaVersion
+- breakpoints
+- groups
+- patterns
+properties:
+  schemaVersion:
+    $comment: 'Each release pins one exact shape. A consumer adopting a later release absorbs every difference at that moment, so no minor-compatible range exists between two releases. See litespec/core/authoring#publish-each-release-as-a-complete-contract and litespec/core/authoring#exclude-cross-release-compatibility-work.'
+    const: 2
+  breakpoints:
+    type: object
+    description: Named viewport widths in CSS pixels. A compact variant names one of these.
+    minProperties: 1
+    additionalProperties:
+      type: integer
+      minimum: 0
+  groups:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - title
+      properties:
+        id:
+          $ref: '#/$defs/slug'
+        title:
+          type: string
+          minLength: 1
+        kind:
+          enum:
+          - page-frame
+          - element
+          - scenario
+  patterns:
+    type: array
+    minItems: 1
+    items:
+      $ref: '#/$defs/pattern'
+$defs:
+  slug:
+    type: string
+    pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
+  option:
+    type: object
+    additionalProperties: false
+    required:
+    - id
+    - name
+    - rationale
+    - cost
+    properties:
+      id:
+        $ref: '#/$defs/slug'
+      name:
+        type: string
+        minLength: 1
+      rationale:
+        type: string
+        minLength: 1
+      cost:
+        type: string
+        minLength: 1
+  pattern:
+    type: object
+    additionalProperties: false
+    required:
+    - id
+    - group
+    - title
+    - question
+    - options
+    - decision
+    - compact
+    - implementations
+    properties:
+      id:
+        $ref: '#/$defs/slug'
+      group:
+        $ref: '#/$defs/slug'
+      title:
+        type: string
+        minLength: 1
+      question:
+        type: string
+        minLength: 1
+        description: The recurring question the pattern answers.
+      options:
+        type: array
+        minItems: 2
+        items:
+          $ref: '#/$defs/option'
+      decision:
+        type: object
+        additionalProperties: false
+        required:
+        - option
+        - source
+        properties:
+          option:
+            $ref: '#/$defs/slug'
+          source:
+            enum:
+            - owner
+            - recommended
+            description: 'owner: a person with the authority chose it. recommended: the reviewer''s recommendation stands until an owner chooses.'
+          note:
+            type: string
+            description: What the owner added to the chosen option.
+      compact:
+        type: object
+        additionalProperties: false
+        required:
+        - breakpoint
+        - behavior
+        properties:
+          breakpoint:
+            type: string
+            description: A key of the catalog breakpoints. Below it the compact behavior applies.
+          option:
+            $ref: '#/$defs/slug'
+            description: A different option used below the breakpoint. Absent when the chosen option reflows.
+          behavior:
+            type: string
+            minLength: 1
+      extensions:
+        type: array
+        description: Further options a reader may switch to, such as a dense view, beside the chosen default.
+        items:
+          type: object
+          additionalProperties: false
+          required:
+          - option
+          - when
+          properties:
+            option:
+              $ref: '#/$defs/slug'
+            when:
+              type: string
+              minLength: 1
+      library:
+        type: string
+        pattern: '^litespec/frontend/patterns/[a-z0-9]+(-[a-z0-9]+)*#[a-z0-9]+(-[a-z0-9]+)*$'
+        description: 'The ID of the LiteSpec pattern this entry starts from, such as litespec/frontend/patterns/record-detail#record-header. Its options keep the pattern''s option ids and names, and the entry may add options of its own.'
+      implementations:
+        type: object
+        description: 'Keyed by frontend platform: react, svelte, blazor, or android.'
+        propertyNames:
+          enum:
+          - react
+          - svelte
+          - blazor
+          - android
+        additionalProperties:
+          type: object
+          additionalProperties: false
+          required:
+          - status
+          properties:
+            status:
+              enum:
+              - adopted
+              - partial
+              - pending
+              - not-applicable
+              description: 'adopted: every surface follows the chosen option. partial: the shared implementation exists and some surfaces do not use it yet. pending: no implementation yet. not-applicable: the platform has no such surface.'
+            components:
+              type: array
+              items:
+                type: string
+              description: Source paths of the shared implementation, relative to the workspace root.
+            gap:
+              type: string
+              description: What is missing, for a partial or pending status.

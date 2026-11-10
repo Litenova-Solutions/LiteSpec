@@ -2,17 +2,18 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the project file settings read their default, both values, and every error.</summary>
+/// <summary>Proves the project file settings read their defaults, the declared values, and the level the layer claims map to.</summary>
 public sealed class ProjectSettingsTests
 {
-    /// <summary>A file naming no setting reads the xml style.</summary>
+    /// <summary>A file naming no setting reads the xml style and the full level.</summary>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact]
     public void Missing_Settings_Read_Defaults()
     {
-        Assert.True(ProjectSettings.TryParse("{}", out var settings, out var error));
+        Assert.True(ProjectSettings.TryParse("schemaVersion: 1\n", out var settings, out var error));
 
         Assert.Equal(MarkStyle.Xml, settings.Marks);
+        Assert.Equal(ConformanceLevel.Full, settings.Conformance);
         Assert.Null(error);
     }
 
@@ -25,7 +26,7 @@ public sealed class ProjectSettingsTests
     [InlineData("attribute", MarkStyle.Attribute)]
     public void Declared_Settings_Read(string marks, MarkStyle style)
     {
-        var text = "{\"marks\": \"" + marks + "\"}";
+        var text = "marks: " + marks + "\n";
 
         Assert.True(ProjectSettings.TryParse(text, out var settings, out var error));
 
@@ -33,37 +34,46 @@ public sealed class ProjectSettingsTests
         Assert.Null(error);
     }
 
-    /// <summary>An unknown mark style is an error naming the value, never a silent default.</summary>
+    /// <summary>An unknown or wrong-shaped mark style reads the default; the project schema reports it, so the reader never does.</summary>
+    /// <param name="text">The project file text under test.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
-    [Fact]
-    public void Unknown_Marks_Value_Errors()
+    [Theory]
+    [InlineData("marks: yaml\n")]
+    [InlineData("marks: 5\n")]
+    public void Invalid_Marks_Value_Reads_The_Default(string text)
     {
-        Assert.False(ProjectSettings.TryParse("{\"marks\": \"yaml\"}", out var settings, out var error));
+        Assert.True(ProjectSettings.TryParse(text, out var settings, out var error));
 
         Assert.Equal(MarkStyle.Xml, settings.Marks);
-        Assert.Equal(".litespec/project.json: unknown marks \"yaml\"; expected \"xml\" or \"attribute\".", error);
+        Assert.Null(error);
     }
 
-    /// <summary>A wrong shape is an error naming the field, never a silent default.</summary>
-    /// <param name="text">The project file text under test.</param>
-    /// <param name="message">The expected error message.</param>
-    /// <proves>litespec/core/model#declare-one-mark-style</proves>
+    /// <summary>Each layer claim set reads as the level it maps to.</summary>
+    /// <param name="layers">The layers mapping the project file declares.</param>
+    /// <param name="level">The level the claims must read as.</param>
+    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
     [Theory]
-    [InlineData("{\"marks\": 5}", ".litespec/project.json: marks must be \"xml\" or \"attribute\".")]
-    public void Wrong_Shape_Errors(string text, string message)
+    [InlineData("intent: litespec\n  behavior: litespec", ConformanceLevel.Records)]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: own\n  proof: own", ConformanceLevel.Traced)]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec", ConformanceLevel.Full)]
+    [InlineData("intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: own", ConformanceLevel.Traced)]
+    public void Layer_Claims_Read_As_Their_Level(string layers, ConformanceLevel level)
     {
-        Assert.False(ProjectSettings.TryParse(text, out _, out var error));
+        var text = "layers:\n  " + layers + "\n";
 
-        Assert.Equal(message, error);
+        Assert.True(ProjectSettings.TryParse(text, out var settings, out var error));
+
+        Assert.Equal(level, settings.Conformance);
+        Assert.Null(error);
     }
 
-    /// <summary>Text that is no JSON and JSON that is no object are errors naming the file.</summary>
+    /// <summary>Text that is no YAML and YAML that is no mapping are errors naming the file.</summary>
     /// <param name="text">The project file text under test.</param>
     /// <param name="message">The expected error message.</param>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Theory]
-    [InlineData("{\"marks\": ", ".litespec/project.json: invalid JSON on line 1: expected a value.")]
-    [InlineData("[\"xml\"]", ".litespec/project.json: expected an object.")]
+    [InlineData("marks: [xml\n", ".litespec/project.yaml is not valid YAML or JSON: expected valid YAML at line 2.")]
+    [InlineData("- xml\n", ".litespec/project.yaml: expected a mapping.")]
     public void Broken_Text_Errors(string text, string message)
     {
         Assert.False(ProjectSettings.TryParse(text, out _, out var error));

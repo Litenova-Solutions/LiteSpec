@@ -43,9 +43,9 @@ public sealed class SharedCitationTests
     static TempFolder WriteFixtureHome()
     {
         var home = Cli.Temp("model-home");
-        var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(Cli.Repository, "litespec.manifest.json")))!;
+        var manifest = (JsonObject)DataFile.Read(Path.Combine(Cli.Repository, "litespec.manifest.yaml"))!;
         manifest["version"] = PinnedVersion;
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), manifest.ToJsonString() + "\n");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), manifest.ToJsonString() + "\n");
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
         foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
@@ -64,8 +64,8 @@ public sealed class SharedCitationTests
 
     static void PinReviewedVersion(string root)
     {
-        var file = Path.Combine(root, ".litespec", "project.json");
-        var project = (JsonObject)JsonNode.Parse(File.ReadAllText(file))!;
+        var file = Path.Combine(root, ".litespec", "project.yaml");
+        var project = (JsonObject)DataFile.Read(file)!;
         project["reviewedLiteSpecVersion"] = PinnedVersion;
         File.WriteAllText(file, project.ToJsonString() + "\n");
     }

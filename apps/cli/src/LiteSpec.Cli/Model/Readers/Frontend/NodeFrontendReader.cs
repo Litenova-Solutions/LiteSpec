@@ -11,7 +11,7 @@ namespace LiteSpec.Model.Readers.Frontend;
 ///     Node absent, a non-zero exit, unparseable output or a protocol mismatch
 ///     leaves every affected frontend with empty facts and one
 ///     <c>reader-missing</c> cause. The reader is qualified when its
-///     handshake matched; nothing in <c>.litespec/project.json</c> disqualifies it.
+///     handshake matched; nothing in <c>.litespec/project.yaml</c> disqualifies it.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 static class NodeFrontendReader

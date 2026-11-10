@@ -8,7 +8,7 @@ LiteSpec 4.1.0 is the contract for one bounded-context business application. A p
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
-`litespec.manifest.json` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
+`litespec.manifest.yaml` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
 
 Sources: `litespec/core/scope#keep-one-bounded-context`, `litespec/core/scope#select-a-size-a-shape-and-stacks`, `litespec/core/stacks#apply-the-complete-stack`, `litespec/core/scope#select-conditional-extensions-explicitly`, `litespec/core/authoring#use-the-declared-identifier-grammar`.
 
@@ -42,7 +42,7 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 
 In a consumer:
 
-1. Read the consumer's `AGENTS.md` and `.litespec/project.json`.
+1. Read the consumer's `AGENTS.md` and `.litespec/project.yaml`.
 2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the YAML record files themselves with their explanation files.
 3. Before you generate files or change a public boundary, read the full standards pages those records cite.
 4. Before you edit inside an extension's boundary, read the extension.

@@ -66,7 +66,7 @@ code: spending.receipt-missing
 meaning: The expense is above the receipt threshold and carries no receipt.
 ```
 
-Two generic refusals are derived and never written: a use case whose grant is a permission derives a forbidden result, and a use case with rules on its input derives an invalid-input result. Their codes come from the `refusals` block in `.litespec/project.json`.
+Two generic refusals are derived and never written: a use case whose grant is a permission derives a forbidden result, and a use case with rules on its input derives an invalid-input result. Their codes come from the `refusals` block in `.litespec/project.yaml`.
 
 A record in git is decided. It carries no status, no owner, and no dates of its own history: git shows who changed what and when, and the pull request that changes a record is its review. A record no longer wanted is deleted, and git keeps its history.
 

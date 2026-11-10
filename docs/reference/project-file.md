@@ -2,7 +2,7 @@
 
 ## Intent
 
-`.litespec/project.json` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the `litespec model check` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
+`.litespec/project.yaml` is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the `litespec model check` command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.
 
 ## Reference
 
@@ -12,10 +12,10 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 
 | Item | Value |
 |:---|:---|
-| Path | `.litespec/project.json` at the consumer root |
-| Schema | `schemas/litespec-project.schema.json` in the pinned release |
-| Template | `templates/consumer/project.json` in the release the tool carries |
-| Presets | `templates/presets/android-client.json`, `templates/presets/blazor-client.json`, `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json` |
+| Path | `.litespec/project.yaml` at the consumer root |
+| Schema | `schemas/litespec-project.schema.yaml` in the pinned release |
+| Template | `templates/consumer/project.yaml` in the release the tool carries |
+| Presets | `templates/presets/android-client.yaml`, `templates/presets/blazor-client.yaml`, `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml` |
 
 `litespec init` merges the template with one preset and stamps the size, name, and reviewed release. `litespec model check` validates the written file against the schema and then runs the selection checks below. The model builder reads the paths, stack config, size, shape, and stacks from the same file.
 
@@ -23,12 +23,12 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
-| `$schema` | string | no | none |
+| `schemaVersion` | integer | yes | none |
 | `project` | object | yes | none |
 | `size` | string | yes | none |
-| `conformance` | string | yes | none |
+| `layers` | object | yes | none |
 | `shape` | string | no | `"server"` |
-| `stacks` | array of string | at `traced` and `full` | none |
+| `stacks` | array of string | when `implementation` or `proof` is claimed | none |
 | `proof` | object | no | none |
 | `marks` | string | no | `"xml"` |
 | `dependencies` | object | no | none |
@@ -38,15 +38,17 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `paths` | object | yes | none |
 | `selectedExtensions` | array of object | yes | none |
 | `stackConfig` | object | no | none |
+| `frontends` | array of object | for a `client-only` project | none |
+| `ui` | object | no | none |
 
 What each field means and what reads it:
 
-- `$schema` holds the editor hint that points at the project schema. Only the editor reads it.
+- `schemaVersion` is the shape of this file, `1` in this release. The editor finds the schema from the first-line comment `# yaml-language-server: $schema=<url>`, which `litespec init` writes; no key in the data names it.
 - `project` names the project. `litespec model check` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
-- `conformance` is the conformance level the project claims: `records`, `traced` or `full`. At `records` the project claims its Intent, Behavior, governance and glossary records; at `traced` it also claims marks in its code and tests and proof from its test runs, in a code layout of its own; at `full` it also claims the selected stacks, LiteSpec's code layout, the analyzers and the operations provisions. `litespec model check`, the book, `litespec rules` and the analyzers report only the part the level claims.
+- `layers` names the record layers the project claims and the practice each follows. See the `layers` object below.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
-- `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. It is required at `traced` and `full`; at `records` a stack is informational. `litespec model check` refuses an id the pinned release does not ship.
+- `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. It is required when the project claims `implementation` or `proof`; otherwise a stack is informational. `litespec model check` refuses an id the pinned release does not ship.
 - `proof` tunes how the model builder confirms proof claims for the project. See the `proof` object below.
 - `marks` is the mark style: `xml` for documentation tags, `attribute` for generated attributes. The model builder, the analyzers and the source generator read it, and each reports a mark in the other style as `mark-style-invalid`.
 - `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision. See the `dependencies` object below.
@@ -55,7 +57,25 @@ What each field means and what reads it:
 - `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"4.1.0"`. `litespec model check` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `selectedExtensions` lists the extensions the project selected, each with its criterion. See the extension entry below.
-- `stackConfig` holds per-stack configuration keyed by stack id. See the `stackConfig.dotnet` object below.
+- `stackConfig` holds per-stack configuration keyed by a stack id the manifest ships. See the `stackConfig.dotnet` object below.
+- `frontends` lists every frontend the project ships. See the frontend entry below.
+- `ui` holds `package`, the one shared UI package of the workspace. See the `ui.package` object below.
+
+### The `layers` Object
+
+| Field | Type | Required | Default |
+|:---|:---|:---|:---|
+| `intent` | `litespec` | yes | none |
+| `behavior` | `litespec` | no | not claimed |
+| `implementation` | `litespec` or `own` | no | not claimed |
+| `proof` | `litespec` or `own` | no | not claimed |
+
+What each field means and what reads it:
+
+- A key that is present claims its record layer; a key left out is not claimed, and no check reads that layer.
+- `litespec` follows LiteSpec's practice for the layer. `own` keeps the project's own practice for `implementation` or `proof` and claims only that code and tests mark the records they serve.
+- A lower layer needs the one above it: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. The schema refuses a file that breaks this.
+- `litespec model check`, the book, `litespec rules` and the analyzers report only the claimed layers.
 
 ### The `project` Object
 
@@ -121,9 +141,7 @@ What each field means and what reads it:
 |:---|:---|:---|:---|
 | `docs` | string | no | `.litespec` |
 | `glossary` | string | no | `.litespec/glossary.yaml` |
-| `unstructuredDocs` | array of string | no | none |
 | `behaviorDocs` | string | yes | none |
-| `records` | object | no | none |
 | `testRoots` | array of string | no | none |
 | `testResults` | string | no | `TestResults` |
 | `contract` | string | no | none |
@@ -132,19 +150,13 @@ What each field means and what reads it:
 | `checkResults` | string | no | `.litespec/proof/checks` |
 | `sbom` | array of strings | no | none |
 | `apiClient` | string | no | `packages/api` |
-| `surfaces` | array of object | no | none |
-| `uiPackage` | object | no | none |
-| `uiPatterns` | string | no | none |
-| `frontends` | array of object | for a `client-only` project | none |
-| `sites` | array of object | no | none |
+| `uiPatterns` | string | no | `.litespec/implementation/patterns/catalog.yaml` |
 
 What each field means and what reads it:
 
-- `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document, unless its path is listed in `unstructuredDocs`. When `docs` is omitted, the tools use `.litespec`.
+- `docs` is the root of the specification tree. Every record file under it holds one record page, with an explanation file beside it where one exists, and every other Markdown file is a document. When `docs` is omitted, the tools use `.litespec`.
 - `glossary` names the project glossary. `litespec model check` validates it and scans the pages against its rejected words and mannered terms.
-- `unstructuredDocs` lists the paths whose Markdown is navigation or prose rather than specification.
 - `behaviorDocs` names the behavior documentation root. It is required.
-- `records` maps a record type to its home folder where it differs from the default the model states. Keys come from the closed list `product`, `goal`, `constraint`, `research`, `decision`, `requirement`, `problem`, `feature`, `actor`, `role`, `permission`, `journey`, `module`, `aggregate`, `rule`, `use-case`, `result`, `scenario`, `event`, `entry-point`, `external-system`, `reaction`, `job`, `notification`, `setting`, `integration-event`, `runbook`, `exception`, and `term`.
 - `testRoots` lists the directories that hold automated test source. The model builder reads scenarios from these roots.
 - `testResults` names where the latest test run results live, so passing and failing proof is read from them.
 - `contract` names the committed OpenAPI document, so `litespec model check` compares each operation's `x-litespec-use-case` with its endpoint's mark.
@@ -153,11 +165,7 @@ What each field means and what reads it:
 - `checkResults` names where drill and harness check results live, read beside the measured-check results under `testResults`.
 - `sbom` names the bill of materials files or folders, SPDX or CycloneDX JSON, checked against the manifest pins, the admissions, and `dependencies.licenses`.
 - `apiClient` names the generated API client the frontends import, so route calls resolve to the use cases they reach. The model builder appends `src` to the configured path, and the reader takes operations only from the files the client generator writes (`*.gen.ts`), so a hand-written helper beside them is not an operation.
-- `surfaces` names the surfaces outside `paths.frontends` that invoke a use case: a command-line tool, a distributed server, a background host, or a reaction. Each entry holds `name`, `description`, and an optional `path`.
-- `uiPackage` declares the one shared UI package of the workspace. A workspace with no controlled web frontend omits it. See the `uiPackage` object below.
-- `uiPatterns` names the workspace UI pattern catalog. A workspace that records no pattern decisions omits it.
-- `frontends` lists every browser frontend the project ships. See the frontend entry below.
-- `sites` lists the static public websites the consumer ships beside its application. Each entry holds `name`, `path`, and `generator`, and the only generator is `astro`.
+- `uiPatterns` names the workspace UI pattern catalog when it is not at the default path.
 
 ### The `stackConfig.dotnet` Object
 
@@ -167,9 +175,8 @@ What each field means and what reads it:
 | `sharedKernel` | string | no | `apps/api/src/*.SharedKernel` |
 | `domain` | string | no | `apps/api/src/*.Domain` under `layer-projects`, none otherwise |
 | `infrastructure` | string | no | `apps/api/src/*.Infrastructure` under `layer-projects`, none otherwise |
-| `webapi` | string or array of string | no | `apps/api/src/*.WebApi` |
-| `worker` | string or array of string | no | `apps/api/src/*.Worker` |
-| `apiSolution` | string | no | none |
+| `webapi` | array of string | no | `apps/api/src/*.WebApi` |
+| `worker` | array of string | no | `apps/api/src/*.Worker` |
 | `templateStore` | string | no | none |
 
 What each field means and what reads it:
@@ -177,11 +184,10 @@ What each field means and what reads it:
 - `modules` is the code root the model builder reads: the modules project holding every module. A `*` in one segment expands to the first matching folder.
 - `sharedKernel` names the shared kernel project holding what every module builds on, where reasonless names are allowed. When omitted, the default applies and `litespec model check` reports `name-reason-missing` for every reasonless folder or type outside it.
 - `domain` and `infrastructure` name the Domain and Infrastructure projects the model builder reads, under `layer-projects` only. Without that extension they default to none.
-- `webapi` and `worker` name the web and worker host projects the model builder reads: one path, or a list for a backend with several hosts.
-- `apiSolution` names the API solution the model builder reads. A consumer with no backend omits `apiSolution` and records the decision that it has none.
+- `webapi` and `worker` name the web and worker host projects the model builder reads: a list with one path per host.
 - `templateStore` names the one C# file holding the notification template store: its top-level dictionary keys are the template keys, and its texts write parameters as `{{PascalCaseName}}`. When omitted, the template checks stay silent.
 
-### The `uiPackage` Object
+### The `ui.package` Object
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
@@ -199,7 +205,7 @@ What each field means and what reads it:
 - `name` is the package name, such as `"@shop/ui"`. `path` is the package root, such as `"packages/ui"`.
 - `componentsJson` is the registry configuration, `primitives` is the directory that holds the registry source the pinned CLI copied in, `tokens` is the token stylesheet, `sourceLock` is the source lock, and `designContract` is the design contract.
 - `publicExports` lists the entry points applications import, with at least one entry. A primitive the composites are built from is not one of them.
-- `litespec model check` reports a missing `paths.uiPackage` when a controlled frontend is declared without one, and validates every listed file. A controlled frontend is one whose platform is `react` or `svelte`.
+- `litespec model check` reports a missing `ui.package` when a controlled frontend is declared without one, and validates every listed file. A controlled frontend is one whose platform is `react` or `svelte`.
 
 ### A `frontends` Entry
 
@@ -225,96 +231,82 @@ What each field means and what reads it:
 - `visualGoldens` names the folder holding that frontend's visual goldens. The model builder reads it for the same check, so a golden outside the named folder proves nothing.
 - `ui` holds `profile`, which is required, and `globalCss`, which is optional. The profile is one of `public-light`, `application-balanced`, or `admin-dense`. The `globalCss` value is the one stylesheet the frontend declares, and it imports the shared package tokens. `litespec model check` checks the profile value and the stylesheet path.
 
-### A `sites` Entry
-
-| Field | Type | Required | Default |
-|:---|:---|:---|:---|
-| `name` | string | yes | none |
-| `path` | string | yes | none |
-| `generator` | string | yes | none |
-
-The generator is `astro`.
-
 ### A `selectedExtensions` Entry
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
 | `id` | string | yes | none |
 | `criterion` | string | yes | none |
+| `releaseStage` | string | for `stage` | none |
 
 What each field means and what reads it:
 
 - `id` is the extension id in the pinned manifest, such as `"locale"`. `litespec model check` refuses an id the pinned release does not ship and lists the known ids.
 - `criterion` states the criterion that was met, such as `"The product ships in English and Dutch."`. `litespec/core/scope#record-selected-extensions` requires the entry, and `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting an extension only when its criteria apply.
+- `releaseStage` is `pre-production` or `production`, and only the `stage` extension carries it, which the schema enforces.
 
 ### Placeholders and the Init Fill
 
 The template names the project as `__PROJECT__` in paths and package names. `litespec init` fills every `__PROJECT__` value with the `--name` value, or with the root folder name when `--name` is omitted; in an npm package scope such as `@__PROJECT__/ui` it writes that name in lowercase kebab case, because npm names are lowercase. After it writes the file it prints `Next step: dotnet litespec model check`. `litespec model check` treats a leftover placeholder as an error and names each one:
 
 ```text
-.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
+.litespec/project.yaml: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]
 ```
 
-A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `paths.uiPackage` and `paths.uiPatterns` from the written file.
+A preset without a controlled web frontend, such as `blazor-client` or `android-client`, declares no package that a frontend uses, so `litespec init` removes `ui` and `paths.uiPatterns` from the written file.
 
 ### A Complete Example
 
 This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `4.1.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
 
-```json
-{
-  "$schema": "https://litespec.dev/4.1.0/schemas/litespec-project.schema.json",
-  "project": {
-    "name": "shop"
-  },
-  "size": "small",
-  "shape": "server",
-  "stacks": [
-    "dotnet",
-    "react"
-  ],
-  "reviewedLiteSpecVersion": "4.1.0",
-  "paths": {
-    "docs": "docs",
-    "behaviorDocs": ".litespec/behavior",
-    "unstructuredDocs": [],
-    "testRoots": [
-      "apps/api/tests"
-    ],
-    "uiPackage": {
-      "name": "@shop/ui",
-      "path": "packages/ui",
-      "componentsJson": "packages/ui/components.json",
-      "primitives": "packages/ui/src/components",
-      "tokens": "packages/ui/src/styles/tokens.css",
-      "sourceLock": "packages/ui/ui-source-lock.json",
-      "designContract": "packages/ui/DESIGN.md",
-      "publicExports": [
-        "@shop/ui/floorplans"
-      ]
-    },
-    "uiPatterns": ".litespec/implementation/patterns/catalog.json",
-    "frontends": [
-      {
-        "name": "web",
-        "path": "apps/web",
-        "platform": "react"
-      }
-    ],
-    "sites": []
-  },
-  "stackConfig": {
-    "dotnet": {
-      "modules": "apps/api/src/shop.Modules",
-      "sharedKernel": "apps/api/src/shop.SharedKernel",
-      "apiSolution": "apps/api/shop.slnx"
-    }
-  },
-  "selectedExtensions": []
-}
+```yaml
+# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+project:
+  name: shop
+size: small
+shape: server
+stacks:
+- dotnet
+- react
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
+reviewedLiteSpecVersion: 4.1.0
+screenshots:
+  galleries:
+  - apps/web/test-results/gallery
+  pattern: '{route}--{theme}--{width}.png'
+paths:
+  docs: .litespec
+  behaviorDocs: .litespec/behavior
+  testRoots:
+  - apps/api/tests
+stackConfig:
+  dotnet:
+    modules: apps/api/src/shop.Modules
+    sharedKernel: apps/api/src/shop.SharedKernel
+frontends:
+- name: web
+  path: apps/web
+  platform: react
+ui:
+  package:
+    name: '@shop/ui'
+    path: packages/ui
+    componentsJson: packages/ui/components.json
+    primitives: packages/ui/src/components
+    tokens: packages/ui/src/styles/tokens.css
+    sourceLock: packages/ui/ui-source-lock.yaml
+    designContract: packages/ui/DESIGN.md
+    publicExports:
+    - '@shop/ui/floorplans'
+selectedExtensions: []
 ```
 
-The other three presets differ only in shape, stacks, frontends, and the shared package. `dotnet-svelte` selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`. `blazor-client` selects shape `client-only`, stack `blazor`, and one `blazor` frontend `app` at `apps/app`, with no `uiPackage` and no `uiPatterns`. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `uiPackage` and no `uiPatterns`. The [init](../tools/init.md) page states all five presets. The records preset selects shape `server`, conformance `records`, and no stacks or frontends.
+The other three presets differ only in shape, stacks, frontends, and the shared package. `dotnet-svelte` selects shape `server`, stacks `dotnet` and `svelte`, and one `svelte` frontend `web` at `apps/web`. `blazor-client` selects shape `client-only`, stack `blazor`, and one `blazor` frontend `app` at `apps/app`, with no `ui` and no `uiPatterns`. `android-client` selects shape `client-only`, stack `android`, and one `android` frontend `android` at `apps/mobile/src/{ProjectName}.Android`, with no `ui` and no `uiPatterns`. The [init](../tools/init.md) page states all five presets. The records preset selects shape `server`, the `intent` and `behavior` layers, and no stacks or frontends.
 
 ### Validation Errors
 
@@ -322,20 +314,20 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 
 | Mistake | Message |
 |:---|:---|
-| A placeholder is left in the file | `.litespec/project.json: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| The installed release and the reviewed release differ | `.litespec/project.json: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 4.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record 4.1.0` |
-| The reviewed release is missing | `.litespec/project.json: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.1.0` |
-| A stack id is unknown | `.litespec/project.json: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A client-only project names a backend stack | `.litespec/project.json: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A server names zero or two backend stacks | `.litespec/project.json: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| An extension id is unknown | `.litespec/project.json: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, bdd, cache, compat, concurrency, customer-rules, delivery, devices, integrations, jobs, layer-projects, lifecycle, locale, mcp, outbox, plans, realtime, stage, tenancy` |
-| A frontend declares no platform | `.litespec/project.json: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A frontend names a stack the project does not select | `.litespec/project.json: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| A controlled frontend has no shared package | `.litespec/project.json: 1 controlled frontend(s) and no 'paths.uiPackage'; the shared UI package every controlled web frontend composes is undeclared` |
-| A configured path does not exist | `.litespec/project.json: paths.docs 'docs' does not exist; the page scan finds no record to check` |
+| A placeholder is left in the file | `.litespec/project.yaml: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| The installed release and the reviewed release differ | `.litespec/project.yaml: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 4.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record 4.1.0` |
+| The reviewed release is missing | `.litespec/project.yaml: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 4.1.0` |
+| A stack id is unknown | `.litespec/project.yaml: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A client-only project names a backend stack | `.litespec/project.yaml: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A server names zero or two backend stacks | `.litespec/project.yaml: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| An extension id is unknown | `.litespec/project.yaml: extensions 'search' is not an extension in the pinned LiteSpec release; known ids are ai, audit, bdd, cache, compat, concurrency, customer-rules, delivery, devices, integrations, jobs, layer-projects, lifecycle, locale, mcp, outbox, plans, realtime, stage, tenancy` |
+| A frontend declares no platform | `.litespec/project.yaml: frontend 'web' declares no 'platform'; one of android, blazor, react, svelte is required [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A frontend names a stack the project does not select | `.litespec/project.yaml: frontend 'web' platform 'react' is not a stack the project names in stacks [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
+| A controlled frontend has no shared package | `.litespec/project.yaml: 1 controlled frontend(s) and no 'ui.package'; the shared UI package every controlled web frontend composes is undeclared` |
+| A configured path does not exist | `.litespec/project.yaml: paths.docs 'docs' does not exist; the page scan finds no record to check` |
 
-The last row stands for every configured path: the message names the field, the missing path, and the check that goes quiet. The docs root, the glossary, each frontend directory, each `uiPackage` file, and each frontend stylesheet follow this shape.
+The last row stands for every configured path: the message names the field, the missing path, and the check that goes quiet. The docs root, the glossary, each frontend directory, each `ui.package` file, and each frontend stylesheet follow this shape.
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.json` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.json`, `templates/presets/dotnet-svelte.json`, `templates/presets/blazor-client.json`, and `templates/presets/android-client.json`, read with `templates/consumer/project.json`. Example sections stay within 120 words; the project file carries no setting for the bound.
+The field lists follow `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, and `templates/presets/android-client.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words; the project file carries no setting for the bound.

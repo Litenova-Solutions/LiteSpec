@@ -2,7 +2,7 @@
 
 ## Intent
 
-`litespec.manifest.json` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release's real values, states what each field drives, and shows how to add a stack or an extension.
+`litespec.manifest.yaml` is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release's real values, states what each field drives, and shows how to add a stack or an extension.
 
 ## Reference
 
@@ -12,8 +12,8 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 
 | Item | Value |
 |:---|:---|
-| Path | `litespec.manifest.json` at the repository root |
-| Schema | `schemas/litespec-manifest.schema.json` |
+| Path | `litespec.manifest.yaml` at the repository root |
+| Schema | `schemas/litespec-manifest.schema.yaml` |
 | Current version | `4.1.0` |
 | Schema version | `5` |
 
@@ -40,7 +40,7 @@ What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
 - `schemaVersion` is the constant `5`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"4.1.0"`. `litespec init` stamps it into a new `.litespec/project.json` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
+- `version` is the release version, currently `"4.1.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -193,4 +193,4 @@ An extension is added in three steps:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.json` and the values follow `litespec.manifest.json` at version `4.1.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.
+The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `4.1.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.

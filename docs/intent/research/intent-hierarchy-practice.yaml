@@ -41,7 +41,7 @@ sources:
   - path: docs/core/model.md
     readOn: 2026-10-31
     key: model
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
 question: How should Intent group its requirements and name their reasons, and what do outside tools and the largest consumer show?

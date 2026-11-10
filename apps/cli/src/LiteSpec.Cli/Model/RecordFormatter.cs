@@ -72,6 +72,10 @@ static class RecordFormatter
             files.Add(config.GlossaryPath);
         }
 
+        // The project file and the UI pattern catalog are YAML under the record root, but hold no record.
+        files.RemoveAll(file => file.Equals(ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase)
+            || file.Equals(config.UiPatternCatalog, StringComparison.OrdinalIgnoreCase));
+
         return files;
     }
 }

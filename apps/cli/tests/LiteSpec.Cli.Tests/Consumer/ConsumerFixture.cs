@@ -296,7 +296,7 @@ static class ConsumerFixture
 
     static ManifestInfo ReadManifest()
     {
-        var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(Cli.Repository, "litespec.manifest.json")))!;
+        var manifest = (JsonObject)DataFile.Read(Path.Combine(Cli.Repository, "litespec.manifest.yaml"))!;
         var version = (string?)manifest["version"] ?? throw new InvalidOperationException("The manifest names no version.");
         var known = manifest["extensions"] is JsonObject extensions && extensions.Count > 0
             ? extensions.Select(pair => pair.Key).First()
@@ -319,7 +319,17 @@ static class ConsumerFixture
     /// <param name="body">The document body text after the frontmatter.</param>
     /// <returns>The complete document text.</returns>
     public static string Page(JsonNode meta, string body) =>
-        $"---\n{YamlWriter.Write(JsonText.Parse(meta.ToJsonString()))}---\n{body}";
+        $"---\n{YamlWriter.Write(DataFile.TextOf(meta))}---\n{body}";
+
+    /// <summary>The layer claims a conformance level reads as: records, traced or full.</summary>
+    /// <param name="level">The level name.</param>
+    /// <returns>The layers object of a project file.</returns>
+    public static JsonObject Layers(string level) => level switch
+    {
+        "records" => new JsonObject { ["intent"] = "litespec", ["behavior"] = "litespec" },
+        "traced" => new JsonObject { ["intent"] = "litespec", ["behavior"] = "litespec", ["implementation"] = "own", ["proof"] = "own" },
+        _ => new JsonObject { ["intent"] = "litespec", ["behavior"] = "litespec", ["implementation"] = "litespec", ["proof"] = "litespec" },
+    };
 
     /// <summary>Builds a fresh fixture consumer in its own temporary folder.</summary>
     /// <returns>The temporary folder holding the fixture consumer.</returns>
@@ -330,20 +340,27 @@ static class ConsumerFixture
         // so the controlled UI validator stays out of these cases.
         var project = new JsonObject
         {
+            ["schemaVersion"] = 1,
             ["project"] = new JsonObject { ["name"] = "fixture" },
             ["size"] = "small",
             ["stacks"] = new JsonArray("dotnet"),
-            ["conformance"] = "full",
+            ["layers"] = new JsonObject
+            {
+                ["intent"] = "litespec",
+                ["behavior"] = "litespec",
+                ["implementation"] = "litespec",
+                ["proof"] = "litespec",
+            },
             ["reviewedLiteSpecVersion"] = ManifestVersion,
             ["paths"] = new JsonObject
             {
                 ["docs"] = ".litespec",
                 ["behaviorDocs"] = ".litespec/behavior",
-                ["frontends"] = new JsonArray(),
             },
+            ["frontends"] = new JsonArray(),
             ["selectedExtensions"] = new JsonArray(),
         };
-        WriteFile(folder.Path, ".litespec/project.json", $"{Stringify(project)}\n");
+        WriteFile(folder.Path, ".litespec/project.yaml", $"{Stringify(project)}\n");
         foreach (var record in Records)
         {
             TestRecords.Write(folder.Path, record.Relative, record.Fields);
@@ -373,8 +390,8 @@ static class ConsumerFixture
     {
         var home = Cli.Temp("consumer-home");
         File.Copy(
-            Path.Combine(Cli.Repository, "litespec.manifest.json"),
-            Path.Combine(home.Path, "litespec.manifest.json"));
+            Path.Combine(Cli.Repository, "litespec.manifest.yaml"),
+            Path.Combine(home.Path, "litespec.manifest.yaml"));
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
         foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
@@ -384,9 +401,9 @@ static class ConsumerFixture
 
         if (mutateManifest is not null)
         {
-            var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(home.Path, "litespec.manifest.json")))!;
+            var manifest = (JsonObject)DataFile.Read(Path.Combine(home.Path, "litespec.manifest.yaml"))!;
             mutateManifest(manifest);
-            File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), $"{Stringify(manifest)}\n");
+            File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), $"{Stringify(manifest)}\n");
         }
 
         return home;
@@ -427,14 +444,14 @@ static class ConsumerFixture
     public static void MutateYaml(string root, string relative, Action<JsonObject> mutate) =>
         MutateMeta(root, relative, mutate);
 
-    /// <summary>Mutates <c>.litespec/project.json</c>.</summary>
+    /// <summary>Mutates <c>.litespec/project.yaml</c>.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <param name="mutate">The change to apply to the project object.</param>
     public static void MutateProject(string root, Action<JsonObject> mutate)
     {
-        var project = (JsonObject)JsonNode.Parse(ReadFile(root, ".litespec/project.json"))!;
+        var project = (JsonObject)JsonNode.Parse(ReadFile(root, ".litespec/project.yaml"))!;
         mutate(project);
-        WriteFile(root, ".litespec/project.json", $"{Stringify(project)}\n");
+        WriteFile(root, ".litespec/project.yaml", $"{Stringify(project)}\n");
     }
 
     /// <summary>Rewrites one file's text through a transform.</summary>

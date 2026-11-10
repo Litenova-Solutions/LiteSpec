@@ -104,8 +104,9 @@ public sealed partial class UiValidatorTests
     public void A_Declared_Pattern_Catalog_That_Is_Missing()
     {
         using var fixture = UiFixture.Create();
+        fixture.MutateProject(project => ((JsonObject)project["paths"]!)["uiPatterns"] = ".litespec/implementation/patterns/catalog.yaml");
         File.Delete(fixture.CatalogFile);
-        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/implementation/patterns/catalog.json'");
+        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/implementation/patterns/catalog.yaml'");
     }
 
     /// <summary>A Catalog That Breaks The Schema.</summary>

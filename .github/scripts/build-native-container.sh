@@ -13,11 +13,10 @@ rid="$1"
 
 . "$(dirname "$0")/lib.sh"
 
-# jq reads the manifest version in build-native.sh.
 if command -v dnf >/dev/null 2>&1; then
-  retry dnf install -y -q bash clang zlib-devel libicu krb5-libs openssl-libs findutils tar gzip which jq >/dev/null
+  retry dnf install -y -q bash clang zlib-devel libicu krb5-libs openssl-libs findutils tar gzip which >/dev/null
 elif command -v apk >/dev/null 2>&1; then
-  retry apk add --no-cache -q bash clang build-base zlib-dev icu-libs krb5-libs libgcc libstdc++ curl tar jq >/dev/null
+  retry apk add --no-cache -q bash clang build-base zlib-dev icu-libs krb5-libs libgcc libstdc++ curl tar >/dev/null
 else
   echo "build-native-container.sh supports AlmaLinux and Alpine build images." >&2
   exit 2

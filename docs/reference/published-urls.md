@@ -6,7 +6,7 @@ An agent (software that reads task context, changes files, and runs checks) wire
 
 ## Reference
 
-The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `4.1.0`, taken from the `version` field of `litespec.manifest.json`, and every release path below starts with that version. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
+The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `4.1.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with that version. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
 
 ### Page URLs
 
@@ -71,9 +71,9 @@ The layers a selection applies, without extensions and pattern groups and in rea
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/4.1.0/schemas/<file>` | `https://litespec.dev/4.1.0/schemas/record.schema.json` | The schema as JSON |
+| `https://litespec.dev/4.1.0/schemas/<file>` | `https://litespec.dev/4.1.0/schemas/record.schema.yaml` | The schema as YAML |
 
-The seven files are the ones the [Schemas](schemas.md) page lists. Each answers with `Content-Type: application/json`. Each schema `$id` equals its published URL.
+The eight files are the ones the [Formats](formats.md) page lists. Each answers with `Content-Type: application/yaml`. Each schema `$id` equals its published URL.
 
 ### Latest Redirect
 

@@ -1,0 +1,8 @@
+shape: client-only
+stacks:
+- android
+frontends:
+- name: android
+  path: apps/mobile/src/__PROJECT__.Android
+  platform: android
+paths: {}

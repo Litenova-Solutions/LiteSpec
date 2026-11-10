@@ -6,7 +6,7 @@ Before a task, read https://litespec.dev/__LITESPEC_VERSION__/select/__SELECTION
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 
-Read `.litespec/project.json` before changing the project. (litespec/core/agent#select-task-context)
+Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#select-task-context)
 
 Run `__LITESPEC_COMMAND__ rules <path>` before editing a file. (litespec/core/agent#select-task-context)
 
@@ -39,7 +39,7 @@ dotnet build <api-solution> --configuration Release
 dotnet test <api-solution> --configuration Release --no-build
 ```
 
-Run the root pnpm gates for every changed frontend in `.litespec/project.json`. (litespec/core/release#run-boundary-selected-checks)
+Run the root pnpm gates for every changed frontend in `.litespec/project.yaml`. (litespec/core/release#run-boundary-selected-checks)
 
 Run metadata and model checks for each changed record, source, or test. Query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/authoring#declare-structured-specification-metadata)
 

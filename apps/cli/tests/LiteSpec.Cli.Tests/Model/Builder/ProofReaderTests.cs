@@ -180,8 +180,8 @@ public sealed class ProofReaderTests
 
     static void WriteRefusals(string root, string statuses)
     {
-        var path = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        var path = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(path)!.AsObject();
         project["refusals"] = JsonNode.Parse($$"""
             {
               "forbidden": "authorization.forbidden",

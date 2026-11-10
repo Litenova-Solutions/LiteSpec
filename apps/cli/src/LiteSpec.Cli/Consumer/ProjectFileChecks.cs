@@ -24,7 +24,7 @@ static class ProjectFileChecks
         // The project record is validated through the shared schema module, so the
         // schema is the one statement of its shape. A hand table beside it would need
         // the same edit twice and drift on the third.
-        run.Schema("project-invalid", projectFile, ".litespec/project.json", JsonSchema.Problems(run.ProjectSchemaFile, run.Project, ".litespec/project.json", run.ReadSchema));
+        run.Schema("project-invalid", projectFile, ConsumerRoot.ProjectFileDisplay, JsonSchema.Problems(run.ProjectSchemaFile, run.Project, ConsumerRoot.ProjectFileDisplay, run.ReadSchema));
 
         // A placeholder left from the template, such as __PROJECT__, reads as a real value to
         // every later check, so the run names each one instead of passing over it.

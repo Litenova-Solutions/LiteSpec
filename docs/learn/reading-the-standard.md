@@ -2,11 +2,11 @@
 
 ## Intent
 
-A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file `.litespec/project.json`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.
+A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.
 
 ## A Project's Selection
 
-Your project does not adopt all of LiteSpec. It makes four choices in `.litespec/project.json`, and those choices decide which pages apply:
+Your project does not adopt all of LiteSpec. It makes four choices in `.litespec/project.yaml`, and those choices decide which pages apply:
 
 | Choice | Options | What it changes |
 |:---|:---|:---|
@@ -17,15 +17,15 @@ Your project does not adopt all of LiteSpec. It makes four choices in `.litespec
 
 `litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/4.1.0/select/) on the site does the same in a form and shows which pages apply.
 
-The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.json`:
+The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.yaml`:
 
-```json
-{
-  "size": "large",
-  "shape": "server",
-  "stacks": ["dotnet", "svelte"],
-  "selectedExtensions": []
-}
+```yaml
+size: large
+shape: server
+stacks:
+- dotnet
+- svelte
+selectedExtensions: []
 ```
 
 Read it as four answers: size large, shape server, the dotnet and svelte stacks, and no extensions. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.

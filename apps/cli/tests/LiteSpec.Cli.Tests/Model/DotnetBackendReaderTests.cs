@@ -232,7 +232,7 @@ public sealed class DotnetBackendReaderTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "domain": "src/Domain",
@@ -565,9 +565,9 @@ public sealed class DotnetBackendReaderTests
 
     static void WriteTracedProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
-            {"stacks": ["dotnet"], "conformance": "traced", "stackConfig": {"dotnet": {
+            {"stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "own", "proof": "own"}, "stackConfig": {"dotnet": {
               "modules": "src/App", "domain": "src/Domain",
               "webapi": "src/WebApi", "infrastructure": "src/Infrastructure"}}}
             """);

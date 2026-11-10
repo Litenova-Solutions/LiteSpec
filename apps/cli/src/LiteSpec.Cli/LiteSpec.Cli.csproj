@@ -7,7 +7,7 @@
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>litespec</ToolCommandName>
         <PackageId>LiteSpec.Cli</PackageId>
-        <!-- The package version is the release version: keep it equal to version in litespec.manifest.json. -->
+        <!-- The package version is the release version: keep it equal to version in litespec.manifest.yaml. -->
         <Version>4.1.0</Version>
         <Description>The LiteSpec command line: consumer and UI validation, the project model, and the project book. The package carries the LiteSpec release it checks against.</Description>
         <Authors>Litenova Solutions</Authors>
@@ -104,7 +104,7 @@
         LiteSpecHome walks up to the repository root instead.
     -->
     <ItemGroup>
-        <Content Include="../../../../litespec.manifest.json" Link="litespec.manifest.json" CopyToPublishDirectory="PreserveNewest" Pack="false" />
+        <Content Include="../../../../litespec.manifest.yaml" Link="litespec.manifest.yaml" CopyToPublishDirectory="PreserveNewest" Pack="false" />
         <Content Include="../../../../schemas/**" Link="schemas/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
         <Content Include="../../../../docs/**" Link="docs/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />
         <Content Include="../../../../templates/**" Link="templates/%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" Pack="false" />

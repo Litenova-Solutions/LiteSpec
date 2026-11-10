@@ -107,7 +107,7 @@ public sealed class RepositoryCheckTests
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "api", "src", "Library.Infrastructure"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "infrastructure": "apps/api/src/Library.Infrastructure"}}}
@@ -116,7 +116,7 @@ public sealed class RepositoryCheckTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "domain": "src/Domain",

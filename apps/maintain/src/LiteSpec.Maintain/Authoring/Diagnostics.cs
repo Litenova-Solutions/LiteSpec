@@ -47,8 +47,8 @@ internal static class Diagnostics
         Codes.ManifestAnalyzerRule,
         Codes.ManifestAnchor,
         Codes.ManifestDuplicatePath,
-        Codes.ManifestJson,
         Codes.ManifestPath,
+        Codes.ManifestYaml,
         Codes.MarkMissing,
         Codes.MarkUnresolved,
         Codes.PageEmptySection,
@@ -74,8 +74,8 @@ internal static class Diagnostics
         Codes.ReferenceExampleDeclaration,
         Codes.SchemaId,
         Codes.SchemaInvalid,
-        Codes.SchemaJson,
         Codes.SchemaUnsupportedKeyword,
+        Codes.SchemaYaml,
         Codes.StandardDeviationNormative,
         Codes.StandardDeviationSentence,
         Codes.StandardExampleLabel,
@@ -229,8 +229,8 @@ internal static class Diagnostics
         /// <summary>A duplicate path in the manifest.</summary>
         public const string ManifestDuplicatePath = "MANIFEST_DUPLICATE_PATH";
 
-        /// <summary>A manifest that cannot be parsed as JSON.</summary>
-        public const string ManifestJson = "MANIFEST_JSON";
+        /// <summary>A manifest that cannot be parsed as YAML.</summary>
+        public const string ManifestYaml = "MANIFEST_YAML";
 
         /// <summary>A manifest path that does not exist.</summary>
         public const string ManifestPath = "MANIFEST_PATH";
@@ -310,8 +310,8 @@ internal static class Diagnostics
         /// <summary>A value that does not satisfy its schema.</summary>
         public const string SchemaInvalid = "SCHEMA_INVALID";
 
-        /// <summary>A schema that cannot be parsed as JSON.</summary>
-        public const string SchemaJson = "SCHEMA_JSON";
+        /// <summary>A schema that cannot be parsed as YAML.</summary>
+        public const string SchemaYaml = "SCHEMA_YAML";
 
         /// <summary>A JSON Schema keyword the evaluator does not implement.</summary>
         public const string SchemaUnsupportedKeyword = "SCHEMA_UNSUPPORTED_KEYWORD";

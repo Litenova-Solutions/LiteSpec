@@ -32,7 +32,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Applies to:** artifact: any
 
-**Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.json`.
+**Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.yaml`.
 
 **Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
 

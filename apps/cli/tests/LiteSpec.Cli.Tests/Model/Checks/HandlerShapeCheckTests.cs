@@ -72,7 +72,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"sharedKernel": "src/App.SharedKernel"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(

@@ -5,7 +5,7 @@
 
 ## Intent
 
-A backend built on .NET declares the `dotnet` stack in `.litespec/project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
+A backend built on .NET declares the `dotnet` stack in `.litespec/project.yaml`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
 
 ## Concepts
 
@@ -21,11 +21,11 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Strength:** rule
 
-**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.json`.
+**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.yaml`.
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
 
-**Reviewed for:** Does the `stacks` array in `.litespec/project.json` list `dotnet` when the backend runs on .NET? Look at `.litespec/project.json`.
+**Reviewed for:** Does the `stacks` array in `.litespec/project.yaml` list `dotnet` when the backend runs on .NET? Look at `.litespec/project.yaml`.
 
 ### Read .NET Code Through the Stack Reader
 
@@ -49,7 +49,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Statement:** The .NET stack reader MUST read every project that `stackConfig.dotnet.webapi` and `stackConfig.dotnet.worker` name, whether each field holds one glob string or a list of glob strings.
 
-**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root: it names its surface under `paths.surfaces` instead.
+**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root.
 
 **Example:** Claimwick serves member requests from one web host and partner requests from a second web host, so `webapi` lists both host projects and the reader reads the endpoints of each.
 
@@ -173,7 +173,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes. A JUnit `testcase` proves a Behavior scenario without a `proves` mark by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value; the case proves each id it names with the same rules as a `proves` mark on a test method.
 
-**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.json`.
+**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.yaml`.
 
 ## Conventions
 

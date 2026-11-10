@@ -108,9 +108,9 @@ sealed class ConsumerRun
     public void Execute()
     {
         StandardsRoot = LiteSpecHome.RequireRoot();
-        ProjectSchemaFile = LiteSpecHome.PathTo("schemas/litespec-project.schema.json");
-        RecordSchemaFile = LiteSpecHome.PathTo("schemas/record.schema.json");
-        GlossarySchemaFile = LiteSpecHome.PathTo("schemas/glossary.schema.json");
+        ProjectSchemaFile = LiteSpecHome.PathTo("schemas/litespec-project.schema.yaml");
+        RecordSchemaFile = LiteSpecHome.PathTo("schemas/record.schema.yaml");
+        GlossarySchemaFile = LiteSpecHome.PathTo("schemas/glossary.schema.yaml");
 
         foreach (var schemaFile in new[] { ProjectSchemaFile, RecordSchemaFile, GlossarySchemaFile })
         {
@@ -130,9 +130,9 @@ sealed class ConsumerRun
 
         try
         {
-            Project = ReadJson(projectFile);
+            Project = ReadData(projectFile);
         }
-        catch (JsonException cause)
+        catch (JsonTextException cause)
         {
             FailInput(ConsumerRoot.InvalidProjectMessage(cause.Message));
         }
@@ -266,40 +266,35 @@ sealed class ConsumerRun
     }
 
     /// <summary>
-    ///     Reads and parses a JSON file through the text cache.
+    ///     Reads and parses a data file, YAML or JSON, through the text cache.
     /// </summary>
     /// <param name="file">The file to read.</param>
-    /// <returns>The parsed JSON value.</returns>
-    public JsonNode? ReadJson(string file) => JsonNode.Parse(ReadText(file));
-
-    /// <summary>The release manifest file name, in the pinned LiteSpec release folder.</summary>
-    public const string ManifestFileName = "litespec.manifest.json";
+    /// <returns>The parsed value.</returns>
+    public JsonNode? ReadData(string file) => DataFile.Parse(ReadText(file), DataFile.IsYaml(file));
 
     /// <summary>
     ///     Reads the pinned release manifest. A release that ships no manifest reads as null,
-    ///     and a manifest that is not valid JSON ends the pass with the carried exit code.
+    ///     and a manifest that is not valid YAML or JSON ends the pass with the carried exit code.
     /// </summary>
     /// <returns>The parsed manifest, or null when the release ships none.</returns>
-    public JsonNode? ReadManifest()
+    public JsonObject? ReadManifest()
     {
-        var file = Path.Join(StandardsRoot, ManifestFileName);
-
-        if (!File.Exists(file))
+        if (!File.Exists(Path.Join(StandardsRoot, LiteSpecHome.ManifestFile)))
         {
             return null;
         }
 
         try
         {
-            return ReadJson(file);
+            return LiteSpecHome.ReadManifest(StandardsRoot);
         }
-        catch (JsonException cause)
+        catch (JsonTextException)
         {
-            FailInput($"{ManifestFileName}: not valid JSON ({cause.Message})");
+            // A manifest that is not a mapping is reported by the model build as reader-missing.
         }
         catch (Exception cause) when (cause is IOException or UnauthorizedAccessException)
         {
-            FailInput($"Cannot read {ManifestFileName}: {cause.Message}");
+            FailInput($"Cannot read {LiteSpecHome.ManifestFile}: {cause.Message}");
         }
 
         return null;
@@ -322,7 +317,7 @@ sealed class ConsumerRun
             }
         }
 
-        var schema = JsonNode.Parse(File.ReadAllText(file));
+        var schema = DataFile.Read(file);
 
         lock (SchemaLock)
         {

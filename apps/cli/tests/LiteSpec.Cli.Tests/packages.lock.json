@@ -181,6 +181,7 @@
       "litespec.shared": {
         "type": "Project",
         "dependencies": {
+          "LiteSpec.Model.Core": "[1.0.0, )",
           "Markdig": "[1.4.0, )"
         }
       },

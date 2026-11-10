@@ -68,6 +68,6 @@ body:
     attributes:
       label: Release
       description: The LiteSpec release this was raised against.
-      placeholder: The version in litespec.manifest.json
+      placeholder: The version in litespec.manifest.yaml
     validations:
       required: true

@@ -30,6 +30,10 @@ static class RecordReader
         files.RemoveAll(file => IsGeneratedOutput(config, file));
         files.RemoveAll(file => file.Equals(config.GlossaryPath, StringComparison.OrdinalIgnoreCase));
 
+        // The project file and the UI pattern catalog are YAML under the record root, but hold no record.
+        files.RemoveAll(file => file.Equals(ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase)
+            || file.Equals(config.UiPatternCatalog, StringComparison.OrdinalIgnoreCase));
+
         var records = new List<Record>();
         var bodies = new List<PageBody>();
         var problems = new List<Finding>();

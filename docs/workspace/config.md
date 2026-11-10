@@ -15,7 +15,7 @@ A backend section binds to a named settings type: one class that names each fiel
 
 ### Pins and Repeatability
 
-A repeatable build resolves the same versions on every machine. The manifest, `litespec.manifest.json`, pins the baseline stack, one root lockfile pins the JavaScript graph, and the toolchain pins name the package manager and Node.js releases. With every version pinned in one owned place, two checkouts of the same commit build the same result.
+A repeatable build resolves the same versions on every machine. The manifest, `litespec.manifest.yaml`, pins the baseline stack, one root lockfile pins the JavaScript graph, and the toolchain pins name the package manager and Node.js releases. With every version pinned in one owned place, two checkouts of the same commit build the same result.
 
 ## Standards
 

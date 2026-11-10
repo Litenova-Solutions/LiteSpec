@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
 using LiteSpec.Model;
+using LiteSpec.Ui;
 using LiteSpec.Schemas;
 
 namespace LiteSpec.Consumer;
@@ -57,7 +58,14 @@ static class PageChecks
     /// <param name="run">The state of the run.</param>
     public static void CollectFiles(ConsumerRun run)
     {
-        run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, run.GlossaryFile));
+        var notPages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            run.GlossaryFile,
+            ConsumerRoot.ProjectFile(run.Root),
+            Path.GetFullPath(Path.Join(run.Root, JsonValues.PropString(run.Project?["paths"] as JsonObject, "uiPatterns") ?? CatalogChecks.DefaultCatalog)),
+        };
+
+        run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, notPages));
     }
 
     /// <summary>

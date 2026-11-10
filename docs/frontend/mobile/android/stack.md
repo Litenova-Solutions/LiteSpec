@@ -5,7 +5,7 @@
 
 ## Intent
 
-The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md). Exact .NET and Android API versions live only in `litespec.manifest.json`.
+The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, `client-only` or `server`, declared in [Supported Scope](../../../core/scope.md). Exact .NET and Android API versions live only in `litespec.manifest.yaml`.
 
 ## Concepts
 
@@ -15,7 +15,7 @@ The stack is one native Android application: a .NET for Android project holding 
 
 ### Version Pins
 
-`litespec.manifest.json` pins the .NET version under `stack.dotnet` and the Android API level under `stack.android`, with every AndroidX and Google binding package version under `packages.nuget`. These keys name the pins; the manifest holds the values.
+`litespec.manifest.yaml` pins the .NET version under `stack.dotnet` and the Android API level under `stack.android`, with every AndroidX and Google binding package version under `packages.nuget`. These keys name the pins; the manifest holds the values.
 
 ## Standards
 

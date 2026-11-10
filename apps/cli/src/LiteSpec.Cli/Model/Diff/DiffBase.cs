@@ -53,7 +53,7 @@ sealed class DiffBase : IDisposable
     }
 
     /// <summary>
-    ///     Loads the base: a consumer folder holding <c>.litespec/project.json</c>, or a
+    ///     Loads the base: a consumer folder holding <c>.litespec/project.yaml</c>, or a
     ///     git revision of the consumer, read through an archive into a temporary folder.
     /// </summary>
     /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
@@ -67,7 +67,7 @@ sealed class DiffBase : IDisposable
 
             if (!File.Exists(project))
             {
-                throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
+                throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.yaml.");
             }
 
             return new DiffBase(
@@ -164,7 +164,7 @@ sealed class DiffBase : IDisposable
         if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
             Directory.Delete(temp, recursive: true);
-            throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
+            throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.yaml.");
         }
 
         return new DiffBase(ModelBuilder.Build(ConsumerConfig.Load(root)), baseArg, temp);

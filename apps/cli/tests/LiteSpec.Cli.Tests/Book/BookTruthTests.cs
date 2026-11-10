@@ -136,7 +136,7 @@ public sealed class BookTruthTests
 
     static JsonObject WriteReviewModel(Action<JsonObject> mutate)
     {
-        var root = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/review.json")))!;
+        var root = (JsonObject)DataFile.Read(Cli.Fixture("Book/review.json"))!;
         mutate(root);
         return root;
     }

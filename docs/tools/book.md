@@ -14,7 +14,7 @@ litespec book [--root <folder>] [--out <folder>] [--editor <template>]
 
 The book is the model made readable: every record with its completion, its proof and its links, in one static site that opens without a server. Each record page leads with computed completion: whether the record has code, whether it has tests, and how many of its scenarios pass. The navigation offers two views: the Outline, which follows the record layers, and the Security view, which lists cross-tenant access, outside calls and personal or sensitive data.
 
-The book follows the conformance level the project claims in `.litespec/project.json`. At `records` it shows the Intent, Behavior and governance records and leaves out code, proof and level S findings: no implementing code, no tests, no proof state and no test run. At `traced` it adds code and proof status. At `full` it shows everything.
+The book follows the conformance level the project claims in `.litespec/project.yaml`. At `records` it shows the Intent, Behavior and governance records and leaves out code, proof and level S findings: no implementing code, no tests, no proof state and no test run. At `traced` it adds code and proof status. At `full` it shows everything.
 
 At every level the book shows Intent coverage first on the Intent part: a computed status that states, for each requirement and each journey step, whether some Behavior record reaches it, and the share reached. A requirement is reached when a Behavior record names it in `fulfills`. A journey step is reached when a Behavior record names it in `serves`. The manifest carries the counts, the share and one entry per requirement and journey step with the records that reach it.
 

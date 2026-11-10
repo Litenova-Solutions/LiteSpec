@@ -231,7 +231,7 @@ public sealed class BookCommandTests
         var plain = Path.Combine(temp.Path, "plain");
         Directory.CreateDirectory(Path.Combine(plain, "shots"));
         File.WriteAllBytes(Path.Combine(plain, "shots", "home.png"), [137, 80, 78, 71]);
-        var model = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/model.json")))!;
+        var model = (JsonObject)DataFile.Read(Cli.Fixture("Book/model.json"))!;
         var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -273,7 +273,7 @@ public sealed class BookCommandTests
         manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
         var found = manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>();
         Assert.Equal(Path.GetFileName(Path.GetFullPath(consumer.Path)), Path.GetFileName(found));
-        Assert.True(File.Exists(Path.Combine(found, ".litespec", "project.json")), $"The reported root '{found}' holds no project file.");
+        Assert.True(File.Exists(Path.Combine(found, ".litespec", "project.yaml")), $"The reported root '{found}' holds no project file.");
     }
 
     /// <summary>A root without a project file exits 2 and names the missing file, the usage error for a root that is not a consumer.</summary>
@@ -284,7 +284,7 @@ public sealed class BookCommandTests
         using var temp = Cli.Temp("book");
         var result = Cli.Run("book", "--root", temp.Path);
         Assert.Equal(2, result.Status);
-        Assert.Contains(".litespec/project.json", result.Output);
+        Assert.Contains(".litespec/project.yaml", result.Output);
     }
 
     /// <summary>An unwritable output exits 1 and names the output folder.</summary>
@@ -309,7 +309,7 @@ public sealed class BookCommandTests
         using var consumer = ModelFixture.Prepare("small");
         using var temp = Cli.Temp("book");
         using var home = Cli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"4.1.0"}""");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"4.1.0"}""");
         var result = Cli.Run(
             ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });

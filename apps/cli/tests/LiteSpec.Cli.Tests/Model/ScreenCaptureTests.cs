@@ -32,14 +32,14 @@ public sealed class ScreenCaptureTests
         File.SetLastWriteTimeUtc(capture, new DateTime(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc));
         File.WriteAllText(Path.Combine(temp.Path, "other--dark--390.png"), "png");
 
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """
             {
               "project": { "name": "library" },
               "size": "small",
               "shape": "server",
               "packs": ["lite"],
               "stacks": ["dotnet"],
-              "conformance": "full",
+              "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
               "reviewedLiteSpecVersion": "4.1.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }

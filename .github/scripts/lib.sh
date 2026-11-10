@@ -19,10 +19,14 @@ retry() {
   return 1
 }
 
-# Prints the version the manifest names. jq is on the runners and installed in every build image.
+# Prints the version the manifest names. The manifest is YAML whose top-level version is one plain
+# scalar line. The build, smoke and distribution containers carry no Node, so the line is read here.
 #   manifest_version <manifest-file>
 manifest_version() {
-  jq -r .version "$1"
+  sed -n -E "s/^version: *['\"]?([^'\" ]+)['\"]? *\$/\1/p" "$1" | head -n 1 | grep . || {
+    echo "$1 names no version." >&2
+    return 1
+  }
 }
 
 # Prints the SHA-256 command the host has: sha256sum where it exists, shasum -a 256 on macOS.

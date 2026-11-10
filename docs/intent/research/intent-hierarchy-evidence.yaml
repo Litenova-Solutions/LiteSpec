@@ -11,7 +11,7 @@ sources:
   - path: docs/tools/model.md
     readOn: 2026-10-30
     key: model-2
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
 question: Which Intent links does LiteSpec require and check, and what does the largest consumer show while they stay optional?

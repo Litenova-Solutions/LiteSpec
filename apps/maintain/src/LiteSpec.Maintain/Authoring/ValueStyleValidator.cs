@@ -49,13 +49,13 @@ internal sealed partial class ValueStyleValidator
         if (Directory.Exists(examples))
         {
             files.AddRange(Walk(examples, file => file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
-                && Slash(file).Contains("/docs/", StringComparison.Ordinal)));
+                && FileText.Slash(file).Contains("/docs/", StringComparison.Ordinal)));
         }
 
         foreach (var file in files)
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
-            if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out _))
+            var relative = PathText.Relative(root, file);
+            if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var record, out _))
             {
                 continue;
             }

@@ -9,7 +9,7 @@ namespace LiteSpec.Analyzers.Tests.Support;
 internal static class TraceabilityFixtures
 {
     /// <summary>The project file path every fixture uses.</summary>
-    public const string ProjectPath = "/repo/.litespec/project.json";
+    public const string ProjectPath = "/repo/.litespec/project.yaml";
 
     /// <summary>The docs root every record page lives under.</summary>
     public const string DocsRoot = "/repo/.litespec";
@@ -19,11 +19,12 @@ internal static class TraceabilityFixtures
     /// <returns>The path and source text of the additional file.</returns>
     public static (string Path, string Source) ProjectFile(string marks = "xml") =>
         (ProjectPath, $$"""
-            {
-              "project": "Claimwick",
-              "marks": "{{marks}}",
-              "paths": { "docs": ".litespec" }
-            }
+            schemaVersion: 1
+            project:
+              name: Claimwick
+            marks: {{marks}}
+            paths:
+              docs: .litespec
             """);
 
     /// <summary>A use-case page with its raises list.</summary>

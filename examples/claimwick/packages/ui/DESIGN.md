@@ -1,9 +1,7 @@
 ---
-kind: design-contract
-schemaVersion: 1
+schemaVersion: 2
 package: "@claimwick/ui"
 profile: application-balanced
-shell: application-shell/default
 patterns:
   - list-page
   - entity-page

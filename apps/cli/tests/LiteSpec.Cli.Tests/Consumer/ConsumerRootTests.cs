@@ -18,7 +18,7 @@ public sealed class ConsumerRootTests
         var result = Cli.Run("new", "decision", "hold-notices", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(folder.Path, ".litespec")));
     }
 
@@ -32,7 +32,7 @@ public sealed class ConsumerRootTests
         var result = Cli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", folder.Path);
 
         Assert.Equal(2, result.Status);
-        Assert.Contains("holds no .litespec/project.json", result.Stderr, StringComparison.Ordinal);
+        Assert.Contains("holds no .litespec/project.yaml", result.Stderr, StringComparison.Ordinal);
     }
 
     /// <summary>Init writes into the folder it names, even when a folder above it is a consumer.</summary>
@@ -47,6 +47,6 @@ public sealed class ConsumerRootTests
         var result = Cli.Run("init", "--preset", "records", "--size", "small", "--root", nested);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(nested, ".litespec", "project.json")));
+        Assert.True(File.Exists(Path.Combine(nested, ".litespec", "project.yaml")));
     }
 }

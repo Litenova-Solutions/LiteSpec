@@ -365,7 +365,7 @@ The tools recognize code elements through the semantic model and then expect the
 
 Seven provisions divide the marks between them: `litespec/core/system#point-code-and-tests-up-to-records` requires the mark, `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice` covers technical classes, `litespec/core/model#declare-one-mark-style` fixes the style, `litespec/core/model#match-each-backend-mark-to-its-folder` matches each backend mark to its folder, `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark` checks each mapped record from the top, `litespec/core/model#name-the-lowest-record-each-test-proves` sets what a test names, and `litespec/backend/testing#mark-the-test-that-proves-each-scenario` places the test mark.
 
-Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `.litespec/project.json`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
+Mark style belongs to the language. C# marks use the one style the project declares as `marks` in `.litespec/project.yaml`: `xml` for a documentation tag or `attribute` for the generated attribute. TypeScript marks use the typed constant, and marks in YAML and other operations files use the comment. One shared parser reads all three forms, each reader records the style it saw, and `mark-style-invalid` compares styles within one language only. A browser test carries its `proves` mark as a test annotation built by the `proves` helper the generated records file exports. A runtime value a record already states, such as an event classification or a refusal code, is generated from the mark and the record where the stack generates code, and checked against the record where a person writes it.
 
 ### Code and Tests
 
@@ -432,7 +432,7 @@ The project file names the screenshot galleries in `screenshots`: `galleries` ho
 
 ### Size and Stacks
 
-Each project declares its size, its shape, and its stacks in `.litespec/project.json`. Each frontend declares one stack, and the backend declares its own. Extensions name their replacements. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
+Each project declares its size, its shape, and its stacks in `.litespec/project.yaml`. Each frontend declares one stack, and the backend declares its own. Extensions name their replacements. The [scope page](scope.md) states how a project selects its size, shape, and stacks.
 
 ### The Model Builder
 
@@ -1033,7 +1033,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **Applies to:** artifact: any; conformance: traced
 
-**Statement:** A project MUST write each C# mark in the one style that `marks` in `.litespec/project.json` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
+**Statement:** A project MUST write each C# mark in the one style that `marks` in `.litespec/project.yaml` declares, each TypeScript mark as a typed constant, and each operations mark as a comment.
 
 **Rationale:** Two styles in one language are two ways to do one job: a reader learns both, a check covers both, and a search for a record finds half its code. The C# style is a project choice made once, so every tool reads it from the project file and refuses the other style within C#. TypeScript and operations files have one form each, so a typed constant beside a C# documentation tag is two languages, not two styles. A code fix converts a mark to the form its language takes.
 

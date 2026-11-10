@@ -302,8 +302,8 @@ public sealed class PlacementCheckTests
             : "";
 
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"modules\": \"" + modules + "\", \"webapi\": " + webapi + "}}}");
+            Path.Combine(root, ".litespec/project.yaml"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"" + frontends + ", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"" + modules + "\", \"webapi\": " + webapi + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec(RecordTypes.Module, "module/lending", "lending", root));

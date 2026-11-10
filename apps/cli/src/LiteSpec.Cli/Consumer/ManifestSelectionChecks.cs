@@ -100,9 +100,10 @@ static class ManifestSelectionChecks
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
 
-            // At the records conformance level stacks are informational, so a
-            // project may name none; every other level selects its stacks here.
-            var recordsLevel = JsonValues.PropString(project, "conformance") == "records";
+            // At the records level stacks are informational, so a project may name none;
+            // every other level selects its stacks here.
+            var claims = project?["layers"] as JsonObject;
+            var recordsLevel = ProjectSettings.LevelOf(JsonValues.PropString(claims, "implementation"), JsonValues.PropString(claims, "proof")) == ConformanceLevel.Records;
 
             // A server project names exactly one backend stack; a client-only
             // project names none, and reads the backend pages its shape lists.

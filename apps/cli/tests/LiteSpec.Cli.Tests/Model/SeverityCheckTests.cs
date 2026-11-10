@@ -1,3 +1,4 @@
+using LiteSpec.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
@@ -69,8 +70,9 @@ public sealed class SeverityCheckTests
 
         var result = Cli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Equal(2, result.Status);
-        Assert.Contains("unknown marks \"yaml\"", result.Output);
+        Assert.Equal(1, result.Status);
+        Assert.Contains("project-invalid", result.Output);
+        Assert.Contains("marks", result.Output);
     }
 
     /// <summary>Writes the claimed conformance level into the fixture project file.</summary>
@@ -78,9 +80,9 @@ public sealed class SeverityCheckTests
     /// <param name="level">The level name: records, traced or full.</param>
     static void SetConformance(string root, string level)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        project["conformance"] = JsonValue.Create(level);
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+        project["layers"] = ConsumerFixture.Layers(level);
         File.WriteAllText(file, project.ToJsonString());
     }
 
@@ -88,8 +90,8 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void SetOnlyWebStacks(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("svelte"));
         File.WriteAllText(file, project.ToJsonString());
     }
@@ -99,8 +101,8 @@ public sealed class SeverityCheckTests
     /// <param name="value">The marks value to write.</param>
     static void BreakMarks(string root, string value)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
         project["marks"] = JsonValue.Create(value);
         File.WriteAllText(file, project.ToJsonString());
     }

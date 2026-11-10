@@ -5,7 +5,7 @@
 
 ## Intent
 
-A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `.litespec/project.json` declares. It applies to anyone who creates a file, and to agents locating code without asking.
+A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `.litespec/project.yaml` declares. It applies to anyone who creates a file, and to agents locating code without asking.
 
 ## Concepts
 
@@ -36,7 +36,7 @@ The model builder writes generated working files under `.litespec/model/` while 
   .config/
     dotnet-tools.json
   .litespec/
-    project.json
+    project.yaml
     glossary.yaml
     intent/
       product.yaml
@@ -110,11 +110,11 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **Strength:** rule
 
-**Statement:** `.litespec/project.json` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
+**Statement:** `.litespec/project.yaml` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
 
-**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `.litespec/project.json` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
+**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `.litespec/project.yaml` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
 
-**Reviewed for:** `.litespec/project.json` at the workspace root declares `size` and one stack for the backend and for each frontend.
+**Reviewed for:** `.litespec/project.yaml` at the workspace root declares `size` and one stack for the backend and for each frontend.
 
 ### Keep the Generated Model Out of Source Control
 
@@ -207,11 +207,11 @@ apps/api/
 
 **Default:** Name a frontend for its audience, such as `web`, `admin`, `portal`, or `docs`.
 
-**Replacement:** A project whose frontends serve one audience records its own frontend names in `.litespec/project.json` under `paths.frontends`.
+**Replacement:** A project whose frontends serve one audience records its own frontend names in `.litespec/project.yaml` under `frontends`.
 
 **Rationale:** `apps/web` tells the reader who it serves; `apps/frontend` tells them only what it is built with. Naming each frontend for its audience keeps the folder meaningful when the technology changes. `frontend`, `client`, or `app` names the technology rather than the audience it serves.
 
-**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `paths.frontends` in `.litespec/project.json` names the project's own frontend names.
+**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `frontends` in `.litespec/project.yaml` names the project's own frontend names.
 
 ### Keep Generated API Contracts in Packages
 

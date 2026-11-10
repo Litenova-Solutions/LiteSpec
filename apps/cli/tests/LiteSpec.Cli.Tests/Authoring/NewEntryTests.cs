@@ -419,7 +419,7 @@ public sealed class NewEntryTests
     static TempFolder Consumer()
     {
         var temp = Cli.Temp("new-entry");
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, RequirementJson);
         TestRecords.Write(temp.Path, RulePage, RuleJson);
         TestRecords.Write(temp.Path, PermissionPage, PermissionJson);

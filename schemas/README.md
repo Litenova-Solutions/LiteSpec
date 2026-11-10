@@ -22,43 +22,43 @@ The command checks each `$id` against the manifest version, validates the manife
 
 | Schema | Validates | Read by |
 |:---|:---|:---|
-| `litespec-manifest.schema.json` | `litespec.manifest.json` | `litespec-maintain validate` |
-| `litespec-project.schema.json` | `.litespec/project.json` | `litespec model check`, `litespec init` |
-| `record.schema.json` | Record file of every consumer record page | `litespec model check` |
-| `glossary.schema.json` | `docs/glossary.yaml` | `litespec model check` |
-| `design-contract.schema.json` | Metadata block of `DESIGN.md` | `litespec model check` |
-| `ui-pattern-catalog.schema.json` | `docs/ui/pattern-catalog.json` | `litespec model check` |
-| `ui-source-lock.schema.json` | `packages/ui/ui-source-lock.json` | `litespec model check` |
+| `litespec-manifest.schema.yaml` | `litespec.manifest.yaml` | `litespec-maintain validate` |
+| `litespec-project.schema.yaml` | `.litespec/project.yaml` | `litespec model check`, `litespec init` |
+| `record.schema.yaml` | Record file of every consumer record page | `litespec model check` |
+| `glossary.schema.yaml` | `docs/glossary.yaml` | `litespec model check` |
+| `design-contract.schema.yaml` | Metadata block of `DESIGN.md` | `litespec model check` |
+| `ui-pattern-catalog.schema.yaml` | `docs/ui/pattern-catalog.json` | `litespec model check` |
+| `ui-source-lock.schema.yaml` | `packages/ui/ui-source-lock.yaml` | `litespec model check` |
 
 The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/`: `JsonSchema.cs` is the entry every reader above calls, `SchemaGate.cs` rejects any keyword the evaluator does not implement, and `SchemaEvaluator.cs` validates, so one validation path serves all seven schemas.
 
 ### Litespec Manifest Schema
 
-`litespec-manifest.schema.json` (`schemaVersion` 5) owns the shape of [litespec.manifest.json](../litespec.manifest.json): the version, the stacks with their folders and pairing rules, the shapes, the extensions with their paths and activation scopes, and the toolchain, package, and UI baseline pins. `litespec-maintain validate` reads the manifest through it, and the `$id` check ties every schema file to the manifest version.
+`litespec-manifest.schema.yaml` (`schemaVersion` 5) owns the shape of [litespec.manifest.yaml](../litespec.manifest.yaml): the version, the stacks with their folders and pairing rules, the shapes, the extensions with their paths and activation scopes, and the toolchain, package, and UI baseline pins. `litespec-maintain validate` reads the manifest through it, and the `$id` check ties every schema file to the manifest version.
 
 ### Litespec Project Schema
 
-`litespec-project.schema.json` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, and the selected extensions. `litespec model check` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/project.json](../templates/consumer/project.json) meets it.
+`litespec-project.schema.yaml` owns the shape of the consumer project file: the project name, the size, the stacks, the reviewed LiteSpec release, the documentation and code paths, and the selected extensions. `litespec model check` validates the consumer file through it, `litespec init` writes that file from a preset, and `litespec-maintain validate` proves the shipped template in [templates/consumer/project.yaml](../templates/consumer/project.yaml) meets it.
 
 ### Record Schema
 
-`record.schema.json` owns the record file of every consumer record page: 35 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
+`record.schema.yaml` owns the record file of every consumer record page: 35 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
 
 ### Language Schema
 
-`glossary.schema.json` (`schemaVersion` 2) owns the shape of the consumer glossary: one Term entry per concept with its meaning, labels, rejected synonyms, broader and narrower terms, and closed-set values, plus the mannered terms no page may use. `litespec model check` validates the record through it and then checks prose against the terms.
+`glossary.schema.yaml` (`schemaVersion` 2) owns the shape of the consumer glossary: one Term entry per concept with its meaning, labels, rejected synonyms, broader and narrower terms, and closed-set values, plus the mannered terms no page may use. `litespec model check` validates the record through it and then checks prose against the terms.
 
 ### Design Contract Schema
 
-`design-contract.schema.json` (`schemaVersion` 1, `kind` design-contract) owns the metadata block that opens the `DESIGN.md` a shared UI package ships: the package name, the density profile, the shell, and the floorplans it provides. `litespec model check` validates the block through it and then checks that the package implements what the block promises.
+`design-contract.schema.yaml` (`schemaVersion` 1, `kind` design-contract) owns the metadata block that opens the `DESIGN.md` a shared UI package ships: the package name, the density profile, the shell, and the floorplans it provides. `litespec model check` validates the block through it and then checks that the package implements what the block promises.
 
 ### UI Pattern Catalog Schema
 
-`ui-pattern-catalog.schema.json` (`schemaVersion` 1, `kind` ui-pattern-catalog) owns the shape of the consumer pattern catalog: the breakpoints, the groups, and one decision per recurring interface question with its options, its choice, its compact behavior, and its implementations per platform. `litespec model check` validates the catalog through it and then checks the references the schema cannot see across properties.
+`ui-pattern-catalog.schema.yaml` (`schemaVersion` 1, `kind` ui-pattern-catalog) owns the shape of the consumer pattern catalog: the breakpoints, the groups, and one decision per recurring interface question with its options, its choice, its compact behavior, and its implementations per platform. `litespec model check` validates the catalog through it and then checks the references the schema cannot see across properties.
 
 ### UI Source Lock Schema
 
-`ui-source-lock.schema.json` (`schemaVersion` 1) owns the shape of the lock beside the one copy of the registry source: the generator (`shadcn/ui` or `shadcn-svelte`), the CLI version, the decoded preset, the registry, and the digest of every installed primitive. `litespec model check` validates the lock through it, so a hand edit to copied source reports instead of passing unreviewed.
+`ui-source-lock.schema.yaml` (`schemaVersion` 1) owns the shape of the lock beside the one copy of the registry source: the generator (`shadcn/ui` or `shadcn-svelte`), the CLI version, the decoded preset, the registry, and the digest of every installed primitive. `litespec model check` validates the lock through it, so a hand edit to copied source reports instead of passing unreviewed.
 
 ## How It Works
 

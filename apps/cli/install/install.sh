@@ -9,7 +9,7 @@
 # Options, each also read from the environment:
 #
 #   --version <version>   LITESPEC_VERSION       The release to install. Without one, the script installs
-#                                                the release .litespec/project.json reviews in the working
+#                                                the release .litespec/project.yaml reviews in the working
 #                                                directory, and else the latest release.
 #   --install-dir <dir>   LITESPEC_INSTALL_DIR   The folder that keeps each release in <dir>/<version> and
 #                                                links the active one at <dir>/bin/litespec. Defaults to
@@ -36,7 +36,7 @@ Usage: install.sh [--version <version>] [--install-dir <dir>]
 
 Installs the LiteSpec command line from a GitHub release, checked against its SHA256SUMS.
 
-  --version      The release to install. Defaults to the release .litespec/project.json
+  --version      The release to install. Defaults to the release .litespec/project.yaml
                  reviews in the working directory, and else the latest release.
                  Also read from LITESPEC_VERSION.
   --install-dir  The folder that keeps each release and links the active one at bin/litespec.
@@ -120,11 +120,11 @@ is_musl() {
   ls /lib/ld-musl-* >/dev/null 2>&1
 }
 
-if [ -z "$version" ] && [ -f .litespec/project.json ]; then
-  version="$(sed -n 's/.*"reviewedLiteSpecVersion"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' .litespec/project.json | head -n 1)"
+if [ -z "$version" ] && [ -f .litespec/project.yaml ]; then
+  version="$(sed -n -E "s/^reviewedLiteSpecVersion: *['\"]?([^'\" ]+)['\"]? *\$/\1/p" .litespec/project.yaml | head -n 1)"
 
   if [ -n "$version" ]; then
-    printf 'Installing the release .litespec/project.json reviews: %s\n' "$version"
+    printf 'Installing the release .litespec/project.yaml reviews: %s\n' "$version"
   fi
 fi
 

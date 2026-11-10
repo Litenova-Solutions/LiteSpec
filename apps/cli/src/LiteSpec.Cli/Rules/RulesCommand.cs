@@ -103,10 +103,9 @@ static class RulesCommand
     {
         try
         {
-            var file = Path.Combine(home, LiteSpecHome.ManifestFile);
-            return JsonNode.Parse(File.ReadAllText(file)) as JsonObject;
+            return LiteSpecHome.ReadManifest(home);
         }
-        catch (Exception exception) when (exception is IOException or JsonException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or JsonTextException or UnauthorizedAccessException)
         {
             return null;
         }

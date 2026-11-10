@@ -36,7 +36,7 @@ public sealed class GlobWalkerTests
                 Path.Combine(temp.Path, "sub", "c.md"),
                 Path.Combine(temp.Path, "sub", "d.yaml"),
             ],
-            GlobWalker.PageFiles(temp.Path, glossary));
+            GlobWalker.PageFiles(temp.Path, Excluded(glossary)));
     }
 
     /// <summary>The glossary file is left out without regard to case.</summary>
@@ -50,7 +50,7 @@ public sealed class GlobWalkerTests
 
         Assert.Equal(
             [Path.Combine(temp.Path, "page.md")],
-            GlobWalker.PageFiles(temp.Path, Path.Combine(temp.Path, "glossary.yaml")));
+            GlobWalker.PageFiles(temp.Path, Excluded(Path.Combine(temp.Path, "glossary.yaml"))));
     }
 
     /// <summary>Only the top-level model and book folders are skipped; nested ones are walked.</summary>
@@ -71,7 +71,7 @@ public sealed class GlobWalkerTests
                 Path.Combine(temp.Path, "sub", "book", "d.yaml"),
                 Path.Combine(temp.Path, "sub", "model", "c.md"),
             ],
-            GlobWalker.PageFiles(temp.Path, Path.Combine(temp.Path, "glossary.yaml")));
+            GlobWalker.PageFiles(temp.Path, Excluded(Path.Combine(temp.Path, "glossary.yaml"))));
     }
 
     /// <summary>Hidden files and folders and installed packages are skipped, and matching stays case-sensitive.</summary>
@@ -96,7 +96,7 @@ public sealed class GlobWalkerTests
                 Path.Combine(temp.Path, "ok.md"),
                 Path.Combine(temp.Path, "sub", "ok.yaml"),
             ],
-            GlobWalker.PageFiles(temp.Path, Path.Combine(temp.Path, "glossary.yaml")));
+            GlobWalker.PageFiles(temp.Path, Excluded(Path.Combine(temp.Path, "glossary.yaml"))));
     }
 
     /// <summary>A missing root walks as no files.</summary>
@@ -106,6 +106,11 @@ public sealed class GlobWalkerTests
     {
         using var temp = Cli.Temp("glob-walker");
 
-        Assert.Empty(GlobWalker.PageFiles(Path.Combine(temp.Path, "no-such-folder"), Path.Combine(temp.Path, "glossary.yaml")));
+        Assert.Empty(GlobWalker.PageFiles(Path.Combine(temp.Path, "no-such-folder"), Excluded(Path.Combine(temp.Path, "glossary.yaml"))));
     }
+
+    /// <summary>The excluded set holding one file, compared without regard to case as the glossary is.</summary>
+    /// <param name="file">The excluded file.</param>
+    /// <returns>The set holding the file.</returns>
+    static IReadOnlySet<string> Excluded(string file) => new HashSet<string>([file], StringComparer.OrdinalIgnoreCase);
 }

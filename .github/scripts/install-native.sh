@@ -13,7 +13,7 @@ mkdir -p "$2"
 install_dir="$(cd "$2" && pwd)"
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
 . "$repository/.github/scripts/lib.sh"
-version="$(manifest_version "$repository/litespec.manifest.json")"
+version="$(manifest_version "$repository/litespec.manifest.yaml")"
 site="$(mktemp -d)"
 
 mkdir -p "$site/v$version"

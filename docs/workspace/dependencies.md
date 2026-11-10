@@ -21,7 +21,7 @@ The backend holds four architecture layers: Domain, Application, Infrastructure,
 
 ### Pins and the Manifest
 
-Every version resolves in one owned place: `litespec.manifest.json` pins the baseline stack the standards name, the consumer's own central file or lockfile pins the product's own packages, and no version sits inline in a module file. A central entry still does not authorize every layer to reference the package: the ownership table in the conventions below decides who takes what.
+Every version resolves in one owned place: `litespec.manifest.yaml` pins the baseline stack the standards name, the consumer's own central file or lockfile pins the product's own packages, and no version sits inline in a module file. A central entry still does not authorize every layer to reference the package: the ownership table in the conventions below decides who takes what.
 
 ### Approving a New Package
 
@@ -85,7 +85,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **Strength:** rule
 
-**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.json` states where it states one.
+**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.yaml` states where it states one.
 
 **Rationale:** An inline version in one module file is invisible to the manifest that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place: the manifest pins the baseline stack the standards name, and the consumer's own central file or lockfile pins the product's own packages. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer's pins live beside its code, admitted by `litespec/workspace/dependencies#approve-new-packages-explicitly`.
 
@@ -125,11 +125,11 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **Strength:** rule
 
-**Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.json`, and a Svelte web frontend from `uiBaselineSvelte`.
+**Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.yaml`, and a Svelte web frontend from `uiBaselineSvelte`.
 
 **Rationale:** A fixed UI baseline keeps every screen drawing from the same design system, styling, base components, icons, and utilities. Taking UI packages only from `uiBaseline` for React and `uiBaselineSvelte` for Svelte keeps that set reviewed and versioned in one place. Each baseline pins the design system, styling, base components, icons, and the utility packages the installed source imports directly.
 
-**Reviewed for:** Each React frontend manifest takes UI packages only from `uiBaseline`, and each Svelte one only from `uiBaselineSvelte`, in `litespec.manifest.json`.
+**Reviewed for:** Each React frontend manifest takes UI packages only from `uiBaseline`, and each Svelte one only from `uiBaselineSvelte`, in `litespec.manifest.yaml`.
 
 ## Conventions
 

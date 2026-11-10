@@ -37,9 +37,9 @@ public sealed class UnmatchedCallTests
 
     static void AddFrontend(string root)
     {
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
-        project["paths"]!["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 

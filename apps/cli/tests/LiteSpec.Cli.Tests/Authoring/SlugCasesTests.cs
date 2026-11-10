@@ -13,7 +13,7 @@ public sealed class SlugCasesTests
     public void SlugsMatchFixture()
     {
         var file = Path.Combine(Cli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Authoring", "SlugCases.json");
-        var cases = JsonNode.Parse(File.ReadAllText(file))!.AsArray();
+        var cases = DataFile.Read(file)!.AsArray();
         Assert.NotEmpty(cases);
         foreach (var entry in cases)
         {

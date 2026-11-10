@@ -74,7 +74,7 @@ static partial class ModelBuilder
             model.Ledger = ProofLedger.Load(config);
             model.Problems.AddRange(model.Ledger.Problems);
 
-            model.Measures.AddRange(MeasureReader.Read(config));
+            model.Measures.AddRange(MeasureReader.Read(config, model.Problems));
         }
 
         ModelLinks.MatchEvents(model);
@@ -188,21 +188,7 @@ static partial class ModelBuilder
 
         try
         {
-            if (System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(manifestFile)) is not System.Text.Json.Nodes.JsonObject manifest)
-            {
-                problems.Add(new Finding(
-                    "reader-missing",
-                    $"The LiteSpec manifest '{manifestFile}' could not be read: its root is not a JSON object; the applied pages were not read.",
-                    manifestFile,
-                    1,
-                    null)
-                {
-                    Reader = Finding.RoslynReader,
-                    ReaderIsQualified = true,
-                });
-
-                return EmptySelection();
-            }
+            var manifest = LiteSpecHome.ReadManifest(home);
 
             return (
                 new HashSet<string>(
@@ -212,7 +198,7 @@ static partial class ModelBuilder
                     Authoring.Layout.AppliedProvisions(home, manifest, config.Shape, config.Stacks, config.Extensions),
                     StringComparer.Ordinal));
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)
         {
             problems.Add(new Finding(
                 "reader-missing",

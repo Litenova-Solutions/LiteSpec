@@ -216,7 +216,7 @@ public sealed class PlacementTests
             : throw new InvalidOperationException($"No record holds '{id}'.");
 
     static void WriteProject(string root) =>
-        Write(root, ".litespec/project.json", """{"shape": "client-only", "stacks": []}""");
+        Write(root, ".litespec/project.yaml", """{"shape": "client-only", "stacks": []}""");
 
     static void Write(string root, string relative, string text)
     {

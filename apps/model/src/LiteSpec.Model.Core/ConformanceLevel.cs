@@ -1,9 +1,9 @@
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The part of the LiteSpec contract a project claims in the <c>conformance</c>
-///     field of <c>.litespec/project.json</c>. The levels nest: each one claims
-///     everything the level before it claims.
+///     The part of the LiteSpec contract a project claims. A project file states its claims
+///     in <c>layers</c>; the levels are the older summary the checks still read, until wave 5
+///     replaces them. The levels nest: each one claims everything the level before it claims.
 /// </summary>
 /// <follows>litespec/core/scope#declare-the-conformance-level</follows>
 public enum ConformanceLevel

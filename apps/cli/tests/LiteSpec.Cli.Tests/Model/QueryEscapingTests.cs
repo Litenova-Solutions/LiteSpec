@@ -18,7 +18,7 @@ public sealed class QueryEscapingTests
     {
         using var temp = Cli.Temp("query-escaping");
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.json"), "{}");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "{}");
 
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Records.Add(Rec(

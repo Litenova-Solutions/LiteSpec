@@ -99,24 +99,6 @@ public sealed partial class UiValidatorTests
             problem => problem.Contains("[litespec/core/agent#select-task-context]", StringComparison.Ordinal));
     }
 
-    /// <summary>Exceptions Folder Set Through Paths Records Exception.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
-    [Fact]
-    public void Exceptions_Folder_Set_Through_Paths_Records_Exception()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-        {
-            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = ".litespec/departures" };
-        });
-        fixture.WriteExceptionFile(
-            ".litespec/departures/moved.yaml",
-            UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
-    }
-
     // Shared package (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
 
     /// <summary>A Controlled Frontend With No Shared Package.</summary>
@@ -125,49 +107,8 @@ public sealed partial class UiValidatorTests
     public void A_Controlled_Frontend_With_No_Shared_Package()
     {
         using var fixture = UiFixture.Create();
-        fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPackage"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] 1 controlled frontend(s) and no paths.uiPackage");
-    }
-
-    /// <summary>A Controlled Frontend With No Ui Block.</summary>
-    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
-    [Fact]
-    public void A_Controlled_Frontend_With_No_Ui_Block()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!).Remove("ui"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': a controlled frontend requires a 'ui' block declaring its density profile");
-    }
-
-    /// <summary>A Controlled Frontend With An Unknown Profile.</summary>
-    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
-    [Fact]
-    public void A_Controlled_Frontend_With_An_Unknown_Profile()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!["ui"]!)["profile"] = "fixture-dense");
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': profile must be one of public-light, application-balanced, admin-dense");
-    }
-
-    /// <summary>A Shared Package With No Public Export.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
-    [Fact]
-    public void A_Shared_Package_With_No_Public_Export()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-        {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["publicExports"] = new JsonArray();
-        });
-        UiFixture.AssertProblem(fixture.Run(), "publicExports must contain at least one entry point");
+        fixture.MutateProject(project => project.Remove("ui"));
+        Assert.Contains("[project-invalid] missing required property 'ui'", fixture.Run().Output, StringComparison.Ordinal);
     }
 
     /// <summary>A Shared Package Declaring The Same Export Twice.</summary>
@@ -178,7 +119,7 @@ public sealed partial class UiValidatorTests
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["publicExports"] =
+            ((JsonObject)((JsonObject)project["ui"]!)["package"]!)["publicExports"] =
                 new JsonArray("@fixture/ui/floorplans", "@fixture/ui/floorplans");
         });
         UiFixture.AssertProblem(fixture.Run(), "duplicate '@fixture/ui/floorplans'");
@@ -192,7 +133,7 @@ public sealed partial class UiValidatorTests
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["sourceLock"] = ".litespec/ui-source-lock.json";
+            ((JsonObject)((JsonObject)project["ui"]!)["package"]!)["sourceLock"] = ".litespec/ui-source-lock.yaml";
         });
         UiFixture.AssertProblem(fixture.Run(), "sourceLock must live inside the shared package root");
     }

@@ -74,7 +74,7 @@ sealed class DesignContractChecks
             return;
         }
 
-        session.SchemaCheck("design-contract.schema.json", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
+        session.SchemaCheck("design-contract.schema.yaml", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
         var name = JsonRead.Child(package, "name");
         if (JsonRead.Truthy(name) && !JsonRead.StrictEqual(JsonRead.Child(metadata, "package"), name))
         {

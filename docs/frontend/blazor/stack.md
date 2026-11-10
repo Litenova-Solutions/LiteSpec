@@ -5,7 +5,7 @@
 
 ## Intent
 
-The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user's device, under the `client-only` shape declared in [Supported Scope](../../core/scope.md). Exact framework and package versions live only in `litespec.manifest.json`.
+The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user's device, under the `client-only` shape declared in [Supported Scope](../../core/scope.md). Exact framework and package versions live only in `litespec.manifest.yaml`.
 
 ## Concepts
 
@@ -15,7 +15,7 @@ The stack is one Blazor WebAssembly application holding the whole product on the
 
 ### Version Pins
 
-`litespec.manifest.json` pins the .NET version the stack builds with under `stack.dotnet`, and every NuGet package version under `packages.nuget`. These keys name the pins; the manifest holds the values.
+`litespec.manifest.yaml` pins the .NET version the stack builds with under `stack.dotnet`, and every NuGet package version under `packages.nuget`. These keys name the pins; the manifest holds the values.
 
 ## Standards
 

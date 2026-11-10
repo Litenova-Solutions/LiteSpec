@@ -4,7 +4,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Init;
 
 /// <summary>
-///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.json</c>
+///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
 ///     from one of the ready-made presets in <c>templates/presets/</c>, and copies the
 ///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
 /// </summary>
@@ -39,7 +39,7 @@ static class InitCommand
     public const string Usage = """
         Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--help]
 
-        Writes .litespec/project.json into root from the named preset, stamped with the
+        Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
         glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the LiteSpec
         block filled with the release, size, shape, stacks, and selection index of the
@@ -111,7 +111,7 @@ static class InitCommand
             return rootExit;
         }
 
-        var target = Path.Combine(root, ".litespec", "project.json");
+        var target = Path.Combine(root, ".litespec", "project.yaml");
 
         if (File.Exists(target))
         {
@@ -144,16 +144,16 @@ static class InitCommand
 
         try
         {
-            if (CliJson.TryRead(Path.Combine(home, "templates", "consumer", "project.json")) is not JsonObject template)
+            if (DataFile.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
             {
-                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.json.");
+                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
                 return 1;
             }
 
-            if (CliJson.TryRead(Path.Combine(home, "templates", "presets", $"{preset}.json")) is not JsonObject presetJson
+            if (DataFile.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
                 || presetJson["shape"] is null)
             {
-                Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.json.");
+                Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
                 return 1;
             }
 
@@ -177,7 +177,7 @@ static class InitCommand
             project = template;
             overlay = presetJson;
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)
         {
             Console.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
             return 1;
@@ -196,11 +196,11 @@ static class InitCommand
             project.Remove("stacks");
         }
 
-        // A preset that declares a conformance level writes that level; every
-        // other preset keeps the template level.
-        if (overlay["conformance"] is not null)
+        // A preset that declares its layer claims writes them; every other preset
+        // keeps the template claims.
+        if (overlay["layers"] is not null)
         {
-            project["conformance"] = overlay["conformance"]!.DeepClone();
+            project["layers"] = overlay["layers"]!.DeepClone();
         }
 
         project["size"] = size;
@@ -214,24 +214,24 @@ static class InitCommand
         }
 
         // A preset that names no frontends writes a project with none, so a
-        // server project with no frontend omits paths.frontends.
-        if ((overlay["paths"] as JsonObject)?["frontends"] is not null)
+        // server project with no frontend omits frontends.
+        if (overlay["frontends"] is not null)
         {
-            paths["frontends"] = overlay["paths"]!["frontends"]!.DeepClone();
+            project["frontends"] = overlay["frontends"]!.DeepClone();
         }
         else
         {
-            paths.Remove("frontends");
+            project.Remove("frontends");
         }
 
         // The shared UI package and its pattern catalog belong to the controlled web
         // frontends; a preset without one would declare a package no frontend uses.
-        var controlled = (paths["frontends"] as JsonArray)?
+        var controlled = (project["frontends"] as JsonArray)?
             .Any(frontend => (string?)frontend?["platform"] is "react" or "svelte") ?? false;
 
         if (!controlled)
         {
-            paths.Remove("uiPackage");
+            project.Remove("ui");
             paths.Remove("uiPatterns");
         }
 
@@ -258,7 +258,11 @@ static class InitCommand
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-            File.WriteAllText(target, CliJson.Serialize(project) + "\n");
+            // The first line names the schema for YAML language servers; the body is the project
+            // as YAML, written from the same tree the placeholders were filled in.
+            var body = YamlWriter.Write(DataFile.TextOf(project));
+            var header = $"# yaml-language-server: $schema=https://litespec.dev/{version}/schemas/litespec-project.schema.yaml\n";
+            File.WriteAllText(target, header + (body.EndsWith('\n') ? body : body + "\n"));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {

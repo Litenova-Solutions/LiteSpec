@@ -163,6 +163,6 @@ public sealed class CliArgsTests
         Assert.Equal(2, result.Status);
         Assert.Equal("", result.Stderr);
         var error = JsonNode.Parse(result.Stdout)!.AsObject();
-        Assert.Contains("holds no .litespec/project.json", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
+        Assert.Contains("holds no .litespec/project.yaml", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 }

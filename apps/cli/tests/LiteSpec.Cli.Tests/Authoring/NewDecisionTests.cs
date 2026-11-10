@@ -12,7 +12,7 @@ public sealed class NewDecisionTests
     public void NewDecisionNumbersTheFirstDecisionOne()
     {
         using var consumer = Cli.Temp("new-decision");
-        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.json"), "{}");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
 
         var result = Cli.Run(
             "new", "decision", "receipt-threshold", "--root", consumer.Path);

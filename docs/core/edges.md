@@ -308,7 +308,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in `refusalDictionary` or a browser test that asserts its code.
 
-**Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `paths.frontends[]` entry, so the check reads that frontend's words rather than a convention.
+**Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `frontends[]` entry, so the check reads that frontend's words rather than a convention.
 
 **Example:** The expense form offers `use-case/spending.submit-expense`, whose `spending.receipt-missing` refusal has a sentence in the dictionary the Claimwick web frontend names in `refusalDictionary`.
 

@@ -8,7 +8,7 @@ sources:
   - url: https://json-schema.org/
     readOn: 2026-10-31
     key: json-schema
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
 question: Which record format holds each fact once and validates against the record schema?

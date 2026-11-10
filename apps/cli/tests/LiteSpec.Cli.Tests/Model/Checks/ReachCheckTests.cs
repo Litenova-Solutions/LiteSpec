@@ -183,7 +183,7 @@ public sealed class ReachCheckTests
     public void Use_Case_Run_By_Another_Skips_Journey_Missing()
     {
         using var temp = Cli.Temp("checks");
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.json"), """{"owners": ["lending-team"], "size": "large"}""");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), """{"owners": ["lending-team"], "size": "large"}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["journey/borrow#s1"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "inline", "sharesTransaction": true}]}"""),

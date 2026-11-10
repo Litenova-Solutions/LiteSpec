@@ -248,7 +248,7 @@ public sealed class JUnitProvesTests
     }
 
     static void WriteProject(string root) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), """{ "owners": ["team"] }""");
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), """{ "owners": ["team"] }""");
 
     static void WriteTrx(string root, string file, string testName, string outcome)
     {

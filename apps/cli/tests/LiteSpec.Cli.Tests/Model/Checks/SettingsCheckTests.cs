@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using LiteSpec.Tests.Model;
 using LiteSpec.Tests.Support;
 
@@ -364,12 +365,11 @@ public sealed class SettingsCheckTests
 
     static void AddTemplateStore(string root, string store)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var text = File.ReadAllText(file);
-        File.WriteAllText(file, text.Replace(
-            "\"webapi\": \"apps/api/src/Library.WebApi\"",
-            "\"webapi\": \"apps/api/src/Library.WebApi\",\n      \"templateStore\": \"" + store + "\"",
-            StringComparison.Ordinal));
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+        var dotnet = (JsonObject)((JsonObject)project["stackConfig"]!)["dotnet"]!;
+        dotnet["templateStore"] = store;
+        File.WriteAllText(file, project.ToJsonString());
     }
 
     static string SettingJson(string id, string title, string setBy, string? key)

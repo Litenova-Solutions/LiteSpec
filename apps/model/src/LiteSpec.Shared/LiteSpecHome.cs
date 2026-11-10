@@ -4,7 +4,7 @@ namespace LiteSpec;
 
 /// <summary>
 ///     Finds the LiteSpec release this tool carries: the folder that holds
-///     <c>litespec.manifest.json</c>, its schemas and its docs. The tool package
+///     <c>litespec.manifest.yaml</c>, its schemas and its docs. The tool package
 ///     ships that release beside its own binary, so the tool locates it from its
 ///     own binary rather than from the consumer.
 /// </summary>
@@ -12,7 +12,7 @@ namespace LiteSpec;
 public static class LiteSpecHome
 {
     /// <summary>The manifest file name.</summary>
-    public const string ManifestFile = "litespec.manifest.json";
+    public const string ManifestFile = "litespec.manifest.yaml";
 
     /// <summary>The located release root, computed once.</summary>
     static readonly Lazy<string?> root = new(Locate);
@@ -39,13 +39,24 @@ public static class LiteSpecHome
 
             try
             {
-                return JsonNode.Parse(File.ReadAllText(Path.Combine(Root, ManifestFile)))?["version"]?.GetValue<string>();
+                return ReadManifest(Root)["version"]?.GetValue<string>();
             }
             catch (Exception)
             {
                 return null;
             }
         }
+    }
+
+    /// <summary>Reads the manifest of a LiteSpec release.</summary>
+    /// <param name="releaseRoot">The release root that holds the manifest.</param>
+    /// <returns>The manifest object.</returns>
+    /// <exception cref="IOException">The manifest cannot be read.</exception>
+    /// <exception cref="LiteSpec.Model.JsonTextException">The manifest is not valid YAML, or not a mapping.</exception>
+    public static JsonObject ReadManifest(string releaseRoot)
+    {
+        var file = Path.Combine(releaseRoot, ManifestFile);
+        return DataFile.Read(file) as JsonObject ?? throw new LiteSpec.Model.JsonTextException($"{ManifestFile} is not a mapping.", 1);
     }
 
     /// <summary>A path inside the LiteSpec release, from forward-slash segments.</summary>

@@ -48,7 +48,7 @@ That index lists every page the selection applies, with a one-line description a
 
 Adding new intent to a running project follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page. This page states no second order.
 
-For any task, the agent reads the project's `AGENTS.md` and `.litespec/project.json`, selects the records the task touches, runs `litespec rules <path>` for the files it will edit, reads the standards those records cite, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
+For any task, the agent reads the project's `AGENTS.md` and `.litespec/project.yaml`, selects the records the task touches, runs `litespec rules <path>` for the files it will edit, reads the standards those records cite, and looks at neighboring code after the standards. Before editing, the agent also reads `git status`, so unrelated work in the tree stays untouched. When the change touches an extension's boundary, the agent reads the selected extension before it edits.
 
 The diagram below shows that order, and where the agent stops for a person instead of deciding alone.
 

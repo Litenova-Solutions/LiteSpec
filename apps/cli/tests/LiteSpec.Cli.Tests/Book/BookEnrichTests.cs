@@ -666,7 +666,7 @@ public sealed class BookEnrichTests
     }
 
     static JsonObject LoadFixture(string relative) =>
-        (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture(relative)))!;
+        (JsonObject)DataFile.Read(Cli.Fixture(relative))!;
 
     static IReadOnlyDictionary<string, JsonObject> DetailsOf(JsonObject model) =>
         BookEnrich.Build(model, BookOutline.Build(model));

@@ -57,7 +57,7 @@ public sealed class FindingMessageFormatTests
     {
         using var temp = Cli.Temp("marks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"owners": ["lending-team"], "paths": {"contract": "missing.json"}, "stackConfig": {"dotnet": {"templateStore": "MessageTemplates.cs"}}}""");
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Code.Endpoints.Add(new EndpointOperation("BorrowCopy", "use-case/lending.borrow-copy", "POST", "/api/loans/borrow", Path.Combine(temp.Path, "Endpoint.cs"), 3));
@@ -138,7 +138,7 @@ public sealed class FindingMessageFormatTests
     static ProjectModel CodeModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """{"owners": ["lending-team"], "stackConfig": {"dotnet": {"infrastructure": "src/Infrastructure"}}}""");
         Directory.CreateDirectory(Path.Combine(root, "src", "Infrastructure"));
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
@@ -174,10 +174,10 @@ public sealed class FindingMessageFormatTests
     static ProjectModel MixedModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"owners": ["lending-team"], "size": "large",
-             "paths": {"frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}]},
+             "frontends": [{"name": "web", "path": "apps/web", "platform": "svelte"}], "paths": {},
              "stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}
             """);
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };

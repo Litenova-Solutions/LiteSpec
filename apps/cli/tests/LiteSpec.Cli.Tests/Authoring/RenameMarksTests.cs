@@ -169,7 +169,7 @@ public sealed class RenameMarksTests
 
     static void WriteConsumer(string root)
     {
-        Write(Path.Combine(root, ".litespec/project.json"), """
+        Write(Path.Combine(root, ".litespec/project.yaml"), """
             {
               "project": {
                 "name": "Rename Fixture"

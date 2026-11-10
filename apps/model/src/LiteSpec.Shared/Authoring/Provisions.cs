@@ -157,7 +157,7 @@ public static class Provisions
 
         foreach (var file in Walk(Path.Combine(root, "docs")))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
 
             if (!IsProvisionPage(relative))
             {
@@ -352,7 +352,7 @@ public static class Provisions
     public static string BuildPages(string root)
     {
         var file = Path.Combine(root, LiteSpecHome.ManifestFile);
-        var manifest = File.Exists(file) ? JsonNode.Parse(File.ReadAllText(file)) as JsonObject ?? [] : [];
+        var manifest = File.Exists(file) ? LiteSpecHome.ReadManifest(root) : [];
         return Layout.PageIndex(root, manifest).ToJsonString(JsonOptions);
     }
 
@@ -496,11 +496,6 @@ public static class Provisions
 
         return keepLines ? string.Join("\n", parts).Trim() : string.Join(" ", parts).Trim();
     }
-
-    /// <summary>Writes a path with forward slashes.</summary>
-    /// <param name="value">The path as the operating system writes it.</param>
-    /// <returns>The path with forward slashes.</returns>
-    static string Slash(string value) => value.Replace('\\', '/');
 
     /// <summary>Lists every Markdown file under the folder, in ordinal order.</summary>
     /// <param name="directory">The folder to walk.</param>

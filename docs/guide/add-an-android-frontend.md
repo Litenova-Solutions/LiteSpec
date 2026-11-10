@@ -9,8 +9,8 @@ A product that serves its interface from Android declares a mobile solution tree
 Start with:
 
 - A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases implemented.
-- The `android` stack beside the tutorial pair in the consumer's `.litespec/project.json`.
-- The .NET SDK and Android API level pinned in `litespec.manifest.json` (`stack.dotnet`, `stack.android`) at the LiteSpec root, with the `android` workload installed through `dotnet workload install android`.
+- The `android` stack beside the tutorial pair in the consumer's `.litespec/project.yaml`.
+- The .NET SDK and Android API level pinned in `litespec.manifest.yaml` (`stack.dotnet`, `stack.android`) at the LiteSpec root, with the `android` workload installed through `dotnet workload install android`.
 
 Read the [Mobile Structure page](../frontend/mobile/structure.md) and the [Android Stack page](../frontend/mobile/android/stack.md) before this guide: they state the obligations, and this guide shows one compliant way to meet them.
 
@@ -18,7 +18,7 @@ Read the [Mobile Structure page](../frontend/mobile/structure.md) and the [Andro
 
 ### Declare the Android Stack
 
-Add the `android` stack to `.litespec/project.json`, following the stack entries of the `android-client` preset on the [initialize command page](../tools/init.md). A consumer without a server starts from that preset. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
+Add the `android` stack to `.litespec/project.yaml`, following the stack entries of the `android-client` preset on the [initialize command page](../tools/init.md). A consumer without a server starts from that preset. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
 
 ### Declare the Mobile Solution Tree
 

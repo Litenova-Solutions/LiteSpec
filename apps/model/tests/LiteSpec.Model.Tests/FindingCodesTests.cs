@@ -202,7 +202,7 @@ public sealed class FindingCodesTests
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
         {
-            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.json")))
+            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.yaml")))
             {
                 return folder.FullName;
             }

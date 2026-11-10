@@ -114,8 +114,8 @@ public sealed class RefusalProofTests
 
     static void WriteRefusals(string root, string statuses, string aliases)
     {
-        var path = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        var path = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(path)!.AsObject();
         project["refusals"] = JsonNode.Parse($$"""
             {
               "forbidden": "authorization.forbidden",

@@ -73,7 +73,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Statement:** The route suite and every visual golden MUST carry a `proves` annotation for each UI provision, pattern provision, or quality requirement they enforce.
 
-**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `paths.frontends[]` entry, so the check has a named subject instead of a convention.
+**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check has a named subject instead of a convention.
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/ui#check-every-route")`.
 

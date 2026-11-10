@@ -56,7 +56,7 @@ internal sealed partial class RecordsValidator
         node = null;
         try
         {
-            node = JsonNode.Parse(YamlText.Parse(text).ToJson());
+            node = DataFile.NodeOf(YamlText.Parse(text));
             error = "";
             return true;
         }
@@ -91,11 +91,11 @@ internal sealed partial class RecordsValidator
         var records = new List<ParsedRecord>();
         foreach (var file in Walk(Path.Combine(Context.Root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            var relative = Slash(Path.GetRelativePath(Context.Root, file));
+            var relative = PathText.Relative(Context.Root, file);
             var kind = PageValidator.PageClass(Path.ChangeExtension(relative, ".md"));
             if (kind is "research" or "decision")
             {
-                var raw = ReadText(file);
+                var raw = FileText.ReadText(file);
                 _ = TryParseRecordFile(raw, out var node, out var error);
                 records.Add(new ParsedRecord(relative, kind, raw, node, error, explanations.GetValueOrDefault(relative)));
             }
@@ -112,13 +112,13 @@ internal sealed partial class RecordsValidator
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var file in Walk(Path.Combine(root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             if (PageValidator.PageClass(Path.ChangeExtension(relative, ".md")) is not ("research" or "decision"))
             {
                 continue;
             }
 
-            if (TryParseRecordFile(ReadText(file), out var node, out _)
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _)
                 && JsonString((node as JsonObject)?["id"]) is { } id)
             {
                 ids.Add(id);
@@ -161,7 +161,7 @@ internal sealed partial class RecordsValidator
             return;
         }
 
-        var schemaFile = JoinRoot(root, "schemas/record.schema.json");
+        var schemaFile = JoinRoot(root, "schemas/record.schema.yaml");
         if (!File.Exists(schemaFile))
         {
             return;
@@ -170,7 +170,7 @@ internal sealed partial class RecordsValidator
         JsonNode? schema;
         try
         {
-            schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
+            schema = DataFile.Read(schemaFile);
         }
         catch (IOException)
         {
@@ -411,7 +411,7 @@ internal sealed partial class RecordsValidator
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            if (TryParseRecordFile(ReadText(file), out var node, out _)
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _)
                 && JsonString((node as JsonObject)?["id"]) is { } id
                 && (id.StartsWith("research/", StringComparison.Ordinal) || id.StartsWith("decision/", StringComparison.Ordinal)))
             {

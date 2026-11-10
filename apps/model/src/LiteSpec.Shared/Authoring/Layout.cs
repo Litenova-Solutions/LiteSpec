@@ -281,7 +281,7 @@ public static class Layout
                 continue;
             }
 
-            yield return Slash(Path.GetRelativePath(root, file));
+            yield return PathText.Relative(root, file);
         }
     }
 
@@ -375,7 +375,7 @@ public static class Layout
         }
 
         return Directory.GetFiles(docs, "*.md", SearchOption.AllDirectories)
-            .Select(file => Slash(Path.GetRelativePath(root, file)))
+            .Select(file => PathText.Relative(root, file))
             .OrderBy(file => file, StringComparer.Ordinal)
             .ToList();
     }
@@ -717,9 +717,4 @@ public static class Layout
     static List<string> Strings(JsonNode? node) => node is JsonArray array
         ? array.Select(Text).Where(text => text is not null).Select(text => text!).ToList()
         : [];
-
-    /// <summary>Writes a path with forward slashes.</summary>
-    /// <param name="value">The path as the operating system writes it.</param>
-    /// <returns>The path with forward slashes.</returns>
-    static string Slash(string value) => value.Replace('\\', '/');
 }

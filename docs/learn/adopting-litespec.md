@@ -10,7 +10,7 @@ LiteSpec fits a team building one business application: one domain, one API, and
 
 ## Choose a Level to Start
 
-The conformance level in `.litespec/project.json` names the part of the contract the project claims. The levels nest, so a team loses nothing by starting low: each higher level adds to the one below it. The [scope page](../core/scope.md) states what each level claims and what each tool runs at that level.
+The conformance level in `.litespec/project.yaml` names the part of the contract the project claims. The levels nest, so a team loses nothing by starting low: each higher level adds to the one below it. The [scope page](../core/scope.md) states what each level claims and what each tool runs at that level.
 
 | Level | What the project claims | Start here when |
 |:---|:---|:---|
@@ -38,17 +38,18 @@ Run the first command only when the project has no `.config/dotnet-tools.json` y
 
 ### 2. Describe the Project at Records
 
-Write `.litespec/project.json` with the size, the shape, and the level. The size stays required at every level because it sets which record types must exist. At `records` the stacks may be empty or absent, and `paths.frontends` may be absent; a `server` project with no frontend may omit `paths.frontends` at every level. A project that names its stacks at `records` names them for information alone, since no code reader runs at this level.
+Write `.litespec/project.yaml` with the size, the shape, and the level. The size stays required at every level because it sets which record types must exist. At `records` the stacks may be empty or absent, and `frontends` may be absent; a `server` project with no frontend may omit `frontends` at every level. A project that names its stacks at `records` names them for information alone, since no code reader runs at this level.
 
-```json
-{
-  "size": "small",
-  "shape": "server",
-  "stacks": [],
-  "conformance": "records",
-  "reviewedLiteSpecVersion": "4.1.0",
-  "paths": { "behaviorDocs": ".litespec/behavior" }
-}
+```yaml
+size: small
+shape: server
+stacks: []
+layers:
+  intent: litespec
+  behavior: litespec
+reviewedLiteSpecVersion: 4.1.0
+paths:
+  behaviorDocs: .litespec/behavior
 ```
 
 Fill in the paths, name the refusal codes in `refusals`, and select the extensions the project needs. The [selection page](https://litespec.dev/4.1.0/select/) shows which pages the choices apply. For an existing project, set `conformance` in the project file it already has and leave its code where it is.

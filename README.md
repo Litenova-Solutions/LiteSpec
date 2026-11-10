@@ -24,7 +24,7 @@ A project describes itself with records: written statements of fixed types, join
 
 The `litespec` tool reads the records and the code, builds a project model, and reports where the two disagree.
 
-A project states the part of the contract it claims in the `conformance` field of `.litespec/project.json`. A conformance level is that claim. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims.
+A project states the part of the contract it claims in the `conformance` field of `.litespec/project.yaml`. A conformance level is that claim. The levels nest: `traced` claims everything `records` claims, and `full` claims everything `traced` claims.
 
 | Conformance level | What the project claims |
 |:---|:---|
@@ -52,7 +52,7 @@ It loads record context through `litespec model query <record-id>`, which return
 
 ## Installation
 
-The `litespec` command line is a native executable for Windows, Linux and macOS that needs no .NET runtime. A repository with the .NET SDK installs it as a local .NET tool; run these commands from the root of a consumer repository, the folder that will hold `.litespec/project.json`.
+The `litespec` command line is a native executable for Windows, Linux and macOS that needs no .NET runtime. A repository with the .NET SDK installs it as a local .NET tool; run these commands from the root of a consumer repository, the folder that will hold `.litespec/project.yaml`.
 
 ```bash
 dotnet new tool-manifest
@@ -72,7 +72,7 @@ litespec init --preset dotnet-svelte --size small --install standalone
 
 On Windows, `irm https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.ps1 | iex` installs it. The [CLI overview](docs/tools/README.md#install-the-cli) lists every install method, how each pins the release, and the platform requirements.
 
-`init` writes `.litespec/project.json` for the project. Both `--preset` and `--size` are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, `android-client`, and `records`. See [Initialize Consumer](docs/tools/init.md) for every option.
+`init` writes `.litespec/project.yaml` for the project. Both `--preset` and `--size` are required: `--preset` selects the shape, stacks, and frontends, and `--size` selects `small` or `large`. The presets are `dotnet-react`, `dotnet-svelte`, `blazor-client`, `android-client`, and `records`. See [Initialize Consumer](docs/tools/init.md) for every option.
 
 ## First Check
 
@@ -90,7 +90,7 @@ The CLI has eight commands.
 
 | Command | Does |
 |:---|:---|
-| `litespec init` | Writes `.litespec/project.json` for a new consumer from a preset. |
+| `litespec init` | Writes `.litespec/project.yaml` for a new consumer from a preset. |
 | `litespec new` | Creates a record file in its one legal folder and reserves its identifier. |
 | `litespec rename` | Renames an identifier and rewrites every citation. |
 | `litespec model check` | Checks the specification, its links, and its marks. The one command CI runs. |
@@ -113,7 +113,7 @@ A project names one size (`small` or `large`), one shape (`server` or `client-on
 | `blazor` | `docs/frontend/blazor/` | Client frontend |
 | `android` | `docs/frontend/mobile/android/` | Mobile frontend |
 
-Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. [litespec.manifest.json](litespec.manifest.json) lists the stacks, shapes, extensions, and pinned versions for the release.
+Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. [litespec.manifest.yaml](litespec.manifest.yaml) lists the stacks, shapes, extensions, and pinned versions for the release.
 
 ## Documentation
 

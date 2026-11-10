@@ -87,8 +87,8 @@ public sealed partial class ConsumerValidatorTests
     public void FrontendDeclaringBackendStackAsPlatform()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => ((JsonArray)PathsOf(project)["frontends"]!).Add(new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "dotnet" }));
-        AssertProblem(RunConsumer(folder.Path), "frontend 'web' has unknown platform 'dotnet'");
+        ConsumerFixture.MutateProject(folder.Path, project => ((JsonArray)project["frontends"]!).Add(new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "dotnet" }));
+        AssertProblem(RunConsumer(folder.Path), "/frontends/0/platform");
     }
 
     /// <summary>Glossary path that is not on disk.</summary>
@@ -109,7 +109,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/missing", ["platform"] = "react" });
         });
         AssertProblem(RunConsumer(folder.Path), "frontend 'web' path 'apps/missing' does not exist");

@@ -1,0 +1,11 @@
+shape: server
+stacks:
+- dotnet
+- svelte
+frontends:
+- name: web
+  path: apps/web
+  platform: svelte
+  ui:
+    profile: application-balanced
+paths: {}

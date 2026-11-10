@@ -92,8 +92,8 @@ internal sealed class MarksValidator
                 continue;
             }
 
-            var tree = CSharpSyntaxTree.ParseText(ReadText(file));
-            trees.Add((file, Slash(Path.GetRelativePath(root, file)), tree));
+            var tree = CSharpSyntaxTree.ParseText(FileText.ReadText(file));
+            trees.Add((file, PathText.Relative(root, file), tree));
             foreach (var node in TopLevelClasses(tree))
             {
                 if (HasFollowsMark(node))

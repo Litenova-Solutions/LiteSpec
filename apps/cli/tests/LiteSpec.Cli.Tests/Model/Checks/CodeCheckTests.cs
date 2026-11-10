@@ -149,7 +149,7 @@ public sealed class CodeCheckTests
     {
         using var temp = Cli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"refusals": {"forbidden": "library.forbidden", "invalidInput": "library.invalid"}}""");
         var file = Path.Combine(temp.Path, "BorrowCopyCommandHandler.cs");
         var model = TestModel.Model(

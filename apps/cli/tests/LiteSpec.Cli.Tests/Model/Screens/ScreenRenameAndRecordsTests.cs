@@ -33,14 +33,13 @@ public sealed class ScreenRenameAndRecordsTests
         using var temp = Cli.Temp("screen-entry-point");
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "admin", "path": "apps/admin", "platform": "react", "entryPoint": "entry-point/admin" }
-                ]
+                ], "paths": {
               }
             }
             """);
@@ -98,15 +97,14 @@ public sealed class ScreenRenameAndRecordsTests
     {
         Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte" },
                   { "name": "admin", "path": "apps/admin", "platform": "react" }
-                ]
+                ], "paths": {
               }
             }
             """);

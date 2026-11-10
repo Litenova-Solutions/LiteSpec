@@ -1,11 +1,11 @@
-using System.Text.Json;
+using LiteSpec.Model;
 
 namespace LiteSpec.Model;
 
 /// <summary>
 ///     Where a consumer's LiteSpec files live: every LiteSpec file in a consumer
 ///     repository sits under one folder, <c>.litespec/</c>, at the repository root.
-///     The project file is <c>.litespec/project.json</c>. Every command finds its
+///     The project file is <c>.litespec/project.yaml</c>. Every command finds its
 ///     consumer through this type: <c>--root</c> (or the working directory) is the
 ///     place to start, and a command that reads a consumer walks up from that place
 ///     to the first folder holding the project file. <c>init</c> alone writes into
@@ -18,10 +18,10 @@ static class ConsumerRoot
     public const string FolderName = ".litespec";
 
     /// <summary>The project file name inside the LiteSpec folder.</summary>
-    public const string ProjectFileName = "project.json";
+    public const string ProjectFileName = "project.yaml";
 
     /// <summary>The project file path as written in messages, relative to the repository root.</summary>
-    public const string ProjectFileDisplay = ".litespec/project.json";
+    public const string ProjectFileDisplay = ".litespec/project.yaml";
 
     /// <summary>The absolute path of the project file for a consumer root.</summary>
     /// <param name="root">The consumer repository root.</param>
@@ -30,7 +30,7 @@ static class ConsumerRoot
 
     /// <summary>
     ///     The consumer root a command works on: the first folder, from the start
-    ///     folder upward, that holds <c>.litespec/project.json</c>. The start folder
+    ///     folder upward, that holds <c>.litespec/project.yaml</c>. The start folder
     ///     is <c>--root</c>, or the working directory when no root was passed.
     ///     Callers use <see cref="Locate" /> or <see cref="Open" />, which report
     ///     a missing project file; this step only finds the folder.
@@ -126,7 +126,7 @@ static class ConsumerRoot
         {
             return ConsumerConfig.Load(root);
         }
-        catch (JsonException exception)
+        catch (JsonTextException exception)
         {
             exitCode = LastResort.Fail(InvalidProjectMessage(exception.Message), json, 2);
         }
@@ -147,8 +147,8 @@ static class ConsumerRoot
     /// <returns>The message naming the folder and the missing project file.</returns>
     public static string NoProjectMessage(string root) => $"Root '{root}' holds no {ProjectFileDisplay}.";
 
-    /// <summary>The message for a project file that is not valid JSON.</summary>
+    /// <summary>The message for a project file that is not valid YAML or JSON.</summary>
     /// <param name="detail">The parser's own message.</param>
     /// <returns>The message naming the project file and the parser's detail.</returns>
-    public static string InvalidProjectMessage(string detail) => $"{ProjectFileDisplay} is not valid JSON: {detail}";
+    public static string InvalidProjectMessage(string detail) => $"{ProjectFileDisplay} is not valid YAML or JSON: {detail}";
 }

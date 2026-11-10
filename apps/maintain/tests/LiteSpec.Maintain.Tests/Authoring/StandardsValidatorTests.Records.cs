@@ -38,7 +38,7 @@ public sealed partial class StandardsValidatorTests
     public void ResearchRecordBreakingItsSchema() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"researchPage\":{\"type\":\"object\",\"required\":[\"type\",\"id\",\"conclusion\"],\"properties\":{\"type\":{\"const\":\"research\"},\"id\":{\"type\":\"string\"},\"conclusion\":{\"type\":\"string\"}}},\"decisionPage\":{\"type\":\"object\"}}}");
+            StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$defs\":{\"researchPage\":{\"type\":\"object\",\"required\":[\"type\",\"id\",\"conclusion\"],\"properties\":{\"type\":{\"const\":\"research\"},\"id\":{\"type\":\"string\"},\"conclusion\":{\"type\":\"string\"}}},\"decisionPage\":{\"type\":\"object\"}}}");
             var record = StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "\"conclusion\": \"The sample shows one finding.\",\n", "");
             StandardsFixture.WriteResearch(root, record);
         },

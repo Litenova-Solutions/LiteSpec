@@ -6,7 +6,7 @@ The Reference pages list exact values a reader looks up: terms, provision identi
 
 ## How the Pages Fit Together
 
-Two pages resolve what other pages cite: [Glossary](glossary.md) defines each LiteSpec term, and [Provisions](provisions.md) resolves each provision ID to its heading, page, and mark. Four pages state exact file and contract shapes: [Project File](project-file.md), [Release Manifest](manifest.md), [Schemas](schemas.md), and [Published URLs](published-urls.md). [Decision Records](decision-records.md) and [Audit Obligations](audit-obligations.md) are the two lookup companions: where a decision record lives and what it holds, and which outside obligations the audit extension satisfies.
+Two pages resolve what other pages cite: [Glossary](glossary.md) defines each LiteSpec term, and [Provisions](provisions.md) resolves each provision ID to its heading, page, and mark. Four pages state exact file and contract shapes: [Project File](project-file.md), [Release Manifest](manifest.md), [Formats](formats.md), and [Published URLs](published-urls.md). [Decision Records](decision-records.md) and [Audit Obligations](audit-obligations.md) are the two lookup companions: where a decision record lives and what it holds, and which outside obligations the audit extension satisfies.
 
 ## Terms and Provisions
 
@@ -15,9 +15,9 @@ Two pages resolve what other pages cite: [Glossary](glossary.md) defines each Li
 
 ## Files and Contracts
 
-- [Project File](project-file.md): every field of `.litespec/project.json` and what reads it.
-- [Release Manifest](manifest.md): every field of `litespec.manifest.json` and how to add a stack or extension.
-- [Schemas](schemas.md): every JSON schema, the file it validates, and the command that checks it.
+- [Project File](project-file.md): every field of `.litespec/project.yaml` and what reads it.
+- [Release Manifest](manifest.md): every field of `litespec.manifest.yaml` and how to add a stack or extension.
+- [Formats](formats.md): every file format, who writes it, its envelope, and the schema and command that check it.
 - [Published URLs](published-urls.md): every URL the site serves for agents and people.
 
 ## Decisions and Obligations

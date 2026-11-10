@@ -7,7 +7,7 @@
       "style": "index",
       "area": "README",
       "title": "LiteSpec Documentation",
-      "intent": "LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in \u0060.litespec/project.json\u0060 (its size, shape, technology stacks, and extensions), so most readers need only a few groups.",
+      "intent": "LiteSpec is a standard for building one business application from written rules that tools check, and this index lists every page of that standard in four groups. Developers and agents open it at the start of a task to find the page that states the rules for that task. A project applies only the folders named by its selection in \u0060.litespec/project.yaml\u0060 (its size, shape, technology stacks, and extensions), so most readers need only a few groups.",
       "sections": [
         "Intent",
         "Which Page Do You Want",
@@ -887,7 +887,7 @@
       "style": "stack",
       "area": "backend",
       "title": ".NET Stack",
-      "intent": "A backend built on .NET declares the \u0060dotnet\u0060 stack in \u0060.litespec/project.json\u0060. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.",
+      "intent": "A backend built on .NET declares the \u0060dotnet\u0060 stack in \u0060.litespec/project.yaml\u0060. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1736,7 +1736,7 @@
       "style": "stack",
       "area": "frontend",
       "title": "Blazor Stack",
-      "intent": "The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user\u0027s device, under the \u0060client-only\u0060 shape declared in [Supported Scope](../../core/scope.md). Exact framework and package versions live only in \u0060litespec.manifest.json\u0060.",
+      "intent": "The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user\u0027s device, under the \u0060client-only\u0060 shape declared in [Supported Scope](../../core/scope.md). Exact framework and package versions live only in \u0060litespec.manifest.yaml\u0060.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1794,7 +1794,7 @@
       "style": "stack",
       "area": "frontend",
       "title": "Android Stack",
-      "intent": "The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, \u0060client-only\u0060 or \u0060server\u0060, declared in [Supported Scope](../../../core/scope.md). Exact .NET and Android API versions live only in \u0060litespec.manifest.json\u0060.",
+      "intent": "The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, \u0060client-only\u0060 or \u0060server\u0060, declared in [Supported Scope](../../../core/scope.md). Exact .NET and Android API versions live only in \u0060litespec.manifest.yaml\u0060.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2832,7 +2832,7 @@
       "style": "explanation",
       "area": "learn",
       "title": "Read the Standard",
-      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file \u0060.litespec/project.json\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.",
+      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.",
       "sections": [
         "Intent",
         "A Project\u0027s Selection",
@@ -3141,6 +3141,19 @@
       ]
     },
     {
+      "file": "docs/reference/formats.md",
+      "path": "reference/formats",
+      "style": "reference",
+      "area": "reference",
+      "title": "Formats",
+      "intent": "Every file a LiteSpec tool reads or writes has one format, and every format a person writes has one schema (a contract stating its exact shape) that the checking command and the editor both validate. This page lists each format: the file, who writes it, its envelope, the command that reads or checks it, and its schema with a real example. An author in a consumer project uses it to wire editor validation and to look up a field, and a tool author uses it to find which command owns which file.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
       "file": "docs/reference/glossary.md",
       "path": "reference/glossary",
       "style": "glossary",
@@ -3159,7 +3172,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Release Manifest",
-      "intent": "\u0060litespec.manifest.json\u0060 is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release\u0027s real values, states what each field drives, and shows how to add a stack or an extension.",
+      "intent": "\u0060litespec.manifest.yaml\u0060 is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release\u0027s real values, states what each field drives, and shows how to add a stack or an extension.",
       "sections": [
         "Intent",
         "Reference",
@@ -3172,7 +3185,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Project File",
-      "intent": "\u0060.litespec/project.json\u0060 is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the \u0060litespec model check\u0060 command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.",
+      "intent": "\u0060.litespec/project.yaml\u0060 is the one record of what a consumer project (an application repository built against one pinned LiteSpec release) selected: its size, shape, technology stacks, extensions, paths, and pinned release. The team edits it when the selection changes and validates it with the \u0060litespec model check\u0060 command before relying on it. This page lists every field the file holds, states what reads each field, and shows the errors a wrong value produces.",
       "sections": [
         "Intent",
         "Reference",
@@ -3202,19 +3215,6 @@
       "area": "reference",
       "title": "Published URLs",
       "intent": "An agent (software that reads task context, changes files, and runs checks) wires itself to LiteSpec through URLs on \u0060https://litespec.dev\u0060, not through a local copy of the repository. This page lists every URL the site serves: its pattern, a real example for the current release, and what it returns, so an agent or a reader resolves any reference with a fetch.",
-      "sections": [
-        "Intent",
-        "Reference",
-        "Notes"
-      ]
-    },
-    {
-      "file": "docs/reference/schemas.md",
-      "path": "reference/schemas",
-      "style": "reference",
-      "area": "reference",
-      "title": "Schemas",
-      "intent": "Every file a LiteSpec tool reads has one schema (a contract stating its exact shape), and the checking command and the editor validate the same contract. This page lists every schema the release ships: the file it validates, the command that checks it, its published URL, its top-level properties, and a real example. An author in a consumer project uses it to wire editor validation and to look up a field, and a tool author uses it to find which command owns which file.",
       "sections": [
         "Intent",
         "Reference",
@@ -3433,7 +3433,7 @@
       "style": "standard",
       "area": "workspace",
       "title": "Workspace Structure",
-      "intent": "A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what \u0060.litespec/project.json\u0060 declares. It applies to anyone who creates a file, and to agents locating code without asking.",
+      "intent": "A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what \u0060.litespec/project.yaml\u0060 declares. It applies to anyone who creates a file, and to agents locating code without asking.",
       "sections": [
         "Intent",
         "Concepts",

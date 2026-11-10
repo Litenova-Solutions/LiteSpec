@@ -391,7 +391,7 @@ public sealed class PlacementDriftModuleLayoutTests
     static ProjectModel DriftModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 

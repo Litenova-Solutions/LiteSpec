@@ -58,7 +58,7 @@ public sealed class ReaderProblemsTests
     {
         using var temp = Cli.Temp("reader-problems");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stacks": ["dotnet"], "paths": {"testRoots": ["src/Tests"]}}""");
         var folder = Path.Combine(temp.Path, "src", "Tests");
         Directory.CreateDirectory(folder);
@@ -141,7 +141,7 @@ public sealed class ReaderProblemsTests
     {
         using var temp = Cli.Temp("reader-problems");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/Missing.Modules"}}}""");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
@@ -160,7 +160,7 @@ public sealed class ReaderProblemsTests
         using var temp = Cli.Temp("reader-problems");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"shape": "server", "stacks": ["dotnet"], "stackConfig": {"dotnet": {"modules": "src/*.Modules"}}}""");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
@@ -176,7 +176,7 @@ public sealed class ReaderProblemsTests
     {
         using var server = Cli.Temp("reader-problems");
         File.WriteAllText(
-            Path.Combine(server.Path, ".litespec/project.json"),
+            Path.Combine(server.Path, ".litespec/project.yaml"),
             """{"shape": "server", "stacks": ["svelte"]}""");
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(server.Path));
@@ -187,7 +187,7 @@ public sealed class ReaderProblemsTests
 
         using var client = Cli.Temp("reader-problems");
         File.WriteAllText(
-            Path.Combine(client.Path, ".litespec/project.json"),
+            Path.Combine(client.Path, ".litespec/project.yaml"),
             """{"shape": "client-only", "stacks": ["svelte"]}""");
 
         var clientModel = ModelBuilder.Build(ConsumerConfig.Load(client.Path));
@@ -202,11 +202,11 @@ public sealed class ReaderProblemsTests
     {
         using var consumer = Cli.Temp("reader-problems");
         File.WriteAllText(
-            Path.Combine(consumer.Path, ".litespec/project.json"),
+            Path.Combine(consumer.Path, ".litespec/project.yaml"),
             """{"shape": "client-only", "stacks": []}""");
 
         using var home = Cli.Temp("reader-problems-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), "[]\n");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), "[]\n");
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
         foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
@@ -219,7 +219,7 @@ public sealed class ReaderProblemsTests
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Contains("reader-missing", check.Output);
-        Assert.Contains("litespec.manifest.json", check.Output);
+        Assert.Contains("litespec.manifest.yaml", check.Output);
     }
 
     /// <summary>Two handlers with the same simple name in different namespaces keep their own kind and effects.</summary>
@@ -256,7 +256,7 @@ public sealed class ReaderProblemsTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "domain": "src/Domain",

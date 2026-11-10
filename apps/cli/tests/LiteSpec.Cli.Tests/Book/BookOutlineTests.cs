@@ -41,7 +41,7 @@ public sealed class BookOutlineTests
     [Fact]
     public void Fixture_Model_Places_Every_Record_Exactly_Once()
     {
-        var root = JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/review.json")))!;
+        var root = DataFile.Read(Cli.Fixture("Book/review.json"))!;
         var model = root.AsObject();
         var outline = BookOutline.Build(model);
 

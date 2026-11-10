@@ -36,8 +36,8 @@ public sealed class StackReaderTests
     {
         using var temp = ModelFixture.Prepare("small");
 
-        var projectFile = Path.Combine(temp.Path, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
+        var projectFile = Path.Combine(temp.Path, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("react"));
         File.WriteAllText(projectFile, project.ToJsonString());
 
