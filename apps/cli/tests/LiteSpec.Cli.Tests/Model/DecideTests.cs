@@ -72,45 +72,26 @@ public sealed class DecideTests
     /// <summary>Each JSON finding carries the severity name of its level: error for G, warning for S and note for A.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Json_Findings_Carry_Severity_By_Level()
+    public void Json_Findings_Carry_Level_And_Outcome()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
         var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
-        Assert.Equal("error", SeverityOf(result.Stdout, "paging-undeclared"));
+        Assert.Equal("blocking", OutcomeOf(result.Stdout, "paging-undeclared").Outcome);
         Assert.Equal("G", LevelOf(result.Stdout, "paging-undeclared"));
 
         using var advisoryFixture = ModelFixture.Prepare("small");
         WriteScenario(advisoryFixture.Path);
         var advisory = Cli.Run("model", "check", "--root", advisoryFixture.Path, "--format", "json");
 
-        Assert.Equal("note", SeverityOf(advisory.Stdout, "use-case-unverified"));
+        Assert.Equal("reported", OutcomeOf(advisory.Stdout, "use-case-unverified").Outcome);
         Assert.Equal("A", LevelOf(advisory.Stdout, "use-case-unverified"));
 
         using var readerFixture = ModelFixture.Prepare("small", "use-case-unimplemented");
         var reader = Cli.Run("model", "check", "--root", readerFixture.Path, "--format", "json");
 
-        Assert.Equal("warning", SeverityOf(reader.Stdout, "use-case-unimplemented"));
+        Assert.Equal("blocking", OutcomeOf(reader.Stdout, "use-case-unimplemented").Outcome);
         Assert.Equal("S", LevelOf(reader.Stdout, "use-case-unimplemented"));
-    }
-
-    /// <summary>Reads one finding's severity from the check JSON.</summary>
-    /// <param name="stdout">The check command JSON output.</param>
-    /// <param name="code">The finding code to read.</param>
-    /// <returns>The finding severity: error, warning or note.</returns>
-    static string? SeverityOf(string stdout, string code)
-    {
-        using var document = JsonDocument.Parse(stdout);
-
-        foreach (var finding in document.RootElement.GetProperty("findings").EnumerateArray())
-        {
-            if (finding.GetProperty("code").GetString() == code)
-            {
-                return finding.GetProperty("severity").GetString();
-            }
-        }
-
-        throw new InvalidOperationException($"No finding carries '{code}'.");
     }
 
     /// <summary>Reads one finding's level from the check JSON.</summary>

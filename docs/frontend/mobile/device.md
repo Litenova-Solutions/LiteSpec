@@ -19,7 +19,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#prefer-permissionless-system-pickers`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An app MUST pick photos and files through the system picker that needs no storage permission when the platform offers one.
 
@@ -31,7 +31,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#request-a-permission-at-the-point-of-use`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A runtime permission MUST be requested when the visitor starts the action that needs it, never at launch.
 
@@ -43,7 +43,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#hold-audio-focus-while-playing-sound`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An app playing audible sound MUST request audio focus and pause when it loses focus.
 
@@ -55,7 +55,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#pause-media-in-the-background`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Sound and video MUST pause when the app leaves the foreground and resume only when it returns.
 
@@ -67,7 +67,7 @@ A picker lends one item without granting access to the library; a permission gra
 
 **ID:** `litespec/frontend/mobile/device#declare-only-used-permissions`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The app manifest MUST declare only the permissions the app's current features use.
 

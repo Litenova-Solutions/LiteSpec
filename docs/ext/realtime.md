@@ -30,7 +30,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#record-realtime-need`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -44,7 +44,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#reject-cosmetic-realtime-adoption`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -58,7 +58,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#use-server-sent-events-for-notifications`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -72,7 +72,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#use-signalr-for-interactive-messaging`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -86,7 +86,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#record-transport-support`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -100,7 +100,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#declare-realtime-freshness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -114,7 +114,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#authenticate-and-authorize-subscriptions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -128,7 +128,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#revalidate-long-lived-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -142,7 +142,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#reconnect-and-refresh-authoritative-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -156,7 +156,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#tolerate-notification-ordering-differences`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -170,7 +170,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#bound-realtime-resources`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -184,7 +184,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **ID:** `litespec/ext/realtime#reject-unbounded-slow-client-buffering`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 

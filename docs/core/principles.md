@@ -67,7 +67,7 @@ What a reader asks first is how much of a thing exists and is proven. The model 
 
 ### Guidance States Its Strength
 
-The specification model is strict: a record follows its schema, links resolve, and code and tests mark the records they serve, and a violation is a defect. Every provision beside the model says whether it is a rule, a default, or advice, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+The specification model is strict: a record follows its schema, links resolve, and code and tests mark the records they serve, and a violation is a defect. Every provision beside the model says whether it is required, a default, or advisory, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 
 ### Tools Stay Small
 
@@ -83,7 +83,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#write-each-layer-from-the-layer-above`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -99,7 +99,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#take-every-name-from-the-intent-above-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -115,7 +115,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#compute-nothing-above-implementation-from-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -129,7 +129,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#derive-records-only-from-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -143,7 +143,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#enter-facts-from-the-world-as-research-or-constraints`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -159,7 +159,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#raise-what-a-lower-layer-needs-to-the-owner`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -175,7 +175,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#follow-intent-where-it-has-spoken`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -189,7 +189,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#treat-code-beyond-silent-intent-as-evidence-for-an-owner-question`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -205,7 +205,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#declare-every-edge`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -221,7 +221,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#end-every-effect-cycle-in-a-domain-event`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -235,7 +235,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -251,7 +251,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -265,7 +265,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#map-each-engine-step-to-one-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -281,7 +281,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#record-stricter-edge-rules-as-conventions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -295,7 +295,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#cover-other-mechanisms-with-extensions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -309,7 +309,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#keep-one-authored-source`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -323,7 +323,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#locate-package-versions-in-the-manifest`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -337,7 +337,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#prove-scenarios-with-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -351,7 +351,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#keep-git-as-the-decision-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -367,7 +367,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#build-only-what-the-specification-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -383,7 +383,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#write-every-record-about-the-software`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -399,7 +399,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#compute-completion-from-code-and-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -415,11 +415,11 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#state-the-strength-of-every-provision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** Every provision MUST state whether it is a rule, a default, or advice, and where it applies.
+**Statement:** Every provision MUST state whether it is required, a default, or advisory, and where it applies.
 
 **Rationale:** Strength words work only when each one means exactly one thing: an agent tells binding from advisory without a check existing. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 
@@ -429,7 +429,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#keep-tools-small`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -445,7 +445,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#complete-work-before-merging`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -461,7 +461,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#prove-enforceable-boundaries-mechanically`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -477,7 +477,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#require-current-complexity-activation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -491,7 +491,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#name-boundary-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -505,7 +505,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **ID:** `litespec/core/principles#avoid-generic-boundary-names`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

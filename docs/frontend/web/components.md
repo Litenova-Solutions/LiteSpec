@@ -36,7 +36,7 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **ID:** `litespec/frontend/web/components#refuse-page-code-violations-with-eslint`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -50,7 +50,7 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **ID:** `litespec/frontend/web/components#keep-component-boundaries-typed`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 

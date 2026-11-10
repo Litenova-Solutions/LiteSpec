@@ -297,9 +297,9 @@ export class Book {
     const levels = (): Explanation => ({ title: "Check level", text: this.section("Check Levels"), source: this.sectionSource("Check Levels", "model.md, Check Levels") });
     const table: Record<string, () => Explanation> = {
       awaiting: stages, unconfirmed: stages, unproved: stages, passing: stages, failing: stages, indirect: stages, norun: stages,
-      implemented: () => glossary("Implemented", "implemented"), reachable: () => glossary("Reachable", "reachable"),
+      coded: () => glossary("Coded", "coded"), reachable: () => glossary("Reachable", "reachable"),
       G: levels, S: levels, A: levels,
-      known: () => glossary("Exception", "exception"),
+      covered: () => glossary("Covered", "covered"),
       finding: () => glossary("Finding", "finding"),
     };
     let e: Explanation | null = table[key]?.() ?? null;
@@ -325,8 +325,8 @@ export class Book {
   has(id: string) { this.rev; const b = base(id); return !!(this.rec[b] || this.node[b]); }
   title(id: string) { this.rev; const b = base(id); return this.rec[b]?.title ?? this.node[b]?.label ?? b; }
   typeOf(id: string) { this.rev; const b = base(id); return this.rec[b]?.type ?? this.node[b]?.type ?? b.split("/")[0]; }
-  /** The qualified identifier of a record: the computed placement form, else the identifier itself. */
-  qualifiedId(id: string) { this.rev; const b = base(id); return this.rec[b]?.qualifiedId || b; }
+  /** The folder and module a record file sits in, as the model computes them. */
+  placement(id: string) { this.rev; const b = base(id); return { folder: this.rec[b]?.folder ?? "", module: this.rec[b]?.module ?? null }; }
   fields(id: string): Fields { return this.get(id)?.fields ?? {}; }
   kids(id: string) { this.rev; return this.kidsOf[base(id)] ?? []; }
   parent(id: string) { this.rev; return this.parentOf[base(id)] ?? null; }
@@ -480,7 +480,7 @@ export class Book {
       const states = this.scenariosOf(base(id)).map((s) => this.get(s)?.proof?.state).filter(Boolean);
       if (states.includes("failing")) return "failing";
       if (r.machine?.verified) return "passing";
-      if (r.machine && !r.machine.implemented) return "unproved";
+      if (r.machine && !r.machine.coded) return "unproved";
       return states.length ? "awaiting" : "unproved";
     }
     if (r.type === "requirement" && r.machine) return r.machine.met ? "passing" : "awaiting";
@@ -493,7 +493,7 @@ export class Book {
     if (Array.isArray(r.lacks)) return this.claimedLacks(r.lacks).join(", ");
     if (!r.expect) return "";
     const miss: string[] = [];
-    if (this.claimed("implementation") && r.expect.impl && !(r.impl ?? []).length) miss.push("not implemented");
+    if (this.claimed("implementation") && r.expect.impl && !(r.impl ?? []).length) miss.push("not coded");
     if (this.claimed("proof") && r.expect.proof) {
       if (r.type === "use-case" || r.type === "reaction" || r.type === "job") {
         const sc = this.scenariosOf(id).filter((x) => this.get(x));
@@ -504,7 +504,7 @@ export class Book {
   }
   /** Keeps the missing marks whose layer the project claims: code for not implemented, tests for the rest. */
   private claimedLacks(items: string[]) {
-    return items.filter((item) => this.claimed(item === "not implemented" ? "implementation" : "proof"));
+    return items.filter((item) => this.claimed(item === "not coded" ? "implementation" : "proof"));
   }
   /** Whether a record is complete: it has the code and tests it expects, and its scenarios pass. A record expecting nothing is complete. */
   completeOf(id: string) {
@@ -542,8 +542,8 @@ export class Book {
     { key: "layer", label: "Record layer", get: (id) => (this.layerOf[id] ? [this.layerOf[id]] : []), name: (v) => this.layerByKey[v]?.label || v },
     { key: "type", label: "Type", get: (id) => [this.typeOf(id)], name: (v) => this.typeName(v) },
     {
-      key: "findings", label: "Findings", get: (id) => { const f = this.get(id)?.findings ?? []; return f.length ? (f.some((x) => !x.known) ? ["finding"] : ["known"]) : []; },
-      name: (v) => (v === "finding" ? "Finding" : "Excepted"),
+      key: "findings", label: "Findings", get: (id) => { const f = this.get(id)?.findings ?? []; return f.length ? (f.some((x) => !x.covered) ? ["finding"] : ["covered"]) : []; },
+      name: (v) => (v === "finding" ? "Finding" : "Covered"),
     },
     { key: "proof", label: "Proof", get: (id) => { const p = this.proofState(id); return p ? [p] : []; }, name: (v) => PLABEL[v as ProofState] },
   ];

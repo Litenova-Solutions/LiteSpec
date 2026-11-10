@@ -18,9 +18,9 @@
     <div class="border-t border-border">
       {#each list as x}
         {@const level = String(x.level ?? x.tier ?? "")}
-        {@const label = x.known ? "Excepted" : (TL[level] ?? "")}
+        {@const label = x.covered ? "Covered" : (TL[level] ?? "")}
         <div class="grid grid-cols-[18px_minmax(0,1fr)_auto] gap-2 border-b border-border py-2.5 text-[13.5px]">
-          <Icon name={x.known ? "exception" : "alert"} class="mt-1 size-3.5 {x.known ? 'text-muted-foreground' : 'text-warn-foreground'}" />
+          <Icon name={x.covered ? "departure" : "alert"} class="mt-1 size-3.5 {x.covered ? 'text-muted-foreground' : 'text-warn-foreground'}" />
           <div class="min-w-0">
             <div class="font-medium text-foreground">{book.findingMeaning(String(x.code ?? ""))}</div>
             <div class="mt-0.5 text-[13px] text-subtle-foreground">
@@ -33,7 +33,7 @@
               {/if}
             </div>
           </div>
-          <button type="button" class="cursor-help rounded-sm" data-explain={x.known ? "known" : level}>
+          <button type="button" class="cursor-help rounded-sm" data-explain={x.covered ? "covered" : level}>
             <FactBadge text={label} />
           </button>
         </div>

@@ -114,10 +114,10 @@ public sealed class BookEnrichTests
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var borrow = Obj(details["use-case/lending.borrow-copy"], "machine");
-        Assert.True(BoolOf(borrow["implemented"]));
+        Assert.True(BoolOf(borrow["coded"]));
         Assert.False(BoolOf(borrow["verified"]));
         var returned = Obj(details["use-case/lending.return-copy"], "machine");
-        Assert.False(BoolOf(returned["implemented"]));
+        Assert.False(BoolOf(returned["coded"]));
         var shelf = Obj(details["requirement/self-checkout.copy-shelf-home"], "machine");
         Assert.True(BoolOf(shelf["met"]));
         Assert.Null(shelf["verified"]);
@@ -376,7 +376,7 @@ public sealed class BookEnrichTests
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "lacks"), "scenarios not tested"));
         Assert.True(HasString(Arr(details["use-case/lending.return-copy"], "lacks"), "scenarios not tested"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "lacks"));
         Assert.True(HasString(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "lacks"), "not tested"));
         var expect = Obj(details["use-case/lending.borrow-copy"], "expect");
@@ -406,7 +406,7 @@ public sealed class BookEnrichTests
     {
         var model = LoadFixture("Book/review.json");
         model["findings"] = model["findings"] as JsonArray ?? new JsonArray();
-        model["known"] = model["known"] as JsonArray ?? new JsonArray();
+        model["covered"] = model["covered"] as JsonArray ?? new JsonArray();
         (model["findings"] as JsonArray)!.Add(new JsonObject
         {
             ["code"] = "use-case-unimplemented",
@@ -416,7 +416,7 @@ public sealed class BookEnrichTests
             ["path"] = ".litespec/a.yaml",
             ["line"] = 3,
         });
-        (model["known"] as JsonArray)!.Add(new JsonObject
+        (model["covered"] as JsonArray)!.Add(new JsonObject
         {
             ["code"] = "step-screen-missing",
             ["tier"] = "A",
@@ -436,11 +436,11 @@ public sealed class BookEnrichTests
         Assert.Single(borrowFindings);
         var finding = borrowFindings[0] as JsonObject ?? new JsonObject();
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
-        Assert.False(BoolOf(finding["known"]));
+        Assert.False(BoolOf(finding["covered"]));
         Assert.Equal("Missing handler for <code>missing/x.y</code>.", Str(finding, "messageHtml"));
         var journeyFindings = Arr(details["journey/borrowing"], "findings");
         Assert.Single(journeyFindings);
-        Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["known"]));
+        Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["covered"]));
         Assert.False(details.ContainsKey("use-case/missing.nope"));
     }
 
@@ -606,7 +606,7 @@ public sealed class BookEnrichTests
     public void Details_Carry_Captures_And_Evidence_Strength_With_Computed_Completion()
     {
         var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
-        screen["completion"] = JsonNode.Parse("""{"stage":"implemented","proof":"unknown","heldBy":[],"counts":{}}""");
+        screen["completion"] = JsonNode.Parse("""{"stage":"coded","proof":"unknown","heldBy":[],"counts":{}}""");
         screen["approval"] = JsonNode.Parse("""{"by":"Ada","rule":"product owner"}""");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -628,17 +628,16 @@ public sealed class BookEnrichTests
     /// <summary>Each detail carries the qualified identifier the model states beside the record, or the identifier itself when the model states none.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_The_Qualified_Identifier()
+    public void Details_Carry_The_Folder_And_The_Module()
     {
         var placed = Record("problem", "problem/slow-desk", "Slow Desk");
-        placed["qualifiedId"] = "lending/problem/slow-desk";
+        placed["folder"] = "docs/intent/lending";
+        placed["module"] = "lending";
 
         var details = DetailsOf(NewModel(placed));
 
-        Assert.Equal("lending/problem/slow-desk", Str(details["problem/slow-desk"], "qualifiedId"));
-
-        var fixture = DetailsOf(LoadFixture("Book/review.json"));
-        Assert.Equal("goal/faster-borrowing", Str(fixture["goal/faster-borrowing"], "qualifiedId"));
+        Assert.Equal("docs/intent/lending", Str(details["problem/slow-desk"], "folder"));
+        Assert.Equal("lending", Str(details["problem/slow-desk"], "module"));
     }
 
     /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
@@ -707,7 +706,7 @@ public sealed class BookEnrichTests
             ["screens"] = new JsonArray(),
             ["exercisedSteps"] = new JsonArray(),
             ["findings"] = new JsonArray(),
-            ["known"] = new JsonArray(),
+            ["covered"] = new JsonArray(),
             ["testRun"] = null,
         };
     }

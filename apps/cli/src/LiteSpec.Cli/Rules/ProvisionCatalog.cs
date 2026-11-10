@@ -253,7 +253,7 @@ internal sealed class ProvisionCatalog
             row.Kind,
             strength.Length > 0 ? strength : row.Kind switch
             {
-                "rule" => "rule",
+                "rule" => "required",
                 "convention" => "default",
                 _ => "pattern",
             },
@@ -368,14 +368,14 @@ internal sealed class ProvisionCatalog
     static RecordLayer LayerOf(string value) =>
         LayerClaims.TryParse(value.Trim().Trim('`').Trim().ToLowerInvariant(), out var layer) ? layer : RecordLayer.Any;
 
-    /// <summary>Normalizes a strength value to rule, default or advice, or empty.</summary>
+    /// <summary>Normalizes a strength value to required, default or advisory, or empty.</summary>
     /// <param name="value">The raw value.</param>
     /// <returns>The normalized strength.</returns>
     static string NormalizeStrength(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant() switch
     {
-        "rule" or "required" => "rule",
+        "required" => "required",
         "default" => "default",
-        "advice" or "advisory" => "advice",
+        "advisory" => "advisory",
         _ => "",
     };
 

@@ -217,17 +217,17 @@ public sealed class HandlerShapeCheckTests
         Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Approved Exception Holds An Inline Call On Its Subject.</summary>
+    /// <summary>Departure Holds An Inline Call On Its Subject.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Approved_Exception_Holds_An_Inline_Call_On_Its_Subject()
+    public void Departure_Holds_An_Inline_Call_On_Its_Subject()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"status": "approved", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("departure", "departure/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 

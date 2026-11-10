@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#name-the-command-on-a-confirm-action`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A confirmation dialog MUST label its confirm action with the command it runs.
 
@@ -35,7 +35,7 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 
 **ID:** `litespec/frontend/patterns/dialogs-and-overlays#return-focus-when-an-overlay-closes`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An overlay MUST return focus to the control that opened it when it closes.
 

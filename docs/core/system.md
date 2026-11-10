@@ -62,7 +62,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#keep-decision-authority-with-accountable-people`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -76,7 +76,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#drive-work-from-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -90,7 +90,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-code-and-tests-up-to-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -106,7 +106,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -122,7 +122,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#declare-every-edge-between-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -136,7 +136,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#deliver-one-complete-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -152,7 +152,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#update-records-with-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

@@ -45,7 +45,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming an unknown artifact")]
     public void AppliesToUnknownArtifact() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: receipt\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: receipt\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Applies to line naming a record artifact.</summary>
@@ -54,7 +54,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToRecordArtifact() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: record:use-case\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: record:use-case\n\n**Default:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: record:use-case\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: record:use-case\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -63,14 +63,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line as wide as its page")]
     public void AppliesToRepeatingPageScope() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** stack: any\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: any\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Applies to line widening its page.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line widening its page")]
     public void AppliesToWideningPageScope() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any", "**Stack:** dotnet"), "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** stack: react\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any", "**Stack:** dotnet"), "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: react\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Applies to line narrowing to an artifact.</summary>
@@ -79,7 +79,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToArtifactNarrows() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -90,7 +90,7 @@ public sealed partial class StandardsValidatorTests
     public void ArtifactMissingBesideANamedArtifact() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate\n\n**Statement:**"));
             StandardsFixture.RebuildIndex(root);
         },
         [Diagnostics.Codes.ScopeArtifact]);
@@ -101,7 +101,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToStackNarrowsAny() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** stack: dotnet\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: dotnet\n\n**Statement:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -110,7 +110,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line repeating a page stack of any")]
     public void AppliesToStackRepeatingAny() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** stack: any\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** stack: any\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
     /// <summary>Applies to line naming a layer that differs from its page.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
@@ -118,7 +118,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToLayerDiffers() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** layer: implementation\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** layer: implementation\n\n**Statement:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -129,7 +129,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToTraceDiffers() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** trace: yes\n\n**Statement:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** trace: yes\n\n**Statement:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -140,7 +140,7 @@ public sealed partial class StandardsValidatorTests
     public void AppliesToArtifactLayerAndTrace() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; layer: implementation; trace: yes\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate; layer: implementation; trace: yes\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
             StandardsFixture.RebuildIndex(root);
         },
         []);
@@ -149,42 +149,42 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming an unknown layer")]
     public void AppliesToUnknownLayer() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** layer: partial\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** layer: partial\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Applies to line naming a trace outside yes and no.</summary>
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming a trace outside yes and no")]
     public void AppliesToUnknownTrace() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** trace: maybe\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** trace: maybe\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Applies to line naming two traces.</summary>
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming two traces")]
     public void AppliesToTwoTraces() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** trace: yes, no\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** trace: yes, no\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Applies to line stating its page layer.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line stating its page layer")]
     public void AppliesToRepeatingPageLayer() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** layer: any\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** layer: any\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Applies to line stating its page trace of no.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line stating its page trace of no")]
     public void AppliesToRepeatingPageTrace() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** trace: no\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** trace: no\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Applies to line stating its page layer beside an artifact.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line stating its page layer beside an artifact")]
     public void AppliesToArtifactRepeatingPageLayer() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; layer: any\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate; layer: any\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeNarrow]);
 
     /// <summary>Scope vocabulary page naming the record layers and the concerns.</summary>
@@ -203,14 +203,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "provision without a Strength line")]
     public void MissingStrengthLine() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n", "")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n", "")),
         [Diagnostics.Codes.StrengthLine]);
 
     /// <summary>Strength line naming an outside value.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "strength line naming an outside value")]
     public void StrengthLineUnknownValue() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule", "**Strength:** Law")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required", "**Strength:** Law")),
         [Diagnostics.Codes.StrengthLine]);
 
     /// <summary>Backticked scope values read as their inner text.</summary>
@@ -220,7 +220,7 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Stack:** any\n**Concern:** records", "**Stack:** `any`\n**Concern:** `records`");
-            page = StandardsFixture.ReplaceFirst(page, "**Strength:** rule", "**Strength:** `rule`");
+            page = StandardsFixture.ReplaceFirst(page, "**Strength:** required", "**Strength:** `required`");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
         []);
@@ -306,14 +306,14 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming no field")]
     public void EmptyAppliesToLine() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:**\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:**\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Applies to line naming an unknown field.</summary>
     /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact(DisplayName = "applies to line naming an unknown field")]
     public void AppliesToUnknownField() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** region: core\n\n**Statement:**")),
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** region: core\n\n**Statement:**")),
         [Diagnostics.Codes.ScopeValue]);
 
     /// <summary>Scope vocabulary page naming the settled artifact kinds.</summary>

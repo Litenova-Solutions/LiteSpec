@@ -439,7 +439,7 @@ internal sealed partial class ProvisionValidator
             }
             else if (PageReader.TryParseStrengthLine(strengths[0].Line, out var named) && !Scopes.StrengthValues.Contains(Scopes.Unquote(named)))
             {
-                add(relative, strengths[0].Number, Diagnostics.Codes.StrengthLine, $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `rule`, `default`, and `advice`");
+                add(relative, strengths[0].Number, Diagnostics.Codes.StrengthLine, $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `required`, `default`, and `advisory`");
             }
 
             var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();

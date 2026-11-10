@@ -65,7 +65,7 @@ internal static class RuleRetriever
         foreach (var (entry, reasons) in found.Values)
         {
             var departure = departures.FirstOrDefault(candidate =>
-                candidate.Covers == entry.Id && DepartureStore.Covers(candidate, target, candidates));
+                DepartureStore.Names(candidate, entry) && DepartureStore.Covers(candidate, target, candidates));
 
             results.Add(new RuleResult(entry, reasons, departure));
         }

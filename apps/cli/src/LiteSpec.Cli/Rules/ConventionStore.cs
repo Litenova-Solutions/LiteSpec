@@ -122,8 +122,8 @@ internal sealed class ConventionStore
             "convention",
             labels.GetValueOrDefault("Strength", "").Trim().Trim('`').Trim().ToLowerInvariant() switch
             {
-                "rule" or "required" => "rule",
-                "advice" or "advisory" => "advice",
+                "required" => "required",
+                "advisory" => "advisory",
                 _ => "default",
             },
             "",

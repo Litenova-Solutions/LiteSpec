@@ -16,7 +16,7 @@
   const handler = $derived(impl.find((x) => x.kind === "handler") ?? null);
   const more = $derived(impl.filter((x) => x.kind !== "handler" && x.kind !== "endpoint"));
   const missing = $derived(!handler && !endpoint);
-  const machineMissing = $derived(!!((r.machine as Fields | null) && !(r.machine as Fields).implemented));
+  const machineMissing = $derived(!!((r.machine as Fields | null) && !(r.machine as Fields).coded));
 
   const rows = $derived.by(() => {
     const out: string[][] = [];

@@ -38,7 +38,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -52,7 +52,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#query-through-the-read-session`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -66,7 +66,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#commit-each-command-pipeline-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -90,7 +90,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#honor-the-declared-consistency-mode`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -106,7 +106,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -120,7 +120,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#keep-mappings-and-aliases-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -134,7 +134,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -150,7 +150,7 @@ Registration covers the types this store actually persists. The store that write
 
 **ID:** `litespec/backend/persistence#evolve-stored-document-contracts-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -166,7 +166,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#bound-aggregate-document-growth`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -180,7 +180,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#use-database-naming-conventions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -194,7 +194,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#control-production-schema-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: migration
 
@@ -210,7 +210,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#test-persistence-against-postgresql`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -224,7 +224,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -240,7 +240,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#assign-document-numbers-from-a-sequence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, repository
 
@@ -256,7 +256,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#enforce-uniqueness-in-the-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -272,7 +272,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#model-a-once-only-rule-as-aggregate-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -288,7 +288,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#claim-a-cross-record-key-at-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -304,7 +304,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#keep-uniqueness-out-of-handlers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -320,7 +320,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -336,7 +336,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#version-every-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -416,7 +416,7 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **ID:** `litespec/backend/persistence#review-query-plans-for-new-indexes`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: any
 

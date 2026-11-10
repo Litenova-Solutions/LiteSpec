@@ -28,7 +28,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#record-the-tenant-adoption-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -42,7 +42,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#define-tenant-isolation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -56,7 +56,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#avoid-unplanned-isolation-models`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -70,7 +70,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#resolve-tenant-identity-from-trusted-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -84,7 +84,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#reject-unrestricted-tenant-input`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -98,7 +98,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#verify-actor-and-target-tenancy`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -112,7 +112,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-every-use-case-to-its-tenant-reach`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -128,7 +128,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#isolate-administrative-cross-tenant-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -142,7 +142,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#use-selected-tenant-storage-support`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -156,7 +156,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-tenant-owned-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -170,7 +170,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#apply-cross-tenant-disclosure-policy`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -184,7 +184,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#protect-tenant-diagnostics`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -198,7 +198,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-tenant-operations`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
@@ -212,7 +212,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#record-an-all-tenant-operation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job
 
@@ -228,7 +228,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#declare-delegation-grants-on-both-sides`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -244,7 +244,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#scope-delegated-grants-to-named-permissions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -258,7 +258,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#bound-every-delegation-in-time`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -272,7 +272,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#audit-actions-taken-under-delegation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -286,7 +286,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **ID:** `litespec/ext/tenancy#prove-delegated-calls-with-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:scenario
 

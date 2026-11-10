@@ -28,7 +28,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#record-each-plan-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -44,7 +44,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#gate-behavior-through-permissions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -58,7 +58,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#bound-plan-amounts-in-settings`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting-set
 
@@ -74,7 +74,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#refuse-runs-beyond-entitlement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -88,7 +88,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#resolve-the-acting-plan-from-trusted-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -102,7 +102,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **ID:** `litespec/ext/plans#hide-unentitled-actions-on-screens`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 

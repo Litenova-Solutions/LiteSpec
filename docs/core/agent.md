@@ -63,7 +63,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#select-task-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -79,7 +79,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#follow-the-local-pattern-before-the-model-query`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -95,7 +95,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#load-applicable-extensions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -111,7 +111,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#load-applicable-provisions-before-editing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -127,7 +127,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#apply-guidance-precedence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -141,7 +141,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#replace-only-declared-conventions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -155,7 +155,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#stop-on-unresolved-conflict`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -169,7 +169,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#inspect-existing-work-before-editing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -183,7 +183,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#restrict-unapproved-side-effects`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -197,7 +197,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#make-coherent-scoped-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -211,7 +211,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#take-expected-values-from-the-scenario`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -227,7 +227,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#verify-refusals-and-calculations-against-held-back-examples`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -243,7 +243,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#write-pages-below-decided-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -259,7 +259,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#escalate-decisions-that-specify-forbids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -275,7 +275,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#raise-open-figures-to-the-owner`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -291,7 +291,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#name-judged-provisions-in-the-completion-report`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -307,7 +307,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **ID:** `litespec/core/agent#advise-without-gating`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

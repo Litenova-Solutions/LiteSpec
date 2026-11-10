@@ -28,7 +28,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#name-the-closed-tool-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -44,7 +44,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#refuse-unknown-tools`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -60,7 +60,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#assert-structure-and-never-wording`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -76,7 +76,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#pin-a-deterministic-stub-in-proof`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -92,7 +92,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#record-provenance-in-the-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -108,7 +108,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#bound-tool-calls-per-query`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 

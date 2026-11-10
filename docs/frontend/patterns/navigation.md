@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 
 **ID:** `litespec/frontend/patterns/navigation#mark-the-current-section`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The navigation MUST mark the section that holds the current page.
 
@@ -35,7 +35,7 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 
 **ID:** `litespec/frontend/patterns/navigation#give-every-page-its-own-address`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every page MUST have its own URL that opens it directly.
 

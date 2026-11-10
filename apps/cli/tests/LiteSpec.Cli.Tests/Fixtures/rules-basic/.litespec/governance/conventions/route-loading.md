@@ -2,7 +2,7 @@
 
 **ID:** `demo/conventions#show-a-loading-state-on-every-route`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** `apps/web/src/routes/**`
 

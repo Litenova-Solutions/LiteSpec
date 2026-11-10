@@ -90,12 +90,12 @@ public static class FindingCodes
         new("rule-name-invalid", "G", RecordLayer.Any, trace: false,
             "A rule statement negates what its name does not keep.",
             "Keep the negation word in the rule name."),
-        new("exception-expired", "G", RecordLayer.Any, trace: false,
-            "An exception stands past its expiresOn date.",
-            "Fix the finding, or extend the exception with a new expiresOn date."),
-        new("exception-finding-unknown", "G", RecordLayer.Any, trace: false,
-            "An exception names a finding code no check emits.",
-            "Name a finding code a check emits."),
+        new("departure-expired", "G", RecordLayer.Any, trace: false,
+            "A departure stands past its expiresOn date.",
+            "Fix the finding, or extend the departure with a new expiresOn date."),
+        new("departure-invalid", "G", RecordLayer.Any, trace: false,
+            "A departure covers a finding code no check emits, a provision or page the installed release does not ship, or a code the model needs in order to load.",
+            "Name a finding code a check emits, or a provision or page of the installed release, and no code the model needs in order to load."),
         new("job-name-invalid", "G", RecordLayer.Any, trace: false,
             "A job name does not start with the verb of a use case it runs.",
             "Start the job name with the verb of a use case it runs."),
@@ -214,7 +214,7 @@ public static class FindingCodes
             "A code element the marks table names carries no mark.",
             "Add the mark the marks table names."),
         new("mark-unknown", "S", RecordLayer.Implementation, trace: true,
-            "A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or exception, or a provision on a page the project's stacks do not apply.",
+            "A mark names no record, or a record of a type its code element does not take, or sits on an element that takes no mark; or a `follows` mark names no provision of the carried release, no decision or departure, or a provision on a page the project's stacks do not apply.",
             "Point the mark at a record its element takes, or remove the mark."),
         new("decision-unimplemented", "S", RecordLayer.Implementation, trace: true,
             "A technical decision under `.litespec/implementation/decisions/` is followed by no code element.",
@@ -292,8 +292,8 @@ public static class FindingCodes
             "A reader could not read what it was given: a frontend reader could not run (Node is absent, its handshake names another protocol, or it failed), a .NET reader could not read or parse a backend, test or screen file, a declared stack root resolved to no folder, a `server` project selected no backend reader, or a configured bill of materials was missing, not JSON, not SPDX or CycloneDX, or yielded no packages. The finding names the cause and the file or path; a frontend's S findings report instead of blocking.",
             "Restore the reader: install Node, match the handshake, or fix the failure the finding names."),
         new("use-case-unimplemented", "S", RecordLayer.Implementation, trace: true,
-            "No code implements the use case and no exception covers it.",
-            "Implement the use case, or record an exception."),
+            "No code implements the use case and no departure covers it.",
+            "Implement the use case, or record a departure."),
         new("refusal-unimplemented", "S", RecordLayer.Implementation, trace: true,
             "A refusal result names a code the code never throws, or a code matching a `refusals.composed` template whose key no code declares.",
             "Throw the named code, or remove the refusal result."),
@@ -355,8 +355,8 @@ public static class FindingCodes
             "A result or refusal code the `--since` base held no longer exists, or an integration event changed since the base. It runs on `check --since` only.",
             "Keep the result, refusal code and integration event the base published."),
         new("analyzer-lowering-unrecorded", "S", RecordLayer.Implementation, trace: false,
-            "A LiteSpec analyzer rule is lowered or switched off in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable` or `[SuppressMessage]` while no live exception covers the provision the rule enforces.",
-            "Remove the lowering, or record an exception for the provision."),
+            "A LiteSpec analyzer rule is lowered or switched off in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable` or `[SuppressMessage]` while no live departure covers the provision the rule enforces.",
+            "Remove the lowering, or record a departure for the provision."),
         new("alert-link-missing", "S", RecordLayer.Any, trace: false,
             "An alert rule in `paths.alerts` has no `requirement` label naming a quality requirement or no `runbook` label naming a runbook.",
             "Label the alert rule with the requirement and the runbook.", extension: "delivery"),
@@ -364,8 +364,8 @@ public static class FindingCodes
             "An alert rule's own text carries none of the decimal numbers its requirement's `measure` names.",
             "Carry a decimal number from the `measure` in the alert text.", extension: "delivery"),
         new("quality-alert-missing", "G", RecordLayer.Any, trace: false,
-            "A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open exception covers.",
-            "Name the requirement from an alert, or record an exception.", extension: "delivery"),
+            "A quality requirement no alert names, whose `check` matches no measured-check or check result, and no open departure covers.",
+            "Name the requirement from an alert, or record a departure.", extension: "delivery"),
         new("runbook-unused", "A", RecordLayer.Any, trace: false,
             "A runbook no alert, job or use case names.",
             "Name the runbook from an alert, a job or a use case, or remove the runbook.", extension: "delivery"),
@@ -433,7 +433,7 @@ public static class FindingCodes
             "A selected extension ships in no pinned release, or supports a stack the project does not name.",
             "Name an extension the pinned release ships for the selected stacks."),
         new("stage-deferral-invalid", "G", RecordLayer.Any, trace: false,
-            "A deferral exception names a provision the pinned release does not ship.",
+            "A deferral departure names a provision the pinned release does not ship.",
             "Point the deferral at a provision of the pinned release."),
         new("page-invalid", "G", RecordLayer.Any, trace: false,
             "A record file holds a document type or an article type without its explanation file, or a Markdown file is neither an explanation beside its record nor a document with a frontmatter block.",
@@ -463,7 +463,7 @@ public static class FindingCodes
             "A controlled frontend lacks its `ui` block, names a profile outside the three, or points at a missing path or stylesheet.",
             "Give the frontend a `ui` block with a valid density profile and paths that exist."),
         new("ui-components-invalid", "G", RecordLayer.Implementation, trace: false,
-            "The committed baseline configuration differs from the manifest baseline or adds a registry without an exception.",
+            "The committed baseline configuration differs from the manifest baseline or adds a registry without a departure.",
             "Match the committed configuration to the manifest baseline."),
         new("ui-sourcelock-invalid", "G", RecordLayer.Implementation, trace: false,
             "The source lock names an unpinned CLI, a preset or registry outside the baseline, or a copied source whose digest changed.",
@@ -481,8 +481,8 @@ public static class FindingCodes
             "Application code reaches a primitive library, an internal package path, or a table library directly.",
             "Reach shared UI through the public entry points only."),
         new("ui-dependency-invalid", "G", RecordLayer.Implementation, trace: false,
-            "A second general-purpose visual dependency lacks an exception.",
-            "Depend on one visual system, or record an exception."),
+            "A second general-purpose visual dependency lacks a departure.",
+            "Depend on one visual system, or record a departure."),
         new("ui-catalog-invalid", "G", RecordLayer.Implementation, trace: false,
             "The pattern catalog is missing, breaks its schema, or names an unknown pattern, option, or component path.",
             "Write the catalog against the LiteSpec pattern pages."),
@@ -494,6 +494,13 @@ public static class FindingCodes
 
     /// <summary>The codes by name.</summary>
     private static readonly Dictionary<string, FindingCode> ByCode = All.ToDictionary(code => code.Code, StringComparer.Ordinal);
+
+    /// <summary>Gets the codes the model needs in order to load. No departure covers them, and a departure that names one is itself invalid.</summary>
+    public static IReadOnlyCollection<string> Load { get; } =
+    [
+        "record-invalid", "folder-invalid", "record-placement-invalid",
+        "identifier-invalid", "identifier-duplicate", "reference-unknown",
+    ];
 
     /// <summary>Whether a code is one the tools emit.</summary>
     /// <param name="code">The finding code.</param>

@@ -207,22 +207,22 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement a live exception covers reports as known.</summary>
+    /// <summary>A quality requirement a live departure covers reports as known.</summary>
     /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_Covered_By_Exception_Reports_Known()
+    public void Quality_Covered_By_Departure_Reports_Covered()
     {
         using var temp = ModelFixture.Prepare("small");
         SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
-        WriteRecord(temp.Path, ExceptionFile, ExceptionJson, ExceptionExplanation);
+        WriteRecord(temp.Path, DepartureFile, DepartureJson, DepartureExplanation);
 
         var check = Cli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(1, check.Status);
         Assert.Contains("requirement-measure-missing", check.Output, StringComparison.Ordinal);
-        Assert.Contains("[known G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
+        Assert.Contains("[covered G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
     }
 
@@ -339,7 +339,7 @@ public sealed class OperationsCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);
         Assert.Contains("decision/0099-no-such-thing", unresolved, StringComparison.Ordinal);
-        Assert.Contains("matches no decision or exception", unresolved, StringComparison.Ordinal);
+        Assert.Contains("matches no decision or departure", unresolved, StringComparison.Ordinal);
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
@@ -464,7 +464,7 @@ public sealed class OperationsCheckTests
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string ExceptionFile = ".litespec/governance/exceptions/list-loans-latency-unwatched.yaml";
+    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched.yaml";
 
     const string RequirementJson = """
         {
@@ -674,12 +674,11 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string ExceptionJson = """
+    const string DepartureJson = """
         {
-          "type": "exception",
-          "id": "exception/list-loans-latency-unwatched",
+          "type": "departure",
+          "id": "departure/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
-          "kind": "gap",
           "covers": [
             "quality-alert-missing"
           ],
@@ -692,7 +691,7 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string ExceptionExplanation = """
+    const string DepartureExplanation = """
         # List loans latency unwatched
 
         Listing latency has no alert yet.

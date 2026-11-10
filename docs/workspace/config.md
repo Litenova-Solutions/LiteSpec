@@ -23,7 +23,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#validate-backend-configuration-at-startup`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A backend configuration section MUST bind to a named settings type validated for required fields, ranges, and formats at startup.
 
@@ -35,7 +35,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#validate-frontend-environment-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend MUST read environment variables through one validated module separating server-only from browser-visible values, at `src/lib/env.ts` through the framework alias.
 
@@ -47,7 +47,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#keep-secrets-outside-source-control`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A tracked configuration file MUST keep secrets out of tracked and observable data, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and contain only safe defaults and placeholders.
 
@@ -59,7 +59,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#use-one-frontend-dependency-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A TypeScript workspace MUST use one root `package.json`, `pnpm-workspace.yaml`, and `pnpm-lock.yaml`.
 
@@ -71,7 +71,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#pin-the-javascript-toolchain`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Root `package.json` MUST declare the manifest pnpm stack release in `packageManager` and a Node.js engine matching the manifest node stack release.
 
@@ -83,7 +83,7 @@ A repeatable build resolves the same versions on every machine. The manifest, `l
 
 **ID:** `litespec/workspace/config#pin-the-react-version-in-the-eslint-flat-config`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** When the workspace holds a React frontend, its ESLint flat config MUST set a concrete `settings.react.version` rather than leave it at `detect`.
 

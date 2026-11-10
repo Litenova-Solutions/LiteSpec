@@ -9,14 +9,13 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/agent#select-task-context</follows>
 static class Querier
 {
-    /// <summary>Queries one id or qualified identifier, or null when no record holds it.</summary>
+    /// <summary>Queries one record id, or returns null when no record holds it.</summary>
     /// <param name="model">The built project model to query.</param>
-    /// <param name="id">The record id or qualified identifier to print.</param>
+    /// <param name="id">The record id to print.</param>
     /// <returns>The record as indented JSON with its links in both directions, or null when no record holds the id.</returns>
     public static string? Query(ProjectModel model, string id)
     {
-        if (!model.ById.TryGetValue(id, out var record)
-            && !model.ByQualified.TryGetValue(id, out record))
+        if (!model.ById.TryGetValue(id, out var record))
         {
             return null;
         }
@@ -82,7 +81,8 @@ static class Querier
         {
             ["type"] = record.Type,
             ["id"] = record.Id,
-            ["qualifiedId"] = record.QualifiedId,
+            ["folder"] = record.Folder,
+            ["module"] = record.Module,
             ["title"] = record.Title,
             ["file"] = PathText.Relative(model.Config.Root, record.File),
             ["line"] = record.Line,

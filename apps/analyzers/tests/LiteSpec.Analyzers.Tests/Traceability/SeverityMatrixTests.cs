@@ -7,7 +7,7 @@ using static LiteSpec.Analyzers.Tests.Support.TraceabilityFixtures;
 
 namespace LiteSpec.Analyzers.Tests.Traceability;
 
-/// <summary>Tests severity: blocking findings, live exceptions and editorconfig.</summary>
+/// <summary>Tests severity: blocking findings, live departures and editorconfig.</summary>
 public sealed class SeverityMatrixTests
 {
     private const string HandlerWithAttributeMark = """
@@ -53,11 +53,11 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = warning");
 
-    /// <summary>An exception covering the file stays silent.</summary>
+    /// <summary>A departure covering the file stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "An exception covering the file stays silent")]
-    public Task ExceptionCoveringFileStaysSilent() =>
+    [Fact(DisplayName = "A departure covering the file stays silent")]
+    public Task DepartureCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System;
@@ -74,13 +74,37 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Exception(["mark-missing"], paths: ["Source.cs"])],
+            [ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"])],
             assemblyName: "Shop.Application");
 
-    /// <summary>An exception covering the subject stays silent.</summary>
+    /// <summary>A lasting departure, with no expiry date, covers the file and stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "An exception covering the subject stays silent")]
+    [Fact(DisplayName = "A lasting departure covering the file stays silent")]
+    public Task LastingDepartureCoveringFileStaysSilent() =>
+        Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
+            [("Source.cs", """
+                using System;
+
+                namespace Claimwick.Spending;
+
+                public interface ICommandHandler<TCommand, TResult>;
+
+                public sealed class SubmitExpenseCommand;
+
+                public sealed class SubmitExpenseCommandResult;
+
+                internal sealed class SubmitExpenseCommandHandler : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>
+                {
+                }
+                """)],
+            [ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"], expiresOn: null)],
+            assemblyName: "Shop.Application");
+
+    /// <summary>A departure covering the subject stays silent.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
+    [Fact(DisplayName = "A departure covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
@@ -104,17 +128,17 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
+            [ProjectFile(), UseCase(), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
-    /// <summary>An expired exception covers nothing.</summary>
+    /// <summary>An expired departure covers nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "An expired exception covers nothing")]
-    public Task ExpiredExceptionCoversNothing() =>
+    [Fact(DisplayName = "An expired departure covers nothing")]
+    public Task ExpiredDepartureCoversNothing() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
-            [ProjectFile(), UseCase(), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
+            [ProjectFile(), UseCase(), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
             assemblyName: "Shop.Application");
 
     /// <summary>The traceability context is shared per compilation.</summary>
@@ -133,12 +157,12 @@ public sealed class SeverityMatrixTests
         Assert.Same(first, cached);
     }
 
-    /// <summary>The hoisted known sets match the store.</summary>
+    /// <summary>The hoisted covered sets match the store.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
-    [Fact(DisplayName = "The hoisted known sets match the store")]
-    public void HoistedKnownSetsMatchStore()
+    [Fact(DisplayName = "The hoisted covered sets match the store")]
+    public void HoistedCoveredSetsMatchStore()
     {
-        var store = StoreWith([ProjectFile(), UseCase(), Exception(["mark-missing"], paths: ["Source.cs"], id: "exception/marks-deferred"), Exception(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "exception/marks-styled"), Exception(["mark-missing"], paths: ["Old.cs"], id: "exception/old-marks", expiresOn: "2000-01-01")]);
+        var store = StoreWith([ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"], id: "departure/marks-deferred"), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "departure/marks-styled"), Departure(["mark-missing"], paths: ["Old.cs"], id: "departure/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
         var context = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
 

@@ -14,10 +14,13 @@ public enum Outcome
 
     /// <summary>The finding is printed and the check passes.</summary>
     Reported = 1,
+
+    /// <summary>The finding is covered by a departure: printed in its own list, and the check passes.</summary>
+    Covered = 2,
 }
 
 /// <summary>
-///     One finding's decided severity: whether it blocks or reports.
+///     One finding's decided outcome: whether it blocks, reports or is covered by a departure.
 /// </summary>
 /// <param name="Outcome">What the host does with the finding.</param>
 public sealed record Severity(Outcome Outcome)

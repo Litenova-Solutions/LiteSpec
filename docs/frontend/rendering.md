@@ -27,7 +27,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#load-route-data-before-rendering`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -43,7 +43,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#read-route-data-from-the-route-cache`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -57,7 +57,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -73,7 +73,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#load-each-route-and-each-language-separately`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -89,7 +89,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#prefetch-a-route-on-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -103,7 +103,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **ID:** `litespec/frontend/rendering#represent-route-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -119,7 +119,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#keep-authenticated-caching-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -133,7 +133,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#keep-proxy-behavior-at-the-edge`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -149,7 +149,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **ID:** `litespec/frontend/rendering#build-the-server-data-cache-per-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

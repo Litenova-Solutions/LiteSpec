@@ -28,7 +28,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#record-the-server-as-an-entry-point`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -42,7 +42,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#pass-server-instructions-at-initialize`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -58,7 +58,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#write-one-tool-description-for-one-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -87,7 +87,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#scope-each-tool-to-named-use-cases`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -101,7 +101,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#confirm-every-writing-tool`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -115,7 +115,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#exclude-secrets-and-personal-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -129,7 +129,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#state-the-distribution-and-update-path`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

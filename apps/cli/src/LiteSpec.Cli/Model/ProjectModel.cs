@@ -18,8 +18,8 @@ sealed class ProjectModel
     /// <summary>Gets or sets the check findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
     public JsonArray? FindingsJson { get; set; }
 
-    /// <summary>Gets or sets the known findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
-    public JsonArray? KnownJson { get; set; }
+    /// <summary>Gets or sets the covered findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    public JsonArray? CoveredJson { get; set; }
     /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
     /// <summary>Gets the explanation and document bodies, for the book and the model JSON.</summary>
@@ -117,15 +117,6 @@ sealed class ProjectModel
     /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
 
-    /// <summary>Gets records by qualified identifier.</summary>
-    public IReadOnlyDictionary<string, Record> ByQualified =>
-        _byQualified ??= Records
-            .Where(record => record.QualifiedId.Length > 0)
-            .GroupBy(record => record.QualifiedId, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-
-    /// <summary>The cached records-by-qualified-identifier index, built on first use.</summary>
-    private IReadOnlyDictionary<string, Record>? _byQualified;
 
     /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>
     public IReadOnlyDictionary<string, Record> UseCasesByName
@@ -182,7 +173,17 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("type", record.Type);
                 writer.WriteString("id", record.Id);
-                writer.WriteString("qualifiedId", record.QualifiedId);
+                writer.WriteString("folder", record.Folder);
+
+                if (record.Module is { } module)
+                {
+                    writer.WriteString("module", module);
+                }
+                else
+                {
+                    writer.WriteNull("module");
+                }
+
                 writer.WriteString("title", record.Title);
 
                 if (record.Derived)
@@ -769,15 +770,15 @@ sealed class ProjectModel
                 FindingsJson.WriteTo(writer, options);
             }
 
-            writer.WritePropertyName("known");
+            writer.WritePropertyName("covered");
 
-            if (KnownJson is null)
+            if (CoveredJson is null)
             {
                 writer.WriteNullValue();
             }
             else
             {
-                KnownJson.WriteTo(writer, options);
+                CoveredJson.WriteTo(writer, options);
             }
 
             writer.WriteEndObject();

@@ -32,7 +32,7 @@ A scenario states one behavior the product shows, written in `given`, `when`, `t
 
 **ID:** `litespec/backend/testing#keep-the-test-suites-the-size-requires`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A backend codebase MUST hold exactly the test suites its size requires: architecture and integration for small, adding acceptance for large.
 
@@ -54,7 +54,7 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#test-domain-in-isolation`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A Domain test MUST use explicit inputs with no database, HTTP host, container, clock, or mock.
 
@@ -66,7 +66,7 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#test-application-coordination`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An Application test MUST substitute repositories, clocks, actor accessors, and external ports, then assert the handler's coordination.
 
@@ -80,7 +80,7 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#test-http-integration-through-the-real-application-host`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An HTTP integration test MUST run through the real application host with the real configuration, covering Problem Details, authentication, and resource authorization.
 
@@ -92,7 +92,7 @@ A small codebase holds the first two. Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/testing#isolate-integration-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An integration test MUST reset database state between tests through one documented strategy and depend on no test order.
 
@@ -106,7 +106,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#mark-the-test-that-proves-each-scenario`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.
 
@@ -120,7 +120,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#prove-each-rule-through-its-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A rule claim MUST confirm only through a scenario the same test proves.
 
@@ -134,7 +134,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#match-tests-by-fully-qualified-name`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A test run MUST match results to tests by fully qualified name.
 
@@ -148,7 +148,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#derive-expected-values-from-the-scenario`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A test MUST take its expected values only from the Then of the scenario it proves.
 
@@ -162,7 +162,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#use-evidence-rather-than-one-coverage-target`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A repository MUST NOT treat one coverage percentage as the definition of sufficient testing.
 
@@ -174,7 +174,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **ID:** `litespec/backend/testing#share-one-production-faithful-integration-harness`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The integration suite MUST own one database container fixture, one application host factory, and one database isolation helper.
 
@@ -270,7 +270,7 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **ID:** `litespec/backend/testing#name-tests-by-observable-behavior`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Default:** Name a test `{MethodOrOperation}_{Condition}_{ExpectedResult}` and its class after the production type it covers.
 
@@ -284,7 +284,7 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **ID:** `litespec/backend/testing#use-builders-for-valid-defaults`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Default:** Create a test data builder that produces valid state by default and exposes business-named customization.
 
@@ -298,7 +298,7 @@ Production modules keep the same folder names in every test tree, apart from the
 
 **ID:** `litespec/backend/testing#keep-assertions-focused`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Default:** Assert only the state, event, call, response, or error that the test covers.
 

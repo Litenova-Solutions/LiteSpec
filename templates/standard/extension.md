@@ -25,7 +25,7 @@ This extension replaces `{litespec/page#state-one-action}`, or states that it re
 
 **ID:** `{litespec/page#state-one-extension-action}`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 

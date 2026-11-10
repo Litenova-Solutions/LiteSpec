@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick expense product for Harbor and Pine:
 
 **ID:** `litespec/frontend/patterns/page-frames#name-the-page-in-one-heading`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each page MUST show one top-level heading that names the record, list, or task it holds.
 

@@ -35,7 +35,7 @@ public sealed class BookTruthTests
         Assert.Equal(1, Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof")["tests"]?.GetValue<int>());
 
         var borrow = details["use-case/lending.borrow-copy"];
-        Assert.True(BoolOf(Obj(borrow, "machine")["implemented"]));
+        Assert.True(BoolOf(Obj(borrow, "machine")["coded"]));
         Assert.False(BoolOf(Obj(borrow, "machine")["verified"]));
         Assert.Null(borrow["proof"]);
     }
@@ -95,14 +95,14 @@ public sealed class BookTruthTests
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
         Assert.Equal("G", Str(finding, "tier"));
         Assert.Contains("has no handler, reaction or job", Str(finding, "message") ?? "", StringComparison.Ordinal);
-        Assert.False(BoolOf(finding["known"]));
+        Assert.False(BoolOf(finding["covered"]));
         Assert.Equal(".litespec/behavior/modules/lending/loans/return-copy.yaml", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
 
         var known = Arr(details["journey/borrowing"], "findings");
         Assert.Single(known);
         Assert.Equal("step-screen-missing", Str(known[0]!.AsObject(), "code"));
-        Assert.True(BoolOf(known[0]!.AsObject()["known"]));
+        Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
         Assert.Equal("accepted", Str(known[0]!.AsObject(), "outcome"));
         Assert.Equal("The kiosk covers it next quarter.", Str(known[0]!.AsObject(), "reason"));
     }
@@ -122,7 +122,7 @@ public sealed class BookTruthTests
                     ["path"] = ".litespec/behavior/modules/lending/loans/return-copy.yaml",
                     ["line"] = 3,
                 });
-            root["known"] = new JsonArray(
+            root["covered"] = new JsonArray(
                 new JsonObject
                 {
                     ["code"] = "step-screen-missing",

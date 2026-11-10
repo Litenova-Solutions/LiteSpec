@@ -128,7 +128,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#keep-intent-in-its-homes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
 
@@ -142,7 +142,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-one-product`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:product
 
@@ -156,7 +156,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#keep-company-operation-out-of-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -172,7 +172,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#reach-every-intent-record-with-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -186,7 +186,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-goal-with-its-measure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:goal
 
@@ -200,7 +200,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#move-every-goal-with-a-journey-or-a-quality-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:goal
 
@@ -216,7 +216,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#admit-only-outside-pains-as-problems`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -232,7 +232,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-the-cost-and-workaround-of-every-problem`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -248,7 +248,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#grade-problem-evidence-by-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -264,7 +264,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#name-no-solution-in-a-problem-statement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -280,7 +280,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#name-each-sibling-problem-or-merge-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -296,7 +296,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#explain-every-problem-in-four-sections`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -312,7 +312,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-problem-with-its-evidence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:problem
 
@@ -326,7 +326,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-feature-with-its-offering`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:feature
 
@@ -340,7 +340,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#keep-actors-to-people-and-organizations`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -356,7 +356,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -372,7 +372,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#define-each-recurring-capitalized-phrase`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:term
 
@@ -388,7 +388,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#answer-every-constraint`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:constraint
 
@@ -402,7 +402,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#record-research-with-read-sources`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:research
 
@@ -416,7 +416,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#shape-each-decision-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -430,7 +430,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#record-each-decision-option-with-pros-and-cons`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -444,7 +444,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#shape-each-module-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:module
 
@@ -460,7 +460,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#identify-every-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -474,7 +474,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-requirement-kind-and-statement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -488,7 +488,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#cite-the-reasons-of-every-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -502,7 +502,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -516,7 +516,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#explain-each-requirement-in-one-line`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -530,7 +530,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-the-measure-on-a-counted-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -544,7 +544,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-quality-requirement-as-a-scenario`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -560,7 +560,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#restrict-requirement-fulfillment-to-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -574,7 +574,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#order-each-journey-toward-one-goal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -590,7 +590,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#describe-every-journey`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -606,7 +606,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#perform-each-journey-step-with-an-actor-or-a-system`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -622,7 +622,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#keep-behavior-out-of-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -636,7 +636,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#treat-generated-research-as-source-material`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -650,7 +650,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-each-exception-with-its-fallback`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -666,7 +666,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#write-journey-steps-as-sentences-with-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -682,7 +682,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#state-when-each-journey-finishes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -698,7 +698,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **ID:** `litespec/core/intent#treat-tenant-set-values-as-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 

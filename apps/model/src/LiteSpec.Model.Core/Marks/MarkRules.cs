@@ -41,7 +41,7 @@ public static class MarkRules
         "event", "rule", "notification", "setting", "integration-event",
     ];
     /// <summary>The record types a follows mark names.</summary>
-    private static readonly string[] FollowsTypes = ["litespec", "decision", "exception"];
+    private static readonly string[] FollowsTypes = ["litespec", "decision", "departure"];
 
     /// <summary>The finding codes of the mark findings, in rule id order.</summary>
     private static readonly string[] Codes =

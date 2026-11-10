@@ -90,7 +90,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#select-one-visual-authority`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -104,7 +104,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -118,7 +118,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#publish-a-design-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -145,7 +145,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#declare-a-closed-floorplan-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -171,7 +171,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#compose-each-route-from-one-floorplan`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -187,7 +187,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#keep-layout-inside-floorplans`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -201,7 +201,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#record-a-freestyle-route`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -215,7 +215,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#derive-each-page-type-from-a-named-reference`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -229,7 +229,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#select-a-tone-from-the-closed-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -243,7 +243,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#keep-tokens-in-one-definition`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -257,7 +257,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#hold-the-declared-base-color`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -271,7 +271,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#keep-separators-at-the-subtle-step`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -285,7 +285,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#select-a-command-surface-by-size`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -299,7 +299,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#show-the-trace-id-in-error-detail`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -313,7 +313,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#check-every-route`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -327,7 +327,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#prove-every-result-a-route-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -343,7 +343,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#restrict-styling-to-semantic-tokens`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -357,7 +357,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#govern-behavior-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -371,7 +371,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -395,7 +395,7 @@ A screen's computed `calls` name the use cases it reaches, and each use case dec
 
 **ID:** `litespec/frontend/ui#record-a-frontend-outside-the-controlled-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 

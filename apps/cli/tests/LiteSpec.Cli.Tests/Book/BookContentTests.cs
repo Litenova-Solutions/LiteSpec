@@ -47,7 +47,7 @@ public sealed class BookContentTests
             "Runs by hand",
             "Not yet met",
             "Not yet tested",
-            "Excepted",
+            "Covered",
             "Because ",
         })
         {
@@ -122,7 +122,7 @@ public sealed class BookContentTests
 
         foreach (var words in new[]
         {
-            "not implemented",
+            "not coded",
             "not tested",
             "scenarios not tested",
             "Not implemented or not tested",

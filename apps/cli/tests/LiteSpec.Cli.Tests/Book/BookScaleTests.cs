@@ -190,7 +190,7 @@ public sealed class BookScaleTests
             ["screens"] = new JsonArray(),
             ["exercisedSteps"] = new JsonArray(),
             ["findings"] = new JsonArray(),
-            ["known"] = new JsonArray(),
+            ["covered"] = new JsonArray(),
             ["testRun"] = null,
         };
     }

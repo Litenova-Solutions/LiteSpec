@@ -24,7 +24,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A list MUST keep its filters, sort order, and page in the URL.
 
@@ -36,7 +36,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A table MUST right-align a money column and show the currency of every amount in it.
 

@@ -36,8 +36,8 @@ sealed class UiSession
     /// <summary>Gets the parsed LiteSpec manifest.</summary>
     public JsonNode? Manifest { get; private set; }
 
-    /// <summary>The LiteSpec pages the UI checks own exceptions against.</summary>
-    static readonly HashSet<string> UiExceptionPages = new(StringComparer.Ordinal)
+    /// <summary>The LiteSpec pages the UI checks own departures against.</summary>
+    static readonly HashSet<string> UiDeparturePages = new(StringComparer.Ordinal)
     {
         "frontend/ui", "frontend/components", "frontend/patterns",
         "frontend/web/ui", "frontend/web/components", "frontend/web/patterns",
@@ -103,42 +103,39 @@ sealed class UiSession
         var baselineNode = baseline.Found ? baseline.Node : null;
         var hasBaseline = baselineNode is not null && JsonValues.IsTruthy(baselineNode);
 
-        var uiExceptions = ReadUiExceptions();
+        var uiDepartures = ReadUiDepartures();
 
-        // An exception carries an expiry date and stops being valid once that date
-        // passes. This check is time dependent by design; every other check in this
-        // validator depends only on repository files. Only exceptions against the UI
-        // pages are read here; the rest belong to the checks that enforce them.
+        // A departure carries an expiry date and stops being live once that date
+        // passes. A departure with no expiry date is lasting and never expires. This
+        // check is time dependent by design; every other check in this validator
+        // depends only on repository files. Only departures whose covers name a UI
+        // page are read here; the rest belong to the checks that enforce them.
         var today = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        foreach (var exception in uiExceptions)
+        foreach (var departure in uiDepartures)
         {
-            // A provision ID is litespec/<page>#<slug>; the page decides whether the UI checks own it.
-            var page = exception.Provision.StartsWith("litespec/", StringComparison.Ordinal)
-                ? exception.Provision["litespec/".Length..].Split('#')[0]
-                : "";
-            if (!UiExceptionPages.Contains(page))
+            if (!departure.Covers.Any(IsUiCover))
             {
                 continue;
             }
 
-            if (exception.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ExpiryDate.IsMatch(expiresOn))
+            if (departure.ExpiresOn is not JsonValue expiresValue || !expiresValue.TryGetValue<string>(out var expiresOn) || !ExpiryDate.IsMatch(expiresOn))
             {
                 continue;
             }
 
             if (string.CompareOrdinal(expiresOn, today) < 0)
             {
-                Add("exception-expired", $"[{exception.Provision}] expiresOn {expiresOn} has passed; renew the exception", FilePath(exception.File));
+                Add("departure-expired", $"[{string.Join(", ", departure.Covers)}] expiresOn {expiresOn} has passed; renew the departure or close the gap", FilePath(departure.File));
             }
         }
 
         // A controlled frontend composes the shared package, so the workspace declares
         // it once. A frontend that composes no shared component carries no UI block.
         // (litespec/frontend/ui#select-one-visual-authority)
-        // An additional registry passes both registry gates under an exception against
+        // An additional registry passes both registry gates under a departure against
         // the pinned baseline provision. The expiry date on that record is checked
         // above; the gates below check its presence.
-        var baselineOverride = uiExceptions.Any(exception => exception.Provision == "litespec/frontend/ui#pin-the-baseline-in-the-shared-package");
+        var baselineOverride = uiDepartures.Any(departure => departure.Covers.Contains("litespec/frontend/ui#pin-the-baseline-in-the-shared-package"));
         var pkgValue = JsonRead.Chain(project, "ui", "package");
         var pkg = pkgValue.Found ? pkgValue.Node : null;
         var hasPkg = pkg is not null && JsonValues.IsTruthy(pkg);
@@ -433,23 +430,36 @@ sealed class UiSession
         }
     }
 
-    // A rule override is an Exception record: .litespec/governance/exceptions/<name>.yaml
-    // carrying the provision it departs from, the reason, and the expiry date.
-    // The consumer validator owns the record shape; this validator reads
-    // the departure its own gates need and enforces the expiry date.
-    /// <summary>
-    ///     Every UI exception record the project carries.
-    /// </summary>
-    /// <returns>The exception records.</returns>
-    List<UiException> ReadUiExceptions()
+    /// <summary>Whether a covers item names a UI page: a provision on it, or the page itself.</summary>
+    /// <param name="cover">The covers item: a provision ID, a page or a finding code.</param>
+    /// <returns>True when the item names one of the UI pages.</returns>
+    static bool IsUiCover(string cover)
     {
-        var directory = FilePath(".litespec/governance/exceptions");
+        if (!cover.StartsWith("litespec/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        return UiDeparturePages.Contains(cover["litespec/".Length..].Split('#')[0]);
+    }
+
+    // A rule override is a departure record: .litespec/governance/departures/<name>.yaml
+    // whose covers list names the provision it departs from, with the reason and the
+    // expiry date. The consumer validator owns the record shape; this validator reads
+    // the departures its own gates need and enforces the expiry date.
+    /// <summary>
+    ///     Every departure record the project carries.
+    /// </summary>
+    /// <returns>The departure records.</returns>
+    List<UiDeparture> ReadUiDepartures()
+    {
+        var directory = FilePath(".litespec/governance/departures");
         if (!Directory.Exists(directory))
         {
             return [];
         }
 
-        var found = new List<UiException>();
+        var found = new List<UiDeparture>();
         foreach (var entry in new DirectoryInfo(directory).EnumerateFileSystemInfos().OrderBy(candidate => candidate.Name, StringComparer.Ordinal))
         {
             if ((entry.Attributes & (FileAttributes.Directory | FileAttributes.ReparsePoint)) != 0)
@@ -473,15 +483,20 @@ sealed class UiSession
                 continue;
             }
 
-            if (!root.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String || type.GetString() != "exception")
+            if (!root.TryGetProperty("type", out var type) || type.ValueKind != JsonValueKind.String || type.GetString() != "departure")
             {
                 continue;
             }
 
-            if (!root.TryGetProperty("covers", out var covers) || covers.ValueKind != JsonValueKind.String || covers.GetString() is not { } provision)
+            if (!root.TryGetProperty("covers", out var covers) || covers.ValueKind != JsonValueKind.Array)
             {
                 continue;
             }
+
+            var names = covers.EnumerateArray()
+                .Where(item => item.ValueKind == JsonValueKind.String)
+                .Select(item => item.GetString()!)
+                .ToList();
 
             JsonNode? expiresOn = null;
             if (root.TryGetProperty("expiresOn", out var expires))
@@ -489,7 +504,7 @@ sealed class UiSession
                 expiresOn = JsonNode.Parse(expires.GetRawText());
             }
 
-            found.Add(new UiException(PathText.Relative(Root, Path.GetFullPath(entry.FullName)), provision, expiresOn));
+            found.Add(new UiDeparture(PathText.Relative(Root, Path.GetFullPath(entry.FullName)), names, expiresOn));
         }
 
         return found;

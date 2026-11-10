@@ -291,7 +291,7 @@ public static class Provisions
 
         foreach (var pageRows in rows.GroupBy(row => row.Page, StringComparer.Ordinal).OrderBy(pageGroup => pageGroup.Key, StringComparer.Ordinal))
         {
-            var rules = pageRows.Where(row => row.Strength == "rule").ToList();
+            var rules = pageRows.Where(row => row.Strength == "required").ToList();
             var checkedCount = rules.Count(row => row.Mark == "checkable");
             var share = rules.Count == 0
                 ? "-"

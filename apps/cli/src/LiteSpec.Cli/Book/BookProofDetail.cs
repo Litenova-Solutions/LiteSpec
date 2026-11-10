@@ -72,7 +72,7 @@ static class BookProofDetail
         };
     }
 
-    /// <summary>Adds the machine facts of one record: implemented and verified use cases, met requirements, tested proof targets.</summary>
+    /// <summary>Adds the machine facts of one record: coded and verified use cases, met requirements, tested proof targets.</summary>
     /// <param name="detail">The detail being built.</param>
     /// <param name="index">The model index.</param>
     /// <param name="id">The record id.</param>
@@ -84,7 +84,7 @@ static class BookProofDetail
             var entry = index.Status.TryGetPropertyValue(id, out var node) ? node as JsonObject : null;
             detail["machine"] = new JsonObject
             {
-                ["implemented"] = BookRender.IsTrue(entry?["implemented"]),
+                ["coded"] = BookRender.IsTrue(entry?["coded"]),
                 ["verified"] = BookRender.IsTrue(entry?["verified"]),
             };
         }

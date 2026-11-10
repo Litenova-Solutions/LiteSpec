@@ -7,7 +7,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its exception, idempotency and failure-policy shapes.</summary>
+/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its departure, idempotency and failure-policy shapes.</summary>
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
 /// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
@@ -286,12 +286,16 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Trigger, findings);
                 break;
 
-            case RecordTypes.Exception:
-                RequireEnum(record, RecordFields.Kind, ["departure", "gap"], findings);
+            case RecordTypes.Departure:
                 RequireString(record, RecordFields.Reason, findings);
-                RequireDate(record, RecordFields.ExpiresOn, findings);
-                CheckExceptionCovers(record, findings);
-                CheckExceptionScope(record, findings);
+                RequireArray(record, RecordFields.Covers, 1, findings);
+                CheckDepartureScope(record, findings);
+
+                if (record.Has(RecordFields.ExpiresOn))
+                {
+                    RequireDate(record, RecordFields.ExpiresOn, findings);
+                    RequireString(record, RecordFields.Exit, findings);
+                }
 
                 break;
 
@@ -311,42 +315,14 @@ internal static class SchemaChecks
         CheckLinkTypes(model, record, findings);
     }
 
-    /// <summary>Reports an exception whose covers names no shared provision or no emitted finding code.</summary>
-    /// <param name="record">The exception record whose covers field is judged.</param>
+    /// <summary>Reports a departure naming neither the records nor the paths it covers.</summary>
+    /// <param name="record">The departure record whose subject and paths fields are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckExceptionCovers(Record record, List<Finding> findings)
-    {
-        if (record.Field(RecordFields.Kind) == "departure")
-        {
-            RequireString(record, RecordFields.Covers, findings);
-
-            if (record.Field(RecordFields.Covers) is { } covers && !IsProvisionCitation(covers))
-            {
-                findings.Add(new Finding("field-invalid", $"Exception '{record.Id}' names '{covers}', which is not a shared provision.", record.File, record.Line, SubjectOf(record)));
-            }
-
-            return;
-        }
-
-        RequireArray(record, RecordFields.Covers, 1, findings);
-
-        foreach (var code in record.Strings(RecordFields.Covers).Order(StringComparer.Ordinal))
-        {
-            if (!FindingCodes.IsKnown(code))
-            {
-                findings.Add(new Finding("exception-finding-unknown", $"Exception '{record.Id}' names finding code '{code}', which no check emits.", record.File, record.Line, SubjectOf(record)));
-            }
-        }
-    }
-
-    /// <summary>Reports an exception naming neither the records nor the paths it covers.</summary>
-    /// <param name="record">The exception record whose subject and paths fields are judged.</param>
-    /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckExceptionScope(Record record, List<Finding> findings)
+    private static void CheckDepartureScope(Record record, List<Finding> findings)
     {
         if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
         {
-            findings.Add(new Finding("record-invalid", $"Exception '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Departure '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -500,13 +476,6 @@ internal static class SchemaChecks
     private static bool ValidDate(string text) =>
         IsoDate(text, out _)
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
-
-    /// <summary>Decides whether text is exactly one shared provision citation.</summary>
-    /// <param name="text">The covers text under test.</param>
-    /// <returns>True when the whole text is one provision citation; otherwise false.</returns>
-    private static bool IsProvisionCitation(string text) =>
-        Identifiers.SharedCitation().IsMatch(text)
-        && Identifiers.SharedCitation().Match(text).Value == text;
 
     /// <summary>Reports the record when the named field holds no non-empty string.</summary>
     /// <param name="record">The record whose field is required.</param>

@@ -144,7 +144,7 @@ public sealed class FollowsCheckTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanIndexer.cs");
 
-        Assert.Contains("which matches no decision or exception.", finding.Message);
+        Assert.Contains("which matches no decision or departure.", finding.Message);
     }
 
     /// <summary>No other mark-unknown fires in the follows fixture.</summary>

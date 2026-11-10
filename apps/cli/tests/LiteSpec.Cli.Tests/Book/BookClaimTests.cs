@@ -154,7 +154,7 @@ public sealed class BookClaimTests
         Assert.Empty(borrow["impl"]!.AsArray());
         Assert.False(BoolOf(Obj(borrow, "expect")["impl"]));
         Assert.Null(Obj(borrow, "completion")["hasCode"]);
-        Assert.DoesNotContain("not implemented", string.Join(",", borrow["lacks"]!.AsArray().Select(node => node!.GetValue<string>())), StringComparison.Ordinal);
+        Assert.DoesNotContain("not coded", string.Join(",", borrow["lacks"]!.AsArray().Select(node => node!.GetValue<string>())), StringComparison.Ordinal);
 
         var outlineText = string.Join("\n", Directory.GetFiles(data, "outline-*.js").Select(File.ReadAllText));
         Assert.DoesNotContain("\"kind\":\"code\"", outlineText, StringComparison.Ordinal);

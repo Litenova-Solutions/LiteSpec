@@ -24,7 +24,7 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **ID:** `litespec/frontend/patterns/money-time-density#show-the-currency-of-every-amount`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every amount MUST show its currency.
 
@@ -36,7 +36,7 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **ID:** `litespec/frontend/patterns/money-time-density#state-the-time-zone-of-a-shared-moment`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A moment shown to readers in different time zones MUST state its time zone.
 

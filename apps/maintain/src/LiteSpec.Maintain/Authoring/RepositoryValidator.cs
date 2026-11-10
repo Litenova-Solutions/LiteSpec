@@ -606,7 +606,7 @@ internal sealed partial class RepositoryValidator
         ["settingId"] = "setting/sample.entry",
         ["integrationEventId"] = "integration-event/sample",
         ["runbookId"] = "runbook/sample",
-        ["exceptionId"] = "exception/sample",
+        ["departureId"] = "departure/sample",
         ["termId"] = "term/sample",
         ["refusalCode"] = "sample.entry",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",

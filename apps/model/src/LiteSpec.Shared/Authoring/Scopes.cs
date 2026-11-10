@@ -25,7 +25,7 @@ public sealed class Scopes
 
     /// <summary>Gets the Strength values a Strength line names.</summary>
     public static readonly IReadOnlySet<string> StrengthValues = new HashSet<string>(
-        ["rule", "default", "advice"],
+        ["required", "default", "advisory"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the trace values an Applies to line names.</summary>

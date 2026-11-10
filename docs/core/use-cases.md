@@ -127,7 +127,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -141,7 +141,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#start-every-use-case-with-a-declared-verb`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -157,7 +157,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#keep-one-kind-per-verb`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -173,7 +173,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-what-a-use-case-acts-on-from-the-model`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -189,7 +189,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-a-use-case-for-the-act-its-aggregate-performs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -205,7 +205,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#connect-each-use-case-to-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -221,7 +221,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#grant-each-use-case-scoped-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -237,7 +237,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-entry-points-that-reach-each-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -251,7 +251,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -274,7 +274,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#bound-every-caller-supplied-input-value`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -290,7 +290,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -304,7 +304,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#state-the-consistency-of-every-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -320,7 +320,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -336,7 +336,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -350,7 +350,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#keep-the-effect-graph-free-of-cycles`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -364,7 +364,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-events-each-use-case-raises`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -378,7 +378,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-idempotency-of-every-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -392,7 +392,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#state-the-audit-position-of-every-command`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -406,7 +406,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#declare-every-query-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -422,7 +422,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#justify-every-wider-visibility`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -436,7 +436,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#declare-paging-on-every-collection-query`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -450,7 +450,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#mark-every-lagging-query-as-built-asynchronously`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -464,7 +464,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#end-every-use-case-in-named-results`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -480,7 +480,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-each-refusal-code-for-the-state-that-refuses`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -496,7 +496,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#retire-refusal-codes-with-their-replacements`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -512,7 +512,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#order-every-refusal-list-by-precedence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -526,7 +526,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#record-attempts-behind-recorded-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -542,7 +542,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#list-recorded-outcomes-inside-success-codes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -558,7 +558,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -572,7 +572,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-result-each-scenario-ends-in`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:scenario
 
@@ -586,7 +586,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#prove-every-written-result-with-a-scenario`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:result
 
@@ -602,7 +602,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#write-every-scenario-in-given-when-then`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:scenario
 
@@ -630,7 +630,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#exercise-rules-from-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:scenario
 
@@ -646,7 +646,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#share-scenario-setup-in-background`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -662,7 +662,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#write-prose-on-every-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -678,7 +678,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#hold-every-setting-default-to-a-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting
 
@@ -694,7 +694,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-settings-each-use-case-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -710,7 +710,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting
 
@@ -726,7 +726,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting
 
@@ -742,7 +742,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **ID:** `litespec/core/use-cases#state-the-unit-of-every-quantity-setting`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting
 

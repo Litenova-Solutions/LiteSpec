@@ -33,7 +33,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#carry-the-schedule-on-the-job-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -47,7 +47,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#run-one-command-per-item-in-selection`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -61,7 +61,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#resume-driven-work-through-the-cursor`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -75,7 +75,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#run-manual-jobs-under-their-guard`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -89,7 +89,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#run-scheduled-jobs-in-worker`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -103,7 +103,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#observe-job-cancellation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -117,7 +117,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#bound-job-duration`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -131,7 +131,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#stop-jobs-during-graceful-shutdown`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -145,7 +145,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#store-execution-leases`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -159,7 +159,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#renew-only-owned-leases`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -173,7 +173,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#prevent-duplicate-completion`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -187,7 +187,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#generate-monotonic-fencing-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -201,7 +201,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#scope-occurrences-and-leases-by-tenant`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -215,7 +215,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#dispatch-application-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -229,7 +229,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#exclude-direct-storage-and-http-execution`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -243,7 +243,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#bound-job-retries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -257,7 +257,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#tolerate-duplicate-execution`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -271,7 +271,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#treat-unavailable-schedule-stores-as-outages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -285,7 +285,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#persist-occurrence-recovery-points`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -299,7 +299,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#define-misfire-recovery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -313,7 +313,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **ID:** `litespec/ext/jobs#provide-operational-recovery-procedures`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -331,7 +331,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **ID:** `litespec/ext/jobs#derive-stable-occurrence-identity`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -345,7 +345,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **ID:** `litespec/ext/jobs#remove-occurrences-past-retention`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -363,7 +363,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#persist-occurrence-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -377,7 +377,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#scope-command-idempotency-by-occurrence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -391,7 +391,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#restrict-completion-by-fencing-value`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -405,7 +405,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#audit-manual-replay`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -419,7 +419,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#prefer-utc-schedules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -433,7 +433,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#define-business-local-clock-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -447,7 +447,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#test-time-transitions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -461,7 +461,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#exclude-machine-local-time`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -475,7 +475,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#state-the-claim-mode`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -491,7 +491,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#order-queue-items-by-score`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -507,7 +507,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#show-the-score-beside-each-item`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -523,7 +523,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#release-claims-past-their-lease`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -539,7 +539,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#show-a-preview-before-bulk-money-actions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -555,7 +555,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#confirm-bulk-money-actions-out-of-band`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -571,7 +571,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#record-reporting-need`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -585,7 +585,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#avoid-speculative-reporting-systems`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -599,7 +599,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#parameterize-report-sql`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -613,7 +613,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#keep-raw-sql-in-infrastructure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -627,7 +627,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#review-report-plans`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: record:use-case
 
@@ -643,7 +643,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#apply-item-read-authorization`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -657,7 +657,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#run-budget-exceeding-exports-in-worker`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -671,7 +671,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#protect-export-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -685,7 +685,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#scope-export-output-to-the-tenant`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -699,7 +699,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#define-report-limits`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -713,7 +713,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#declare-export-paging`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -727,7 +727,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#audit-export-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -741,7 +741,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#support-report-cancellation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -755,7 +755,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#escape-formula-leading-export-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -769,7 +769,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **ID:** `litespec/ext/jobs#define-export-encoding-and-columns`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 

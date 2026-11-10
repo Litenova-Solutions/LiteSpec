@@ -1,0 +1,11 @@
+type: departure
+id: departure/export-review-bypass
+title: Export review bypass
+covers:
+  - litespec/backend/persistence#commit-each-command-pipeline-once
+subject:
+  - use-case/lending.borrow-copy
+reason: The nightly export commits per batch, not per pipeline
+consequences: The export step commits per batch until it moves to the pipeline.
+exit: The export step commits per pipeline, and the bypass is removed.
+expiresOn: 2030-06-30

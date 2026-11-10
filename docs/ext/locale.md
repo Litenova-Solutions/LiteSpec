@@ -28,7 +28,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#record-supported-locale-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -42,7 +42,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#avoid-catalog-only-locale-claims`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -56,7 +56,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#define-one-locale-route-shape`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -72,7 +72,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#handle-unavailable-locale-segments`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -86,7 +86,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#avoid-duplicate-localized-urls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -100,7 +100,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#store-user-facing-copy-in-catalogs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -114,7 +114,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#name-messages-by-meaning`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -130,7 +130,7 @@ This extension switches on no record type. The Decision that records the locale 
 
 **ID:** `litespec/ext/locale#complete-or-fall-back-catalog-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -148,7 +148,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#follow-the-validation-message-grammar`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -164,7 +164,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#resolve-every-shown-identifier`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -180,7 +180,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#format-values-with-active-locale`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -198,7 +198,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#preserve-locale-neutral-business-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object, endpoint
 
@@ -212,7 +212,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#localize-public-presentation-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 
@@ -226,7 +226,7 @@ A key missing from the default locale fails the build. No fallback exists for it
 
 **ID:** `litespec/ext/locale#keep-stable-error-codes-locale-neutral`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case, endpoint
 

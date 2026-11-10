@@ -5,7 +5,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     Reports one traceability diagnostic from its finding tier: a finding a
-///     live exception covers stays silent, an advisory tier A finding reports
+///     live departure covers stays silent, an advisory tier A finding reports
 ///     as a warning, and every other finding reports as an error. The Roslyn
 ///     reader is always qualified, so a tier S finding blocks.
 /// </summary>
@@ -13,7 +13,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 internal static class TraceabilityReporter
 {
     /// <summary>
-    ///     Reports the finding unless a live exception covers it. The message names the code element and the record id.
+    ///     Reports the finding unless a live departure covers it. The message names the code element and the record id.
     /// </summary>
     /// <param name="state">The compilation's traceability context.</param>
     /// <param name="report">How the diagnostic is reported.</param>

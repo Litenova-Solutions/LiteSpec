@@ -11,7 +11,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 /// <summary>
 ///     LS5002: a mark names no record, a record of a type its element does not
 ///     take, uses the verb its kind does not take, or sits on a type or method
-///     that takes no mark; or a <c>follows</c> mark names no decision, exception,
+///     that takes no mark; or a <c>follows</c> mark names no decision, departure,
 ///     or provision of the carried release. LS5003: an element carries more marks
 ///     than its kind takes, or names one record twice. LS5004: a mark is written
 ///     in the style the project did not declare.
@@ -284,7 +284,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
 
     /// <summary>
     ///     Checks one <c>follows</c> mark on a symbol of any kind or none: it names
-    ///     a provision of the carried release, or a decision or exception. A
+    ///     a provision of the carried release, or a decision or departure. A
     ///     <c>follows</c> mark is never stray.
     /// </summary>
     /// <param name="context">The symbol analysis context that carries the compilation state for this pass.</param>
@@ -321,11 +321,11 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
         }
 
         if (id.StartsWith("decision/", System.StringComparison.Ordinal)
-            || id.StartsWith("exception/", System.StringComparison.Ordinal))
+            || id.StartsWith("departure/", System.StringComparison.Ordinal))
         {
             var record = state.Store.Index.ById(id);
 
-            if (record is null || (record.Type != "decision" && record.Type != "exception"))
+            if (record is null || (record.Type != "decision" && record.Type != "departure"))
             {
                 TraceabilityReporter.Report(
                     state,
@@ -336,7 +336,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
                     location,
                     symbol.Name,
                     id,
-                    "matches no decision or exception");
+                    "matches no decision or departure");
             }
 
             return;
@@ -351,7 +351,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             location,
             symbol.Name,
             id,
-            "matches no provision, decision, or exception");
+            "matches no provision, decision, or departure");
     }
 
     /// <summary>Reports LS5004 when the mark uses a style other than the declared one.</summary>

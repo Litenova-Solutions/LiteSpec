@@ -10,8 +10,9 @@ export interface TestStep {
 export interface BookRecord {
   type: string;
   title: string;
-  /** The qualified identifier, computed from the identifier segments plus placement; the identifier itself when placement adds no prefix. */
-  qualifiedId?: string;
+  /** The folder the record file sits in, relative to the consumer root. */
+  folder?: string;
+  module?: string | null;
   fields: Record<string, unknown>;
   layer?: string | null;
   src?: SourceRef | null;
@@ -32,7 +33,7 @@ export interface BookRecord {
     test?: { name?: string; path?: string | null; line?: number | null } | null;
   };
   machine?: {
-    implemented?: boolean;
+    coded?: boolean;
     verified?: boolean;
     met?: boolean;
     measurePassed?: boolean | null;
@@ -83,7 +84,7 @@ export interface BookTest {
   browser?: boolean;
 }
 
-/** One finding on a record: its code, level, message, and whether an exception covers it. */
+/** One finding on a record: its code, level, message, and whether a departure covers it. */
 export interface BookFinding {
   code?: string | null;
   tier?: string | null;
@@ -91,7 +92,7 @@ export interface BookFinding {
   message?: string;
   /** The message rendered by the CLI: record references as book links, inline Markdown as HTML. */
   messageHtml?: string;
-  known?: boolean;
+  covered?: boolean;
   outcome?: unknown;
   reason?: unknown;
   path?: string | null;

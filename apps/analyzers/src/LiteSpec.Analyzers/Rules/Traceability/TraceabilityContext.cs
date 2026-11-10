@@ -15,7 +15,7 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 ///     What every traceability rule needs for one compilation: its layer, the
 ///     record layers the project claims, the consumer's records, the
 ///     cross-file kind names, the event id of every event type marked in
-///     source, and the live exceptions built once so reporting a diagnostic
+///     source, and the live departures built once so reporting a diagnostic
 ///     never rescans every record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -52,10 +52,16 @@ internal sealed class TraceabilityContext
 
         foreach (var record in store.Index.Records)
         {
-            if (record.Type == "exception"
-                && record.Field("expiresOn") is string expiresOn
-                && IsoDate(expiresOn, out var expires)
-                && today <= expires)
+            if (record.Type != "departure")
+            {
+                continue;
+            }
+
+            // A departure with no expiry date is lasting: it stays live until the record changes.
+            var expiresOn = record.Field("expiresOn");
+
+            if (expiresOn is null
+                || (IsoDate(expiresOn, out var expires) && today <= expires))
             {
                 live.Add(new LiveException(record));
             }
@@ -123,16 +129,16 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>
-    ///     Whether a live exception covers the finding, as
+    ///     Whether a live departure covers the finding, as
     ///     <see cref="Suppression.Partition" /> decides for the CLI but from the
-    ///     sets built once in the constructor. An exception is live when it is
+    ///     sets built once in the constructor. A departure is live when it is
     ///     present and unexpired.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
     public bool IsKnown(Finding finding)
     {
-        if (finding.Code == "exception-expired")
+        if (finding.Code == "departure-expired")
         {
             return false;
         }
@@ -154,15 +160,15 @@ internal sealed class TraceabilityContext
 
         var relative = RootRelative(Store.Root, finding.Path);
 
-        foreach (var exception in live)
+        foreach (var departure in live)
         {
-            if (!exception.Codes.Contains(finding.Code))
+            if (!departure.Codes.Contains(finding.Code))
             {
                 continue;
             }
 
-            if (subjects.Any(subject => exception.Subjects.Contains(subject))
-                || exception.Paths.Any(pattern => GlobMatches(pattern, relative)))
+            if (subjects.Any(subject => departure.Subjects.Contains(subject))
+                || departure.Paths.Any(pattern => GlobMatches(pattern, relative)))
             {
                 return true;
             }
@@ -514,25 +520,25 @@ internal sealed class TraceabilityContext
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
-    /// <summary>A live exception, with the codes, subjects and paths it holds.</summary>
+    /// <summary>A live departure, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
-        /// <param name="exception">The exception type under inspection.</param>
-        public LiveException(IRecordFacts exception)
+        /// <param name="departure">The departure record under inspection.</param>
+        public LiveException(IRecordFacts departure)
         {
-            Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
-            Paths = exception.Ids("paths");
-            Codes = new HashSet<string>(exception.Ids("covers"), StringComparer.Ordinal);
+            Subjects = new HashSet<string>(departure.Ids("subject"), StringComparer.Ordinal);
+            Paths = departure.Ids("paths");
+            Codes = new HashSet<string>(departure.Ids("covers"), StringComparer.Ordinal);
         }
 
-        /// <summary>Gets the subjects for the live exception.</summary>
+        /// <summary>Gets the subjects for the live departure.</summary>
         public HashSet<string> Subjects { get; }
 
-        /// <summary>Gets the paths for the live exception.</summary>
+        /// <summary>Gets the paths for the live departure.</summary>
         public IReadOnlyList<string> Paths { get; }
 
-        /// <summary>Gets the codes for the live exception.</summary>
+        /// <summary>Gets the covers for the live departure.</summary>
         public HashSet<string> Codes { get; }
     }
 

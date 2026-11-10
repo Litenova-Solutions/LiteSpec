@@ -30,7 +30,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **ID:** `litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -44,7 +44,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **ID:** `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -58,7 +58,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **ID:** `litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -100,7 +100,7 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 **ID:** `litespec/backend/dotnet/domain#model-value-objects-as-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -180,7 +180,7 @@ If order is not part of the value, creation normalizes to the documented compari
 
 **ID:** `litespec/backend/dotnet/domain#implement-domain-services-as-stateless-classes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -212,7 +212,7 @@ Application supplies the lines and passes the returned `Money` to `Order.Confirm
 
 **ID:** `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -245,7 +245,7 @@ public sealed record ProfileActiveState : ProfileState;
 
 **ID:** `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -357,7 +357,7 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 **ID:** `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -419,7 +419,7 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **ID:** `litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -460,7 +460,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **ID:** `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -500,7 +500,7 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 
 **ID:** `litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -521,7 +521,7 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **ID:** `litespec/backend/dotnet/domain#raise-immutable-domain-facts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -535,7 +535,7 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **ID:** `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -587,7 +587,7 @@ Application validators handle malformed caller input through validation errors. 
 
 **ID:** `litespec/backend/dotnet/domain#document-every-public-domain-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -601,7 +601,7 @@ Application validators handle malformed caller input through validation errors. 
 
 **ID:** `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 

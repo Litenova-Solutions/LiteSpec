@@ -37,7 +37,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent,
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
-        RecordTypes.Exception,
+        RecordTypes.Departure,
     };
 
     /// <summary>Reports identifier-invalid, identifier-duplicate, identifier-folder-drift, name-duplicate and decision-number-duplicate.</summary>
@@ -278,7 +278,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent => "Integration event",
         RecordTypes.ExternalSystem => "External system",
         RecordTypes.Runbook => "Runbook",
-        RecordTypes.Exception => "Exception",
+        RecordTypes.Departure => "Departure",
         RecordTypes.Reaction => "Reaction",
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",

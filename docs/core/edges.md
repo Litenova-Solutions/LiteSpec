@@ -72,7 +72,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-integration-event-for-its-direction`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -86,7 +86,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:reaction, record:job
 
@@ -100,7 +100,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#name-published-events-in-the-domains-words`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: record:integration-event
 
@@ -118,7 +118,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -132,7 +132,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -146,7 +146,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#keep-notification-templates-and-the-template-store-one-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -162,7 +162,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#use-every-declared-template-parameter`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -178,7 +178,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#name-each-template-for-its-subject-event-and-audience`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -194,7 +194,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#claim-every-notification-promise-from-a-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -208,7 +208,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-each-entry-point-a-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -222,7 +222,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-every-page-its-screen-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route, record:screen; layer: implementation; trace: yes
 
@@ -238,7 +238,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-every-screen-an-address-or-a-host`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -254,7 +254,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#match-a-screens-offers-to-its-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -270,7 +270,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -286,7 +286,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-every-browser-step-a-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -302,7 +302,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen, test; layer: proof; trace: yes
 
@@ -318,7 +318,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#serve-static-content-through-served-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -332,7 +332,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-external-system-operation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 

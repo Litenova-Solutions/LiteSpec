@@ -181,32 +181,36 @@ internal static class TraceabilityFixtures
             }
             """);
 
-    /// <summary>An exception covering the codes on the subjects and paths until 2099.</summary>
-    /// <param name="covers">The finding codes the exception covers.</param>
-    /// <param name="subjects">The subject identifiers the exception covers, or null for none.</param>
-    /// <param name="paths">The file paths the exception covers, or null for none.</param>
+    /// <summary>A departure covering the codes on the subjects and paths until 2099, or for good when no expiry is given.</summary>
+    /// <param name="covers">The covers list: finding codes the departure covers.</param>
+    /// <param name="subjects">The subject identifiers the departure covers, or null for none.</param>
+    /// <param name="paths">The file paths the departure covers, or null for none.</param>
     /// <param name="id">The record identifier of the page.</param>
-    /// <param name="expiresOn">The date the exception expires, as ISO date text.</param>
+    /// <param name="expiresOn">The date the departure expires, as ISO date text, or null for a lasting departure.</param>
     /// <returns>The path and source text of the additional file.</returns>
-    public static (string Path, string Source) Exception(
+    public static (string Path, string Source) Departure(
         string[] covers,
         string[]? subjects = null,
         string[]? paths = null,
-        string id = "exception/marks-deferred",
-        string expiresOn = "2099-01-01") =>
-        Page(FileOf(id), $$"""
+        string id = "departure/marks-deferred",
+        string? expiresOn = "2099-01-01")
+    {
+        var tail = expiresOn is null
+            ? ""
+            : $",\n  \"expiresOn\": \"{expiresOn}\",\n  \"exit\": \"Marks are added.\"";
+
+        return Page(FileOf(id), $$"""
             {
-              "type": "exception",
+              "type": "departure",
               "id": "{{id}}",
               "title": "Marks deferred",
-              "kind": "gap",
               "covers": [{{string.Join(", ", covers.Select(Quote))}}],
               "subject": [{{string.Join(", ", (subjects ?? []).Select(Quote))}}],
               "paths": [{{string.Join(", ", (paths ?? []).Select(Quote))}}],
-              "reason": "Marks are deferred.",
-              "expiresOn": "{{expiresOn}}"
+              "reason": "Marks are deferred."{{tail}}
             }
             """);
+    }
 
     /// <summary>A decision page.</summary>
     /// <param name="id">The record identifier of the page.</param>

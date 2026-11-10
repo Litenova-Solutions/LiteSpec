@@ -29,7 +29,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-independent-consumer-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -43,7 +43,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-breaking-contract-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -57,7 +57,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#treat-removed-behavior-fields-as-breaking`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -71,7 +71,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-compatible-additions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -85,7 +85,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#review-exhaustive-consumer-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -99,7 +99,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#preserve-stable-error-codes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -113,7 +113,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#resolve-uncertain-classifications-safely`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -127,7 +127,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-breaking-behavior-changes-as-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -141,7 +141,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-release-baselines`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -155,7 +155,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#diff-release-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -169,7 +169,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#reject-breaking-diffs-without-authorization`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -183,7 +183,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#assign-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -199,7 +199,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-compatible-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -213,7 +213,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#assign-versioned-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -227,7 +227,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#version-breaking-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -241,7 +241,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-supported-versions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -255,7 +255,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-version-retirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -269,7 +269,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#signal-planned-public-removal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -283,7 +283,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#publish-deprecation-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -297,7 +297,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-deprecation-conditions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -311,7 +311,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#treat-errors-as-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -325,7 +325,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#gate-new-error-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -339,7 +339,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#exercise-generated-consumers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -353,7 +353,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-integration-event-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -367,7 +367,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#version-breaking-integration-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -381,7 +381,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retire-integration-events-with-notice`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

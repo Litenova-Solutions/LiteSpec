@@ -225,10 +225,10 @@ static class ManifestSelectionChecks
     }
 
     /// <summary>
-    ///     Holds stage deferrals to their exception records: each departure names its
-    ///     deferred provision in covers, so a deferral of an unknown provision is
+    ///     Holds stage deferrals to their departure records: each departure names its
+    ///     deferred provisions in covers, so a deferral of an unknown provision is
     ///     refused here. A deferral past its date belongs to the model check, which
-    ///     reports exception-expired.
+    ///     reports departure-expired.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckStageDeferrals(ConsumerRun run)
@@ -241,8 +241,8 @@ static class ManifestSelectionChecks
         }
 
         // The page scan already reported every malformed record file, so this pass reads
-        // quietly and keeps the departure exceptions only.
-        var deferrals = new List<(string File, string Id, string? Provision)>();
+        // quietly and keeps the departures only.
+        var deferrals = new List<(string File, string Id, string Provision)>();
 
         foreach (var file in run.Files)
         {
@@ -259,10 +259,16 @@ static class ManifestSelectionChecks
             var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
 
             if (page is not null
-                && JsonValues.PropString(page, "type") == "exception"
-                && JsonValues.PropString(page, "kind") == "departure")
+                && JsonValues.PropString(page, "type") == "departure"
+                && page["covers"] is JsonArray covers)
             {
-                deferrals.Add((file, JsonValues.PropText(page, "id"), JsonValues.AsString(page["covers"])));
+                foreach (var cover in covers)
+                {
+                    if (JsonValues.AsString(cover) is { } provision && provision.Contains('#'))
+                    {
+                        deferrals.Add((file, JsonValues.PropText(page, "id"), provision));
+                    }
+                }
             }
         }
 
@@ -284,15 +290,14 @@ static class ManifestSelectionChecks
 
         foreach (var (file, id, provision) in deferrals)
         {
-            // A covers that is no string already failed the record schema beside this page.
-            if (provision is null || knownProvisions.Contains(provision))
+            if (knownProvisions.Contains(provision))
             {
                 continue;
             }
 
             run.Err(new Finding(
                 "stage-deferral-invalid",
-                $"exception '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
+                $"departure '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
                 file,
                 1,
                 id));

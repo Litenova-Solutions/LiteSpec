@@ -42,22 +42,22 @@
 {#if off.length}
   <Block blockKey="offers" heading="offers" count={off.length}>
     <Table
-      head={["Use case", "Calls", "Implemented", "Scenarios"]}
+      head={["Use case", "Calls", "Coded", "Scenarios"]}
       rows={off.map((u) => {
         const q = book.get(base(u));
         const sc = book.scenariosOf(u);
         const b = q?.machine
           ? {
-              built: !!((q.machine as Fields).implemented),
+              built: !!((q.machine as Fields).coded),
               scenarios: sc.length,
-              proven: sc.filter((x) => book.get(base(x))?.proof?.state === "awaiting").length,
+              verified: sc.filter((x) => book.get(base(x))?.proof?.state === "awaiting").length,
             }
           : null;
         return [
           tdHtml(inlineRefHtml(u)),
           tdHtml(!route ? `<span class="${tnCls}">no page</span>` : calls.includes(u) ? "Yes" : `<span class="${warnCls}">No</span>`),
           tdHtml(b ? (b.built ? "Yes" : `<span class="${warnCls}">No</span>`) : ""),
-          tdHtml(b ? (b.scenarios ? `${b.proven} of ${b.scenarios}` : `<span class="${warnCls}">None</span>`) : ""),
+          tdHtml(b ? (b.scenarios ? `${b.verified} of ${b.scenarios}` : `<span class="${warnCls}">None</span>`) : ""),
         ];
       })}
     />

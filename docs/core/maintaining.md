@@ -49,7 +49,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#state-the-provision-lifecycle`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A maintainer MUST keep each provision in exactly one of three states: draft, active, or retired.
 
@@ -63,7 +63,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#replace-every-citation-on-a-rename`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A provision rename MUST replace every citation of the old identifier in one change.
 
@@ -77,7 +77,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#keep-provision-identifiers-stable-within-a-major-version`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A minor LiteSpec release MUST keep every provision identifier of its major version, adding provisions and rewording provision text without removing or renaming an identifier.
 
@@ -91,7 +91,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.
 
@@ -103,7 +103,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The LiteSpec manifest MUST list every stack, shape, extension, and version pin the release carries.
 
@@ -117,7 +117,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every top-level class that declares a method in a .NET source project under `apps/`, and every test that verifies a provision, MUST name its provision in a mark: a `follows` mark on the class and a `proves` mark on the test.
 
@@ -131,7 +131,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#record-the-reasoning-behind-each-release`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A maintainer MUST keep the research and decisions behind each release as records under `docs/intent/`.
 

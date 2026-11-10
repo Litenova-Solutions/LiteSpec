@@ -45,7 +45,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-one-application-assembly`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`.
 
@@ -57,7 +57,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#mirror-modules-in-folders-and-namespaces`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every project MUST give each module one folder and namespace.
 
@@ -78,7 +78,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#use-the-project-reference-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project reference MUST follow the graph in the table in this section and add no other edge.
 
@@ -105,7 +105,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-domain-package-free`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The Domain project MUST reference no package beyond the .NET base class library.
 
@@ -117,7 +117,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-application-dependencies-narrow`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Application MUST reference only LiteBus command and query abstractions, required read abstractions, and needed Microsoft abstractions, plus the `IQuerySession` read boundary.
 
@@ -129,7 +129,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-the-test-projects-the-size-requires`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A backend solution MUST hold exactly the test projects its size requires: Architecture and Integration for small, adding Acceptance for large.
 
@@ -151,7 +151,7 @@ A small solution holds the first two; Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-net-production-and-test-projects-separate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production projects MUST live under `apps/api/src/` and test projects under `apps/api/tests/`, with the solution directly under `apps/api/`.
 

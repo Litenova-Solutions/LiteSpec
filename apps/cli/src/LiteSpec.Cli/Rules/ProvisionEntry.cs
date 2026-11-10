@@ -5,14 +5,14 @@ namespace LiteSpec.Rules;
 
 /// <summary>
 ///     One retrievable provision: a LiteSpec provision from the carried release or a
-///     project convention from the consumer's governance folder. A departure exception
+///     project convention from the consumer's governance folder. A departure
 ///     is not an entry: it replaces the entry its covers names at print time.
 /// </summary>
 /// <param name="Id">The provision identifier, or the convention identifier.</param>
 /// <param name="Title">The provision heading.</param>
 /// <param name="Page">The owning page relative to the release root, or empty for a convention.</param>
 /// <param name="Kind">The assertion class: rule, convention or pattern.</param>
-/// <param name="Strength">The display strength: rule, default, advice or pattern.</param>
+/// <param name="Strength">The display strength: required, default, advisory or pattern.</param>
 /// <param name="Concern">The page concern the provision belongs to, such as domain or tests, or empty when the page names none.</param>
 /// <param name="Layer">The record layer the provision governs: any, intent, behavior, implementation or proof.</param>
 /// <param name="Trace">Whether the provision ties its layer to the records rather than stating LiteSpec's practice for it.</param>
@@ -53,9 +53,9 @@ internal sealed record ProvisionEntry(
     /// <summary>Gets the group heading the strength prints under.</summary>
     public string Group => Strength switch
     {
-        "rule" => "Required",
+        "required" => "Required",
         "default" => "Defaults",
-        "advice" => "Advisory",
+        "advisory" => "Advisory",
         _ => "Patterns",
     };
 

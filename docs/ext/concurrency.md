@@ -29,7 +29,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#document-write-conflict-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case; layer: behavior
 
@@ -43,7 +43,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#limit-version-checks`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, endpoint
 
@@ -57,7 +57,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#compare-expected-aggregate-versions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -71,7 +71,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#map-failed-expected-versions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -85,7 +85,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#reject-silent-overwrites`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -99,7 +99,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#apply-http-version-preconditions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -115,7 +115,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#return-precondition-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -129,7 +129,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#hide-provider-version-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -143,7 +143,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#run-idempotency-in-the-pipeline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -157,7 +157,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#scope-client-keys`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -171,7 +171,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#store-idempotency-state-atomically`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -185,7 +185,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#reject-conflicting-key-reuse`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -199,7 +199,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#enforce-key-uniqueness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -213,7 +213,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#canonicalize-request-fingerprints`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -227,7 +227,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#protect-fingerprint-source-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -241,7 +241,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#replay-completed-results`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -255,7 +255,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#define-concurrent-retry-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case; layer: behavior
 
@@ -269,7 +269,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#reload-concurrent-winners`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -283,7 +283,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#discard-failed-replay-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -297,7 +297,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#delay-irreversible-provider-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -311,7 +311,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#route-required-external-effects-durably`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -325,7 +325,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#set-key-retention`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting; layer: behavior
 
@@ -339,7 +339,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#bound-expired-record-cleanup`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -353,7 +353,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#retain-safe-retry-keys`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting; layer: behavior
 
@@ -367,7 +367,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#declare-replayed-transport-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case; layer: behavior
 
@@ -381,7 +381,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#restrict-replay-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -395,7 +395,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **ID:** `litespec/ext/concurrency#exclude-unsafe-replay-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 

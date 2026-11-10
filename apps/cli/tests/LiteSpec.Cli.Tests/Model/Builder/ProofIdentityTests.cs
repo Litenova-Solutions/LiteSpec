@@ -21,7 +21,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("coded", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 
@@ -42,7 +42,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("verified", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 

@@ -14,7 +14,7 @@ A Svelte component holds its state in runes, with props from `$props` and derive
 
 **ID:** `litespec/frontend/web/svelte/components#write-components-in-runes-mode`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 

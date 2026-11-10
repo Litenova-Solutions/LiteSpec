@@ -28,7 +28,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#record-each-provider-as-an-external-system`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -42,7 +42,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#call-only-declared-operations`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -58,7 +58,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#run-provider-calls-from-event-handlers-or-jobs`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: reaction, job
 
@@ -76,7 +76,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#define-business-action-ports`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: port
 
@@ -92,7 +92,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#isolate-provider-implementations`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -108,7 +108,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#bind-client-configuration`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -122,7 +122,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#use-managed-http-clients`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -136,7 +136,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#reject-per-request-http-clients`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -150,7 +150,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#bound-transient-retries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -164,7 +164,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#protect-non-idempotent-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -178,7 +178,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **ID:** `litespec/ext/integrations#translate-provider-failure-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -196,7 +196,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **ID:** `litespec/ext/integrations#exclude-provider-internals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -210,7 +210,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **ID:** `litespec/ext/integrations#trust-inbound-integration-events-by-declared-trust`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -224,7 +224,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **ID:** `litespec/ext/integrations#verify-inbound-provider-messages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -242,7 +242,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#process-duplicate-messages-safely`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -256,7 +256,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#reject-formula-leading-import-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -272,7 +272,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#simulate-integration-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -286,7 +286,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **ID:** `litespec/ext/integrations#cover-provider-failure-modes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 

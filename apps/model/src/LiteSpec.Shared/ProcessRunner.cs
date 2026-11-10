@@ -50,8 +50,15 @@ public static class ProcessRunner
             var stdout = Task.Run(() => process.StandardOutput.BaseStream.CopyTo(output));
             var stderr = process.StandardError.ReadToEndAsync();
 
-            process.StandardInput.Write(stdin ?? "");
-            process.StandardInput.Close();
+            try
+            {
+                process.StandardInput.Write(stdin ?? "");
+                process.StandardInput.Close();
+            }
+            catch (IOException)
+            {
+                // The process exited before reading its input; its exit code and output report why.
+            }
 
             if (!process.WaitForExit(timeout) || !stdout.Wait(timeout))
             {

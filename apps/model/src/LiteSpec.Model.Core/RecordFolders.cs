@@ -79,8 +79,8 @@ public static class RecordFolders
         At("external-system", "behavior/modules/{module}/external-systems", "{name}.yaml"),
         Scaffold("runbook", "implementation/runbooks", "{name}.yaml"),
         At("runbook", "implementation/modules/{module}/runbooks", "{name}.yaml"),
-        Scaffold("exception", "governance/exceptions", "{name}.yaml"),
-        At("exception", "governance/modules/{module}/exceptions", "{name}.yaml"),
+        Scaffold("departure", "governance/departures", "{name}.yaml"),
+        At("departure", "governance/modules/{module}/departures", "{name}.yaml"),
     ];
 
     /// <summary>Whether a record file of the type sits in the folder, given the modules that keep their records flat.</summary>

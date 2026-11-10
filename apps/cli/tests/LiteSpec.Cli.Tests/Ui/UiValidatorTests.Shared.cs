@@ -66,10 +66,10 @@ public sealed partial class UiValidatorTests
     public void UI_Exception_With_An_Expired_Date()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the departure or close the gap");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
@@ -78,7 +78,7 @@ public sealed partial class UiValidatorTests
     public void UI_Exception_With_A_Live_Date()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
+        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
@@ -88,7 +88,7 @@ public sealed partial class UiValidatorTests
     public void Exception_Against_Another_Area_Stays_Unread_By_The_UI_Validator()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
+        fixture.WriteDeparture("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
         var problems = UiFixture.Problems(fixture.Run());
 
         // The model check owns the expiry of every exception, so it reports this
@@ -169,7 +169,7 @@ public sealed partial class UiValidatorTests
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
-        fixture.WriteException("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteDeparture("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 

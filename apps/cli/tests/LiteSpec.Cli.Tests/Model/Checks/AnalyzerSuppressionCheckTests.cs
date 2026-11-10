@@ -4,10 +4,10 @@ using LiteSpec.Tests.Support;
 
 namespace LiteSpec.Tests.Model.Checks;
 
-/// <summary>Proves the analyzer suppression check against the lowering and suppression places and the exceptions that cover them.</summary>
+/// <summary>Proves the analyzer suppression check against the lowering and suppression places and the departures that cover them.</summary>
 public sealed class AnalyzerSuppressionCheckTests
 {
-    /// <summary>An analyzer rule lowered in .editorconfig with no covering exception reports analyzer-lowering-unrecorded.</summary>
+    /// <summary>An analyzer rule lowered in .editorconfig with no covering departure reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
     public void EditorConfig_Lowering_Reports()
@@ -21,7 +21,7 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Equal("S", finding.Tier);
         Assert.Contains("LS1001", finding.Message);
         Assert.Contains("litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns", finding.Message);
-        Assert.Contains("no live exception covering", finding.Message);
+        Assert.Contains("no live departure covering", finding.Message);
         Assert.Equal(Path.Combine(temp.Path, ".editorconfig"), finding.Path);
         Assert.Equal(2, finding.Line);
     }
@@ -167,60 +167,60 @@ public sealed class AnalyzerSuppressionCheckTests
         Assert.Empty(Lowerings(TestModel.Model(TestModel.Config(temp.Path))));
     }
 
-    /// <summary>A live exception covering the provision the lowered rule enforces reports no analyzer-lowering-unrecorded.</summary>
+    /// <summary>A live departure covering the provision the lowered rule enforces reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
-    public void Live_Exception_Covering_Provision_Passes()
+    public void Live_Departure_Covering_Provision_Passes()
     {
         using var temp = Cli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringException(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
+            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2999-01-01"));
 
         Assert.Empty(Lowerings(model));
     }
 
-    /// <summary>A live exception covering this finding code reports no analyzer-lowering-unrecorded.</summary>
+    /// <summary>A live departure covering this finding code reports no analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
-    public void Live_Exception_Covering_Finding_Code_Passes()
+    public void Live_Departure_Covering_Finding_Code_Passes()
     {
         using var temp = Cli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"kind": "gap", "covers": ["analyzer-lowering-unrecorded"], "subject": ["use-case/lending.list-loans"], "reason": "The lowering waits for its departure record.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("departure", "departure/lower-analyzer-rule", Path.Combine(temp.Path, "lower-analyzer-rule.yaml"), """{"covers": ["analyzer-lowering-unrecorded"], "subject": ["use-case/lending.list-loans"], "reason": "The lowering waits for its departure record.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         Assert.Empty(Lowerings(model));
     }
 
-    /// <summary>An expired exception covering the provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
+    /// <summary>An expired departure covering the provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
-    public void Expired_Exception_Covering_Provision_Reports()
+    public void Expired_Departure_Covering_Provision_Reports()
     {
         using var temp = Cli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringException(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
+            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns\"", "2000-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
         Assert.Contains("LS1001", finding.Message);
     }
 
-    /// <summary>A live exception covering another provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
+    /// <summary>A live departure covering another provision does not cover the lowering, which reports analyzer-lowering-unrecorded.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
-    public void Exception_Covering_Another_Provision_Reports()
+    public void Departure_Covering_Another_Provision_Reports()
     {
         using var temp = Cli.Temp("checks");
         Write(temp.Path, ".editorconfig", "[*.cs]\ndotnet_diagnostic.LS1001.severity = none\n");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            LoweringException(temp.Path, "\"litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
+            LoweringDeparture(temp.Path, "\"litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums\"", "2999-01-01"));
 
         var finding = Assert.Single(Lowerings(model));
 
@@ -246,7 +246,7 @@ public sealed class AnalyzerSuppressionCheckTests
         }
     }
 
-    /// <summary>A model check over a project lowering LS1001 with no exception reports analyzer-lowering-unrecorded as a blocking S finding.</summary>
+    /// <summary>A model check over a project lowering LS1001 with no departure reports analyzer-lowering-unrecorded as a blocking S finding.</summary>
     /// <proves>litespec/core/model#record-a-project-wide-lowering-as-an-exception</proves>
     [Fact]
     public void Model_Check_Reports_Unrecorded_Lowering()
@@ -266,12 +266,12 @@ public sealed class AnalyzerSuppressionCheckTests
     static List<Finding> Lowerings(ProjectModel model) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == "analyzer-lowering-unrecorded").ToList();
 
-    static Record LoweringException(string root, string coversJson, string expiresOn) =>
+    static Record LoweringDeparture(string root, string coversJson, string expiresOn) =>
         TestModel.Record(
-            "exception",
-            "exception/lower-analyzer-rule",
+            "departure",
+            "departure/lower-analyzer-rule",
             Path.Combine(root, "lower-analyzer-rule.yaml"),
-            $$"""{"kind": "departure", "covers": {{coversJson}}, "subject": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a departure.", "expiresOn": "{{expiresOn}}"}""");
+            $$"""{"covers": {{coversJson}}, "subject": ["use-case/lending.list-loans"], "reason": "The lowering is recorded as a departure.", "exit": "The lowering is removed.", "expiresOn": "{{expiresOn}}"}""");
 
     static void CopyFixture(string root)
     {

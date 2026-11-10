@@ -67,7 +67,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-for-the-reader-who-arrives-cold`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -83,7 +83,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#put-the-actor-first`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -99,7 +99,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#use-literal-words`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -115,7 +115,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -131,7 +131,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#give-each-paragraph-one-idea`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -147,7 +147,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#apply-plain-mechanics`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -163,7 +163,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-every-record-title-in-title-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -179,7 +179,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#name-each-title-in-its-record-type-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -195,7 +195,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#state-each-statement-without-modal-words`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -211,7 +211,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -227,7 +227,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#keep-company-facts-out-of-intent-prose`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -243,7 +243,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#give-each-explanation-file-its-fixed-sections`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -259,7 +259,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-each-documentation-page-as-one-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -275,7 +275,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#comment-on-why-not-what`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -291,7 +291,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#write-each-changelog-as-a-release-comparison`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -307,7 +307,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#compare-real-options-in-each-decision-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 

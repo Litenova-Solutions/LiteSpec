@@ -25,7 +25,7 @@ The model builder writes generated working files under `.litespec/model/` while 
 
 **ID:** `litespec/workspace/structure#use-the-canonical-root-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer workspace MUST use the canonical root tree declared in this section.
 
@@ -108,7 +108,7 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#declare-size-and-application-stacks-in-project-config`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** `.litespec/project.yaml` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
 
@@ -120,7 +120,7 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#keep-the-generated-model-out-of-source-control`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The generated `.litespec/model/` folder MUST stay out of source control.
 
@@ -132,7 +132,7 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#keep-production-and-test-code-separate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production code MUST live under `apps/api/src/` and test code under `apps/api/tests/`.
 
@@ -153,7 +153,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-runnable-applications-under-apps`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An independently runnable frontend, API, or deployed host MUST live under `apps/{name}/`.
 
@@ -165,7 +165,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#limit-shared-typescript-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A shared TypeScript package MUST have at least two consumers or carry generated output shared by design.
 
@@ -177,7 +177,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-consumer-documentation-at-the-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Project records MUST live under the root `.litespec/` directory.
 
@@ -189,7 +189,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-orientation-documents-separate-from-canonical-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A README under `.litespec/` MUST link to the record rather than restate its content.
 

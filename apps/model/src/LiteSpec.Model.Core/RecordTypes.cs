@@ -38,8 +38,8 @@ public static class RecordTypes
     /// <summary>Gets the `example-cast` record type name.</summary>
     public const string ExampleCast = "example-cast";
 
-    /// <summary>Gets the `exception` record type name.</summary>
-    public const string Exception = "exception";
+    /// <summary>Gets the `departure` record type name.</summary>
+    public const string Departure = "departure";
 
     /// <summary>Gets the `external-system` record type name.</summary>
     public const string ExternalSystem = "external-system";
@@ -144,7 +144,7 @@ public static class RecordTypes
         "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
-        "entry-point", "screen", "external-system", "runbook", "exception", "term",
+        "entry-point", "screen", "external-system", "runbook", "departure", "term",
     };
 
     /// <summary>
@@ -164,7 +164,7 @@ public static class RecordTypes
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
-            ["exception"] = "governance",
+            ["departure"] = "governance",
         };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>

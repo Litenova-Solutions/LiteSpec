@@ -874,6 +874,12 @@ The specification with every record decided and every required link holding.
 
 Source: LiteSpec.
 
+### Coded
+
+The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.
+
+Source: LiteSpec.
+
 ### Command Page
 
 One page that documents one shipped command: its arguments, options, exit codes, and what it runs underneath.
@@ -929,6 +935,12 @@ Source: LiteSpec.
 The browser rule that decides which origins can call the API.
 
 Source: the Fetch standard.
+
+### Covered
+
+The outcome of a finding a departure record covers: reported, and never blocking.
+
+Source: LiteSpec.
 
 ### Current Standards Material
 
@@ -1026,12 +1038,6 @@ One page that solves one stated problem for a reader who already has a working r
 
 Source: Diataxis.
 
-### Implemented
-
-The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.
-
-Source: LiteSpec.
-
 ### Index
 
 One page routing readers to the pages of its section.
@@ -1065,12 +1071,6 @@ One written link from a code element or a test, of kind `implements` naming the 
 Source: LiteSpec.
 
 Rejected: anchor and tag, which name the link by one of its forms.
-
-### Met
-
-The computed state of a requirement everything fulfilling it verifies, with its measure's check passing.
-
-Source: LiteSpec.
 
 ### Normative
 
@@ -1240,7 +1240,7 @@ Source: LiteSpec.
 
 ### Strength
 
-One of the three provision strengths: rule, default, or advice.
+One of the three provision strengths: required, default, or advisory.
 
 Source: LiteSpec.
 
@@ -1276,7 +1276,7 @@ Source: LiteSpec.
 
 ### Verified
 
-The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale.
+The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale, and of a requirement everything fulfilling it verifies, with its measure's check passing.
 
 Source: LiteSpec.
 

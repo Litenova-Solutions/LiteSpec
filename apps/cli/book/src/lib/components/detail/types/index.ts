@@ -11,7 +11,7 @@ import Constraint from "./Constraint.svelte";
 import Decision from "./Decision.svelte";
 import EntryPoint from "./EntryPoint.svelte";
 import Event from "./Event.svelte";
-import Exception from "./Exception.svelte";
+import Departure from "./Departure.svelte";
 import ExternalSystem from "./ExternalSystem.svelte";
 import Feature from "./Feature.svelte";
 import Finding from "./Finding.svelte";
@@ -76,7 +76,7 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   "entry-point": EntryPoint,
   "external-system": ExternalSystem,
   runbook: Runbook,
-  exception: Exception,
+  departure: Departure,
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,

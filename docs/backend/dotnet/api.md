@@ -26,7 +26,7 @@ The OpenAPI generator builds the published contract from metadata declared on ea
 
 **ID:** `litespec/backend/dotnet/api#use-one-endpoint-per-operation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -51,7 +51,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **ID:** `litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -65,7 +65,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **ID:** `litespec/backend/dotnet/api#declare-operation-metadata-in-the-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -79,7 +79,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **ID:** `litespec/backend/dotnet/api#derive-http-statuses-from-refusal-codes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -102,7 +102,7 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **ID:** `litespec/backend/dotnet/api#mark-polymorphic-transport-models-with-discriminators`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 

@@ -220,7 +220,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/backend/application#keep-command-handlers-to-load-call-and-stage: [departure exception/slow-review-departure, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
+            "- litespec/backend/application#keep-command-handlers-to-load-call-and-stage: [departure departure/slow-review-departure, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
             result.Output);
         Assert.Contains("- litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case", result.Output);
         Assert.DoesNotContain("old-layout-departure", result.Output);

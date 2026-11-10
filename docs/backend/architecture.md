@@ -89,7 +89,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#point-dependencies-inward`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -107,7 +107,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#own-each-layers-contract-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -121,7 +121,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -176,7 +176,7 @@ fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 
 **ID:** `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -196,7 +196,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#keep-implementation-types-hidden`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, endpoint, query-handler, reaction, repository, validator
 
@@ -210,7 +210,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#keep-business-invariants-in-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, command-handler, job, query-handler, reaction, value-object
 
@@ -224,7 +224,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#separate-command-and-query-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -238,7 +238,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#read-another-module-only-through-its-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, port, query-handler
 
@@ -254,7 +254,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#restrict-commands-to-their-own-module-aggregates`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -270,7 +270,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#subscribe-across-modules-only-to-integration-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -286,7 +286,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -306,7 +306,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **ID:** `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -322,7 +322,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **ID:** `litespec/backend/architecture#test-structural-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -353,7 +353,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **ID:** `litespec/backend/architecture#compose-each-process-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

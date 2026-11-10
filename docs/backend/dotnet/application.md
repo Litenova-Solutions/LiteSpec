@@ -26,7 +26,7 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 **ID:** `litespec/backend/dotnet/application#keep-command-handlers-to-load-call-and-stage`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -56,7 +56,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **ID:** `litespec/backend/dotnet/application#report-input-problems-as-validity`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: validator
 
@@ -70,7 +70,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **ID:** `litespec/backend/dotnet/application#keep-query-handlers-free-of-writes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -86,7 +86,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **ID:** `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction, job
 
@@ -107,7 +107,7 @@ outbox.StageCollectedEvents();
 
 **ID:** `litespec/backend/dotnet/application#run-reactions-in-dedicated-handlers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -132,7 +132,7 @@ internal sealed class SendDueNoticeOnLoanBorrowedHandler(...)
 
 **ID:** `litespec/backend/dotnet/application#run-scheduled-jobs-as-hosted-operations`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -156,7 +156,7 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **ID:** `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

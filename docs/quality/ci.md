@@ -49,7 +49,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#run-applicable-gates-on-every-pull-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every pull request MUST run the jobs the jobs table selects for its changed areas.
 
@@ -61,7 +61,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#check-documentation-on-every-pull-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The docs job MUST run on every pull request and fail on a page that breaks the page contract, configuration, or prose rules.
 
@@ -73,7 +73,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#keep-generated-contracts-fresh`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** CI MUST regenerate committed OpenAPI and API types from source deterministically and fail on any difference.
 
@@ -85,7 +85,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#refuse-backend-calls-outside-the-generated-client`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The contract job MUST fail a pull request whose frontend code calls the backend outside the generated client.
 
@@ -97,7 +97,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **ID:** `litespec/quality/ci#run-measured-checks-on-every-pull-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The measure job MUST run the check each measured requirement names for its kind.
 

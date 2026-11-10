@@ -17,11 +17,11 @@ public sealed class ModelCheckTests
         "effect-undeclared",
         "erasure-undeclared",
         "except-fallback-missing",
-        "exception-finding-unknown",
+        "departure-invalid",
         "identifier-duplicate",
         "identifier-invalid",
         "use-case-journey-missing",
-        "exception-expired",
+        "departure-expired",
         "link-unknown",
         "notification-sender-missing",
         "job-guard-missing",
@@ -150,15 +150,15 @@ public sealed class ModelCheckTests
         }
     }
 
-    /// <summary>An open exception turns its findings into exit 0.</summary>
+    /// <summary>An open departure turns its findings into exit 0.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
-    public void Open_Exception_Turns_Its_Findings_Into_Exit_0()
+    public void Open_Departure_Turns_Its_Findings_Into_Exit_0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteException(
+        WriteDeparture(
             fixture.Path,
-            "exception/list-loans-unimplemented",
+            "departure/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
             ["use-case/lending.list-loans", "screen/library-app.loans"],
@@ -167,15 +167,15 @@ public sealed class ModelCheckTests
         Assert.True(result.Status == 0, result.Output);
     }
 
-    /// <summary>An expired exception exits 1.</summary>
+    /// <summary>An expired departure exits 1.</summary>
     /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
     [Fact]
-    public void Expired_Exception_Exits_1()
+    public void Expired_Departure_Exits_1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteException(
+        WriteDeparture(
             fixture.Path,
-            "exception/list-loans-unimplemented",
+            "departure/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
@@ -184,28 +184,27 @@ public sealed class ModelCheckTests
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes an exception covering the codes on the subjects.</summary>
+    /// <summary>Writes a departure covering the codes on the subjects.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="id">The exception record id.</param>
-    /// <param name="title">The exception page title.</param>
-    /// <param name="covers">The finding codes the exception covers.</param>
-    /// <param name="subject">The record ids the exception applies to.</param>
-    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
-    static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
+    /// <param name="id">The departure record id.</param>
+    /// <param name="title">The departure page title.</param>
+    /// <param name="covers">The finding codes the departure covers.</param>
+    /// <param name="subject">The record ids the departure applies to.</param>
+    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
+    static void WriteDeparture(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $".litespec/governance/exceptions/{name}.yaml", ExceptionJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $".litespec/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/departures/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/departures/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Builds the exception fields as JSON. An exception is live when present and unexpired.
-    static string ExceptionJson(string id, string title, string[] covers, string[] subject, string expiresOn)
+    // Builds the departure fields as JSON. A departure is live when present and unexpired.
+    static string DepartureJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         return "{\n"
-            + "  \"type\": \"exception\",\n"
+            + "  \"type\": \"departure\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
-            + "  \"kind\": \"gap\",\n"
             + "  \"covers\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
             + "\n  ],\n"

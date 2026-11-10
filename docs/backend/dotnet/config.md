@@ -19,7 +19,7 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **ID:** `litespec/backend/dotnet/config#set-the-sdk-floor-at-the-workspace-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The root `global.json` MUST set the first feature band of the manifest .NET major release as its SDK version and roll forward with `latestFeature`.
 
@@ -31,7 +31,7 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **ID:** `litespec/backend/dotnet/config#centralize-net-build-settings`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** `apps/api/Directory.Build.props` MUST set the target framework of the manifest .NET stack release, and enable nullable types, implicit usings, and warnings as errors.
 
@@ -43,7 +43,7 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **ID:** `litespec/backend/dotnet/config#centralize-nuget-versions`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry the exact manifest pins.
 
@@ -55,7 +55,7 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **ID:** `litespec/backend/dotnet/config#commit-the-tool-manifest`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The root `.config/dotnet-tools.json` MUST pin every local .NET tool that a documented command invokes.
 

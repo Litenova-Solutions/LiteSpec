@@ -16,7 +16,7 @@ public sealed record Finding(string Code, string Message, string Path, int Line,
     /// <summary>Gets the reader that produced this finding's facts: <c>roslyn</c>, <c>typescript</c>, or null for a record-only finding.</summary>
     public string? Reader { get; init; }
 
-    /// <summary>Gets a value indicating whether whether the reader named by <see cref="Reader" /> is qualified, so its S findings block.</summary>
+    /// <summary>Gets a value indicating whether the reader named by <see cref="Reader" /> is qualified, so its S findings block.</summary>
     public bool ReaderIsQualified { get; init; } = true;
 
     /// <summary>The .NET (Roslyn) reader name.</summary>

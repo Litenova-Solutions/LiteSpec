@@ -25,7 +25,8 @@ const records: Record<string, Record<string, any>> = {
   },
   "use-case/library.borrowing.borrow": {
     type: "use-case", title: "Borrow",
-    qualifiedId: "library/borrowing/use-case/borrow",
+    folder: "behavior/library/borrowing",
+    module: "library",
     fields: {},
     impl: [{ path: "src/borrow.ts", line: 12, kind: "handler" }],
     tests: [],
@@ -97,7 +98,9 @@ const lexicon = {
   },
   glossary: {
     finding: { term: "Finding", definition: "A check result on a record." },
-    exception: { term: "Exception", definition: "A finding the product accepts." },
+    departure: { term: "Departure", definition: "A record that departs from a provision and covers the findings it names." },
+    coded: { term: "Coded", definition: "The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for." },
+    covered: { term: "Covered", definition: "The outcome of a finding a departure record covers: reported, and never blocking." },
   },
   fields: { boundary: "Boundary" },
   findings: { "goal-unused": { level: "G", meaning: "A goal nothing advances." } },

@@ -46,7 +46,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#match-test-level-to-risk`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend MUST use a logic test for pure logic, a browser specification for navigation and integration, and the route contract for every address.
 
@@ -58,7 +58,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
@@ -72,7 +72,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
 
@@ -86,7 +86,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result's declared text or code.
 
@@ -100,7 +100,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#assert-each-declared-refusal-by-its-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An evidence specification for a use case declaring a refusal MUST reach that refusal and assert it by its result's code.
 
@@ -114,7 +114,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#prove-each-scenario-at-one-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A scenario MUST carry one `proves` mark, on the test at the cheapest boundary that represents its risk.
 
@@ -128,7 +128,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that walks several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
 
@@ -142,7 +142,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#test-observable-states`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Statement:** A frontend test MUST assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.
 
@@ -154,7 +154,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#keep-mocks-at-owned-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend test MUST NOT mock the generated contract types or an implementation-private function, nor a library its stack names.
 
@@ -166,7 +166,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#use-network-mocks-for-component-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A component or logic test that needs HTTP MUST serve its answers through network mocks generated from the published contract.
 
@@ -180,7 +180,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#isolate-browser-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test MUST create or identify its own data, its own authentication context, and its own expected state.
 
@@ -192,7 +192,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend calling the API MUST hold a test asserting that its module tree resolves to the backend use-case folders and names no refused folder.
 
@@ -206,7 +206,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#run-browser-checks-through-the-command-line`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser suite MUST run through the command line, addressable per route and per file.
 

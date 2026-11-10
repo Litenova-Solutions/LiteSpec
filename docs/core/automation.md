@@ -50,7 +50,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#trigger-every-reaction-from-its-declared-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -66,7 +66,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#run-every-job-from-its-declared-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -82,7 +82,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#declare-every-reaction-and-job-edge-in-effects`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -96,7 +96,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#write-no-aggregate-directly-from-a-reaction-or-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -110,7 +110,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -124,7 +124,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -140,7 +140,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#name-each-job-for-the-use-case-it-runs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -156,7 +156,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -170,7 +170,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -184,7 +184,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#keep-job-fields-off-reactions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -200,7 +200,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#guard-every-manual-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -216,7 +216,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#write-every-runbook-to-run-or-recover`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 

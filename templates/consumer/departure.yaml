@@ -1,0 +1,15 @@
+type: departure
+id: departure/export-review-bypass
+title: Export Review Bypass
+covers:
+- litespec/backend/application#enforce-target-authorization-in-the-pipeline
+subject:
+- use-case/spending.export-expenses
+paths:
+- apps/api/src/Spending.Export/**
+reason: The project ships exports without review until 2027-03-31.
+exit: The export review check turns green and the bypass is removed.
+consequences: Exports ship without the review step until the check is green.
+expiresOn: 2027-03-31
+terms:
+- term/expense

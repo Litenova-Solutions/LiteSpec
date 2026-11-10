@@ -75,7 +75,7 @@ Each rule is a heading followed by its ID line. Here is one from the [domain pag
 
 **ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The Domain code MUST reference only the language standard library and project-owned Domain types.
 
@@ -84,7 +84,7 @@ Each rule is a heading followed by its ID line. Here is one from the [domain pag
 **Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
 ```
 
-Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `rule` binds every project it applies to, `default` binds unless the project records its own choice, and `advice` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
+Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `required` binds every project it applies to, `default` binds unless the project records its own choice, and `advisory` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
 
 Each page also states the scope its provisions apply to: the technology, the part of the system, and the kind of thing made. A provision narrower than its page names its scope, so an agent editing one file can ask which provisions govern it. The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
 

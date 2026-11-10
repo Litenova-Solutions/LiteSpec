@@ -27,7 +27,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#meet-release-readiness-gates`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -43,7 +43,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#provide-release-data-recovery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -57,7 +57,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#provide-release-operating-visibility`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -71,7 +71,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#provide-release-delivery-controls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -85,7 +85,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#record-release-evidence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -99,7 +99,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#record-operating-readiness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -113,7 +113,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#keep-a-first-release-readiness-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -127,7 +127,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#review-schema-artifacts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: migration
 
@@ -141,7 +141,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#enforce-the-supply-chain-gate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -157,7 +157,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#publish-a-book-preview-for-every-change`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -171,7 +171,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#promote-verified-artifacts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -185,7 +185,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#protect-the-default-branch`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -199,7 +199,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#record-every-branch-protection-bypass`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -215,7 +215,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#keep-a-canonical-job-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -229,7 +229,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -245,7 +245,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#record-each-drill-run-as-a-check-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -261,7 +261,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -277,7 +277,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -293,7 +293,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#point-each-operations-file-at-its-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -309,7 +309,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
@@ -325,7 +325,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#define-backup-and-restore-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -339,7 +339,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#exercise-a-restore-before-the-first-production-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -353,7 +353,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#use-a-repeatable-deployment`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -367,7 +367,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#keep-rollback-executable`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
@@ -381,7 +381,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#report-liveness-from-every-recurring-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -395,7 +395,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **ID:** `litespec/ext/delivery#define-actionable-baseline-alerts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -416,7 +416,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#cover-the-baseline-alert-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -430,7 +430,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#route-each-severity-to-a-declared-destination`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -446,7 +446,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#exercise-every-runbook-before-release`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
@@ -460,7 +460,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#state-availability-objectives-as-openslo-files`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -474,7 +474,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#attach-dashboard-links-to-production-objectives`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -488,7 +488,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#match-every-shipped-package-to-its-pin`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -504,7 +504,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#accept-every-shipped-package-license-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -520,7 +520,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#close-incident-exceptions-within-seven-days`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:exception
 
@@ -534,7 +534,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **ID:** `litespec/ext/delivery#write-a-brief-before-delegating`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -557,7 +557,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#restrict-a-worker-to-its-paths`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -571,7 +571,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#ask-only-unanswered-questions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -585,7 +585,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#verify-before-accepting-worker-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -599,7 +599,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#hold-back-example-rows-from-the-implementing-worker`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -613,7 +613,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#build-release-images-in-stages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -627,7 +627,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#run-images-as-non-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -641,7 +641,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#copy-only-runtime-files`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -655,7 +655,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#exclude-build-material-from-runtime-images`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -669,7 +669,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#supply-runtime-configuration-externally`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -683,7 +683,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#exclude-environment-configuration-from-images`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -697,7 +697,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#apply-schema-work-before-traffic`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -711,7 +711,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#keep-schema-work-out-of-startup`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -725,7 +725,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#wait-for-replica-readiness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -739,7 +739,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#test-released-traffic`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -753,7 +753,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#limit-container-privileges`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -767,7 +767,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#declare-writable-paths-and-limits`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -781,7 +781,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#run-the-application-as-pid-1`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -795,7 +795,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#set-sufficient-shutdown-time`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -809,7 +809,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#write-runtime-logs-to-streams`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -823,7 +823,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#keep-mutable-data-external`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -837,7 +837,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#apply-oci-release-labels`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -851,7 +851,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#record-image-digests`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -865,7 +865,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#exclude-build-timestamps-from-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -879,7 +879,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#separate-frontend-configuration-classes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -893,7 +893,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#use-protected-frontend-secret-delivery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -907,7 +907,7 @@ Output: the files to change and the report to write.
 
 **ID:** `litespec/ext/delivery#exclude-insecure-frontend-secret-carriers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

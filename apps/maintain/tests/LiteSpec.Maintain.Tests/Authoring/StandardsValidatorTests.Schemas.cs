@@ -693,31 +693,31 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
-    /// <summary>Consumer template carrying an exception identifier.</summary>
+    /// <summary>Consumer template carrying a departure identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "consumer template carrying an exception identifier")]
-    public void ConsumerTemplateWithExceptionId() => Check(
+    [Fact(DisplayName = "consumer template carrying a departure identifier")]
+    public void ConsumerTemplateWithDepartureId() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"exceptionPage\":{\"type\":\"object\",\"additionalProperties\":false," +
-                "\"required\":[\"type\",\"id\",\"title\",\"kind\",\"covers\",\"reason\",\"expiresOn\"]," +
-                "\"properties\":{\"type\":{\"const\":\"exception\"}," +
-                "\"id\":{\"$ref\":\"#/$defs/exceptionId\"}," +
+                "\"departurePage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"required\":[\"type\",\"id\",\"title\",\"covers\",\"reason\"]," +
+                "\"properties\":{\"type\":{\"const\":\"departure\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/departureId\"}," +
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
-                "\"kind\":{\"enum\":[\"departure\",\"gap\"]}," +
+                "" +
                 "\"covers\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
                 "\"reason\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
-                "\"exceptionId\":{\"type\":\"string\",\"pattern\":\"^exception/[a-z0-9][a-z0-9-]*$\"}," +
+                "\"departureId\":{\"type\":\"string\",\"pattern\":\"^departure/[a-z0-9][a-z0-9-]*$\"}," +
                 "\"findingCodeArray\":{\"type\":\"array\",\"minItems\":1,\"uniqueItems\":true,\"items\":{\"$ref\":\"#/$defs/findingCode\"}}," +
                 "\"findingCode\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9]+(-[a-z0-9]+)*$\"}," +
                 "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/exception.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"exception\",\"id\":\"exception/<name>\",\"title\":\"<Exception display title>\"," +
-                "\"kind\":\"gap\",\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
+            StandardsFixture.Write(root, "templates/consumer/departure.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"departure\",\"id\":\"departure/<name>\",\"title\":\"<Departure display title>\"," +
+                "\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
         []);
 

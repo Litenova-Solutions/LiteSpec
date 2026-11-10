@@ -40,7 +40,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A record identifier MUST follow the form the model states for its record type.
 
@@ -54,7 +54,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#name-records-with-one-to-six-words`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A name MUST carry one to six lowercase hyphenated words.
 
@@ -68,7 +68,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#use-every-identifier-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A record identifier MUST name exactly one record.
 
@@ -82,7 +82,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#keep-wire-codes-stable`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A wire code MUST stay unchanged once clients read it.
 
@@ -94,7 +94,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#resolve-every-identifier-citation`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every identifier citation MUST resolve to a written record.
 
@@ -106,7 +106,7 @@ Shared provisions keep their published `litespec/<page>#<slug>` form, as stated 
 
 **ID:** `litespec/backend/identifiers#cite-shared-provisions-in-their-published-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A shared provision citation MUST use its published identifier.
 

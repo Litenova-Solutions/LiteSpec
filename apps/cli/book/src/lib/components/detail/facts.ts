@@ -89,9 +89,12 @@ const facts: Record<string, (id: string, r: BookRecord, f: Fields) => Fact[]> = 
   },
   role: (_id, _r, f) => [{ key: "Kind", text: "Scope: " + cap(f.scope) }],
   "entry-point": (_id, _r, f) => (f.kind ? [{ key: "Kind", text: cap(f.kind) }] : []),
-  exception: (_id, _r, f) => {
+  departure: (_id, _r, f) => {
     const out: Fact[] = [];
-    if (f.kind) out.push({ key: "Kind", text: cap(f.kind) });
+    if (!f.expiresOn) {
+      out.push({ key: "Expires", text: "Lasting, no expiry date" });
+      return out;
+    }
     const n = book.days(String(f.expiresOn ?? ""));
     out.push({
       key: "Expires",
@@ -112,7 +115,7 @@ const facts: Record<string, (id: string, r: BookRecord, f: Fields) => Fact[]> = 
     const out: Fact[] = [];
     const level = f.level ?? f.tier;
     if (level) out.push({ key: "Check level", text: "Level " + level });
-    if (f.known) out.push({ key: "Kind", text: "Excepted" });
+    if (f.covered) out.push({ key: "Kind", text: "Covered" });
     if (f.outcome) out.push({ key: "Kind", text: cap(f.outcome) });
     if (f.reason) out.push({ key: "Kind", text: cap(f.reason) });
     return out;

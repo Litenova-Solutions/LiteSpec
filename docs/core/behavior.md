@@ -63,7 +63,7 @@ The specification names only what carries business meaning. Child entities and v
 
 **ID:** `litespec/core/behavior#keep-design-choices-out-of-the-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object, record:term
 

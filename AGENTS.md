@@ -24,7 +24,7 @@ LiteSpec is clean, plain, straightforward and, above all, consistent. Every chan
 6. **Readable cold.** Every page, record and book page stands alone for a reader who arrives from a link with nothing read before it: it says what kind of thing it is, who it concerns and what is at stake before it points anywhere else. A field a reader needs gets a place in the record type, never a convention in prose. (`litespec/core/writing#write-for-the-reader-who-arrives-cold`)
 7. **The product, not the company.** LiteSpec specifies the application: behavior it performs, data it holds and limits it enforces. Running the company (prices as an offer, markets, sales, hiring, launch dates, founder risks) stays out; it enters only as a constraint or as dated research. Engineering practice a small project can skip lives in the opt-in `delivery` extension.
 8. **Completion is computed.** What a reader asks first is how much of a thing exists and is proven. The model computes it from code, tests and passing scenarios, and nobody types it.
-9. **Guidance states its strength.** Every provision says whether it is a rule, a default or advice, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+9. **Guidance states its strength.** Every provision says whether it is required, a default or advisory, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 10. **Tools stay small.** A command, check, generated file or package exists because the owner approved it, and is removed when nothing uses it.
 
 LiteSpec serves many projects. Never name a consumer project in it.
@@ -86,7 +86,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default and Rationale, with an optional Compact)
 
@@ -97,7 +97,7 @@ Each page uses the sections of its page style. A Standard states one testable ob
 **Reviewed for:** ...   (or Checked by: the command, the finding code and the scope)
 ```
 
-The ID line holds the ID the heading derives, and the Strength line states rule, default or advice. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
+The ID line holds the ID the heading derives, and the Strength line states required, default or advisory. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
 
 Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
 

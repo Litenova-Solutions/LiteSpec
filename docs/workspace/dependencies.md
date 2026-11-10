@@ -35,7 +35,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#follow-the-declared-dependency-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A dependency between layers or modules MUST follow the declared graph and add no other edge.
 
@@ -47,7 +47,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-domain-dependency-free`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The Domain layer MUST depend on no external package or framework.
 
@@ -59,7 +59,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-application-free-of-provider-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Application MUST depend only on messaging abstractions, required read abstractions, and the one declared read boundary.
 
@@ -71,7 +71,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-providers-in-infrastructure`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A database provider, external SDK, resilience, discovery, or serialization adapter MUST live in Infrastructure.
 
@@ -83,7 +83,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#pin-every-dependency-version-centrally`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.yaml` states where it states one.
 
@@ -97,7 +97,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#approve-new-packages-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, license, processing location, account owner, failure behavior, and operating cost.
 
@@ -111,7 +111,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-frontend-applications-isolated`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend MUST NOT import another application's source or another module's internal feature files.
 
@@ -123,7 +123,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-the-approved-web-ui-dependency-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.yaml`, and a Svelte web frontend from `uiBaselineSvelte`.
 

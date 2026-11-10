@@ -24,7 +24,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **ID:** `litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -38,7 +38,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **ID:** `litespec/backend/dotnet/persistence#query-through-iquerysession`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -78,7 +78,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **ID:** `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -94,7 +94,7 @@ The obligation is one commit for one pipeline, not one named method. Under the b
 
 **ID:** `litespec/backend/dotnet/persistence#enforce-uniqueness-with-marten-unique-indexes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -124,7 +124,7 @@ session.Store(new PayoutDocument(expense.Id, payoutNumber));
 
 **ID:** `litespec/backend/dotnet/persistence#claim-cross-record-keys-with-a-claims-document`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -149,7 +149,7 @@ session.Insert(new BarcodeClaim(barcode));
 
 **ID:** `litespec/backend/dotnet/persistence#map-constraint-violations-with-the-postgresql-refusal-classifier`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -174,7 +174,7 @@ services.UseFaultRefusalClassifierInstance(
 
 **ID:** `litespec/backend/dotnet/persistence#apply-optimistic-concurrency-to-every-aggregate-document`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -194,7 +194,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **ID:** `litespec/backend/dotnet/persistence#map-marten-concurrency-faults-to-conflict-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

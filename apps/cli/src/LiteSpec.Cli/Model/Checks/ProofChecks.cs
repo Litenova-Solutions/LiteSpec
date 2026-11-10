@@ -166,7 +166,7 @@ internal static class ProofChecks
                 continue;
             }
 
-            if (model.Completion.TryGetValue(useCase.Id, out var completion) && completion.Stage != "proven")
+            if (model.Completion.TryGetValue(useCase.Id, out var completion) && completion.Stage != "verified")
             {
                 findings.Add(new Finding("use-case-unverified", $"Use case '{useCase.Id}' has scenarios with no passing proof.", useCase.File, useCase.Line, SubjectOf(useCase)));
             }

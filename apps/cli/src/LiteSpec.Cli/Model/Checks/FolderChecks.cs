@@ -421,10 +421,10 @@ internal static class FolderChecks
                 return true;
             }
 
-            return full.Length == 4 && full[3] == "exceptions";
+            return full.Length == 4 && full[3] == "departures";
         }
 
-        return full.Length == 2 && full[1] == "exceptions";
+        return full.Length == 2 && full[1] == "departures";
     }
 
     /// <summary>Whether the folder holds an aggregate: an <c>aggregate.yaml</c> file sits directly under it.</summary>

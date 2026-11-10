@@ -186,7 +186,7 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.Equal("proven", model.Completion["use-case/lending.borrow-copy"].Stage);
+        Assert.Equal("verified", model.Completion["use-case/lending.borrow-copy"].Stage);
     }
 
     /// <summary>A quality-requirement proof does not verify a use case.</summary>
@@ -197,7 +197,7 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.NotEqual("proven", model.Completion["use-case/lending.extend-loan"].Stage);
+        Assert.NotEqual("verified", model.Completion["use-case/lending.extend-loan"].Stage);
     }
 
     /// <summary>Passing proving tests confirm the proves links of their proof targets.</summary>

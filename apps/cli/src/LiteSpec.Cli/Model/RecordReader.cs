@@ -209,7 +209,7 @@ static class RecordReader
     /// <param name="indexed">The record the file reader yielded.</param>
     /// <param name="explanationFile">The explanation file path, for a page record with one beside it.</param>
     /// <param name="explanation">The explanation file's full text, for a page record with one beside it.</param>
-    /// <returns>The built record, with its qualified identifier and its fields as JSON.</returns>
+    /// <returns>The built record, with its folder, its module and its fields as JSON.</returns>
     private static Record BuildRecord(
         ConsumerConfig config,
         IndexRecord indexed,
@@ -218,7 +218,8 @@ static class RecordReader
         {
             Type = indexed.Type,
             Id = indexed.Id,
-            QualifiedId = QualifiedIdentifier.Of(indexed.Type, indexed.Id, indexed.File, config),
+            Folder = RecordPlacement.FolderOf(indexed.File, config),
+            Module = RecordPlacement.ModuleOf(indexed.File, config),
             Title = indexed.Title,
             File = indexed.File,
             Line = indexed.Line,
@@ -305,7 +306,8 @@ static class RecordReader
         {
             Type = RecordTypes.Result,
             Id = id,
-            QualifiedId = QualifiedIdentifier.Of(RecordTypes.Result, id, useCase.File, config),
+            Folder = RecordPlacement.FolderOf(useCase.File, config),
+            Module = RecordPlacement.ModuleOf(useCase.File, config),
             Title = title,
             File = useCase.File,
             Line = useCase.Line,
@@ -361,7 +363,8 @@ static class RecordReader
             {
                 Type = RecordTypes.Term,
                 Id = termId,
-                QualifiedId = QualifiedIdentifier.Of(RecordTypes.Term, termId, config.GlossaryPath, config),
+                Folder = RecordPlacement.FolderOf(config.GlossaryPath, config),
+                Module = RecordPlacement.ModuleOf(config.GlossaryPath, config),
                 Title = StringOf(term, RecordFields.Term) ?? "",
                 File = config.GlossaryPath,
                 Line = term.Line,

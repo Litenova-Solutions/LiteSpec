@@ -27,7 +27,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -50,7 +50,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -86,7 +86,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#keep-a-use-case-folder-flat`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -100,7 +100,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -116,7 +116,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -132,7 +132,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#keep-a-route-entry-thin`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -148,7 +148,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#mark-each-route-with-its-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -164,7 +164,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -186,7 +186,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-applications-independent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -200,7 +200,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-shared-packages-non-application-specific`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -214,7 +214,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#locate-cross-route-values-in-the-frame`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

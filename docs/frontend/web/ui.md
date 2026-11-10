@@ -53,7 +53,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#publish-one-registry-item-per-floorplan`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -67,7 +67,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -83,7 +83,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#restrict-css-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -97,7 +97,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#track-source-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

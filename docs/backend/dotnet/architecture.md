@@ -38,7 +38,7 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **ID:** `litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -61,7 +61,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -110,7 +110,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -124,7 +124,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-implementation-types-internal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, endpoint
 
@@ -140,7 +140,7 @@ This provision binds `litespec/backend/architecture#keep-implementation-types-hi
 
 **ID:** `litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -165,7 +165,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#keep-use-case-folders-isolated`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case, command-handler, query-handler, validator, endpoint, reaction
 
@@ -179,7 +179,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -193,7 +193,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#follow-declared-module-dependencies`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -207,7 +207,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 

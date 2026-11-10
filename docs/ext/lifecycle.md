@@ -30,7 +30,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#record-lifecycle-scope`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -44,7 +44,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#default-to-hard-delete`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -60,7 +60,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#model-retained-lifecycle-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -76,7 +76,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#reject-hidden-lifecycle-flags`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -90,7 +90,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#model-lifecycle-operations-in-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -104,7 +104,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#authorize-lifecycle-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job
 
@@ -118,7 +118,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#audit-lifecycle-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job
 
@@ -132,7 +132,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#exclude-persistence-only-lifecycle-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -146,7 +146,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#exclude-inactive-records-from-normal-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -160,7 +160,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#authorize-lifecycle-access-paths`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -174,7 +174,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#define-post-deletion-references`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -188,7 +188,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#define-storage-lifecycle-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -202,7 +202,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#define-relational-lifecycle-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: migration, repository
 
@@ -216,7 +216,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#test-provider-lifecycle-paths`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -230,7 +230,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#bound-purge-and-archive-work`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -244,7 +244,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#preserve-legal-hold-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -258,7 +258,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#record-retention-progress`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -272,7 +272,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#record-the-release-of-a-legal-hold`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -288,7 +288,7 @@ A record retires, and a retirement that removes declared behavior is a breaking 
 
 **ID:** `litespec/ext/lifecycle#align-backup-deletion-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

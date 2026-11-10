@@ -19,7 +19,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.yaml`.
 
@@ -31,7 +31,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
@@ -45,7 +45,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The .NET stack reader MUST read every project that `stackConfig.dotnet.webapi` and `stackConfig.dotnet.worker` name, whether each field holds one glob string or a list of glob strings.
 
@@ -59,7 +59,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, and the default Domain and Infrastructure roots under the layer-projects layout, when that default matches no folder in a project that selects the .NET reader.
 
@@ -73,7 +73,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** trace: yes
 
@@ -89,7 +89,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A .NET mark MUST be an `implements`, `proves`, or `follows` documentation tag when `marks` is `xml`, and an `Implements`, `Proves`, or `Follows` attribute when `marks` is `attribute`.
 
@@ -118,7 +118,7 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 
 **ID:** `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
 
@@ -139,7 +139,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Code MUST read a use case's identity, its grant, a permission's facts, and a role's permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.
 
@@ -153,7 +153,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project that references the analyzer package MUST declare every marked domain event and rule exception as a `partial` type.
 
@@ -167,7 +167,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#write-test-results-the-model-builder-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 

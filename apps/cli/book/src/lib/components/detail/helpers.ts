@@ -356,15 +356,15 @@ export function browserReached(r: BookRecord) {
   return (((r.fields as Fields)?.reachedThrough as string[]) ?? []).some((x) => book.kids(base(x)).some((k) => book.typeOf(k) === "screen"));
 }
 
-export function serverLineInfo(b: string): { built: boolean; scenarios: number; proven: number } | null {
+export function serverLineInfo(b: string): { built: boolean; scenarios: number; verified: number } | null {
   const r = book.get(b);
   if (!r?.machine) return null;
   const sc = book.scenariosOf(base(b)).filter((x) => book.get(x));
-  const proven = sc.filter((x) => {
+  const verified = sc.filter((x) => {
     const s = book.get(x)?.proof?.state;
     return s === "awaiting" || s === "passing";
   }).length;
-  return { built: !!(r.machine as Fields).implemented, scenarios: sc.length, proven };
+  return { built: !!(r.machine as Fields).coded, scenarios: sc.length, verified };
 }
 
 export function uniqStrings(xs: unknown[]) {

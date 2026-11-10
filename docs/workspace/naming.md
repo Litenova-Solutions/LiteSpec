@@ -51,7 +51,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** `artifact: aggregate`
 
@@ -67,7 +67,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#use-architectural-suffixes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record, domain-event, use-case, command-handler, query-handler, validator, reaction, repository, endpoint, job
 
@@ -91,7 +91,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-result-parts-after-their-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -107,7 +107,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -123,7 +123,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-repository-variables-after-their-interface`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, job
 
@@ -139,7 +139,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-asynchronous-operations-completely`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -153,7 +153,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-exceptions-by-failed-rule`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -167,7 +167,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-intent-revealing-boolean-names`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -181,7 +181,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-current-language-features`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -195,7 +195,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-predictable-frontend-names`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 
@@ -243,7 +243,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#avoid-generic-type-names`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 

@@ -27,7 +27,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#record-the-customer-rules-catalog`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each trigger, condition, and action in the customer rules catalog MUST be a record.
 
@@ -41,7 +41,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#treat-tenant-rules-as-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A tenant rule instance MUST live as tenant data, not as a record.
 
@@ -55,7 +55,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#refuse-unknown-catalog-entries`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An instance naming a trigger, condition, or action outside the catalog MUST be refused.
 
@@ -69,7 +69,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#version-catalog-entries`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each catalog entry MUST carry a version that instances cite.
 
@@ -83,7 +83,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#state-what-a-hook-may-rely-on`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each hook MUST state its may contract: the payload, retries, timeout, and signature the customer endpoint relies on.
 
@@ -97,7 +97,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#state-what-a-hook-may-not-assume`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each hook MUST state its may-not contract: the ordering, timing, and payload bounds the customer endpoint never assumes.
 
@@ -111,7 +111,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **ID:** `litespec/ext/customer-rules#isolate-hook-failures-from-the-trigger`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A hook MUST leave its trigger's outcome unchanged when the customer endpoint fails.
 

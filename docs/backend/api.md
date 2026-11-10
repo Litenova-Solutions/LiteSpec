@@ -27,7 +27,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **ID:** `litespec/backend/api#map-one-operation-per-endpoint`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -43,7 +43,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **ID:** `litespec/backend/api#keep-endpoint-dependencies-transport-focused`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -57,7 +57,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **ID:** `litespec/backend/api#defer-error-mapping-to-the-global-handler`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -71,7 +71,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **ID:** `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -87,7 +87,7 @@ An operation applies a stable forbidden or not-found policy when revealing that 
 
 **ID:** `litespec/backend/api#return-stable-problem-details`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -146,7 +146,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#use-consistent-status-codes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -177,7 +177,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#bound-every-file-upload`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -193,7 +193,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#prove-every-upload-type-from-its-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -209,7 +209,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#store-every-upload-through-infrastructure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, endpoint
 
@@ -225,7 +225,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#authorize-every-file-download-through-its-owning-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -241,7 +241,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **ID:** `litespec/backend/api#require-the-marker-header-on-cookie-authenticated-writes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -257,7 +257,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#keep-routes-resource-oriented`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -273,7 +273,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#apply-patch-to-a-partial-update`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -289,7 +289,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#bound-collection-queries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -316,7 +316,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#use-opaque-cursors-for-collection-paging`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -330,7 +330,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#version-cursors-with-stable-sort-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -344,7 +344,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **ID:** `litespec/backend/api#treat-openapi-as-a-generated-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -371,7 +371,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#declare-stable-operation-metadata-in-the-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -385,7 +385,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#name-the-use-case-on-every-published-operation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -401,7 +401,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#commit-the-generated-contract-its-consumers-read`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -415,7 +415,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#reflect-enforced-authentication-in-the-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -431,7 +431,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **ID:** `litespec/backend/api#publish-precise-complete-schemas`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -449,7 +449,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#expose-development-tooling-in-development-only`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -463,7 +463,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -479,7 +479,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#publish-label-only-sets-as-string-enums`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -493,7 +493,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#mark-polymorphic-models-with-discriminators`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -515,7 +515,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#reject-a-collapsed-or-borrowed-wire-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -529,7 +529,7 @@ An operation requiring a control header declares it as a required parameter, for
 
 **ID:** `litespec/backend/api#keep-one-name-for-a-use-case-across-layers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint, use-case
 

@@ -28,7 +28,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#stage-after-commit-effects-in-the-outbox`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -42,7 +42,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#declare-published-facts-as-integration-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -56,7 +56,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#record-durable-delivery-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -70,7 +70,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#exclude-manually-repeatable-reactions-and-jobs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction, job
 
@@ -84,7 +84,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#emit-excluded-reactions-and-jobs-after-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction, job
 
@@ -98,7 +98,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#stage-messages-with-business-work`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -112,7 +112,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#serialize-durable-messages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -126,7 +126,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#store-required-message-fields`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -140,7 +140,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#store-failure-and-completion-evidence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -154,7 +154,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#classify-message-kinds`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -168,7 +168,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#reject-independent-outbox-commits`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -182,7 +182,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#dispatch-claimed-records-in-worker`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -196,7 +196,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#exclude-request-transaction-dispatch`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -210,7 +210,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#define-claim-ownership`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -224,7 +224,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#release-claim-transactions-before-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -238,7 +238,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#restrict-completion-to-current-lease-owners`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -252,7 +252,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#requeue-expired-claims`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -266,7 +266,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#accept-repeated-delivery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -280,7 +280,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#identify-repeated-delivery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -294,7 +294,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -310,7 +310,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#await-target-acceptance`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -324,7 +324,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#bound-delivery-retries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -338,7 +338,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#classify-permanent-delivery-failure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -352,7 +352,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#distinguish-dependency-outage`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -366,7 +366,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#back-off-unavailable-store-polling`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -380,7 +380,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#restrict-message-retry-to-claimed-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -394,7 +394,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#gate-dispatch-on-readiness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -408,7 +408,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#version-message-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -422,7 +422,7 @@ This extension switches on no optional record type: integration events, settings
 
 **ID:** `litespec/ext/outbox#support-coexisting-message-producers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -438,7 +438,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#publish-backlog-indicators`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -452,7 +452,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#set-delivery-alerts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting
 
@@ -466,7 +466,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#model-outbox-lifecycle-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -482,7 +482,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#preserve-message-identity-during-retry`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -496,7 +496,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#audit-outbox-replay`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -510,7 +510,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#protect-active-worker-compatibility`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -524,7 +524,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#deploy-readers-before-writers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -538,7 +538,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **ID:** `litespec/ext/outbox#plan-undispatched-rollback-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 

@@ -130,9 +130,9 @@ public sealed class RecordStore
     }
 
     /// <summary>
-    ///     Whether a live exception covers the finding, as
+    ///     Whether a live departure covers the finding, as
     ///     <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
-    ///     An exception is live when it is present and unexpired.
+    ///     A departure is live when it is present and unexpired, or lasting.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>

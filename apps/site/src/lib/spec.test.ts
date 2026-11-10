@@ -79,7 +79,7 @@ describe("provision index", () => {
       assert.ok(entry.heading.length > 0, entry.id);
       assert.ok(["rule", "convention", "pattern"].includes(entry.kind), entry.id);
       assert.ok(["", "checkable", "guidance"].includes(entry.mark ?? ""), entry.id);
-      assert.ok(["", "rule", "default", "advice"].includes(entry.strength ?? ""), entry.id);
+      assert.ok(["", "required", "default", "advisory"].includes(entry.strength ?? ""), entry.id);
     }
   });
 

@@ -19,7 +19,7 @@ Three core projects hold the shared code: Domain for rules and state, Applicatio
 
 **ID:** `litespec/frontend/mobile/structure#use-the-mobile-solution-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer selecting a mobile stack MUST hold its mobile apps in one solution at `apps/mobile/` with core projects under `src/` and one app project per platform named `{ProjectName}.{Platform}`.
 
@@ -49,7 +49,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **ID:** `litespec/frontend/mobile/structure#hold-the-domain-in-the-app-only-without-a-server`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A mobile consumer MUST hold Domain, Application, and Infrastructure core projects in the `client-only` shape, and a `{ProjectName}.Client` core project with the generated API client instead of them in the `server` shape.
 
@@ -61,7 +61,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **ID:** `litespec/frontend/mobile/structure#keep-core-projects-platform-free`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Domain, Application, Infrastructure, and Client core projects MUST target plain .NET and reference no platform SDK type.
 
@@ -73,7 +73,7 @@ Framework-generated `bin`, `obj`, and `publish` folders remain untracked.
 
 **ID:** `litespec/frontend/mobile/structure#organize-screens-by-module`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A screen MUST live under `Screens/` in the platform project, in a folder for its module when the product has more than one module.
 

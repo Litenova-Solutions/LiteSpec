@@ -22,7 +22,7 @@ oneOf:
 - $ref: '#/$defs/externalSystemPage'
 - $ref: '#/$defs/integrationEventPage'
 - $ref: '#/$defs/runbookPage'
-- $ref: '#/$defs/exceptionPage'
+- $ref: '#/$defs/departurePage'
 - $ref: '#/$defs/permissionListPage'
 - $ref: '#/$defs/entryPointPage'
 - $ref: '#/$defs/entryPointListPage'
@@ -133,9 +133,9 @@ $defs:
   runbookId:
     type: string
     pattern: '^runbook/[a-z0-9][a-z0-9-]*$'
-  exceptionId:
+  departureId:
     type: string
-    pattern: '^exception/[a-z0-9][a-z0-9-]*$'
+    pattern: '^departure/[a-z0-9][a-z0-9-]*$'
   termId:
     type: string
     pattern: '^term/[a-z0-9][a-z0-9-]*$'
@@ -154,6 +154,9 @@ $defs:
   standardsProvisionId:
     type: string
     pattern: '^litespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*$'
+  standardsPageId:
+    type: string
+    pattern: '^litespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*$'
   genericRecordId:
     type: string
     pattern: '^[a-z][a-z-]+/[a-z0-9][a-z0-9._-]*$'
@@ -254,7 +257,7 @@ $defs:
       - physical-access
       - personal-data
       - access
-  exceptionSubjectArray:
+  departureSubjectArray:
     type: array
     uniqueItems: true
     items:
@@ -2772,22 +2775,20 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       escalation:
         $ref: '#/$defs/nonEmptyString'
-  exceptionPage:
+  departurePage:
     type: object
     additionalProperties: false
     required:
     - type
     - id
     - title
-    - kind
     - covers
     - reason
-    - expiresOn
     properties:
       type:
-        const: exception
+        const: departure
       id:
-        $ref: '#/$defs/exceptionId'
+        $ref: '#/$defs/departureId'
       title:
         $ref: '#/$defs/nonEmptyString'
       summary:
@@ -2796,16 +2797,17 @@ $defs:
         $ref: '#/$defs/termIdArray'
       records:
         $ref: '#/$defs/recordsArray'
-      kind:
-        enum:
-        - departure
-        - gap
       covers:
-        anyOf:
-        - $ref: '#/$defs/standardsProvisionId'
-        - $ref: '#/$defs/findingCodeArray'
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          anyOf:
+          - $ref: '#/$defs/standardsProvisionId'
+          - $ref: '#/$defs/standardsPageId'
+          - $ref: '#/$defs/findingCode'
       subject:
-        $ref: '#/$defs/exceptionSubjectArray'
+        $ref: '#/$defs/departureSubjectArray'
       paths:
         type: array
         minItems: 1
@@ -2828,42 +2830,10 @@ $defs:
         - paths
     - if:
         required:
-        - kind
-        properties:
-          kind:
-            const: departure
-      then:
-        properties:
-          covers:
-            $ref: '#/$defs/standardsProvisionId'
-    - if:
-        required:
-        - kind
-        properties:
-          kind:
-            const: gap
-      then:
-        properties:
-          covers:
-            $ref: '#/$defs/findingCodeArray'
-    - if:
-        required:
-        - kind
-        properties:
-          kind:
-            const: gap
+        - expiresOn
       then:
         required:
         - exit
-    - if:
-        required:
-        - kind
-        properties:
-          kind:
-            const: departure
-      then:
-        required:
-        - consequences
   permissionListPage:
     type: object
     additionalProperties: false

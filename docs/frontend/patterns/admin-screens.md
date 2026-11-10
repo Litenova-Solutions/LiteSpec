@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-a-new-secret-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A screen MUST show a newly created API key or secret in full only once, at creation.
 
@@ -35,7 +35,7 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
 

@@ -282,15 +282,15 @@ public sealed class BehaviorUnrecordedTests
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
     }
-    /// <summary>Approved Exception Holds The Findings On The Paths It Names.</summary>
+    /// <summary>Departure Holds The Findings On The Paths It Names.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Approved_Exception_Holds_The_Findings_On_The_Paths_It_Names()
+    public void Departure_Holds_The_Findings_On_The_Paths_It_Names()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("departure", "departure/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));
@@ -301,15 +301,15 @@ public sealed class BehaviorUnrecordedTests
         Assert.Contains(known, finding => finding.Code == "mark-missing");
     }
 
-    /// <summary>Exception Past Its Expires On Holds Nothing.</summary>
+    /// <summary>Departure Past Its Expires On Holds Nothing.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Exception_Past_Its_Expires_On_Holds_Nothing()
+    public void Departure_Past_Its_Expires_On_Holds_Nothing()
     {
         using var temp = Cli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("exception", "exception/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"status": "approved", "kind": "gap", "covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "expiresOn": "2000-01-01"}"""));
+            TestModel.Record("departure", "departure/ghost-route", Path.Combine(temp.Path, "ghost-route.yaml"), """{"covers": ["mark-missing"], "paths": ["src/GhostReaction.cs"], "reason": "Infrastructure.", "exit": "The gap closes.", "expiresOn": "2000-01-01"}"""));
         model.Code.Elements.Add(new MarkedElement(
             CodeKind.EventHandler, "GhostReaction", null,
             Path.Combine(temp.Path, "src", "GhostReaction.cs"), 3, [], InTests: false));

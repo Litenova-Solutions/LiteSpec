@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#state-what-failed-and-the-next-step`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A refusal or error message MUST state what failed and the next step the reader can take.
 
@@ -35,7 +35,7 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **ID:** `litespec/frontend/patterns/feedback-and-states#keep-the-readers-input-through-a-failure`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A failed save MUST keep the reader's unsaved input on the screen.
 

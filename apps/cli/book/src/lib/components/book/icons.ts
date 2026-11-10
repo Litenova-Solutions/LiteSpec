@@ -16,7 +16,7 @@ export const ICONS: Record<string, Component> = {
   aggregate: Table2, rule: Shield, event: Activity, "integration-event": Radio, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,
   role: IdCard, permission: KeyRound, "entry-point": DoorOpen, "external-system": Plug, limit: Gauge, runbook: BookOpen,
-  exception: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,
+  departure: ShieldOff, term: BookA, code: Code, test: FlaskConical, route: Signpost, layer: Layers,
   // layers and marks
   core: Layers, folder: Folder, shield: Shield, server: Server, book: BookOpen, chev: ChevronRight, sun: Sun, moon: Moon,
   done: CircleCheck, question: CircleQuestionMark, link: Link, flask: FlaskConical, passing: CircleCheck, failing: CircleX,
@@ -28,7 +28,7 @@ export const ICONS: Record<string, Component> = {
 };
 
 export const LAYER_ICON: Record<string, string> = {
-  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "exception", glossary: "term",
+  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "departure", glossary: "term",
 };
 
 export function iconFor(name: string): Component { return ICONS[name] ?? Circle; }

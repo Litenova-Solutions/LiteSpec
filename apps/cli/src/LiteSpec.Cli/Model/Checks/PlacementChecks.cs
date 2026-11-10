@@ -144,7 +144,7 @@ internal static class PlacementChecks
                     continue;
                 }
 
-                var path = PathOf(record, model.Config);
+                var path = PathOf(record);
 
                 if (path.Module is null)
                 {
@@ -471,7 +471,7 @@ internal static class PlacementChecks
             return;
         }
 
-        var path = PathOf(target, model.Config);
+        var path = PathOf(target);
 
         // Across modules a type is never shared: an aggregate of another module
         // names the exception through the owner Contracts folder instead.
@@ -580,7 +580,7 @@ internal static class PlacementChecks
                     continue;
                 }
 
-                var path = UseCasePathOf(record, model.Config);
+                var path = UseCasePathOf(record);
 
                 if (path.Module is null || path.Name is null)
                 {
@@ -1055,60 +1055,71 @@ internal static class PlacementChecks
         }
     }
 
-    /// <summary>The module, aggregate and name the record's qualified identifier states for its folder and namespace.</summary>
+    /// <summary>The module, aggregate and name a record's placement states: its module folder, the aggregate folder under it, and its identifier name.</summary>
     /// <param name="record">The marked record.</param>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <returns>The module, aggregate and name, with nulls where the qualified identifier states no placement.</returns>
-    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) PathOf(Record record, ConsumerConfig config)
+    /// <returns>The module, aggregate and name, with nulls where the record's folder states no module.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) PathOf(Record record)
     {
-        var qualified = record.QualifiedId.Length > 0
-            ? record.QualifiedId
-            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
-        var segments = qualified.Split('/');
-
-        if (segments.Length < 2 || segments[0] == record.Type)
+        if (record.Module is not { Length: > 0 } module)
         {
             return (null, null, null, record.Type == RecordTypes.UseCase);
         }
 
-        var module = segments[0];
-        var at = Array.IndexOf(segments, record.Type, 1);
-
-        if (at < 0)
+        if (record.Type == RecordTypes.Aggregate)
         {
-            return record.Type == RecordTypes.Aggregate && segments.Length == 2
-                ? (module, segments[1], segments[1], false)
-                : (module, null, segments[^1], false);
+            var aggregate = AggregateOf(record) ?? NameOf(record);
+            return (module, aggregate, aggregate, false);
         }
 
         // The aggregate sits directly under the module, even when the record nests
         // deeper, such as an event its use case raises.
-        var aggregate = at > 1 ? segments[1] : null;
-        var name = at + 1 < segments.Length ? segments[at + 1] : null;
-
-        return (module, aggregate, name, record.Type == RecordTypes.UseCase);
+        return (module, AggregateOf(record), NameOf(record), record.Type == RecordTypes.UseCase);
     }
 
-    /// <summary>The module, aggregate and use case the scenario's qualified identifier states for its test.</summary>
+    /// <summary>The module, aggregate and use case the scenario's placement states for its test.</summary>
     /// <param name="record">The marked scenario record.</param>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <returns>The module, aggregate and use case home, with nulls where the qualified identifier states no placement.</returns>
-    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) UseCasePathOf(Record record, ConsumerConfig config)
+    /// <returns>The module, aggregate and use case home, with nulls where the record's folder states no module.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) UseCasePathOf(Record record)
     {
-        var qualified = record.QualifiedId.Length > 0
-            ? record.QualifiedId
-            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
-        var segments = qualified.Split('/');
-        var at = Array.IndexOf(segments, RecordTypes.UseCase);
-
-        if (at <= 0 || at + 1 >= segments.Length)
+        if (record.Module is not { Length: > 0 } module)
         {
             return (null, null, null, false);
         }
 
-        var aggregate = at > 1 ? segments[at - 1] : null;
+        // A scenario or result takes the use case it belongs to as its name.
+        var name = record.Type is RecordTypes.Scenario or RecordTypes.Result
+            ? Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null
+            : NameOf(record);
 
-        return (segments[0], aggregate, segments[at + 1], true);
+        return (module, AggregateOf(record), name, true);
+    }
+
+    /// <summary>The identifier name of a record, or its whole identifier when the name is not split out.</summary>
+    /// <param name="record">The record.</param>
+    /// <returns>The name segment of the identifier.</returns>
+    private static string NameOf(Record record) =>
+        Identifiers.TrySplit(record.Id, out _, out _, out var name) && name.Length > 0 ? name : record.Id;
+
+    /// <summary>The aggregate folder a behavior record sits under: the folder after its module, when the module holds aggregates.</summary>
+    /// <param name="record">The record whose folder is read.</param>
+    /// <returns>The aggregate folder name, or null when the record sits in no aggregate folder.</returns>
+    private static string? AggregateOf(Record record)
+    {
+        var segments = record.Folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var moduleAt = Array.IndexOf(segments, "modules");
+
+        if (moduleAt < 1
+            || !string.Equals(segments[moduleAt - 1], "behavior", StringComparison.Ordinal)
+            || moduleAt + 2 >= segments.Length)
+        {
+            return null;
+        }
+
+        var next = segments[moduleAt + 2];
+
+        return next.Contains('.', StringComparison.Ordinal) || RecordFolders.BehaviorModuleFolders.Contains(next)
+            ? null
+            : next;
     }
 
     /// <summary>The expected namespace segments after the product for the qualified path of the marked record type.</summary>
@@ -1311,18 +1322,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var qualified = record.QualifiedId.Length > 0
-                ? record.QualifiedId
-                : QualifiedIdentifier.Of(record.Type, record.Id, record.File, model.Config);
-
-            if (qualified.Length > 0 && !qualified.Contains('/', StringComparison.Ordinal))
-            {
-                modules.Add(qualified);
-            }
-            else if (Identifiers.TrySplit(record.Id, out _, out _, out var name))
-            {
-                modules.Add(name);
-            }
+            modules.Add(NameOf(record));
         }
 
         return modules;
@@ -1342,7 +1342,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is not null && path.Aggregate is not null)
             {
@@ -1367,7 +1367,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is not null && path.Name is not null)
             {
@@ -1400,7 +1400,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is null)
             {

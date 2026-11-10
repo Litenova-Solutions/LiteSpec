@@ -726,8 +726,8 @@ public sealed class FolderCheckTests
             TestModel.Record("external-system", "external-system/lending-printer", PathAt(root, ".litespec", "behavior", "modules", "lending", "external-systems", "lending-printer.yaml"), """{}"""),
             TestModel.Record("runbook", "runbook/clear-stuck-holds", PathAt(root, ".litespec", "implementation", "runbooks", "clear-stuck-holds.yaml"), """{}"""),
             TestModel.Record("runbook", "runbook/lending-nightly", PathAt(root, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly.yaml"), """{}"""),
-            TestModel.Record("exception", "exception/shelf-check-bypass", PathAt(root, ".litespec", "governance", "exceptions", "shelf-check-bypass.yaml"), """{}"""),
-            TestModel.Record("exception", "exception/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "exceptions", "lending-waiver.yaml"), """{}"""));
+            TestModel.Record("departure", "departure/shelf-check-bypass", PathAt(root, ".litespec", "governance", "departures", "shelf-check-bypass.yaml"), """{}"""),
+            TestModel.Record("departure", "departure/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "departures", "lending-waiver.yaml"), """{}"""));
 
         Assert.Empty(Run(model));
     }

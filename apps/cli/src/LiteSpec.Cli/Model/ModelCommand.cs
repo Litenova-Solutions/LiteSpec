@@ -86,11 +86,11 @@ static class ModelCommand
             {
                 var model = ModelBuilder.Build(config);
                 List<Finding> findings;
-                IReadOnlyList<Finding> known;
+                IReadOnlyList<Finding> covered;
 
                 try
                 {
-                    (findings, known) = Collect(model, root);
+                    (findings, covered) = Collect(model, root);
                 }
                 catch (FailFast fail)
                 {
@@ -156,7 +156,7 @@ static class ModelCommand
                     }
 
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
-                    payload["known"] = new JsonArray([.. known.Select(gap => (JsonNode?)AsKnownJson(config, gap))]);
+                    payload["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]);
 
                     CliJson.Write(payload);
                 }
@@ -183,9 +183,9 @@ static class ModelCommand
                         Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                     }
 
-                    foreach (var gap in known)
+                    foreach (var finding in covered)
                     {
-                        Console.WriteLine($"{PathText.Relative(config.Root, gap.Path)}:{gap.Line} [known {gap.Tier}] [{gap.Code}] {gap.Message}");
+                        Console.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
                     }
 
                     if (shown.Count > 0)
@@ -209,7 +209,7 @@ static class ModelCommand
                         Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
                     }
 
-                    Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {known.Count} known.");
+                    Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
                 }
 
                 return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
@@ -297,11 +297,11 @@ static class ModelCommand
     /// </summary>
     /// <param name="model">The built project model to check.</param>
     /// <param name="root">The absolute consumer root the consumer pass reads.</param>
-    /// <returns>The standing findings, consumer findings included, and the known gaps.</returns>
+    /// <returns>The standing findings, consumer findings included, and the covered findings.</returns>
     /// <exception cref="FailFast">The consumer pass stopped the run with its own exit code.</exception>
-    internal static (List<Finding> Findings, IReadOnlyList<Finding> Known) Collect(ProjectModel model, string root)
+    internal static (List<Finding> Findings, IReadOnlyList<Finding> Covered) Collect(ProjectModel model, string root)
     {
-        var (modelFindings, known) = Checker.Check(model);
+        var (modelFindings, covered) = Checker.Check(model);
         var findings = modelFindings.ToList();
 
         var consumerRun = new ConsumerRun(root);
@@ -312,7 +312,7 @@ static class ModelCommand
         // claims the same part of the contract in both passes.
         findings.RemoveAll(finding => !model.Config.Layers.Covers(finding.Code, model.Config.Extensions));
 
-        return (findings, known);
+        return (findings, covered);
     }
 
     /// <summary>
@@ -376,29 +376,22 @@ static class ModelCommand
     static string LevelLabel(Finding finding, bool demoted) =>
         demoted ? finding.Tier + " unchanged" : finding.Tier;
 
-    /// <summary>The JSON severity name of a finding tier, for annotation tools that read error, warning and note.</summary>
-    /// <param name="finding">The finding whose tier is named.</param>
-    /// <returns>error for level G, warning for level S and note for level A.</returns>
-    static string SeverityName(Finding finding) => finding.Tier switch
-    {
-        "G" => "error",
-        "S" => "warning",
-        "A" => "note",
-        _ => "error",
-    };
+    /// <summary>The JSON name of a finding outcome: blocking, reported or covered.</summary>
+    /// <param name="outcome">The outcome to name.</param>
+    /// <returns>The lower-case outcome name.</returns>
+    static string OutcomeName(Outcome outcome) => outcome.ToString().ToLowerInvariant();
 
     /// <summary>One standing finding as its JSON object, the shape every JSON finding list writes.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
     /// <param name="finding">The finding to project.</param>
-    /// <param name="severity">The decided severity of the finding.</param>
+    /// <param name="severity">The decided outcome of the finding.</param>
     /// <param name="demoted">Whether <c>--since</c> demoted the finding as unchanged.</param>
     /// <returns>The JSON object for the finding.</returns>
     internal static JsonObject AsJson(ConsumerConfig config, Finding finding, Severity severity, bool demoted = false) => new()
     {
         ["code"] = finding.Code,
         ["level"] = finding.Tier,
-        ["severity"] = SeverityName(finding),
-        ["outcome"] = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
+        ["outcome"] = OutcomeName(severity.Outcome),
         ["reason"] = demoted ? "unchanged" : null,
         ["message"] = finding.Message,
         ["path"] = PathText.Relative(config.Root, finding.Path),
@@ -406,16 +399,15 @@ static class ModelCommand
         ["subject"] = finding.Subject,
     };
 
-    /// <summary>One known-gap finding as its JSON object, the shape every JSON known list writes.</summary>
+    /// <summary>One covered finding as its JSON object, the shape every JSON covered list writes.</summary>
     /// <param name="config">The consumer configuration, for the relative path.</param>
-    /// <param name="finding">The known-gap finding to project.</param>
-    /// <returns>The JSON object for the known-gap finding.</returns>
-    internal static JsonObject AsKnownJson(ConsumerConfig config, Finding finding) => new()
+    /// <param name="finding">The covered finding to project.</param>
+    /// <returns>The JSON object for the covered finding.</returns>
+    internal static JsonObject AsCoveredJson(ConsumerConfig config, Finding finding) => new()
     {
         ["code"] = finding.Code,
         ["level"] = finding.Tier,
-        ["severity"] = SeverityName(finding),
-        ["outcome"] = "known",
+        ["outcome"] = OutcomeName(Outcome.Covered),
         ["reason"] = null,
         ["message"] = finding.Message,
         ["path"] = PathText.Relative(config.Root, finding.Path),

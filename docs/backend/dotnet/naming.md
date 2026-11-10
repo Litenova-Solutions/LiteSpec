@@ -32,7 +32,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **ID:** `litespec/backend/dotnet/naming#match-c-files-and-primary-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A C# file MUST contain one primary top-level type and take that type's exact name.
 
@@ -44,7 +44,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **ID:** `litespec/backend/dotnet/naming#keep-implementation-style-consistent`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production C# MUST use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes.
 

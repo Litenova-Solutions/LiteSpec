@@ -230,14 +230,14 @@ static class BookEnrichSources
         return byRecord;
     }
 
-    /// <summary>Groups open and known findings by their subject record id with every layer claimed.</summary>
+    /// <summary>Groups open and covered findings by their subject record id with every layer claimed.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
     /// <returns>The findings per record id.</returns>
     public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index) =>
         FindingsBySubject(model, index, LayerClaims.All);
 
-    /// <summary>Groups open and known findings by their subject record id, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
+    /// <summary>Groups open and covered findings by their subject record id, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
     /// <param name="claims">The record layers the project claims.</param>
@@ -246,7 +246,7 @@ static class BookEnrichSources
     {
         var bySubject = new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
         (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
-        void Add(JsonObject finding, bool known)
+        void Add(JsonObject finding, bool covered)
         {
             if (claims.Implementation is null && claims.Proof is null
                 && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), "S", StringComparison.Ordinal)
@@ -281,7 +281,7 @@ static class BookEnrichSources
                 ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
                 ["message"] = message,
                 ["messageHtml"] = BookMarkdown.Inline(QuotedIds.Replace(message, "`$1`"), LinkRecord, null),
-                ["known"] = known,
+                ["covered"] = covered,
                 ["outcome"] = finding["outcome"]?.DeepClone(),
                 ["reason"] = finding["reason"]?.DeepClone(),
                 ["path"] = finding["path"]?.DeepClone(),
@@ -294,9 +294,9 @@ static class BookEnrichSources
             Add(finding, false);
         }
 
-        foreach (var known in FindingEntries(model["known"]))
+        foreach (var covered in FindingEntries(model["covered"]))
         {
-            Add(known, true);
+            Add(covered, true);
         }
 
         return bySubject;

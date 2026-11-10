@@ -41,7 +41,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#write-each-layer-from-the-layer-above-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -57,7 +57,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#add-behavior-detail-when-specifying-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -73,7 +73,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#send-commercial-and-observable-figures-to-the-owner`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:setting, record:rule
 
@@ -89,7 +89,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#implement-only-declared-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:reaction, record:job; layer: implementation; trace: yes
 
@@ -105,7 +105,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#prove-each-scenario-through-the-public-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:scenario
 
@@ -119,7 +119,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -135,7 +135,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:research, record:constraint
 
@@ -151,7 +151,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#close-incident-exceptions-within-seven-days`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:exception
 
@@ -165,7 +165,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#record-changed-provider-behavior-as-observed-research`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:research, record:constraint
 
@@ -179,7 +179,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **ID:** `litespec/core/layers#build-ahead-of-a-regulation-only-under-its-constraint`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:constraint
 

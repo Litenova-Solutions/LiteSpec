@@ -7,8 +7,8 @@ namespace LiteSpec.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or
-///     record identifier, grouped by strength, with project conventions and departure
-///     exceptions merged in.
+///     record identifier, grouped by strength, with project conventions and departures
+///     merged in.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 static class RulesCommand

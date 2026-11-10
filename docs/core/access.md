@@ -73,7 +73,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#keep-access-records-in-their-homes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor, record:role, record:permission, record:entry-point, record:external-system
 
@@ -87,7 +87,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#name-every-actor-with-its-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -103,7 +103,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-every-role-hold-with-its-scope`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -123,7 +123,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#scope-every-role`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -139,7 +139,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-permissions-through-roles`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -155,7 +155,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#state-every-permission-with-its-meaning`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission
 
@@ -171,7 +171,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#state-the-scope-of-every-permission`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission
 
@@ -187,7 +187,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#declare-access-on-every-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -207,7 +207,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -223,7 +223,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-every-use-case-through-a-declared-grant`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -239,7 +239,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#remove-a-target-that-must-be-the-caller`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -255,7 +255,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#scope-every-grant-to-its-tenant-reach`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -271,7 +271,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -287,7 +287,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -303,7 +303,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:aggregate
 
@@ -319,7 +319,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -335,7 +335,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#name-every-entry-point-with-its-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -351,7 +351,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -367,7 +367,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#declare-every-operation-on-every-external-system`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -383,7 +383,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#declare-erasure-for-every-external-system`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -399,7 +399,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor, record:role
 
@@ -413,7 +413,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -427,7 +427,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#keep-permission-lists-to-entries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission-list
 

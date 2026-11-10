@@ -29,7 +29,7 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -45,7 +45,7 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **ID:** `litespec/frontend/components#compose-composites-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -69,7 +69,7 @@ The section imports only the shared package entry point, so the layout it draws 
 
 **ID:** `litespec/frontend/components#write-no-class-name-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -85,7 +85,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -99,7 +99,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#prefer-a-composite-over-a-primitive`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -115,7 +115,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -129,7 +129,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#add-a-missing-composite-to-the-shared-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -143,7 +143,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -173,7 +173,7 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **ID:** `litespec/frontend/components#render-data-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -189,7 +189,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#render-control-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -203,7 +203,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#keep-component-inputs-narrow`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -217,7 +217,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#use-declared-visual-variants`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -231,7 +231,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#sanitize-untrusted-rich-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -245,7 +245,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#use-a-composite-for-a-content-image`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 

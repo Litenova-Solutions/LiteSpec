@@ -380,11 +380,43 @@ public sealed class PlacementCheckTests
         {
             Type = type,
             Id = id,
-            QualifiedId = qualified,
+            Folder = FolderOf(type, qualified),
+            Module = ModuleOf(type, qualified),
             Title = id,
             File = Path.Combine(root, ".litespec", "record.md"),
             Line = 1,
             Raw = document.RootElement.Clone(),
         };
+    }
+
+    /// <summary>The module a record with the qualified identifier sits under: its first segment, when the identifier names one.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="qualified">The qualified identifier.</param>
+    /// <returns>The module name, or null when the identifier names no module.</returns>
+    static string? ModuleOf(string type, string qualified)
+    {
+        var segments = qualified.Split('/');
+
+        return segments.Length >= 2 && segments[0] != type ? segments[0] : null;
+    }
+
+    /// <summary>The folder a record with the qualified identifier sits in, under the behavior modules folder.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="qualified">The qualified identifier.</param>
+    /// <returns>The folder path, or empty when the identifier names no module.</returns>
+    static string FolderOf(string type, string qualified)
+    {
+        var module = ModuleOf(type, qualified);
+
+        if (module is null)
+        {
+            return "";
+        }
+
+        var segments = qualified.Split('/');
+
+        return segments.Length >= 2 && segments[1] != type && segments[1] != RecordTypes.UseCase
+            ? $".litespec/behavior/modules/{module}/{segments[1]}"
+            : $".litespec/behavior/modules/{module}";
     }
 }

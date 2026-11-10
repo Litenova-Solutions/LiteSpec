@@ -148,7 +148,7 @@ To catch breaking changes against an older commit, such as a removed result or a
 
 Every rule in the standard is a provision: one identified block with one assertion. Its ID joins its page and its heading. For example, the rule that every closed set of domain values is modeled without enums is `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`, on the [domain page](../backend/dotnet/domain.md). A review comment, an agent's report, or a project exception can cite that ID, and everyone knows exactly which rule is meant.
 
-Each provision also states its strength: `rule`, `default`, or `advice`. A rule binds every project it applies to. A default binds unless the project records its own choice. Advice is experience to apply with judgement, and it records nothing. Each page states the scope its provisions apply to, and a provision narrower than its page names it. Before editing a file, an agent asks which provisions apply to it:
+Each provision also states its strength: `required`, `default`, or `advisory`. A required provision binds every project it applies to. A default binds unless the project records its own choice. An advisory provision is experience to apply with judgement, and it records nothing. Each page states the scope its provisions apply to, and a provision narrower than its page names it. Before editing a file, an agent asks which provisions apply to it:
 
 ```bash
 dotnet litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs

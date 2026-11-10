@@ -19,7 +19,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#render-with-the-platforms-own-views`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A mobile app MUST render every screen with the platform's native UI toolkit, with no product screen in a WebView or a cross-platform UI layer.
 
@@ -31,7 +31,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#own-navigation-in-one-controller`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The current screen, the open overlay, and the history MUST live in one controller per app, with screens raising events instead of navigating.
 
@@ -43,7 +43,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A screen a journey can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
 
@@ -57,7 +57,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#follow-the-system-back-gesture`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The system back gesture MUST close the open overlay first, then step back one screen, and leave the app only from the first screen.
 
@@ -69,7 +69,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#draw-edge-to-edge-with-insets`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Screens MUST draw under the system bars and apply the system bar and cutout insets to their controls and text.
 
@@ -81,7 +81,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#honor-reduced-motion`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** When the system turns animations off, a screen MUST replace looping motion and video with a still state.
 
@@ -93,7 +93,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#release-media-with-its-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A player, animator, or decoded image MUST be released or cancelled when its view leaves the window.
 
@@ -105,7 +105,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every interactive view MUST carry a content description, meet a minimum touch target of 48 dp on Android or 44 pt on iOS, and scale its text with the system font scale.
 

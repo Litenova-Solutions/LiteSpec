@@ -36,10 +36,10 @@ static class Checker
         return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
     }
 
-    /// <summary>Runs every check, partitioning findings from known gaps.</summary>
+    /// <summary>Runs every check, partitioning findings from departures.</summary>
     /// <param name="model">The built project model to check.</param>
-    /// <returns>The findings that stand and the findings known gaps suppress, each in sorted order.</returns>
-    public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Check(ProjectModel model)
+    /// <returns>The findings that stand and the findings departures cover, each in sorted order.</returns>
+    public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Check(ProjectModel model)
     {
         var findings = new List<Finding>(model.Problems);
 
@@ -49,6 +49,7 @@ static class Checker
         RecordNameChecks.Run(model, findings);
         CitationChecks.Run(model, findings);
         GateChecks.Run(model, findings);
+        DepartureChecks.Run(model, findings);
         ProofChecks.Run(model, findings);
         ProofChecks.RunUnverified(model, findings);
         ProofChecks.RunProofInvalid(model, findings);
@@ -136,11 +137,11 @@ static class Checker
         return Suppress(model, findings);
     }
 
-    /// <summary>Partitions findings into the ones that stand and the ones a known gap covers.</summary>
+    /// <summary>Partitions findings into the ones that stand and the ones a departure covers.</summary>
     /// <param name="model">The built project model the findings belong to.</param>
     /// <param name="findings">The findings from every check, in sorted order.</param>
     /// <returns>The standing findings and the suppressed findings.</returns>
-    private static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Known) Suppress(
+    private static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Suppress(
         ProjectModel model, List<Finding> findings)
     {
         var codes = CodesOfProvision();
@@ -156,9 +157,10 @@ static class Checker
 
     /// <summary>
     ///     The finding codes each provision governs, from the codes its Checked by
-    ///     line names. Built once per check, so departures cover their provision.
+    ///     line names, and the codes each page governs, the union of its provisions' codes.
+    ///     Built once per check, so a departure covers its provision or its page.
     /// </summary>
-    /// <returns>The finding codes governed by each provision id, or an empty map when no LiteSpec home is found.</returns>
+    /// <returns>The finding codes governed by each provision or page identifier, or an empty map when no LiteSpec home is found.</returns>
     private static Dictionary<string, IReadOnlyList<string>> CodesOfProvision()
     {
         var empty = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
@@ -170,6 +172,7 @@ static class Checker
         }
 
         var governed = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var pages = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         foreach (var row in Provisions.Collect(home))
         {
@@ -185,10 +188,30 @@ static class Checker
                 }
             }
 
-            if (codes.Count > 0)
+            if (codes.Count == 0)
             {
-                governed[row.Id] = codes;
+                continue;
             }
+
+            governed[row.Id] = codes;
+
+            var page = row.Id.Split('#')[0];
+
+            if (!pages.TryGetValue(page, out var pageCodes))
+            {
+                pageCodes = [];
+                pages[page] = pageCodes;
+            }
+
+            foreach (var code in codes.Where(candidate => !pageCodes.Contains(candidate)))
+            {
+                pageCodes.Add(code);
+            }
+        }
+
+        foreach (var (page, pageCodes) in pages)
+        {
+            governed[page] = pageCodes;
         }
 
         return governed;

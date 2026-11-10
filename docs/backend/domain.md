@@ -27,7 +27,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -41,7 +41,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#use-one-ubiquitous-language`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -55,7 +55,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#treat-aggregates-as-consistency-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -69,7 +69,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -83,7 +83,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -103,7 +103,7 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 
 **ID:** `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -121,7 +121,7 @@ This provision owns the Domain form. The same set is mirrored in Application und
 
 **ID:** `litespec/backend/domain#create-valid-aggregates-through-named-factories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -139,7 +139,7 @@ A root created with its children composes them inside the same factory call. The
 
 **ID:** `litespec/backend/domain#express-transitions-through-business-methods`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -159,7 +159,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#call-the-marked-act-from-each-command-handler`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -175,7 +175,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#give-each-use-case-its-own-act`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -191,7 +191,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#raise-the-declared-events-from-the-marked-act`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -207,7 +207,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -221,7 +221,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -239,7 +239,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#use-immutable-value-objects-for-domain-concepts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -255,7 +255,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#define-collection-value-semantics-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -271,7 +271,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#model-money-with-exact-decimal-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -293,7 +293,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **ID:** `litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -309,7 +309,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **ID:** `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -327,7 +327,7 @@ A domain service is stateless and takes no port, so its tests are Domain tests. 
 
 **ID:** `litespec/backend/domain#expose-repositories-for-one-aggregate-only`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -347,7 +347,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -363,7 +363,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -379,7 +379,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#raise-immutable-facts-as-domain-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -393,7 +393,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#reject-business-violations-with-dedicated-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -413,7 +413,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **ID:** `litespec/backend/domain#reference-other-aggregates-by-id`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -427,7 +427,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **ID:** `litespec/backend/domain#pass-nondeterministic-values-into-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -441,7 +441,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **ID:** `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

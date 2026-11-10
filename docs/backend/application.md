@@ -31,7 +31,7 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 **ID:** `litespec/backend/application#organize-application-by-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -45,7 +45,7 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 **ID:** `litespec/backend/application#dispatch-commands-and-queries-through-separate-entry-points`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, endpoint, job, reaction
 
@@ -61,7 +61,7 @@ The rule states the property rather than the package. Each stack binding pins on
 
 **ID:** `litespec/backend/application#separate-input-validation-from-invariants`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: validator
 
@@ -79,7 +79,7 @@ Whether the expense above the threshold carries a receipt is an aggregate state 
 
 **ID:** `litespec/backend/application#report-input-problems-as-validity-findings`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: validator
 
@@ -104,7 +104,7 @@ The caller learns the whole form in one answer, and the pipeline refuses the req
 
 **ID:** `litespec/backend/application#model-expected-use-case-refusals-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -120,7 +120,7 @@ The use case lists every result it returns, and each refusal result carries its 
 
 **ID:** `litespec/backend/application#enforce-target-authorization-in-the-pipeline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -140,7 +140,7 @@ WebApi enforces coarse authenticated, role, or scope policies first under `lites
 
 **ID:** `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -160,7 +160,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#take-repositories-from-declared-changes-and-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -176,7 +176,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#implement-one-outcome-path-per-command`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -192,7 +192,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#return-only-declared-results-and-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -208,7 +208,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#project-queries-directly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -222,7 +222,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#keep-query-handlers-free-of-writes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -238,7 +238,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#shape-query-results-from-declared-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -254,7 +254,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#mirror-a-domain-closed-set-in-the-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -270,7 +270,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#record-a-decision-for-closed-set-narrowing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint, use-case
 
@@ -284,7 +284,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#define-narrow-external-ports`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: port
 
@@ -298,7 +298,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **ID:** `litespec/backend/application#declare-a-port-where-its-consumers-meet`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: port
 
@@ -314,7 +314,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#call-external-systems-through-their-ports`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job, reaction
 
@@ -330,7 +330,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#send-notifications-through-the-messenger-port`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, reaction
 
@@ -346,7 +346,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#emit-declared-integration-events-after-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -362,7 +362,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#expose-store-state-through-ports`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: port
 
@@ -378,7 +378,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#read-settings-through-typed-options`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -394,7 +394,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#declare-every-pipeline-position-beside-the-message`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -408,7 +408,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#keep-reaction-implementations-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -424,7 +424,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#run-each-job-within-its-declared-selection`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -440,7 +440,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#issue-per-record-work-from-a-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -456,7 +456,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#dispatch-only-declared-effect-edges`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job, reaction
 
@@ -472,7 +472,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#declare-audit-values-beside-the-message`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -488,7 +488,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#take-one-timestamp-per-message`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -504,7 +504,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#declare-exclusive-holds-beside-the-message`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -520,7 +520,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#refuse-a-lost-race-as-a-conflict`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -536,7 +536,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#load-a-required-record-or-refuse-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -552,7 +552,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#parse-input-in-the-validator`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: validator
 
@@ -568,7 +568,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#validate-query-input`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -584,7 +584,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#send-messages-after-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, reaction
 
@@ -600,7 +600,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#build-collaborators-through-the-container`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job, query-handler, reaction
 
@@ -616,7 +616,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **ID:** `litespec/backend/application#read-no-repository-inside-a-loop`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, job, query-handler
 

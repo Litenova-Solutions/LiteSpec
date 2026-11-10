@@ -243,7 +243,7 @@ static class BookImplementationDetail
         var lacks = new JsonArray();
         if (BookRender.IsTrue(expect["impl"]) && impl.Count == 0)
         {
-            lacks.Add((JsonNode)"not implemented");
+            lacks.Add((JsonNode)"not coded");
         }
 
         if (!BookRender.IsTrue(expect["proof"]))

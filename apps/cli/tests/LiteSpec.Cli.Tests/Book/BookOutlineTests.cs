@@ -525,14 +525,14 @@ public sealed class BookOutlineTests
             Record("journey", "journey/borrowing", "Borrowing", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("term", "term/loan", "Loan", "approved"),
-            Record("exception", "exception/kiosk-cache", "Kiosk Cache", "approved"));
+            Record("departure", "departure/kiosk-cache", "Kiosk Cache", "approved"));
 
         Assert.Null(BookParents.ParentOf(model, "product/library"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "journey/borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "module/lending"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "term/loan"));
-        Assert.Equal("product/library", BookParents.ParentOf(model, "exception/kiosk-cache"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "departure/kiosk-cache"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);
@@ -833,7 +833,7 @@ public sealed class BookOutlineTests
             ["tests"] = tests ?? new JsonArray(),
             ["browserTests"] = browserTests ?? new JsonArray(),
             ["findings"] = findings ?? new JsonArray(),
-            ["known"] = known ?? new JsonArray(),
+            ["covered"] = known ?? new JsonArray(),
         };
     }
 

@@ -390,10 +390,10 @@ public sealed class BookViewsTests
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
     }
 
-    /// <summary>Findings sit on their records, open and known apart, with the exception kind and expiry.</summary>
+    /// <summary>Findings sit on their records, open and known apart, with the departure covers and expiry.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Findings_Sit_On_Their_Records_With_Exception_Expiry()
+    public void Findings_Sit_On_Their_Records_With_Departure_Expiry()
     {
         using var temp = Cli.Temp("book-views");
         BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
@@ -403,15 +403,14 @@ public sealed class BookViewsTests
         var open = Arr(details["use-case/lending.return-copy"], "findings");
         Assert.Single(open);
         Assert.Equal("use-case-unimplemented", Str(open[0]!.AsObject(), "code"));
-        Assert.False(BoolOf(open[0]!.AsObject()["known"]));
+        Assert.False(BoolOf(open[0]!.AsObject()["covered"]));
         var known = Arr(details["journey/borrowing"], "findings");
         Assert.Single(known);
-        Assert.True(BoolOf(known[0]!.AsObject()["known"]));
+        Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
-        var exception = details.Values.First(detail => Str(detail, "type") == "exception");
-        var kind = Str(Obj(exception, "fields"), "kind");
-        Assert.True(kind is "departure" or "gap", $"Unexpected exception kind '{kind}'.");
-        Assert.True((Str(Obj(exception, "fields"), "expiresOn") ?? "").Length > 0);
+        var departure = details.Values.First(detail => Str(detail, "type") == "departure");
+        Assert.True(Arr(Obj(departure, "fields"), "covers").Count > 0);
+        Assert.True((Str(Obj(departure, "fields"), "expiresOn") ?? "").Length > 0);
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
@@ -649,7 +648,7 @@ public sealed class BookViewsTests
         Assert.Empty(Arr(passing, "lacks"));
 
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "tests"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
     }
 
     /// <summary>The Why block inputs split from the explanation: the intro stays prose and Why sections list by heading.</summary>
@@ -736,7 +735,7 @@ public sealed class BookViewsTests
     /// <returns>True when the type starts its own outline layer.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "exception" or "term";
+            or "departure" or "term";
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
     /// <param name="links">The lexicon link rows to search.</param>

@@ -28,7 +28,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-measured-cache-need`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -42,7 +42,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-accepted-cache-staleness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -56,7 +56,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#remove-unjustified-caches`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -70,7 +70,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#compose-cache-keys-from-result-inputs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -86,7 +86,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#exclude-unsafe-cache-key-material`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -102,7 +102,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#define-cache-invalidation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -116,7 +116,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#record-a-manual-cache-invalidation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -132,7 +132,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#prefer-bounded-staleness`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: any
 
@@ -148,7 +148,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#keep-source-data-authoritative`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -162,7 +162,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#define-cache-outage-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -176,7 +176,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#emit-a-signal-for-each-degraded-cache-path`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -192,7 +192,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#bound-cache-refresh-work`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -208,7 +208,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **ID:** `litespec/ext/cache#avoid-unbounded-key-locks`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

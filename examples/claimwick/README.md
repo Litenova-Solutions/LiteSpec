@@ -18,4 +18,4 @@ Check the example with:
 litespec model check --root examples/claimwick
 ```
 
-The check reports no open findings, only excepted ones: `export-expenses` has no handler yet, covered by `exception/export-expenses-unimplemented`.
+The check reports no open findings, only covered ones: `export-expenses` has no handler yet, covered by `departure/export-expenses-unimplemented`.

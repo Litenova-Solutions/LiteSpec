@@ -26,7 +26,7 @@ static class StandardsFixture
 
         **ID:** `litespec/core/topic#keep-the-topic-bounded`
 
-        **Strength:** rule
+        **Strength:** required
 
         **Statement:** Consumers MUST keep the topic inside its declared boundary.
 
@@ -135,7 +135,7 @@ static class StandardsFixture
 
         **ID:** `litespec/ext/sample#record-extension-activation`
 
-        **Strength:** rule
+        **Strength:** required
 
         **Statement:** Consumers MUST record activation on each applicable specification.
 
@@ -167,7 +167,7 @@ static class StandardsFixture
 
         **ID:** `litespec/backend/sample/stack#apply-the-complete-stack`
 
-        **Strength:** rule
+        **Strength:** required
 
         **Statement:** Consumers MUST apply every document in the selected stack composition.
 

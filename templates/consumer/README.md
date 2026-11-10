@@ -43,7 +43,7 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<name>.yaml` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
-| `exception.yaml` | `.litespec/governance/exceptions/<name>.yaml` | Records one departure from a provision or one gap whose check stays red, with reason and expiry date. |
+| `departure.yaml` | `.litespec/governance/departures/<name>.yaml` | Records one departure from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
 
 ## Entry Lists and Page Styles
 

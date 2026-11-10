@@ -172,7 +172,7 @@ $defs:
     - setting
     - integration-event
     - runbook
-    - exception
+    - departure
     - term
   provisionId:
     type: string

@@ -642,17 +642,17 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
-    /// <summary>LS5002 accepts a follows naming a decision or exception.</summary>
+    /// <summary>LS5002 accepts a follows naming a decision or departure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or exception")]
+    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or departure")]
     public Task AcceptsAFollowsNamingADecisionOrException() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Spending;
 
                 /// <follows>decision/0002-store-expenses-as-documents</follows>
-                /// <follows>exception/marks-deferred</follows>
+                /// <follows>departure/marks-deferred</follows>
                 internal sealed class CommitStep
                 {
                     public void Commit()
@@ -660,7 +660,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Decision(), Exception(["mark-missing"])],
+            [ProjectFile(), Decision(), Departure(["mark-missing"])],
             assemblyName: "Shop.Application");
 
     /// <summary>LS5002 accepts a follows on a handler beside its implements.</summary>

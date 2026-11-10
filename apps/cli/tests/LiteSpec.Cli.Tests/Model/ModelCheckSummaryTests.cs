@@ -61,7 +61,7 @@ public sealed partial class ModelCheckSummaryTests
         var blocking = Array.FindIndex(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));
         var advisory = Array.FindIndex(lines, line => line.Contains("[use-case-unverified]", StringComparison.Ordinal));
         var heading = Array.IndexOf(lines, "Findings by code:");
-        var totals = Array.FindIndex(lines, line => line.Contains(" findings, ", StringComparison.Ordinal) && line.EndsWith(" known.", StringComparison.Ordinal));
+        var totals = Array.FindIndex(lines, line => line.Contains(" findings, ", StringComparison.Ordinal) && line.EndsWith(" covered.", StringComparison.Ordinal));
         var counts = CountLines(result.Output);
 
         Assert.Single(lines, line => line.Contains("[paging-undeclared]", StringComparison.Ordinal));

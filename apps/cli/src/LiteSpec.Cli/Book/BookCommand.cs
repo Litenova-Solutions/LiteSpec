@@ -92,11 +92,11 @@ static class BookCommand
 
         // The book takes the findings that model check takes, under the layer claims, so the two never disagree.
         List<Finding> findings;
-        IReadOnlyList<Finding> known;
+        IReadOnlyList<Finding> covered;
 
         try
         {
-            (findings, known) = ModelCommand.Collect(model, root);
+            (findings, covered) = ModelCommand.Collect(model, root);
         }
         catch (FailFast fail)
         {
@@ -104,7 +104,7 @@ static class BookCommand
         }
 
         model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)ModelCommand.AsJson(config, finding, ModelCommand.Decide(model, config, finding, release: false)))]);
-        model.KnownJson = new JsonArray([.. known.Select(gap => (JsonNode?)ModelCommand.AsKnownJson(config, gap))]);
+        model.CoveredJson = new JsonArray([.. covered.Select(finding => (JsonNode?)ModelCommand.AsCoveredJson(config, finding))]);
 
         if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
         {
@@ -299,9 +299,10 @@ static class BookCommand
             var detail = details[id];
             var raw = index.ById.TryGetValue(id, out var found) ? found : detail;
             var excerpt = BookShards.SearchExcerpt(raw);
-            var qualified = StrProp(detail, "qualifiedId");
-            var text = qualified is { Length: > 0 } && !string.Equals(qualified, id, StringComparison.Ordinal)
-                ? (excerpt.Length > 0 ? excerpt + " " + qualified : qualified)
+            var placement = string.Join(" ", new[] { StrProp(detail, "folder"), StrProp(detail, "module") }
+                .Where(part => part is { Length: > 0 }));
+            var text = placement.Length > 0
+                ? (excerpt.Length > 0 ? excerpt + " " + placement : placement)
                 : excerpt;
             rows.Add((JsonNode)new JsonArray(
                 id,

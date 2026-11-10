@@ -22,7 +22,7 @@ Build only what the specification states, and take anything missing to the owner
 
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
 
-A project Exception record overrides a Standard only when it names the provision ID, with reason and expiry date. (litespec/core/agent#apply-guidance-precedence)
+A project departure record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
@@ -51,4 +51,4 @@ Cite every path of every use case a route calls in a test title, or record an ex
 
 Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 
-Record an exception before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)
+Record a departure before selecting another visual system or component base. (litespec/frontend/ui#select-one-visual-authority)

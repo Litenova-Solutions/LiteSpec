@@ -138,7 +138,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-field-by-its-word-class`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
@@ -152,7 +152,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-a-boolean-as-a-predicate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every boolean field MUST read as a present-tense predicate that is true about the record when the value is true.
 
@@ -166,7 +166,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-date-by-what-it-marks`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
@@ -180,7 +180,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-each-kind-of-text-in-its-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
@@ -194,7 +194,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-each-value-in-the-value-style`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, and `title` value MUST use the value style the value-style table states.
 
@@ -208,7 +208,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-quantities-in-standard-units`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every quantity in a record MUST use an ISO 8601 date, an ISO 8601 duration, an amount with an ISO 4217 currency, or a number with its unit.
 
@@ -222,7 +222,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every record name MUST use the name form the record-name table gives its type.
 
@@ -236,7 +236,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-in-american-english`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every field name and enum value MUST use American spelling.
 
@@ -250,7 +250,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#keep-names-an-outside-standard-fixes`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every name an outside standard fixes MUST stay exactly as that standard spells it.
 
@@ -264,7 +264,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-finding-code-by-subject-and-problem`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the problem-word table.
 
@@ -278,7 +278,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-each-finding-message-as-a-fact`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
@@ -292,7 +292,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every subcommand MUST read as a verb and every flag as the mode or value it sets.
 

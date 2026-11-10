@@ -23,7 +23,7 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **ID:** `litespec/frontend/patterns/forms-and-fields#name-every-field-with-a-visible-label`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every field MUST carry a visible label that names its value.
 

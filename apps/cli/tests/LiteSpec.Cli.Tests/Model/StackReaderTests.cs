@@ -104,8 +104,8 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(1, run.GetProperty("failed").GetInt32());
 
-        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
-        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
+        Assert.Equal("verified", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("coded", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
     }
 
     /// <summary>A TRX file verifies the passing scenario's use case and leaves the failing one unverified.</summary>
@@ -151,8 +151,8 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(1, run.GetProperty("failed").GetInt32());
 
-        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
-        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
+        Assert.Equal("verified", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("coded", CompletionOf(root, "use-case/lending.return-copy").GetProperty("stage").GetString());
     }
 
     /// <summary>A Playwright result verifies the browser-only use case and exercises its journey step.</summary>
@@ -201,7 +201,7 @@ public sealed class StackReaderTests
         Assert.Equal(1, run.GetProperty("passed").GetInt32());
         Assert.Equal(0, run.GetProperty("failed").GetInt32());
 
-        Assert.Equal("proven", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
+        Assert.Equal("verified", CompletionOf(root, "use-case/lending.review-loans").GetProperty("stage").GetString());
         Assert.Contains(
             "journey/borrow-and-return#s4",
             root.GetProperty("exercisedSteps").EnumerateArray().Select(step => step.GetString()));

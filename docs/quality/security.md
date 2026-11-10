@@ -27,7 +27,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#keep-backend-authentication-provider-neutral`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -41,7 +41,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#derive-the-actor-from-claims`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, endpoint
 
@@ -55,7 +55,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#authorize-each-target-resource`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case, command-handler, query-handler
 
@@ -69,7 +69,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#restrict-a-protected-collection-in-the-database`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -85,7 +85,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#validate-at-trust-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -99,7 +99,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -113,7 +113,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#parameterize-database-input`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -127,7 +127,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#limit-public-error-detail`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -141,7 +141,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#protect-browser-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 
@@ -155,7 +155,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#minimize-sensitive-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case, command-handler, query-handler
 
@@ -169,7 +169,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#keep-a-personal-data-inventory-per-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -183,7 +183,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#apply-erasure-and-export-to-every-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -197,7 +197,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#keep-personal-data-out-of-logs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -211,7 +211,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#treat-an-unsalted-digest-as-personal-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -225,7 +225,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#report-a-breach-within-its-deadline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -239,7 +239,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#protect-live-data-at-rest`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -253,7 +253,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#bound-abuse-at-exposed-endpoints`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -267,7 +267,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#keep-one-limit-store-across-replicas`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -281,7 +281,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#restrict-cross-origin-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -295,7 +295,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#record-security-audit-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -309,7 +309,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#rotate-production-secrets`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -323,7 +323,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#set-an-asvs-level-as-the-security-target`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -337,7 +337,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#scan-every-release-with-the-zap-baseline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -351,7 +351,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **ID:** `litespec/quality/security#scan-every-pull-request-with-a-free-static-analyzer`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

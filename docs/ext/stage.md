@@ -28,7 +28,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#declare-the-release-stage`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -48,7 +48,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **ID:** `litespec/ext/stage#defer-named-provisions-until-promotion`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:exception
 
@@ -62,13 +62,13 @@ It switches on no record type: the promotion decision is a core record every pro
 {"type": "exception", "id": "exception/compat-classification-until-promotion", "title": "Compat Classification Until Promotion", "kind": "departure", "covers": "litespec/ext/compat#classify-breaking-contract-changes", "paths": ["apps/api/**"], "reason": "No consumer reads the contract before the first deployment.", "expiresOn": "2026-12-01"}
 ```
 
-**Checked by:** `litespec model check` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `exception-expired` for an exception past its `expiresOn`.
+**Checked by:** `litespec model check` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `departure-expired` for a departure past its `expiresOn`.
 
 ### Promote Through a Recorded Decision
 
 **ID:** `litespec/ext/stage#promote-through-a-recorded-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 

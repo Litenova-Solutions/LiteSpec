@@ -117,7 +117,7 @@ The table is frozen: it gives each type its layer, levels, folder, parent, ident
 | `screen` | Behavior | entry point | `behavior/entry-points/<entry-point>/screens/` | entry point | `screen/<entry-point>.<name>` | `<entry-point>/screen/<name>` |
 | `external-system` | Behavior | product, module | `behavior/external-systems/`, `behavior/modules/<m>/external-systems/` | its folder node | `external-system/<name>` | `external-system/<name>`, `<module>/external-system/<name>` |
 | `runbook` | Implementation | product, module | `implementation/runbooks/`, `implementation/modules/<m>/runbooks/` | product or module | `runbook/<name>` | `runbook/<name>`, `<module>/runbook/<name>` |
-| `exception` | Governance | product, module | `governance/exceptions/`, `governance/modules/<m>/exceptions/` | product or module | `exception/<name>` | `exception/<name>`, `<module>/exception/<name>` |
+| `departure` | Governance | product, module | `governance/departures/`, `governance/modules/<m>/departures/` | product or module | `departure/<name>` | `departure/<name>`, `<module>/departure/<name>` |
 
 Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. Anything else is a `folder-invalid` finding. A module with one aggregate of the module's own name may stay flat.
 
@@ -155,7 +155,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, events, reactions, jobs, notifications, settings, integration events and permissions; entry points with their screens; external systems; the retention schedule |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
-| `.litespec/governance/` | Governance | Exceptions at product level or under modules |
+| `.litespec/governance/` | Governance | Departures at product level or under modules |
 
 A record lives in its record file, an explanation file may sit beside it, and a document holds no record. The file name joins a record file to its explanation file: `<name>.yaml` with `<name>.md` in the same folder.
 
@@ -314,8 +314,8 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `translates` | integration event | Domain events | translates | is translated by |
 | `dependsOn` | module | Modules | depends on | is depended on by |
 | `runbook` | job | The runbook answering the job | is answered by | answers |
-| `covers` | exception | The provision a departure sets aside, or the finding codes a gap holds | covers | is covered by |
-| `subject` | exception | The records the exception covers; a gap may also name journey steps (`journey/<name>#s<n>`) for the step findings | applies to | is applied to |
+| `covers` | departure | The provisions, pages or finding codes the departure sets aside | covers | is covered by |
+| `subject` | departure | The records the departure covers, including journey steps (`journey/<name>#s<n>`) for the step findings | applies to | is applied to |
 | `terms` | any record | Terms | uses | is used by |
 
 Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
@@ -476,7 +476,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#write-every-record-in-its-home`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -492,7 +492,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#state-the-common-fields-on-every-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -506,7 +506,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#write-every-record-in-its-record-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -522,7 +522,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#explain-each-record-beside-its-record-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -538,7 +538,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#split-record-fields-from-explanation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -554,7 +554,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#require-an-explanation-file-for-article-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:research, record:decision
 
@@ -570,7 +570,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#write-every-record-file-in-canonical-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -586,7 +586,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#give-every-record-one-parent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -602,7 +602,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#move-each-identifier-with-its-module`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -618,7 +618,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#keep-each-name-unique-in-the-product`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -634,7 +634,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#take-decision-numbers-from-one-sequence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -650,7 +650,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#write-links-on-the-record-that-points`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -664,7 +664,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#connect-every-behavior-record-to-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:reaction, record:job, record:notification, record:setting
 
@@ -678,7 +678,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#reach-behavior-from-every-intent-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:goal, record:problem, record:feature, record:requirement, record:constraint, record:research, record:decision
 
@@ -694,7 +694,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#serve-every-journey-step`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:journey
 
@@ -708,7 +708,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#connect-across-modules-only-through-declared-dependencies`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -724,7 +724,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#keep-module-dependencies-free-of-cycles`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:module
 
@@ -740,7 +740,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#publish-each-integration-event-from-one-module`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -756,7 +756,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#hold-module-rules-in-rule-sets`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -772,7 +772,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#follow-the-authority-order`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -786,7 +786,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **ID:** `litespec/core/model#record-accepted-gaps-as-exceptions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:exception
 
@@ -794,7 +794,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** Missing work with no date is invisible: nothing reports it. An exception of kind `gap` with an `expiresOn` date turns the same missing work into a visible promise: the findings its `covers` names report until the date, and `exception-expired` reports the exception after it. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
-**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as an exception with an expiry date in `.litespec/governance/exceptions/export-expenses-unimplemented.yaml`.
+**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure with an expiry date in `.litespec/governance/departures/export-expenses-unimplemented.yaml`.
 
 ```yaml
 type: exception
@@ -811,13 +811,13 @@ expiresOn: 2027-06-01
 
 The `use-case-unimplemented` finding reports without failing until 2027-06-01, which satisfies this provision.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an exception missing its date, `exception-expired` (level G) past its `expiresOn` date, and `exception-finding-unknown` (level G) for an exception naming a finding code no check uses.
+**Checked by:** `litespec model check` reports `departure-expired` (level G) for a departure past its `expiresOn` date, and `departure-invalid` (level G) for a departure naming a finding code no check uses or a code the model needs in order to load.
 
 ### Name What Every Decision Decides
 
 **ID:** `litespec/core/model#name-what-every-decision-decides`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -831,7 +831,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **ID:** `litespec/core/model#record-each-technical-choice-as-a-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -847,7 +847,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **ID:** `litespec/core/model#keep-rules-and-targets-out-of-technical-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -863,7 +863,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **ID:** `litespec/core/model#resolve-every-page-link`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -879,7 +879,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **ID:** `litespec/core/model#declare-size-and-stacks`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -895,7 +895,7 @@ The `use-case-unimplemented` finding reports without failing until 2027-06-01, w
 
 **ID:** `litespec/core/model#give-every-use-case-its-results`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -937,7 +937,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#author-one-slice-at-a-time`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:feature
 
@@ -951,7 +951,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#compute-proof-statuses-in-the-builder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -967,7 +967,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#report-unverified-use-cases`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -983,7 +983,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#compute-completion-in-the-builder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:requirement, record:journey, record:feature, record:goal; layer: implementation; trace: yes
 
@@ -999,7 +999,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#record-each-screens-captures-from-the-gallery`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -1015,7 +1015,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#mark-every-check-with-its-level`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1029,7 +1029,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#declare-one-mark-style`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any; layer: implementation; trace: yes
 
@@ -1045,7 +1045,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#match-each-backend-mark-to-its-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, endpoint, reaction, job, aggregate; layer: implementation
 
@@ -1061,7 +1061,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#name-the-lowest-record-each-test-proves`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -1077,7 +1077,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:aggregate, record:reaction, record:job, record:external-system, record:use-case; layer: implementation; trace: yes
 
@@ -1093,7 +1093,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#record-a-project-wide-lowering-as-an-exception`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:exception
 
@@ -1109,7 +1109,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#organize-the-book-by-the-record-layers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1125,7 +1125,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#name-book-labels-with-litespec-terms`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1141,7 +1141,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#explain-the-book-from-litespec-definitions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1157,7 +1157,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#show-only-computed-judgements-in-the-book`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1173,7 +1173,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -1189,7 +1189,7 @@ Success names the submitted ending, the refusal carries the code `spending.recei
 
 **ID:** `litespec/core/model#point-every-book-entry-to-its-source`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

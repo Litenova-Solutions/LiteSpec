@@ -17,7 +17,7 @@ static class RecordPages
         "product", "goal", "problem", "feature", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
-        "runbook", "exception",
+        "runbook", "departure",
     };
 
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>

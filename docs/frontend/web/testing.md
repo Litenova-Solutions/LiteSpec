@@ -53,7 +53,7 @@ Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/
 
 **ID:** `litespec/frontend/web/testing#refuse-a-test-without-an-assertion`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Lint MUST fail a Vitest or Playwright test that contains no `expect` assertion, through the `expect-expect` rule.
 

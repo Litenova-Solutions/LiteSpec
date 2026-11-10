@@ -19,7 +19,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#load-persisted-state-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Persisted state MUST load once at startup into a typed store that screens read from, with screens showing a loading state until it is ready.
 
@@ -31,7 +31,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#keep-persisted-state-in-app-private-storage`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Persisted state and media the user adds MUST live in the app's private storage, written atomically.
 
@@ -45,7 +45,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#copy-picked-media-into-the-app`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Media picked from the device MUST be copied into app-private storage on import rather than kept as a reference to the picker's URI.
 
@@ -57,7 +57,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#make-refusals-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A handler MUST return a typed result union covering success and each named refusal, with each screen mapping every refusal to a message.
 
@@ -69,7 +69,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#call-the-server-only-through-the-generated-client`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A `server` consumer's app MUST call the backend only through the generated client in `{ProjectName}.Client`.
 

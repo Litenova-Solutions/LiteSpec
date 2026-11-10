@@ -24,7 +24,7 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#confirm-or-undo-every-removal`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every removal MUST either offer undo or ask for confirmation before it runs.
 
@@ -36,7 +36,7 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 
 **ID:** `litespec/frontend/patterns/create-edit-remove#show-the-created-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A successful create MUST take the reader to the created record or show it in place.
 

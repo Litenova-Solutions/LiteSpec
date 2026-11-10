@@ -178,7 +178,7 @@ Every page-frame pattern therefore resolves to one floorplan, and every floorpla
 
 **ID:** `litespec/frontend/patterns#keep-one-pattern-catalog`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -198,7 +198,7 @@ paths: {}
 
 **ID:** `litespec/frontend/patterns#record-every-option-considered`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -214,7 +214,7 @@ paths: {}
 
 **ID:** `litespec/frontend/patterns#record-who-chose`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -243,7 +243,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#declare-the-compact-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -259,7 +259,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#implement-a-chosen-pattern-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -275,7 +275,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#update-the-catalog-with-the-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -291,7 +291,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#state-the-implementation-status`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -307,7 +307,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **ID:** `litespec/frontend/patterns#keep-the-catalog-platform-neutral`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

@@ -39,7 +39,7 @@ internal sealed record PathContext(
         ["job"] = "job",
         ["reaction"] = "reaction",
         ["decision"] = "decision",
-        ["exception"] = "exception",
+        ["departure"] = "departure",
         ["goal"] = "goal",
         ["problem"] = "problem",
         ["feature"] = "feature",

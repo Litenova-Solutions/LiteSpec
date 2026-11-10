@@ -39,7 +39,7 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#apply-the-complete-stack`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer selecting a stack MUST apply the pages in its folder, every folder above it, and their subfolders that hold no stack.
 
@@ -51,7 +51,7 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#use-manifest-version-pins`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.yaml`.
 
@@ -63,7 +63,7 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#declare-replacements`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An extension or a departure MUST name every baseline provision ID it replaces.
 

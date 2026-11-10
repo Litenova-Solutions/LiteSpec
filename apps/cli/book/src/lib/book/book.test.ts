@@ -56,7 +56,7 @@ describe("book", () => {
     expect(book.explain("passing")?.title).toBe("Completion Stages");
     expect(book.explain("passing")?.text).toBe("Completion is computed from code, tests and passing scenarios.");
     expect(book.explain("G")?.title).toBe("Check level");
-    expect(book.explain("known")?.title).toBe("Exception");
+    expect(book.explain("covered")?.title).toBe("Covered");
     expect(book.explain("type:feature")?.text).toBe(
       "What change delivers the goal? Written by product people.",
     );
@@ -130,10 +130,11 @@ describe("book", () => {
     expect(book.lacks("use-case/library.borrowing.borrow")).toBe("scenarios not tested");
   });
 
-  it("shows both identifiers, the short one and the qualified one", async () => {
+  it("shows the folder and the module a record sits in", async () => {
     const book = await fixtureBook();
-    expect(book.qualifiedId("use-case/library.borrowing.borrow")).toBe("library/borrowing/use-case/borrow");
-    expect(book.qualifiedId("goal/faster-borrowing")).toBe("goal/faster-borrowing");
-    expect(book.qualifiedId("use-case/library.borrowing.borrow#s1")).toBe("library/borrowing/use-case/borrow");
+    expect(book.placement("use-case/library.borrowing.borrow")).toEqual({
+      folder: "behavior/library/borrowing",
+      module: "library",
+    });
   });
 });

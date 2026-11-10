@@ -43,7 +43,7 @@ static class BookOutline
     /// <summary>The list record types in the behavior layer, in display order.</summary>
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
     /// <summary>The record types in the governance layer, in display order.</summary>
-    static readonly IReadOnlyList<string> GovernanceOrder = ["exception"];
+    static readonly IReadOnlyList<string> GovernanceOrder = ["departure"];
 
     /// <summary>Builds the outline over a parsed model object with every layer claimed.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
@@ -342,7 +342,7 @@ static class BookOutline
     }
 
     /// <summary>Attaches one finding node per open and known finding under its subject record, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
-    /// <param name="model">The parsed model object that holds the open and known findings.</param>
+    /// <param name="model">The parsed model object that holds the open and covered findings.</param>
     /// <param name="byId">The record object for each record identifier.</param>
     /// <param name="attached">Whether each record attaches to the outline, keyed by record identifier.</param>
     /// <param name="nodes">The outline node for each record identifier, which receives the finding leaves.</param>
@@ -356,7 +356,7 @@ static class BookOutline
     {
         var entries = new List<JsonObject>();
         entries.AddRange(FindingEntries(model["findings"]));
-        entries.AddRange(FindingEntries(model["known"]));
+        entries.AddRange(FindingEntries(model["covered"]));
 
         var at = 0;
         foreach (var finding in entries)
@@ -538,7 +538,7 @@ static class BookOutline
         type switch
         {
             "term" => "glossary",
-            "exception" => "governance",
+            "departure" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "product" or "goal" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",

@@ -129,7 +129,7 @@ public sealed class StaleProofTests
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     static bool Verified(JsonElement root) =>
-        CompletionOf(root, UseCase).GetProperty("stage").GetString() == "proven";
+        CompletionOf(root, UseCase).GetProperty("stage").GetString() == "verified";
 
     static List<string?> HeldBy(JsonElement root) =>
         CompletionOf(root, UseCase).GetProperty("heldBy").EnumerateArray().Select(entry => entry.GetString()).ToList();

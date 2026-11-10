@@ -23,7 +23,7 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 **ID:** `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A root solution MUST list the .NET projects of more than one deployable unit, with builds, test runs, and configuration still naming the API solution.
 
@@ -37,7 +37,7 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 **ID:** `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An AppHost that runs more than one application under `apps/` MUST live at `apps/apphost/{ProjectName}.AppHost/` rather than under `apps/api/src/`.
 

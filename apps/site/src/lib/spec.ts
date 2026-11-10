@@ -56,7 +56,7 @@ export interface Provision {
   mark: string;
   /** The inline verification evidence: the text after the verification label. */
   evidence: string;
-  /** How binding the provision is: rule, default or advice. Empty when the index states none. */
+  /** How binding the provision is: required, default or advisory. Empty when the index states none. */
   strength: string;
 }
 

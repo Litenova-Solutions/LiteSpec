@@ -23,7 +23,7 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **ID:** `litespec/frontend/patterns/record-detail#show-one-primary-action-in-a-record-header`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A record header wireframe MUST show at most one primary action.
 
@@ -35,7 +35,7 @@ The drawings on this page use expense EXP-1042 for Ava: paid, EUR 125.00, part o
 
 **ID:** `litespec/frontend/patterns/record-detail#keep-destructive-commands-out-of-the-primary-place`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A destructive command MUST NOT take the primary action's place or style in a record header.
 

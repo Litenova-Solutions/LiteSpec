@@ -51,7 +51,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#generate-the-client-from-the-published-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -65,7 +65,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#use-one-configured-client-per-application`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -79,7 +79,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#keep-the-session-in-an-api-owned-cookie`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -93,7 +93,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#set-the-write-marker-on-every-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -107,7 +107,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#map-every-failure-to-one-problem-type`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -121,7 +121,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#place-a-refusal-beside-what-was-refused`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -137,7 +137,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#place-a-field-refusal-on-its-field`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: form
 
@@ -151,7 +151,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#validate-a-form-with-the-generated-schema`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: form
 
@@ -165,7 +165,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#update-the-cache-a-command-changed`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -181,7 +181,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#assign-state-to-the-narrowest-owner`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 
@@ -195,7 +195,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#route-use-cases-through-application`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -211,7 +211,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#classify-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -227,7 +227,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#route-a-personal-value-in-a-header`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -241,7 +241,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#read-a-permission-from-the-session`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -255,7 +255,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#name-the-zone-for-every-timestamp`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -269,7 +269,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#keep-secrets-out-of-browser-storage`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -283,7 +283,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#make-optimistic-behavior-recoverable`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -297,7 +297,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#announce-the-outcome-of-an-optimistic-update`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -311,7 +311,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **ID:** `litespec/frontend/data#localize-copy-through-locale-dictionaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 

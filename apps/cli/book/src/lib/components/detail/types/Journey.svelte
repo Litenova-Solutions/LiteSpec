@@ -60,9 +60,9 @@
                   <Ref id={b} />
                   {#if info}
                     <span class="inline-flex flex-wrap gap-1 text-xs text-subtle-foreground">
-                      <FactBadge text={info.built ? "implemented" : "not implemented"} />
+                      <FactBadge text={info.built ? "coded" : "not coded"} />
                       {#if info.scenarios}
-                        <FactBadge text={`${info.proven} of ${info.scenarios} scenarios confirmed`} />
+                        <FactBadge text={`${info.verified} of ${info.scenarios} scenarios confirmed`} />
                       {:else}
                         <FactBadge text="no scenarios" />
                       {/if}

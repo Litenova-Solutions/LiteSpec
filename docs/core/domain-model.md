@@ -101,7 +101,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#define-every-behavior-term-in-the-glossary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:term
 
@@ -117,7 +117,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#mark-each-term-with-its-layer`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:term
 
@@ -133,7 +133,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#state-every-module-dependency`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:module
 
@@ -147,7 +147,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#declare-the-kind-of-every-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -163,7 +163,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#name-the-owner-of-every-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -177,7 +177,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -193,7 +193,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#leave-states-off-every-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -209,7 +209,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#connect-every-state-through-transitions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -223,7 +223,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#state-each-rule-with-its-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -239,7 +239,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -255,7 +255,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#keep-the-negation-word-in-the-rule-name`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -271,7 +271,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -285,7 +285,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -299,7 +299,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#release-every-reservation-by-a-named-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -313,7 +313,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#freeze-every-commercial-data-value`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -327,7 +327,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#compute-shared-values-from-one-calculation-rule`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -341,7 +341,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#tabulate-every-calculation-with-examples`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 
@@ -355,7 +355,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#state-each-event-with-meaning-and-carries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -369,7 +369,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#name-every-event-in-the-past-tense`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -385,7 +385,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#raise-every-event-through-its-aggregate-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -399,7 +399,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **ID:** `litespec/core/domain-model#keep-model-invariants-in-rules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:rule
 

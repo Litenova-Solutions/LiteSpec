@@ -69,7 +69,7 @@ A consumer claims conformance to the layers it names in `layers` in `.litespec/p
 
 **ID:** `litespec/core/scope#select-a-size-a-shape-and-stacks`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the project claims neither `implementation` nor `proof` in `layers`.
 
@@ -104,7 +104,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#claim-the-record-layers-the-project-uses`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST name in `layers` in `.litespec/project.yaml` each record layer it claims, with `litespec` or `own` for Implementation and Proof, leaving layers out only from the bottom.
 
@@ -118,7 +118,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#keep-one-bounded-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST keep one business language and deployment boundary.
 
@@ -132,7 +132,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#keep-every-record-about-the-software`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every record MUST state something the software does, holds, refuses at runtime, or runs on, and translate into code, results, tests, or infrastructure.
 
@@ -146,7 +146,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#select-conditional-extensions-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST select every extension whose activation criteria apply, and no extension whose criteria do not.
 
@@ -160,7 +160,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#record-selected-extensions`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST list every selected extension in `selectedExtensions` in `.litespec/project.yaml`, each with its criterion.
 
@@ -178,7 +178,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#answer-the-constraints-question`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST state in `.litespec/project.yaml` whether any outside constraint applies to the project.
 
@@ -192,7 +192,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#declare-a-consumer-that-has-no-backend`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer with no server of its own MUST declare the `client-only` shape and record a decision naming the surfaces left without coverage.
 
@@ -206,7 +206,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#record-unsupported-scope-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST record a separate project decision for microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, or large pipelines.
 
@@ -218,7 +218,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#claim-conformance-only-when-every-applicable-provision-holds`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST meet every provision that applies to each layer it claims in `layers` before claiming conformance to LiteSpec for those layers.
 
@@ -232,7 +232,7 @@ The diagram shows the three project choices and what each decides.
 
 **ID:** `litespec/core/scope#point-behavior-docs-at-the-behavior-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST set `paths.behaviorDocs` in `.litespec/project.yaml` to the folder that holds its Behavior records.
 
@@ -251,7 +251,7 @@ paths:
 
 **ID:** `litespec/core/scope#keep-every-litespec-file-under-one-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, `.litespec/`, at the repository root.
 
@@ -265,7 +265,7 @@ paths:
 
 **ID:** `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model and `--format json` output, stay JSON.
 

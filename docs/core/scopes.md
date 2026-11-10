@@ -20,7 +20,7 @@ Each provision carries six scope fields. The page declares the first two once: a
 | `artifact` | Which kind of thing is made | `any`, one code kind, several code kinds separated by a comma, or `record:<type>` for one record of that type |
 | `layer` | Which record layer the provision governs | `any`, `intent`, `behavior`, `implementation`, `proof` |
 | `trace` | Whether it ties its layer to the records | `yes`, `no` |
-| `strength` | How binding it is | `rule`, `default`, `advice` |
+| `strength` | How binding it is | `required`, `default`, `advisory` |
 
 ### Stack Values
 
@@ -106,13 +106,13 @@ Every page's provisions take their trace from the page, which is `no`. A provisi
 
 | Value | Meaning |
 |:---|:---|
-| `rule` | Follow it; depart from it only through a recorded exception of kind `departure` whose `covers` names the provision, with a reason. |
+| `required` | Follow it; depart from it only through a departure record whose `covers` names the provision, with a reason. |
 | `default` | Follow it unless the project chooses otherwise, and record the choice. |
-| `advice` | Experience; apply it with judgement and record nothing. |
+| `advisory` | Experience; apply it with judgement and record nothing. |
 
 ### Assigning Strength
 
-The first pass over the pages is mechanical: a provision with `Checked by`, or a rule on a checked boundary, takes `rule`; a convention or a pattern takes `default`; general knowledge and a provision whose Statement uses `SHOULD` take `advice`. Each area pass then settles its pages honestly: most provisions earn `rule` or `default`, and generic restatements earn `advice`.
+The first pass over the pages is mechanical: a provision with `Checked by`, or a rule on a checked boundary, takes `required`; a convention or a pattern takes `default`; general knowledge and a provision whose Statement uses `SHOULD` take `advisory`. Each area pass then settles its pages honestly: most provisions earn `required` or `default`, and generic restatements earn `advisory`.
 
 A provision that restates an outside standard is replaced by a link to its source, and a provision that a stack page restates from a base page merges into the base one, so one rule has one home.
 
@@ -141,7 +141,7 @@ These checks report scope defects that no single provision owns, so they are lis
 | `SCOPE_BLOCK` | A page that owns provisions carries no Scope block, or the block names no stack or no concern. |
 | `SCOPE_VALUE` | A Scope block or an Applies to line names a value outside this page's tables, or an Applies to line names a `layer` or `trace` value outside its values, or names more than one value for either. |
 | `SCOPE_NARROW` | An Applies to line is as wide as its page, widens it, or repeats the layer or trace of its page. |
-| `STRENGTH_LINE` | A provision carries no Strength line, or the line names a value outside `rule`, `default`, and `advice`. |
+| `STRENGTH_LINE` | A provision carries no Strength line, or the line names a value outside `required`, `default`, and `advisory`. |
 
 ## Standards
 
@@ -149,7 +149,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#declare-the-page-scope`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each page that owns provisions MUST declare its stack and concern in a `**Stack:**` line and a `**Concern:**` line directly under its title.
 
@@ -161,7 +161,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#use-only-declared-scope-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A Scope block and an Applies to line MUST use only the stack, concern, artifact, layer, and trace values this page lists.
 
@@ -175,7 +175,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#state-applies-to-only-when-narrower`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A provision MUST carry an Applies to line only when its scope is narrower than its page scope, its layer or trace differs from its page, or it marks its concern-wide scope with `artifact: any` on a page where another provision names a kind.
 
@@ -189,7 +189,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** On a page where one provision names an `artifact`, every provision MUST name the kinds of file it governs, or `artifact: any` when it governs every file of its layer.
 
@@ -203,7 +203,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#give-every-provision-its-layer-and-trace`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every provision MUST carry the record layer of its page, or state its own layer as a `layer` field on its Applies to line when that layer differs from its page layer; a provision that ties its layer to the records states `trace: yes` on that line.
 
@@ -217,7 +217,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-exception`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project that departs from a provision of Strength rule MUST record an exception of kind `departure` whose `covers` names the provision, with a reason.
 
@@ -231,7 +231,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **ID:** `litespec/core/scopes#record-each-replaced-default`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project that chooses otherwise than a provision of Strength default MUST record its choice where the provision names.
 
@@ -261,7 +261,7 @@ A domain page for the .NET stack opens with its Scope block, and its aggregate p
 
 **ID:** `litespec/backend/domain#guard-each-aggregate-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 

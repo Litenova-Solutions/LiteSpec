@@ -28,7 +28,7 @@ The block names the messages the entry point exchanges, the version rule devices
 
 **ID:** `litespec/ext/devices#describe-device-messages-as-a-channel-fragment`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point; layer: behavior
 
@@ -55,7 +55,7 @@ protocol:
 
 **ID:** `litespec/ext/devices#version-the-device-protocol`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point; layer: behavior
 
@@ -69,7 +69,7 @@ protocol:
 
 **ID:** `litespec/ext/devices#state-client-rules-with-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point; layer: behavior
 
@@ -85,7 +85,7 @@ protocol:
 
 **ID:** `litespec/ext/devices#identify-retries-with-a-nonce`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point; layer: behavior
 
@@ -101,7 +101,7 @@ protocol:
 
 **ID:** `litespec/ext/devices#simulate-offline-uploads-before-applying`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -117,7 +117,7 @@ protocol:
 
 **ID:** `litespec/ext/devices#apply-forced-uploads-over-newer-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 

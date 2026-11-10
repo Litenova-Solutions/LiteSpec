@@ -39,7 +39,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#start-the-stack-with-one-local-command`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -53,7 +53,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#emit-correlated-diagnostics`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -67,7 +67,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#point-every-runtime-record-at-its-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -83,7 +83,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#pass-trace-context-in-the-w3c-format`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -99,7 +99,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#separate-liveness-and-readiness`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -113,7 +113,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#apply-schema-changes-outside-request-startup`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: migration
 
@@ -127,7 +127,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#operate-background-work-independently`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -141,7 +141,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#bound-external-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -155,7 +155,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#list-every-sub-processor`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -169,7 +169,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **ID:** `litespec/quality/operations#keep-production-secrets-out-of-the-repository`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
