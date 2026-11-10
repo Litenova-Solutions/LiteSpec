@@ -23,9 +23,9 @@ public sealed partial class ConsumerValidatorTests
     /// </summary>
     static readonly HashSet<string> ConsumerCodes = new(StringComparer.Ordinal)
     {
-        "project-invalid", "project-path-invalid", "release-mismatch", "stack-invalid", "extension-invalid",
+        "project-invalid", "project-path-invalid", "release-drift", "stack-invalid", "extension-invalid",
         "stage-deferral-invalid", "page-invalid", "page-section-missing", "page-heading-invalid",
-        "page-example-too-long", "glossary-invalid", "frontend-invalid", "record-invalid",
+        "page-example-invalid", "glossary-invalid", "frontend-invalid", "record-invalid",
         "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
         "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
         "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",

@@ -163,7 +163,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST open with a verb of its own kind, or with an either verb.
 
-**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project records which of its domain verbs read; its other domain verbs open either kind. The `use-case-verb-invalid` check reports a use case whose verb names the other kind.
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project records which of its domain verbs read; its other domain verbs open either kind.
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.answer-inquiry` opens either kind on an either verb and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 

@@ -11,42 +11,6 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 static class Checker
 {
-    /// <summary>Every finding code an exception may name.</summary>
-    public static readonly HashSet<string> Codes = new(StringComparer.Ordinal)
-    {
-        "record-invalid", "folder-invalid", "module-undeclared", "record-placement-invalid", "identifier-folder-drift", "name-duplicate", "decision-number-duplicate", "link-locality-invalid", "module-dependency-invalid", "event-publisher-invalid", "intent-unreached", "role-orphaned", "permission-orphaned", "decision-decides-duplicate", "code-placement-drift", "field-invalid", "identifier-invalid", "identifier-duplicate",
-        "template-key-invalid", "setting-unit-missing", "integration-event-name-invalid", "job-name-invalid", "reference-unknown",
-        "exception-expired", "exception-finding-unknown",
-        "rule-name-invalid", "use-case-success-missing", "scenario-result-unknown",
-        "refusal-unimplemented", "use-case-unimplemented", "proves-unreached", "use-case-unverified", "proof-invalid",
-        "size-type-missing", "product-count-invalid",
-        "use-case-journey-missing",
-        "use-case-scenario-missing", "requirement-fulfillment-missing",
-        "requirement-cites-missing", "constraint-unreached",
-        "decision-decides-missing", "decision-unimplemented", "decision-basis-missing", "link-unknown", "operation-use-case-drift", "constituent-parent-missing", "alert-link-missing", "alert-threshold-drift", "quality-alert-missing", "setting-key-missing", "setting-unimplemented", "setting-key-drift", "template-unimplemented", "template-unrecorded", "template-param-drift", "dependency-undeclared", "dependency-version-drift", "dependency-license-unknown", "admission-invalid", "screen-unimplemented", "screen-offers-drift", "screen-serves-drift", "step-screen-missing", "refusal-sentence-missing", "reader-missing", "proves-duplicate",
-        "behavior-unrecorded", "mark-missing", "mark-unknown", "mark-count-invalid", "mark-style-invalid", "mark-folder-drift",
-        "runtime-value-drift", "partial-missing", "act-event-undeclared", "act-event-unimplemented", "use-case-act-missing",
-        "aggregate-unimplemented", "reaction-unimplemented", "job-unimplemented",
-        "external-system-unimplemented", "use-case-endpoint-missing", "effect-unimplemented", "use-case-unreached",
-        "state-unreached", "transition-unknown",
-        "erasure-undeclared", "calculation-table-missing",
-        "reaction-trigger-unknown", "requirement-measure-missing",
-        "record-link-missing", "record-parent-missing", "result-scenario-missing", "step-use-case-missing", "effect-loop-invalid", "consistency-cites-missing",
-        "query-output-missing", "paging-undeclared", "widening-cites-missing",
-        "retention-enforcement-missing",
-        "setting-requirement-missing", "reservation-release-missing",
-        "notification-sender-missing", "except-fallback-missing",
-        "job-guard-missing", "schedule-invalid", "atomic-group-drift", "atomic-group-invalid",
-        "write-undeclared", "result-undeclared", "effect-undeclared", "repository-unimplemented",
-        "operation-id-duplicate",
-        "name-reason-missing", "collaborator-repository-invalid", "repository-read-invalid",
-        "query-filter-invalid", "effect-timing-invalid",
-        "prose-missing", "atomic-group-duplicate",
-        "explanation-orphaned", "explanation-missing", "format-drift",
-        "source-link-bare", "source-key-unknown", "source-unused",
-        "problem-sufferer-invalid", "problem-evidence-missing", "actor-unused", "goal-mover-missing", "term-missing",
-        "runbook-unused", "analyzer-lowering-unrecorded",
-    };
 
     /// <summary>Fields the semantic hash skips: identity and nested entries, which carry their own hash.</summary>
     internal static readonly HashSet<string> HashExcluded = new(StringComparer.Ordinal)
@@ -228,7 +192,7 @@ static class Checker
             {
                 var code = match.Groups["code"].Value;
 
-                if (Codes.Contains(code) && !codes.Contains(code))
+                if (FindingCodes.IsKnown(code) && !codes.Contains(code))
                 {
                     codes.Add(code);
                 }

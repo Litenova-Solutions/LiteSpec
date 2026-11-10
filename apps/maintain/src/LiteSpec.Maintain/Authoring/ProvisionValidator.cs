@@ -799,7 +799,7 @@ internal sealed partial class ProvisionValidator
                     add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
                 }
             }
-            else if (FindingCodePattern().IsMatch(span) && !Finding.Tiers.ContainsKey(span))
+            else if (FindingCodePattern().IsMatch(span) && !FindingCodes.IsKnown(span))
             {
                 add(relative, line, "CHECKED_BY_UNKNOWN", $"Verification for '{id}' names '{span}', which is not a finding code");
             }

@@ -13,7 +13,7 @@ Each row names one code element, the folder that holds it, the mark it carries, 
 | Element | Goes In | Mark | Checked By |
 |:---|:---|:---|:---|
 | Command or query handler | The use case folder | `implements` naming `use-case/<module>.<name>` | `use-case-act-missing`, `write-undeclared`, `effect-undeclared` |
-| Command or query message | The use case folder beside its handler | None; the handler folder places it | `name-drift` |
+| Command or query message | The use case folder beside its handler | None; the handler folder places it | Review the message name beside the use case name |
 | Validator | The use case folder beside its message | `implements` naming `use-case/<module>.<name>` | Review the validator body |
 | Result type | The use case folder beside its handler | None; the handler folder places it | `result-undeclared` |
 | Aggregate root | The aggregate `Domain/` folder | `implements` naming `aggregate/<module>.<name>` | `aggregate-unimplemented` |

@@ -60,19 +60,6 @@ public sealed class SeverityCheckTests
         Assert.Equal("blocking", pullOutcome);
     }
 
-    /// <summary>Every code a known gap may name has a tier, so an unknown code fails the build.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
-    [Fact]
-    public void Every_Checker_Code_Has_A_Tier()
-    {
-        var missing = Checker.Codes
-            .Where(code => !Finding.Tiers.ContainsKey(code))
-            .OrderBy(code => code, StringComparer.Ordinal)
-            .ToList();
-
-        Assert.Empty(missing);
-    }
-
     /// <summary>An unknown marks value exits 2 with the file error.</summary>
     [Fact]
     public void Unknown_Marks_Exits_2()

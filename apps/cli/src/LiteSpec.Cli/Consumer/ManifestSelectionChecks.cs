@@ -66,7 +66,7 @@ static class ManifestSelectionChecks
             if (!JsonValues.IsTruthy(reviewed))
             {
                 run.Err(new Finding(
-                    "release-mismatch",
+                    "release-drift",
                     $"missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}",
                     projectFile,
                     1,
@@ -75,7 +75,7 @@ static class ManifestSelectionChecks
             else if (!JsonValues.StrictEqual(reviewed, version))
             {
                 run.Err(new Finding(
-                    "release-mismatch",
+                    "release-drift",
                     $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record {JsonValues.Text(version)}",
                     projectFile,
                     1,

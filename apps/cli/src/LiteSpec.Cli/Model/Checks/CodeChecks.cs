@@ -28,7 +28,7 @@ internal static class CodeChecks
     }
 
     /// <summary>
-    ///     One S-level finding. The level comes from the finding code through Finding.Tiers,
+    ///     One S-level finding. The level comes from the finding code through FindingCodes,
     ///     which maps these three codes to S, so this helper builds the finding as written.
     /// </summary>
     /// <param name="code">The finding code that sets the level.</param>

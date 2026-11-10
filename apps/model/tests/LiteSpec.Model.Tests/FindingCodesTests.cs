@@ -7,7 +7,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves every finding code the checkers emit has a tier, so an unknown code fails the build.</summary>
+/// <summary>Proves the finding code table holds every code the checkers emit and nothing else, so an unknown or dead code fails the build.</summary>
 public sealed class FindingCodesTests
 {
     /// <summary>Every mark finding code has a tier.</summary>
@@ -16,7 +16,7 @@ public sealed class FindingCodesTests
     public void Mark_Codes_Have_Tiers()
     {
         var missing = MarkRules.FindingCodes
-            .Where(code => !Finding.Tiers.ContainsKey(code))
+            .Where(code => !FindingCodes.IsKnown(code))
             .OrderBy(code => code, StringComparer.Ordinal)
             .ToList();
 
@@ -30,28 +30,41 @@ public sealed class FindingCodesTests
     {
         var emitted = EmittedCodes(FindRepository());
         var missing = emitted
-            .Where(code => !Finding.Tiers.ContainsKey(code))
+            .Where(code => !FindingCodes.IsKnown(code))
             .OrderBy(code => code, StringComparer.Ordinal)
             .ToList();
 
         Assert.Empty(missing);
     }
 
-    /// <summary>Every code an exception may name has a tier.</summary>
+    /// <summary>Every code in the table is emitted by a check, so the table holds no dead code.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Checker_Codes_Have_Tiers()
+    public void Table_Codes_Are_Emitted()
     {
-        var repository = FindRepository();
-        var checker = Path.Combine(repository, "apps", "cli", "src", "LiteSpec.Cli", "Model", "Checker.cs");
-        var codes = CheckerCodes(File.ReadAllText(checker));
-        var missing = codes
-            .Where(code => !Finding.Tiers.ContainsKey(code))
+        var emitted = QuotedLiterals(FindRepository());
+        emitted.UnionWith(MarkRules.FindingCodes);
+        var dead = FindingCodes.All
+            .Select(row => row.Code)
+            .Where(code => !emitted.Contains(code))
             .OrderBy(code => code, StringComparer.Ordinal)
             .ToList();
 
-        Assert.NotEmpty(codes);
-        Assert.Empty(missing);
+        Assert.Empty(dead);
+    }
+
+    /// <summary>Every row of the table names its level, meaning and fix, and no code appears twice.</summary>
+    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    [Fact]
+    public void Table_Rows_Are_Complete_And_Unique()
+    {
+        Assert.All(FindingCodes.All, row =>
+        {
+            Assert.Contains(row.Level, new[] { "G", "S", "A" });
+            Assert.False(string.IsNullOrWhiteSpace(row.Meaning), row.Code);
+            Assert.False(string.IsNullOrWhiteSpace(row.Fix), row.Code);
+        });
+        Assert.Equal(FindingCodes.All.Count, FindingCodes.All.Select(row => row.Code).Distinct(StringComparer.Ordinal).Count());
     }
 
     /// <summary>Each new Intent finding code carries its contracted tier.</summary>
@@ -63,7 +76,7 @@ public sealed class FindingCodesTests
     [InlineData("constraint-unreached", "G")]
     public void New_Intent_Codes_Have_Tiers(string code, string tier)
     {
-        Assert.Equal(tier, Finding.Tiers[code]);
+        Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each new YAML finding code carries its contracted tier.</summary>
@@ -78,7 +91,7 @@ public sealed class FindingCodesTests
     [InlineData("source-unused")]
     public void New_Yaml_Codes_Are_Advisory(string code)
     {
-        Assert.Equal("A", Finding.Tiers[code]);
+        Assert.Equal("A", FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each new Behavior finding code carries its contracted tier.</summary>
@@ -95,7 +108,7 @@ public sealed class FindingCodesTests
     [InlineData("atomic-group-invalid", "A")]
     public void New_Behavior_Codes_Have_Tiers(string code, string tier)
     {
-        Assert.Equal(tier, Finding.Tiers[code]);
+        Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
 
     /// <summary>Each new Proof and Governance finding code carries its contracted tier.</summary>
@@ -109,7 +122,7 @@ public sealed class FindingCodesTests
     [InlineData("proof-invalid", "A")]
     public void New_Governance_Codes_Have_Tiers(string code, string tier)
     {
-        Assert.Equal(tier, Finding.Tiers[code]);
+        Assert.Equal(tier, FindingCodes.Of(code).Level);
     }
 
     /// <summary>The backend folder drift code blocks where its reader is qualified.</summary>
@@ -117,15 +130,15 @@ public sealed class FindingCodesTests
     [Fact]
     public void Mark_Folder_Drift_Code_Is_Stack()
     {
-        Assert.Equal("S", Finding.Tiers["mark-folder-drift"]);
+        Assert.Equal("S", FindingCodes.Of("mark-folder-drift").Level);
     }
 
-    /// <summary>Every finding code reads subject-problem with one of the fourteen problem words, beside the D37 proof code.</summary>
+    /// <summary>Every finding code reads subject-problem with one of the problem words.</summary>
     /// <proves>litespec/core/language#name-each-finding-code-by-subject-and-problem</proves>
     [Fact]
     public void Codes_Follow_Subject_Problem_Grammar()
     {
-        var bad = Finding.Tiers.Keys
+        var bad = FindingCodes.All.Select(row => row.Code)
             .Where(code => !FollowsGrammar(code))
             .OrderBy(code => code, StringComparer.Ordinal)
             .ToList();
@@ -165,58 +178,21 @@ public sealed class FindingCodesTests
         return found.ToList();
     }
 
-    /// <summary>The codes in the Checker's exception set, read from its source.</summary>
-    /// <param name="checkerSource">The source text of the checker to scan.</param>
-    /// <returns>The finding codes in the checker exception set.</returns>
-    static IReadOnlyList<string> CheckerCodes(string checkerSource)
-    {
-        var start = checkerSource.IndexOf("Codes = new", StringComparison.Ordinal);
-
-        Assert.True(start >= 0, "Checker.cs carries no exception code set.");
-
-        var open = checkerSource.IndexOf('{', start);
-        var close = checkerSource.IndexOf("};", open, StringComparison.Ordinal);
-
-        Assert.True(open >= 0 && close > open, "Checker.cs carries no exception code set.");
-
-        var block = checkerSource.Substring(open, close - open);
-        var found = new List<string>();
-
-        foreach (Match match in QuotedCode().Matches(block))
-        {
-            found.Add(match.Groups["code"].Value);
-        }
-
-        return found;
-    }
-
-    /// <summary>Whether the code ends with one of the fourteen problem words, or is the D37 proof code.</summary>
+    /// <summary>Whether the code ends with one of the problem words of the finding-code grammar.</summary>
     /// <param name="code">The finding code under test.</param>
     /// <returns>True when the code follows the subject-problem grammar; otherwise false.</returns>
     static bool FollowsGrammar(string code)
     {
-        // D37 names use-case-unverified explicitly; it negates the D38 proof word verified.
-        if (string.Equals(code, "use-case-unverified", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        // The --since run names a breaking contract change contract-break.
-        if (string.Equals(code, "contract-break", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
         var dash = code.LastIndexOf('-');
 
         return dash > 0 && dash < code.Length - 1 && ProblemWords.Contains(code[(dash + 1)..]);
     }
 
-    /// <summary>Gets the fourteen problem words of the finding-code grammar.</summary>
+    /// <summary>Gets the problem words of the finding-code grammar, as the problem-word table on the record language page lists them.</summary>
     static HashSet<string> ProblemWords { get; } = new(StringComparer.Ordinal)
     {
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
-        "drift", "invalid", "duplicate", "clash", "expired",
+        "drift", "invalid", "duplicate", "expired", "unverified", "break",
         "orphaned", "bare", "unused",
     };
 
@@ -235,9 +211,40 @@ public sealed class FindingCodesTests
         throw new InvalidOperationException("The test binary sits outside a LiteSpec checkout.");
     }
 
-    static Regex EmittedCode() =>
-        new("(?:new Finding\\(|Tiered\\()\"(?<code>[a-z0-9]+(?:-[a-z0-9]+)+)\"", RegexOptions.Compiled);
+    /// <summary>Every quoted kebab-case literal in the CLI, model and analyzer sources, outside the code table itself.</summary>
+    /// <param name="repository">The path of the repository root.</param>
+    /// <returns>The literals found.</returns>
+    static HashSet<string> QuotedLiterals(string repository)
+    {
+        var found = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var root in new[] { "cli", "model", "analyzers" }.Select(app => Path.Combine(repository, "apps", app, "src")))
+        {
+            foreach (var file in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
+            {
+                var name = Path.GetFileName(file);
+
+                if (name is "FindingCodes.cs" or "FindingCode.cs"
+                    || file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                    || file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                foreach (Match match in QuotedCode().Matches(File.ReadAllText(file)))
+                {
+                    found.Add(match.Groups["code"].Value);
+                }
+            }
+        }
+
+        return found;
+    }
 
     static Regex QuotedCode() =>
         new("\"(?<code>[a-z0-9]+(?:-[a-z0-9]+)+)\"", RegexOptions.Compiled);
+
+    static Regex EmittedCode() =>
+        new("(?:new Finding\\(|Tiered\\()\"(?<code>[a-z0-9]+(?:-[a-z0-9]+)+)\"", RegexOptions.Compiled);
+
 }

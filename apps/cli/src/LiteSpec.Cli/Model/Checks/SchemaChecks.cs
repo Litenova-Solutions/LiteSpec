@@ -332,7 +332,7 @@ internal static class SchemaChecks
 
         foreach (var code in record.Strings(RecordFields.Covers).Order(StringComparer.Ordinal))
         {
-            if (!Checker.Codes.Contains(code))
+            if (!FindingCodes.IsKnown(code))
             {
                 findings.Add(new Finding("exception-finding-unknown", $"Exception '{record.Id}' names finding code '{code}', which no check emits.", record.File, record.Line, SubjectOf(record)));
             }

@@ -63,7 +63,7 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `product-count-invalid` | G | records | The project holds no single product record. | Write one product record. |
 | `size-type-missing` | G | records | The size requires a type the project lacks. | Add a record of the missing type. |
 | `requirement-fulfillment-missing` | G | records | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. | Fulfill the requirement from a Behavior record, or name a quality requirement from a technical decision in `basedOn`. |
-| `requirement-measure-missing` | G (A for a statement naming a number with no `measure`) | traced | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
+| `requirement-measure-missing` | G | traced | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
 | `requirement-cites-missing` | A | records | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | records | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
 | `intent-unreached` | G | records | An Intent record reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
@@ -79,13 +79,7 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `rule-name-invalid` | G | records | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
 | `exception-expired` | G | records | An exception stands past its expiresOn date. | Fix the finding, or extend the exception with a new expiresOn date. |
 | `exception-finding-unknown` | G | records | An exception names a finding code no check emits. | Name a finding code a check emits. |
-| `use-case-verb-invalid` | G | records | A query opens with a changing verb, or a command opens with a reading verb. | Open the name with a verb of its kind. |
-| `reaction-name-invalid` | G | records | A reaction name is not `<verb>-<what>-on-<fact>` with a declared verb. | Rename the reaction to `<verb>-<what>-on-<fact>` with a declared verb. |
 | `job-name-invalid` | G | records | A job name does not start with the verb of a use case it runs. | Start the job name with the verb of a use case it runs. |
-| `statement-word-invalid` | A | records | A rule statement, scenario step or result meaning uses a word that hides behavior, such as `handle`, `process` or `etc.`. | Replace the vague word with the concrete act. |
-| `value-invalid` | A | records | A record field holds a value that breaks the value style. | Rewrite the value in the value style the finding names. |
-| `use-case-noun-unknown` | A | records | The words after a use case's verb name no aggregate, declared aggregate part, or glossary term. | Name an aggregate, a declared aggregate part, or a glossary term after the verb. |
-| `refusal-code-invalid` | A | records | A refusal code is not `<module>.<noun>-<state>` with the record's module or a declared generic prefix, or it uses a banned vague word. | Rewrite the code as `<module>.<noun>-<state>`, without a vague word. |
 | `template-key-invalid` | A | records | A notification template key ends with no entry of `addresses`. | End the key with an entry of `addresses`. |
 | `setting-unit-missing` | A | records | A setting whose value is a number or a duration declares no `unit`. | Declare the `unit` of the setting. |
 | `integration-event-name-invalid` | G | records | An outbound integration event is named with an internal word such as `staged`, `dispatch` or `outbox`. | Rename the event without the internal word. |
@@ -101,10 +95,9 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `problem-sufferer-invalid` | G | records | A problem names a sufferer outside the actors. | Name a sufferer the actors hold. |
 | `problem-evidence-missing` | G | records | A problem cites no evidence. | Cite the evidence of the problem. |
 | `actor-unused` | A | records | An actor is named by no journey or problem. | Walk the actor in a journey, name it in a problem, or remove the actor. |
-| `feature-goal-missing` | G | records | A feature advances no goal. | Advance a goal from the feature. |
 | `goal-mover-missing` | G | records | No use case moves the goal measure. | Move the measure from a use case. |
 | `term-missing` | A | records | A glossary term appears in no record summary or statement. | Use the term in a summary or statement, or remove it. |
-| `result-scenario-missing` | A (G for success results) | records | A written result is shown by no scenario. | Write a scenario that shows the result. |
+| `result-scenario-missing` | A | records | A written result is shown by no scenario; a success result reports at level G. | Write a scenario that shows the result. |
 | `step-use-case-missing` | G | records | A journey step is served by no use case, reaction or job. Its pair `step-screen-missing` names a step a browser or device use case serves that no screen serves. | Serve the step from a use case, a reaction or a job. |
 | `effect-loop-invalid` | G | records | The effect graph cycles outside a domain event with a stated end condition. | Break the cycle, or route it through a domain event with a stated end condition. |
 | `module-dependency-invalid` | G | records | Module `dependsOn` links form a cycle. | Break the cycle so one module stops depending on the other. |
@@ -115,8 +108,6 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `paging-undeclared` | G | records | A collection query declares no `paging`. | Declare the `paging` of the query. |
 | `widening-cites-missing` | G | records | A query group visible beyond its `reads` names no requirement in `cites`. | Cite the widening requirement in `cites`. |
 | `retention-enforcement-missing` | G | records | A data class names no `enforcedBy`. | Name the enforcement in `enforcedBy`. |
-| `risk-acceptance-missing` | G | records | A retained or exempt personal data class names no `basedOn` in Intent. | Record the acceptance in `basedOn`. |
-| `exemption-expired` | G | records | An erasure exemption passed its `reviewBy` date. | Review the exemption and set a new `reviewBy` date. |
 | `setting-requirement-missing` | G | records | A commercial, legal, or tenant-varying default fulfills no requirement. | Fulfill a requirement from the setting. |
 | `reservation-release-missing` | G | records | A reservation rule names no `releasedBy`, or names never with no reason. | Name the releasing record in `releasedBy`, or never with a reason. |
 | `notification-sender-missing` | G | records | A notification is sent by no reaction, job or use case. | Send the notification from a reaction, a job or a use case. |
@@ -133,8 +124,8 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `constituent-parent-missing` | A | traced | An unmarked Domain type sits in a folder that holds no aggregate root, under no aggregate folder, and outside the shared kernel. | Move the type under its aggregate, or mark it. |
 | `mark-count-invalid` | S | traced | A code element carries more or fewer marks than its kind takes in the marks table, or names one record twice. | Carry the marks the marks table names, each once. |
 | `mark-style-invalid` | S | traced | A C# mark is written in the style the project did not declare. | Rewrite the mark in the declared style. |
-| `mark-folder-drift` | S | full (layout group) | A handler, endpoint, event handler, job host or aggregate root marks a use case, reaction, job or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
-| `code-placement-drift` | S | full (layout group) | A code element, test, or folder sits outside its record's qualified path, or a folder names no declared record. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
+| `mark-folder-drift` | S | full | A handler, endpoint, event handler, job host or aggregate root marks a use case, reaction, job or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
+| `code-placement-drift` | S | full | A code element, test, or folder sits outside its record's qualified path, or a folder names no declared record. | Move the element to the folder its mark names, or point the mark at the record its folder holds. |
 | `runtime-value-drift` | S | traced | A hand-written event `Classification` or exception `Code` differs from what its record states. | Match the value to what the record states. |
 | `act-event-undeclared` | S | traced | A root method marked with a use case raises an event the use case does not list in `raises`. | List the event in `raises`, or stop raising it. |
 | `act-event-unimplemented` | S | traced | A use case lists an event in `raises` that no root method marked with it raises. | Raise the event from a marked root method, or remove it from `raises`. |
@@ -171,9 +162,6 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `source-key-unknown` | A | records | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |
 | `source-unused` | A | records | A research source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
 | `atomic-group-duplicate` | A | records | One command saves more than one atomic write group. | Save one atomic write group per command, or extract a saga. |
-| `use-case-method-drift` | A | traced | A command handler calls aggregate methods, none starting with the use-case verb. | Start an aggregate method with the use-case verb. |
-| `event-tense-invalid` | A | traced | An aggregate method raises an event not ending with the past tense of its verb. | End the event name with the past tense of the method verb. |
-| `name-drift` | A | traced | A message type, operation id or audit action differs from the use-case name. | Match the name to the use-case name. |
 | `operation-id-duplicate` | S | full | Two endpoints declare one operation id, which the API document and every generated client refuse. | Give one endpoint a new operation id. |
 | `operation-use-case-drift` | S | full | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. | Name the endpoint use case in `x-litespec-use-case`, or fix the unreadable contract. |
 | `contract-break` | S | full | A result or refusal code the `--since` base held no longer exists, or an integration event changed since the base. It runs on `check --since` only. | Keep the result, refusal code and integration event the base published. |
@@ -192,15 +180,14 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `dependency-version-drift` | S | full | A direct package ships at a version other than its manifest pin. | Ship the package at its manifest pin. |
 | `dependency-license-unknown` | S | full | A direct package's license is not in `dependencies.licenses` and no `admits` entry names it. | List the license in `dependencies.licenses`, or name the package in an `admits` entry. |
 | `admission-invalid` | G | records | An `admits` entry misses its layer, license, location, account owner, failure behavior, or operating cost. | Complete the `admits` entry with its layer, license, location, account owner, failure behavior, and operating cost. |
-| `route-invalid` | A | traced | A command route ends outside its verb, or a route carries no aggregate plural. | End the command route at its verb and carry the aggregate plural. |
 | `name-reason-missing` | S | traced | A folder or type is named `Shared`, `Common`, `Helper`, `Manager` or the like outside the declared shared kernel. | Rename the folder or type without the shared word, or declare the shared kernel. |
 | `collaborator-repository-invalid` | A | full | A class built with `new` takes a repository in its own constructor. | Stop passing a repository to a class built with `new`. |
 | `repository-read-invalid` | A | full | A repository read sits inside a `for`, `foreach` or `while` body. | Move the repository read out of the loop body. |
 | `query-filter-invalid` | A | traced | A query handler filters a repository list with LINQ in memory. | Filter in the repository instead of in memory. |
-| `dependency-count-invalid` | A | traced | A handler, reaction or job takes more than ten constructor dependencies. | Split the handler, reaction, or job until it takes ten dependencies or fewer. |
 | `effect-timing-invalid` | S | records | A command use case declares a `sends` or `calls` effect with `inline` timing. | Send or call after the commit, from an event handler or a job. |
 | `partial-missing` | S | full | A marked domain event or rule exception is not declared `partial`, so the generator cannot add its runtime value. | Declare the domain event or rule exception `partial`. |
 | `project-invalid` | G | records | The project file breaks the project schema, holds an unfilled template placeholder, or names a release other than the installed tool release. | Write the project file in the declared shape and adopt the installed release. |
+| `release-drift` | G | records | The project file names no reviewed LiteSpec release, or a release other than the installed tool release. | Install the reviewed release, or review the installed release and record it in reviewedLiteSpecVersion. |
 | `project-path-invalid` | G | records | A configured path is not a path, names no file, or the page scan finds no record or Markdown file. | Point the path at a file that exists. |
 | `stack-invalid` | G | records | A named stack ships in no pinned release, a client-only project names a backend stack, the backends are not exactly one, a stack requirement is unnamed, or a frontend stack pairs with the wrong backend. | Name the stacks the pinned release ships, in a valid combination. |
 | `extension-invalid` | G | records | A selected extension ships in no pinned release, or supports a stack the project does not name. | Name an extension the pinned release ships for the selected stacks. |
@@ -208,7 +195,7 @@ Every finding code also has a conformance level: the lowest claimed level that r
 | `page-invalid` | G | records | A record file holds a document type or an article type without its explanation file, or a Markdown file is neither an explanation beside its record nor a document with a frontmatter block. | Keep records in record files with their explanations beside them, and open every document with a frontmatter block. |
 | `page-section-missing` | G | records | A research or decision explanation, or a document, lacks a required H2 section. | Add the required H2 section. |
 | `page-heading-invalid` | G | records | A page title or section heading breaks Title Case. | Write the heading in Title Case. |
-| `page-example-too-long` | G | records | An Example section runs past the 120 word bound. | Shorten the Example section to 120 words. |
+| `page-example-invalid` | G | records | An Example section runs past the 120 word bound. | Shorten the Example section to 120 words. |
 | `glossary-invalid` | G | records | The glossary is not YAML or breaks the glossary schema. | Write the glossary in the declared shape. |
 | `frontend-invalid` | G | records | A declared frontend path names no file, or the controlled UI run fails. | Point the frontend path at a folder that exists. |
 | `ui-package-invalid` | G | full | No shared UI package is declared for the controlled frontends, or the declaration is incomplete or points outside the package. | Declare one shared package with every key pointing inside it. |

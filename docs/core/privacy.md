@@ -68,7 +68,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Statement:** Each personal or sensitive data class kept with `pseudonymize`, `retain`, or `exempt` MUST name the Intent requirements or decisions accepting it in `basedOn`.
 
-**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming those requirements or decisions in `basedOn` keeps the keeping reviewable where the promise lives. The `risk-acceptance-missing` check reports a pseudonymized, retained, or exempt personal or sensitive class with no Intent acceptance.
+**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming those requirements or decisions in `basedOn` keeps the keeping reviewable where the promise lives.
 
 **Reviewed for:** Which pseudonymized, retained, or exempt personal or sensitive classes name no accepting requirement or decision? Look at `basedOn` on each data class.
 

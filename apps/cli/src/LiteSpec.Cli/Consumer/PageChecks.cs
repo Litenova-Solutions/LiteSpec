@@ -346,7 +346,7 @@ static class PageChecks
             if (words > ExampleLimit)
             {
                 add(new Finding(
-                    "page-example-too-long",
+                    "page-example-invalid",
                     $"Example section has {words} words, over the {ExampleLimit} word bound",
                     file,
                     ExampleLine(lines),

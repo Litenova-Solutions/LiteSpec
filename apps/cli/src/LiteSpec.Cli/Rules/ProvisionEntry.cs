@@ -89,7 +89,7 @@ internal sealed record ProvisionEntry(
             {
                 var token = match.Groups[1].Value.Trim();
 
-                if ((AnalyzerId.IsMatch(token) || DiagnosticId.IsMatch(token) || Finding.Tiers.ContainsKey(token))
+                if ((AnalyzerId.IsMatch(token) || DiagnosticId.IsMatch(token) || FindingCodes.IsKnown(token))
                     && !codes.Contains(token, StringComparer.Ordinal))
                 {
                     codes.Add(token);

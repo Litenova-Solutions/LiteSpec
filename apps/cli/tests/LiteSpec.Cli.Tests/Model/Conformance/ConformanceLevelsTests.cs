@@ -5,19 +5,6 @@ namespace LiteSpec.Tests.Model.Conformance;
 /// <summary>Proves the lowest level of each finding code follows what its check reads.</summary>
 public sealed class ConformanceLevelsTests
 {
-    /// <summary>Every checker code takes a level, so no code is silent below full by accident.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
-    [Fact]
-    public void Every_Checker_Code_Has_A_Lowest_Level()
-    {
-        var missing = Checker.Codes
-            .Where(code => !ConformanceLevels.Lowest.ContainsKey(code))
-            .OrderBy(code => code, StringComparer.Ordinal)
-            .ToList();
-
-        Assert.Empty(missing);
-    }
-
     /// <summary>The layout group holds the two code layout codes, each running only at full.</summary>
     /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
     [Fact]
