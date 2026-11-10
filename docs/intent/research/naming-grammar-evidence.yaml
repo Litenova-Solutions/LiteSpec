@@ -8,7 +8,7 @@ sources:
   - url: https://github.com/cloudevents/spec
     readOn: 2026-10-31
     key: github-cloudevents-spec
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
   - path: docs/intent/research/field-naming-evidence.md
@@ -17,7 +17,7 @@ sources:
   - path: docs/core/model.md
     readOn: 2026-10-31
     key: model
-  - path: schemas/glossary.schema.json
+  - path: schemas/glossary.schema.yaml
     readOn: 2026-10-31
     key: glossary-schema
 question: What does the 248-field inventory show about name collisions and value shapes, and which grammar follows from it?

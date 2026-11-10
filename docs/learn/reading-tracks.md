@@ -2,7 +2,7 @@
 
 ## Intent
 
-A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [Records and the Project Model](records-and-the-model.md), before they open their first record.
+A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [How LiteSpec Works](how-litespec-works.md), before they open their first record.
 
 ## Why Before How
 
@@ -71,7 +71,7 @@ Every record uses the same structural words: the record types, the links between
 | external system | One outside system the product talks to, with its operations and erasure. |
 | retention schedule | When each data class is erased and what enforces it. |
 | runbook | What to do when a trigger fires. |
-| exception | One departure from a provision, or one check staying red, with a reason and an expiry date. |
+| departure | One set-aside for a provision, page, or finding code, with a reason and an exit. |
 
 ### Links
 
@@ -99,7 +99,7 @@ Every record uses the same structural words: the record types, the links between
 
 | Word | What It Tells the Reader |
 |:---|:---|
-| implemented | The builder found code for it. |
+| coded | The builder found code for it. |
 | verified | A use case whose every scenario has a passing proof. |
 | reachable | A transition leads into the state. |
 | command, query | The two use case kinds: change, ask. |
@@ -109,6 +109,7 @@ Every record uses the same structural words: the record types, the links between
 | scheduled, one-off, manual | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |
 | atomic, per-record, compensated | The three consistency modes. |
+| unfulfilled, specified, coded, verified | The four completion stages, from no fulfiller to every scenario verified. |
 
 ## Which Track to Take
 
@@ -116,4 +117,4 @@ A product person takes the journey track: one goal at a time, from promises to p
 
 ## Next
 
-[How the Tools Fit Together](the-tooling.md) explains when each tool runs on the records these tracks walk through.
+[How LiteSpec Works](how-litespec-works.md) explains when each tool runs on the records these tracks walk through.

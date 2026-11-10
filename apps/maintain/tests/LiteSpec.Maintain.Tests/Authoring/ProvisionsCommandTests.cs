@@ -1,8 +1,8 @@
 using System.Text.Json;
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Tests for <c>litespec-maintain provisions</c>.</summary>
 public sealed class ProvisionsCommandTests
@@ -58,7 +58,7 @@ public sealed class ProvisionsCommandTests
         StandardsFixture.Base(temp.Path);
         var index = Provisions.BuildIndex(temp.Path);
 
-        Assert.Contains("| ID | Provision | Kind | Stack | Layer | Artifact | Conformance | Strength | Mark | Evidence |", index);
+        Assert.Contains("| ID | Provision | Kind | Stack | Concern | Artifact | Layer | Trace | Strength | Mark | Evidence |", index);
         Assert.Contains("The active release states 5 provisions in 4 groups across 4 areas.", index);
         Assert.Contains("## Checked Share by Page", index);
         Assert.Contains("| Page | Rules | Checked | Checked Share |", index);
@@ -68,12 +68,12 @@ public sealed class ProvisionsCommandTests
         Assert.Contains("| [frontend/patterns/sample](../frontend/patterns/sample.md) | 0 | 0 | - |", index);
         Assert.Contains("litespec/core/topic#keep-the-topic-bounded", index);
         Assert.Contains("litespec/core/topic#use-the-default-location", index);
-        Assert.Contains("| litespec/core/topic#keep-the-topic-bounded | [Keep the Topic Bounded](../core/topic.md#keep-the-topic-bounded) | rule | any | records | - | records | rule | checkable | `litespec-maintain validate` confirms the topic stays inside its declared boundary. |", index);
-        Assert.Contains("| litespec/core/topic#use-the-default-location | [Use the Default Location](../core/topic.md#use-the-default-location) | convention | any | records | - | records | default | guidance | Does the topic live in its owning documentation area? |", index);
+        Assert.Contains("| litespec/core/topic#keep-the-topic-bounded | [Keep the Topic Bounded](../core/topic.md#keep-the-topic-bounded) | rule | any | records | - | any | no | required | checkable | `litespec-maintain validate` confirms the topic stays inside its declared boundary. |", index);
+        Assert.Contains("| litespec/core/topic#use-the-default-location | [Use the Default Location](../core/topic.md#use-the-default-location) | convention | any | records | - | any | no | default | guidance | Does the topic live in its owning documentation area? |", index);
         Assert.Contains("[Keep the Topic Bounded](../core/topic.md#keep-the-topic-bounded)", index);
-        Assert.Contains("| litespec/backend/sample/stack#apply-the-complete-stack | [Apply the Complete Stack](../backend/sample/stack.md#apply-the-complete-stack) | rule | dotnet | domain | - | full | rule |", index);
-        Assert.Contains("| litespec/ext/sample#record-extension-activation | [Record Extension Activation](../ext/sample.md#record-extension-activation) | rule | any | operations | - | full | rule |", index);
-        Assert.Contains("| litespec/frontend/patterns/sample#record-header | [Record Header](../frontend/patterns/sample.md#record-header) | pattern | any | frontend-ui | - | full | default |", index);
+        Assert.Contains("| litespec/backend/sample/stack#apply-the-complete-stack | [Apply the Complete Stack](../backend/sample/stack.md#apply-the-complete-stack) | rule | dotnet | domain | - | implementation | no | required |", index);
+        Assert.Contains("| litespec/ext/sample#record-extension-activation | [Record Extension Activation](../ext/sample.md#record-extension-activation) | rule | any | operations | - | implementation | no | required |", index);
+        Assert.Contains("| litespec/frontend/patterns/sample#record-header | [Record Header](../frontend/patterns/sample.md#record-header) | pattern | any | frontend-ui | - | implementation | no | default |", index);
 
         var standard = index.IndexOf("## Standard", StringComparison.Ordinal);
         var reference = index.IndexOf("## Reference", StringComparison.Ordinal);
@@ -104,9 +104,10 @@ public sealed class ProvisionsCommandTests
 
         var json = Provisions.BuildJson(temp.Path);
         var artifactAt = json.IndexOf("\"artifact\"", StringComparison.Ordinal);
-        var conformanceAt = json.IndexOf("\"conformance\"", StringComparison.Ordinal);
+        var layerAt = json.IndexOf("\"layer\"", StringComparison.Ordinal);
+        var traceAt = json.IndexOf("\"trace\"", StringComparison.Ordinal);
         var strengthAt = json.IndexOf("\"strength\"", StringComparison.Ordinal);
-        Assert.True(artifactAt >= 0 && conformanceAt > artifactAt && strengthAt > conformanceAt);
+        Assert.True(artifactAt >= 0 && layerAt > artifactAt && traceAt > layerAt && strengthAt > traceAt);
 
         var first = provisions[0];
         Assert.Equal("litespec/backend/sample/stack#apply-the-complete-stack", first.GetProperty("id").GetString());
@@ -115,10 +116,11 @@ public sealed class ProvisionsCommandTests
         Assert.Equal("apply-the-complete-stack", first.GetProperty("anchor").GetString());
         Assert.Equal("rule", first.GetProperty("kind").GetString());
         Assert.Equal("dotnet", first.GetProperty("stack").GetString());
-        Assert.Equal("domain", first.GetProperty("layer").GetString());
+        Assert.Equal("domain", first.GetProperty("concern").GetString());
         Assert.Equal("", first.GetProperty("artifact").GetString());
-        Assert.Equal("full", first.GetProperty("conformance").GetString());
-        Assert.Equal("rule", first.GetProperty("strength").GetString());
+        Assert.Equal("implementation", first.GetProperty("layer").GetString());
+        Assert.False(first.GetProperty("trace").GetBoolean());
+        Assert.Equal("required", first.GetProperty("strength").GetString());
         Assert.Equal("Consumers MUST apply every document in the selected stack composition.", first.GetProperty("statement").GetString());
         Assert.Equal("", first.GetProperty("rationale").GetString());
         Assert.Equal("", first.GetProperty("example").GetString());
@@ -127,57 +129,59 @@ public sealed class ProvisionsCommandTests
         var second = provisions[1];
         Assert.Equal("litespec/core/topic#keep-the-topic-bounded", second.GetProperty("id").GetString());
         Assert.Equal("any", second.GetProperty("stack").GetString());
-        Assert.Equal("records", second.GetProperty("layer").GetString());
-        Assert.Equal("records", second.GetProperty("conformance").GetString());
+        Assert.Equal("records", second.GetProperty("concern").GetString());
+        Assert.Equal("any", second.GetProperty("layer").GetString());
+        Assert.False(second.GetProperty("trace").GetBoolean());
         Assert.Equal("Consumers MUST keep the topic inside its declared boundary.", second.GetProperty("statement").GetString());
         Assert.Equal("The boundary gives reviewers one testable result.", second.GetProperty("rationale").GetString());
     }
-
-    /// <summary>Page conformance comes from its folder.</summary>
-    /// <proves>litespec/core/scopes#give-every-provision-a-conformance-level</proves>
-    [Fact(DisplayName = "page conformance comes from its folder")]
-    public void PageConformanceComesFromFolder()
+    /// <summary>Page layer comes from the page table.</summary>
+    /// <proves>litespec/core/scopes#give-every-provision-its-layer-and-trace</proves>
+    [Fact(DisplayName = "page layer comes from the page table")]
+    public void PageLayerComesFromTable()
     {
-        Assert.Equal("records", Provisions.PageConformance("docs/core/model.md"));
-        Assert.Equal("records", Provisions.PageConformance("docs/core/scopes.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/backend/api.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/backend/dotnet/stack.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/frontend/web/react/stack.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/workspace/structure.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/quality/ci.md"));
-        Assert.Equal("full", Provisions.PageConformance("docs/ext/sample.md"));
-        Assert.Equal("", Provisions.PageConformance("templates/sample.md"));
+        Assert.Equal("any", Provisions.PageLayer("docs/core/model.md", []));
+        Assert.Equal("intent", Provisions.PageLayer("docs/core/intent.md", []));
+        Assert.Equal("behavior", Provisions.PageLayer("docs/core/access.md", []));
+        Assert.Equal("implementation", Provisions.PageLayer("docs/core/release.md", ["operations"]));
+        Assert.Equal("implementation", Provisions.PageLayer("docs/backend/api.md", ["web-api"]));
+        Assert.Equal("implementation", Provisions.PageLayer("docs/ext/sample.md", ["operations"]));
+        Assert.Equal("proof", Provisions.PageLayer("docs/backend/testing.md", ["tests"]));
+        Assert.Equal("", Provisions.PageLayer("templates/sample.md", []));
     }
 
-    /// <summary>Provision conformance override wins over its page.</summary>
-    /// <proves>litespec/core/scopes#give-every-provision-a-conformance-level</proves>
-    [Fact(DisplayName = "provision conformance override wins over its page")]
-    public void ProvisionConformanceOverrideWins()
+    /// <summary>Provision layer and trace override win over its page.</summary>
+    /// <proves>litespec/core/scopes#give-every-provision-its-layer-and-trace</proves>
+    [Fact(DisplayName = "provision layer and trace override win over its page")]
+    public void ProvisionLayerOverrideWins()
     {
         using var temp = Cli.Temp("provisions");
         StandardsFixture.Base(temp.Path);
-        StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** conformance: traced\n\n**Statement:**"));
+        StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** layer: behavior; trace: yes\n\n**Statement:**"));
 
         var rows = Provisions.Collect(temp.Path);
         var row = Assert.Single(rows, item => item.Id == "litespec/core/topic#keep-the-topic-bounded");
-        Assert.Equal("traced", row.Conformance);
-        Assert.Contains("\"conformance\": \"traced\"", Provisions.BuildJson(temp.Path));
-        Assert.Contains("| - | traced | rule | checkable |", Provisions.BuildIndex(temp.Path));
+        Assert.Equal("behavior", row.Layer);
+        Assert.True(row.Trace);
+        Assert.Contains("\"trace\": true", Provisions.BuildJson(temp.Path));
+        Assert.Contains("| behavior | yes | required | checkable |", Provisions.BuildIndex(temp.Path));
     }
 
-    /// <summary>Provision conformance override beside an artifact field.</summary>
-    /// <proves>litespec/core/scopes#give-every-provision-a-conformance-level</proves>
-    [Fact(DisplayName = "provision conformance override beside an artifact field")]
-    public void ProvisionConformanceOverrideBesideArtifact()
+    /// <summary>Provision layer override beside an artifact field.</summary>
+    /// <proves>litespec/core/scopes#give-every-provision-its-layer-and-trace</proves>
+    [Fact(DisplayName = "provision layer override beside an artifact field")]
+    public void ProvisionLayerOverrideBesideArtifact()
     {
         using var temp = Cli.Temp("provisions");
         StandardsFixture.Base(temp.Path);
-        StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** rule\n\n**Statement:**", "**Strength:** rule\n\n**Applies to:** artifact: aggregate; conformance: traced\n\n**Statement:**"));
+        StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate; layer: implementation; trace: yes\n\n**Statement:**"));
 
         var row = Assert.Single(Provisions.Collect(temp.Path), item => item.Id == "litespec/core/topic#keep-the-topic-bounded");
         Assert.Equal("aggregate", row.Artifact);
-        Assert.Equal("traced", row.Conformance);
+        Assert.Equal("implementation", row.Layer);
+        Assert.True(row.Trace);
     }
+
 
     /// <summary>Checked share counts only rules with a Checked by line.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>

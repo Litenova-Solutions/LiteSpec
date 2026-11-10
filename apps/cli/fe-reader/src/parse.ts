@@ -6,9 +6,9 @@
 
 import { parse as parseSvelteComponent } from "svelte/compiler";
 import * as ts from "typescript";
-import { withCache } from "./cache.js";
-import { readText } from "./files.js";
-import { ReaderContext } from "./protocol.js";
+import { withCache } from "./cache";
+import { readText } from "./files";
+import { ReaderContext } from "./protocol";
 
 const parseSvelte = parseSvelteComponent as unknown as (source: string, options: { modern: boolean }) => unknown;
 

@@ -5,26 +5,26 @@ using LiteSpec.Model;
 namespace LiteSpec.Rules;
 
 /// <summary>
-///     The departure exceptions: exception records of kind <c>departure</c> whose
-///     covers names the provision they replace, with the subject records or paths
-///     they replace it on. A live departure shows in place of its provision.
+///     The departures: departure records under <c>.litespec/governance/departures/</c> whose
+///     covers names the provisions, pages or finding codes they replace, with the subject records
+///     or paths they replace them on. A live departure shows in place of the provisions it covers.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal sealed class DepartureStore
 {
-    /// <summary>One live departure exception.</summary>
-    /// <param name="Id">The exception identifier.</param>
-    /// <param name="Title">The exception title.</param>
-    /// <param name="Covers">The provision identifier the departure replaces.</param>
+    /// <summary>One live departure.</summary>
+    /// <param name="Id">The departure identifier.</param>
+    /// <param name="Title">The departure title.</param>
+    /// <param name="Covers">The provision identifiers, page identifiers and finding codes the departure names.</param>
     /// <param name="Subject">The record identifiers the departure covers.</param>
     /// <param name="Paths">The path globs the departure covers.</param>
     /// <param name="Reason">Why the departure stands.</param>
     /// <param name="Consequences">What the departure changes.</param>
-    /// <param name="ExpiresOn">The expiry date text.</param>
+    /// <param name="ExpiresOn">The expiry date text, or empty for a lasting departure.</param>
     internal sealed record Departure(
         string Id,
         string Title,
-        string Covers,
+        IReadOnlyList<string> Covers,
         IReadOnlyList<string> Subject,
         IReadOnlyList<string> Paths,
         string Reason,
@@ -33,7 +33,7 @@ internal sealed class DepartureStore
 
     /// <summary>Loads every live departure under the consumer's record roots.</summary>
     /// <param name="config">The consumer configuration.</param>
-    /// <param name="today">Today's date: a departure past it no longer replaces.</param>
+    /// <param name="today">Today's date: a departure past its expiry date no longer replaces.</param>
     /// <returns>The live departures in identifier order.</returns>
     public static IReadOnlyList<Departure> Load(ConsumerConfig config, DateOnly today)
     {
@@ -50,10 +50,10 @@ internal sealed class DepartureStore
 
             foreach (var file in Directory.GetFiles(folder, "*.yaml", SearchOption.AllDirectories).OrderBy(name => name, StringComparer.Ordinal))
             {
-                var relative = Path.GetRelativePath(folder, file).Replace(Path.DirectorySeparatorChar, '/');
+                var relative = PathText.Relative(folder, file);
 
-                if (!relative.StartsWith("exceptions/", StringComparison.Ordinal)
-                    && !relative.Contains("/exceptions/", StringComparison.Ordinal))
+                if (!relative.StartsWith("departures/", StringComparison.Ordinal)
+                    && !relative.Contains("/departures/", StringComparison.Ordinal))
                 {
                     continue;
                 }
@@ -69,7 +69,21 @@ internal sealed class DepartureStore
         return departures;
     }
 
-    /// <summary>Whether the departure covers the target.</summary>
+    /// <summary>Whether the departure names the provision: its identifier, its page, or a finding code the provision's checking line names.</summary>
+    /// <param name="departure">The departure.</param>
+    /// <param name="entry">The provision.</param>
+    /// <returns>True when a covers item names the provision, its page or one of its checked codes.</returns>
+    public static bool Names(Departure departure, ProvisionEntry entry)
+    {
+        var page = entry.Id.Split('#')[0];
+
+        return departure.Covers.Any(cover =>
+            string.Equals(cover, entry.Id, StringComparison.Ordinal)
+            || string.Equals(cover, page, StringComparison.Ordinal)
+            || entry.CheckedCodes.Contains(cover, StringComparer.Ordinal));
+    }
+
+    /// <summary>Whether the departure covers the target on its subject records or paths.</summary>
     /// <param name="departure">The departure.</param>
     /// <param name="target">The rules target.</param>
     /// <param name="candidates">The target's path spellings for glob matching.</param>
@@ -92,8 +106,8 @@ internal sealed class DepartureStore
         return departure.Paths.Any(glob => candidates.Any(candidate => Glob.Matches(glob, candidate)));
     }
 
-    /// <summary>Reads one exception file.</summary>
-    /// <param name="file">The exception file.</param>
+    /// <summary>Reads one departure file.</summary>
+    /// <param name="file">The departure file.</param>
     /// <param name="today">Today's date.</param>
     /// <returns>The departure, or null when the file holds no live departure.</returns>
     static Departure? Read(string file, DateOnly today)
@@ -114,17 +128,15 @@ internal sealed class DepartureStore
             return null;
         }
 
-        if (root.ValueKind != JsonValueKind.Object
-            || Text(root, "type") != "exception"
-            || Text(root, "kind") != "departure")
+        if (root.ValueKind != JsonValueKind.Object || Text(root, "type") != "departure")
         {
             return null;
         }
 
         var id = Text(root, "id");
-        var covers = Text(root, "covers");
+        var covers = Items(root, "covers");
 
-        if (id.Length == 0 || covers.Length == 0)
+        if (id.Length == 0 || covers.Count == 0)
         {
             return null;
         }

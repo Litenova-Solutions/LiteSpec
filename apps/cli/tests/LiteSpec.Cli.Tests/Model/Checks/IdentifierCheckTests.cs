@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the identifier drift checks: a module home matches its folder, a name is used once, and a decision number is used once, at tier G.</summary>
 public sealed class IdentifierCheckTests
@@ -9,9 +9,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Use Case In Its Module Passes.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Use_Case_In_Its_Module_Passes()
+    public void UseCaseInItsModulePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -23,9 +23,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Use Case In Another Module Reports.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Use_Case_In_Another_Module_Reports()
+    public void UseCaseInAnotherModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -41,9 +41,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Aggregate In Another Module Reports.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Aggregate_In_Another_Module_Reports()
+    public void AggregateInAnotherModuleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -65,9 +65,9 @@ public sealed class IdentifierCheckTests
     [InlineData("job", "job/lending.scan-due")]
     [InlineData("notification", "notification/lending.loan-due")]
     [InlineData("setting", "setting/lending.max-renewals")]
-    public void Module_Scoped_Record_In_Another_Module_Reports(string type, string id)
+    public void ModuleScopedRecordInAnotherModuleReports(string type, string id)
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -84,9 +84,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Rule Keeps Its Segment.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Rule_Keeps_Its_Segment()
+    public void RuleKeepsItsSegment()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -100,9 +100,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Undeclared Home Stays Parent Missing.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Undeclared_Home_Stays_Parent_Missing()
+    public void UndeclaredHomeStaysParentMissing()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -115,9 +115,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Undeclared Folder Stays Silent.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Undeclared_Folder_Stays_Silent()
+    public void UndeclaredFolderStaysSilent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -129,9 +129,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Record Outside Modules Stays Silent.</summary>
     /// <proves>litespec/core/model#move-each-identifier-with-its-module</proves>
     [Fact]
-    public void Record_Outside_Modules_Stays_Silent()
+    public void RecordOutsideModulesStaysSilent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, "lending.yaml"), """{"dependsOn": []}"""),
@@ -143,9 +143,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Distinct Names Pass.</summary>
     /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
     [Fact]
-    public void Distinct_Names_Pass()
+    public void DistinctNamesPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""),
@@ -157,9 +157,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Use Case Name Reused Reports.</summary>
     /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
     [Fact]
-    public void Use_Case_Name_Reused_Reports()
+    public void UseCaseNameReusedReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -177,9 +177,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Aggregate Name Reused Reports.</summary>
     /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
     [Fact]
-    public void Aggregate_Name_Reused_Reports()
+    public void AggregateNameReusedReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -197,9 +197,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Same Name Across Types Passes.</summary>
     /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
     [Fact]
-    public void Same_Name_Across_Types_Passes()
+    public void SameNameAcrossTypesPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
@@ -212,9 +212,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Same Identifier Twice Stays Identifier Duplicate.</summary>
     /// <proves>litespec/core/model#keep-each-name-unique-in-the-product</proves>
     [Fact]
-    public void Same_Identifier_Twice_Stays_Identifier_Duplicate()
+    public void SameIdentifierTwiceStaysIdentifierDuplicate()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "permissions.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -228,9 +228,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Distinct Numbers Pass.</summary>
     /// <proves>litespec/core/model#take-decision-numbers-from-one-sequence</proves>
     [Fact]
-    public void Distinct_Numbers_Pass()
+    public void DistinctNumbersPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
@@ -242,9 +242,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Number Reused Reports.</summary>
     /// <proves>litespec/core/model#take-decision-numbers-from-one-sequence</proves>
     [Fact]
-    public void Number_Reused_Reports()
+    public void NumberReusedReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "loan.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
@@ -260,9 +260,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Number Reused Across Folders Reports.</summary>
     /// <proves>litespec/core/model#take-decision-numbers-from-one-sequence</proves>
     [Fact]
-    public void Number_Reused_Across_Folders_Reports()
+    public void NumberReusedAcrossFoldersReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""),
@@ -275,9 +275,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Same Decision Twice Stays Identifier Duplicate.</summary>
     /// <proves>litespec/core/model#take-decision-numbers-from-one-sequence</proves>
     [Fact]
-    public void Same_Decision_Twice_Stays_Identifier_Duplicate()
+    public void SameDecisionTwiceStaysIdentifierDuplicate()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "decisions.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -291,9 +291,9 @@ public sealed class IdentifierCheckTests
     /// <summary>Decision Without Number Stays Identifier Invalid.</summary>
     /// <proves>litespec/core/model#take-decision-numbers-from-one-sequence</proves>
     [Fact]
-    public void Decision_Without_Number_Stays_Identifier_Invalid()
+    public void DecisionWithoutNumberStaysIdentifierInvalid()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"decides": ["requirement/borrowing.loan-period-days"]}"""));

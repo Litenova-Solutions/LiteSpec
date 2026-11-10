@@ -19,7 +19,7 @@
   <section aria-label="Implementation" class="mt-3 mb-6">
     <h3 class="mb-2.5 flex items-center gap-2 text-xs font-semibold tracking-[0.06em] uppercase">
       <Icon name="code" class="size-3.5" />
-      <button type="button" data-explain="implemented" class="uppercase">Implementation</button>
+      <button type="button" data-explain="coded" class="uppercase">Implementation</button>
       <span class="ml-auto font-mono text-[11px] font-normal tracking-normal text-muted-foreground">{list.length}</span>
     </h3>
     {#if !list.length}

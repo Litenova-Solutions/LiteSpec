@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -18,9 +18,9 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 ### Versions and Replacements
 
-Every SDK, framework, and package version resolves from `litespec.manifest.json`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
+Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
 
-When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure is recorded as an exception whose `covers` names the provision it replaces; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure names the provision it replaces in `covers`; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
 ### Selection Diagnostics
 
@@ -39,7 +39,7 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#apply-the-complete-stack`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer selecting a stack MUST apply the pages in its folder, every folder above it, and their subfolders that hold no stack.
 
@@ -51,23 +51,23 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **ID:** `litespec/core/stacks#use-manifest-version-pins`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.json`.
+**Statement:** A consumer MUST resolve every SDK, framework, and package version from `litespec.manifest.yaml`.
 
 **Rationale:** The manifest owns every pin, so resolving versions anywhere else produces builds the standard never described. A version copied from prose, an example, a package search, or agent memory drifts from the pin with the next edit. One resolution source keeps every consumer on the same tested combination.
 
-**Reviewed for:** Each resolved SDK, framework, and package version matches its pin in `litespec.manifest.json`.
+**Reviewed for:** Each resolved SDK, framework, and package version matches its pin in `litespec.manifest.yaml`.
 
 ### Declare Replacements
 
 **ID:** `litespec/core/stacks#declare-replacements`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An extension or a departure MUST name every baseline provision ID it replaces.
 
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure is recorded as an exception whose `covers` names the provision, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure names the provision in `covers`, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
 
 **Reviewed for:** Each extension or departure names every baseline provision ID it replaces, with the rest staying active.
 
@@ -79,10 +79,10 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **Strength:** default
 
-**Default:** Name each selected stack in `.litespec/project.json` and the solution, applications, and commands in the root `AGENTS.md`.
+**Default:** Name each selected stack in `.litespec/project.yaml` and the solution, applications, and commands in the root `AGENTS.md`.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Naming each selected stack in `.litespec/project.json` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
+**Rationale:** Naming each selected stack in `.litespec/project.yaml` with the solution, applications, and commands in the root `AGENTS.md` lets an agent resolve the project placeholders directly. Inferring the selection from the directory tree fails whenever folders outnumber stacks or names overlap. Visible selection also tells a human reader what the project runs before opening any code.
 
-**Reviewed for:** `.litespec/project.json` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.
+**Reviewed for:** `.litespec/project.yaml` names each selected stack, and the root `AGENTS.md` names the solution, applications, and commands.

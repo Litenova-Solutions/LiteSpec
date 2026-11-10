@@ -13,10 +13,10 @@ updates:
           - "minor"
           - "patch"
 
+  # One pnpm workspace at the root holds the site, the book client and the frontend reader, with one
+  # lockfile and the shared versions in its catalog, so the root is the one directory to watch.
   - package-ecosystem: "npm"
-    directories:
-      - "/apps/site"
-      - "/apps/cli/fe-reader"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -40,3 +40,11 @@ updates:
         update-types:
           - "minor"
           - "patch"
+
+  # The SDK in global.json sets the ILCompiler and runtime packs the native CLI builds with,
+  # and NuGet audit fails a build on an SDK with a published advisory, so the SDK stays patched.
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"

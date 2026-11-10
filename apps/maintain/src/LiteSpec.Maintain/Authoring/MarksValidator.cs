@@ -92,8 +92,8 @@ internal sealed class MarksValidator
                 continue;
             }
 
-            var tree = CSharpSyntaxTree.ParseText(ReadText(file));
-            trees.Add((file, Slash(Path.GetRelativePath(root, file)), tree));
+            var tree = CSharpSyntaxTree.ParseText(FileText.ReadText(file));
+            trees.Add((file, PathText.Relative(root, file), tree));
             foreach (var node in TopLevelClasses(tree))
             {
                 if (HasFollowsMark(node))
@@ -116,7 +116,7 @@ internal sealed class MarksValidator
                         && !HasGeneratedCode(node))
                     {
                         var line = node.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
-                        add(relative, line, "MARK_MISSING", $"class '{node.Identifier.Text}' declares a method and carries no follows mark");
+                        add(relative, line, Diagnostics.Codes.MarkMissing, $"class '{node.Identifier.Text}' declares a method and carries no follows mark");
                     }
                 }
             }
@@ -127,7 +127,7 @@ internal sealed class MarksValidator
                 {
                     if (mark.Verb is MarkVerb.Follows or MarkVerb.Proves && !provisionIds.Contains(mark.RecordId))
                     {
-                        add(relative, mark.Line, "MARK_UNRESOLVED", $"mark names '{mark.RecordId}', which is no provision in docs/reference/provisions.md");
+                        add(relative, mark.Line, Diagnostics.Codes.MarkUnresolved, $"mark names '{mark.RecordId}', which is no provision in docs/reference/provisions.md");
                     }
                 }
             }

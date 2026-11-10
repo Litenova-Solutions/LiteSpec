@@ -10,7 +10,7 @@ namespace LiteSpec.Authoring;
 ///     one document from the template for a document style. A decision takes
 ///     the next free number from the one decision sequence.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
 static class NewCommand
 {
     /// <summary>The command's usage text.</summary>
@@ -97,9 +97,7 @@ static class NewCommand
 
         if (parsed.Error is not null)
         {
-            Console.Error.WriteLine(parsed.Error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
         if (parsed.Positionals is [var first, ..] && first is "result" or "scenario")
@@ -114,9 +112,7 @@ static class NewCommand
 
         if (parsed.Positionals is not [var type, var id])
         {
-            Console.Error.WriteLine("New needs a type and an id, or a document style and a name.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError("New needs a type and an id, or a document style and a name.", Usage, json: false);
         }
 
         foreach (var option in new[] { "--code", "--outcome", "--result" })
@@ -168,6 +164,11 @@ static class NewCommand
                 return 2;
             }
 
+            if (type == "feature" && homeName is null)
+            {
+                return LastResort.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
+            }
+
             if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
             {
                 Console.Error.WriteLine(grammar);
@@ -199,31 +200,18 @@ static class NewCommand
             name = "";
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return openExit;
         }
 
-        ConsumerConfig config;
         IReadOnlyList<Record> records;
 
         try
         {
-            config = ConsumerConfig.Load(root);
             records = RecordReader.Read(config).Records;
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
@@ -248,7 +236,7 @@ static class NewCommand
 
         if (holder is not null)
         {
-            Console.Error.WriteLine($"Identifier '{full}' is already taken by {config.Relative(holder.File)}.");
+            Console.Error.WriteLine($"Identifier '{full}' is already taken by {PathText.Relative(config.Root, holder.File)}.");
             return 2;
         }
 
@@ -265,7 +253,7 @@ static class NewCommand
             return 1;
         }
 
-        if (JsonNode.Parse(tree.ToJson()) is not JsonObject node)
+        if (RecordFile.NodeOf(tree) is not JsonObject node)
         {
             Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}.");
             return 1;
@@ -292,7 +280,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{config.Relative(target)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -300,7 +288,7 @@ static class NewCommand
 
         if (explanationTarget is not null && File.Exists(explanationTarget))
         {
-            Console.Error.WriteLine($"'{config.Relative(explanationTarget)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, explanationTarget)}' already exists; pick another name.");
             return 2;
         }
 
@@ -316,15 +304,15 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(target)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {config.Relative(target)} with {full}.");
+        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)} with {full}.");
 
         if (explanationTarget is not null)
         {
-            Console.WriteLine($"Wrote {config.Relative(explanationTarget)}.");
+            Console.WriteLine($"Wrote {PathText.Relative(config.Root, explanationTarget)}.");
         }
 
         return 0;
@@ -343,36 +331,14 @@ static class NewCommand
             return 2;
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return openExit;
         }
 
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
-        {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
-            return 1;
-        }
-
+        var root = config.Root;
         var templateFile = $"{style}.md";
 
         if (ReadTemplate(templateFile) is not { } template)
@@ -385,7 +351,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{config.Relative(target)}' already exists; pick another name.");
+            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -396,11 +362,11 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{config.Relative(target)}': {exception.Message}");
+            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {config.Relative(target)}.");
+        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)}.");
         return 0;
     }
 

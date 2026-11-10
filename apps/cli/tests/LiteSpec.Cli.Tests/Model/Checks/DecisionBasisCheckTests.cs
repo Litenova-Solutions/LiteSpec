@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves a technical decision names its basis in basedOn, and cites never names a requirement outside a journey.</summary>
 public sealed class DecisionBasisCheckTests
@@ -9,9 +9,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Technical Decision Naming Requirement Passes Links.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Technical_Decision_Naming_Requirement_Passes_Links()
+    public void TechnicalDecisionNamingRequirementPassesLinks()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
@@ -24,9 +24,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Requirement Naming Requirement Reports Invalid Field.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Requirement_Naming_Requirement_Reports_Invalid_Field()
+    public void RequirementNamingRequirementReportsInvalidField()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "cites": ["requirement/checkout.two-second-answer"]}"""),
@@ -38,9 +38,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Technical Decision With Empty Or Missing BasedOn Reports Without Basis.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Technical_Decision_With_Empty_Or_Missing_BasedOn_Reports_Without_Basis()
+    public void TechnicalDecisionWithEmptyOrMissingBasedOnReportsWithoutBasis()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
@@ -56,9 +56,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Technical Decision Naming Constraint Passes Basis.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Technical_Decision_Naming_Constraint_Passes_Basis()
+    public void TechnicalDecisionNamingConstraintPassesBasis()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
@@ -71,9 +71,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Product Decision With Empty BasedOn Passes Basis.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Product_Decision_With_Empty_BasedOn_Passes_Basis()
+    public void ProductDecisionWithEmptyBasedOnPassesBasis()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
@@ -86,9 +86,9 @@ public sealed class DecisionBasisCheckTests
     /// <summary>Technical Decision Naming Missing Requirement Reports Unresolved.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Technical_Decision_Naming_Missing_Requirement_Reports_Unresolved()
+    public void TechnicalDecisionNamingMissingRequirementReportsUnresolved()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,

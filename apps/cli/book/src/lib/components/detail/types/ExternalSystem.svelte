@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { BookRecord, Fields } from "$lib/book/types";
   import { duration, esc } from "$lib/book/html";
+  import { formatLabel } from "$lib/utils";
   import Block from "../blocks/Block.svelte";
   import Callout from "../blocks/Callout.svelte";
   import Table from "../blocks/Table.svelte";
@@ -18,7 +19,7 @@
       head={["Operation", "Timeout", "On timeout"]}
       rows={ops.map((o) => [
         tdHtml(
-          esc(String(o.name ?? "").replace(/-/g, " ")) +
+          esc(formatLabel(o.name)) +
             `<div class="mt-1">${badgeHtml(o.direction === "in" ? "Inbound" : "Outbound")}</div>` +
             (o.response ? `<div class="mt-1 text-[11px] whitespace-normal text-muted-foreground">${esc(String(o.response))}</div>` : ""),
         ),

@@ -1,17 +1,17 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a scenario test asserts its result through the public boundary.</summary>
 public sealed class ProofStrengthTests
 {
     /// <summary>A steps test without a then step proves nothing.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Steps_Test_Without_Then_Step_Does_Not_Confirm()
+    public void StepsTestWithoutThenStepDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
@@ -23,9 +23,9 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code in setup, outside any assertion, proves no refusal.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Code_Outside_An_Assertion_Does_Not_Confirm()
+    public void RefusalCodeOutsideAnAssertionDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -37,9 +37,9 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code inside an assertion, sent through the message, confirms.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Refusal_Code_Inside_An_Assertion_Confirms()
+    public void RefusalCodeInsideAnAssertionConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
@@ -51,9 +51,9 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A test constructing the handler directly proves nothing.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Test_Constructing_A_Handler_Does_Not_Confirm()
+    public void TestConstructingAHandlerDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
@@ -65,9 +65,9 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim without a scenario claim never confirms.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Rule_Claim_Without_A_Scenario_Does_Not_Confirm()
+    public void RuleClaimWithoutAScenarioDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/RuleOnlyTests.cs", RuleOnlyFile);
@@ -78,9 +78,9 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim confirms when the test also proves a governed scenario.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
-    public void Rule_Claim_With_A_Proving_Scenario_Confirms()
+    public void RuleClaimWithAProvingScenarioConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
@@ -177,7 +177,7 @@ public sealed class ProofStrengthTests
         {
             /// <proves>scenario/borrow-copy.borrowing-an-unavailable-copy-refuses</proves>
             [Fact]
-            public async Task Borrowing_an_unavailable_copy_refuses()
+            public async Task BorrowingAnUnavailableCopyRefuses()
             {
                 var command = new BorrowCopyCommand { CopyId = "copy-1" };
                 var outcome = await gateway.SendAsync(command);
@@ -210,7 +210,7 @@ public sealed class ProofStrengthTests
         {
             /// <proves>rule/loan.has-one-borrower</proves>
             [Fact]
-            public async Task A_loan_has_one_borrower()
+            public async Task ALoanHasOneBorrower()
             {
                 var command = new BorrowCopyCommand { CopyId = "copy-1" };
                 var outcome = await gateway.SendAsync(command);

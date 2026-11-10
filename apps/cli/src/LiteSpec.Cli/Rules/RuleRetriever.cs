@@ -6,11 +6,11 @@ namespace LiteSpec.Rules;
 /// <summary>
 ///     Retrieves the provisions that govern a target: artifact-scoped provisions match
 ///     the target artifact and the marked records, a provision naming the artifact
-///     <c>any</c> and page-scope provisions match the target layer, and conventions
+///     <c>any</c> and page-scope provisions match the target concern, and conventions
 ///     match their scope glob. A live departure whose subject or paths cover the
-///     target replaces the provision its covers names. Only provisions at or below
-///     the conformance level the project claims are retrieved, and a code path in a
-///     records project retrieves none.
+///     target replaces the provision its covers names. Only provisions whose record
+///     layer the project claims are retrieved, and a code path in a project that claims
+///     neither Implementation nor Proof retrieves none.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class RuleRetriever
@@ -29,7 +29,7 @@ internal static class RuleRetriever
         ConsumerConfig config,
         PathContext target)
     {
-        if (config.Conformance == ConformanceLevel.Records && target.IsCodePath)
+        if (target.IsCodePath && config.Layers.Implementation is null && config.Layers.Proof is null)
         {
             return [];
         }
@@ -39,7 +39,7 @@ internal static class RuleRetriever
 
         foreach (var entry in catalog.Entries)
         {
-            if (entry.Level > config.Conformance)
+            if (!entry.Covered(config.Layers))
             {
                 continue;
             }
@@ -65,7 +65,7 @@ internal static class RuleRetriever
         foreach (var (entry, reasons) in found.Values)
         {
             var departure = departures.FirstOrDefault(candidate =>
-                candidate.Covers == entry.Id && DepartureStore.Covers(candidate, target, candidates));
+                DepartureStore.Names(candidate, entry) && DepartureStore.Covers(candidate, target, candidates));
 
             results.Add(new RuleResult(entry, reasons, departure));
         }
@@ -95,11 +95,11 @@ internal static class RuleRetriever
 
         var artifacts = Scopes.ArtifactValues(entry.AppliesTo);
 
-        if (artifacts.Count > 0 && artifacts.All(value => Scopes.IsLayerWide(value)))
+        if (artifacts.Count > 0 && artifacts.All(value => Scopes.IsConcernWide(value)))
         {
-            if (entry.Layer.Length > 0 && entry.Layer == target.Layer)
+            if (entry.Concern.Length > 0 && entry.Concern == target.Concern)
             {
-                reasons.Add($"layer {target.Layer}");
+                reasons.Add($"concern {target.Concern}");
             }
         }
         else if (artifacts.Count > 0)
@@ -119,9 +119,9 @@ internal static class RuleRetriever
                 }
             }
         }
-        else if (entry.Layer.Length > 0 && entry.Layer == target.Layer)
+        else if (entry.Concern.Length > 0 && entry.Concern == target.Concern)
         {
-            reasons.Add($"layer {target.Layer}");
+            reasons.Add($"concern {target.Concern}");
         }
 
         return reasons;

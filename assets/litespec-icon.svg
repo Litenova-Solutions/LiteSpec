@@ -1,3 +1,4 @@
+<!-- The source of litespec-icon.png, the package icon the CLI and the analyzers ship. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
   <title id="title">LiteSpec</title>
   <desc id="desc">Three horizontal charcoal lines connected by an angular amber path.</desc>

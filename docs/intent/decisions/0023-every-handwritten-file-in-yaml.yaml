@@ -1,0 +1,19 @@
+type: decision
+id: decision/0023-every-handwritten-file-in-yaml
+title: Every Hand-Written File in YAML
+options:
+  - name: "YAML for every file a person edits, JSON for machine output"
+    pros: "One syntax with comments for every file a person reviews, and JSON stays for the files programs exchange."
+    cons: "The project file, the manifest, the catalog, the lock and the schemas convert in one change, and the site adds a YAML parser package."
+  - name: "YAML for the release manifest only"
+    pros: "The one file a maintainer writes most converts, and every other file keeps its shape."
+    cons: "A project keeps two syntaxes, with the project file and the catalog still in JSON."
+  - name: "JSON for every file"
+    pros: "No conversion, no parser package and no change to the readers."
+    cons: "JSON cannot carry comments, and reviewers read brace-heavy files with no place for a reason beside a value."
+choice: "YAML for every file a person edits, JSON for machine output"
+consequences: "Each hand-written LiteSpec file states its `schemaVersion` and names its schema in a first-line `yaml-language-server` comment. Each file reads through `YamlText` into the tree the evaluator already validates. Keys that are not plain identifiers are double-quoted, and regular expressions are single-quoted. The site reads the manifest and the schemas with the `yaml` package the owner approved, and the shell scripts that run without Node read the two version keys with one `sed` line each. Check results, the provision index, the book data, `--format json` output and the reader protocol stay JSON. The design contract takes `schemaVersion: 2`, because its `kind` and `shell` fields leave."
+reopenedWhen: "A person-written file needs a construct the YAML reader does not carry, or a format appears that people write as readily as YAML and that has a stable .NET reader."
+basedOn:
+  - research/record-format-evidence
+  - research/yaml-format-evidence

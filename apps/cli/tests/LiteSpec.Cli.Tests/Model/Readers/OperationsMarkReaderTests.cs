@@ -1,25 +1,25 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Operations;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the operations reader reads follows marks with the comment style.</summary>
 public sealed class OperationsMarkReaderTests
 {
     /// <summary>Follows Marks Are Read With The Comment Style.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Follows_Marks_Are_Read_With_The_Comment_Style()
+    public void FollowsMarksAreReadWithTheCommentStyle()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/Caddyfile", """
             # <follows>decision/0002-loan-index</follows>
             example.com {
                 reverse_proxy localhost:5000
             }
-            # <follows>  exception/export-review-bypass  </follows>
+            # <follows>  departure/export-review-bypass  </follows>
             """);
 
         var marks = OperationsMarkReader.Read(ConsumerConfig.Load(temp.Path));
@@ -28,17 +28,17 @@ public sealed class OperationsMarkReaderTests
         Assert.Equal("decision/0002-loan-index", marks[0].Id);
         Assert.Equal(MarkStyle.Comment, marks[0].Style);
         Assert.Equal(1, marks[0].Line);
-        Assert.Equal("exception/export-review-bypass", marks[1].Id);
+        Assert.Equal("departure/export-review-bypass", marks[1].Id);
         Assert.Equal(MarkStyle.Comment, marks[1].Style);
         Assert.Equal(5, marks[1].Line);
     }
 
     /// <summary>Marks Outside Comments And Other Verbs Are Ignored.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Marks_Outside_Comments_And_Other_Verbs_Are_Ignored()
+    public void MarksOutsideCommentsAndOtherVerbsAreIgnored()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/Caddyfile", """
             <follows>decision/0002-loan-index</follows>
@@ -51,11 +51,11 @@ public sealed class OperationsMarkReaderTests
     }
 
     /// <summary>Markdown Files Below An Operations Folder Are Ignored.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Markdown_Files_Below_An_Operations_Folder_Are_Ignored()
+    public void MarkdownFilesBelowAnOperationsFolderAreIgnored()
     {
-        using var temp = Cli.Temp("operations-marks");
+        using var temp = TestCli.Temp("operations-marks");
         WriteProject(temp.Path);
         Write(temp.Path, "ops/notes.md", "# <follows>decision/0002-loan-index</follows>\n");
 
@@ -66,7 +66,7 @@ public sealed class OperationsMarkReaderTests
     {
         Directory.CreateDirectory(Path.Combine(root, "ops"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["team"],

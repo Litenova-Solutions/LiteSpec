@@ -1,7 +1,7 @@
 # Layer Projects
 
 **Stack:** dotnet
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -45,7 +45,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-one-application-assembly`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`.
 
@@ -57,7 +57,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#mirror-modules-in-folders-and-namespaces`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every project MUST give each module one folder and namespace.
 
@@ -78,7 +78,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#use-the-project-reference-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project reference MUST follow the graph in the table in this section and add no other edge.
 
@@ -105,11 +105,11 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-domain-package-free`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The Domain project MUST reference no package beyond the .NET base class library.
 
-**Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, EF Core, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
+**Rationale:** A package in Domain makes business rules depend on a framework, a provider, or a messenger. Marten, LiteBus, ASP.NET Core, injection, serialization, and logging packages all stay outside, so Domain builds on the base class library alone. This provision states the .NET form of `litespec/workspace/dependencies#keep-domain-dependency-free`.
 
 **Reviewed for:** Which Domain project files reference a package beyond the base class library? Look at the Domain project file.
 
@@ -117,7 +117,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-application-dependencies-narrow`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Application MUST reference only LiteBus command and query abstractions, required read abstractions, and needed Microsoft abstractions, plus the `IQuerySession` read boundary.
 
@@ -129,7 +129,7 @@ The handler above lives in namespace `Claimwick.Application.Spending.Expenses.Su
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-the-test-projects-the-size-requires`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A backend solution MUST hold exactly the test projects its size requires: Architecture and Integration for small, adding Acceptance for large.
 
@@ -151,7 +151,7 @@ A small solution holds the first two; Acceptance appears when the executable BDD
 
 **ID:** `litespec/backend/dotnet/ext/layer-projects#keep-net-production-and-test-projects-separate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production projects MUST live under `apps/api/src/` and test projects under `apps/api/tests/`, with the solution directly under `apps/api/`.
 
@@ -181,7 +181,7 @@ apps/api/
     {ProjectName}.Application.Tests/  optional unit tests
 ```
 
-Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no exception for their absence.
+Worker is conditional on the extension that runs background work. Acceptance.Tests is required when `size` is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. `AppHost` and `ServiceDefaults` are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no departure for their absence.
 
 **Reviewed for:** Which production or test project files, or solution files, sit outside their fixed address? Look at `apps/api/`.
 
@@ -242,14 +242,16 @@ apps/api/src/{ProjectName}.WebApi/
 | ServiceDefaults | Health checks, service discovery, HTTP resilience, and OpenTelemetry registration and instrumentation |
 | AppHost | Aspire AppHost and resource hosting packages |
 | Domain.Tests | xUnit v3, assertions, and FsCheck |
-| Application.Tests | xUnit v3, assertions, and NSubstitute |
+| Application.Tests | xUnit v3, assertions, and NSubstitute for outside providers and the clock |
 | Integration.Tests | xUnit v3, assertions, test host, Testcontainers PostgreSQL, and the Microsoft.Testing.Platform report and coverage extensions |
 | Architecture.Tests | xUnit v3 and assertions |
 | Acceptance.Tests | xUnit v3, assertions, the behavior runner its extension selects, test host, and the report and coverage extensions |
 
-Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.json` states for the property tests that `litespec/backend/testing#prove-every-calculation-with-property-tests` names and the model-based tests that `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test` names.
+Application.Tests run each handler against the real repositories on the test database. A test substitutes only the outside providers and the clock, as `litespec/quality/testing#use-one-mock-rule-for-every-stack` requires.
 
-The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as EF Core, Reqnroll, LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
+Test projects reference xUnit v3 and run on Microsoft.Testing.Platform. The consumer `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }`, because the .NET 10 `dotnet test` command refuses the VSTest mode for these projects. Domain.Tests carries FsCheck at the 3.6.0 pin `litespec.manifest.yaml` states for the property tests that `litespec/backend/testing#prove-every-calculation-with-property-tests` names and the model-based tests that `litespec/backend/testing#prove-every-aggregate-with-a-model-based-test` names.
+
+The example adds a package to the narrowest owning project. A central version entry does not authorize every project to reference that package. Conditional packages such as LightBDD, SignalR, and WireMock are referenced only after their extension activates. The manifest pins no architecture-test library; a project that wants one adds it with owner approval.
 
 **Reviewed for:** Which baseline package references sit outside the project the ownership table assigns? Look at each package reference beside the ownership table.
 
@@ -518,6 +520,5 @@ Aggregate-specific configuration stays beside its aggregate, while session and c
 
 Packages: None.
 
-Related extensions: the [EF Core Persistence](efcore.md), for aggregates needing relational storage.
 
 Guides: None.

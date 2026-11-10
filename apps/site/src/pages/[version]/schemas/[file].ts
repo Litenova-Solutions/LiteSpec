@@ -12,6 +12,6 @@ export const GET: APIRoute = ({ params }) => {
   }
   const bytes = fs.readFileSync(path.join(root, "schemas", params.file));
   return new Response(new Uint8Array(bytes), {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/yaml" },
   });
 };

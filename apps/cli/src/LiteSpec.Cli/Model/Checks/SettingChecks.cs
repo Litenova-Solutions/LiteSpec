@@ -138,7 +138,7 @@ internal static class SettingChecks
         {
             findings.Add(new Finding(
                 "template-unimplemented",
-                $"Template store '{model.Config.Relative(model.Config.TemplateStore)}' names a file that does not exist.",
+                $"Template store '{PathText.Relative(model.Config.Root, model.Config.TemplateStore)}' names a file that does not exist.",
                 model.Config.TemplateStore,
                 1,
                 null));
@@ -178,7 +178,7 @@ internal static class SettingChecks
             {
                 findings.Add(new Finding(
                     "template-unrecorded",
-                    $"Template store '{model.Config.Relative(model.Config.TemplateStore)}' holds '{entry.Key}', which no notification declares.",
+                    $"Template store '{PathText.Relative(model.Config.Root, model.Config.TemplateStore)}' holds '{entry.Key}', which no notification declares.",
                     model.Config.TemplateStore,
                     entry.Line,
                     null));

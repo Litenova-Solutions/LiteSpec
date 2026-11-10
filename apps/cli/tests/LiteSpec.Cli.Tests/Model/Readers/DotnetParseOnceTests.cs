@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the backend reader reads and parses each file once per model run.</summary>
 public sealed class DotnetParseOnceTests
@@ -10,9 +10,9 @@ public sealed class DotnetParseOnceTests
     /// <summary>Each Backend File Is Parsed Once Per Read.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Each_Backend_File_Is_Parsed_Once_Per_Read()
+    public void EachBackendFileIsParsedOncePerRead()
     {
-        using var temp = Cli.Temp("reader-parse-once");
+        using var temp = TestCli.Temp("reader-parse-once");
         WriteProject(temp.Path);
         WriteSource(temp.Path, "App", "BorrowCopyCommandHandler.cs", """
             namespace Library.Application.Lending.Loans.BorrowCopy;
@@ -65,7 +65,7 @@ public sealed class DotnetParseOnceTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "domain": "src/Domain",

@@ -356,7 +356,7 @@ public sealed class MarkLinkTests
                 public sealed class ExpenseTests
                 {
                     /// <proves>{|LS5002:scenario/submit-expense.submitting-with-a-receipt-succeeds|}</proves>
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -439,7 +439,7 @@ public sealed class MarkLinkTests
                 {
                     /// <implements>{|LS5002:scenario/submit-expense.submitting-with-a-receipt-succeeds|}</implements>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -464,7 +464,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -642,17 +642,17 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
-    /// <summary>LS5002 accepts a follows naming a decision or exception.</summary>
+    /// <summary>LS5002 accepts a follows naming a decision or departure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or exception")]
+    [Fact(DisplayName = "LS5002 accepts a follows naming a decision or departure")]
     public Task AcceptsAFollowsNamingADecisionOrException() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
                 namespace Shop.Spending;
 
                 /// <follows>decision/0002-store-expenses-as-documents</follows>
-                /// <follows>exception/marks-deferred</follows>
+                /// <follows>departure/marks-deferred</follows>
                 internal sealed class CommitStep
                 {
                     public void Commit()
@@ -660,7 +660,7 @@ public sealed class MarkLinkTests
                     }
                 }
                 """)],
-            [ProjectFile(), Decision(), Exception(["mark-missing"])],
+            [ProjectFile(), Decision(), Departure(["mark-missing"])],
             assemblyName: "Shop.Application");
 
     /// <summary>LS5002 accepts a follows on a handler beside its implements.</summary>
@@ -786,7 +786,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>rule/spending.receipt-required</proves>
                     [Fact]
-                    public void Receipt_is_required()
+                    public void ReceiptIsRequired()
                     {
                     }
                 }
@@ -811,7 +811,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>requirement/borrowing.borrow-latency</proves>
                     [Fact]
-                    public void Borrowing_stays_fast()
+                    public void BorrowingStaysFast()
                     {
                     }
                 }
@@ -836,7 +836,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>decision/0002-store-expenses-as-documents</proves>
                     [Fact]
-                    public void Expenses_round_trip_as_documents()
+                    public void ExpensesRoundTripAsDocuments()
                     {
                     }
                 }
@@ -861,7 +861,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>external-system/payments</proves>
                     [Fact]
-                    public void Payments_settle()
+                    public void PaymentsSettle()
                     {
                     }
                 }
@@ -886,7 +886,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>integration-event/expense-submitted</proves>
                     [Fact]
-                    public void Expense_submitted_publishes()
+                    public void ExpenseSubmittedPublishes()
                     {
                     }
                 }
@@ -911,7 +911,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>litespec/backend/persistence#commit-each-command-pipeline-once</proves>
                     [Fact]
-                    public void Commits_once()
+                    public void CommitsOnce()
                     {
                     }
                 }
@@ -937,7 +937,7 @@ public sealed class MarkLinkTests
                     /// <proves>scenario/submit-expense.submitting-with-a-receipt-succeeds</proves>
                     /// <proves>requirement/borrowing.borrow-latency</proves>
                     [Fact]
-                    public void Submitting_with_a_receipt_succeeds()
+                    public void SubmittingWithAReceiptSucceeds()
                     {
                     }
                 }
@@ -962,7 +962,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>{|LS5002:requirement/borrowing.borrow-latency|}</proves>
                     [Fact]
-                    public void Borrowing_stays_fast()
+                    public void BorrowingStaysFast()
                     {
                     }
                 }
@@ -987,7 +987,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>{|LS5002:decision/0002-store-expenses-as-documents|}</proves>
                     [Fact]
-                    public void Expenses_round_trip_as_documents()
+                    public void ExpensesRoundTripAsDocuments()
                     {
                     }
                 }
@@ -1012,7 +1012,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>{|LS5002:aggregate/spending.expense|}</proves>
                     [Fact]
-                    public void Expense_holds()
+                    public void ExpenseHolds()
                     {
                     }
                 }
@@ -1037,7 +1037,7 @@ public sealed class MarkLinkTests
                 {
                     /// <proves>{|LS5002:litespec/backend/no-such-page#no-such-provision|}</proves>
                     [Fact]
-                    public void Keeps_structure()
+                    public void KeepsStructure()
                     {
                     }
                 }
@@ -1063,7 +1063,7 @@ public sealed class MarkLinkTests
                     /// <proves>requirement/borrowing.borrow-latency</proves>
                     /// <proves>requirement/borrowing.borrow-latency</proves>
                     [Fact]
-                    public void {|LS5003:Borrowing_stays_fast|}()
+                    public void {|LS5003:BorrowingStaysFast|}()
                     {
                     }
                 }

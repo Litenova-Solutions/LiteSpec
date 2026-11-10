@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves a quality requirement states its scenario, and a technical decision fulfills it.</summary>
 public sealed class QualityScenarioCheckTests
@@ -17,7 +17,7 @@ public sealed class QualityScenarioCheckTests
     // The InlineData values name each omitted scenario field case.
     public void Quality_Requirement_Missing_Field_Reports_Record_Shape(string field)
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson(field)));
@@ -28,9 +28,9 @@ public sealed class QualityScenarioCheckTests
     /// <summary>Quality Requirement With Scenario Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
-    public void Quality_Requirement_With_Scenario_Passes_Shape()
+    public void QualityRequirementWithScenarioPassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()));
@@ -41,9 +41,9 @@ public sealed class QualityScenarioCheckTests
     /// <summary>Functional Requirement Without Scenario Passes Shape.</summary>
     /// <proves>litespec/core/intent#state-each-quality-requirement-as-a-scenario</proves>
     [Fact]
-    public void Functional_Requirement_Without_Scenario_Passes_Shape()
+    public void FunctionalRequirementWithoutScenarioPassesShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.receipt-on-request", Path.Combine(temp.Path, "checkout.yaml"), """{"kind": "functional", "statement": "A shopper takes a receipt on request.", "rationale": "Shoppers prove their purchase."}"""));
@@ -54,9 +54,9 @@ public sealed class QualityScenarioCheckTests
     /// <summary>Quality Requirement Served Only By Technical Decision Is Fulfilled.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Quality_Requirement_Served_Only_By_Technical_Decision_Is_Fulfilled()
+    public void QualityRequirementServedOnlyByTechnicalDecisionIsFulfilled()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,
@@ -69,9 +69,9 @@ public sealed class QualityScenarioCheckTests
     /// <summary>Quality Requirement With No Serving Decision Reports Unfulfilled.</summary>
     /// <proves>litespec/core/layers#add-behavior-detail-when-specifying-intent</proves>
     [Fact]
-    public void Quality_Requirement_With_No_Serving_Decision_Reports_Unfulfilled()
+    public void QualityRequirementWithNoServingDecisionReportsUnfulfilled()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/checkout.two-second-answer", Path.Combine(temp.Path, "checkout.yaml"), QualityJson()));
@@ -82,9 +82,9 @@ public sealed class QualityScenarioCheckTests
     /// <summary>Quality Requirement Named Only By Product Decision Stays Unfulfilled.</summary>
     /// <proves>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</proves>
     [Fact]
-    public void Quality_Requirement_Named_Only_By_Product_Decision_Stays_Unfulfilled()
+    public void QualityRequirementNamedOnlyByProductDecisionStaysUnfulfilled()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,

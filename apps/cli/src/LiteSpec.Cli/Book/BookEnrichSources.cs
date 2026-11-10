@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LiteSpec.Model;
 
 namespace LiteSpec.Book;
@@ -11,6 +12,9 @@ namespace LiteSpec.Book;
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
 static class BookEnrichSources
 {
+    /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>
+    static readonly Regex QuotedIds = new("'([a-z-]+/[^']+)'", RegexOptions.Compiled);
+
     /// <summary>Gets the layer keys the outline roots may name.</summary>
     static HashSet<string> KnownLayers { get; } = new(StringComparer.Ordinal)
     {
@@ -226,24 +230,25 @@ static class BookEnrichSources
         return byRecord;
     }
 
-    /// <summary>Groups open and known findings by their subject record id at the full conformance level.</summary>
+    /// <summary>Groups open and covered findings by their subject record id with every layer claimed.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
     /// <returns>The findings per record id.</returns>
     public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index) =>
-        FindingsBySubject(model, index, ConformanceLevel.Full);
+        FindingsBySubject(model, index, LayerClaims.All);
 
-    /// <summary>Groups open and known findings by their subject record id, leaving out level S findings at the records level.</summary>
+    /// <summary>Groups open and covered findings by their subject record id, leaving out level S findings when the project claims neither Implementation nor Proof.</summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="index">The model index.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The findings per record id.</returns>
-    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, ConformanceLevel level)
+    public static Dictionary<string, List<JsonObject>> FindingsBySubject(JsonObject model, BookIndex index, LayerClaims claims)
     {
         var bySubject = new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
-        void Add(JsonObject finding, bool known)
+        (string Href, string Title)? LinkRecord(string target) => BookDetailValues.RecordLink(index, target);
+        void Add(JsonObject finding, bool covered)
         {
-            if (level == ConformanceLevel.Records
+            if (claims.Implementation is null && claims.Proof is null
                 && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), "S", StringComparison.Ordinal)
                     || string.Equals(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier"), "S", StringComparison.Ordinal)))
             {
@@ -268,13 +273,15 @@ static class BookEnrichSources
                 bySubject[target] = list;
             }
 
+            var message = BookRender.StrProp(finding, "message") ?? "";
             list.Add(new JsonObject
             {
                 ["code"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "code")),
                 ["tier"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level")),
                 ["level"] = BookDetailValues.StrNode(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier")),
-                ["message"] = BookRender.StrProp(finding, "message") ?? "",
-                ["known"] = known,
+                ["message"] = message,
+                ["messageHtml"] = BookMarkdown.Inline(QuotedIds.Replace(message, "`$1`"), LinkRecord, null),
+                ["covered"] = covered,
                 ["outcome"] = finding["outcome"]?.DeepClone(),
                 ["reason"] = finding["reason"]?.DeepClone(),
                 ["path"] = finding["path"]?.DeepClone(),
@@ -287,9 +294,9 @@ static class BookEnrichSources
             Add(finding, false);
         }
 
-        foreach (var known in FindingEntries(model["known"]))
+        foreach (var covered in FindingEntries(model["covered"]))
         {
-            Add(known, true);
+            Add(covered, true);
         }
 
         return bySubject;

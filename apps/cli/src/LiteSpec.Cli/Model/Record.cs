@@ -14,8 +14,11 @@ sealed class Record : IRecordFacts
     /// <summary>Gets the identifier.</summary>
     public string Id { get; init; } = "";
 
-    /// <summary>Gets the qualified identifier, computed from the identifier segments plus placement and never written.</summary>
-    public string QualifiedId { get; init; } = "";
+    /// <summary>Gets the folder the record file sits in, relative to the consumer root; empty for a derived record.</summary>
+    public string Folder { get; init; } = "";
+
+    /// <summary>Gets the module folder the record file sits under, or null when no module folder holds it.</summary>
+    public string? Module { get; init; }
 
     /// <summary>Gets the display title.</summary>
     public string Title { get; init; } = "";

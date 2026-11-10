@@ -1,7 +1,7 @@
 # Mobile Testing
 
 **Stack:** any
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 
@@ -19,7 +19,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **ID:** `litespec/frontend/mobile/testing#test-the-core-as-plain-net`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Domain, Application, Infrastructure, and Client tests MUST run as plain .NET test projects with no emulator.
 
@@ -31,7 +31,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **ID:** `litespec/frontend/mobile/testing#prove-screens-on-a-device-or-emulator`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Each screen a use case reaches MUST have a device test that drives it on an emulator or device.
 
@@ -43,7 +43,7 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **ID:** `litespec/frontend/mobile/testing#prove-touch-and-text-accessibility-on-a-device`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A device test for each screen MUST check that every interactive view carries a content description and the platform-minimum touch target, and that text scales with the system font scale.
 

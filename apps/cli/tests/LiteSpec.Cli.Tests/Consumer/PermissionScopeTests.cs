@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
 /// Proves <c>litespec model check</c> enforces the permission scope: an entry with
@@ -70,7 +70,7 @@ public sealed class PermissionScopeTests
     static CliResult RunConsumer(string root)
     {
         string[] args = ["model", "check", "--root", root];
-        return Cli.Run(args);
+        return TestCli.Run(args);
     }
 
     static JsonObject FirstPermission(JsonObject meta) =>

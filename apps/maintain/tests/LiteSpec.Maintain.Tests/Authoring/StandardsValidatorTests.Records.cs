@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>LiteSpec record cases: one fixture per record code, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests
@@ -38,32 +38,32 @@ public sealed partial class StandardsValidatorTests
     public void ResearchRecordBreakingItsSchema() => Check(
         root =>
         {
-            StandardsFixture.Write(root, "schemas/record.schema.json", "{\"$defs\":{\"researchPage\":{\"type\":\"object\",\"required\":[\"type\",\"id\",\"conclusion\"],\"properties\":{\"type\":{\"const\":\"research\"},\"id\":{\"type\":\"string\"},\"conclusion\":{\"type\":\"string\"}}},\"decisionPage\":{\"type\":\"object\"}}}");
+            StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$defs\":{\"researchPage\":{\"type\":\"object\",\"required\":[\"type\",\"id\",\"conclusion\"],\"properties\":{\"type\":{\"const\":\"research\"},\"id\":{\"type\":\"string\"},\"conclusion\":{\"type\":\"string\"}}},\"decisionPage\":{\"type\":\"object\"}}}");
             var record = StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "\"conclusion\": \"The sample shows one finding.\",\n", "");
             StandardsFixture.WriteResearch(root, record);
         },
-        ["RECORD_SCHEMA"]);
+        [Diagnostics.Codes.RecordSchema]);
 
     /// <summary>Record identifier not matching its file.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "record identifier not matching its file")]
     public void RecordIdentifierNotMatchingItsFile() => Check(
         root => StandardsFixture.WriteResearch(root, StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "\"id\": \"research/sample-study\"", "\"id\": \"research/other-study\"")),
-        ["RECORD_ID_MISMATCH"]);
+        [Diagnostics.Codes.RecordIdMismatch]);
 
     /// <summary>Source without a read date.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "source without a read date")]
     public void SourceWithoutAReadDate() => Check(
         root => StandardsFixture.WriteResearch(root, StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, ",\n      \"readOn\": \"2026-10-30\"", "")),
-        ["RECORD_SOURCE"]);
+        [Diagnostics.Codes.RecordSource]);
 
     /// <summary>Source path naming no file.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "source path naming no file")]
     public void SourcePathNamingNoFile() => Check(
         root => StandardsFixture.WriteResearch(root, StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "\"url\": \"https://example.com/sample\"", "\"path\": \"docs/missing-evidence.md\"")),
-        ["RECORD_SOURCE"]);
+        [Diagnostics.Codes.RecordSource]);
 
     /// <summary>Decision based on an unknown record.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
@@ -74,7 +74,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", StandardsFixture.ReplaceFirst(StandardsFixture.DecisionJson, "\"basedOn\": [\"research/sample-study\"]", "\"basedOn\": [\"research/missing-study\"]"));
         },
-        ["RECORD_UNKNOWN_REFERENCE"]);
+        [Diagnostics.Codes.RecordUnknownReference]);
 
     /// <summary>Prose citing an unknown record.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
@@ -85,7 +85,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result, as `research/missing-study` shows."));
         },
-        ["RECORD_UNKNOWN_REFERENCE"]);
+        [Diagnostics.Codes.RecordUnknownReference]);
 
     /// <summary>Decision cited by no provision.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
@@ -96,7 +96,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice");
         },
-        ["RECORD_DECISION_UNCITED"]);
+        [Diagnostics.Codes.RecordDecisionUncited]);
 
     /// <summary>Decision cited by a provision.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
@@ -116,7 +116,32 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "research carrying an invented section")]
     public void ResearchCarryingAnInventedSection() => Check(
         root => StandardsFixture.WriteResearch(root, explanation: StandardsFixture.ReplaceFirst(StandardsFixture.ResearchExplanation, "## Notes on Sources", "## Conclusion\n\nAn invented section.\n\n## Notes on Sources")),
-        ["PAGE_UNKNOWN_SECTION"]);
+        [Diagnostics.Codes.PageUnknownSection]);
+
+    /// <summary>Decision record citing a provision the standards lack.</summary>
+    /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
+    [Fact(DisplayName = "decision record citing a provision the standards lack")]
+    public void DecisionCitesUnknownProvision() => Check(
+        root =>
+        {
+            StandardsFixture.WriteResearch(root);
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", StandardsFixture.ReplaceFirst(StandardsFixture.DecisionJson, "keep-the-topic-bounded", "keep-the-sample-bounded"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
+            StandardsFixture.RebuildIndex(root);
+        },
+        [Diagnostics.Codes.IdUnknownReference]);
+
+    /// <summary>Research record naming a provision the standards lack, which is dated evidence and stays unchecked.</summary>
+    /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
+    [Fact(DisplayName = "research record may cite a provision the standards lack")]
+    public void ResearchMayCiteUnknownProvision()
+    {
+        using var temp = Cli.Temp("standards");
+        StandardsFixture.Base(temp.Path);
+        StandardsFixture.WriteResearch(temp.Path, StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "The sample shows one finding.", "The sample shows one finding, weighed against `litespec/core/topic#keep-the-sample-bounded`."));
+        var result = StandardsValidator.Validate(temp.Path);
+        Assert.DoesNotContain(result.Diagnostics, item => item.Relative == "docs/intent/research/sample-study.yaml" && item.Code == Diagnostics.Codes.IdUnknownReference);
+    }
 
     /// <summary>Decision carrying an invented section.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
@@ -127,19 +152,19 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.WriteResearch(root);
             StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", explanation: StandardsFixture.ReplaceFirst(StandardsFixture.DecisionExplanation, "## Decision", "## Verdict\n\nAn invented section.\n\n## Decision"));
         },
-        ["PAGE_UNKNOWN_SECTION"]);
+        [Diagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Record without an explanation file.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "record without an explanation file")]
     public void RecordWithoutAnExplanationFile() => Check(
         root => StandardsFixture.Write(root, "docs/intent/research/sample-study.yaml", StandardsFixture.Yaml(StandardsFixture.ResearchJson)),
-        ["RECORD_EXPLANATION_MISSING"]);
+        [Diagnostics.Codes.RecordExplanationMissing]);
 
     /// <summary>Explanation without a record file.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "explanation without a record file")]
     public void ExplanationWithoutARecordFile() => Check(
         root => StandardsFixture.Write(root, "docs/intent/research/sample-study.md", StandardsFixture.ResearchExplanation),
-        ["RECORD_EXPLANATION_ORPHANED"]);
+        [Diagnostics.Codes.RecordExplanationOrphaned]);
 }

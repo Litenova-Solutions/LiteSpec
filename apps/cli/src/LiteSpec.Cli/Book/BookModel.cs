@@ -20,7 +20,7 @@ static class BookModel
         new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event", "reaction", "job", "notification", "setting"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
-        new("How We Build", ["exception"]),
+        new("How We Build", ["departure"]),
         new("Terms", ["term"]),
     ];
 
@@ -55,7 +55,7 @@ static class BookModel
             ["entry-point"] = ("Entry point", "Entry points"),
             ["external-system"] = ("External system", "External systems"),
             ["runbook"] = ("Runbook", "Runbooks"),
-            ["exception"] = ("Exception", "Exceptions"),
+            ["departure"] = ("Departure", "Departures"),
             ["term"] = ("Term", "Terms"),
         };
 
@@ -138,7 +138,7 @@ static class BookModel
             ["result"] = "Illustrated By",
             ["actor"] = "Systems For",
             ["runbook"] = "Runbook For",
-            ["subject"] = "Exceptions",
+            ["subject"] = "Departures",
             ["replaces"] = "Replaced By",
             ["refusal"] = "Refusal For",
             ["covers"] = "Covered By",
@@ -166,63 +166,6 @@ static class BookModel
             ? (plural ? labels.Many : labels.One)
             : (plural ? "Records" : "Record");
 
-    /// <summary>The record URL: the id with "/" and "." mapped to path segments, keeping any "#step" fragment.</summary>
-    /// <param name="id">The record id.</param>
-    /// <returns>The record URL.</returns>
-    public static string RecordUrl(string id)
-    {
-        var fragment = "";
-        var baseId = id;
-        var hash = id.IndexOf('#');
-        if (hash >= 0)
-        {
-            baseId = id[..hash];
-            fragment = id[hash..];
-        }
-
-        var slash = baseId.IndexOf('/');
-        if (slash < 0)
-        {
-            return "index.html";
-        }
-
-        return $"{baseId[..slash]}/{baseId[(slash + 1)..].Replace(".", "/")}.html{fragment}";
-    }
-
-    /// <summary>The URL of a record type's index page.</summary>
-    /// <param name="type">The record type.</param>
-    /// <returns>The type index URL.</returns>
-    public static string TypeIndexUrl(string type) => $"{type}/index.html";
-
-    /// <summary>The URL of an actor's lens page.</summary>
-    /// <param name="actorId">The actor id.</param>
-    /// <returns>The lens URL.</returns>
-    public static string LensUrl(string actorId)
-    {
-        var slash = actorId.IndexOf('/');
-        var name = slash < 0 ? actorId : actorId[(slash + 1)..];
-        return $"lens/{name}.html";
-    }
-
-    /// <summary>The URL of a goal's lens page: goal, features, requirements, verified state.</summary>
-    /// <param name="goalId">The goal id.</param>
-    /// <returns>The goal URL.</returns>
-    public static string GoalUrl(string goalId)
-    {
-        var slash = goalId.IndexOf('/');
-        var name = slash < 0 ? goalId : goalId[(slash + 1)..];
-        return $"goals/{name}.html";
-    }
-
-    /// <summary>The relative prefix from a page back to the site root.</summary>
-    /// <param name="url">The page URL.</param>
-    /// <returns>The relative prefix.</returns>
-    public static string RelFor(string url)
-    {
-        var depth = url.Split('/').Length - 1;
-        return depth <= 0 ? "" : string.Concat(Enumerable.Repeat("../", depth));
-    }
-
     /// <summary>Splits "use-case/lending.borrow-copy" into type, home and name.</summary>
     /// <param name="id">The record id.</param>
     /// <returns>The split id.</returns>
@@ -247,35 +190,4 @@ static class BookModel
     public static string SortTitle(JsonObject record) =>
         BookRender.IsTruthy(record["title"]) ? BookRender.Str(record["title"]) : BookRender.PropText(record, "id");
 
-    /// <summary>One rule kind as a predicate: this rule is always true, holds across records, and so on.</summary>
-    /// <param name="kind">The rule kind, or null.</param>
-    /// <returns>The rule kind in words.</returns>
-    public static string RuleKindWords(string? kind) =>
-        kind switch
-        {
-            "invariant" => "is always true",
-            "precondition" => "is checked before the use case runs",
-            "calculation" => "is computed as stated",
-            "cross-aggregate" => "holds across records",
-            "atomicity" => "explains why one write covers several records",
-            "reservation" => "holds something until its release",
-            "commercial-data" => "freezes commercial facts as stated",
-            "default" => "sets the starting value",
-            { Length: > 0 } other => $"is {other}",
-            _ => "",
-        };
-
-    /// <summary>One data classification in plain handling words for reviewers.</summary>
-    /// <param name="classification">The data classification, or null.</param>
-    /// <returns>The classification in words.</returns>
-    public static string HandlingWords(string? classification) =>
-        classification switch
-        {
-            "public" => "Visible to everyone",
-            "internal" => "Stays inside the product",
-            "personal" => "Exported or deleted on request",
-            "sensitive" => "Exported or deleted on request",
-            { Length: > 0 } other => other,
-            _ => "",
-        };
 }

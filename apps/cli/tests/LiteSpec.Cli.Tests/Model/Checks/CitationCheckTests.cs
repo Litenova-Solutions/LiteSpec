@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves a requirement cites its reasons and an applying constraint is cited.</summary>
 public sealed class CitationCheckTests
@@ -9,9 +9,9 @@ public sealed class CitationCheckTests
     /// <summary>Requirement Without Cites Reports At Tier A.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
-    public void Requirement_Without_Cites_Reports_At_Tier_A()
+    public void RequirementWithoutCitesReportsAtTierA()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
@@ -25,9 +25,9 @@ public sealed class CitationCheckTests
     /// <summary>Requirement With Cites Passes.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
-    public void Requirement_With_Cites_Passes()
+    public void RequirementWithCitesPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
@@ -39,9 +39,9 @@ public sealed class CitationCheckTests
     /// <summary>Applying Constraint Without Cites Reports.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
-    public void Applying_Constraint_Without_Cites_Reports()
+    public void ApplyingConstraintWithoutCitesReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
@@ -57,9 +57,9 @@ public sealed class CitationCheckTests
     /// <summary>Cited Constraint Passes.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
-    public void Cited_Constraint_Passes()
+    public void CitedConstraintPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["constraint/library-keeps-records"]}"""),
@@ -71,9 +71,9 @@ public sealed class CitationCheckTests
     /// <summary>Constraint Not Applying Passes.</summary>
     /// <proves>litespec/core/intent#cite-each-applying-constraint-from-a-requirement</proves>
     [Fact]
-    public void Constraint_Not_Applying_Passes()
+    public void ConstraintNotApplyingPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "cites": ["problem/overdue-loans-pile-up"]}"""),
@@ -84,9 +84,9 @@ public sealed class CitationCheckTests
     }
 
     /// <summary>A page citing a removed record reports it.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
-    public void Page_Citing_A_Removed_Record_Reports_It()
+    public void PageCitingARemovedRecordReportsIt()
     {
         using var fixture = ModelFixture.Prepare("large");
         var guides = Path.Combine(fixture.Path, ".litespec", "guides");
@@ -95,7 +95,7 @@ public sealed class CitationCheckTests
             Path.Combine(guides, "lending.md"),
             "# Lending\n\nSee scenario/borrow-copy.gone-since-the-review for the refusal.\n");
 
-        var result = Cli.Run("model", "check", "--root", fixture.Path);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.Contains("Citation 'scenario/borrow-copy.gone-since-the-review' resolves to no record.", result.Output);
     }

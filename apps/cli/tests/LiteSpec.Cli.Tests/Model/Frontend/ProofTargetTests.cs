@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the records file lets a browser test prove a frontend provision, and only those.</summary>
 public sealed class ProofTargetTests
@@ -9,11 +9,11 @@ public sealed class ProofTargetTests
     /// <summary>Proof Targets Hold Frontend Provisions And No Other Provision.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Proof_Targets_Hold_Frontend_Provisions_And_No_Other_Provision()
+    public void ProofTargetsHoldFrontendProvisionsAndNoOtherProvision()
     {
-        using var temp = Cli.Temp("proof-targets");
+        using var temp = TestCli.Temp("proof-targets");
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """{ "owners": ["lending-team"] }""");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """{ "owners": ["lending-team"] }""");
         var model = new ProjectModel
         {
             Config = ConsumerConfig.Load(temp.Path),

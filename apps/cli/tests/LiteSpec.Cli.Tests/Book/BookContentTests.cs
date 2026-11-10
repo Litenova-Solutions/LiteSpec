@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>
 ///     Proves the book client the CLI writes carries LiteSpec's words and none of the
@@ -12,7 +12,7 @@ public sealed class BookContentTests
     /// <summary>The client holds no project, path or sample string: everything it shows comes from the shards.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Client_Holds_No_Project_Or_Sample_Strings()
+    public void ClientHoldsNoProjectOrSampleStrings()
     {
         var script = Client();
         foreach (var purged in new[]
@@ -33,7 +33,7 @@ public sealed class BookContentTests
     /// <summary>The client renders value objects, automation shapes and exceptions in LiteSpec words.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Client_Renders_Record_Shapes_With_LiteSpec_Terms()
+    public void ClientRendersRecordShapesWithLiteSpecTerms()
     {
         var script = Client();
         foreach (var words in new[]
@@ -47,7 +47,7 @@ public sealed class BookContentTests
             "Runs by hand",
             "Not yet met",
             "Not yet tested",
-            "Excepted",
+            "Covered",
             "Because ",
         })
         {
@@ -58,7 +58,7 @@ public sealed class BookContentTests
     /// <summary>The client holds none of the replaced renderings: gap and deviation words, the retries column and the automation handler label.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Client_Holds_None_Of_The_Replaced_Words()
+    public void ClientHoldsNoneOfTheReplacedWords()
     {
         var script = Client();
         foreach (var removed in new[]
@@ -79,7 +79,7 @@ public sealed class BookContentTests
     /// <summary>The shortcuts dialog names the two views the keys 1 to 2 switch, Security last.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Shortcuts_Name_The_Two_Views()
+    public void ShortcutsNameTheTwoViews()
     {
         var script = Client();
         Assert.Contains("Outline, Security", script, StringComparison.Ordinal);
@@ -90,7 +90,7 @@ public sealed class BookContentTests
     /// <summary>Completion and proof labels use LiteSpec words: no verdict, approval or proof phrase outside the model survives in the client.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Client_Labels_Use_LiteSpec_Terms()
+    public void ClientLabelsUseLiteSpecTerms()
     {
         var script = Client();
         foreach (var purged in new[]
@@ -122,7 +122,7 @@ public sealed class BookContentTests
 
         foreach (var words in new[]
         {
-            "not implemented",
+            "not coded",
             "not tested",
             "scenarios not tested",
             "Not implemented or not tested",
@@ -140,7 +140,7 @@ public sealed class BookContentTests
     /// <returns>The text of assets/book.js.</returns>
     static string Client()
     {
-        using var temp = Cli.Temp("book-content");
+        using var temp = TestCli.Temp("book-content");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Path.Combine(temp.Path, "out"));
         return File.ReadAllText(Path.Combine(temp.Path, "out", "assets", "book.js"));
     }

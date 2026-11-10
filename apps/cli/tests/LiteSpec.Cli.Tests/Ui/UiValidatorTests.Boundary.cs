@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// The application boundary, application stylesheet and shared stylesheet cases.
@@ -10,7 +10,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Importing The Primitive Library.</summary>
     /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
-    public void An_Application_Importing_The_Primitive_Library()
+    public void AnApplicationImportingThePrimitiveLibrary()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -21,7 +21,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Importing A Table Library.</summary>
     /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
-    public void An_Application_Importing_A_Table_Library()
+    public void AnApplicationImportingATableLibrary()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -32,7 +32,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Library Name Inside A Doc Comment Is Prose.</summary>
     /// <proves>litespec/frontend/components#compose-composites-in-page-code</proves>
     [Fact]
-    public void A_Library_Name_Inside_A_Doc_Comment_Is_Prose()
+    public void ALibraryNameInsideADocCommentIsProse()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppCaseWith(
@@ -44,7 +44,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Stylesheet Importing The Package Tokens.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void An_Application_Stylesheet_Importing_The_Package_Tokens()
+    public void AnApplicationStylesheetImportingThePackageTokens()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppStylesCase(UiFixture.CleanAppStyles));
@@ -53,7 +53,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Stylesheet Writing A Value From A Token.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void An_Application_Stylesheet_Writing_A_Value_From_A_Token()
+    public void AnApplicationStylesheetWritingAValueFromAToken()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppStylesCase(
@@ -63,7 +63,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Stylesheet Declaring A Literal Value.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void An_Application_Stylesheet_Declaring_A_Literal_Value()
+    public void AnApplicationStylesheetDeclaringALiteralValue()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -74,7 +74,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Stylesheet Importing Nothing.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void An_Application_Stylesheet_Importing_Nothing()
+    public void AnApplicationStylesheetImportingNothing()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -85,7 +85,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Application Stylesheet Importing A Third Party Sheet.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void An_Application_Stylesheet_Importing_A_Third_Party_Sheet()
+    public void AnApplicationStylesheetImportingAThirdPartySheet()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -98,7 +98,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Shared Stylesheet Written From Tokens.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void A_Shared_Stylesheet_Written_From_Tokens()
+    public void ASharedStylesheetWrittenFromTokens()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -109,7 +109,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Shared Stylesheet Carrying A Literal Colour.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void A_Shared_Stylesheet_Carrying_A_Literal_Colour()
+    public void ASharedStylesheetCarryingALiteralColour()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -122,7 +122,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Shared Stylesheet Carrying A Hex Colour.</summary>
     /// <proves>litespec/frontend/ui#keep-tokens-in-one-definition</proves>
     [Fact]
-    public void A_Shared_Stylesheet_Carrying_A_Hex_Colour()
+    public void ASharedStylesheetCarryingAHexColour()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(

@@ -1,9 +1,10 @@
+using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves check findings block or report by their tier.</summary>
 public sealed class SeverityCheckTests
@@ -11,12 +12,12 @@ public sealed class SeverityCheckTests
     /// <summary>An S finding no reader produced blocks under a project with only web stacks.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Record_Finding_Under_Only_Web_Stacks_Blocks()
+    public void RecordFindingUnderOnlyWebStacksBlocks()
     {
         using var fixture = ModelFixture.Prepare("small", "use-case-unimplemented");
         SetOnlyWebStacks(fixture.Path);
 
-        var json = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var json = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (outcome, reason) = OutcomeOf(json.Stdout, "use-case-unimplemented");
 
         Assert.Equal(1, json.Status);
@@ -24,34 +25,35 @@ public sealed class SeverityCheckTests
         Assert.Null(reason);
     }
 
-    /// <summary>The planned-Intent set holds the five reachability codes, each running at records.</summary>
+    /// <summary>The planned-Intent set holds the five reachability codes, each applying under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Planned_Intent_Holds_The_Five_Reachability_Codes()
+    public void PlannedIntentHoldsTheFiveReachabilityCodes()
     {
         Assert.Equal(
             new[] { "constraint-unreached", "goal-mover-missing", "intent-unreached", "requirement-fulfillment-missing", "step-use-case-missing" },
             Severity.PlannedIntent.OrderBy(code => code, StringComparer.Ordinal).ToArray());
+        var claim = new LayerClaims(Intent: true, Behavior: true, Implementation: null, Proof: null);
         Assert.All(
             Severity.PlannedIntent,
-            code => Assert.Equal(ConformanceLevel.Records, ConformanceLevels.LowestOf(code)));
+            code => Assert.True(claim.Covers(code, [])));
     }
 
-    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check at the records level.</summary>
+    /// <summary>A planned-Intent finding reports locally and blocks in the pull-request check under the intent-and-behavior claim.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Planned_Intent_Reports_Locally_And_Blocks_In_CI_At_Records()
+    public void PlannedIntentReportsLocallyAndBlocksInCIUnderIntentAndBehavior()
     {
         using var fixture = ModelFixture.Prepare("large", "requirement-fulfillment-missing");
-        SetConformance(fixture.Path, "records");
+        SetClaim(fixture.Path, ConsumerFixture.Layers(null, null));
 
-        var local = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
+        var local = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"]);
         var (localOutcome, _) = OutcomeOf(local.Stdout, "requirement-fulfillment-missing");
 
         Assert.Equal(0, local.Status);
         Assert.Equal("reported", localOutcome);
 
-        var pullRequest = Cli.Run(
+        var pullRequest = TestCli.Run(
             ["model", "check", "--root", fixture.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["CI"] = "true" });
         var (pullOutcome, _) = OutcomeOf(pullRequest.Stdout, "requirement-fulfillment-missing");
@@ -60,40 +62,29 @@ public sealed class SeverityCheckTests
         Assert.Equal("blocking", pullOutcome);
     }
 
-    /// <summary>Every code a known gap may name has a tier, so an unknown code fails the build.</summary>
-    /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
+    /// <summary>An unknown marks value fails the project schema and reports project-invalid.</summary>
+    /// <proves>litespec/core/scope#write-every-hand-written-litespec-file-in-yaml</proves>
     [Fact]
-    public void Every_Checker_Code_Has_A_Tier()
-    {
-        var missing = Checker.Codes
-            .Where(code => !Finding.Tiers.ContainsKey(code))
-            .OrderBy(code => code, StringComparer.Ordinal)
-            .ToList();
-
-        Assert.Empty(missing);
-    }
-
-    /// <summary>An unknown marks value exits 2 with the file error.</summary>
-    [Fact]
-    public void Unknown_Marks_Exits_2()
+    public void UnknownMarksReportsProjectInvalid()
     {
         using var fixture = ModelFixture.Prepare("small");
         BreakMarks(fixture.Path, "yaml");
 
-        var result = Cli.Run("model", "check", "--root", fixture.Path);
+        var result = TestCli.Run("model", "check", "--root", fixture.Path);
 
-        Assert.Equal(2, result.Status);
-        Assert.Contains("unknown marks \"yaml\"", result.Output);
+        Assert.Equal(1, result.Status);
+        Assert.Contains("project-invalid", result.Output);
+        Assert.Contains("marks", result.Output);
     }
 
-    /// <summary>Writes the claimed conformance level into the fixture project file.</summary>
+    /// <summary>Writes the claimed layers into the fixture project file.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="level">The level name: records, traced or full.</param>
-    static void SetConformance(string root, string level)
+    /// <param name="layers">The layers object the project claims.</param>
+    static void SetClaim(string root, JsonObject layers)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        project["conformance"] = JsonValue.Create(level);
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+        project["layers"] = layers;
         File.WriteAllText(file, project.ToJsonString());
     }
 
@@ -101,8 +92,8 @@ public sealed class SeverityCheckTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void SetOnlyWebStacks(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("svelte"));
         File.WriteAllText(file, project.ToJsonString());
     }
@@ -112,8 +103,8 @@ public sealed class SeverityCheckTests
     /// <param name="value">The marks value to write.</param>
     static void BreakMarks(string root, string value)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
         project["marks"] = JsonValue.Create(value);
         File.WriteAllText(file, project.ToJsonString());
     }

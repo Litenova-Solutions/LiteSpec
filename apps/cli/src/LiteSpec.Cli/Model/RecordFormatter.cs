@@ -31,7 +31,7 @@ static class RecordFormatter
 
             if (canonical is null)
             {
-                invalid.Add(config.Relative(file));
+                invalid.Add(PathText.Relative(config.Root, file));
                 continue;
             }
 
@@ -40,7 +40,7 @@ static class RecordFormatter
                 File.WriteAllText(file, canonical);
             }
 
-            changed.Add(config.Relative(file));
+            changed.Add(PathText.Relative(config.Root, file));
         }
 
         return (changed, invalid);
@@ -71,6 +71,10 @@ static class RecordFormatter
         {
             files.Add(config.GlossaryPath);
         }
+
+        // The project file and the UI pattern catalog are YAML under the record root, but hold no record.
+        files.RemoveAll(file => file.Equals(ConsumerRoot.ProjectFile(config.Root), StringComparison.OrdinalIgnoreCase)
+            || file.Equals(config.UiPatternCatalog, StringComparison.OrdinalIgnoreCase));
 
         return files;
     }

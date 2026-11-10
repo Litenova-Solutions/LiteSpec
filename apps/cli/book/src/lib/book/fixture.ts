@@ -2,7 +2,7 @@
 // use case with a scenario, and the lexicon words the explanations read.
 
 import { Book } from "./book.svelte";
-import type { Lexicon, Manifest, OutlineNode, SecurityItem } from "./types";
+import type { LayerClaim, Lexicon, Manifest, OutlineNode, SecurityItem } from "./types";
 
 const records: Record<string, Record<string, any>> = {
   "product/library": {
@@ -25,7 +25,8 @@ const records: Record<string, Record<string, any>> = {
   },
   "use-case/library.borrowing.borrow": {
     type: "use-case", title: "Borrow",
-    qualifiedId: "library/borrowing/use-case/borrow",
+    folder: "behavior/library/borrowing",
+    module: "library",
     fields: {},
     impl: [{ path: "src/borrow.ts", line: 12, kind: "handler" }],
     tests: [],
@@ -97,7 +98,9 @@ const lexicon = {
   },
   glossary: {
     finding: { term: "Finding", definition: "A check result on a record." },
-    exception: { term: "Exception", definition: "A finding the product accepts." },
+    departure: { term: "Departure", definition: "A record that departs from a provision and covers the findings it names." },
+    coded: { term: "Coded", definition: "The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for." },
+    covered: { term: "Covered", definition: "The outcome of a finding a departure record covers: reported, and never blocking." },
   },
   fields: { boundary: "Boundary" },
   findings: { "goal-unused": { level: "G", meaning: "A goal nothing advances." } },
@@ -107,7 +110,12 @@ const manifest = {
   project: { id: "product/library", title: "Riverside Library" },
   roots: { consumer: "C:/work/shop", litespec: "C:/work/litespec" },
   editor: "vscode://file/{root}/{path}:{line}",
-  conformance: "full",
+  claims: [
+    { layer: "intent", practice: "litespec" },
+    { layer: "behavior", practice: "litespec" },
+    { layer: "implementation", practice: "litespec" },
+    { layer: "proof", practice: "litespec" },
+  ],
   intentCoverage: {
     reached: 1, total: 2, share: 0.5,
     requirements: { reached: 1, total: 1 },
@@ -145,10 +153,10 @@ const shards: Record<string, unknown> = {
 };
 
 /** A book over the fixture shards, booted and ready for assertions. */
-export async function fixtureBook(hash = "", opts: { editor?: string; conformance?: string } = {}) {
+export async function fixtureBook(hash = "", opts: { editor?: string; claims?: LayerClaim[] } = {}) {
   const data: Record<string, unknown> = structuredClone(shards);
   if (opts.editor !== undefined) (data.manifest as Manifest).editor = opts.editor;
-  if (opts.conformance !== undefined) (data.manifest as Manifest).conformance = opts.conformance;
+  if (opts.claims !== undefined) (data.manifest as Manifest).claims = opts.claims;
   const book = new Book({ load: async (key: string) => structuredClone(data[key]) } as any);
   await book.boot(hash);
   return book;

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Formats.Tar;
 
 namespace LiteSpec.Model.Diff;
@@ -7,7 +6,7 @@ namespace LiteSpec.Model.Diff;
 ///     One loaded comparison base: its model and its label. Disposing removes the
 ///     temporary folder of a git base; a folder base needs no cleanup.
 /// </summary>
-/// <follows>litespec/backend/identifiers#keep-wire-codes-stable</follows>
+/// <follows>litespec/core/language#keep-wire-codes-stable</follows>
 sealed class DiffBase : IDisposable
 {
     /// <summary>
@@ -54,7 +53,7 @@ sealed class DiffBase : IDisposable
     }
 
     /// <summary>
-    ///     Loads the base: a consumer folder holding <c>.litespec/project.json</c>, or a
+    ///     Loads the base: a consumer folder holding <c>.litespec/project.yaml</c>, or a
     ///     git revision of the consumer, read through an archive into a temporary folder.
     /// </summary>
     /// <param name="headConfig">The head consumer configuration, whose root anchors relative base paths.</param>
@@ -68,7 +67,7 @@ sealed class DiffBase : IDisposable
 
             if (!File.Exists(project))
             {
-                throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
+                throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.yaml.");
             }
 
             return new DiffBase(
@@ -120,22 +119,25 @@ sealed class DiffBase : IDisposable
     {
         string Neither() => $"Base '{baseArg}' is neither a consumer folder nor a git revision.";
 
-        var top = RunGit(headConfig.Root, "rev-parse", "--show-toplevel");
+        // The path from the root up to the repository top. Git names the top by its resolved path, which
+        // differs from the root's own form when the root runs through a symbolic link, such as /var on
+        // macOS, so the top is reached from the root and the root's place inside it stays exact.
+        var up = ProcessRunner.Git(headConfig.Root, "rev-parse", "--show-cdup");
 
-        if (top.Status != 0)
+        if (up.Status != 0)
         {
             throw new InvalidOperationException(Neither());
         }
 
-        var toplevel = top.Stdout.Trim();
-        var resolved = RunGit(toplevel, "rev-parse", "--verify", "--quiet", $"{baseArg}^{{commit}}");
+        var toplevel = Path.GetFullPath(Path.Combine(headConfig.Root, up.Stdout.Trim()));
+        var resolved = ProcessRunner.Git(toplevel, "rev-parse", "--verify", "--quiet", $"{baseArg}^{{commit}}");
 
         if (resolved.Status != 0 || resolved.Stdout.Trim().Length == 0)
         {
             throw new InvalidOperationException(Neither());
         }
 
-        var archived = RunGitBytes(toplevel, "archive", "--format=tar", resolved.Stdout.Trim());
+        var archived = ProcessRunner.Git(toplevel, "archive", "--format=tar", resolved.Stdout.Trim());
 
         if (archived.Status != 0)
         {
@@ -146,7 +148,7 @@ sealed class DiffBase : IDisposable
 
         try
         {
-            using var archive = new MemoryStream(archived.Bytes);
+            using var archive = new MemoryStream(archived.Output);
 
             TarFile.ExtractToDirectory(archive, temp, overwriteFiles: true);
         }
@@ -156,100 +158,15 @@ sealed class DiffBase : IDisposable
             throw new InvalidOperationException($"Base '{baseArg}' could not be read: {exception.Message}.");
         }
 
-        var relative = Path.GetRelativePath(toplevel, headConfig.Root);
+        var relative = PathText.Relative(toplevel, headConfig.Root);
         var root = relative is "." or "" ? temp : Path.Combine(temp, relative);
 
         if (!File.Exists(ConsumerRoot.ProjectFile(root)))
         {
             Directory.Delete(temp, recursive: true);
-            throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.json.");
+            throw new InvalidOperationException($"Base '{baseArg}' holds no .litespec/project.yaml.");
         }
 
         return new DiffBase(ModelBuilder.Build(ConsumerConfig.Load(root)), baseArg, temp);
-    }
-
-    /// <summary>
-    ///     Runs git in the given folder and captures its status, output, and error text; a timeout or a missing
-    ///     git reports status 1.
-    /// </summary>
-    /// <param name="workdir">The folder git runs in.</param>
-    /// <param name="args">The git arguments, in order.</param>
-    /// <returns>The exit status together with the captured output and error text.</returns>
-    static (int Status, string Stdout, string Error) RunGit(string workdir, params string[] args)
-    {
-        var start = new ProcessStartInfo("git")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = workdir,
-        };
-
-        foreach (var arg in args)
-        {
-            start.ArgumentList.Add(arg);
-        }
-
-        try
-        {
-            using var process = Process.Start(start)!;
-            var stdout = process.StandardOutput.ReadToEndAsync();
-            var stderr = process.StandardError.ReadToEndAsync();
-
-            if (!process.WaitForExit(TimeSpan.FromMinutes(5)))
-            {
-                process.Kill(entireProcessTree: true);
-                return (1, "", "git did not finish in five minutes.");
-            }
-
-            return (process.ExitCode, stdout.Result, stderr.Result);
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            return (1, "", "git is not available.");
-        }
-    }
-
-    /// <summary>
-    ///     Runs git in the given folder and captures its status, raw output bytes, and error text; a timeout or
-    ///     a missing git reports status 1.
-    /// </summary>
-    /// <param name="workdir">The folder git runs in.</param>
-    /// <param name="args">The git arguments, in order.</param>
-    /// <returns>The exit status together with the captured output bytes and error text.</returns>
-    static (int Status, byte[] Bytes, string Error) RunGitBytes(string workdir, params string[] args)
-    {
-        var start = new ProcessStartInfo("git")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = workdir,
-        };
-
-        foreach (var arg in args)
-        {
-            start.ArgumentList.Add(arg);
-        }
-
-        try
-        {
-            using var process = Process.Start(start)!;
-            using var bytes = new MemoryStream();
-            var stdout = Task.Run(() => process.StandardOutput.BaseStream.CopyTo(bytes));
-            var stderr = process.StandardError.ReadToEndAsync();
-
-            if (!process.WaitForExit(TimeSpan.FromMinutes(5)) || !stdout.Wait(TimeSpan.FromMinutes(1)))
-            {
-                process.Kill(entireProcessTree: true);
-                return (1, [], "git did not finish in five minutes.");
-            }
-
-            return (process.ExitCode, bytes.ToArray(), stderr.Result);
-        }
-        catch (System.ComponentModel.Win32Exception)
-        {
-            return (1, [], "git is not available.");
-        }
     }
 }

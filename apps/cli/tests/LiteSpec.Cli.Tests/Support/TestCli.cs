@@ -1,0 +1,101 @@
+using System.Diagnostics;
+
+namespace LiteSpec.Cli.Tests.Support;
+
+/// <summary>
+///     Runs the built <c>litespec</c> CLI as its own process, the way a consumer
+///     runs it, so a case proves the exit code and the printed text together.
+/// </summary>
+static class TestCli
+{
+    /// <summary>Gets the LiteSpec repository root, found above the test binary.</summary>
+    public static string Repository { get; } = FindRepository();
+
+    /// <summary>A folder under the test fixtures, from forward-slash segments.</summary>
+    /// <param name="relative">The fixture path with forward-slash segments.</param>
+    /// <returns>The full path to the fixture folder.</returns>
+    public static string Fixture(string relative) =>
+        Path.Combine(Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Fixtures", relative.Replace('/', Path.DirectorySeparatorChar));
+
+    /// <summary>
+    ///     Gets the native <c>litespec</c> executable the suite runs instead of the built
+    ///     <c>litespec.dll</c>, from <c>LITESPEC_TEST_EXECUTABLE</c>, or null to run the build
+    ///     output on the .NET runtime. CI sets it on each platform, so the one suite proves
+    ///     the native binary a consumer installs.
+    /// </summary>
+    public static string? Executable { get; } = Environment.GetEnvironmentVariable("LITESPEC_TEST_EXECUTABLE") is { Length: > 0 } executable
+        ? Path.GetFullPath(executable)
+        : null;
+
+    /// <summary>Runs <c>litespec</c> with the arguments, in the working directory when one is given.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <param name="workingDirectory">The working directory, or null for the repository root.</param>
+    /// <param name="environment">Extra environment variables, or null for none.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
+    public static CliResult Run(IEnumerable<string> args, string? workingDirectory = null, IDictionary<string, string>? environment = null)
+    {
+        var start = new ProcessStartInfo(Executable ?? "dotnet")
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            WorkingDirectory = workingDirectory ?? Repository,
+        };
+
+        if (Executable is null)
+        {
+            start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "litespec.dll"));
+        }
+
+        foreach (var arg in args)
+        {
+            start.ArgumentList.Add(arg);
+        }
+
+        start.Environment["LITESPEC_HOME"] = Repository;
+
+        // The check blocks on planned Intent and on a missing reader only in continuous
+        // integration, so every run starts outside it; a test that needs CI sets it.
+        start.Environment["CI"] = "";
+
+        foreach (var (key, value) in environment ?? new Dictionary<string, string>())
+        {
+            start.Environment[key] = value;
+        }
+
+        using var process = Process.Start(start)!;
+        var stdout = process.StandardOutput.ReadToEndAsync();
+        var stderr = process.StandardError.ReadToEndAsync();
+
+        if (!process.WaitForExit(TimeSpan.FromMinutes(3)))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new TimeoutException($"litespec {string.Join(' ', args)} did not finish in three minutes.");
+        }
+
+        return new CliResult(process.ExitCode, stdout.Result, stderr.Result);
+    }
+
+    /// <summary>Runs <c>litespec</c> with the arguments.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
+    public static CliResult Run(params string[] args) => Run((IEnumerable<string>)args);
+
+    /// <summary>A fresh, empty temporary folder that the caller deletes.</summary>
+    /// <param name="prefix">The prefix in the temporary folder name.</param>
+    /// <returns>The fresh temporary folder.</returns>
+    public static TempFolder Temp(string prefix) => new(prefix);
+
+    static string FindRepository()
+    {
+        for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
+        {
+            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.yaml")))
+            {
+                return folder.FullName;
+            }
+        }
+
+        throw new InvalidOperationException("The test binary sits outside a LiteSpec checkout.");
+    }
+}

@@ -12,7 +12,7 @@ namespace LiteSpec.Consumer;
 /// </summary>
 /// <follows>litespec/core/authoring#record-the-reviewed-litespec-release</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
-/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
+/// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
 /// <follows>litespec/core/scope#record-selected-extensions</follows>
 static class ManifestSelectionChecks
 {
@@ -40,20 +40,7 @@ static class ManifestSelectionChecks
     public static void CheckManifest(ConsumerRun run)
     {
         var projectFile = ConsumerRoot.ProjectFile(run.Root);
-        JsonNode? manifest = null;
-        var manifestFile = Path.Join(run.StandardsRoot, "litespec.manifest.json");
-
-        if (File.Exists(manifestFile))
-        {
-            try
-            {
-                manifest = run.ReadJson(manifestFile);
-            }
-            catch (Exception cause) when (cause is JsonException or IOException or UnauthorizedAccessException)
-            {
-                ConsumerRun.FailInput($"litespec.manifest.json: not valid JSON ({cause.Message})");
-            }
-        }
+        var manifest = run.ReadManifest();
 
         // Adopting a release means accepting its complete contract, so the project
         // records the release it reviewed. A mismatch means the installed tool
@@ -66,7 +53,7 @@ static class ManifestSelectionChecks
             if (!JsonValues.IsTruthy(reviewed))
             {
                 run.Err(new Finding(
-                    "release-mismatch",
+                    "release-drift",
                     $"missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is {JsonValues.Text(version)}",
                     projectFile,
                     1,
@@ -75,8 +62,8 @@ static class ManifestSelectionChecks
             else if (!JsonValues.StrictEqual(reviewed, version))
             {
                 run.Err(new Finding(
-                    "release-mismatch",
-                    $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and run 'dotnet tool restore', or re-review the contract and record {JsonValues.Text(version)}",
+                    "release-drift",
+                    $"reviewedLiteSpecVersion '{JsonValues.Text(reviewed)}' does not match the installed LiteSpec tool release {JsonValues.Text(version)}; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version {JsonValues.Text(reviewed)}' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record {JsonValues.Text(version)}",
                     projectFile,
                     1,
                     null));
@@ -87,9 +74,9 @@ static class ManifestSelectionChecks
         // stack-scoped provision would pass by applying to nothing.
         var project = run.Project as JsonObject;
         var manifestObj = manifest as JsonObject;
-        var shape = JsonRead.PropString(project, "shape") ?? "server";
+        var shape = JsonValues.PropString(project, "shape") ?? "server";
         var named = project?["stacks"] is JsonArray declaredStacks
-            ? declaredStacks.Select(JsonRead.AsString).OfType<string>().ToList()
+            ? declaredStacks.Select(JsonValues.AsString).OfType<string>().ToList()
             : new List<string>();
 
         if (manifestObj is not null)
@@ -113,13 +100,14 @@ static class ManifestSelectionChecks
 
             var backends = named.Where(byId.ContainsKey).Where(stack => byId[stack].Kind == "backend").ToList();
 
-            // At the records conformance level stacks are informational, so a
-            // project may name none; every other level selects its stacks here.
-            var recordsLevel = JsonRead.PropString(project, "conformance") == "records";
+            // Without an Implementation or Proof claim stacks are informational, so a project may
+            // name none; a claim of either one selects its stacks here.
+            var claims = ProjectSettings.TryParse(File.ReadAllText(projectFile), out var settings, out _) ? settings.Layers : LayerClaims.All;
+            var readsCode = claims.Implementation is not null || claims.Proof is not null;
 
             // A server project names exactly one backend stack; a client-only
             // project names none, and reads the backend pages its shape lists.
-            if (!recordsLevel && shape == "client-only")
+            if (readsCode && shape == "client-only")
             {
                 foreach (var backend in backends)
                 {
@@ -131,7 +119,7 @@ static class ManifestSelectionChecks
                         null));
                 }
             }
-            else if (!recordsLevel && backends.Count != 1)
+            else if (readsCode && backends.Count != 1)
             {
                 run.Err(new Finding(
                     "stack-invalid",
@@ -210,7 +198,7 @@ static class ManifestSelectionChecks
                         // An extension under a stack folder supports that stack only;
                         // under docs/ext/ it supports every stack. Selecting it without
                         // its stack applies nothing it states.
-                        var path = JsonRead.AsString((shipped as JsonObject)?["path"]);
+                        var path = JsonValues.AsString((shipped as JsonObject)?["path"]);
 
                         if (path is not null && !IsUnder(path, "docs/ext"))
                         {
@@ -237,10 +225,10 @@ static class ManifestSelectionChecks
     }
 
     /// <summary>
-    ///     Holds stage deferrals to their exception records: each departure names its
-    ///     deferred provision in covers, so a deferral of an unknown provision is
+    ///     Holds stage deferrals to their departure records: each departure names its
+    ///     deferred provisions in covers, so a deferral of an unknown provision is
     ///     refused here. A deferral past its date belongs to the model check, which
-    ///     reports exception-expired.
+    ///     reports departure-expired.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckStageDeferrals(ConsumerRun run)
@@ -253,8 +241,8 @@ static class ManifestSelectionChecks
         }
 
         // The page scan already reported every malformed record file, so this pass reads
-        // quietly and keeps the departure exceptions only.
-        var deferrals = new List<(string File, string Id, string? Provision)>();
+        // quietly and keeps the departures only.
+        var deferrals = new List<(string File, string Id, string Provision)>();
 
         foreach (var file in run.Files)
         {
@@ -271,10 +259,16 @@ static class ManifestSelectionChecks
             var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
 
             if (page is not null
-                && JsonRead.PropString(page, "type") == "exception"
-                && JsonRead.PropString(page, "kind") == "departure")
+                && JsonValues.PropString(page, "type") == "departure"
+                && page["covers"] is JsonArray covers)
             {
-                deferrals.Add((file, JsonRead.PropText(page, "id"), JsonRead.AsString(page["covers"])));
+                foreach (var cover in covers)
+                {
+                    if (JsonValues.AsString(cover) is { } provision && provision.Contains('#'))
+                    {
+                        deferrals.Add((file, JsonValues.PropText(page, "id"), provision));
+                    }
+                }
             }
         }
 
@@ -296,15 +290,14 @@ static class ManifestSelectionChecks
 
         foreach (var (file, id, provision) in deferrals)
         {
-            // A covers that is no string already failed the record schema beside this page.
-            if (provision is null || knownProvisions.Contains(provision))
+            if (knownProvisions.Contains(provision))
             {
                 continue;
             }
 
             run.Err(new Finding(
                 "stage-deferral-invalid",
-                $"exception '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
+                $"departure '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
                 file,
                 1,
                 id));

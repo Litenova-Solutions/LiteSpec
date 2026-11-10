@@ -1,14 +1,13 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Model.Readers;
-using LiteSpec.Model.Readers.Coverage;
 using LiteSpec.Model.Readers.Measures;
 
 namespace LiteSpec.Model;
 
 /// <summary>
 ///     Builds the project model: reads records, code, screens, tests, the test run,
-///     scenario coverage and measured-check results, then computes the implements,
+///     and measured-check results, then computes the implements,
 ///     calls and proves links and the proof states.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
@@ -19,10 +18,9 @@ static partial class ModelBuilder
     /// <returns>The built project model.</returns>
     public static ProjectModel Build(ConsumerConfig config)
     {
-        var total = System.Diagnostics.Stopwatch.StartNew();
         var model = new ProjectModel { Config = config };
 
-        var read = Timed("records", () => RecordReader.Read(config));
+        var read = RecordReader.Read(config);
 
         model.Problems.AddRange(read.Problems);
         model.Problems.AddRange(config.Problems);
@@ -33,12 +31,12 @@ static partial class ModelBuilder
         model.AppliedPages = applied.Pages;
         model.AppliedProvisions = applied.Provisions;
 
-        // At records no stack reader runs: the project claims the record model
-        // alone, so code, screens, tests, test runs, coverage and measure
-        // results stay unread and every traced or full finding stays silent
-        // through the level filter in the checker. The proof ledger still
-        // loads, because it states hashes the next traced build compares.
-        if (config.Conformance == ConformanceLevel.Records)
+        // Without an Implementation or Proof claim no stack reader runs: the
+        // project claims the record model alone, so code, screens, tests, test
+        // runs, coverage and measure results stay unread and every finding
+        // about them stays silent through the claim filter in the checker. The
+        // proof ledger still loads, because it states hashes the next build compares.
+        if (!config.ReadsCode)
         {
             model.Code = new CodeModel();
             model.Ledger = ProofLedger.Load(config);
@@ -48,12 +46,12 @@ static partial class ModelBuilder
         {
             var stacks = StackReaders.For(config);
             model.Problems.AddRange(stacks.Problems);
-            var backendRead = Timed("code", () => stacks.Backend.Read(config));
+            var backendRead = stacks.Backend.Read(config);
 
             model.Code = backendRead.Code;
             model.Problems.AddRange(backendRead.Problems);
 
-            var screens = Timed("screens", () => ReadScreens(config, stacks, model.Code));
+            var screens = ReadScreens(config, stacks, model.Code);
 
             model.Screens.AddRange(screens.Screens);
             model.ScreenComments.AddRange(screens.Comments);
@@ -61,7 +59,7 @@ static partial class ModelBuilder
             model.Problems.AddRange(screens.Findings);
             model.TypeScriptQualified = screens.TypeScriptQualified;
 
-            var scenarioRead = Timed("tests", () => stacks.Scenarios.Read(config));
+            var scenarioRead = stacks.Scenarios.Read(config);
             var tests = scenarioRead.Tests;
 
             model.Problems.AddRange(scenarioRead.Problems);
@@ -72,32 +70,23 @@ static partial class ModelBuilder
             model.StepFacts = tests.StepFacts;
             model.ProbeRoutes = tests.ProbeRoutes;
             model.TestComments.AddRange(tests.Comments);
-            model.TestRun = Timed("testrun", () => stacks.TestRuns.Read(config));
+            model.TestRun = stacks.TestRuns.Read(config);
             model.Ledger = ProofLedger.Load(config);
             model.Problems.AddRange(model.Ledger.Problems);
 
-            var coverage = Timed("coverage", () => CoverageReader.Read(config));
-
-            model.UnreachedCode.AddRange(coverage.Gaps);
-            model.CoverageRead = coverage.Read;
-            model.Measures.AddRange(Timed("measures", () => MeasureReader.Read(config)));
+            model.Measures.AddRange(MeasureReader.Read(config, model.Problems));
         }
 
-        Timed("compute", () =>
-        {
-            ModelLinks.MatchEvents(model);
-            ModelLinks.ComputeImplements(model);
-            ModelLinks.ComputeFollows(model);
-            ComputeCalls(model);
-            RefusalCodes.Compute(model);
-            ProofConfirmation.Compute(model);
-            CompletionCalculator.Compute(model);
-            ComputeReachableStates(model);
-            Constituents.Compute(model);
-            ScreenshotCaptures.Compute(model);
-        });
-
-        Timing.Report($"[time] build total {total.Elapsed.TotalSeconds:0.0}s");
+        ModelLinks.MatchEvents(model);
+        ModelLinks.ComputeImplements(model);
+        ModelLinks.ComputeFollows(model);
+        ComputeCalls(model);
+        RefusalCodes.Compute(model);
+        ProofConfirmation.Compute(model);
+        CompletionCalculator.Compute(model);
+        ComputeReachableStates(model);
+        Constituents.Compute(model);
+        ScreenshotCaptures.Compute(model);
 
         return model;
     }
@@ -150,27 +139,6 @@ static partial class ModelBuilder
         }
     }
 
-    /// <summary>Runs one build phase and reports how long it took.</summary>
-    /// <param name="name">The phase name.</param>
-    /// <param name="run">The phase.</param>
-    /// <returns>The value the phase produced.</returns>
-    /// <typeparam name="T">The value type the phase produces.</typeparam>
-    private static T Timed<T>(string name, Func<T> run)
-    {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-        var value = run();
-
-        Timing.Report($"[time] {name} {watch.Elapsed.TotalSeconds:0.0}s");
-
-        return value;
-    }
-
-    /// <summary>Runs one build phase and reports how long it took.</summary>
-    /// <param name="name">The phase name.</param>
-    /// <param name="run">The phase.</param>
-    private static void Timed(string name, Action run) =>
-        Timed(name, () => { run(); return 0; });
-
     /// <summary>
     ///     The standard pages and provisions the project's stacks and extensions apply, through the
     ///     shared stack layout. Empty when the carried release or its manifest cannot
@@ -220,21 +188,7 @@ static partial class ModelBuilder
 
         try
         {
-            if (System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(manifestFile)) is not System.Text.Json.Nodes.JsonObject manifest)
-            {
-                problems.Add(new Finding(
-                    "reader-missing",
-                    $"The LiteSpec manifest '{manifestFile}' could not be read: its root is not a JSON object; the applied pages were not read.",
-                    manifestFile,
-                    1,
-                    null)
-                {
-                    Reader = Finding.RoslynReader,
-                    ReaderIsQualified = true,
-                });
-
-                return EmptySelection();
-            }
+            var manifest = LiteSpecHome.ReadManifest(home);
 
             return (
                 new HashSet<string>(
@@ -244,7 +198,7 @@ static partial class ModelBuilder
                     Authoring.Layout.AppliedProvisions(home, manifest, config.Shape, config.Stacks, config.Extensions),
                     StringComparer.Ordinal));
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)
         {
             problems.Add(new Finding(
                 "reader-missing",
@@ -338,7 +292,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "compensation", "authority", "operation", "event" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {
@@ -429,15 +383,6 @@ static partial class ModelBuilder
     /// <param name="useCase">The use case record.</param>
     /// <returns>The permission the grant names, or null when it names none.</returns>
     public static string? GrantedPermission(Record useCase) => UseCaseFacts.GrantedPermission(useCase);
-
-    /// <summary>
-    ///     The refusal code of the rule: the code of the refusal result it names,
-    ///     or its bare refusal code. The shared refusal rule over the model.
-    /// </summary>
-    /// <param name="model">The project model.</param>
-    /// <param name="rule">The rule record.</param>
-    /// <returns>The refusal code of the rule, or null when it refuses with none.</returns>
-    public static string? RefusalResultCode(ProjectModel model, Record rule) => RefusalCodes.ResultCode(model, rule);
 
     /// <summary>Whether any of the use case's inputs carries rules.</summary>
     /// <param name="useCase">The use case record.</param>

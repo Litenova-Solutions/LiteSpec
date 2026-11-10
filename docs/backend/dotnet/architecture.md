@@ -2,7 +2,7 @@
 
 **Stack:** dotnet
 
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -38,13 +38,13 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **ID:** `litespec/backend/dotnet/architecture#mirror-modules-aggregates-and-use-cases-in-one-namespace-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
 **Statement:** Every type in the shared kernel and modules projects MUST live in the namespace tree that starts with the product name and follows the folders below the project root.
 
-**Rationale:** The namespace reads like the qualified identifier, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
+**Rationale:** The namespace reads like the folder path, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
 
 **Example:** The Expenses aggregate of the Spending module fills one branch:
 
@@ -61,7 +61,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -110,7 +110,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-application-types-in-their-layer-folders`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -124,7 +124,7 @@ The handler above lives in namespace `Claimwick.Spending.Expenses.UseCases.Submi
 
 **ID:** `litespec/backend/dotnet/architecture#keep-implementation-types-internal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, endpoint
 
@@ -140,24 +140,15 @@ This provision binds `litespec/backend/architecture#keep-implementation-types-hi
 
 **ID:** `litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** A type MUST reference only the layers its own layer allows under the layer table in this section.
+**Statement:** A type MUST reference only the layers its own layer allows under the layer table of [Backend Architecture](../architecture.md#the-four-layers).
 
 **Rationale:** Layers are roles played by folders and use case files, whatever project holds them. A file takes its layer from its folder and, inside a use case folder, from its role suffix. Global usings import namespaces for every file, so the rule reads them too and they hide coupling from nothing. This provision binds `litespec/backend/architecture#point-dependencies-inward` for .NET.
 
-**Example:**
-
-| Layer | Holds | May reference |
-|:---|:---|:---|
-| Domain | Aggregates, state records, value objects, domain events, domain exceptions, repository contracts | Domain |
-| Application | Commands, queries, results, handlers, validators, ports, pipeline positions | Domain, Application |
-| Infrastructure | Repositories, adapters, mappings, module registration | Domain, Application, Infrastructure |
-| WebApi | Endpoints, request and response models, transport mappings | Application, WebApi, and from Domain only typed identifiers and shared-kernel values |
-
-Domain touches no Application Infrastructure or WebApi type and none of the persistence web mediator logging and injection namespaces. Application touches no Infrastructure or WebApi type and no ASP.NET Core type. WebApi touches no Domain type outside typed identifiers and shared-kernel values and no repository.
+**Example:** Domain touches no Application Infrastructure or WebApi type and none of the persistence web mediator logging and injection namespaces. Application touches no Infrastructure or WebApi type and no ASP.NET Core type. WebApi touches no Domain type outside typed identifiers and shared-kernel values and no repository.
 
 **Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type and `LS2018` for an Application or WebApi type naming a type outside its layer.
 
@@ -165,7 +156,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#keep-use-case-folders-isolated`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case, command-handler, query-handler, validator, endpoint, reaction
 
@@ -179,7 +170,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -193,7 +184,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#follow-declared-module-dependencies`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -207,7 +198,7 @@ Domain touches no Application Infrastructure or WebApi type and none of the pers
 
 **ID:** `litespec/backend/dotnet/architecture#keep-host-endpoints-in-hosts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 

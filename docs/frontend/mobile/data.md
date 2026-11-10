@@ -1,7 +1,7 @@
 # Mobile Data and State
 
 **Stack:** any
-**Layer:** frontend-data
+**Concern:** frontend-data
 
 ## Intent
 
@@ -11,7 +11,7 @@ Data handling in a mobile app routes every use case through an Application handl
 
 ### The Three State Classifications
 
-Durable state is what the user made: persisted, versioned, and exported. The expense report the visitor files is durable state, because the visitor built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted: an expense total is derived from the report lines each time it is read.
+Durable state is what the user made: persisted, versioned, and exported. The expense report the user files is durable state, because the user built it and it must survive a restart and an export. Device-local state is persisted but stays on the device, excluded from export. Derived state is computed from durable state and never persisted: an expense total is derived from the report lines each time it is read.
 
 ## Standards
 
@@ -19,7 +19,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#load-persisted-state-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Persisted state MUST load once at startup into a typed store that screens read from, with screens showing a loading state until it is ready.
 
@@ -31,7 +31,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#keep-persisted-state-in-app-private-storage`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Persisted state and media the user adds MUST live in the app's private storage, written atomically.
 
@@ -45,7 +45,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#copy-picked-media-into-the-app`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Media picked from the device MUST be copied into app-private storage on import rather than kept as a reference to the picker's URI.
 
@@ -57,7 +57,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#make-refusals-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A handler MUST return a typed result union covering success and each named refusal, with each screen mapping every refusal to a message.
 
@@ -69,7 +69,7 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **ID:** `litespec/frontend/mobile/data#call-the-server-only-through-the-generated-client`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A `server` consumer's app MUST call the backend only through the generated client in `{ProjectName}.Client`.
 
@@ -85,12 +85,12 @@ Durable state is what the user made: persisted, versioned, and exported. The exp
 
 **Strength:** default
 
-**Default:** While the network is unavailable, a screen shows its failure state and queues no command; the visitor retries the command in the foreground when the network returns.
+**Default:** While the network is unavailable, a screen shows its failure state and queues no command; the user retries the command in the foreground when the network returns.
 
-**Replacement:** A project records a departure as an explicit local convention naming each command it queues offline, its stored form, and its replay order.
+**Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A queued command runs later against state the visitor cannot see, so an expense submitted on a train can land after its trip closed or its approval policy changed. Showing the failure state keeps the refusal where the visitor caused it, and queuing nothing keeps every command tied to the screen that sent it. A project that needs offline capture states that departure and its replay rules instead of letting each screen improvise a queue.
+**Rationale:** A queued command runs later against state the user cannot see, so an expense submitted on a train can land after its trip closed or its approval policy changed. Showing the failure state keeps the refusal where the user caused it, and queuing nothing keeps every command tied to the screen that sent it. A project that needs offline capture states its local convention and its replay rules instead of letting each screen improvise a queue.
 
-**Example:** Filing expense EXP-1042 for the Rotterdam client visit with no network shows the failure state on the expense screen and sends nothing; the visitor submits the expense again when the network returns.
+**Example:** Filing expense EXP-1042 for the Rotterdam client visit with no network shows the failure state on the expense screen and sends nothing; the user submits the expense again when the network returns.
 
-**Reviewed for:** Which screens queue a command while offline without a recorded departure naming the queued commands and their replay order, and which offline screens show no failure state? Look in the command call sites and the offline screens.
+**Reviewed for:** Which screens queue a command while offline without a recorded local convention naming the queued commands and their replay order, and which offline screens show no failure state? Look in the command call sites and the offline screens.

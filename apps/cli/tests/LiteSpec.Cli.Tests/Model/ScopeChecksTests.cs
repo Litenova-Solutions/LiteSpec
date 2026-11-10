@@ -1,17 +1,22 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves every runbook answers something.</summary>
 public sealed class ScopeChecksTests
 {
     /// <summary>An unnamed runbook reports.</summary>
-    /// <proves>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
     [Fact]
-    public void Unnamed_Runbook_Reports()
+    public void UnnamedRunbookReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
+
+        // The runbook codes belong to the delivery extension, so the project selects it.
+        Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), "selectedExtensions:\n  - id: delivery\n    criterion: The project runs alerts and runbooks in production.\n");
+
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -24,11 +29,11 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook a job names passes.</summary>
-    /// <proves>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
     [Fact]
-    public void Runbook_Named_By_Job_Passes()
+    public void RunbookNamedByJobPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -46,11 +51,11 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook a use-case failure policy names passes.</summary>
-    /// <proves>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
     [Fact]
-    public void Runbook_Named_By_Failure_Policy_Passes()
+    public void RunbookNamedByFailurePolicyPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -68,11 +73,11 @@ public sealed class ScopeChecksTests
     }
 
     /// <summary>A runbook an alert rule names passes.</summary>
-    /// <proves>litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
+    /// <proves>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</proves>
     [Fact]
-    public void Runbook_Named_By_Alert_Passes()
+    public void RunbookNamedByAlertPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var alert = Path.Combine(temp.Path, "alerts", "queue.yaml");
         Directory.CreateDirectory(Path.Combine(temp.Path, "alerts"));
         File.WriteAllText(alert, """
@@ -86,7 +91,7 @@ public sealed class ScopeChecksTests
             """);
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec", "project.json"),
+            Path.Combine(temp.Path, ".litespec", "project.yaml"),
             """{"paths": {"alerts": ["alerts"]}}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

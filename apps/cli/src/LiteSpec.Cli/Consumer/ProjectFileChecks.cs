@@ -8,7 +8,7 @@ namespace LiteSpec.Consumer;
 ///     The project record checks of the consumer validator: the record against
 ///     its schema, the documentation root, and the extension selections.
 /// </summary>
-/// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 static class ProjectFileChecks
 {
@@ -24,7 +24,7 @@ static class ProjectFileChecks
         // The project record is validated through the shared schema module, so the
         // schema is the one statement of its shape. A hand table beside it would need
         // the same edit twice and drift on the third.
-        run.Schema("project-invalid", projectFile, ".litespec/project.json", JsonSchema.Problems(run.ProjectSchemaFile, run.Project, ".litespec/project.json", run.ReadSchema));
+        run.Schema("project-invalid", projectFile, ConsumerRoot.ProjectFileDisplay, JsonSchema.Problems(run.ProjectSchemaFile, run.Project, ConsumerRoot.ProjectFileDisplay, run.ReadSchema));
 
         // A placeholder left from the template, such as __PROJECT__, reads as a real value to
         // every later check, so the run names each one instead of passing over it.
@@ -44,7 +44,7 @@ static class ProjectFileChecks
         // scans nothing in a consumer that keeps its pages elsewhere, and a scan of
         // nothing reports PASS. '.litespec' stays the default because that is the layout the
         // standards describe.
-        run.DocsPath = JsonRead.PropString(paths, "docs") ?? ".litespec";
+        run.DocsPath = JsonValues.PropString(paths, "docs") ?? ".litespec";
         run.DocsRoot = Path.Join(run.Root, run.DocsPath);
 
         // A configured path that does not resolve disables the checks that read it and
@@ -62,7 +62,7 @@ static class ProjectFileChecks
                 continue;
             }
 
-            var text = JsonRead.AsString(value);
+            var text = JsonValues.AsString(value);
 
             if (text is null || text.Trim().Length == 0)
             {
@@ -93,14 +93,14 @@ static class ProjectFileChecks
     /// <returns>The normalized selection.</returns>
     static Selection NormalizeSelection(JsonNode? entry)
     {
-        if (entry is JsonValue && JsonRead.AsString(entry) is string id)
+        if (entry is JsonValue && JsonValues.AsString(entry) is string id)
         {
             return new Selection(id, id);
         }
 
         if (entry is JsonObject container)
         {
-            return new Selection(JsonRead.PropString(container, "id"), JsonRead.PropText(container, "id"));
+            return new Selection(JsonValues.PropString(container, "id"), JsonValues.PropText(container, "id"));
         }
 
         return new Selection(null, "undefined");

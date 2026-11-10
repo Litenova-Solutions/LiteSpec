@@ -1,0 +1,16 @@
+type: decision
+id: decision/0030-limit-the-jobs-extension
+title: Jobs Extension Limited to Scheduled and Manual Work
+options:
+  - name: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
+    pros: "The extension covers the work a small team runs, and no provision describes a check that nothing reads."
+    cons: "A team that runs an ingest pipeline or a workflow engine keeps those provisions in its own practice."
+  - name: "Keep all six subjects"
+    pros: "No provision leaves the extension."
+    cons: "The ingest pipeline serves a data-ingestion product, and the engine provisions describe steps that no record kind can state."
+  - name: "Remove the extension"
+    pros: "No extension to maintain."
+    cons: "Teams that run scheduled work lose the lease, cursor and misfire rules they still need."
+choice: "Keep scheduled and manual jobs, occurrences, time rules, queues and reports"
+consequences: "The extension keeps 59 provisions, down from 73, for scheduled and manual jobs, occurrences, time rules, human-cleared queues and reports. The ingest pipeline and the workflow-engine subjects leave with their 14 provisions. The record schema has no saga kind, and no check reads engine steps. The removed IDs appear in the 5.0.0 provision diff."
+reopenedWhen: "A team must prove a multi-step workflow that no record can state, or an ingest pipeline that a product must prove."

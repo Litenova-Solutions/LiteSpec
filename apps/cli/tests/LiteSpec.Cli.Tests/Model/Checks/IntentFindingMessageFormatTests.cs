@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves every finding message from the intent-side checkers starts with a subject title and quoted identifier.</summary>
 public sealed class IntentFindingMessageFormatTests
@@ -43,9 +43,9 @@ public sealed class IntentFindingMessageFormatTests
     /// <summary>Intent Messages Start With A Subject And Identifier.</summary>
     /// <proves>litespec/core/language#write-each-finding-message-as-a-fact</proves>
     [Fact]
-    public void Intent_Messages_Start_With_A_Subject_And_Identifier()
+    public void IntentMessagesStartWithASubjectAndIdentifier()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = IntentModel(temp.Path);
 
         var findings = Checker.Check(model).Findings.ToList();

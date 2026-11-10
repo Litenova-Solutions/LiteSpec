@@ -4,7 +4,7 @@
 
 | Version | Supported |
 |:---|:---|
-| 3.0.x | Yes |
+| 5.0.x | Yes |
 | Older | No |
 
 ## Reporting a Vulnerability
@@ -23,4 +23,4 @@ Coordinate public disclosure with the maintainers. The default disclosure window
 
 ## Scope
 
-The scope covers the packages published from this repository: `LiteSpec.Cli` from `apps/cli/` and `LiteSpec.Analyzers` from `apps/analyzers/`. The examples under `examples/` and the site under `apps/site/` are out of scope.
+The scope covers what this repository publishes: the `LiteSpec.Cli` packages from `apps/cli/`, the `LiteSpec.Analyzers` package from `apps/analyzers/`, and the standalone archives and the install scripts in `apps/cli/install/` that each GitHub release carries. The examples under `examples/` and the site under `apps/site/` are out of scope.

@@ -53,4 +53,4 @@ litespec-maintain changelog --from v3.0.0 --check
 
 ## Underneath
 
-The command reads the old copies with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.json`, run from the repository root. The comparison and the section rewrite have no separate entry point. They run only as part of this command.
+The command reads the old copies with `git show <ref>:docs/reference/provisions.json` and `git show <ref>:litespec.manifest.yaml`, run from the repository root. The comparison and the section rewrite have no separate entry point. They run only as part of this command.

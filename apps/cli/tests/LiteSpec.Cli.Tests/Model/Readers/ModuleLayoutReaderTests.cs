@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the backend readers recognize kinds and layers under the modules root.</summary>
 public sealed class ModuleLayoutReaderTests
@@ -10,9 +10,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>A handler in a use case folder reads as a handler.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Handler_In_Use_Case_Folder_Reads_As_Handler()
+    public void HandlerInUseCaseFolderReadsAsHandler()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var code = ReadBackend(temp.Path);
 
@@ -24,9 +24,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>A marked interface under Contracts reads as a port.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Interface_In_Contracts_Reads_As_Port()
+    public void InterfaceInContractsReadsAsPort()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var code = ReadBackend(temp.Path);
 
@@ -38,9 +38,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>A marked class in a Domain folder reads as a domain service.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Class_In_Domain_Folder_Reads_As_Domain_Service()
+    public void ClassInDomainFolderReadsAsDomainService()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var code = ReadBackend(temp.Path);
 
@@ -52,9 +52,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>An endpoint in a use case folder reads as an endpoint.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Endpoint_In_Use_Case_Folder_Reads_As_Endpoint()
+    public void EndpointInUseCaseFolderReadsAsEndpoint()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var code = ReadBackend(temp.Path);
 
@@ -66,9 +66,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>A marked interface in a Domain folder reads as no port.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Interface_In_Domain_Folder_Reads_As_No_Port()
+    public void InterfaceInDomainFolderReadsAsNoPort()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var code = ReadBackend(temp.Path);
 
@@ -78,9 +78,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>Each file reads its layer from its nearest layer folder or its role suffix.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader</proves>
     [Fact]
-    public void Layer_Comes_From_Layer_Folder_Or_Role_Suffix()
+    public void LayerComesFromLayerFolderOrRoleSuffix()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var config = ConsumerConfig.Load(temp.Path);
 
@@ -95,9 +95,9 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>Unmarked Domain types group by their aggregate folder under the modules root, and shared kernel types under the kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Constituents_Group_By_Aggregate_Folder_In_Module_Layout()
+    public void ConstituentsGroupByAggregateFolderInModuleLayout()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         WriteModuleProject(temp.Path);
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         var root = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Loan.cs");
@@ -120,13 +120,13 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>The modules and shared kernel roots resolve without the layer-projects extension, leaving the layer roots empty.</summary>
     /// <proves>litespec/core/model#declare-size-and-stacks</proves>
     [Fact]
-    public void Module_Layout_Resolves_The_Modules_And_Shared_Kernel_Roots()
+    public void ModuleLayoutResolvesTheModulesAndSharedKernelRoots()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"}");
         var config = ConsumerConfig.Load(temp.Path);
 
@@ -140,16 +140,16 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>The layer-projects extension resolves the five project roots from their defaults.</summary>
     /// <proves>litespec/core/model#declare-size-and-stacks</proves>
     [Fact]
-    public void Layer_Projects_Extension_Resolves_Five_Roots()
+    public void LayerProjectsExtensionResolvesFiveRoots()
     {
-        using var temp = Cli.Temp("readers");
+        using var temp = TestCli.Temp("readers");
         foreach (var project in new[] { "Library.Application", "Library.Domain", "Library.Infrastructure", "Library.WebApi", "Library.Worker" })
         {
             Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", project));
         }
 
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"selectedExtensions\": [{\"id\": \"layer-projects\", \"criterion\": \"five projects\"}]}");
         var config = ConsumerConfig.Load(temp.Path);
 
@@ -172,7 +172,7 @@ public sealed class ModuleLayoutReaderTests
     static void WriteModuleProject(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"sharedKernel\": \"apps/api/src/Library.SharedKernel\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         WriteSource(ProductFile(root, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs"), """
             namespace Library.Lending.Loans.UseCases.BorrowCopy;

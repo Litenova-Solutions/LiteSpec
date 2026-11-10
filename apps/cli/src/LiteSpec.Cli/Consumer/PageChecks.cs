@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Authoring;
 using LiteSpec.Model;
+using LiteSpec.Ui;
 using LiteSpec.Schemas;
 
 namespace LiteSpec.Consumer;
@@ -11,7 +12,7 @@ namespace LiteSpec.Consumer;
 ///     validates each record file and each document's frontmatter against the record schema,
 ///     and checks the explanation and document sections, headings, and the Example word bound.
 /// </summary>
-/// <follows>litespec/core/authoring#declare-structured-specification-metadata</follows>
+/// <follows>litespec/core/model#declare-structured-specification-metadata</follows>
 /// <follows>litespec/core/authoring#use-the-declared-page-contract</follows>
 static class PageChecks
 {
@@ -57,7 +58,14 @@ static class PageChecks
     /// <param name="run">The state of the run.</param>
     public static void CollectFiles(ConsumerRun run)
     {
-        run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, run.GlossaryFile));
+        var notPages = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            run.GlossaryFile,
+            ConsumerRoot.ProjectFile(run.Root),
+            Path.GetFullPath(Path.Join(run.Root, JsonValues.PropString(run.Project?["paths"] as JsonObject, "uiPatterns") ?? CatalogChecks.DefaultCatalog)),
+        };
+
+        run.Files.AddRange(GlobWalker.PageFiles(run.DocsRoot, notPages));
     }
 
     /// <summary>
@@ -77,12 +85,11 @@ static class PageChecks
             errors[slot] = [];
         }
 
-        var watch = System.Diagnostics.Stopwatch.StartNew();
 
         Parallel.For(0, count, index =>
         {
             var file = run.Files[index];
-            var relative = run.Relative(file);
+            var relative = PathText.Relative(run.Root, file);
             var raw = run.ReadText(file);
             var add = errors[index].Add;
 
@@ -96,8 +103,6 @@ static class PageChecks
             }
         });
 
-        watch.Stop();
-        Timing.Report($"[time] consumer-pages {watch.Elapsed.TotalSeconds:0.0}s");
 
         for (var index = 0; index < count; index++)
         {
@@ -132,8 +137,8 @@ static class PageChecks
             return false;
         }
 
-        var meta = JsonNode.Parse(tree.ToJson());
-        var subject = JsonRead.PropString(meta as JsonObject, "id");
+        var meta = RecordFile.NodeOf(tree);
+        var subject = JsonValues.PropString(meta as JsonObject, "id");
 
         // The record is validated through the shared schema module against the
         // record schema, so the schema is the one statement of every record shape.
@@ -142,7 +147,7 @@ static class PageChecks
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
-        var type = JsonRead.PropString(meta as JsonObject, "type");
+        var type = JsonValues.PropString(meta as JsonObject, "type");
 
         if (type is not null && DocumentStyles.Contains(type))
         {
@@ -229,14 +234,14 @@ static class PageChecks
         }
 
         var meta = JsonNode.Parse(parsed.Root.GetRawText());
-        var subject = JsonRead.PropString(meta as JsonObject, "id");
+        var subject = JsonValues.PropString(meta as JsonObject, "id");
 
         foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
 
-        var type = JsonRead.PropString(meta as JsonObject, "type");
+        var type = JsonValues.PropString(meta as JsonObject, "type");
 
         if (type is not null && !DocumentStyles.Contains(type) && (RecordTypes.All.Contains(type) || RecordTypes.PageStyles.Contains(type)))
         {
@@ -262,7 +267,7 @@ static class PageChecks
     {
         if (RecordFile.TryParse(run.ReadText(recordPath), out var root, out _, out _))
         {
-            return JsonRead.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
+            return JsonValues.PropString(JsonNode.Parse(root.GetRawText()) as JsonObject, "id");
         }
 
         return null;
@@ -287,8 +292,8 @@ static class PageChecks
         if (RecordFile.TryParse(run.ReadText(RecordFile.RecordPathOf(file)), out var root, out _, out _))
         {
             var meta = JsonNode.Parse(root.GetRawText()) as JsonObject;
-            type = JsonRead.PropString(meta, "type");
-            subject = JsonRead.PropString(meta, "id");
+            type = JsonValues.PropString(meta, "type");
+            subject = JsonValues.PropString(meta, "id");
         }
 
         var lines = SplitLines(raw);
@@ -346,7 +351,7 @@ static class PageChecks
             if (words > ExampleLimit)
             {
                 add(new Finding(
-                    "page-example-too-long",
+                    "page-example-invalid",
                     $"Example section has {words} words, over the {ExampleLimit} word bound",
                     file,
                     ExampleLine(lines),

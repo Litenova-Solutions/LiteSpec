@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
 /// Proves the consumer pass inside <c>litespec model check</c> against the fixture
@@ -23,9 +23,9 @@ public sealed partial class ConsumerValidatorTests
     /// </summary>
     static readonly HashSet<string> ConsumerCodes = new(StringComparer.Ordinal)
     {
-        "project-invalid", "project-path-invalid", "release-mismatch", "stack-invalid", "extension-invalid",
+        "project-invalid", "project-path-invalid", "release-drift", "stack-invalid", "extension-invalid",
         "stage-deferral-invalid", "page-invalid", "page-section-missing", "page-heading-invalid",
-        "page-example-too-long", "glossary-invalid", "frontend-invalid", "record-invalid",
+        "page-example-invalid", "glossary-invalid", "frontend-invalid", "record-invalid",
         "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
         "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
         "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",
@@ -101,19 +101,19 @@ public sealed partial class ConsumerValidatorTests
     static CliResult RunConsumer(string root, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
-        return Cli.Run(args);
+        return TestCli.Run(args);
     }
 
     static CliResult RunConsumer(string root, TempFolder home, params string[] extra)
     {
         string[] args = ["model", "check", "--root", root, ..extra];
-        return Cli.Run(args, environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+        return TestCli.Run(args, environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
     }
 
     static JsonObject PathsOf(JsonObject project) => (JsonObject)project["paths"]!;
 
     /// <summary>Fixture validates as written.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "fixture validates as written")]
     public void FixtureValidatesAsWritten()
     {
@@ -169,10 +169,10 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "winforms" });
         });
-        AssertProblem(RunConsumer(folder.Path), "/paths/frontends/0/platform");
+        AssertProblem(RunConsumer(folder.Path), "/frontends/0/platform");
     }
 
     /// <summary>Reviewed version behind the installed release.</summary>

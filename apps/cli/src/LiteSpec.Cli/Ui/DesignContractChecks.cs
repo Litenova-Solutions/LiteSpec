@@ -60,7 +60,7 @@ sealed class DesignContractChecks
         }
 
         var file = session.FilePath(relative);
-        var label = session.RelativeToRoot(file);
+        var label = PathText.Relative(session.Root, file);
         if (!FileWalk.Exists(file))
         {
             session.Add("ui-design-contract-invalid", $"[litespec/frontend/ui#publish-a-design-contract] shared package '{JsonRead.Show(JsonRead.Child(package, "name"))}': no design contract at '{relative}'", file);
@@ -74,7 +74,7 @@ sealed class DesignContractChecks
             return;
         }
 
-        session.SchemaCheck("design-contract.schema.json", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
+        session.SchemaCheck("design-contract.schema.yaml", metadata, label, "litespec/frontend/ui#publish-a-design-contract", "ui-design-contract-invalid");
         var name = JsonRead.Child(package, "name");
         if (JsonRead.Truthy(name) && !JsonRead.StrictEqual(JsonRead.Child(metadata, "package"), name))
         {

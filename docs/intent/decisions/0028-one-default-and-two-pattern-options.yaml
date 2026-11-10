@@ -1,0 +1,16 @@
+type: decision
+id: decision/0028-one-default-and-two-pattern-options
+title: One Default and Two Options per Pattern
+options:
+  - name: "The Default and at most two options, enforced by validate"
+    pros: "A reader compares three options at most, and validate stops a fourth from entering the catalog."
+    cons: "A team that wants a fourth option proposes it to the pattern page instead of adding it locally."
+  - name: "Every option the pattern pages list"
+    pros: "No option is dropped, and no team loses a choice it used."
+    cons: "The pattern pages listed 107 options before the cut, and a reader cannot compare that many."
+  - name: "The Default only"
+    pros: "The catalog holds one answer per pattern."
+    cons: "An owner with a real choice has no option to pick, so each departure becomes a pattern outside the catalog."
+choice: "The Default and at most two options, enforced by validate"
+consequences: "`validate` reports a pattern that offers more than its Default and two options, under `PATTERN_OPTION_COUNT`. The pattern pages were cut to the Default and the two options that their rationale points to most, with page order breaking a tie."
+reopenedWhen: "An owner needs a third option that a proposal to the pattern page cannot settle."

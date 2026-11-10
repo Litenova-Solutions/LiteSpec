@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the test run reads browser outcomes by title, so a browser proof can pass.</summary>
 public sealed class BrowserTitleTests
@@ -8,7 +8,7 @@ public sealed class BrowserTitleTests
     /// <summary>Passing Of Title Returns True For A Passed Title.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Of_Title_Returns_True_For_A_Passed_Title()
+    public void PassingOfTitleReturnsTrueForAPassedTitle()
     {
         var run = new TestRun();
         run.OutcomeByTitle["lists the expenses"] = "Passed";
@@ -19,7 +19,7 @@ public sealed class BrowserTitleTests
     /// <summary>Passing Of Title Returns False When The Title Did Not Pass.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Of_Title_Returns_False_When_The_Title_Did_Not_Pass()
+    public void PassingOfTitleReturnsFalseWhenTheTitleDidNotPass()
     {
         var run = new TestRun();
         run.OutcomeByTitle["lists the expenses"] = "Failed";
@@ -32,7 +32,7 @@ public sealed class BrowserTitleTests
     /// <summary>Passing Of Title Returns Null When The Run Holds No Outcome.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Of_Title_Returns_Null_When_The_Run_Holds_No_Outcome()
+    public void PassingOfTitleReturnsNullWhenTheRunHoldsNoOutcome()
     {
         var run = new TestRun();
         run.OutcomeByTitle["lists the expenses"] = "Passed";
@@ -43,7 +43,7 @@ public sealed class BrowserTitleTests
     /// <summary>Browser Title Of Reads The Bare Title Through A Describe Chain And A Project.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Browser_Title_Of_Reads_The_Bare_Title_Through_A_Describe_Chain_And_A_Project()
+    public void BrowserTitleOfReadsTheBareTitleThroughADescribeChainAndAProject()
     {
         Assert.Equal("lists the expenses", TestRun.BrowserTitleOf("expenses.spec.ts", "lists the expenses"));
         Assert.Equal("lists the expenses", TestRun.BrowserTitleOf("tests/expenses.spec.ts", "expenses list › lists the expenses"));
@@ -54,7 +54,7 @@ public sealed class BrowserTitleTests
     /// <summary>Browser Title Of Ignores A Backend Case And An Empty Name.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Browser_Title_Of_Ignores_A_Backend_Case_And_An_Empty_Name()
+    public void BrowserTitleOfIgnoresABackendCaseAndAnEmptyName()
     {
         Assert.Null(TestRun.BrowserTitleOf("Library.Acceptance.Tests.JUnit.JUnitScenarios", "Borrowing_an_available_copy_succeeds"));
         Assert.Null(TestRun.BrowserTitleOf("Library.Acceptance.Tests.Trx.TrxScenarios", "Borrowing_an_available_copy_succeeds"));
@@ -64,7 +64,7 @@ public sealed class BrowserTitleTests
     /// <summary>A Playwright Case Name Resolves Its Title Outcome.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void A_Playwright_Case_Name_Resolves_Its_Title_Outcome()
+    public void APlaywrightCaseNameResolvesItsTitleOutcome()
     {
         var run = new TestRun();
         (string Classname, string Name, string Outcome)[] cases =

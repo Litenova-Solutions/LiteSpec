@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -40,7 +40,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-audit-adoption-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -54,13 +54,13 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#declare-audit-selection-on-every-command`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
 **Statement:** Every command use case MUST declare its audit position in its `audit` field, or declare an exemption with its justification.
 
-**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states the reason of `required`, `optional`, or `none` with its target, or the exemption with its justification, so each omission becomes a visible statement. Commands are audited by default with reason `none`. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of hunting for missing calls.
+**Rationale:** An audit selection that lives only in code is invisible: a reader cannot tell an unaudited command from an audited one whose call is missing. The `audit` field states a level of `required`, `optional`, or `none` with its target, or an exemption with its justification, so each omission becomes a visible statement. A level of `none` means the command is not audited. `litespec/core/use-cases#state-the-audit-position-of-every-command` states the field, and review reads the selection instead of hunting for missing calls.
 
 **Example:** A storefront browse command declares an exemption because a public catalog read is not a sensitive action.
 
@@ -70,7 +70,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#audit-async-work-at-request-time`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -84,7 +84,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#cover-the-required-audit-categories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -98,7 +98,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-indiscriminate-auditing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -112,7 +112,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#emit-audit-records-at-the-mediation-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -128,7 +128,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#restrict-handler-contribution-to-determined-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -144,7 +144,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-derived-audit-trails`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -158,7 +158,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-required-audit-fields`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -172,7 +172,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#state-the-action-as-use-case-identity`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -188,7 +188,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-refusal-code-on-an-unsuccessful-attempt`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -202,7 +202,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#version-the-audit-record-shape`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -216,7 +216,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#use-a-closed-actor-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -232,7 +232,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-delegated-administrative-access`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -246,7 +246,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-every-attempt-outcome`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -262,7 +262,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-refused-authorization`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -276,7 +276,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-failed-audited-attempts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -290,7 +290,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-request-origin`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -304,7 +304,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#record-the-operation-trace-identity`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -318,21 +318,21 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **ID:** `litespec/ext/audit#exclude-secrets-and-payment-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** An audit record MUST NOT contain a credential, token, session identifier, encryption key, or payment instrument value.
+**Statement:** An audit record MUST NOT contain a secret, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, or a payment instrument value.
 
 **Rationale:** The trail is retained, widely readable, and append-only, which is the worst combination for a secret: retention extends the exposure and append-only removes the repair. A credential or payment value written once stays readable for the whole retention period. Secrets and payment values therefore travel in the systems built to hold them, never in the trail.
 
-**Reviewed for:** Which records contain a credential, token, session identifier, key, or payment value? Look at the stored audit rows.
+**Reviewed for:** Which records contain a secret or a payment instrument value? Look at the stored audit rows.
 
 ### Exclude Personal Data Beyond Actor Identity
 
 **ID:** `litespec/ext/audit#exclude-personal-data-beyond-actor-identity`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -350,7 +350,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#exclude-state-snapshots`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -364,7 +364,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#commit-a-success-record-with-its-business-change`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -378,7 +378,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#write-an-unsuccessful-record-outside-the-failed-transaction`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -392,7 +392,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#stage-the-audit-write-before-the-business-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -406,7 +406,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#publish-unsuccessful-write-failures`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -420,7 +420,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#scope-every-record-to-its-tenant`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -434,7 +434,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#enforce-append-only-through-storage-privilege`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -450,7 +450,7 @@ A pseudonymous identifier is still personal data where the party holding it can 
 
 **ID:** `litespec/ext/audit#provide-tamper-evidence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -468,7 +468,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#anchor-the-audit-chain-outside-its-own-store`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: job
 
@@ -486,7 +486,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#verify-the-integrity-chain-on-a-schedule`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -500,7 +500,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#add-a-correcting-record`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -514,7 +514,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#retain-each-category-for-its-declared-period`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -528,7 +528,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#remove-the-identity-mapping-on-erasure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -542,7 +542,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#give-the-trail-a-read-path`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -556,7 +556,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#audit-reads-of-the-trail`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -570,7 +570,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#record-personal-data-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -584,7 +584,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#record-a-bulk-read-inside-its-own-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -600,7 +600,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#record-bulk-export`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -614,7 +614,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **ID:** `litespec/ext/audit#reject-an-undeclared-command`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

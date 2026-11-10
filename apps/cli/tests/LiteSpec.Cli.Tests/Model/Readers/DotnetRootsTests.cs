@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves the .NET reader roots: every declared web and worker host, and a missing root that reports reader-missing.</summary>
 public sealed class DotnetRootsTests
@@ -10,9 +10,9 @@ public sealed class DotnetRootsTests
     /// <summary>WebApi Roots Follow A List Of Hosts.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void WebApi_Roots_Follow_A_List_Of_Hosts()
+    public void WebApiRootsFollowAListOfHosts()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "First.WebApi"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Second.WebApi"));
         WriteProject(temp.Path, """
@@ -35,9 +35,9 @@ public sealed class DotnetRootsTests
     /// <summary>Worker Roots Follow A List Of Hosts.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Worker_Roots_Follow_A_List_Of_Hosts()
+    public void WorkerRootsFollowAListOfHosts()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "First.Worker"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Second.Worker"));
         WriteProject(temp.Path, """
@@ -60,9 +60,9 @@ public sealed class DotnetRootsTests
     /// <summary>WebApi Root From One String Still Reads Its Host.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void WebApi_Root_From_One_String_Still_Reads_Its_Host()
+    public void WebApiRootFromOneStringStillReadsItsHost()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Only.WebApi"));
         WriteProject(temp.Path, """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
@@ -77,9 +77,9 @@ public sealed class DotnetRootsTests
     /// <summary>WebApi List Entry With A Glob Reads Every Matching Host.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void WebApi_List_Entry_With_A_Glob_Reads_Every_Matching_Host()
+    public void WebApiListEntryWithAGlobReadsEveryMatchingHost()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "First.Api"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Second.Api"));
         WriteProject(temp.Path, """
@@ -98,9 +98,9 @@ public sealed class DotnetRootsTests
     /// <summary>Empty WebApi List Reads No WebApi Host.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Empty_WebApi_List_Reads_No_WebApi_Host()
+    public void EmptyWebApiListReadsNoWebApiHost()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         WriteProject(temp.Path, """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "webapi": []}}}
@@ -112,9 +112,9 @@ public sealed class DotnetRootsTests
     /// <summary>Endpoints In Both WebApi Hosts Are Read.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Endpoints_In_Both_WebApi_Hosts_Are_Read()
+    public void EndpointsInBothWebApiHostsAreRead()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         WriteProject(temp.Path, """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "webapi": ["src/First.WebApi", "src/Second.WebApi"]}}}
@@ -149,9 +149,9 @@ public sealed class DotnetRootsTests
     /// <summary>Jobs In Both Worker Hosts Are Read.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Jobs_In_Both_Worker_Hosts_Are_Read()
+    public void JobsInBothWorkerHostsAreRead()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         WriteProject(temp.Path, """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
               "modules": "src/App", "worker": ["src/First.Worker", "src/Second.Worker"]}}}
@@ -185,9 +185,9 @@ public sealed class DotnetRootsTests
     /// <summary>Configured WebApi Host That Does Not Exist Reports Reader Missing.</summary>
     /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
-    public void Configured_WebApi_Host_That_Does_Not_Exist_Reports_Reader_Missing()
+    public void ConfiguredWebApiHostThatDoesNotExistReportsReaderMissing()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "App"));
         WriteProject(temp.Path, """
             {"stacks": ["dotnet"], "stackConfig": {"dotnet": {
@@ -205,9 +205,9 @@ public sealed class DotnetRootsTests
     /// <summary>Configured Worker Host In A List That Does Not Exist Reports Reader Missing.</summary>
     /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
-    public void Configured_Worker_Host_In_A_List_That_Does_Not_Exist_Reports_Reader_Missing()
+    public void ConfiguredWorkerHostInAListThatDoesNotExistReportsReaderMissing()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "App"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "src", "Only.Worker"));
         WriteProject(temp.Path, """
@@ -227,9 +227,9 @@ public sealed class DotnetRootsTests
     /// <summary>Default Modules Root That Matches No Folder Reports Reader Missing.</summary>
     /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
-    public void Default_Modules_Root_That_Matches_No_Folder_Reports_Reader_Missing()
+    public void DefaultModulesRootThatMatchesNoFolderReportsReaderMissing()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         WriteProject(temp.Path, """{"stacks": ["dotnet"]}""");
 
         var problem = Assert.Single(
@@ -243,9 +243,9 @@ public sealed class DotnetRootsTests
     /// <summary>Project Without The Dotnet Stack Reports No Default Root.</summary>
     /// <proves>litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder</proves>
     [Fact]
-    public void Project_Without_The_Dotnet_Stack_Reports_No_Default_Root()
+    public void ProjectWithoutTheDotnetStackReportsNoDefaultRoot()
     {
-        using var temp = Cli.Temp("dotnet-roots");
+        using var temp = TestCli.Temp("dotnet-roots");
         WriteProject(temp.Path, """{"shape": "client-only", "stacks": ["svelte"]}""");
 
         Assert.DoesNotContain(
@@ -256,9 +256,9 @@ public sealed class DotnetRootsTests
     /// <summary>Fixture Project With Two Hosts Reads Both Hosts And Its Traced Aggregate.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Fixture_Project_With_Two_Hosts_Reads_Both_Hosts_And_Its_Traced_Aggregate()
+    public void FixtureProjectWithTwoHostsReadsBothHostsAndItsTracedAggregate()
     {
-        var fixture = Cli.Fixture("dotnet-roots");
+        var fixture = TestCli.Fixture("dotnet-roots");
         var config = ConsumerConfig.Load(fixture);
 
         Assert.Equal(2, config.WebApiRoots.Count);
@@ -274,7 +274,7 @@ public sealed class DotnetRootsTests
     }
 
     static void WriteProject(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), json);
 
     static void WriteSource(string root, string project, string file, string text)
     {

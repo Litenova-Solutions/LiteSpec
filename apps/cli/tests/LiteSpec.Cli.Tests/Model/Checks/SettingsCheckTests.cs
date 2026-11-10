@@ -1,7 +1,8 @@
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using System.Text.Json.Nodes;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the setting-key and template-store checks against fixture projects.</summary>
 public sealed class SettingsCheckTests
@@ -9,13 +10,13 @@ public sealed class SettingsCheckTests
     /// <summary>Operator Setting Without Key Reports.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
-    public void Operator_Setting_Without_Key_Reports()
+    public void OperatorSettingWithoutKeyReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", null));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "setting-key-missing", "setting/lending.max-renewals");
 
         Assert.Equal(1, check.Status);
@@ -25,13 +26,13 @@ public sealed class SettingsCheckTests
     /// <summary>Operator Setting With Key Passes.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
-    public void Operator_Setting_With_Key_Passes()
+    public void OperatorSettingWithKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
@@ -39,13 +40,13 @@ public sealed class SettingsCheckTests
     /// <summary>Product Setting Without Key Passes.</summary>
     /// <proves>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</proves>
     [Fact]
-    public void Product_Setting_Without_Key_Passes()
+    public void ProductSettingWithoutKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "product", null));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-key-missing]", check.Output, StringComparison.Ordinal);
     }
@@ -53,13 +54,13 @@ public sealed class SettingsCheckTests
     /// <summary>Keyed Setting Without Options Class Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Keyed_Setting_Without_Options_Class_Reports()
+    public void KeyedSettingWithoutOptionsClassReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
             "setting/lending.max-renewals", "Max renewals", "operator", "Lending:MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "setting-unimplemented", "setting/lending.max-renewals");
 
         Assert.Equal(1, check.Status);
@@ -69,7 +70,7 @@ public sealed class SettingsCheckTests
     /// <summary>Keyed Setting With Marked Options Class Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Keyed_Setting_With_Marked_Options_Class_Passes()
+    public void KeyedSettingWithMarkedOptionsClassPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -77,7 +78,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
@@ -86,7 +87,7 @@ public sealed class SettingsCheckTests
     /// <summary>Options Class With Wrong Section Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Options_Class_With_Wrong_Section_Reports()
+    public void OptionsClassWithWrongSectionReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -94,7 +95,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Loans", "MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "setting-key-drift", "LendingOptions.cs");
 
         Assert.Equal(1, check.Status);
@@ -104,7 +105,7 @@ public sealed class SettingsCheckTests
     /// <summary>Options Class With Missing Property Reports.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Options_Class_With_Missing_Property_Reports()
+    public void OptionsClassWithMissingPropertyReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -112,7 +113,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxLoans"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "setting-key-drift", "setting/lending.max-renewals");
 
         Assert.Equal(1, check.Status);
@@ -122,7 +123,7 @@ public sealed class SettingsCheckTests
     /// <summary>Options Class Spelling Key Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Options_Class_Spelling_Key_Passes()
+    public void OptionsClassSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -130,7 +131,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
     }
@@ -138,7 +139,7 @@ public sealed class SettingsCheckTests
     /// <summary>Nested Section Spelling Key Passes.</summary>
     /// <proves>litespec/core/use-cases#bind-every-keyed-setting-in-one-marked-options-class</proves>
     [Fact]
-    public void Nested_Section_Spelling_Key_Passes()
+    public void NestedSectionSpellingKeyPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -146,7 +147,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending:Loans", "MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
@@ -155,7 +156,7 @@ public sealed class SettingsCheckTests
     /// <summary>Methodless Options Class With Setting Mark Is Accepted.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Methodless_Options_Class_With_Setting_Mark_Is_Accepted()
+    public void MethodlessOptionsClassWithSettingMarkIsAccepted()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/settings/max-renewals.yaml", SettingJson(
@@ -163,7 +164,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/LendingOptions.cs", OptionsClass(
             "setting/lending.max-renewals", "Lending", "MaxRenewals"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[setting-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[setting-key-drift]", check.Output, StringComparison.Ordinal);
@@ -175,13 +176,13 @@ public sealed class SettingsCheckTests
     /// <summary>Methodless Class With Use Case Mark Reports.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Methodless_Class_With_Use_Case_Mark_Reports()
+    public void MethodlessClassWithUseCaseMarkReports()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/BorrowCopyHelper.cs", MethodlessHelper(
             "use-case/lending.borrow-copy", "BorrowCopyHelper"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "mark-unknown", "BorrowCopyHelper");
 
         Assert.Equal(1, check.Status);
@@ -191,7 +192,7 @@ public sealed class SettingsCheckTests
     /// <summary>Declared Template Missing From Store Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Declared_Template_Missing_From_Store_Reports()
+    public void DeclaredTemplateMissingFromStoreReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -200,7 +201,7 @@ public sealed class SettingsCheckTests
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "notification/lending.loan-due");
 
         Assert.Equal(1, check.Status);
@@ -210,7 +211,7 @@ public sealed class SettingsCheckTests
     /// <summary>Declared Template Held By Store Passes.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Declared_Template_Held_By_Store_Passes()
+    public void DeclaredTemplateHeldByStorePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -219,7 +220,7 @@ public sealed class SettingsCheckTests
             ("loan-due-reader", "Your loan is due.", "Hello, your loan ends soon.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
@@ -228,14 +229,14 @@ public sealed class SettingsCheckTests
     /// <summary>Missing Template Store File Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Missing_Template_Store_File_Reports()
+    public void MissingTemplateStoreFileReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unimplemented", "MessageTemplates.cs");
 
         Assert.Equal(1, check.Status);
@@ -245,13 +246,13 @@ public sealed class SettingsCheckTests
     /// <summary>Template Checks Skipped Without Store.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Template_Checks_Skipped_Without_Store()
+    public void TemplateChecksSkippedWithoutStore()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
             "notification/lending.loan-due", "Loan due", "loan-due-reader"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
@@ -261,7 +262,7 @@ public sealed class SettingsCheckTests
     /// <summary>Stored Key Without Notification Reports.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Stored_Key_Without_Notification_Reports()
+    public void StoredKeyWithoutNotificationReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -271,7 +272,7 @@ public sealed class SettingsCheckTests
             ("hold-ready-reader", "A hold is ready.", "Hello, a hold is ready.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-unrecorded", "MessageTemplates.cs");
 
         Assert.Equal(1, check.Status);
@@ -281,7 +282,7 @@ public sealed class SettingsCheckTests
     /// <summary>Stored Keys Matching Notifications Pass.</summary>
     /// <proves>litespec/core/edges#keep-notification-templates-and-the-template-store-one-set</proves>
     [Fact]
-    public void Stored_Keys_Matching_Notifications_Pass()
+    public void StoredKeysMatchingNotificationsPass()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -290,7 +291,7 @@ public sealed class SettingsCheckTests
             ("loan-due-reader", "Hello, your loan ends soon.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
@@ -299,7 +300,7 @@ public sealed class SettingsCheckTests
     /// <summary>Unused Parameter Reports.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
-    public void Unused_Parameter_Reports()
+    public void UnusedParameterReports()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -308,7 +309,7 @@ public sealed class SettingsCheckTests
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var line = FindingLine(check.Output, "template-param-drift", "dueDate");
 
         Assert.Equal(1, check.Status);
@@ -318,7 +319,7 @@ public sealed class SettingsCheckTests
     /// <summary>Used Parameters Pass.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
-    public void Used_Parameters_Pass()
+    public void UsedParametersPass()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -327,7 +328,7 @@ public sealed class SettingsCheckTests
             ("loan-due-reader", "Your loan is due, {{ReaderName}}.", "Hello {{ReaderName}}, your loan ends soon.")));
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[template-param-drift]", check.Output, StringComparison.Ordinal);
     }
@@ -335,7 +336,7 @@ public sealed class SettingsCheckTests
     /// <summary>Template None Skips Template Checks.</summary>
     /// <proves>litespec/core/edges#use-every-declared-template-parameter</proves>
     [Fact]
-    public void Template_None_Skips_Template_Checks()
+    public void TemplateNoneSkipsTemplateChecks()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/notifications/loan-due.yaml", NotificationJson(
@@ -343,7 +344,7 @@ public sealed class SettingsCheckTests
         Write(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs", TemplateStore());
         AddTemplateStore(temp.Path, "apps/api/src/Library.Application/Lending/MessageTemplates.cs");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.DoesNotContain("[template-unimplemented]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[template-unrecorded]", check.Output, StringComparison.Ordinal);
@@ -364,12 +365,11 @@ public sealed class SettingsCheckTests
 
     static void AddTemplateStore(string root, string store)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var text = File.ReadAllText(file);
-        File.WriteAllText(file, text.Replace(
-            "\"webapi\": \"apps/api/src/Library.WebApi\"",
-            "\"webapi\": \"apps/api/src/Library.WebApi\",\n      \"templateStore\": \"" + store + "\"",
-            StringComparison.Ordinal));
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+        var dotnet = (JsonObject)((JsonObject)project["stackConfig"]!)["dotnet"]!;
+        dotnet["templateStore"] = store;
+        File.WriteAllText(file, project.ToJsonString());
     }
 
     static string SettingJson(string id, string title, string setBy, string? key)

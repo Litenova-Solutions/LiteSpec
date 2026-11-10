@@ -1,8 +1,7 @@
 # Web Rendering and Routes
 
-**Stack:** any
-
-**Layer:** frontend-ui
+**Stack:** react, svelte
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -30,7 +29,7 @@ The rendering rules for loaders, suspense reads, search schemas, chunk splits, i
 
 **ID:** `litespec/frontend/web/rendering#define-route-metadata-deliberately`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 

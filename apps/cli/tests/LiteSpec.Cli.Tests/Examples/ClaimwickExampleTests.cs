@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Examples;
+namespace LiteSpec.Cli.Tests.Examples;
 
 /// <summary>
 ///     The Claimwick example in <c>examples/claimwick/</c> is the product the Example
@@ -9,18 +9,18 @@ namespace LiteSpec.Tests.Examples;
 /// </summary>
 public sealed class ClaimwickExampleTests
 {
-    static readonly string Root = Path.Combine(Cli.Repository, "examples", "claimwick");
+    static readonly string Root = Path.Combine(TestCli.Repository, "examples", "claimwick");
 
-    /// <summary>The Claimwick example passes the model check with only known findings.</summary>
+    /// <summary>The Claimwick example passes the model check with only covered findings.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
-    [Fact(DisplayName = "the Claimwick example passes the model check with only known findings")]
+    [Fact(DisplayName = "the Claimwick example passes the model check with only covered findings")]
     public void PassesModelCheck()
     {
-        var result = Cli.Run("model", "check", "--root", Root);
+        var result = TestCli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        // 17 long-standing known findings plus the 9 use-case-unverified findings the
-        // no-test-run gap exception holds: the example ships code and proofs but no run.
-        Assert.Contains("0 findings, 0 blocking, 26 known.", result.Output);
+        // 17 long-standing covered findings plus the 9 use-case-unverified findings the
+        // no-test-run departure holds: the example ships code and proofs but no run.
+        Assert.Contains("0 findings, 0 blocking, 26 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

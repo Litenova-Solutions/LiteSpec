@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace LiteSpec.Authoring;
 
 /// <summary>
@@ -21,113 +23,7 @@ internal static class StandardsValidator
         """;
 
     /// <summary>Every diagnostic code the validator can emit, in declaration order.</summary>
-    public static readonly IReadOnlyList<string> StableDiagnosticCodes =
-    [
-        "ANCHOR_BROKEN",
-        "CHECKED_BY_UNKNOWN",
-        "CONVENTION_DEFAULT_SENTENCE",
-        "CONVENTION_MISSING_DEFAULT",
-        "CONVENTION_MISSING_REPLACEMENT",
-        "CONVENTION_REPLACEMENT_DEVIATION",
-        "CONVENTION_REPLACEMENT_SENTENCE",
-        "EXTENSION_ACTIVATION",
-        "EXTENSION_BASELINE",
-        "EXTENSION_DEPENDENCIES",
-        "EXTENSION_KIND",
-        "EXTENSION_REPLACES_ENFORCED",
-        "EXTENSION_REPLACES_UNKNOWN",
-        "EXTENSION_LOCATION",
-        "EXTENSION_SCOPE",
-        "EXTENSION_UNLISTED",
-        "FIELD_NAME_SHAPE",
-        "LAYER_UNREACHABLE",
-        "SHAPE_PAGE",
-        "STACK_FOLDER",
-        "STACK_REFERENCE",
-        "GLOSSARY_DEFINITION",
-        "GLOSSARY_ORDER",
-        "HEADING_ACTION",
-        "HEADING_EMPTY_BODY",
-        "ID_DUPLICATE",
-        "ID_IN_HEADING",
-        "ID_LINE_MISSING",
-        "ID_LINE_MISMATCH",
-        "ID_PAGE_FILENAME",
-        "ID_UNKNOWN_REFERENCE",
-        "INDEX_CONTAINS_PROCEDURE",
-        "INDEX_INTENT",
-        "LINK_BROKEN",
-        "MANIFEST_ANALYZER_PIN",
-        "MANIFEST_ANALYZER_RULE",
-        "MANIFEST_ANCHOR",
-        "MANIFEST_DUPLICATE_PATH",
-        "MANIFEST_JSON",
-        "MANIFEST_PATH",
-        "MARK_MISSING",
-        "MARK_UNRESOLVED",
-        "PAGE_EMPTY_SECTION",
-        "PAGE_EMPTY_SECTION_TEXT",
-        "PAGE_HEADING_CASE",
-        "PAGE_MISSING_SECTION",
-        "PAGE_SECTION_ORDER",
-        "PAGE_TITLE_CASE",
-        "PAGE_TITLE_COUNT",
-        "PAGE_UNKNOWN_SECTION",
-        "PATTERN_INVALID",
-        "PROSE_NON_ASCII",
-        "PROSE_NORMATIVE_LOCATION",
-        "PROVISIONS_STALE",
-        "PROVISION_RESTATES_HEADING",
-        "RECORD_DECISION_UNCITED",
-        "RECORD_EXPLANATION_MISSING",
-        "RECORD_EXPLANATION_ORPHANED",
-        "RECORD_ID_MISMATCH",
-        "RECORD_SCHEMA",
-        "RECORD_SOURCE",
-        "RECORD_UNKNOWN_REFERENCE",
-        "REFERENCE_EXAMPLE_DECLARATION",
-        "SCHEMA_ID",
-        "SCHEMA_INVALID",
-        "SCHEMA_JSON",
-        "SCHEMA_UNSUPPORTED_KEYWORD",
-        "STANDARD_DEVIATION_NORMATIVE",
-        "STANDARD_DEVIATION_SENTENCE",
-        "STANDARD_EXAMPLE_LABEL",
-        "STANDARD_INFORMATIVE_NORMATIVE",
-        "STANDARD_LABEL_DUPLICATE",
-        "STANDARD_LABEL_INVALID",
-        "STANDARD_LABEL_ORDER",
-        "STANDARD_MISSING_DEVIATION",
-        "STANDARD_MISSING_REQUIREMENT",
-        "STANDARD_MODAL_COUNT",
-        "STANDARD_MODAL_VOCABULARY",
-        "STANDARD_REQUIREMENT_COUNT",
-        "STANDARD_SENTENCE_COUNT",
-        "STANDARD_UNEXPECTED_DEVIATION",
-        "STANDARD_UNLABELED_CONTENT",
-        "VERIFY_COMMAND",
-        "VERIFY_DUPLICATE_EVIDENCE",
-        "VERIFY_DUPLICATE_ID",
-        "VERIFY_GENERIC_EVIDENCE",
-        "VERIFY_HEADER",
-        "VERIFY_MISSING_ID",
-        "VERIFY_ORDER",
-        "VERIFY_TEMPLATED_EVIDENCE",
-        "VALUE_STYLE",
-
-        "TEMPLATE_INDEX_PATH",
-        "TEMPLATE_SCHEMA",
-
-        "INDEX_MISSING_ROUTING",
-        "LAYER_UNLISTED",
-
-        "GENERATED_STALE",
-        "SCOPE_ARTIFACT",
-        "SCOPE_BLOCK",
-        "SCOPE_NARROW",
-        "SCOPE_VALUE",
-        "STRENGTH_LINE",
-    ];
+    public static readonly IReadOnlyList<string> StableDiagnosticCodes = Diagnostics.All;
 
     /// <summary>Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.</summary>
     /// <param name="root">The repository root.</param>
@@ -137,15 +33,9 @@ internal static class StandardsValidator
     {
         var resolved = Path.GetFullPath(root.Length == 0 ? "." : root);
         var diagnostics = new List<StandardsDiagnostic>();
-        var stable = new HashSet<string>(StableDiagnosticCodes, StringComparer.Ordinal);
         void Add(string relative, int line, string code, string message)
         {
-            if (!stable.Contains(code))
-            {
-                throw new InvalidOperationException($"Validator emitted undeclared diagnostic code '{code}'");
-            }
-
-            diagnostics.Add(new StandardsDiagnostic(ValidatorSupport.Slash(relative), line, code, message));
+            diagnostics.Add(new StandardsDiagnostic(FileText.Slash(relative), line, code, message));
         }
 
         if (!Directory.Exists(resolved))
@@ -173,11 +63,11 @@ internal static class StandardsValidator
         }
 
         var context = new ValidationContext(resolved, Add);
-        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(ValidatorSupport.Slash(Path.GetRelativePath(resolved, file)))).ToList();
+        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(PathText.Relative(resolved, file))).ToList();
         var parsedPages = new List<ParsedPage>();
         foreach (var file in current)
         {
-            var relative = ValidatorSupport.Slash(Path.GetRelativePath(resolved, file));
+            var relative = PathText.Relative(resolved, file);
             if (relative.StartsWith("templates/standard/", StringComparison.Ordinal))
             {
                 continue;
@@ -185,18 +75,18 @@ internal static class StandardsValidator
 
             if (context.Repository.ReservedTemplateStems.Contains(relative))
             {
-                Add(relative, 1, "ID_PAGE_FILENAME", $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
+                Add(relative, 1, Diagnostics.Codes.IdPageFilename, $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
                 continue;
             }
 
-            var raw = ValidatorSupport.ReadText(file);
+            var raw = FileText.ReadText(file);
             var reader = PageReader.Parse(raw);
             var prose = string.Join('\n', reader.Lines.Select((line, index) =>
                 reader.FencedLines.Contains(index + 1) || reader.GeneratedLines.Contains(index + 1) ? "" : line));
             var nonAscii = ValidatorSupport.NonAsciiOffset(prose);
             if (nonAscii >= 0)
             {
-                Add(relative, ValidatorSupport.LineNumber(prose, nonAscii), "PROSE_NON_ASCII", ValidatorSupport.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
+                Add(relative, ValidatorSupport.LineNumber(prose, nonAscii), Diagnostics.Codes.ProseNonAscii, ValidatorSupport.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
             parsedPages.Add(new ParsedPage(relative, reader, context.Pages.ParsePage(relative, reader)));
@@ -210,10 +100,17 @@ internal static class StandardsValidator
 
         context.Repository.CheckAuthoringTemplates();
         context.Repository.CheckLinks(current);
+        // The docs cite the tools, the templates and the example, so each citation is a lookup
+        // against data the tools already hold. (litespec/core/authoring#run-repeatable-authoring-checks)
+        context.Repository.CheckFindingCitations(parsedPages);
+        context.Repository.CheckTemplateCitations(parsedPages);
+        context.Repository.CheckExampleCitations(parsedPages);
+        context.Repository.CheckCommandOptions(parsedPages);
+        context.Repository.CheckIndexCoverage(current);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
         context.Manifest.CheckManifest(activeIds, provisionsByPage);
         context.Manifest.CheckAnalyzerRelease(parsedPages);
-        context.Records.CheckRecords(parsedPages);
+        context.Records.CheckRecords(parsedPages, activeIds);
 
         // The provision index and its data file are derived. A stale page would send a
         // reader to the wrong heading, so the gate compares both with the active standards.
@@ -222,38 +119,59 @@ internal static class StandardsValidator
         if (File.Exists(indexFile))
         {
             var expected = Provisions.BuildIndex(resolved) + "\n";
-            var actual = ValidatorSupport.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            var actual = FileText.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actual != expected)
             {
-                Add(Provisions.IndexPath, 1, "PROVISIONS_STALE", "generated provision index differs from the active standards; run litespec-maintain provisions");
+                Add(Provisions.IndexPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision index differs from the active standards; run litespec-maintain provisions");
             }
         }
         else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
         {
-            Add(Provisions.IndexPath, 1, "PROVISIONS_STALE", "generated provision index is missing; run litespec-maintain provisions");
+            Add(Provisions.IndexPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision index is missing; run litespec-maintain provisions");
         }
 
         var jsonFile = ValidatorSupport.JoinRoot(resolved, Provisions.JsonPath);
         if (File.Exists(jsonFile))
         {
             var expectedJson = Provisions.BuildJson(resolved) + "\n";
-            var actualJson = ValidatorSupport.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
+            var actualJson = FileText.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actualJson != expectedJson)
             {
-                Add(Provisions.JsonPath, 1, "PROVISIONS_STALE", "generated provision data differs from the active standards; run litespec-maintain provisions");
+                Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data differs from the active standards; run litespec-maintain provisions");
             }
         }
         else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
         {
-            Add(Provisions.JsonPath, 1, "PROVISIONS_STALE", "generated provision data is missing; run litespec-maintain provisions");
+            Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data is missing; run litespec-maintain provisions");
         }
 
-        context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.json", "litespec.manifest.json");
+        // The finding code, folder and pin tables are written from the code and the manifest, so a
+        // table that differs from them is stale like the index. (litespec/core/authoring#regenerate-the-provision-index)
+        if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
+        {
+            try
+            {
+                foreach (var (path, text) in ReferenceTables.Outputs(resolved))
+                {
+                    var file = ValidatorSupport.JoinRoot(resolved, path);
+                    if (!File.Exists(file) || FileText.ReadText(file).Replace("\r\n", "\n", StringComparison.Ordinal) != text)
+                    {
+                        Add(path, 1, Diagnostics.Codes.ProvisionsStale, "generated table differs from its source; run litespec-maintain provisions");
+                    }
+                }
+            }
+            catch (InvalidOperationException exception)
+            {
+                Add(ReferenceTables.ManifestPath, 1, Diagnostics.Codes.ProvisionsStale, exception.Message);
+            }
+        }
+
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-manifest.schema.yaml", "litespec.manifest.yaml");
         context.Manifest.CheckSchemaIds();
         context.Fields.CheckFieldNaming();
         // Every shipped consumer template meets the schema it teaches. A template
         // the schema never reads drifts from it in silence.
-        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.json", "templates/consumer/project.json");
+        context.Manifest.ValidateSchemaConsumer("schemas/litespec-project.schema.yaml", "templates/consumer/project.yaml");
 
         // The template index is the only map from a template file to the consumer path
         // it targets. A renamed template leaves a row pointing at nothing, and that row
@@ -327,12 +245,18 @@ internal static class StandardsValidator
         // message is reworded, so the tool emits the structure it already holds.
         if (parsed.Json)
         {
-            CliJson.Write(new
+            CliJson.Write(new JsonObject
             {
-                tool = "validate",
-                root,
-                ok = errors.Count == 0,
-                errors = errors.Select(diagnostic => new { file = diagnostic.Relative, line = diagnostic.Line, code = diagnostic.Code, message = diagnostic.Message }).ToList(),
+                ["tool"] = "validate",
+                ["root"] = root,
+                ["ok"] = errors.Count == 0,
+                ["errors"] = new JsonArray([.. errors.Select(diagnostic => (JsonNode?)new JsonObject
+                {
+                    ["file"] = diagnostic.Relative,
+                    ["line"] = diagnostic.Line,
+                    ["code"] = diagnostic.Code,
+                    ["message"] = diagnostic.Message,
+                })]),
             });
             return errors.Count == 0 ? 0 : 1;
         }

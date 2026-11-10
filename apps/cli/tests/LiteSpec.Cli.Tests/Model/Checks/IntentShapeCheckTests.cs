@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the renamed Intent shapes: rationale, setBy, choice and reopenedWhen.</summary>
 public sealed class IntentShapeCheckTests
@@ -9,9 +9,9 @@ public sealed class IntentShapeCheckTests
     /// <summary>Requirement Without Rationale Reports.</summary>
     /// <proves>litespec/core/intent#explain-each-requirement-in-one-line</proves>
     [Fact]
-    public void Requirement_Without_Rationale_Reports()
+    public void RequirementWithoutRationaleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
@@ -22,9 +22,9 @@ public sealed class IntentShapeCheckTests
     /// <summary>Requirement With Retired SetBy Reports.</summary>
     /// <proves>litespec/core/intent#state-requirement-kind-and-statement</proves>
     [Fact]
-    public void Requirement_With_Retired_SetBy_Reports()
+    public void RequirementWithRetiredSetByReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans.", "rationale": "Readers share popular copies.", "setBy": "founder"}"""));
@@ -35,9 +35,9 @@ public sealed class IntentShapeCheckTests
     /// <summary>Decision Without ReopenedWhen Reports.</summary>
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact]
-    public void Decision_Without_ReopenedWhen_Reports()
+    public void DecisionWithoutReopenedWhenReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "choice": "Fourteen days"}"""));
@@ -48,9 +48,9 @@ public sealed class IntentShapeCheckTests
     /// <summary>Decision Without Choice Reports.</summary>
     /// <proves>litespec/core/intent#shape-each-decision-page</proves>
     [Fact]
-    public void Decision_Without_Choice_Reports()
+    public void DecisionWithoutChoiceReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("decision", "decision/0001-loan-period", Path.Combine(temp.Path, "decisions.yaml"), """{"options": [{"name": "Fourteen days", "pros": "Readers finish in time.", "cons": "Popular copies queue."}], "reopenedWhen": "Queues pass one hundred a day."}"""));

@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves shared provision citations resolve against the release the tool carries.</summary>
 public sealed class SharedCitationTests
@@ -10,30 +10,30 @@ public sealed class SharedCitationTests
     const string PinnedVersion = "9.9.9";
 
     /// <summary>A new-form citation that the carried release holds exits 0.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
-    public void Shared_Citation_That_Resolves_Passes()
+    public void SharedCitationThatResolvesPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         using var home = WriteFixtureHome();
         PinReviewedVersion(temp.Path);
         AppendCitation(temp.Path, "litespec/core/principles#retire-records-with-replaces");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>A new-form citation that the carried release lacks exits 1 with reference-unknown.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
-    public void Shared_Citation_Without_A_Provision_Reports_Reference_Unresolved()
+    public void SharedCitationWithoutAProvisionReportsReferenceUnresolved()
     {
         using var temp = ModelFixture.Prepare("small");
         using var home = WriteFixtureHome();
         PinReviewedVersion(temp.Path);
         AppendCitation(temp.Path, "litespec/core/principles#no-such-provision");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             ["model", "check", "--root", temp.Path, "--format", "json"],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(1, result.Status);
@@ -42,13 +42,13 @@ public sealed class SharedCitationTests
 
     static TempFolder WriteFixtureHome()
     {
-        var home = Cli.Temp("model-home");
-        var manifest = (JsonObject)JsonNode.Parse(File.ReadAllText(Path.Combine(Cli.Repository, "litespec.manifest.json")))!;
+        var home = TestCli.Temp("model-home");
+        var manifest = (JsonObject)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
         manifest["version"] = PinnedVersion;
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), manifest.ToJsonString() + "\n");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), manifest.ToJsonString() + "\n");
         var schemas = Path.Combine(home.Path, "schemas");
         Directory.CreateDirectory(schemas);
-        foreach (var schema in Directory.GetFiles(Path.Combine(Cli.Repository, "schemas")))
+        foreach (var schema in Directory.GetFiles(Path.Combine(TestCli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Combine(schemas, Path.GetFileName(schema)));
         }
@@ -64,8 +64,8 @@ public sealed class SharedCitationTests
 
     static void PinReviewedVersion(string root)
     {
-        var file = Path.Combine(root, ".litespec", "project.json");
-        var project = (JsonObject)JsonNode.Parse(File.ReadAllText(file))!;
+        var file = Path.Combine(root, ".litespec", "project.yaml");
+        var project = (JsonObject)DataFile.Read(file)!;
         project["reviewedLiteSpecVersion"] = PinnedVersion;
         File.WriteAllText(file, project.ToJsonString() + "\n");
     }

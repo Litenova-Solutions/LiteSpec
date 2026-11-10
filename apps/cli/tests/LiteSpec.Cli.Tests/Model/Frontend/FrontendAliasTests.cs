@@ -1,8 +1,8 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the import aliases the reader is given come from the frontend's package file.</summary>
 public sealed class FrontendAliasTests
@@ -10,9 +10,9 @@ public sealed class FrontendAliasTests
     /// <summary>Declared Subpath Imports Are The Aliases.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Declared_Subpath_Imports_Are_The_Aliases()
+    public void DeclaredSubpathImportsAreTheAliases()
     {
-        using var temp = Cli.Temp("frontend-aliases");
+        using var temp = TestCli.Temp("frontend-aliases");
         var app = Path.Combine(temp.Path, "apps", "web");
         Directory.CreateDirectory(app);
         File.WriteAllText(Path.Combine(app, "package.json"), """
@@ -29,9 +29,9 @@ public sealed class FrontendAliasTests
     /// <summary>A Frontend Declaring None Takes Its Stack Alias.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void A_Frontend_Declaring_None_Takes_Its_Stack_Alias()
+    public void AFrontendDeclaringNoneTakesItsStackAlias()
     {
-        using var temp = Cli.Temp("frontend-aliases-default");
+        using var temp = TestCli.Temp("frontend-aliases-default");
         var app = Path.Combine(temp.Path, "apps", "web");
         Directory.CreateDirectory(app);
 

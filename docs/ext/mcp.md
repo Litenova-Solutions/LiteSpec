@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** web-api
+**Concern:** web-api
 
 ## Intent
 
@@ -28,21 +28,21 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **ID:** `litespec/ext/mcp#record-the-server-as-an-entry-point`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
 **Statement:** A project shipping an MCP server MUST record it as an entry point of kind `mcp` whose title names the MCP server.
 
-**Rationale:** The entry point record names how callers arrive: `litespec/core/access#name-every-entry-point-with-its-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
+**Rationale:** The entry point record names how callers arrive: `litespec/core/edges#give-each-entry-point-a-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
 
-**Reviewed for:** The entry point list names an `mcp` entry titled for the shipped MCP server.
+**Reviewed for:** Which shipped MCP servers have no `mcp` entry point titled for them? Look at the entry point list.
 
 ### Pass Server Instructions at Initialize
 
 **ID:** `litespec/ext/mcp#pass-server-instructions-at-initialize`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -52,13 +52,13 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Example:** "Runs over stdio, one account per process, against the hosted API. Reads cover the account's own data, and three tools create or change records. A policy refusal returns the refusal code, and a write needing a person's confirmation refuses until they give it."
 
-**Reviewed for:** The initialize response carries a non-empty `instructions` value stating transport, audience, write surface, and refusal behavior.
+**Reviewed for:** Which initialize responses carry no `instructions` value, or one that omits transport, audience, write surface, or refusal behavior? Look at the server's initialize handler and its test.
 
 ### Write One Tool Description for One Decision
 
 **ID:** `litespec/ext/mcp#write-one-tool-description-for-one-decision`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -81,13 +81,13 @@ This extension switches on no record type. Authentication, authorization, and pe
 }
 ```
 
-**Reviewed for:** The declared tools directory shows imperative titles, declarative behavior, positive parameter polarity, and stated side effects.
+**Reviewed for:** Which tools break the title, behavior, parameter polarity, or side-effect rules? Look at each entry in the declared tools directory.
 
 ### Scope Each Tool to Named Use Cases
 
 **ID:** `litespec/ext/mcp#scope-each-tool-to-named-use-cases`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -95,13 +95,13 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Rationale:** Each tool opens product behavior to a model acting for the user, so the team names exactly which use cases and permissions each tool reaches. Without the named scope, a reviewer cannot tell whether a tool reads one account or writes across many, and a broad tool ships without the scrutiny its reach needs.
 
-**Reviewed for:** Each tool description names the use cases and permissions the tool reaches.
+**Reviewed for:** Which tool descriptions name no use case or permission they reach? Look at each tool description beside its use case grant.
 
 ### Confirm Every Writing Tool
 
 **ID:** `litespec/ext/mcp#confirm-every-writing-tool`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -109,27 +109,27 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Rationale:** A model misreads intent the way any agent does: it can pause the wrong subscription or delete the record the user asked about. Refusing each write until the person confirms keeps the person behind every change while leaving reads fast. Without confirmation, one misunderstood sentence becomes a changed record nobody confirmed.
 
-**Reviewed for:** Each writing tool refuses until the person confirms the write.
+**Reviewed for:** Which writing tools perform a write without the person's confirmation? Look at each writing tool's handler and its tests.
 
 ### Exclude Secrets and Personal Data
 
 **ID:** `litespec/ext/mcp#exclude-secrets-and-personal-data`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** Tool descriptions and logs MUST exclude secrets and personal data from every field they carry.
+**Statement:** Tool descriptions and logs MUST exclude secrets, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states, and personal data from every field they carry.
 
 **Rationale:** Tool descriptions travel to the model on every call, and logs persist for operators long after the call ends. A secret copied into either grants access to whoever reads it next, and personal data in either spreads beyond the consent that collected it. Descriptions and logs name the fields without carrying the values.
 
-**Reviewed for:** Tool descriptions and logs carry field names with no secret or personal values.
+**Reviewed for:** Which tool descriptions or log lines carry a secret or personal value? Look at the tool descriptions and the server's log calls.
 
 ### State the Distribution and Update Path
 
 **ID:** `litespec/ext/mcp#state-the-distribution-and-update-path`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -137,7 +137,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Rationale:** The server runs on the user's machine, not on the product's servers, so no deployment pipeline updates it. Without documented install and update steps, users run stale servers with stale tool descriptions, and a security fix waits on users who never learn it exists.
 
-**Reviewed for:** The server documentation states install and update steps.
+**Reviewed for:** Which server documentation pages omit install or update steps? Look at the server's documentation.
 
 ## Conventions
 
@@ -155,7 +155,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Rationale:** A refusal without a source sends the model guessing: it rephrases input the server rejected on policy, or it waits for a person when its own input was malformed. The prefix names the failing side, so the model repairs its own input after `Needs:`, asks the person after `Needs confirmation:`, and reports the server after `Refused:`, instead of retrying a refusal no retry satisfies.
 
-**Reviewed for:** Refusals carry the `Needs:`, `Needs confirmation:`, and `Refused:` prefixes, or the project names another refusal vocabulary in its documentation.
+**Reviewed for:** Which refusals carry no `Needs:`, `Needs confirmation:`, or `Refused:` prefix, with no other vocabulary named in the documentation? Look at the tools' refusal messages.
 
 ## Dependencies
 

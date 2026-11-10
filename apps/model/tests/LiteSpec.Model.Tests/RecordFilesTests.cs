@@ -8,7 +8,7 @@ public sealed class RecordFilesTests
     /// <summary>A page with two entries yields three records with their lines.</summary>
     /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
-    public void Reads_Page_With_Two_Entries()
+    public void ReadsPageWithTwoEntries()
     {
         var records = RecordFiles.Read("docs/borrow-copy.yaml", Page);
 
@@ -42,7 +42,7 @@ public sealed class RecordFilesTests
     /// <summary>Prose that is no YAML mapping yields nothing.</summary>
     /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
-    public void Prose_Yields_Nothing()
+    public void ProseYieldsNothing()
     {
         Assert.Empty(RecordFiles.Read("docs/prose.yaml", "# Just prose\n\nNo mapping here.\n"));
     }
@@ -50,7 +50,7 @@ public sealed class RecordFilesTests
     /// <summary>An unclosed scalar, a flow collection and a typeless mapping yield nothing.</summary>
     /// <proves>litespec/core/model#state-the-common-fields-on-every-record</proves>
     [Fact]
-    public void Malformed_Yaml_Yields_Nothing()
+    public void MalformedYamlYieldsNothing()
     {
         Assert.Empty(RecordFiles.Read("docs/open.yaml", "type: \"use-case\n"));
         Assert.Empty(RecordFiles.Read("docs/broken.yaml", "type: [use-case, rule]\n"));

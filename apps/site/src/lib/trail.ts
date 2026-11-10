@@ -9,6 +9,8 @@
 // A node line is a record type, two or more spaces, and its text; indentation nests
 // it. A `facet` line is a label and a path. The site draws the outline as a tree.
 
+import { escape } from "./html.ts";
+
 export interface TrailNode {
   type: string;
   text: string;
@@ -65,10 +67,6 @@ const GROUPS: Record<string, string> = {
 function typeLabel(type: string): string {
   const words = type.split("-").join(" ");
   return words.charAt(0).toUpperCase() + words.slice(1);
-}
-
-function escape(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function renderItems(items: TrailNode[]): string {

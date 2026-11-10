@@ -38,8 +38,8 @@ public static class RecordTypes
     /// <summary>Gets the `example-cast` record type name.</summary>
     public const string ExampleCast = "example-cast";
 
-    /// <summary>Gets the `exception` record type name.</summary>
-    public const string Exception = "exception";
+    /// <summary>Gets the `departure` record type name.</summary>
+    public const string Departure = "departure";
 
     /// <summary>Gets the `external-system` record type name.</summary>
     public const string ExternalSystem = "external-system";
@@ -144,7 +144,7 @@ public static class RecordTypes
         "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
-        "entry-point", "screen", "external-system", "runbook", "exception", "term",
+        "entry-point", "screen", "external-system", "runbook", "departure", "term",
     };
 
     /// <summary>
@@ -164,7 +164,7 @@ public static class RecordTypes
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
-            ["exception"] = "governance",
+            ["departure"] = "governance",
         };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>
@@ -173,6 +173,12 @@ public static class RecordTypes
         "permission-list", "entry-point-list", "setting-set", "retention-schedule",
         "rule-set", "index", "tutorial", "how-to", "reference", "command",
         "configuration", "glossary", "example-cast",
+    };
+
+    /// <summary>Container page styles: record files that hold entries without a record of their own.</summary>
+    public static readonly HashSet<string> ContainerStyles = new HashSet<string>(StringComparer.Ordinal)
+    {
+        PermissionList, EntryPointList, SettingSet, RuleSet, RetentionSchedule,
     };
 
     /// <summary>Types whose identifier carries a home: type/home.name.</summary>
@@ -232,7 +238,6 @@ public static class RecordTypes
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
             ["dataClasses"] = new HashSet<string> { "reaction", "job", "decision", "requirement" },
-            ["compensation"] = new HashSet<string> { "use-case" },
             ["freshness"] = new HashSet<string>(),
             ["erasure"] = new HashSet<string> { "external-system", "integration-event" },
             ["allows"] = new HashSet<string> { "permission" },

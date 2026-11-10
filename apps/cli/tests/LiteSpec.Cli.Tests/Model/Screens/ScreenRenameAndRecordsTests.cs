@@ -1,9 +1,9 @@
 using Record = LiteSpec.Model.Record;
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Screens;
+namespace LiteSpec.Cli.Tests.Model.Screens;
 
 /// <summary>Proves per-frontend records unions and the screen rename.</summary>
 public sealed class ScreenRenameAndRecordsTests
@@ -11,9 +11,9 @@ public sealed class ScreenRenameAndRecordsTests
     /// <summary>Records Unions Hold Only The Frontends Own Entry Points.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Records_Unions_Hold_Only_The_Frontends_Own_Entry_Points()
+    public void RecordsUnionsHoldOnlyTheFrontendsOwnEntryPoints()
     {
-        using var temp = Cli.Temp("screen-records");
+        using var temp = TestCli.Temp("screen-records");
         var model = ModelWithTwoFrontends(temp.Path);
 
         var web = model.Config.Frontends.Single(frontend => frontend.Name == "web");
@@ -28,19 +28,18 @@ public sealed class ScreenRenameAndRecordsTests
     /// <summary>A Frontend Naming Its Entry Point Is Read Through It Before Any Screen Exists.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void A_Frontend_Naming_Its_Entry_Point_Is_Read_Through_It_Before_Any_Screen_Exists()
+    public void AFrontendNamingItsEntryPointIsReadThroughItBeforeAnyScreenExists()
     {
-        using var temp = Cli.Temp("screen-entry-point");
+        using var temp = TestCli.Temp("screen-entry-point");
         Directory.CreateDirectory(Path.Combine(temp.Path, ".litespec"));
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "admin", "path": "apps/admin", "platform": "react", "entryPoint": "entry-point/admin" }
-                ]
+                ], "paths": {
               }
             }
             """);
@@ -56,7 +55,7 @@ public sealed class ScreenRenameAndRecordsTests
     /// <summary>Rename Screen Rewrites Its Record Route Mark And Browser Annotation.</summary>
     /// <proves>litespec/core/maintaining#replace-every-citation-on-a-rename</proves>
     [Fact]
-    public void Rename_Screen_Rewrites_Its_Record_Route_Mark_And_Browser_Annotation()
+    public void RenameScreenRewritesItsRecordRouteMarkAndBrowserAnnotation()
     {
         using var fixture = ModelFixture.Prepare("large");
         var root = fixture.Path;
@@ -68,7 +67,7 @@ public sealed class ScreenRenameAndRecordsTests
         Directory.CreateDirectory(Path.GetDirectoryName(spec)!);
         File.WriteAllText(spec, "test('loans', proves(\"scenario/list-loans.listing-succeeds\"), async () => {});\n");
 
-        var result = Cli.Run("rename", "screen/library-app.loans", "screen/library-app.loan-list", "--root", root);
+        var result = TestCli.Run("rename", "screen/library-app.loans", "screen/library-app.loan-list", "--root", root);
 
         Assert.Equal(0, result.Status);
         Assert.True(File.Exists(Path.Combine(screens, "library-app.loan-list.yaml")));
@@ -80,7 +79,7 @@ public sealed class ScreenRenameAndRecordsTests
     /// <summary>Rename Scenario Rewrites A Browser Tests Proves Call.</summary>
     /// <proves>litespec/core/maintaining#replace-every-citation-on-a-rename</proves>
     [Fact]
-    public void Rename_Scenario_Rewrites_A_Browser_Tests_Proves_Call()
+    public void RenameScenarioRewritesABrowserTestsProvesCall()
     {
         using var fixture = ModelFixture.Prepare("large");
         var root = fixture.Path;
@@ -88,7 +87,7 @@ public sealed class ScreenRenameAndRecordsTests
         Directory.CreateDirectory(Path.GetDirectoryName(spec)!);
         File.WriteAllText(spec, "test('loans', proves(\"scenario/list-loans.listing-own-loans-succeeds\"), async () => {});\n");
 
-        var result = Cli.Run("rename", "scenario/list-loans.listing-own-loans-succeeds", "scenario/list-loans.listing-all-loans-succeeds", "--root", root);
+        var result = TestCli.Run("rename", "scenario/list-loans.listing-own-loans-succeeds", "scenario/list-loans.listing-all-loans-succeeds", "--root", root);
 
         Assert.Equal(0, result.Status);
         Assert.Contains("scenario/list-loans.listing-all-loans-succeeds", File.ReadAllText(spec));
@@ -98,15 +97,14 @@ public sealed class ScreenRenameAndRecordsTests
     {
         Directory.CreateDirectory(Path.Combine(root, ".litespec"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
               "owners": ["lending-team"],
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte" },
                   { "name": "admin", "path": "apps/admin", "platform": "react" }
-                ]
+                ], "paths": {
               }
             }
             """);

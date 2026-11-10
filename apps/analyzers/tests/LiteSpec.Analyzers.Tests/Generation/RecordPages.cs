@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 internal static class RecordPages
 {
     /// <summary>The project file path every generator test uses.</summary>
-    public const string ProjectPath = "/project/.litespec/project.json";
+    public const string ProjectPath = "/project/.litespec/project.yaml";
 
     /// <summary>Wraps one source in the single-file list.</summary>
     /// <param name="source">The C# source.</param>
@@ -38,7 +38,7 @@ internal static class RecordPages
     /// <param name="marks">The declared mark style.</param>
     /// <returns>The project file text.</returns>
     public static string Project(string marks) =>
-        "{\"marks\": \"" + marks + "\", \"paths\": {\"docs\": \".litespec\", \"behaviorDocs\": \".litespec/behavior\"}}";
+        $"schemaVersion: 1\nmarks: {marks}\npaths:\n  docs: .litespec\n  behaviorDocs: .litespec/behavior\n";
 
     /// <summary>Builds an event page.</summary>
     /// <param name="id">The event identifier.</param>

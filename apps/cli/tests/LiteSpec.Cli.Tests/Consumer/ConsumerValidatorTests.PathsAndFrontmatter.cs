@@ -1,12 +1,12 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for documentation paths and page frontmatter.</summary>
 public sealed partial class ConsumerValidatorTests
 {
     /// <summary>Documentation root that is on disk.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is on disk")]
     public void DocumentationRootThatIsOnDisk()
     {
@@ -16,7 +16,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Documentation root that is not on disk.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that is not on disk")]
     public void DocumentationRootThatIsNotOnDisk()
     {
@@ -26,7 +26,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Documentation root that holds no Markdown.</summary>
-    /// <proves>litespec/core/authoring#classify-every-specification-file</proves>
+    /// <proves>litespec/core/model#classify-every-specification-file</proves>
     [Fact(DisplayName = "documentation root that holds no Markdown")]
     public void DocumentationRootThatHoldsNoMarkdown()
     {
@@ -65,9 +65,9 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("svelte");
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" });
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" });
         });
-        AssertProblem(RunConsumer(folder.Path), "extensions 'efcore' supports only the dotnet stack, which the project does not name in stacks");
+        AssertProblem(RunConsumer(folder.Path), "extensions 'bdd' supports only the dotnet stack, which the project does not name in stacks");
     }
 
     /// <summary>Stack-scoped extension with its stack.</summary>
@@ -77,7 +77,7 @@ public sealed partial class ConsumerValidatorTests
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
-            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "efcore", ["criterion"] = "orders need relational reporting" }));
+            project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "bdd", ["criterion"] = "orders need scenario coverage" }));
         AssertAbsent(RunConsumer(folder.Path), "supports only the dotnet stack");
     }
 
@@ -87,12 +87,12 @@ public sealed partial class ConsumerValidatorTests
     public void FrontendDeclaringBackendStackAsPlatform()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateProject(folder.Path, project => ((JsonArray)PathsOf(project)["frontends"]!).Add(new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "dotnet" }));
-        AssertProblem(RunConsumer(folder.Path), "frontend 'web' has unknown platform 'dotnet'");
+        ConsumerFixture.MutateProject(folder.Path, project => ((JsonArray)project["frontends"]!).Add(new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "dotnet" }));
+        AssertProblem(RunConsumer(folder.Path), "/frontends/0/platform");
     }
 
     /// <summary>Glossary path that is not on disk.</summary>
-    /// <proves>litespec/core/authoring#record-the-project-vocabulary-as-data</proves>
+    /// <proves>litespec/core/language#record-the-project-vocabulary-as-data</proves>
     [Fact(DisplayName = "glossary path that is not on disk")]
     public void GlossaryPathThatIsNotOnDisk()
     {
@@ -109,14 +109,14 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/missing", ["platform"] = "react" });
         });
         AssertProblem(RunConsumer(folder.Path), "frontend 'web' path 'apps/missing' does not exist");
     }
 
     /// <summary>Page under the documentation root is scanned.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page under the documentation root is scanned")]
     public void PageUnderTheDocumentationRootIsScanned()
     {
@@ -131,7 +131,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Missing required title.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "missing required title")]
     public void MissingRequiredTitle()
     {
@@ -170,7 +170,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Result entry without its outcome.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "result entry without its outcome")]
     public void ResultEntryWithoutItsOutcome()
     {
@@ -183,7 +183,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Retired page type from the old model.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "retired page type from the old model")]
     public void RetiredPageTypeFromTheOldModel()
     {
@@ -196,7 +196,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with no frontmatter block.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with no frontmatter block")]
     public void PageWithNoFrontmatterBlock()
     {
@@ -209,7 +209,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a broken frontmatter block.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a broken frontmatter block")]
     public void PageWithABrokenFrontmatterBlock()
     {

@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves <c>litespec model render</c> writes the records file each web frontend imports from its frame.</summary>
 public sealed class FrontendRecordsTests
@@ -9,10 +9,10 @@ public sealed class FrontendRecordsTests
     /// <summary>Render Writes The Records File Into Each Frame.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Writes_The_Records_File_Into_Each_Frame()
+    public void RenderWritesTheRecordsFileIntoEachFrame()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
-        var result = Cli.Run("model", "render", "--root", fixture.Path);
+        var result = TestCli.Run("model", "render", "--root", fixture.Path);
         Assert.Equal(0, result.Status);
 
         var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
@@ -37,10 +37,10 @@ public sealed class FrontendRecordsTests
     /// <summary>Render Leaves Out Use Cases With No Browser Entry Point.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Leaves_Out_Use_Cases_With_No_Browser_Entry_Point()
+    public void RenderLeavesOutUseCasesWithNoBrowserEntryPoint()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
-        var result = Cli.Run("model", "render", "--root", fixture.Path);
+        var result = TestCli.Run("model", "render", "--root", fixture.Path);
         Assert.Equal(0, result.Status);
 
         var web = Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts");
@@ -51,10 +51,10 @@ public sealed class FrontendRecordsTests
     /// <summary>Check Writes No Records File.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Check_Writes_No_Records_File()
+    public void CheckWritesNoRecordsFile()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
-        Cli.Run("model", "check", "--root", fixture.Path);
+        TestCli.Run("model", "check", "--root", fixture.Path);
 
         Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "web", "src", "lib", "app", "litespec-records.ts")));
         Assert.False(File.Exists(Path.Combine(fixture.Path, "apps", "console", "src", "app", "litespec-records.ts")));
@@ -63,7 +63,7 @@ public sealed class FrontendRecordsTests
     /// <summary>Render Writes Never For No Ids.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Writes_Never_For_No_Ids()
+    public void RenderWritesNeverForNoIds()
     {
         var text = FrontendRecords.Render([], [], []);
 
@@ -78,7 +78,7 @@ public sealed class FrontendRecordsTests
     /// <summary>Render Breaks A Long Union One Id Per Line.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Breaks_A_Long_Union_One_Id_Per_Line()
+    public void RenderBreaksALongUnionOneIdPerLine()
     {
         var ids = Enumerable.Range(1, 30).Select(number => $"use-case/lending.use-case-{number:00}").ToList();
         var text = FrontendRecords.Render(ids, [], []);
@@ -91,7 +91,7 @@ public sealed class FrontendRecordsTests
     /// <summary>Render Writes The Proves Helper Typed To Proof Targets.</summary>
     /// <proves>litespec/frontend/web/structure#generate-the-records-file-into-the-frame</proves>
     [Fact]
-    public void Render_Writes_The_Proves_Helper_Typed_To_Proof_Targets()
+    public void RenderWritesTheProvesHelperTypedToProofTargets()
     {
         var text = FrontendRecords.Render([], [], ["scenario/list-loans.listing-succeeds"]);
 

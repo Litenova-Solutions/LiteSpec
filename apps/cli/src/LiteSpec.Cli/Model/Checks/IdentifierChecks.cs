@@ -8,9 +8,9 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>The identifier checks: every identifier is unique, follows the type and home grammar, sits in the folder its home names, carries a name used once in the product, and takes a decision number used once.</summary>
-/// <follows>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</follows>
-/// <follows>litespec/backend/identifiers#name-records-with-one-to-six-words</follows>
-/// <follows>litespec/backend/identifiers#use-every-identifier-once</follows>
+/// <follows>litespec/core/language#follow-the-identifier-form-of-each-record-type</follows>
+/// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/core/language#use-every-identifier-once</follows>
 /// <follows>litespec/core/model#move-each-identifier-with-its-module</follows>
 /// <follows>litespec/core/model#keep-each-name-unique-in-the-product</follows>
 /// <follows>litespec/core/model#take-decision-numbers-from-one-sequence</follows>
@@ -37,7 +37,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent,
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
-        RecordTypes.Exception,
+        RecordTypes.Departure,
     };
 
     /// <summary>Reports identifier-invalid, identifier-duplicate, identifier-folder-drift, name-duplicate and decision-number-duplicate.</summary>
@@ -278,7 +278,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent => "Integration event",
         RecordTypes.ExternalSystem => "External system",
         RecordTypes.Runbook => "Runbook",
-        RecordTypes.Exception => "Exception",
+        RecordTypes.Departure => "Departure",
         RecordTypes.Reaction => "Reaction",
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",

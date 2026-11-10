@@ -38,7 +38,7 @@ sealed class JUnitRunReader : ITestRunReader
             }
 
             run ??= new TestRun();
-            run.Files.Add(config.Relative(file));
+            run.Files.Add(PathText.Relative(config.Root, file));
 
             if (RunDateOf(document, file) is { } day
                 && (run.Date is null || string.CompareOrdinal(day, run.Date) > 0))

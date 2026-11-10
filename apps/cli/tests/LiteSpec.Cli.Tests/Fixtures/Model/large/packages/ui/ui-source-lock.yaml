@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/ui-source-lock.schema.yaml
+schemaVersion: 2
+generator: shadcn-svelte
+cli: 1.7.0
+preset:
+  style: nova
+  base: bits-ui
+  cssVariables: true
+  baseColor: neutral
+  theme: neutral
+  chartColor: neutral
+  font: geist
+  fontHeading: inherit
+  icons: lucide
+  radius: default
+  menuAccent: subtle
+  menuColor: default
+  componentsStyle: base-nova
+registry:
+  name: shadcn-svelte
+  url: 'https://shadcn-svelte.com/registry'
+formatter: default
+components:
+- name: button
+  address: button
+  status: baseline
+  paths:
+  - src/components/button.tsx
+  digest: 'sha256:481f5ce3579804ec18e2414f661b9464a24f50710c8f7ca014699bff34a7110d'
+  dependencies:
+  - bits-ui
+  - class-variance-authority
+  - clsx
+  - tailwind-merge
+- name: skeleton
+  address: skeleton
+  status: baseline
+  paths:
+  - src/components/skeleton.tsx
+  digest: 'sha256:e4eb4184b396ae2d14d86b0129e34a1af1e3832b776ae237ef8020a2b8bae859'
+  dependencies: []

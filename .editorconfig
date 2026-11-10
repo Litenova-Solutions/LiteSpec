@@ -21,7 +21,10 @@ indent_size = 2
 csharp_style_namespace_declarations = file_scoped
 csharp_preferred_modifier_order = public, internal, protected, private, file, static, async, abstract, virtual, readonly, sealed, override, extern, unsafe, volatile, new, required:suggestion
 
-# StyleCop: the documentation rules only, as in LiteBus. File headers are not used.
+# Every type and member in production code carries an XML documentation comment, so StyleCop's
+# documentation rules are warnings. The other StyleCop categories impose a house style this repository
+# does not follow, such as using directives inside a namespace and a `this.` prefix on every call, and a
+# file header would repeat the copyright the LICENSE file states, so the categories stay off.
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = warning
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.LayoutRules.severity = none
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.MaintainabilityRules.severity = none
@@ -42,21 +45,32 @@ dotnet_diagnostic.SA1638.severity = none
 # identifier that the tools parse, where a period would name a provision that does not exist.
 dotnet_diagnostic.SA1629.severity = none
 
-# One type per file, named after the file.
+# One type per file, named after the file: the path then finds the type, and two top-level types in one
+# file merge their histories in review.
 dotnet_diagnostic.SA1402.severity = warning
 dotnet_diagnostic.SA1649.severity = warning
 
-# Code analysis rules LiteBus raises.
+# A throw helper names the parameter from the argument and keeps the guard on one line (CA1510, CA1511).
 dotnet_diagnostic.CA1510.severity = warning
 dotnet_diagnostic.CA1511.severity = warning
+# Two names for one enum value make a comparison or a switch read as a case that did not run (CA1069).
 dotnet_diagnostic.CA1069.severity = warning
+# A general catch belongs only at a boundary that reports any failure as a diagnostic, and that site
+# carries a suppression whose justification names the boundary (CA1031).
 dotnet_diagnostic.CA1031.severity = warning
+# Nullable reference types are on and warnings are errors, so a parameter that can be null is declared
+# nullable and a missing check fails the build; CA1062 would ask for a guard the signature already
+# promises.
 dotnet_diagnostic.CA1062.severity = none
-# The tools are console applications, not libraries: no synchronization context to escape,
-# so ConfigureAwait on every await would be noise rather than the safeguard CA2007 is in LiteBus.
+
+# The tools are console applications, not libraries: there is no synchronization context to escape, so
+# ConfigureAwait on every await would add noise rather than protect anything.
 dotnet_diagnostic.CA2007.severity = none
 
-# Code style.
+# Production C# uses file-scoped namespaces, so drift fails the build (IDE0161). IDE0300 stays a warning
+# because a collection expression needs a target type, and not every array creation has one. Whether a
+# local names its type is a readability call on the line, and a primary constructor hides where a field
+# is assigned, so IDE0007 and IDE0290 stay off.
 dotnet_diagnostic.IDE0161.severity = error
 dotnet_diagnostic.IDE0300.severity = warning
 dotnet_diagnostic.IDE0290.severity = none
@@ -74,7 +88,6 @@ dotnet_diagnostic.CA1859.severity = none
 dotnet_diagnostic.CA1861.severity = none
 # Documentation is required on the production code; a test's DisplayName and proves mark describe it.
 dotnet_diagnostic.SA1600.severity = none
-dotnet_diagnostic.IDE0161.severity = warning
 
 [apps/cli/tests/**/Fixtures/**.cs]
 # Fixtures are sample consumer code read as text by the readers under test, never compiled here.

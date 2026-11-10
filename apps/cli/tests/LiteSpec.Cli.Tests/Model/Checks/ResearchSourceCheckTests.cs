@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the research source checks against hand-built models.</summary>
 public sealed class ResearchSourceCheckTests
@@ -9,9 +9,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research explanation linking a URL directly reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Direct_Link_Reports_Source_Link_Bare()
+    public void DirectLinkReportsSourceLinkBare()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -36,9 +36,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research explanation naming a bare URL reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Bare_Url_Reports_Source_Link_Bare()
+    public void BareUrlReportsSourceLinkBare()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -63,9 +63,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research explanation naming an angle-bracket URL reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Angle_Url_Reports_Source_Link_Bare()
+    public void AngleUrlReportsSourceLinkBare()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -90,9 +90,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A URL inside code reports no bare link.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Url_Inside_Code_Passes()
+    public void UrlInsideCodePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -112,9 +112,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A reference link whose label shows the URL cites by key and reports no bare link.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Url_As_Reference_Link_Label_Passes()
+    public void UrlAsReferenceLinkLabelPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -136,9 +136,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research explanation citing an unknown source key reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Unknown_Source_Key_Reports()
+    public void UnknownSourceKeyReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -163,9 +163,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research explanation citing a declared source key passes.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Known_Source_Key_Passes()
+    public void KnownSourceKeyPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -187,9 +187,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research source cited nowhere in its explanation reports.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Uncited_Source_Reports_Source_Unused()
+    public void UncitedSourceReportsSourceUnused()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "benchmarks.yaml");
         var explanationFile = Path.Combine(temp.Path, "benchmarks.md");
         var model = TestModel.Model(
@@ -214,9 +214,9 @@ public sealed class ResearchSourceCheckTests
     /// <summary>A research record with no explanation skips the source checks.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
     [Fact]
-    public void Research_Without_An_Explanation_Skips_Source_Checks()
+    public void ResearchWithoutAnExplanationSkipsSourceChecks()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(

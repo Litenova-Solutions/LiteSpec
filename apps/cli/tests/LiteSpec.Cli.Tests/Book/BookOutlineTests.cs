@@ -1,9 +1,9 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book outline places every record once under its parent.</summary>
 public sealed class BookOutlineTests
@@ -11,7 +11,7 @@ public sealed class BookOutlineTests
     /// <summary>Every record type has a parent rule.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Every_Record_Type_Has_A_Parent_Rule()
+    public void EveryRecordTypeHasAParentRule()
     {
         foreach (var type in RecordTypes.All)
         {
@@ -24,7 +24,7 @@ public sealed class BookOutlineTests
     /// <summary>The C# parent table matches the Placement Table on the model page.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Parent_Rules_Match_The_Model_Page()
+    public void ParentRulesMatchTheModelPage()
     {
         var table = ReadPlacementTable();
         Assert.Equal(BookParents.Rules.Count, table.Count);
@@ -39,9 +39,9 @@ public sealed class BookOutlineTests
     /// <summary>The fixture model places every record exactly once under six layer roots, with none unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Fixture_Model_Places_Every_Record_Exactly_Once()
+    public void FixtureModelPlacesEveryRecordExactlyOnce()
     {
-        var root = JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/review.json")))!;
+        var root = DataFile.Read(TestCli.Fixture("Book/review.json"))!;
         var model = root.AsObject();
         var outline = BookOutline.Build(model);
 
@@ -88,7 +88,7 @@ public sealed class BookOutlineTests
     /// <summary>A feature parents its module by file; its solves and advances entries never move it, and a feature with no module file stays unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Feature_Parents_Its_Module_By_File()
+    public void FeatureParentsItsModuleByFile()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -134,7 +134,7 @@ public sealed class BookOutlineTests
     /// <summary>Records with no parent land only in Unplaced, with no outline node and no invented group.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Unplaced_Records_Land_In_Unplaced()
+    public void UnplacedRecordsLandInUnplaced()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -169,7 +169,7 @@ public sealed class BookOutlineTests
     /// <summary>A record whose parent is itself unplaced has no outline node either: it is only listed unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Child_Of_An_Unplaced_Parent_Has_No_Outline_Node()
+    public void ChildOfAnUnplacedParentHasNoOutlineNode()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -188,7 +188,7 @@ public sealed class BookOutlineTests
     /// <summary>A requirement parents its feature by identifier home; its cites never move it.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Requirement_Parents_Its_Feature_By_Identifier_Home()
+    public void RequirementParentsItsFeatureByIdentifierHome()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -230,7 +230,7 @@ public sealed class BookOutlineTests
     /// <summary>A scenario parents only under the result it shows; a missing one is reported, never defaulted to the use case.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Scenario_Parents_Only_Under_Its_Shown_Result()
+    public void ScenarioParentsOnlyUnderItsShownResult()
     {
         var shown = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -271,7 +271,7 @@ public sealed class BookOutlineTests
     /// <summary>One code node per implementing file sits under the first mark target in identifier order.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Implementation_Nodes_Sit_Under_Their_First_Mark_Target()
+    public void ImplementationNodesSitUnderTheirFirstMarkTarget()
     {
         var model = FullModel(
             [
@@ -317,7 +317,7 @@ public sealed class BookOutlineTests
     /// <summary>One test node per unit and browser test sits under the lowest record it proves.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Proof_Tests_Sit_Under_The_Lowest_Proved_Record()
+    public void ProofTestsSitUnderTheLowestProvedRecord()
     {
         var model = FullModel(
             [
@@ -378,7 +378,7 @@ public sealed class BookOutlineTests
     /// <summary>One finding node per open and known finding sits under its subject; unknown subjects place nothing.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Findings_Sit_Under_Their_Subject()
+    public void FindingsSitUnderTheirSubject()
     {
         var model = FullModel(
             [
@@ -432,7 +432,7 @@ public sealed class BookOutlineTests
     /// <summary>Containment follows the identifier home: aggregates, use cases, results and rules.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Containment_Places_Aggregates_UseCases_Results_And_Rules()
+    public void ContainmentPlacesAggregatesUseCasesResultsAndRules()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -461,7 +461,7 @@ public sealed class BookOutlineTests
     /// <summary>A reaction and a job parent their module by identifier home and sort with the module children.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Reactions_And_Jobs_Parent_Their_Module_By_Identifier_Home()
+    public void ReactionsAndJobsParentTheirModuleByIdentifierHome()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -491,7 +491,7 @@ public sealed class BookOutlineTests
     /// <summary>A screen parents its entry point by identifier home; a home naming no entry point stays unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Screen_Parents_Its_Entry_Point_By_Identifier_Home()
+    public void ScreenParentsItsEntryPointByIdentifierHome()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -517,7 +517,7 @@ public sealed class BookOutlineTests
     /// <summary>Root types parent the product with no written field, and the product has no parent.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Root_Types_Parent_The_Product()
+    public void RootTypesParentTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -525,14 +525,14 @@ public sealed class BookOutlineTests
             Record("journey", "journey/borrowing", "Borrowing", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
             Record("term", "term/loan", "Loan", "approved"),
-            Record("exception", "exception/kiosk-cache", "Kiosk Cache", "approved"));
+            Record("departure", "departure/kiosk-cache", "Kiosk Cache", "approved"));
 
         Assert.Null(BookParents.ParentOf(model, "product/library"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "journey/borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "module/lending"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "term/loan"));
-        Assert.Equal("product/library", BookParents.ParentOf(model, "exception/kiosk-cache"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "departure/kiosk-cache"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);
@@ -542,7 +542,7 @@ public sealed class BookOutlineTests
     /// <summary>A goal in a module folder parents that module; a goal at product level parents the product.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Goal_Parents_Its_Module_File_Else_The_Product()
+    public void GoalParentsItsModuleFileElseTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -568,7 +568,7 @@ public sealed class BookOutlineTests
     /// <summary>A rule whose home names no aggregate or module parents the product as a product-level invariant.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Product_Level_Rule_Parents_The_Product()
+    public void ProductLevelRuleParentsTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -582,7 +582,7 @@ public sealed class BookOutlineTests
     /// <summary>A use case parents its folder node: the aggregate beside its file, or its module from the file when its home names another module.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Use_Case_Parents_Its_Aggregate_Folder()
+    public void UseCaseParentsItsAggregateFolder()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -624,7 +624,7 @@ public sealed class BookOutlineTests
     /// <summary>A rule parents its folder node: the aggregate above its rules folder, its module from the file, or the product under behavior rules.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Rule_Parents_Its_Folder_Node()
+    public void RuleParentsItsFolderNode()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -667,7 +667,7 @@ public sealed class BookOutlineTests
     /// <summary>A screen parents its entry-point folder: the entry point beside its screens folder, or the one its folder names.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Screen_Parents_Its_Entry_Point_Folder()
+    public void ScreenParentsItsEntryPointFolder()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -705,7 +705,7 @@ public sealed class BookOutlineTests
     /// <summary>An aggregate and a reaction parent their module folder when their home names another module.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Aggregate_And_Module_Members_Parent_Their_Module_Folder()
+    public void AggregateAndModuleMembersParentTheirModuleFolder()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -735,7 +735,7 @@ public sealed class BookOutlineTests
     /// <summary>An event parents the aggregate whose folder holds its file, even when its home names no aggregate.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Event_Parents_Its_Aggregate_Folder()
+    public void EventParentsItsAggregateFolder()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -833,7 +833,7 @@ public sealed class BookOutlineTests
             ["tests"] = tests ?? new JsonArray(),
             ["browserTests"] = browserTests ?? new JsonArray(),
             ["findings"] = findings ?? new JsonArray(),
-            ["known"] = known ?? new JsonArray(),
+            ["covered"] = known ?? new JsonArray(),
         };
     }
 
@@ -905,7 +905,7 @@ public sealed class BookOutlineTests
 
     static Dictionary<string, (List<string> Parents, string ParentCell)> ReadPlacementTable()
     {
-        var lines = File.ReadAllLines(Path.Combine(Cli.Repository, "docs", "core", "model.md"));
+        var lines = File.ReadAllLines(Path.Combine(TestCli.Repository, "docs", "core", "model.md"));
         var start = -1;
         for (var index = 0; index < lines.Length; index++)
         {
@@ -923,7 +923,7 @@ public sealed class BookOutlineTests
         {
             if (lines[index].Contains("| Type |", StringComparison.Ordinal)
                 && lines[index].Contains("| Parent |", StringComparison.Ordinal)
-                && lines[index].Contains("Qualified Form", StringComparison.Ordinal))
+                && lines[index].Contains("| Folder |", StringComparison.Ordinal))
             {
                 header = index;
                 break;

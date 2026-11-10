@@ -28,7 +28,7 @@ internal static class CodeChecks
     }
 
     /// <summary>
-    ///     One S-level finding. The level comes from the finding code through Finding.Tiers,
+    ///     One S-level finding. The level comes from the finding code through FindingCodes,
     ///     which maps these three codes to S, so this helper builds the finding as written.
     /// </summary>
     /// <param name="code">The finding code that sets the level.</param>
@@ -343,7 +343,7 @@ internal static class CodeChecks
         return declared;
     }
 
-    /// <summary>The generic refusal codes from .litespec/project.json refusals, or the defaults.</summary>
+    /// <summary>The generic refusal codes from .litespec/project.yaml refusals, or the defaults.</summary>
     /// <param name="model">The loaded project model that supplies the consumer root for the project file.</param>
     /// <returns>The forbidden and invalid-input codes the project declares, or the shared defaults.</returns>
     private static (string Forbidden, string InvalidInput) GenericRefusals(ProjectModel model)
@@ -821,7 +821,7 @@ internal static class CodeChecks
 
             findings.Add(CodeFinding(
                 "operation-use-case-drift",
-                $"Contract '{model.Config.Relative(contract)}' is unreadable: {(detail.Length > 0 ? detail : "an unknown error")}.",
+                $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: {(detail.Length > 0 ? detail : "an unknown error")}.",
                 contract,
                 1,
                 null));
@@ -834,7 +834,7 @@ internal static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the document is not an object.",
+                    $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: the document is not an object.",
                     contract,
                     1,
                     null));
@@ -850,7 +850,7 @@ internal static class CodeChecks
             {
                 findings.Add(CodeFinding(
                     "operation-use-case-drift",
-                    $"Contract '{model.Config.Relative(contract)}' is unreadable: the 'paths' value is not an object.",
+                    $"Contract '{PathText.Relative(model.Config.Root, contract)}' is unreadable: the 'paths' value is not an object.",
                     contract,
                     1,
                     null));
@@ -963,7 +963,7 @@ internal static class CodeChecks
                 continue;
             }
 
-            var relative = model.Config.Relative(file);
+            var relative = PathText.Relative(model.Config.Root, file);
             var parts = relative.Split('/');
 
             for (var index = 0; index < parts.Length - 1; index++)
@@ -1009,7 +1009,7 @@ internal static class CodeChecks
             return false;
         }
 
-        var relative = Path.GetRelativePath(kernel, file);
+        var relative = PathText.Relative(kernel, file);
 
         return !relative.StartsWith("..", StringComparison.Ordinal) && !Path.IsPathRooted(relative);
     }

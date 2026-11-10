@@ -1,0 +1,11 @@
+shape: server
+stacks:
+- dotnet
+- react
+frontends:
+- name: web
+  path: apps/web
+  platform: react
+  ui:
+    profile: application-balanced
+paths: {}

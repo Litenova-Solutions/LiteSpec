@@ -11,7 +11,7 @@ namespace LiteSpec.Model.Readers.Suppressions;
 ///     <c>SuppressMessage</c> in a C# source file. Build output, installed packages
 ///     and tool folders are left out. A file that cannot be read states nothing.
 /// </summary>
-/// <follows>litespec/core/model#record-a-project-wide-lowering-as-an-exception</follows>
+/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
 static class SuppressionReader
 {
     /// <summary>Directory names the walk leaves out: build output, installed packages and tool folders.</summary>

@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the mark checks over frontend modules: missing, unresolved, mirrored and styled.</summary>
 public sealed class FrontendMarkCheckTests
@@ -8,7 +8,7 @@ public sealed class FrontendMarkCheckTests
     /// <summary>Marked Modules Report No Mark Findings.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Marked_Modules_Report_No_Mark_Findings()
+    public void MarkedModulesReportNoMarkFindings()
     {
         using var fixture = FrontendMarksFixture.Prepare("clean");
         var findings = FrontendMarksFixture.Check(fixture.Path);
@@ -22,7 +22,7 @@ public sealed class FrontendMarkCheckTests
     /// <summary>Unmarked Module Reports Mark Missing.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Unmarked_Module_Reports_Mark_Missing()
+    public void UnmarkedModuleReportsMarkMissing()
     {
         using var fixture = FrontendMarksFixture.Prepare("missing");
         var missing = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-missing");
@@ -36,7 +36,7 @@ public sealed class FrontendMarkCheckTests
     /// <summary>Module Marking Another Use Case Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Module_Marking_Another_Use_Case_Reports_Mark_Unresolved()
+    public void ModuleMarkingAnotherUseCaseReportsMarkUnresolved()
     {
         using var fixture = FrontendMarksFixture.Prepare("mismatch");
         var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unknown");
@@ -50,7 +50,7 @@ public sealed class FrontendMarkCheckTests
     /// <summary>Module Marking No Use Case Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Module_Marking_No_Use_Case_Reports_Mark_Unresolved()
+    public void ModuleMarkingNoUseCaseReportsMarkUnresolved()
     {
         using var fixture = FrontendMarksFixture.Prepare("mismatch");
         var unresolved = FrontendMarksFixture.WithCode(FrontendMarksFixture.Check(fixture.Path), "mark-unknown");
@@ -63,7 +63,7 @@ public sealed class FrontendMarkCheckTests
     /// <summary>Frontend Mark Reports No Mark Style Mixed Where A Backend Mark Does.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Frontend_Mark_Reports_No_Mark_Style_Mixed_Where_A_Backend_Mark_Does()
+    public void FrontendMarkReportsNoMarkStyleMixedWhereABackendMarkDoes()
     {
         using var fixture = FrontendMarksFixture.Prepare("style");
         var findings = FrontendMarksFixture.Check(fixture.Path);

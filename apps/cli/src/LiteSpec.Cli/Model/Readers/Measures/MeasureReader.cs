@@ -15,8 +15,9 @@ static class MeasureReader
 {
     /// <summary>Reads every measure result file under the test results and check results folders.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
+    /// <param name="problems">The findings an invalid check result file is reported into.</param>
     /// <returns>Every measure result under the test results and check results folders.</returns>
-    public static List<MeasureResult> Read(ConsumerConfig config)
+    public static List<MeasureResult> Read(ConsumerConfig config, List<Finding> problems)
     {
         var measures = new List<MeasureResult>();
 
@@ -58,26 +59,9 @@ static class MeasureReader
             }
         }
 
-        foreach (var file in SourceTree.Files(config.CheckResultsDir, ".json"))
+        foreach (var result in CheckResultReader.Read(config, problems))
         {
-            JsonDocument document;
-
-            try
-            {
-                document = JsonDocument.Parse(File.ReadAllBytes(file));
-            }
-            catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            using (document)
-            {
-                if (CheckResultReader.Parse(document.RootElement, file) is { } result)
-                {
-                    measures.Add(new MeasureResult("check", result.Check, result.Passed, result.Value, file));
-                }
-            }
+            measures.Add(new MeasureResult("check", result.Check, result.Passed, result.Value, result.File));
         }
 
         measures.Sort((left, right) =>

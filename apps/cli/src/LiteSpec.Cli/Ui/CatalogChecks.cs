@@ -15,6 +15,9 @@ namespace LiteSpec.Ui;
 /// <follows>litespec/frontend/patterns#implement-a-chosen-pattern-once</follows>
 sealed class CatalogChecks
 {
+    /// <summary>The pattern catalog a workspace keeps when <c>paths.uiPatterns</c> names none.</summary>
+    public const string DefaultCatalog = ".litespec/implementation/patterns/catalog.yaml";
+
     /// <summary>The state of the run.</summary>
     readonly UiSession session;
 
@@ -39,20 +42,20 @@ sealed class CatalogChecks
     public void ValidatePatternCatalog(string relative)
     {
         var file = session.FilePath(relative);
-        var label = session.RelativeToRoot(file);
+        var label = PathText.Relative(session.Root, file);
         if (!FileWalk.Exists(file))
         {
             session.Add("ui-catalog-invalid", $"[litespec/frontend/patterns#keep-one-pattern-catalog] pattern catalog: no catalog at '{relative}'", file);
             return;
         }
 
-        var catalog = session.ReadJson(file, "ui-catalog-invalid");
+        var catalog = session.ReadData(file, "ui-catalog-invalid");
         if (catalog is null)
         {
             return;
         }
 
-        session.SchemaCheck("ui-pattern-catalog.schema.json", catalog, label, "litespec/frontend/patterns#keep-one-pattern-catalog", "ui-catalog-invalid");
+        session.SchemaCheck("ui-pattern-catalog.schema.yaml", catalog, label, "litespec/frontend/patterns#keep-one-pattern-catalog", "ui-catalog-invalid");
 
         // A catalog that breaks the schema still reads below, so each access guards
         // its own shape rather than assuming the schema proved it.

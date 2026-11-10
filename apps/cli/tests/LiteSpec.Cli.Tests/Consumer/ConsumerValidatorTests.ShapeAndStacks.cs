@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for project shape and stack selection.</summary>
 public sealed partial class ConsumerValidatorTests
@@ -45,22 +45,22 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("dotnet");
-            PathsOf(project).Remove("frontends");
+            project.Remove("frontends");
         });
         AssertClean(RunConsumer(folder.Path));
     }
 
     /// <summary>Records server project with no stacks and no frontends.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
-    [Fact(DisplayName = "records server project with no stacks and no frontends")]
-    public void RecordsServerProjectWithNoStacksOrFrontends()
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
+    [Fact(DisplayName = "intent and behavior server project with no stacks and no frontends")]
+    public void IntentAndBehaviorServerProjectWithNoStacksOrFrontends()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            project["conformance"] = "records";
+            project["layers"] = ConsumerFixture.Layers(implementation: null, proof: null);
             project.Remove("stacks");
-            PathsOf(project).Remove("frontends");
+            project.Remove("frontends");
         });
         AssertClean(RunConsumer(folder.Path));
     }
@@ -101,7 +101,7 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "react" });
         });
         AssertProblem(RunConsumer(folder.Path), "platform 'react' is not a stack the project names in stacks");
@@ -116,7 +116,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("dotnet", "blazor");
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
         });
         Directory.CreateDirectory(Path.Combine(folder.Path, "apps", "desk"));

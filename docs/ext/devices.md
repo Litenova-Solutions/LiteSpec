@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -28,9 +28,9 @@ The block names the messages the entry point exchanges, the version rule devices
 
 **ID:** `litespec/ext/devices#describe-device-messages-as-a-channel-fragment`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** A device protocol MUST describe its messages as an AsyncAPI channel fragment with named operations and payloads.
 
@@ -49,29 +49,29 @@ protocol:
     payload: { code, reason }
 ```
 
-**Reviewed for:** The protocol blocks on the device entry points list named operations with payloads in the channel shape.
+**Reviewed for:** Which device entry points list an operation without its payload in the channel shape? Look at the protocol blocks on each device entry point.
 
 ### Version the Device Protocol
 
 **ID:** `litespec/ext/devices#version-the-device-protocol`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** A device protocol MUST state its version rule with numbering, overlap, and the upgrade path.
 
 **Rationale:** Old firmware cannot be recalled from the field, so several protocol versions stay live at once. Numbering tells a device which version it speaks, overlap tells the server how long to answer old versions, and the upgrade path tells the device how to move forward. Without the three, a server upgrade bricks every device that missed the memo.
 
-**Reviewed for:** The protocol blocks state numbering, overlap, and the upgrade path devices follow.
+**Reviewed for:** Which protocol blocks omit numbering, overlap, or the upgrade path devices follow? Look at each protocol block.
 
 ### State Client Rules with Scenarios
 
 **ID:** `litespec/ext/devices#state-client-rules-with-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** Each client rule in a device protocol MUST carry the scenarios that prove it.
 
@@ -79,15 +79,15 @@ protocol:
 
 **Example:** The rule `a scanner queues scans while offline` carries the scenario `a scan queued offline uploads on reconnect`.
 
-**Reviewed for:** Each client rule in the protocol blocks points at scenarios that prove it.
+**Reviewed for:** Which client rules in the protocol blocks point at no scenario that proves them? Look at the protocol blocks beside the scenarios.
 
 ### Identify Retries with a Nonce
 
 **ID:** `litespec/ext/devices#identify-retries-with-a-nonce`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Statement:** Each mutating device message MUST carry a client-generated nonce as its idempotency key.
 
@@ -95,13 +95,13 @@ protocol:
 
 **Example:** A loan scan carries `nonce: 7f3a`, and the second delivery of the same nonce returns the first attempt's result.
 
-**Reviewed for:** The mutating messages in the protocol blocks carry a client-generated nonce scoped to the device.
+**Reviewed for:** Which mutating messages in the protocol blocks lack a client-generated nonce scoped to the device? Look at each message in the protocol blocks.
 
 ### Simulate Offline Uploads Before Applying
 
 **ID:** `litespec/ext/devices#simulate-offline-uploads-before-applying`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -111,13 +111,13 @@ protocol:
 
 **Example:** A scanner uploads three hundred queued scans with `simulate`, reviews the two the server would refuse, and then uploads for real.
 
-**Reviewed for:** Simulated uploads in the device tests return outcomes with no writes behind them.
+**Reviewed for:** Which simulated uploads in the device tests write behind the outcome they return? Look at the device tests for simulated uploads.
 
 ### Apply Forced Uploads over Newer State
 
 **ID:** `litespec/ext/devices#apply-forced-uploads-over-newer-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -127,7 +127,7 @@ protocol:
 
 **Example:** A corrected count uploads with `force`, overwrites the server value, and leaves an overwrite record naming the operator.
 
-**Reviewed for:** Forced uploads in the device tests overwrite newer server values and leave overwrite records.
+**Reviewed for:** Which forced uploads in the device tests skip the overwrite of newer server values or leave no overwrite record? Look at the device tests for forced uploads.
 
 ## Conventions
 
@@ -137,7 +137,7 @@ protocol:
 
 **Strength:** default
 
-**Applies to:** artifact: record:entry-point; conformance: records
+**Applies to:** artifact: record:entry-point; layer: behavior
 
 **Default:** Protocol versions use calendar numbering of the form `YYYY.N`.
 
@@ -145,7 +145,7 @@ protocol:
 
 **Rationale:** Calendar numbering tells a support engineer how old a device is at a glance. Any scheme works when every device and the server share it.
 
-**Reviewed for:** Protocol versions read as calendar numbers, or the device documentation names the numbering scheme.
+**Reviewed for:** Which protocol versions read as calendar numbers, with no numbering scheme named in the device documentation? Look at the protocol version values beside that documentation.
 
 ### Replay Uploads in Queue Order
 
@@ -161,7 +161,7 @@ protocol:
 
 **Rationale:** Queue order matches what the operator saw on the device: first scanned, first applied. Another order replays the day out of sequence and surprises everyone reading the log.
 
-**Reviewed for:** The server applies offline queues in device order in the upload tests, or the project names another order.
+**Reviewed for:** Which upload tests apply offline queues out of device order, with no other order named by the project? Look at the upload tests beside the project's documented order.
 
 ## Dependencies
 

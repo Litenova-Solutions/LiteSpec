@@ -2,17 +2,29 @@
 
 ## Intent
 
-The expenses screen is one screen of the Claimwick product, the example product these pages follow: it shows each employee their expenses at one address. This page follows that screen from the folder serving its address, through its data read with the API client generated from the published contract, the shared UI package it composes, and the drawn list option it starts from, naming the frontend rule each step applies.
+The expenses screen is the one screen of Claimwick's web app that the example builds. It shows an employee their own expenses at the address `/expenses`. This page follows that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.
 
-## The Expenses Route
+## The Route
 
-The screen lives at `apps/web/src/routes/expenses/+page.svelte` in the Claimwick example. A Svelte frontend holds one folder per address under `src/routes`, with the frame and the use-case code in `src/lib/app` and `src/lib/modules`, as [Web Structure](../frontend/web/structure.md) states. The use-case code mirrors its backend path in kebab case, per `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case` on [Frontend Structure](../frontend/structure.md): `lib/modules/spending/expenses/list-expenses` mirrors the List expenses use case path that [Modules and Records](modules-and-records.md) describes. The route folder names the address, not the use case. The screen record file lives at `.litespec/behavior/entry-points/claimwick-app/screens/expense-list.yaml`. Its mark sits in the `<script module>` of `apps/web/src/routes/expenses/+page.svelte`, naming `screen/claimwick-app.expense-list`, and the browser specification at `apps/web/tests/expenses/list-expenses.spec.ts` proves `scenario/list-expenses.listing-own-expenses-succeeds`.
+The screen is `apps/web/src/routes/expenses/+page.svelte`. The route folder names the address, not the use case, and it is the only route folder in the example. Its module script carries the screen's mark, which names the record it implements:
 
-A route file holds its input, its load, and its component, with no reusable logic and no import of another route file, per `litespec/frontend/structure#keep-a-route-entry-thin`. The expenses route therefore validates its search, prefetches its read, and composes its view, while shared code lives in the module folder or the frame. Imports point from the route to a module to the frame to a shared package, per `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`, so the route reads the client from the frame and the generated operations from the shared API package.
+```svelte
+<script module lang="ts">
+  import type { LiteSpecMark } from "#lib/app/litespec-records.ts";
 
-## Reading Through the Generated Client
+  export const litespec = { implements: "screen/claimwick-app.expense-list" } as const satisfies LiteSpecMark;
+</script>
+```
 
-The screen never duplicates the API contract. The workspace generates its client, types, schemas, and query options from the published OpenAPI document, per `litespec/frontend/data#generate-the-client-from-the-published-contract` on [Frontend Data and State](../frontend/data.md). The generated client lives in `packages/api`, and the list reads through its `listExpenses` operation in `packages/api/src/generated/sdk.gen.ts`, which returns the `rows` include group the List expenses query declares: identity, amount, state, and submission time, newest first, read fresh:
+The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/expense-list.yaml`, with the address `/expenses` and the floorplan `list-page`. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
+
+## The Use Case Code
+
+The list itself is a module, `apps/web/src/lib/modules/spending/expenses/list-expenses/litespec.ts`. Its mark names `use-case/spending.list-expenses`, so the module folder mirrors the backend use case path in kebab case. The record it implements is [the List expenses use case](modules-and-records.md#the-use-cases).
+
+## The Generated Client
+
+The screen does not write its own request. The client in `packages/api/src/generated/sdk.gen.ts` is generated from the published contract, and the `listExpenses` operation in that file calls `GET /api/expenses`:
 
 ```ts
 export const listExpenses = <ThrowOnError extends boolean = false>(options: Options<never, ThrowOnError> = {}) =>
@@ -22,35 +34,59 @@ export const listExpenses = <ThrowOnError extends boolean = false>(options: Opti
   });
 ```
 
-The route's load prefetches the read through the query cache before the component runs, per `litespec/frontend/rendering#load-route-data-before-rendering` on [Frontend Rendering and Routes](../frontend/rendering.md), and the component reads the same cache key with a suspense query, per `litespec/frontend/rendering#read-route-data-from-the-route-cache`. Written the way the stack pages require, the load looks like this:
+The response type `ListExpensesResponse` holds one array, `expenses`, of `ExpenseRow` values, and both live in `packages/api/src/generated/types.gen.ts`. A change to the contract regenerates this file, and the screen does not copy the contract.
 
-```ts
-export async function load({ parent, url }) {
-  const { queryClient } = await parent();
-  const search = expensesSearch.parse(Object.fromEntries(url.searchParams));
-  await queryClient.ensureQueryData(listExpensesQuery(search.page));
-  return { search };
-}
-```
-
-The search schema keeps the filters and the page in the address, per `litespec/frontend/rendering#keep-address-parameters-validated-by-a-schema`, so a filtered list stays a link the team can share. The example page itself is smaller: it calls `listExpenses` from `@claimwick/api` directly and renders the rows in the `ListPage` floorplan and the `DataTable` composite from `@claimwick/ui/floorplans`, so the model builder joins the screen to the list use case through the generated client. The load above shows what the stack pages require once the query cache is wired.
+The route calls `listExpenses` in its script and passes the result to the table through the `ListPage` floorplan. The example route has no separate load file, so it does not prefetch the list before rendering. A reader who compares it with the frontend rendering rules sees that gap: the rules ask for a load that the example does not yet write.
 
 ## The Shared UI Package
 
-The screen composes the shared UI package `@claimwick/ui` at `packages/ui`, which the project declares in `paths.uiPackage` of `.litespec/project.json`. The package pins its baseline in the source lock at `packages/ui/ui-source-lock.json`: generator `shadcn-svelte`, CLI `1.7.0`, with the `button` and `skeleton` components at baseline status. `litespec model check` runs the controlled UI pass over the package, its source lock and digests, its design contract, its stylesheets, each frontend boundary, and each route suite, per [Model Builder](../tools/model.md), and reports its findings in the same shape. Against the Claimwick example it reports this, and exits zero:
+The screen composes `@claimwick/ui`, which lives in `packages/ui`. The route imports `ListPage` and `DataTable` from `@claimwick/ui/floorplans`. The floorplan file `packages/ui/src/floorplans/list-page.svelte` is exported through `packages/ui/src/floorplans/index.ts`, and the table is `packages/ui/src/components/data-table.svelte`.
+
+The package pins its baseline in `packages/ui/ui-source-lock.yaml`. The lock names the generator `shadcn-svelte` at CLI version `1.7.0`, and it lists the components the package holds with their status. The design contract at `packages/ui/DESIGN.md` names the two patterns the package allows, `list-page` and `entity-page`, and the screen uses `list-page`.
+
+## The Browser Proof
+
+The browser test `apps/web/tests/expenses/list-expenses.spec.ts` proves the scenario the list use case declares. Its `proves` call names `scenario/list-expenses.listing-own-expenses-succeeds`, and the test opens `/expenses`, checks the table named "Your expenses, newest first" and waits for the text "The expenses are listed." The route suite `apps/web/tests/routes/every-route.spec.ts` is the frontend's route check, and the project file names it as `routeSuite`.
+
+## The Pattern Catalog
+
+The screen starts from patterns the project records, not from a choice made in a file. The catalog at `.litespec/implementation/patterns/catalog.yaml` holds two patterns:
+
+- Orders list page asks how a reader finds one order among many. Its options are a filterable table and searchable cards. The decision is `filter-table` with the source `recommended`.
+- Table sorting asks how a reader reorders the rows of a table. Its options are a sort control in each column header and a toolbar sort. The decision is `column-header-sort` with the source `recommended`.
+
+A decision whose source is `recommended` stands until an owner chooses otherwise. Both decisions in the example are recommendations, so no owner has chosen an option yet.
+
+## What the Model Checks
+
+`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract and the one frontend, `web`, which declares `platform: svelte`. The full result against the example, copied from the run, is:
 
 ```text
-0 findings, 0 blocking, 0 known.
-```
-
-The pass covers the one controlled frontend: the `web` frontend at `apps/web`, which declares `platform: svelte`. Its route suite lives at `tests/routes/every-route.spec.ts`.
-
-## The List Pattern Behind the Screen
-
-The screen starts from the `litespec/frontend/patterns/lists-and-tables#choosing-the-columns` pattern on [List and Table Patterns](../frontend/patterns/lists-and-tables.md). That pattern asks which columns the table shows, and its default option `five-columns-nothing-removable` shows five columns with nothing removable: which item, who, when, what state, and what value. The expenses screen adapts that set to the facts the Expense record holds: the expense, the employee, the expense state, and the amount, which [Modules and Records](modules-and-records.md) describes.
-
-A consumer keeps one pattern catalog holding its interface decisions, per `litespec/frontend/patterns#keep-one-pattern-catalog` on [UI Patterns](../frontend/patterns.md). Each entry records at least 2 options with rationale and cost and names the chosen option, and each decision records its source as `owner` or `recommended`, per `litespec/frontend/patterns#record-who-chose`. The example keeps its catalog at `.litespec/implementation/entry-points/claimwick-app/pattern-catalog.json` with 2 entries, the orders list page and table sorting, and both decisions record `recommended` sources, standing until an owner chooses.
-
-## The Frontend Rules the Screen Follows
-
-Each step of the screen answers to one frontend rule. [Frontend Structure](../frontend/structure.md) places the route folder, keeps the route entry thin, and orders its imports toward the shared packages. [Frontend Data and State](../frontend/data.md) generates the client from the contract and routes the read through it. [Frontend Rendering and Routes](../frontend/rendering.md) prefetches the list in the load, reads it from the cache in the component, and keeps the view in the address. [Model Builder](../tools/model.md) checks the shared package, its source lock, and each frontend boundary. [List and Table Patterns](../frontend/patterns/lists-and-tables.md) gives the columns decision its options, and [UI Patterns](../frontend/patterns.md) records the choice. The [Svelte Stack](../frontend/web/svelte/stack.md) selects the rendering mode for the Claimwick app by its audience. A screen that keeps each of these rules reads the same way as every other screen, so the next route is a small variation on this one. [The Model and Its Checks](model-and-checks.md) shows how the model proves the screen, its use case, and its handler agree.
+.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.approve-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.approve-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/erase-personal-data.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.erase-personal-data' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/erase-personal-data.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.erase-personal-data' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/list-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.list-expenses' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/refuse-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.refuse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/refuse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.refuse-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/reimburse-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.reimburse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/reimburse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.reimburse-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/submit-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.submit-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/expenses/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/policies/change-receipt-threshold.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.change-receipt-threshold' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/policies/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/receipts/attach-receipt.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.attach-receipt' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/receipts/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s2' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s3' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s4' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s6' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s7' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s8' is served by a browser or device use case but by no screen.
+0 findings, 0 blocking, 26 covered.
+``` The check reports no finding on the screen itself. The use cases and journey steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.

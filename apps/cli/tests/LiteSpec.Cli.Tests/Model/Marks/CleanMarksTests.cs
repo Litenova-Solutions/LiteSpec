@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves the clean marks fixture reports none of the traceability findings.</summary>
 public sealed class CleanMarksTests
@@ -55,7 +55,7 @@ public sealed class CleanMarksTests
     /// <summary>Marked Rule Exception Proves Its Refusal Code.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Marked_Rule_Exception_Proves_Its_Refusal_Code()
+    public void MarkedRuleExceptionProvesItsRefusalCode()
     {
         using var fixture = MarksFixture.Prepare("clean");
         var findings = MarksFixture.Check(fixture.Path);

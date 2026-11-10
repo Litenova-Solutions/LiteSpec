@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the calculation-table-missing check against hand-built models.</summary>
 public sealed class CalculationCheckTests
@@ -10,9 +10,9 @@ public sealed class CalculationCheckTests
     /// <summary>Calculation Without An Examples Table Reports.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
-    public void Calculation_Without_An_Examples_Table_Reports()
+    public void CalculationWithoutAnExamplesTableReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Rule(temp.Path),
@@ -29,9 +29,9 @@ public sealed class CalculationCheckTests
     /// <summary>Calculation With An Examples Table Passes.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
-    public void Calculation_With_An_Examples_Table_Passes()
+    public void CalculationWithAnExamplesTablePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Rule(temp.Path),
@@ -48,9 +48,9 @@ public sealed class CalculationCheckTests
     /// <summary>Calculation Governing An Aggregate Reads The Scenarios Beside It.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
-    public void Calculation_Governing_An_Aggregate_Reads_The_Scenarios_Beside_It()
+    public void CalculationGoverningAnAggregateReadsTheScenariosBesideIt()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var folder = Path.Combine(temp.Path, "loan");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -77,9 +77,9 @@ public sealed class CalculationCheckTests
     /// <summary>Invariant Without An Examples Table Passes.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
-    public void Invariant_Without_An_Examples_Table_Passes()
+    public void InvariantWithoutAnExamplesTablePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(

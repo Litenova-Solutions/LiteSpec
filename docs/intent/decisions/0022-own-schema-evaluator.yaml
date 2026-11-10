@@ -1,0 +1,21 @@
+type: decision
+id: decision/0022-own-schema-evaluator
+title: Own Schema Evaluator
+options:
+  - name: LiteSpec's own evaluator for the keywords its schemas use
+    pros: No package and no fee, Native AOT by construction, and each message written once where the failure is found.
+    cons: LiteSpec maintains the evaluator, and the keywords it leaves out stay unavailable to a schema.
+  - name: Pin JsonSchema.Net 8.0.5, the last MIT release
+    pros: The full vocabulary with a small change.
+    cons: Frozen at December 2025 with no later fixes, and Dependabot must hold back every 9.x release.
+  - name: Build json-everything from its MIT source
+    pros: The full vocabulary with current fixes and no fee.
+    cons: The repository carries third-party source and every update to it.
+  - name: Adopt LateApexEarlySpeed.Json.Schema
+    pros: A maintained BSD-3-Clause library with the full vocabulary.
+    cons: It targets only netstandard2.1, pulls in Microsoft.Extensions.Http 3.1.0, claims no Native AOT support, and its result shape needs a new message renderer.
+choice: LiteSpec's own evaluator for the keywords its schemas use
+consequences: The evaluator implements JSON Schema draft 2020-12 without dynamic references, anchors and the unevaluated keywords, and the keyword gate rejects those. JsonSchema.Net, Json.More.Net and JsonPointer.Net leave the repository and every shipped binary. A passing oneOf or anyOf reports nothing from its rejected shapes, a false subschema reports the value as not allowed, a property-name failure names the property, and a percent-encoded reference resolves.
+reopenedWhen: A schema needs a keyword the evaluator leaves out, or a maintained free evaluator fits Native AOT with no extra dependencies.
+basedOn:
+  - research/schema-evaluator-evidence

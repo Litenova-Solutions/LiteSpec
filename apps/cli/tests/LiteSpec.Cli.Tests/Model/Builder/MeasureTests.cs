@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves k6, Lighthouse, and ZAP result files feed the model.</summary>
 public sealed class MeasureTests
@@ -11,7 +11,7 @@ public sealed class MeasureTests
     /// <summary>Each result file yields its checks with their pass and value.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Measure_Files_Feed_The_Model()
+    public void MeasureFilesFeedTheModel()
     {
         using var temp = ModelFixture.Prepare("small");
         CopyResults(temp.Path);
@@ -49,7 +49,7 @@ public sealed class MeasureTests
     /// <summary>Without a result file the model holds no measure.</summary>
     /// <proves>litespec/quality/ci#run-measured-checks-on-every-pull-request</proves>
     [Fact]
-    public void Missing_Measure_Files_Write_Empty_Measures()
+    public void MissingMeasureFilesWriteEmptyMeasures()
     {
         using var temp = ModelFixture.Prepare("small");
 
@@ -76,9 +76,9 @@ public sealed class MeasureTests
     {
         var folder = Path.Combine(root, "TestResults");
         Directory.CreateDirectory(folder);
-        File.Copy(Cli.Fixture("Builder/measures/k6-summary.json"), Path.Combine(folder, "k6-summary.json"));
-        File.Copy(Cli.Fixture("Builder/measures/lighthouse.json"), Path.Combine(folder, "lighthouse.json"));
-        File.Copy(Cli.Fixture("Builder/measures/zap.json"), Path.Combine(folder, "zap.json"));
+        File.Copy(TestCli.Fixture("Builder/measures/k6-summary.json"), Path.Combine(folder, "k6-summary.json"));
+        File.Copy(TestCli.Fixture("Builder/measures/lighthouse.json"), Path.Combine(folder, "lighthouse.json"));
+        File.Copy(TestCli.Fixture("Builder/measures/zap.json"), Path.Combine(folder, "zap.json"));
     }
 
     static JsonDocument Build(string root)

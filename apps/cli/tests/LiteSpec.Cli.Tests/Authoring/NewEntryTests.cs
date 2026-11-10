@@ -1,9 +1,9 @@
 using LiteSpec;
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Consumer;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Consumer;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.Authoring;
 
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
@@ -80,7 +80,7 @@ public sealed class NewEntryTests
         """;
 
     /// <summary>New entry appends a requirement last and reserves its identifier.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a requirement last and reserves its identifier")]
     public void AppendsRequirementLast()
     {
@@ -88,7 +88,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, RequirementPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", RequirementPage, "requirement", "decided-within-five-days",
             "--root", consumer.Path);
 
@@ -107,7 +107,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry appends a rule under the page's existing home.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a rule under the page's existing home")]
     public void AppendsRuleUnderExistingHome()
     {
@@ -115,7 +115,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, RulePage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", RulePage, "rule", "receipt-kept-seven-years",
             "--root", consumer.Path);
 
@@ -129,7 +129,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry appends a permission without a home.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a permission without a home")]
     public void AppendsPermissionWithoutHome()
     {
@@ -137,7 +137,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, PermissionPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", PermissionPage, "permission", "approve-expense",
             "--root", consumer.Path);
 
@@ -151,7 +151,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry appends a setting under its module.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry appends a setting under its module")]
     public void AppendsSettingUnderModule()
     {
@@ -159,7 +159,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, SettingPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", SettingPage, "setting", "approval-reminder-delay",
             "--root", consumer.Path);
 
@@ -173,7 +173,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a taken requirement id and leaves the page alone.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken requirement id and leaves the page alone")]
     public void RefusesTakenRequirementId()
     {
@@ -181,7 +181,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, RequirementPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", RequirementPage, "requirement", "no-self-approval",
             "--root", consumer.Path);
 
@@ -191,7 +191,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a taken rule id and leaves the page alone.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken rule id and leaves the page alone")]
     public void RefusesTakenRuleId()
     {
@@ -199,7 +199,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, RulePage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", RulePage, "rule", "receipt-filed-once",
             "--root", consumer.Path);
 
@@ -209,7 +209,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a taken permission id and leaves the page alone.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken permission id and leaves the page alone")]
     public void RefusesTakenPermissionId()
     {
@@ -217,7 +217,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, PermissionPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", PermissionPage, "permission", "submit-expense",
             "--root", consumer.Path);
 
@@ -227,7 +227,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a taken setting id and leaves the page alone.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken setting id and leaves the page alone")]
     public void RefusesTakenSettingId()
     {
@@ -235,7 +235,7 @@ public sealed class NewEntryTests
         var page = Path.Combine(consumer.Path, SettingPage);
         var before = File.ReadAllText(page);
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", SettingPage, "setting", "receipt-threshold",
             "--root", consumer.Path);
 
@@ -245,7 +245,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry takes the requirement home from an empty page's file stem.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry takes the requirement home from an empty page's file stem")]
     public void DerivesRequirementHomeFromFileStem()
     {
@@ -253,7 +253,7 @@ public sealed class NewEntryTests
         const string relative = ".litespec/intent/features/fees.yaml";
         WritePage(consumer.Path, relative, "feature", "Fees");
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", relative, "requirement", "late-fee-cap",
             "--root", consumer.Path);
 
@@ -265,7 +265,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry takes the setting home from the parent modules folder.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry takes the setting home from the parent modules folder")]
     public void DerivesSettingModuleFromPath()
     {
@@ -273,7 +273,7 @@ public sealed class NewEntryTests
         const string relative = ".litespec/behavior/modules/billing/settings.yaml";
         WritePage(consumer.Path, relative, "setting-set", "Settings");
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", relative, "setting", "grace-days",
             "--root", consumer.Path);
 
@@ -285,7 +285,7 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a setting page outside a modules folder with no settings.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a setting page outside a modules folder with no settings")]
     public void RefusesSettingWithoutAModule()
     {
@@ -294,7 +294,7 @@ public sealed class NewEntryTests
         WritePage(consumer.Path, relative, "setting-set", "Settings");
         var before = File.ReadAllText(Path.Combine(consumer.Path, relative));
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", relative, "setting", "grace-days",
             "--root", consumer.Path);
 
@@ -304,14 +304,14 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New entry refuses a type the page does not own.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a type the page does not own")]
     public void RefusesTypeThePageDoesNotOwn()
     {
         using var consumer = Consumer();
         var before = File.ReadAllText(Path.Combine(consumer.Path, RequirementPage));
 
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "new", "entry", RequirementPage, "rule", "receipt-filed-once",
             "--root", consumer.Path);
 
@@ -321,11 +321,11 @@ public sealed class NewEntryTests
     }
 
     /// <summary>New help documents the entry form.</summary>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new help documents the entry form")]
     public void HelpDocumentsEntryForm()
     {
-        var result = Cli.Run("new", "--help");
+        var result = TestCli.Run("new", "--help");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("new entry <page-id> <type> <name>", result.Stdout);
@@ -351,7 +351,7 @@ public sealed class NewEntryTests
 
     /// <summary>Run refuses invalid entries and leaves every page alone.</summary>
     /// <param name="args">One rejected argument set from the theory data.</param>
-    /// <proves>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</proves>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Theory(DisplayName = "run refuses invalid entries and leaves every page alone")]
     [MemberData(nameof(RejectedArgs))]
     public void RunRefusesInvalidEntries(string[] args)
@@ -369,7 +369,7 @@ public sealed class NewEntryTests
     public void FilledReleaseRecordValidates()
     {
         using var folder = ConsumerFixture.Create();
-        var template = File.ReadAllText(Path.Join(Cli.Repository, "templates/consumer/release-record.md"));
+        var template = File.ReadAllText(Path.Join(TestCli.Repository, "templates/consumer/release-record.md"));
         var filled = template
             .Replace("release/2026-12-01", "release/2026-08-21", StringComparison.Ordinal)
             .Replace("December Release", "First Release", StringComparison.Ordinal)
@@ -408,7 +408,7 @@ public sealed class NewEntryTests
 
         ConsumerFixture.WriteFile(folder.Path, ".litespec/releases/2026-08-21.md", filled);
 
-        var result = Cli.Run("model", "check", "--root", folder.Path);
+        var result = TestCli.Run("model", "check", "--root", folder.Path);
 
         Assert.NotEqual(2, result.Status);
         Assert.DoesNotContain("releases/2026-08-21.md", result.Output);
@@ -418,8 +418,8 @@ public sealed class NewEntryTests
     /// <returns>The temporary consumer folder holding the record files.</returns>
     static TempFolder Consumer()
     {
-        var temp = Cli.Temp("new-entry");
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), "{}");
+        var temp = TestCli.Temp("new-entry");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, RequirementJson);
         TestRecords.Write(temp.Path, RulePage, RuleJson);
         TestRecords.Write(temp.Path, PermissionPage, PermissionJson);

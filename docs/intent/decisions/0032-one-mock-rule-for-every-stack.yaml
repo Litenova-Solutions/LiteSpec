@@ -1,0 +1,18 @@
+type: decision
+id: decision/0032-one-mock-rule-for-every-stack
+title: One Mock Rule for Every Stack
+options:
+  - name: "One mock rule for every stack, with the Application coordination test rule removed"
+    pros: "Tests do not depend on how a handler loads and stages its work, and one rule holds across every stack."
+    cons: "A team that tested its handlers through substituted repositories loses a check it used."
+  - name: "Keep the coordination rule and the stack mock rules"
+    pros: "Each stack keeps the rules it already has."
+    cons: "Tests coupled to structure are the ones agents over-produce and rewrite, and the same mistake reads differently on each stack."
+  - name: "Mock rules per stack and no shared rule"
+    pros: "Each stack page stands alone."
+    cons: "A reader who learns one stack's rule cannot tell whether another stack holds the same rule."
+choice: "One mock rule for every stack, with the Application coordination test rule removed"
+consequences: "The Application coordination test rule is removed. `litespec/quality/testing#use-one-mock-rule-for-every-stack` holds the one rule: a test substitutes only what the code under test does not own, or what is not deterministic, and never the code's own repositories, handlers or modules. Each stack's mock provision applies that rule to its own libraries. Scenario proof through the real host still proves coordination."
+reopenedWhen: "A coordination fault reaches a release that scenario proof through the real host did not catch."
+basedOn:
+  - research/agent-testing-evidence

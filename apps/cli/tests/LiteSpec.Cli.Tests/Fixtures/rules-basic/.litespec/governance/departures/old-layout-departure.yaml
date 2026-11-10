@@ -1,0 +1,11 @@
+type: departure
+id: departure/old-layout-departure
+title: Old Layout Departure
+covers:
+  - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
+subject:
+  - use-case/billing.send-invoice
+reason: The old layout predates the module tree.
+consequences: The old folders stay until the move completes.
+exit: The move completes, and the old folders are removed.
+expiresOn: 2020-01-01

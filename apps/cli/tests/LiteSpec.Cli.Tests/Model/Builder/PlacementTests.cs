@@ -1,18 +1,18 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
-/// <summary>Proves the reader places every record from its folder and queries either identifier.</summary>
+/// <summary>Proves the reader places every record from its folder and queries it by identifier.</summary>
 public sealed class PlacementTests
 {
-    /// <summary>Every record carries the qualified identifier its folder and identifier compute.</summary>
+    /// <summary>Every record carries the folder its file sits in and the module folder above it.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Reader_Sets_Qualified_Ids_From_Placement()
+    public void ReaderSetsFolderAndModuleFromPlacement()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/intent/product.yaml", """
             type: product
@@ -79,38 +79,26 @@ public sealed class PlacementTests
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.Equal("product/claimwick", ById(model, "product/claimwick").QualifiedId);
-        Assert.Equal("goal/faster-reimbursement", ById(model, "goal/faster-reimbursement").QualifiedId);
-        Assert.Equal("finance", ById(model, "module/finance").QualifiedId);
-        Assert.Equal("finance/feature/payout", ById(model, "feature/payout").QualifiedId);
-        Assert.Equal(
-            "finance/feature/payout/requirement/request-payout",
-            ById(model, "requirement/payout.request-payout").QualifiedId);
-        Assert.Equal("finance/payouts", ById(model, "aggregate/finance.payout").QualifiedId);
-        Assert.Equal(
-            "finance/payouts/use-case/request-payout",
-            ById(model, "use-case/finance.request-payout").QualifiedId);
-        Assert.Equal(
-            "finance/payouts/use-case/request-payout/result/requested",
-            ById(model, "result/request-payout.requested").QualifiedId);
-        Assert.Equal(
-            "finance/payouts/use-case/request-payout/scenario/requesting-succeeds",
-            ById(model, "scenario/request-payout.requesting-succeeds").QualifiedId);
-        Assert.Equal(
-            "finance/permission/approve-expense",
-            ById(model, "permission/approve-expense").QualifiedId);
-        Assert.Equal("claimwick-app", ById(model, "entry-point/claimwick-app").QualifiedId);
-        Assert.Equal(
-            "claimwick-app/screen/expense-list",
-            ById(model, "screen/claimwick-app.expense-list").QualifiedId);
+        AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
+        AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
+        AssertPlaced(model, "module/finance", ".litespec/intent/modules/finance", "finance");
+        AssertPlaced(model, "feature/payout", ".litespec/intent/modules/finance/features", "finance");
+        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/modules/finance/features", "finance");
+        AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "scenario/request-payout.requesting-succeeds", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "permission/approve-expense", ".litespec/behavior/modules/finance", "finance");
+        AssertPlaced(model, "entry-point/claimwick-app", ".litespec/behavior/entry-points/claimwick-app", null);
+        AssertPlaced(model, "screen/claimwick-app.expense-list", ".litespec/behavior/entry-points/claimwick-app/screens", null);
     }
 
-    /// <summary>A screen takes its entry point from its folder under behavior entry points.</summary>
+    /// <summary>A screen takes its folder from the entry point folder it sits under.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Screen_Entry_Point_Comes_From_Its_Folder()
+    public void ScreenFolderComesFromItsEntryPointFolder()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/entry-points/library-app/screens/loans.yaml", """
             type: screen
@@ -119,17 +107,16 @@ public sealed class PlacementTests
             """);
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
-        var screen = ById(model, "screen/other-app.loans");
 
-        Assert.Equal("library-app/screen/loans", screen.QualifiedId);
+        AssertPlaced(model, "screen/other-app.loans", ".litespec/behavior/entry-points/library-app/screens", null);
     }
 
-    /// <summary>Derived refusal results carry the qualified identifier of their use case file.</summary>
+    /// <summary>Derived refusal results carry the folder and module of their use case file.</summary>
     /// <proves>litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them</proves>
     [Fact]
-    public void Derived_Results_Carry_Qualified_Ids()
+    public void DerivedResultsCarryTheirUseCasePlacement()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/finance/payouts/request-payout.yaml", """
             type: use-case
@@ -144,20 +131,16 @@ public sealed class PlacementTests
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.Equal(
-            "finance/payouts/use-case/request-payout/result/forbidden",
-            ById(model, "result/request-payout.forbidden").QualifiedId);
-        Assert.Equal(
-            "finance/payouts/use-case/request-payout/result/invalid-input",
-            ById(model, "result/request-payout.invalid-input").QualifiedId);
+        AssertPlaced(model, "result/request-payout.forbidden", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "result/request-payout.invalid-input", ".litespec/behavior/modules/finance/payouts", "finance");
     }
 
-    /// <summary>Model query resolves either identifier and shows both.</summary>
+    /// <summary>Model query resolves a record id and shows its folder and module.</summary>
     /// <proves>litespec/core/agent#select-task-context</proves>
     [Fact]
-    public void Model_Query_Accepts_Either_Identifier()
+    public void ModelQueryShowsFolderAndModule()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/spending/expenses/submit-expense.yaml", """
             type: use-case
@@ -166,34 +149,25 @@ public sealed class PlacementTests
             """);
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
-        var byId = Querier.Query(model, "use-case/spending.submit-expense");
-        var byQualified = Querier.Query(model, "spending/expenses/use-case/submit-expense");
+        var answer = Querier.Query(model, "use-case/spending.submit-expense");
 
-        Assert.NotNull(byId);
-        Assert.NotNull(byQualified);
+        Assert.NotNull(answer);
 
-        using var left = JsonDocument.Parse(byId);
-        using var right = JsonDocument.Parse(byQualified);
+        using var document = JsonDocument.Parse(answer);
 
-        Assert.Equal("use-case/spending.submit-expense", left.RootElement.GetProperty("id").GetString());
-        Assert.Equal(
-            "spending/expenses/use-case/submit-expense",
-            left.RootElement.GetProperty("qualifiedId").GetString());
-        Assert.Equal(
-            left.RootElement.GetProperty("id").GetString(),
-            right.RootElement.GetProperty("id").GetString());
-        Assert.Equal(
-            left.RootElement.GetProperty("qualifiedId").GetString(),
-            right.RootElement.GetProperty("qualifiedId").GetString());
-        Assert.Null(Querier.Query(model, "spending/expenses/use-case/no-such-case"));
+        Assert.Equal("use-case/spending.submit-expense", document.RootElement.GetProperty("id").GetString());
+        Assert.Equal(".litespec/behavior/modules/spending/expenses", document.RootElement.GetProperty("folder").GetString());
+        Assert.Equal("spending", document.RootElement.GetProperty("module").GetString());
+        Assert.Null(Querier.Query(model, "spending/expenses/use-case/submit-expense"));
+        Assert.Null(Querier.Query(model, "use-case/spending.no-such-case"));
     }
 
-    /// <summary>Model JSON shows both the identifier and the qualified identifier.</summary>
+    /// <summary>Model JSON shows the folder and the module of every record.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void Model_Json_Shows_Both_Identifiers()
+    public void ModelJsonShowsFolderAndModule()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
         Write(temp.Path, ".litespec/behavior/modules/spending/expenses/aggregate.yaml", """
             type: aggregate
@@ -207,7 +181,16 @@ public sealed class PlacementTests
         var record = document.RootElement.GetProperty("records").EnumerateArray()
             .Single(entry => entry.GetProperty("id").GetString() == "aggregate/spending.expense");
 
-        Assert.Equal("spending/expenses", record.GetProperty("qualifiedId").GetString());
+        Assert.Equal(".litespec/behavior/modules/spending/expenses", record.GetProperty("folder").GetString());
+        Assert.Equal("spending", record.GetProperty("module").GetString());
+    }
+
+    static void AssertPlaced(ProjectModel model, string id, string folder, string? module)
+    {
+        var record = ById(model, id);
+
+        Assert.Equal(folder, record.Folder);
+        Assert.Equal(module, record.Module);
     }
 
     static LiteSpec.Model.Record ById(ProjectModel model, string id) =>
@@ -216,7 +199,7 @@ public sealed class PlacementTests
             : throw new InvalidOperationException($"No record holds '{id}'.");
 
     static void WriteProject(string root) =>
-        Write(root, ".litespec/project.json", """{"shape": "client-only", "stacks": []}""");
+        Write(root, ".litespec/project.yaml", """{"shape": "client-only", "stacks": []}""");
 
     static void Write(string root, string relative, string text)
     {

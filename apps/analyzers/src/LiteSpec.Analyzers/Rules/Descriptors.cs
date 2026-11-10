@@ -77,8 +77,8 @@ internal static class Descriptors
     private static readonly Provision PerRecordWork = Provision.Of("backend/application", "issue-per-record-work-from-a-job");
     /// <summary>The provision the related descriptors enforce: keep uniqueness out of handlers (litespec/backend/persistence#keep-uniqueness-out-of-handlers).</summary>
     private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
-    /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/backend/testing#mark-the-test-that-proves-each-scenario).</summary>
-    private static readonly Provision ScenarioProof = Provision.Of("backend/testing", "mark-the-test-that-proves-each-scenario");
+    /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/quality/testing#prove-each-scenario-through-the-public-boundary).</summary>
+    private static readonly Provision ScenarioProof = Provision.Of("quality/testing", "prove-each-scenario-through-the-public-boundary");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
     /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>

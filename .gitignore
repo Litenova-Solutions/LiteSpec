@@ -6,10 +6,8 @@
 TestResults/
 /coverage/
 artifacts/
-.fuse/
-mcps/
+node_modules/
 .opencode/
-
 
 # The model builder and the book write their output here in every consumer, fixture and example.
 **/.litespec/model/

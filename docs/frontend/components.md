@@ -1,7 +1,7 @@
 # Frontend Components
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -29,7 +29,7 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -45,7 +45,7 @@ Some drawings have no composite: a budget treemap, a receipt-scan preview, or a 
 
 **ID:** `litespec/frontend/components#compose-composites-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -63,13 +63,13 @@ EntitySection "title"
 
 The section imports only the shared package entry point, so the layout it draws is the one the shared package owns for every other entity page.
 
-**Checked by:** `litespec model check` reports `[litespec/frontend/components#compose-composites-in-page-code]` with the file and the refused import. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `ui-import-invalid` with the file and the refused import, tagged `[litespec/frontend/components#compose-composites-in-page-code]`. Run it at the consumer root.
 
 ### Write No Class Name in Page Code
 
 **ID:** `litespec/frontend/components#write-no-class-name-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -85,7 +85,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -99,7 +99,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#prefer-a-composite-over-a-primitive`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -115,7 +115,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -129,7 +129,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#add-a-missing-composite-to-the-shared-package`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -143,13 +143,13 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **ID:** `litespec/frontend/components#support-keyboard-focus-labels-and-announcements`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
 **Statement:** Interactive UI MUST support keyboard operation, visible focus, semantic elements, programmatic labels, and asynchronous status announcements.
 
-**Rationale:** Keyboard operation, visible focus, semantic elements, programmatic labels, and status announcements come free with platform controls and all break at once in a custom control. A mouse-only control locks out keyboard readers, a missing label leaves screen-reader users guessing, and a silent update leaves anyone who does not see the screen change unaware of it. Starting from a platform control keeps all five properties, and the composite keeps them for every page that uses it.
+**Rationale:** Keyboard operation, visible focus, semantic elements, programmatic labels, and status announcements come free with platform controls and all break at once in a custom control. A mouse-only control locks out keyboard users, a missing label leaves screen-reader users guessing, and a silent update leaves anyone who does not see the screen change unaware of it. Starting from a platform control keeps all five properties, and the composite keeps them for every page that uses it.
 
 The five properties above are the ones a component can satisfy on its own. [WCAG 2.2](https://www.w3.org/TR/WCAG22/) adds criteria that only a flow or a page can satisfy, so each route answers them where the criterion applies:
 
@@ -173,13 +173,13 @@ The level column marks which target each criterion belongs to: AA for every proj
 
 **ID:** `litespec/frontend/components#render-data-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
 **Statement:** A data component MUST render loading, empty, error, forbidden, and ready.
 
-**Rationale:** A component that renders only its ready state leaves the reader with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test visiting it. Naming every arrival state up front gives each one a designed drawing.
+**Rationale:** A component that renders only its ready state leaves the user with a blank region while data loads, after it fails, or when there is nothing to show. Each missing state is a screen with no design and no test visiting it. Naming every arrival state up front gives each one a designed drawing.
 
 A route adds `not-found` under `litespec/frontend/rendering#represent-route-states`, because a missing target resolves at the route rather than inside a component. Each state name is a term in the project glossary.
 
@@ -189,13 +189,13 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#render-control-states`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
 **Statement:** A control MUST render disabled and pending so that a second submission stays impossible while one is in flight and recovery stays usable.
 
-**Rationale:** A control with no disabled state invites a second submission while the first is still in flight, and a control with no pending state shows no sign that anything is happening. Blocking the duplicate submission and keeping recovery usable give the reader one safe path: wait, or recover. State names are glossary terms, as under `litespec/frontend/components#render-data-states`.
+**Rationale:** A control with no disabled state invites a second submission while the first is still in flight, and a control with no pending state shows no sign that anything is happening. Blocking the duplicate submission and keeping recovery usable give the user one safe path: wait, or recover. State names are glossary terms, as under `litespec/frontend/components#render-data-states`.
 
 **Reviewed for:** Which controls miss a disabled or pending state, allow a second submission while one is in flight, or leave recovery unusable? Look in the shared package components.
 
@@ -203,7 +203,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#keep-component-inputs-narrow`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -217,7 +217,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#use-declared-visual-variants`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
@@ -231,13 +231,13 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#sanitize-untrusted-rich-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 
 **Statement:** A component MUST NOT render untrusted rich content without its recorded sanitization decision.
 
-**Rationale:** Rich content written by one user renders in another user's browser, so unsanitized markup is a script injection path: whoever writes the content runs code as every reader. The recorded decision names the sanitizer, the allowed elements and attributes, the link policy, and the test cases, so the boundary is explicit and reviewable instead of a different ad-hoc escape on every page.
+**Rationale:** Rich content written by one user renders in another user's browser, so unsanitized markup is a script injection path: whoever writes the content runs code as every user. The recorded decision names the sanitizer, the allowed elements and attributes, the link policy, and the test cases, so the boundary is explicit and reviewable instead of a different ad-hoc escape on every page.
 
 **Reviewed for:** Which untrusted rich content renders without a recorded decision naming the sanitizer, the allowed elements and attributes, the link policy, and the test cases? Look in the decision records and the rendering components.
 
@@ -245,7 +245,7 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 
 **ID:** `litespec/frontend/components#use-a-composite-for-a-content-image`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component
 

@@ -528,7 +528,7 @@ public sealed class PageReader
     {
         rest = "";
         const string stackPrefix = "**Stack:**";
-        const string layerPrefix = "**Layer:**";
+        const string concernPrefix = "**Concern:**";
         string? field = null;
         string? values = null;
         if (line.StartsWith(stackPrefix, StringComparison.Ordinal))
@@ -536,10 +536,10 @@ public sealed class PageReader
             field = "stack";
             values = line[stackPrefix.Length..].Trim();
         }
-        else if (line.StartsWith(layerPrefix, StringComparison.Ordinal))
+        else if (line.StartsWith(concernPrefix, StringComparison.Ordinal))
         {
-            field = "layer";
-            values = line[layerPrefix.Length..].Trim();
+            field = "concern";
+            values = line[concernPrefix.Length..].Trim();
         }
 
         if (field is null)

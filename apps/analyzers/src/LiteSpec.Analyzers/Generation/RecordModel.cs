@@ -102,18 +102,12 @@ internal sealed class RecordModel : IEquatable<RecordModel>
             return Invalid;
         }
 
-        if (!ProjectSettings.TryParse(projectText, out var settings, out _))
+        if (!ProjectPaths.TryRead(project.Path, projectText, out var paths, out _) || paths is null)
         {
             return Invalid;
         }
 
-        var roots = DocRoots(projectText, RepositoryRootOf(DirectoryOf(project.Path)));
-
-        if (roots.Count == 0)
-        {
-            return Invalid;
-        }
-
+        var roots = paths.DocsRoots;
         var records = new List<IRecordFacts>();
         var grants = new Dictionary<string, string>(StringComparer.Ordinal);
 
@@ -151,7 +145,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
         return new RecordModel(
             true,
-            settings.Marks,
+            paths.Settings.Marks,
             IdsOf(index, "event"),
             RuleCodesOf(index),
             PermissionsOf(index),
@@ -218,7 +212,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
     {
         foreach (var text in texts)
         {
-            if (text.Path.Replace('\\', '/').EndsWith("/.litespec/project.json", StringComparison.OrdinalIgnoreCase))
+            if (ProjectPaths.IsProjectFile(text.Path))
             {
                 return text;
             }
@@ -227,176 +221,11 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return null;
     }
 
-    /// <summary>
-    ///     The repository root holding the project file: the folder above
-    ///     <c>.litespec/</c> when the file sits in that folder, else its own folder.
-    /// </summary>
-    /// <param name="projectDir">The directory that holds the project file.</param>
-    /// <returns>The repository root the project file's paths resolve against.</returns>
-    private static string RepositoryRootOf(string projectDir)
-    {
-        var cleaned = projectDir.Replace('\\', '/');
-        var slash = cleaned.LastIndexOf('/');
-
-        return cleaned.EndsWith("/.litespec", StringComparison.OrdinalIgnoreCase) && slash > 0
-            ? cleaned.Substring(0, slash)
-            : cleaned;
-    }
-
-    /// <summary>Returns the roots.</summary>
-    /// <param name="projectText">The project file text to read the settings and roots from.</param>
-    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
-    /// <returns>The roots, in the order this method builds them, or an empty collection when none apply.</returns>
-    private static List<string> DocRoots(string projectText, string projectDir)
-    {
-        var docs = new List<string>();
-        var behavior = new List<string>();
-        var root = JsonText.Parse(projectText);
-
-        if (root.Kind == JsonKind.Object
-            && root.TryGetProperty("paths", out var paths)
-            && paths.Kind == JsonKind.Object)
-        {
-            CollectRoots(paths, "docs", docs);
-            CollectRoots(paths, "behaviorDocs", behavior);
-        }
-
-        if (docs.Count == 0)
-        {
-            docs.Add(".litespec");
-        }
-
-        if (behavior.Count == 0)
-        {
-            behavior.Add(".litespec/behavior");
-        }
-
-        var roots = new List<string>();
-
-        foreach (var value in docs)
-        {
-            AddRoot(projectDir, value, roots);
-        }
-
-        foreach (var value in behavior)
-        {
-            AddRoot(projectDir, value, roots);
-        }
-
-        return roots;
-    }
-
-    /// <summary>Collects the roots.</summary>
-    /// <param name="paths">The paths object from the project file, or null when it states none.</param>
-    /// <param name="name">The name to convert or match.</param>
-    /// <param name="values">The values collected so far, in the order they were found.</param>
-    private static void CollectRoots(JsonText paths, string name, List<string> values)
-    {
-        if (!paths.TryGetProperty(name, out var value))
-        {
-            return;
-        }
-
-        if (value.Kind == JsonKind.String
-            && value.GetString() is string single
-            && single.Length > 0)
-        {
-            values.Add(single);
-        }
-        else if (value.Kind == JsonKind.Array)
-        {
-            foreach (var entry in value.Items)
-            {
-                if (entry.Kind == JsonKind.String
-                    && entry.GetString() is string item
-                    && item.Length > 0)
-                {
-                    values.Add(item);
-                }
-            }
-        }
-    }
-
-    /// <summary>Adds the root.</summary>
-    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
-    /// <param name="value">The value to convert or test.</param>
-    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
-    private static void AddRoot(string projectDir, string value, List<string> roots)
-    {
-        var root = ResolveRoot(projectDir, value);
-
-        if (root.Length > 0 && !roots.Contains(root))
-        {
-            roots.Add(root);
-        }
-    }
-
-    /// <summary>Returns the root.</summary>
-    /// <param name="projectDir">The directory that holds the project file, used to resolve relative roots.</param>
-    /// <param name="value">The value to convert or test.</param>
-    /// <returns>The root as text.</returns>
-    private static string ResolveRoot(string projectDir, string value)
-    {
-        var cleaned = value.Replace('\\', '/');
-        var joined = IsRooted(cleaned) || projectDir.Length == 0
-            ? cleaned
-            : projectDir + "/" + cleaned;
-        var parts = joined.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
-        var kept = new List<string>();
-
-        foreach (var part in parts)
-        {
-            if (part == ".")
-            {
-                continue;
-            }
-
-            if (part == "..")
-            {
-                if (kept.Count > 0)
-                {
-                    kept.RemoveAt(kept.Count - 1);
-                }
-
-                continue;
-            }
-
-            kept.Add(part);
-        }
-
-        var resolved = string.Join("/", kept);
-
-        if (joined.StartsWith("/", StringComparison.Ordinal))
-        {
-            return "/" + resolved;
-        }
-
-        return resolved;
-    }
-
-    /// <summary>Returns true when the path is rooted; otherwise false.</summary>
-    /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>True when the path is rooted; otherwise false.</returns>
-    private static bool IsRooted(string path) =>
-        path.StartsWith("/", StringComparison.Ordinal)
-        || (path.Length > 1 && path[1] == ':');
-
-    /// <summary>Returns the directory of the path.</summary>
-    /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>The directory of the path.</returns>
-    private static string DirectoryOf(string path)
-    {
-        var cleaned = path.Replace('\\', '/');
-        var slash = cleaned.LastIndexOf('/');
-
-        return slash < 0 ? string.Empty : cleaned.Substring(0, slash);
-    }
-
     /// <summary>Returns true when the under-any-root condition holds; otherwise false.</summary>
     /// <param name="path">The file path as the host reports it.</param>
     /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
     /// <returns>True when the under-any-root condition holds; otherwise false.</returns>
-    private static bool UnderAnyRoot(string path, List<string> roots)
+    private static bool UnderAnyRoot(string path, IReadOnlyList<string> roots)
     {
         var cleaned = path.Replace('\\', '/');
 

@@ -1,7 +1,8 @@
 name: Release
 
-# A release is a v<version> tag on main. The tag publishes the two NuGet packages and the
-# GitHub release for that version, after the same checks a pull request runs.
+# A release is a v<version> tag on main. After the same checks a pull request runs, the tag
+# attests every package and archive, publishes the NuGet packages, and publishes the GitHub
+# release with the standalone archives, their SHA256SUMS and the install scripts.
 on:
   push:
     tags:
@@ -15,7 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # The same four gates a pull request runs, in the Release configuration.
+  # The same gates a pull request runs, in the Release configuration. They build every
+  # package and archive this workflow publishes.
   ci:
     uses: ./.github/workflows/ci.yml
     with:
@@ -36,17 +38,56 @@ jobs:
       - name: Match the tag to the manifest version
         id: version
         run: |
-          version="$(jq -r .version litespec.manifest.json)"
+          . .github/scripts/lib.sh
+          version="$(manifest_version litespec.manifest.yaml)"
           if [ "v$version" != "$GITHUB_REF_NAME" ]; then
             echo "The tag $GITHUB_REF_NAME does not name the manifest version $version."
             exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-  nuget:
+  # A build provenance attestation ties each file to this workflow run, so a consumer checks a
+  # download with 'gh attestation verify <file> --repo Litenova-Solutions/LiteSpec'.
+  attest:
     needs: [ci, version]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - name: Fetch the platform-neutral packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: packages
+          path: packages
+
+      - name: Fetch the native builds
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: native-*
+          path: native
+          merge-multiple: true
+
+      - name: Fetch the release assets
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: release
+
+      - name: Attest the packages and the release assets
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            packages/*.nupkg
+            native/packages/*.nupkg
+            release/*
+
+  nuget:
+    needs: [version, attest]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     # Trusted publishing: nuget.org exchanges this run's OIDC token for a short-lived key,
     # so no long-lived API key is stored. The policy on nuget.org names this repository,
     # this workflow file and the release environment.
@@ -58,16 +99,21 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Fetch the packages
+      - name: Fetch the platform-neutral packages
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: packages
           path: packages
 
-      - name: Set up the .NET SDK
-        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - name: Fetch the platform packages
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          global-json-file: global.json
+          pattern: native-*
+          path: native
+          merge-multiple: true
+
+      - name: Set up the .NET SDK
+        uses: ./.github/actions/setup-sdk
 
       - name: Sign in to nuget.org
         id: login
@@ -75,26 +121,43 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Publish LiteSpec.Cli and LiteSpec.Analyzers
-        run: dotnet nuget push "packages/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      # LiteSpec.Cli names one package per platform, and an install that finds it before them
+      # fails, so every platform package and the analyzers publish first and LiteSpec.Cli last.
+      - name: Publish the platform packages, the framework-dependent package and LiteSpec.Analyzers
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          for package in native/packages/*.nupkg packages/*.nupkg; do
+            if [ "$(basename "$package")" != "LiteSpec.Cli.$VERSION.nupkg" ]; then
+              dotnet nuget push "$package" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            fi
+          done
+
+      - name: Publish LiteSpec.Cli
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "packages/LiteSpec.Cli.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   github-release:
     needs: [version, nuget]
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Fetch the packages
+      - name: Fetch the release assets
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: packages
-          path: packages
+          name: release-assets
+          path: release
 
-      # The release notes are the changelog section for this version, unchanged.
+      # The release notes are the changelog section for this version, unchanged. The packages
+      # live on nuget.org; the release carries what a machine without .NET installs.
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -105,4 +168,4 @@ jobs:
             echo "CHANGELOG.md has no section headed '## v$VERSION'."
             exit 1
           fi
-          gh release create "$GITHUB_REF_NAME" packages/*.nupkg --title "LiteSpec $VERSION" --notes-file notes.md --verify-tag
+          gh release create "$GITHUB_REF_NAME" release/* --title "LiteSpec $VERSION" --notes-file notes.md --verify-tag

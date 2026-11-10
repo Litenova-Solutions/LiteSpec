@@ -6,10 +6,10 @@
 // holding a +page.svelte; its mark comes from the module script of the
 // +page.svelte, because SvelteKit refuses any other export from a +page.ts.
 
-import { collectRouteCalls, CallScope } from "./calls.js";
-import { baseName, canonical, isFile, joinPath, listDirsRecursive, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files.js";
-import { firstMarkLine, markValues, readFacts } from "./parse.js";
-import { ModuleFacts, ReaderContext, RouteFacts } from "./protocol.js";
+import { collectRouteCalls, CallScope } from "./calls";
+import { baseName, canonical, isFile, joinPath, listDirsRecursive, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
+import { firstMarkLine, markValues, readFacts } from "./parse";
+import { ModuleFacts, ReaderContext, RouteFacts } from "./protocol";
 
 export interface ModuleScan {
   modules: ModuleFacts[];

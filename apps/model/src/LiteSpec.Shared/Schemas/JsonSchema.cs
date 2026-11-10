@@ -4,11 +4,10 @@ using static LiteSpec.Schemas.JsonSchemaSupport;
 namespace LiteSpec.Schemas;
 
 /// <summary>
-///     The JSON Schema check every validator uses: the keyword gate that makes
-///     it safe, and one validation path over the shared library, so a second
-///     copy of the check would drift from the first invisibly. The gate below
-///     is what makes a library check safe: a keyword with no implementation
-///     fails the schema instead of passing unread.
+///     The JSON Schema check every validator uses: the keyword gate that makes it
+///     safe, and one evaluator, so a second copy of the check would drift from the
+///     first invisibly. The gate is what makes the evaluator safe: a keyword it does
+///     not implement fails the schema instead of passing unread.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
 public static class JsonSchema
@@ -16,25 +15,24 @@ public static class JsonSchema
     /// <summary>The schema keywords that assert nothing (SCHEMA_ANNOTATIONS).</summary>
     public static readonly IReadOnlySet<string> Annotations = new HashSet<string>(StringComparer.Ordinal)
     {
-        "$schema", "$id", "$anchor", "$dynamicAnchor", "$defs", "$comment", "$vocabulary",
+        "$schema", "$id", "$defs", "$comment",
         "title", "description", "default", "examples", "deprecated", "readOnly", "writeOnly",
         "format", "contentMediaType", "contentEncoding",
     };
 
     /// <summary>
-    ///     Every keyword the evaluator implements: the JSON Schema draft
-    ///     2020-12 vocabulary. A keyword outside this set fails the schema
-    ///     rather than passing unread (SCHEMA_KEYWORDS).
+    ///     Every keyword the evaluator implements: JSON Schema draft 2020-12 without
+    ///     dynamic references, anchors and the unevaluated keywords. A keyword outside
+    ///     this set fails the schema rather than passing unread (SCHEMA_KEYWORDS).
     /// </summary>
     public static readonly IReadOnlySet<string> Keywords = new HashSet<string>(Annotations.Concat([
-        "$ref", "$dynamicRef", "type", "const", "enum",
+        "$ref", "type", "const", "enum",
         "pattern", "minLength", "maxLength",
         "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
         "minItems", "maxItems", "uniqueItems", "items", "prefixItems", "contains", "minContains", "maxContains",
         "minProperties", "maxProperties", "required", "dependentRequired", "dependentSchemas",
         "properties", "patternProperties", "propertyNames", "additionalProperties",
         "allOf", "anyOf", "oneOf", "if", "then", "else", "not",
-        "unevaluatedItems", "unevaluatedProperties", "contentSchema",
     ]), StringComparer.Ordinal);
 
     /// <summary>
@@ -72,7 +70,7 @@ public static class JsonSchema
     /// <param name="location">The value location.</param>
     /// <param name="errors">The errors to append to.</param>
     public static void Validate(JsonNode? value, JsonNode? schema, JsonNode root, string location, List<string> errors) =>
-        SchemaEvaluation.Validate(value, schema, root, location, errors);
+        SchemaEvaluator.Validate(value, schema, root, location, errors);
 
     /// <summary>
     ///     Reads one JSON value against one schema file and returns the problems it

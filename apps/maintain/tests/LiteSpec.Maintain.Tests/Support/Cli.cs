@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>
 ///     Runs the built <c>litespec-maintain</c> tool as its own process, the way a
@@ -67,7 +67,7 @@ static class Cli
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
         {
-            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.json")))
+            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.yaml")))
             {
                 return folder.FullName;
             }

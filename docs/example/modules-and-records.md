@@ -2,66 +2,19 @@
 
 ## Intent
 
-The spending module is the Claimwick example's one business area: it turns product intent into operations by organizing the business state the company tracks, the rules that bind it, who may act on it, and the messages, work, and tunables around it. This page shows each piece as the project writes it: the module record declared in Intent, 4 aggregates for expenses, receipts, the policy store, and the export-request store with their states, transitions, data classes, and data, the rules that bind them, the access chain of actors, roles, permissions, and the entry point with its screen and the outside system for payouts, the Submit expense and List expenses use cases with their results and scenarios, and the reaction, jobs, notifications, setting, integration event, and retention row around them.
+The Spending module turns the Intent of [The Claimwick Product](the-product.md) into Behavior: the aggregates that hold each expense, policy and receipt, the rules that guard them, the use cases that change them, and the entry point, screen, reaction, job, notification and setting around them. This page lists those records as they are written in `examples/claimwick/.litespec/behavior/modules/spending/`, with the counts and IDs a reader can check in the folder.
 
-## The Spending Module
+## The Aggregates
 
-A module is one business area that organizes language, records, use cases, and ownership. Claimwick keeps one module, spending, which tracks expenses, receipts, and the policy. Its record file lives at `.litespec/intent/modules/spending/module.yaml`, and its empty `dependsOn` list states that it depends on no other module, which applies `litespec/core/domain-model#state-every-module-dependency` on [Behavior Records](../core/behavior.md).
+An aggregate is one thing the module keeps true. Spending has three, each in its own folder under `behavior/modules/spending/`:
 
-```yaml
-type: module
-id: module/spending
-title: Spending
-summary: Spending submits, decides, reimburses and exports work expenses.
-dependsOn: []
-```
+| Aggregate | File | Kind | States |
+|:---|:---|:---|:---|
+| Expense | `expenses/aggregate.yaml` | entity | Submitted, Approved, Refused, Reimbursed |
+| Receipt | `receipts/aggregate.yaml` | entity | Attached |
+| Policy | `policies/aggregate.yaml` | entity | Active |
 
-Each aggregate below belongs to this module through its identifier: `aggregate/spending.expense` names spending before the dot, so containment needs no link field. Intent features live under the same name at `.litespec/intent/modules/spending/features/`, as [The Claimwick Product](the-product.md) shows.
-
-## Aggregates and Their States
-
-An aggregate is one unit of business state that stays consistent and changes in one step. Spending keeps 4, each in its own record file under the module folder. Each aggregate declares its kind and its lifecycle as states entries with a name and a meaning, which applies `litespec/core/domain-model#declare-the-kind-of-every-aggregate` and `litespec/core/domain-model#model-each-aggregate-lifecycle-with-states`.
-
-| Record | Home | Kind | States |
-|:--|:--|:--|:--|
-| `aggregate/spending.expense` | `.litespec/behavior/modules/spending/expenses/aggregate.yaml` | entity | Submitted, Approved, Refused, Reimbursed |
-| `aggregate/spending.receipt` | `.litespec/behavior/modules/spending/receipts/aggregate.yaml` | entity | Attached, Removed |
-| `aggregate/spending.policy` | `.litespec/behavior/modules/spending/policies/aggregate.yaml` | store | None |
-| `aggregate/spending.export-request` | `.litespec/behavior/modules/spending/export-requests/aggregate.yaml` | store | None |
-
-An expense is one work cost an employee submitted. A receipt is proof of payment attached to an expense. The policy is a store: it holds the current receipt threshold value, names the spending settings store as its owner, and carries no states, because no invariant guards the stored value. The setting record below declares the threshold default and bounds. The store names its owner, which applies `litespec/core/domain-model#name-the-owner-of-every-store`. The export-request store holds each export request with the file the export job built for it, and names the spending module as its owner. Each expense state carries its meaning: Submitted waits for a decision, Approved and Refused record a manager decision, and Reimbursed records the finance payout.
-
-## Expense Transitions and Data
-
-The expense aggregate connects its states through a `transitions` field and declares its data classes with their erasure positions. Each transition names the state it leaves, the state it enters, and the use case behind the move, which applies `litespec/core/domain-model#connect-every-state-through-transitions`.
-
-| From | To | By |
-|:--|:--|:--|
-| Submitted | Approved | `use-case/spending.approve-expense` |
-| Submitted | Refused | `use-case/spending.refuse-expense` |
-| Approved | Reimbursed | `use-case/spending.reimburse-expense` |
-
-The data classes group fields by their shared fate on erasure, which applies `litespec/core/privacy#declare-every-data-class-with-its-erasure-position`:
-
-| Data class | Classification | Fields | Purpose | On erasure | Enforced by |
-|:--|:--|:--|:--|:--|:--|
-| `expense-money` | internal | amount, state, approver, receipt | Decide each expense and keep the tax file defensible. | retain for 7 years by statute | record-expiry |
-| `submitter` | personal | employee | Link each expense to its submitter. | erase on approved request | `job/spending.erase-expired-personal-data` |
-
-The `data` field names each field the aggregate holds with its meaning, data class, and classification, which applies `litespec/core/privacy#classify-every-aggregate-data-field`.
-
-| Name | Meaning | Data Class | Classification |
-|:--|:--|:--|:--|
-| employee | The employee who submitted the expense. | submitter | personal |
-| amount | The exact amount with its currency. | expense-money | internal |
-| receipt | The proof of payment, when one is attached. | expense-money | internal |
-| state | The lifecycle state of the expense. | expense-money | internal |
-
-The employee field is personal data in the `submitter` class, so the erase job and the erasure use case cover it, and the retention schedule below schedules it. The receipt aggregate carries its own data class for the filed receipt; the policy store holds one internal field, the current threshold value.
-
-## The Full Expense Record
-
-The expense record file below shows the full shape, with its states, transitions, data, data classes, and its rule and event entries in `records`:
+The Expense aggregate file shows the pattern every aggregate follows: its states, its transitions with the use case that moves each one, its data with a classification, its data classes with their retention, and its events:
 
 ```yaml
 type: aggregate
@@ -70,638 +23,112 @@ title: Expense
 summary: An expense is one work cost an employee submitted.
 kind: entity
 states:
-  - name: Submitted
-    meaning: The expense waits for a decision.
-  - name: Approved
-    meaning: A manager approved the expense.
-  - name: Refused
-    meaning: A manager refused the expense.
-  - name: Reimbursed
-    meaning: Finance reimbursed the expense.
+- name: Submitted
+  meaning: The expense waits for a decision.
+- name: Approved
+  meaning: A manager approved the expense.
+- name: Refused
+  meaning: A manager refused the expense.
+- name: Reimbursed
+  meaning: The reimbursed state of an expense whose payout reached the submitter.
 transitions:
-  - from: Submitted
-    to: Approved
-    by: use-case/spending.approve-expense
-  - from: Submitted
-    to: Refused
-    by: use-case/spending.refuse-expense
-  - from: Approved
-    to: Reimbursed
-    by: use-case/spending.reimburse-expense
-data:
-  - name: employee
-    meaning: The employee who submitted the expense.
-    classification: personal
-    dataClass: submitter
-  - name: amount
-    meaning: The exact amount with its currency.
-    classification: internal
-    dataClass: expense-money
-  - name: receipt
-    meaning: The proof of payment, when one is attached.
-    classification: internal
-    dataClass: expense-money
-  - name: state
-    meaning: The lifecycle state of the expense.
-    classification: internal
-    dataClass: expense-money
-dataClasses:
-  - name: expense-money
-    classification: internal
-    fields:
-      - amount
-      - state
-      - approver
-      - receipt
-    onErasure: retain
-    basis: statute
-    period: P7Y
-    enforcedBy: record-expiry
-    purpose: Decide each expense and keep the tax file defensible.
-    reach: own-tenant
-  - name: submitter
-    classification: personal
-    fields:
-      - employee
-    onErasure: erase
-    basis: business
-    period:
-      mode: none
-      reason: erasure happens on approved request
-    enforcedBy: job/spending.erase-expired-personal-data
-    purpose: Link each expense to its submitter.
-    reach: own-tenant
-records:
-  - type: rule
-    id: rule/expense.receipt-required-above-threshold
-    title: Receipt required above threshold
-    kind: precondition
-    statement: An expense above the policy threshold needs a receipt.
-    governs:
-      - use-case/spending.submit-expense
-    refusal: result/submit-expense.receipt-missing
-    fulfills:
-      - requirement/approval-reminders.receipt-over-threshold
-  - type: rule
-    id: rule/expense.approver-is-not-submitter
-    title: Approver is not submitter
-    kind: precondition
-    statement: An approver is not the submitter.
-    governs:
-      - use-case/spending.approve-expense
-    refusal: result/approve-expense.own-expense
-    fulfills:
-      - requirement/approval-reminders.no-self-approval
-  - type: rule
-    id: rule/expense.reimbursed-once
-    title: Reimbursed once
-    kind: invariant
-    statement: An expense is reimbursed at most once.
-    governs:
-      - use-case/spending.reimburse-expense
-    refusal: result/reimburse-expense.already-reimbursed
-    fulfills:
-      - requirement/approval-reminders.single-reimbursement
-  - type: rule
-    id: rule/expense.approved-before-reimbursement
-    title: Approved before reimbursement
-    kind: precondition
-    statement: An expense is reimbursed only after approval.
-    governs:
-      - use-case/spending.reimburse-expense
-    refusal: result/reimburse-expense.not-approved
-    fulfills:
-      - requirement/approval-reminders.single-reimbursement
-  - type: event
-    id: event/expense.submitted
-    title: Expense submitted
-    meaning: An expense was submitted.
-    carries:
-      - expenseId
-      - amount
-      - currency
-      - employeeId
-  - type: event
-    id: event/expense.approved
-    title: Expense approved
-    meaning: An expense was approved.
-    carries:
-      - expenseId
-      - approvedBy
-      - decidedAt
-  - type: event
-    id: event/expense.refused
-    title: Expense refused
-    meaning: An expense was refused.
-    carries:
-      - expenseId
-      - refusedBy
-      - decidedAt
-  - type: event
-    id: event/expense.reimbursed
-    title: Expense reimbursed
-    meaning: An expense was reimbursed.
-    carries:
-      - expenseId
-      - amount
-      - currency
-      - reimbursedAt
+- from: "-"
+  to: Submitted
+  by: use-case/spending.submit-expense
+- from: Submitted
+  to: Approved
+  by: use-case/spending.approve-expense
 ```
 
-The receipt record file carries one rule, `rule/receipt.attaches-before-decision`, and one event, `event/receipt.attached`. Every entry states what happened or what stays true, and each names the data it carries or the requirement it fulfills.
+The `dataClasses` list of the same file gives each piece of data its retention. The `submitter-contact` class holds the employee who submitted the expense, is personal, and is erased by `job/spending.erase-expired-personal-data` after seven years. The `expense-ledger` class holds the amount, receipt and state, is kept for seven years under a statute, and is never erased. The bare business facts stay for the tax file.
+
+The four events the aggregate raises are `event/expense.submitted`, `event/expense.approved`, `event/expense.refused` and `event/expense.reimbursed`. The receipt aggregate raises `event/receipt.attached`.
 
 ## The Rules
 
-A rule is one testable commitment about what stays true. Each rule states its kind and names the refusal its use case returns when the rule breaks, which applies `litespec/core/domain-model#state-each-rule-with-its-kind` and `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces`. The 6 spending rules are:
+A rule states one condition the module enforces. The Spending module has nine, in four rule-set files:
 
-| Rule | Statement | Kind |
-|:---|:---|:---|
-| `rule/expense.receipt-required-above-threshold` | An expense above the policy threshold needs a receipt. | precondition |
-| `rule/expense.approver-is-not-submitter` | An approver is not the submitter. | precondition |
-| `rule/expense.reimbursed-once` | An expense is reimbursed at most once. | invariant |
-| `rule/expense.approved-before-reimbursement` | An expense is reimbursed only after approval. | precondition |
-| `rule/receipt.attaches-before-decision` | A receipt attaches before the expense is decided. | precondition |
-| `rule/spending.receipt-filed-once` | A receipt file supports one expense across spending. | cross-aggregate |
+| Rule-set file | Rules |
+|:---|:---|
+| `expenses/rules/expense-rules.yaml` | 6 |
+| `receipts/rules/receipt-rules.yaml` | 1 |
+| `rules/spending-rules.yaml` | 1 |
+| `policies/rules/policy-rules.yaml` | 1 |
 
-Each rule governs the use cases or aggregates it guards and fulfills one approval-reminders requirement:
-
-| Rule | Governs | Fulfills |
-|:--|:--|:--|
-| `rule/expense.receipt-required-above-threshold` | `use-case/spending.submit-expense` | `requirement/approval-reminders.receipt-over-threshold` |
-| `rule/expense.approver-is-not-submitter` | `use-case/spending.approve-expense` | `requirement/approval-reminders.no-self-approval` |
-| `rule/expense.reimbursed-once` | `use-case/spending.reimburse-expense` | `requirement/approval-reminders.single-reimbursement` |
-| `rule/expense.approved-before-reimbursement` | `use-case/spending.reimburse-expense` | `requirement/approval-reminders.single-reimbursement` |
-| `rule/receipt.attaches-before-decision` | `use-case/spending.attach-receipt` | `requirement/approval-reminders.receipt-over-threshold` |
-| `rule/spending.receipt-filed-once` | `aggregate/spending.receipt` | `requirement/approval-reminders.receipt-over-threshold` |
-
-Each rule names the refusal its use case returns when the rule fails: `rule/expense.receipt-required-above-threshold` names `result/submit-expense.receipt-missing`, `rule/expense.approver-is-not-submitter` names `result/approve-expense.own-expense`, `rule/expense.reimbursed-once` names `result/reimburse-expense.already-reimbursed`, `rule/expense.approved-before-reimbursement` names `result/reimburse-expense.not-approved`, and `rule/receipt.attaches-before-decision` names `result/attach-receipt.expense-decided`. Each rule but the last lives as an entry on its aggregate record file, so the rule and the state it guards change in one edit. The cross-aggregate rule lives in its own record file at `.litespec/behavior/modules/spending/rules/receipt-filed-once.yaml`, which applies `litespec/core/domain-model#keep-cross-aggregate-rules-on-a-rule-page`.
-
-## Actors, Roles, and Permissions
-
-Access runs one chain: an actor holds a role at a scope, the role allows permissions, and each use case declares its access against one grant. Actors live at product level under `.litespec/intent/actors/`, roles live at product level under `.litespec/intent/roles/` with `allows` as a down-link to permissions, and permissions live in the module whose use cases they guard. Claimwick keeps 3 actors, each with one role:
-
-| Actor | Kind | Role |
-|:--|:--|:--|
-| `actor/employee` | person | `role/employee` at self |
-| `actor/manager` | person | `role/approver` at team |
-| `actor/finance` | person | `role/finance` at platform |
-
-An employee submits expenses and attaches receipts. A manager approves or rejects expenses. Finance reimburses approved expenses. The 3 roles allow these permissions, which applies `litespec/core/access#grant-permissions-through-roles` on [Access](../core/access.md):
-
-| Role | Scope | Allows |
-|:--|:--|:--|
-| `role/employee` | self | `permission/submit-expense`, `permission/list-expenses` |
-| `role/approver` | team | `permission/approve-expense`, `permission/list-expenses`, `permission/manage-policy` |
-| `role/finance` | platform | `permission/reimburse-expense`, `permission/list-expenses`, `permission/export-expenses`, `permission/erase-personal-data` |
-
-Permissions live as entries on one list record file at `.litespec/behavior/modules/spending/permissions.yaml`. Each of the 7 entries names one allowed action with its meaning:
-
-| Permission | Meaning |
-|:--|:--|
-| `permission/submit-expense` | Submit an expense and attach receipts. |
-| `permission/approve-expense` | Approve or reject a submitted expense. |
-| `permission/reimburse-expense` | Reimburse an approved expense. |
-| `permission/list-expenses` | Read own expenses. |
-| `permission/manage-policy` | Set the receipt threshold. |
-| `permission/export-expenses` | Export approved expenses for finance. |
-| `permission/erase-personal-data` | Erase the personal data of a decided expense. |
-
-The reimburse permission carries the `money` risk and the erase permission carries the `personal-data` risk. Submit expense declares `permission/submit-expense` as its access grant with its own tenant scope, which applies `litespec/core/access#declare-access-on-every-use-case`: a use case declares who may run it, so nobody guesses.
-
-## Entry Points
-
-An entry point is one way people or systems reach the product. Claimwick keeps 1 at product level, with its record file at `.litespec/behavior/entry-points/claimwick-app/entry-point.yaml`, with its kind and auth, which applies `litespec/core/access#name-every-entry-point-with-its-kind`:
-
-| Entry point | Kind | Auth |
-|:--|:--|:--|
-| `entry-point/claimwick-app` | browser | session |
-
-Employees reach spending through the expenses app, and every spending use case but the reminder command names it in `reachedThrough`. The reminder command runs from the nightly reminder job instead, so it names no entry point. Its screen lives under it at `.litespec/behavior/entry-points/claimwick-app/screens/expense-list.yaml` with id `screen/claimwick-app.expense-list`, as [The Claimwick Screen](the-screen.md) follows; the folder states the entry point, so the screen carries no entry-point link.
-
-## The External System
-
-An external system is one outside system the product exchanges data with. Claimwick keeps one: the payout bank moves reimbursed money to employees. Its record file lives at `.litespec/behavior/modules/spending/external-systems/payout-bank.yaml`, states its summary, declares its operations with their timeouts and responses, and routes erasure through an operation, which applies `litespec/core/access#declare-every-operation-on-every-external-system` and `litespec/core/access#declare-erasure-for-every-external-system`.
+The first rule in the expense file shows its shape. It names its kind, the use cases it governs, the refusal it returns, and the requirement it fulfills:
 
 ```yaml
-type: external-system
-id: external-system/payout-bank
-title: Payout Bank
-summary: The payout bank moves reimbursed money to employees.
-operations:
-  - name: submit-batch
-    direction: out
-    timeout: PT30S
-    onTimeout: Retry once, then fail the batch for finance to re-send.
-    response: A batch receipt with the accepted payout count.
-  - name: purge-batch
-    direction: out
-    timeout: PT30S
-    onTimeout: Retry once, then alert finance.
-    response: A purge receipt per batch.
-erasure:
-  mode: call
-  operation: external-system/payout-bank#purge-batch
-sends:
-  - Approved payouts as one bank file per batch.
-receives:
-  - A settlement report per payout batch.
-failure: The bank rejects a payout file, and finance fixes the entry and re-sends the batch.
+- type: rule
+  id: rule/expense.receipt-required-above-threshold
+  title: Receipt Required Above Threshold
+  kind: precondition
+  statement: An expense above the policy threshold needs a receipt.
+  governs:
+  - use-case/spending.submit-expense
+  refusal: result/submit-expense.receipt-missing
+  basedOn: []
+  fulfills:
+  - requirement/approval.receipt-over-threshold
 ```
 
-The reimburse use case raises the reimbursement event and emits the payout integration event, and the payout batch carries it to this bank. The settlement report closes the loop: finance reads back one report per batch.
+The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, and that an export carries only approved expenses. Each rule has a refusal result with a stable code.
 
 ## The Use Cases
 
-Spending keeps 10 use cases: 9 commands and 1 query. Each one is a command or a query, serves journey steps, fulfills requirements, declares its access, and states what it changes and how the writes hold together, which applies `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#state-the-consistency-of-every-use-case`, and `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`.
+A use case is one thing an actor does through the system. The module has nine, each in a file of its own. Every use case names its grant, the journey step it serves and the entry point that reaches it:
 
-| Use case | Kind | Serves | Grant | Changes | Consistency | Effects |
-|:--|:--|:--|:--|:--|:--|:--|
-| `use-case/spending.submit-expense` | command | `journey/submit-and-reimburse#s1` | `permission/submit-expense` | expense | atomic | None |
-| `use-case/spending.attach-receipt` | command | `journey/submit-and-reimburse#s1` | `permission/submit-expense` | receipt | atomic | None |
-| `use-case/spending.approve-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
-| `use-case/spending.refuse-expense` | command | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | expense | atomic | None |
-| `use-case/spending.reimburse-expense` | command | `journey/submit-and-reimburse#s3` | `permission/reimburse-expense` | expense | atomic | emits `integration-event/payout.requested` after commit |
-| `use-case/spending.change-receipt-threshold` | command | None | `permission/manage-policy` | policy store | atomic | None |
-| `use-case/spending.export-expenses` | command | `journey/submit-and-reimburse#s3` | `permission/export-expenses` | export-request store | atomic | None |
-| `use-case/spending.erase-personal-data` | command | None | `permission/erase-personal-data` | expense | atomic | None |
-| `use-case/spending.send-approver-reminder` | command | `journey/submit-and-reimburse#s2` | system | None | None | sends `notification/spending.approver-reminder` async |
-| `use-case/spending.list-expenses` | query | `journey/submit-and-reimburse#s4` | `self(permission/list-expenses)` | None | None | None |
+| Use case | Kind | Grant | Serves | Raises |
+|:---|:---|:---|:---|:---|
+| Submit expense | command | `permission/submit-expense` | `s1` | `event/expense.submitted` |
+| Attach receipt | command | `permission/submit-expense` | `s2` | `event/receipt.attached` |
+| Approve expense | command | `permission/approve-expense` | `s3` | `event/expense.approved` |
+| Refuse expense | command | `permission/approve-expense` | `s3` | `event/expense.refused` |
+| Reimburse expense | command | `permission/reimburse-expense` | `s4` | `event/expense.reimbursed` |
+| List expenses | query | `permission/list-expenses` | `s5` | none |
+| Change receipt threshold | command | `permission/manage-policy` | `s6` | none |
+| Export expenses | query | `permission/export-expenses` | `s7` | none |
+| Erase personal data | command | `permission/erase-personal-data` | `s8` | none |
 
-Set-receipt-threshold fulfills the receipt requirement, and erase-personal-data fulfills the erasure requirement, so every use case answers Intent through `serves` or `fulfills`. The reminder command runs under the system grant from the reminder job: no person runs it. The export command records its request in the export-request store, and the build job below builds the file, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
+The Submit expense file lists its inputs, its results and its scenarios. It takes an amount, a currency and an optional receipt, and it has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the code `spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
-## One Use Case Tying Them Together
+The journey steps run in the order the table gives them. Submit expense serves `s1` and Attach receipt serves `s2`; the journey file names no use case, so each use case points up to the step it serves.
 
-Submit expense is a command: an employee submits a work expense with a receipt through the expenses app. Its record file serves the journey's first step, fulfills the receipt requirement, declares its access, states what it is in `summary`, names its input with types, origins, and classifications, changes the expense while reading the policy store, commits atomically, and raises the submitted event. Its steps live under What Happens in its explanation file, and its result and scenario entries live in `records`, which is the shape the record schema defines.
+## The Entry Point and the Screen
+
+The product reaches the module through one entry point, `behavior/entry-points/claimwick-app/entry-point.yaml`, which the employee signs into with a session. The entry point holds one screen in `screens/expense-list.yaml`:
 
 ```yaml
-type: use-case
-id: use-case/spending.submit-expense
-title: Submit Expense
-kind: command
-summary: An employee submits a work expense.
+type: screen
+id: screen/claimwick-app.expense-list
+title: Expense List
+summary: An employee sees their own expenses, newest first, with the amount and the latest state of each.
+address: /expenses
+offers:
+- use-case/spending.list-expenses
 serves:
-  - journey/submit-and-reimburse#s1
-fulfills:
-  - requirement/approval-reminders.receipt-over-threshold
-access:
-  grant: permission/submit-expense
-  tenant: own
-reachedThrough:
-  - entry-point/claimwick-app
-input:
-  - name: amount
-    meaning: The exact amount claimed.
-    type: decimal
-    required: true
-    rules:
-      - A positive decimal with at most two fraction digits.
-    origin: caller
-    classification: internal
-  - name: currency
-    meaning: The ISO 4217 code of the amount.
-    type: text
-    required: true
-    rules:
-      - A three-letter code.
-    origin: caller
-    classification: internal
-  - name: receiptId
-    meaning: The attached receipt, required above the threshold.
-    type: id
-    of: aggregate/spending.receipt
-    required: false
-    origin: caller
-    classification: internal
-  - name: employeeId
-    meaning: The submitting employee.
-    type: id
-    of: actor/employee
-    required: true
-    origin: claim
-    classification: personal
-output:
-  - name: expenseId
-    meaning: The new expense identity.
-changes:
-  - aggregate/spending.expense
-reads:
-  - aggregate/spending.policy
-consistency:
-  mode: atomic
-raises:
-  - event/expense.submitted
-idempotency:
-  mode: key
-  key: "{employeeId}:{amount}:{currency}"
-  scope: login
-audit:
-  level: none
-  target: expense
-records:
-  - type: result
-    id: result/submit-expense.submitted
-    title: Submitted
-    outcome: success
-    meaning: The expense is submitted.
-  - type: result
-    id: result/submit-expense.receipt-missing
-    title: Receipt missing
-    outcome: refusal
-    code: spending.receipt-missing
-    meaning: The expense is above the receipt threshold and carries no receipt.
-  - type: scenario
-    id: scenario/submit-expense.submitting-with-a-receipt-succeeds
-    title: Submitting with a receipt succeeds
-    given: An employee paid for a train ticket and kept the receipt.
-    when: The employee submits the expense with the receipt.
-    result: result/submit-expense.submitted
-    then: The expense is submitted.
-  - type: scenario
-    id: scenario/submit-expense.submitting-above-threshold-without-a-receipt-is-refused
-    title: Submitting above threshold without a receipt is refused
-    given: An employee paid 48.90 EUR for a train ticket and kept no receipt.
-    when: The employee submits the expense without the receipt.
-    result: result/submit-expense.receipt-missing
-    then: The expense is not submitted.
+- journey/submit-and-reimburse#s5
+floorplan: list-page
 ```
 
-Its explanation file at `.litespec/behavior/modules/spending/expenses/submit-expense.md` walks the steps under What Happens, then holds the worked example:
+The screen offers only List expenses. The other eight use cases are reached through the entry point but have no screen yet, which the departures in [The Model and Its Checks](model-and-checks.md) account for.
 
-```markdown
-# Submit Expense
+## The Reaction, Job, Notification and Settings
 
-## What Happens
+Four records act outside a single request:
 
-The employee sends the amount with its currency and the receipt, when one is attached.
-Spending checks the receipt rule against the policy threshold.
-An expense above the threshold with no receipt is refused.
-Otherwise the expense is stored as Submitted and the submitted event is raised.
+- The reaction `reaction/spending.send-approver-reminders-on-expense-submitted` is triggered by `event/expense.submitted`. A submitted expense that waits past three business days without a decision earns one reminder to its approver.
+- The notification `notification/spending.approval-reminder` is the reminder itself. It goes by email to a manager, once per expense, using the template `approval-reminder-manager`.
+- The job `job/spending.erase-expired-personal-data` runs every day in the Europe/Amsterdam timezone. It erases the personal data of decided expenses past their retention, and it runs `use-case/spending.erase-personal-data` asynchronously.
+- The settings file holds two values. `setting/spending.receipt-threshold` defaults to EUR 25, its range is EUR 0 to EUR 500, and the product sets it. `setting/spending.approval-reminder-delay` defaults to 48 hours, its range is 1 to 120 hours, and the operator sets it through the configuration key `Spending:ApprovalReminderDelay`.
 
-## Example
+## The Permissions and the Access Chain
 
-Ava takes the train to a client visit and keeps the ticket receipt.
-Back at the office she submits the 48.90 EUR fare with the receipt attached.
-The expense waits for Ben to decide.
-```
+The permission list in `behavior/modules/spending/permissions.yaml` names seven permissions, each with its scope. Two carry a risk: `permission/reimburse-expense` carries `money`, and `permission/erase-personal-data` carries `personal-data`. Intent roles hold these permissions: the employee role allows submitting and listing, the approver role allows approving and managing the policy, and the finance role allows reimbursing, exporting and erasing. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
 
-The record ends in named results, which applies `litespec/core/model#give-every-use-case-its-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/use-cases#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its `summary` field states what it is in one paragraph, its What Happens section walks the behavior in order, and its Example follows Ava submitting her train fare.
+## The External System
 
-## Reactions and Jobs
+The payout bank is the one external system the module talks to. It is in `behavior/external-systems/payout-bank.yaml`. Claimwick sends one bank file per payout batch and reads back a settlement report. When the bank rejects a file, finance fixes the entry and sends the batch again, which the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements.yaml` describes.
 
-A reaction answers an event and a job keeps a schedule or runs by hand, each through the edges its `effects` declare. When an expense is reimbursed, Claimwick notifies the employee. The notification reaction record file lives at `.litespec/behavior/modules/spending/reactions/notify-employee-on-reimbursement.yaml`, filed with the spending module whose notification it sends, which applies `litespec/core/model#write-every-record-in-its-home`, and its name follows the reaction name form, which applies `litespec/core/language#name-each-record-by-its-types-name-form`. Its `triggeredBy` lists the domain event, and it declares its `sends` edge in `effects` and writes no aggregate.
+## Counting the Records
 
-```yaml
-type: reaction
-id: reaction/spending.notify-employee-on-reimbursement
-title: Notify Employee on Reimbursement
-triggeredBy:
-  - event/expense.reimbursed
-effects:
-  - sends: notification/spending.reimbursement-received
-reads:
-  - aggregate/spending.expense
-fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-serves:
-  - journey/submit-and-reimburse#s4
-idempotency:
-  mode: state
-onFailure:
-  mode: retry
-  retry:
-    maxAttempts: 5
-    initialDelay: PT1M
-    maxDelay: PT1M
-    backoff: fixed
-  then: dead-letter
-```
-
-The entry omits `timing`, so it reads as `async`. The reaction serves the journey's last step: the employee sees the reimbursement land because the message says so. Its failure handling retries five times one minute apart before dead-lettering, and repeated firings collapse by state, so the employee is told once.
-
-Claimwick keeps 3 scheduled jobs beside it. The reminder job runs nightly and runs the reminder command once per waiting expense. Its record file lives at `.litespec/behavior/modules/spending/jobs/send-approver-reminders.yaml`, which applies `litespec/core/model#write-every-record-in-its-home`, and its name carries the verb of the command it runs, which applies `litespec/core/language#name-each-record-by-its-types-name-form`. Its `kind` is `scheduled` with a nightly `schedule`, and it states its selection, lease, and runbook.
-
-```yaml
-type: job
-id: job/spending.send-approver-reminders
-title: Send Approver Reminders
-kind: scheduled
-schedule:
-  cron: 0 6 * * *
-  timezone: Europe/Amsterdam
-selection: Submitted expenses waiting past three business days without a decision.
-batchSize: 200
-lease:
-  name: send-approver-reminders
-  duration: PT15M
-effects:
-  - runs: use-case/spending.send-approver-reminder
-    timing: async
-reads:
-  - aggregate/spending.expense
-runbook: runbook/reminder-failures
-runsWhere: api worker
-fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-serves:
-  - journey/submit-and-reimburse#s2
-onFailure:
-  mode: retry
-  retry:
-    maxAttempts: 3
-    initialDelay: PT5M
-    maxDelay: PT5M
-    backoff: fixed
-  then: dead-letter
-idempotency:
-  mode: state
-```
-
-This job carries the approval reminders feature down the tree: the feature promises reminders past three days, the five-day requirement bounds them, and the nightly schedule fires them. The runbook it names lives in Implementation, where runbooks answer jobs. The second job, `job/spending.erase-expired-personal-data`, runs weekly and runs `use-case/spending.erase-personal-data` once per decided expense with an approved erasure request, enforcing the `submitter` data class. The third job, `job/spending.build-expense-exports`, runs every five minutes and builds one file per requested export, storing each file beside its request, which applies `litespec/backend/application#run-heavy-work-as-a-request-then-a-build`.
-
-## The Notifications
-
-A notification is one person-facing message with its addresses, channel, consent, and claims. The approver reminder record file lives at `.litespec/behavior/modules/spending/notifications/approver-reminder.yaml`, names its addresses and channel with the consent rule, and claims each promise it makes from a requirement, which applies `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/edges#claim-every-notification-promise-from-a-requirement`.
-
-```yaml
-type: notification
-id: notification/spending.approver-reminder
-title: Approver Reminder
-template: approver-reminder
-addresses:
-  - actor/manager
-channel:
-  - email
-consent: Managers receive reminders as part of the approver role.
-frequency: per-attempt
-dedupKey: reminder:{expenseId}:{date}
-params:
-  - expenseId
-  - waitingDays
-locale: the manager profile language
-claims:
-  - claim: The message names the expense and its waiting time.
-    requirement: requirement/approval-reminders.decided-within-five-days
-fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-```
-
-The reminder command's `sends` edge carries its own suppression: when the expense was decided overnight, the command sends nothing, and a suppression scenario proves the quiet path. The second notification, `notification/spending.reimbursement-received`, tells the employee once by email that the money is on its way, sent by the reaction above.
-
-## The Settings
-
-A setting is one tunable with its value type, default, range, unit, setter, and bound behavior. The spending settings live on one setting-set record file at `.litespec/behavior/modules/spending/settings.yaml`. Each commercial or varying default fulfills a requirement, which applies `litespec/core/use-cases#hold-every-setting-default-to-a-requirement`.
-
-```yaml
-type: setting-set
-title: Spending Settings
-records:
-  - type: setting
-    id: setting/spending.receipt-threshold
-    title: Receipt Threshold
-    valueType: money
-    default: EUR 25
-    range: EUR 0..1000
-    unit: EUR
-    setBy: operator
-    atBound: refuse
-    secret: false
-    meaning: An expense above this value needs a receipt.
-    fulfills:
-      - requirement/approval-reminders.receipt-over-threshold
-  - type: setting
-    id: setting/spending.reminder-delay
-    title: Reminder Delay
-    valueType: duration
-    default: P3D
-    range: P1D..P5D
-    unit: days
-    setBy: product
-    atBound: refuse
-    secret: false
-    meaning: Submitted expenses wait this long before the first reminder.
-    fulfills:
-      - requirement/approval-reminders.decided-within-five-days
-```
-
-The threshold default is the 25 EUR the decision set, and a manager may move it inside the range through the set-threshold use case; a value outside the range is refused. The reminder delay is product-set, so the nightly job reads a value no operator changes.
-
-## The Query
-
-List expenses is a query: an employee reads their own expenses with the latest state of each. Its record file states what it is in `summary`, and declares its output in `include` groups with freshness and its paging, which applies `litespec/core/use-cases#declare-every-query-output` and `litespec/core/use-cases#declare-paging-on-every-collection-query`.
-
-```yaml
-type: use-case
-id: use-case/spending.list-expenses
-title: List Expenses
-kind: query
-summary: An employee reads their own expenses with the latest state of each.
-serves:
-  - journey/submit-and-reimburse#s4
-access:
-  grant: self(permission/list-expenses)
-  tenant: own
-reachedThrough:
-  - entry-point/claimwick-app
-reads:
-  - aggregate/spending.expense
-output:
-  include:
-    rows:
-      fields:
-        - name: expenseId
-          meaning: The expense identity.
-        - name: amount
-          meaning: The amount claimed, with its currency.
-        - name: state
-          meaning: The lifecycle state of the expense.
-        - name: submittedAt
-          meaning: When the expense was submitted.
-      classification: internal
-      reads:
-        - aggregate/spending.expense
-      freshness:
-        mode: immediate
-paging:
-  mode: pages
-  order: submittedAt desc
-  cursor: expenseId
-  defaultLimit: 20
-  maxLimit: 100
-idempotency:
-  mode: none
-  reason: Reads change nothing.
-records:
-  - type: result
-    id: result/list-expenses.listed
-    title: Listed
-    outcome: success
-    meaning: The expenses are listed.
-  - type: scenario
-    id: scenario/list-expenses.listing-own-expenses-succeeds
-    title: Listing own expenses succeeds
-    given: An employee submitted two expenses.
-    when: The employee lists their expenses.
-    result: result/list-expenses.listed
-    then: Both expenses are listed.
-```
-
-The output names the one row group the screen reads: identity, amount, state, and submission time, newest first, read fresh from the expense aggregate. The `self(...)` grant limits the permission to the caller's own records. [The Claimwick Screen](the-screen.md) reads this output through the generated client.
-
-## The Integration Event
-
-A fact that leaves the product is an integration event. When finance reimburses an expense, the payout batch carries a payout request to the bank. The event record file lives at `.litespec/behavior/modules/spending/integration-events/payout.requested.yaml`, states its direction with its CloudEvents type, source, subject, and payload, and translates the domain event, which applies `litespec/core/edges#describe-every-integration-event-for-its-direction`.
-
-```yaml
-type: integration-event
-id: integration-event/payout.requested
-title: Payout Requested
-direction: out
-eventType: claimwick.payout.requested
-source: /spending/reimbursements
-subject: The reimbursed expense.
-payload:
-  - name: expenseId
-    meaning: The reimbursed expense.
-    classification: internal
-    type: id
-    of: aggregate/spending.expense
-    required: true
-  - name: amount
-    meaning: The payout amount, with its currency.
-    classification: internal
-    type: money
-    required: true
-trust: payload
-translates: event/expense.reimbursed
-```
-
-The reimburse use case declares the event in its `effects` with `emits` after commit, so the edge from the command to the outside world is declared beside the command.
-
-## The Retention Row
-
-The retention schedule at `.litespec/behavior/retention-schedule.yaml` schedules every data class with its purpose, basis, period, enforcement, and Intent acceptance, which applies `litespec/core/privacy#schedule-every-data-class-for-retention`. The `submitter` row reads:
-
-```yaml
-dataClass: submitter
-covers:
-  - aggregate/spending.expense
-basis: business
-purpose: Link each expense to its submitter.
-period:
-  mode: none
-  reason: erasure happens on approved request
-enforcedBy: job/spending.erase-expired-personal-data
-cites: requirement/approval-reminders.erasure-on-request
-processors:
-  - system: external-system/payout-bank
-    forwarding:
-      mode: impossible
-      reason: settlement records belong to the bank
-    basedOn:
-      - requirement/approval-reminders.erasure-on-request
-conflicts: Erasure wins for the submitter link; the money facts stay for the statutory seven years, and the erasure receipt records the split.
-```
-
-The row names what the class covers, what enforces its erasure, the requirement that accepts it, how erasure forwards to the bank, and which side wins when keeping and erasing collide.
-
-Next, [A Use Case in Code](a-use-case-in-code.md) follows the Submit expense record into .NET code and tests.
+Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 9 rules, 9 use cases, 2 settings, 1 job, 1 reaction and 1 notification. The entry point holds 1 screen, and the payout bank is the one external system. The product holds 3 actors, 3 roles and 1 journey. Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records, and [The Model and Its Checks](model-and-checks.md) shows that output.

@@ -8,7 +8,7 @@ namespace LiteSpec.Consumer;
 ///     The glossary check of the consumer validator: the glossary file against
 ///     its schema.
 /// </summary>
-/// <follows>litespec/core/authoring#record-the-project-vocabulary-as-data</follows>
+/// <follows>litespec/core/language#record-the-project-vocabulary-as-data</follows>
 static class GlossaryChecks
 {
     /// <summary>
@@ -18,9 +18,8 @@ static class GlossaryChecks
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "The glossary reader must report an unreadable glossary file as a finding and continue the run instead of crashing on any input.")]
     public static void CheckGlossary(ConsumerRun run)
     {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         var glossaryFile = run.GlossaryFile;
-        var glossaryRelative = run.Relative(glossaryFile);
+        var glossaryRelative = PathText.Relative(run.Root, glossaryFile);
 
         // The project record check already reported a configured glossary path that
         // does not resolve, so a missing file stays quiet here. A consumer without
@@ -28,8 +27,6 @@ static class GlossaryChecks
         if (!File.Exists(glossaryFile))
         {
             run.GlossarySummary = "Glossary: no glossary found";
-            watch.Stop();
-            Timing.Report($"[time] consumer-glossary {watch.Elapsed.TotalSeconds:0.0}s");
             return;
         }
 
@@ -37,7 +34,7 @@ static class GlossaryChecks
 
         try
         {
-            record = JsonNode.Parse(YamlText.Parse(run.ReadText(glossaryFile)).ToJson());
+            record = RecordFile.NodeOf(YamlText.Parse(run.ReadText(glossaryFile)));
         }
         catch (Exception cause)
         {
@@ -56,7 +53,5 @@ static class GlossaryChecks
         var terms = (record as JsonObject)?["terms"] is JsonArray array ? array.Count : 0;
         run.GlossarySummary = $"Glossary: {terms} term(s)";
 
-        watch.Stop();
-        Timing.Report($"[time] consumer-glossary {watch.Elapsed.TotalSeconds:0.0}s");
     }
 }

@@ -5,6 +5,7 @@
 import { base, book, cap, plural, uniq } from "$lib/book";
 import type { BookRecord, Fields } from "$lib/book/types";
 import { duration, editorHref, esc, inline, safeHref } from "$lib/book/html";
+import { formatLabel } from "$lib/utils";
 
 export interface BodySection {
   h: string;
@@ -213,13 +214,13 @@ export function relationLabelOf(label: string, items: { id: string }[], selfType
 
 /** One wave-5 value in LiteSpec words: the mode names the case, the reason completes "because ...". */
 export function modeWord(m: unknown) {
-  return String(m ?? "").replace(/-/g, " ");
+  return formatLabel(m);
 }
 
 export function opRefHtml(op: unknown) {
   const b = base(op);
   const tail = String(op ?? "").split("#")[1];
-  return inlineRefHtml(b) + (tail ? ` <span class="font-mono text-[11px] text-muted-foreground">${esc(tail.replace(/-/g, " "))}</span>` : "");
+  return inlineRefHtml(b) + (tail ? ` <span class="font-mono text-[11px] text-muted-foreground">${esc(formatLabel(tail))}</span>` : "");
 }
 
 export function freshnessNoteHtml(g: Fields) {
@@ -239,12 +240,6 @@ export function pagingRows(f: Fields): { label: string; html: string }[] | null 
     { label: "Paging", html: esc(p.offset ?? p.cursor) },
     { label: "Page size", html: `${esc(p.defaultLimit)} by default, at most ${esc(p.maxLimit)}` },
   ];
-}
-
-export function compensationHtml(c: Fields | undefined) {
-  if (!c) return "";
-  if (c.mode === "use-case") return inlineRefHtml(String(c.useCase ?? ""));
-  return "None" + (c.reason ? ", because " + esc(c.reason) : "");
 }
 
 export function periodSuffixHtml(p: unknown) {
@@ -355,15 +350,15 @@ export function browserReached(r: BookRecord) {
   return (((r.fields as Fields)?.reachedThrough as string[]) ?? []).some((x) => book.kids(base(x)).some((k) => book.typeOf(k) === "screen"));
 }
 
-export function serverLineInfo(b: string): { built: boolean; scenarios: number; proven: number } | null {
+export function serverLineInfo(b: string): { built: boolean; scenarios: number; verified: number } | null {
   const r = book.get(b);
   if (!r?.machine) return null;
   const sc = book.scenariosOf(base(b)).filter((x) => book.get(x));
-  const proven = sc.filter((x) => {
+  const verified = sc.filter((x) => {
     const s = book.get(x)?.proof?.state;
     return s === "awaiting" || s === "passing";
   }).length;
-  return { built: !!(r.machine as Fields).implemented, scenarios: sc.length, proven };
+  return { built: !!(r.machine as Fields).coded, scenarios: sc.length, verified };
 }
 
 export function uniqStrings(xs: unknown[]) {

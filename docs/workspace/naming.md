@@ -1,7 +1,7 @@
 # Naming and Code Style
 
-**Stack:** `any`
-**Layer:** `workspace`
+**Stack:** any
+**Concern:** workspace
 
 ## Intent
 
@@ -51,7 +51,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** `artifact: aggregate`
 
@@ -67,7 +67,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **ID:** `litespec/workspace/naming#use-architectural-suffixes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record, domain-event, use-case, command-handler, query-handler, validator, reaction, repository, endpoint, job
 
@@ -85,13 +85,13 @@ A polymorphic transport model mirrors a Domain discriminated union (`litespec/ba
 
 The transport name drops the Domain union's aggregate prefix, such as `OrderFulfillmentOutcome`, while its discriminator string keeps the Domain union's stable case code unchanged.
 
-**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for a reaction or job whose name hides its kind, in the dotnet stack; each other type name in `apps/api/src` and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
+**Reviewed for:** Each type name and each frontend file name carries the suffix its role assigns in the Role Suffixes table.
 
 ### Name Result Parts After Their Result
 
 **ID:** `litespec/workspace/naming#name-result-parts-after-their-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: use-case
 
@@ -101,13 +101,13 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Example:** `ListPostsQueryResultItem` belongs to `ListPostsQueryResult`, and `ReadLoanQueryResultHold` belongs to `ReadLoanQueryResult`.
 
-**Checked by:** `dotnet build` reports `LS2009` for a type a use-case result reaches through its properties whose name does not start with the result name, in the dotnet stack.
+**Reviewed for:** Each type nested in a use-case result carries the full result name as its prefix.
 
 ### Group Event Handlers by the Fact They Handle
 
 **ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -123,7 +123,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-repository-variables-after-their-interface`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, repository, job
 
@@ -133,13 +133,13 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Example:** A parameter of type `IExpenseRepository` is named `expenseRepository`, and a field of type `ILoanRepository` is named `loanRepository`.
 
-**Checked by:** `dotnet build` reports `LS2010` for a repository parameter, field, or local whose name does not follow its interface, in the dotnet stack.
+**Reviewed for:** Each repository parameter, field, or local carries the name of its interface without the `I` prefix.
 
 ### Name Asynchronous Operations Completely
 
 **ID:** `litespec/workspace/naming#name-asynchronous-operations-completely`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -153,7 +153,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#name-exceptions-by-failed-rule`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -167,7 +167,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-intent-revealing-boolean-names`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -181,7 +181,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-current-language-features`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
@@ -195,7 +195,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#use-predictable-frontend-names`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route, form
 
@@ -219,7 +219,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Replacement:** A project whose module carries different names per layer records its own per-layer names in its project documentation.
 
-**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/domain/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
+**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/behavior/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
 
 **Reviewed for:** One business name for each module spans Domain, Application, endpoints, features, and documentation; where replaced, the project documentation names the project's own per-layer names.
 
@@ -243,7 +243,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **ID:** `litespec/workspace/naming#avoid-generic-type-names`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 

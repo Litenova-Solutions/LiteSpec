@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the check qualifies S findings by reader, that reader-missing blocks under CI, and that the release gate blocks unverified use cases.</summary>
 public sealed class DecideTests
@@ -11,13 +11,13 @@ public sealed class DecideTests
     /// <summary>Reader-unavailable blocks when CI is set, even though its reader is unqualified.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Reader_Unavailable_Blocks_When_CI_Is_Set()
+    public void ReaderUnavailableBlocksWhenCIIsSet()
     {
         using var fixture = ModelFixture.Prepare("small");
         AddWebFrontend(fixture.Path);
 
         string[] args = ["model", "check", "--root", fixture.Path, "--format", "json"];
-        var json = Cli.Run(args, environment: new Dictionary<string, string>
+        var json = TestCli.Run(args, environment: new Dictionary<string, string>
         {
             ["CI"] = "true",
             ["PATH"] = PathWithoutNode(),
@@ -31,13 +31,13 @@ public sealed class DecideTests
     /// <summary>Reader-unavailable reports without blocking when CI is unset.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Reader_Unavailable_Reports_When_CI_Is_Unset()
+    public void ReaderUnavailableReportsWhenCIIsUnset()
     {
         // The large fixture carries a controlled svelte frontend, whose screens the Node reader reads.
         using var fixture = ModelFixture.Prepare("large");
 
         string[] args = ["model", "check", "--root", fixture.Path, "--format", "json"];
-        var json = Cli.Run(args, environment: new Dictionary<string, string>
+        var json = TestCli.Run(args, environment: new Dictionary<string, string>
         {
             ["CI"] = "",
             ["PATH"] = PathWithoutNode(),
@@ -51,18 +51,18 @@ public sealed class DecideTests
     /// <summary>At release an unverified use case blocks instead of reporting.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Release_Blocks_An_Unverified_Use_Case()
+    public void ReleaseBlocksAnUnverifiedUseCase()
     {
         using var fixture = ModelFixture.Prepare("small");
         WriteScenario(fixture.Path);
 
-        var loose = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var loose = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         var (looseOutcome, _) = OutcomeOf(loose.Stdout, "use-case-unverified");
 
         Assert.True(loose.Status == 0, loose.Output);
         Assert.Equal("reported", looseOutcome);
 
-        var strict = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json", "--release");
+        var strict = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json", "--release");
         var (strictOutcome, _) = OutcomeOf(strict.Stdout, "use-case-unverified");
 
         Assert.Equal(1, strict.Status);
@@ -72,45 +72,26 @@ public sealed class DecideTests
     /// <summary>Each JSON finding carries the severity name of its level: error for G, warning for S and note for A.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Json_Findings_Carry_Severity_By_Level()
+    public void JsonFindingsCarryLevelAndOutcome()
     {
         using var fixture = ModelFixture.Prepare("large", "paging-undeclared");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
-        Assert.Equal("error", SeverityOf(result.Stdout, "paging-undeclared"));
+        Assert.Equal("blocking", OutcomeOf(result.Stdout, "paging-undeclared").Outcome);
         Assert.Equal("G", LevelOf(result.Stdout, "paging-undeclared"));
 
         using var advisoryFixture = ModelFixture.Prepare("small");
         WriteScenario(advisoryFixture.Path);
-        var advisory = Cli.Run("model", "check", "--root", advisoryFixture.Path, "--format", "json");
+        var advisory = TestCli.Run("model", "check", "--root", advisoryFixture.Path, "--format", "json");
 
-        Assert.Equal("note", SeverityOf(advisory.Stdout, "use-case-unverified"));
+        Assert.Equal("reported", OutcomeOf(advisory.Stdout, "use-case-unverified").Outcome);
         Assert.Equal("A", LevelOf(advisory.Stdout, "use-case-unverified"));
 
         using var readerFixture = ModelFixture.Prepare("small", "use-case-unimplemented");
-        var reader = Cli.Run("model", "check", "--root", readerFixture.Path, "--format", "json");
+        var reader = TestCli.Run("model", "check", "--root", readerFixture.Path, "--format", "json");
 
-        Assert.Equal("warning", SeverityOf(reader.Stdout, "use-case-unimplemented"));
+        Assert.Equal("blocking", OutcomeOf(reader.Stdout, "use-case-unimplemented").Outcome);
         Assert.Equal("S", LevelOf(reader.Stdout, "use-case-unimplemented"));
-    }
-
-    /// <summary>Reads one finding's severity from the check JSON.</summary>
-    /// <param name="stdout">The check command JSON output.</param>
-    /// <param name="code">The finding code to read.</param>
-    /// <returns>The finding severity: error, warning or note.</returns>
-    static string? SeverityOf(string stdout, string code)
-    {
-        using var document = JsonDocument.Parse(stdout);
-
-        foreach (var finding in document.RootElement.GetProperty("findings").EnumerateArray())
-        {
-            if (finding.GetProperty("code").GetString() == code)
-            {
-                return finding.GetProperty("severity").GetString();
-            }
-        }
-
-        throw new InvalidOperationException($"No finding carries '{code}'.");
     }
 
     /// <summary>Reads one finding's level from the check JSON.</summary>
@@ -156,10 +137,10 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void AddWebFrontend(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
-        var paths = (JsonObject)project["paths"]!;
-        paths["frontends"] = new JsonArray(
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(file)!.AsObject();
+
+        project["frontends"] = new JsonArray(
             new JsonObject
             {
                 ["name"] = "web",

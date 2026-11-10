@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the handler shape checks: operation ids, reasonless names, collaborators, loop reads, memory filters and inline effects.</summary>
 public sealed class HandlerShapeCheckTests
@@ -9,9 +9,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Two Endpoints With One Operation Id Report.</summary>
     /// <proves>litespec/backend/api#declare-stable-operation-metadata-in-the-contract</proves>
     [Fact]
-    public void Two_Endpoints_With_One_Operation_Id_Report()
+    public void TwoEndpointsWithOneOperationIdReport()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = DriftModel(temp.Path, "VoidOrderCommand", "VoidOrder", "void-order");
         model.Code.Endpoints.Add(new EndpointOperation("VoidOrder", "use-case/lending.void-order", "POST", "/api/orders/{orderId}/void-again", Path.Combine(temp.Path, "VoidOrderEndpoint.cs")));
 
@@ -21,9 +21,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Reasoned Names Pass.</summary>
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
-    public void Reasoned_Names_Pass()
+    public void ReasonedNamesPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
@@ -36,9 +36,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Reasonless Folder Reports.</summary>
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
-    public void Reasonless_Folder_Reports()
+    public void ReasonlessFolderReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
@@ -51,9 +51,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Reasonless Type Reports.</summary>
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
-    public void Reasonless_Type_Reports()
+    public void ReasonlessTypeReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
@@ -68,11 +68,11 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Shared Kernel Project Is Exempt.</summary>
     /// <proves>litespec/backend/dotnet/naming#name-no-folder-or-type-for-the-absence-of-a-reason</proves>
     [Fact]
-    public void Shared_Kernel_Project_Is_Exempt()
+    public void SharedKernelProjectIsExempt()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"sharedKernel": "src/App.SharedKernel"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -86,9 +86,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Injected Collaborators Pass.</summary>
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
-    public void Injected_Collaborators_Pass()
+    public void InjectedCollaboratorsPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -100,9 +100,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Collaborator Holding A Repository Reports.</summary>
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
-    public void Collaborator_Holding_A_Repository_Reports()
+    public void CollaboratorHoldingARepositoryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -117,9 +117,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Job Collaborator Holding A Repository Reports.</summary>
     /// <proves>litespec/backend/application#build-collaborators-through-the-container</proves>
     [Fact]
-    public void Job_Collaborator_Holding_A_Repository_Reports()
+    public void JobCollaboratorHoldingARepositoryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "SweepJob.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Jobs.Add(new JobInfo(
@@ -132,9 +132,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Reads Outside Loops Pass.</summary>
     /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
     [Fact]
-    public void Reads_Outside_Loops_Pass()
+    public void ReadsOutsideLoopsPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -146,9 +146,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Repository Read In A Loop Reports.</summary>
     /// <proves>litespec/backend/application#read-no-repository-inside-a-loop</proves>
     [Fact]
-    public void Repository_Read_In_A_Loop_Reports()
+    public void RepositoryReadInALoopReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -161,9 +161,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Store Filtered Query Passes.</summary>
     /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
     [Fact]
-    public void Store_Filtered_Query_Passes()
+    public void StoreFilteredQueryPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ListLoansQueryHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -175,9 +175,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Query Filter In Memory Reports.</summary>
     /// <proves>litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters</proves>
     [Fact]
-    public void Query_Filter_In_Memory_Reports()
+    public void QueryFilterInMemoryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ListLoansQueryHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(
@@ -190,9 +190,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Effects After Commit Pass.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
-    public void Effects_After_Commit_Pass()
+    public void EffectsAfterCommitPass()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "after-commit"}, {"calls": "external-system/billing#void", "timing": "after-commit"}]}"""));
@@ -203,9 +203,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Inline Send Reports.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
-    public void Inline_Send_Reports()
+    public void InlineSendReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.voided", "timing": "inline"}]}"""));
@@ -217,17 +217,17 @@ public sealed class HandlerShapeCheckTests
         Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Approved Exception Holds An Inline Call On Its Subject.</summary>
+    /// <summary>Departure Holds An Inline Call On Its Subject.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Approved_Exception_Holds_An_Inline_Call_On_Its_Subject()
+    public void DepartureHoldsAnInlineCallOnItsSubject()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("exception", "exception/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"status": "approved", "kind": "gap", "covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("departure", "departure/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 
@@ -238,9 +238,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Inline Call Reports.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
-    public void Inline_Call_Reports()
+    public void InlineCallReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.void-order", Path.Combine(temp.Path, "void.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/billing#void", "timing": "inline"}]}"""));
@@ -255,9 +255,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Query Inline Send Is Not Reported.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     [Fact]
-    public void Query_Inline_Send_Is_Not_Reported()
+    public void QueryInlineSendIsNotReported()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.list-loans", Path.Combine(temp.Path, "list.yaml"), """{"kind": "query", "effects": [{"sends": "notification/lending.listed", "timing": "inline"}]}"""));
@@ -268,9 +268,9 @@ public sealed class HandlerShapeCheckTests
     /// <summary>Model Json Serializes The Handler Shape.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Model_Json_Serializes_The_Handler_Shape()
+    public void ModelJsonSerializesTheHandlerShape()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         model.Code.Handlers.Add(new HandlerInfo(

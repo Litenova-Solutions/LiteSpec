@@ -35,6 +35,9 @@ public sealed class IndexRecord : IRecordFacts
         Title = StringOf(raw, "title") ?? "";
     }
 
+    /// <summary>Gets the record's JSON object, with the line of every value in it.</summary>
+    public JsonText Tree => raw;
+
     /// <summary>Gets the record type, kebab-case.</summary>
     public string Type { get; }
 

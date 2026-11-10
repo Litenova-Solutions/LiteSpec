@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
 using LiteSpec.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the code placement check against the broken overlay and module-layout models.</summary>
 public sealed class PlacementCheckTests
@@ -11,7 +11,7 @@ public sealed class PlacementCheckTests
     /// <summary>The overlay reports one placement finding per drift: the aggregate folder, the namespace, the test folder and the stray folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Broken_Overlay_Reports_Each_Placement_Drift_Once()
+    public void BrokenOverlayReportsEachPlacementDriftOnce()
     {
         using var temp = ModelFixture.Prepare("small", "code-placement-drift");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
@@ -30,9 +30,9 @@ public sealed class PlacementCheckTests
     /// <summary>A placed handler in the module layout reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Placed_Handler_Reports_Nothing()
+    public void ModuleLayoutPlacedHandlerReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
@@ -43,9 +43,9 @@ public sealed class PlacementCheckTests
     /// <summary>A handler in the wrong aggregate folder reports the folder once, without a namespace finding.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Handler_In_Wrong_Aggregate_Reports_Placement_Drift()
+    public void ModuleLayoutHandlerInWrongAggregateReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Holds", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
@@ -60,9 +60,9 @@ public sealed class PlacementCheckTests
     /// <summary>A handler in the right folder with the wrong namespace reports the namespace.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Handler_With_Wrong_Namespace_Reports_Placement_Drift()
+    public void ModuleLayoutHandlerWithWrongNamespaceReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Billing.Loans.BorrowCopy", "BorrowCopyCommandHandler");
@@ -78,9 +78,9 @@ public sealed class PlacementCheckTests
     /// <summary>A handler in the right folder with the right namespace reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Handler_With_Right_Namespace_Reports_Nothing()
+    public void ModuleLayoutHandlerWithRightNamespaceReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
@@ -92,9 +92,9 @@ public sealed class PlacementCheckTests
     /// <summary>A domain event outside its module reports the module folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Event_Outside_Its_Module_Reports_Placement_Drift()
+    public void ModuleLayoutEventOutsideItsModuleReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Billing", "Invoices", "Domain", "Events", "LoanBorrowedEvent.cs");
         model.Code.Elements.Add(Element(CodeKind.DomainEvent, "LoanBorrowedEvent", file, "event/loan.loan-borrowed"));
@@ -109,9 +109,9 @@ public sealed class PlacementCheckTests
     /// <summary>A domain event in its aggregate reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Event_In_Its_Aggregate_Reports_Nothing()
+    public void ModuleLayoutEventInItsAggregateReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = ProductFile(temp.Path, "Lending", "Loans", "Domain", "Events", "LoanBorrowedEvent.cs");
         WriteCode(file, "Library.Lending.Loans.Events", "LoanBorrowedEvent");
@@ -123,9 +123,9 @@ public sealed class PlacementCheckTests
     /// <summary>A test under its scenario's use case path reports nothing.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void Module_Layout_Placed_Test_Reports_Nothing()
+    public void ModuleLayoutPlacedTestReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = TestFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
         WriteCode(file, "Library.Acceptance.Tests.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyScenarios");
@@ -137,9 +137,9 @@ public sealed class PlacementCheckTests
     /// <summary>A test outside its scenario's module reports the module folder.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void Module_Layout_Test_Outside_Its_Module_Reports_Placement_Drift()
+    public void ModuleLayoutTestOutsideItsModuleReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = TestFile(temp.Path, "Billing", "Invoices", "UseCases", "BorrowCopy", "BorrowCopyScenarios.cs");
         model.Code.Elements.Add(TestElement("BorrowCopyScenarios", "Borrowing_an_available_copy_succeeds", file));
@@ -154,9 +154,9 @@ public sealed class PlacementCheckTests
     /// <summary>An adapter test under its adapter's Infrastructure path is exempt by kind.</summary>
     /// <proves>litespec/backend/testing#mirror-production-module-names</proves>
     [Fact]
-    public void Module_Layout_Adapter_Test_Is_Exempt()
+    public void ModuleLayoutAdapterTestIsExempt()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = TestFile(temp.Path, "Billing", "Invoices", "Infrastructure", "TextGatewayTests.cs");
         model.Code.Elements.Add(TestElement("TextGatewayTests", "Sending_succeeds", file));
@@ -167,9 +167,9 @@ public sealed class PlacementCheckTests
     /// <summary>A host endpoint carries its mark without a use case folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Host_Endpoint_Is_Accepted()
+    public void ModuleLayoutHostEndpointIsAccepted()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi", "Protocol", "SignOutEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SignOutEndpoint", file, "use-case/lending.borrow-copy"));
@@ -180,9 +180,9 @@ public sealed class PlacementCheckTests
     /// <summary>An endpoint in the second declared WebApi host carries its mark without a use case folder.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Module_Layout_Second_WebApi_Host_Endpoint_Is_Accepted()
+    public void ModuleLayoutSecondWebApiHostEndpointIsAccepted()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path, webapi: "[\"apps/api/src/Library.WebApi\", \"apps/api/src/Library.Search.WebApi\"]");
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Search.WebApi", "Protocol", "SignOutEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SignOutEndpoint", file, "use-case/lending.borrow-copy"));
@@ -194,9 +194,9 @@ public sealed class PlacementCheckTests
     /// <summary>A folder in the second declared WebApi host under layer projects that names no declared module reports the folder.</summary>
     /// <proves>litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host</proves>
     [Fact]
-    public void Layer_Projects_Second_WebApi_Host_Folder_Naming_No_Declared_Module_Reports_Placement_Drift()
+    public void LayerProjectsSecondWebApiHostFolderNamingNoDeclaredModuleReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(
             temp.Path,
             modules: "apps/api/src/Library.Application",
@@ -213,9 +213,9 @@ public sealed class PlacementCheckTests
     /// <summary>A frontend module folder that names no declared module reports the module folder.</summary>
     /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
     [Fact]
-    public void Module_Layout_Frontend_Module_Naming_No_Declared_Module_Reports_Placement_Drift()
+    public void ModuleLayoutFrontendModuleNamingNoDeclaredModuleReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path, withFrontend: true);
         var folder = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "archive", "holds", "hold-room");
         Directory.CreateDirectory(folder);
@@ -235,9 +235,9 @@ public sealed class PlacementCheckTests
     /// <summary>A frontend module folder that names a declared module reports nothing.</summary>
     /// <proves>litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case</proves>
     [Fact]
-    public void Module_Layout_Frontend_Module_Naming_A_Declared_Module_Reports_Nothing()
+    public void ModuleLayoutFrontendModuleNamingADeclaredModuleReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path, withFrontend: true);
         var folder = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "lending", "loans", "borrow-copy");
         Directory.CreateDirectory(folder);
@@ -253,9 +253,9 @@ public sealed class PlacementCheckTests
     /// <summary>A product folder that names no layer folder or declared module reports the folder.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Stray_Product_Folder_Reports_Placement_Drift()
+    public void ModuleLayoutStrayProductFolderReportsPlacementDrift()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Archive"));
 
@@ -269,9 +269,9 @@ public sealed class PlacementCheckTests
     /// <summary>A product tree that mirrors its declared records reports nothing.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Declared_Tree_Reports_Nothing()
+    public void ModuleLayoutDeclaredTreeReportsNothing()
     {
-        using var temp = Cli.Temp("placement");
+        using var temp = TestCli.Temp("placement");
         var model = PlacementModel(temp.Path);
         Directory.CreateDirectory(Path.Combine(temp.Path, "apps", "api", "src", "Library.Modules", "Lending", "Loans", "UseCases", "BorrowCopy"));
 
@@ -302,8 +302,8 @@ public sealed class PlacementCheckTests
             : "";
 
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
-            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"paths\": {\"testRoots\": [\"apps/api/tests\"]" + frontends + "}, \"stackConfig\": {\"dotnet\": {\"modules\": \"" + modules + "\", \"webapi\": " + webapi + "}}}");
+            Path.Combine(root, ".litespec/project.yaml"),
+            "{\"owners\": [\"lending-team\"], \"marks\": \"xml\"" + frontends + ", \"paths\": {\"testRoots\": [\"apps/api/tests\"]}, \"stackConfig\": {\"dotnet\": {\"modules\": \"" + modules + "\", \"webapi\": " + webapi + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
         model.Records.Add(Rec(RecordTypes.Module, "module/lending", "lending", root));
@@ -366,10 +366,10 @@ public sealed class PlacementCheckTests
         File.WriteAllText(file, "namespace " + @namespace + ";\n\npublic sealed class " + @class + "\n{\n}\n");
     }
 
-    /// <summary>One record with its qualified identifier.</summary>
+    /// <summary>One record with its placement path.</summary>
     /// <param name="type">The record type.</param>
     /// <param name="id">The record id.</param>
-    /// <param name="qualified">The qualified identifier.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <returns>The record.</returns>
     static LiteSpec.Model.Record Rec(string type, string id, string qualified, string root)
@@ -380,11 +380,43 @@ public sealed class PlacementCheckTests
         {
             Type = type,
             Id = id,
-            QualifiedId = qualified,
+            Folder = FolderOf(type, qualified),
+            Module = ModuleOf(type, qualified),
             Title = id,
             File = Path.Combine(root, ".litespec", "record.md"),
             Line = 1,
             Raw = document.RootElement.Clone(),
         };
+    }
+
+    /// <summary>The module a record with the placement path sits under: its first segment, when the path names one.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
+    /// <returns>The module name, or null when the identifier names no module.</returns>
+    static string? ModuleOf(string type, string qualified)
+    {
+        var segments = qualified.Split('/');
+
+        return segments.Length >= 2 && segments[0] != type ? segments[0] : null;
+    }
+
+    /// <summary>The folder a record with the placement path sits in, under the behavior modules folder.</summary>
+    /// <param name="type">The record type.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
+    /// <returns>The folder path, or empty when the identifier names no module.</returns>
+    static string FolderOf(string type, string qualified)
+    {
+        var module = ModuleOf(type, qualified);
+
+        if (module is null)
+        {
+            return "";
+        }
+
+        var segments = qualified.Split('/');
+
+        return segments.Length >= 2 && segments[1] != type && segments[1] != RecordTypes.UseCase
+            ? $".litespec/behavior/modules/{module}/{segments[1]}"
+            : $".litespec/behavior/modules/{module}";
     }
 }

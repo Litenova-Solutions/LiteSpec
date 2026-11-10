@@ -1,8 +1,8 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the builder records each screen's captures from the gallery.</summary>
 /// <follows>litespec/core/model#record-each-screens-captures-from-the-gallery</follows>
@@ -11,7 +11,7 @@ public sealed class ScreenCaptureTests
     /// <summary>The route slug reduces parameters and names the root route home.</summary>
     /// <proves>litespec/core/model#record-each-screens-captures-from-the-gallery</proves>
     [Fact]
-    public void Route_Slug_Reduces_Parameters()
+    public void RouteSlugReducesParameters()
     {
         Assert.Equal("events-id", ScreenshotCaptures.RouteSlug("/events/[id]"));
         Assert.Equal("events-id", ScreenshotCaptures.RouteSlug("/events/{id:int}"));
@@ -22,9 +22,9 @@ public sealed class ScreenCaptureTests
     /// <summary>A screen with a capture is captured, with its theme, width and capture date.</summary>
     /// <proves>litespec/core/model#record-each-screens-captures-from-the-gallery</proves>
     [Fact]
-    public void Screen_Captures_Come_From_The_Gallery()
+    public void ScreenCapturesComeFromTheGallery()
     {
-        using var temp = Cli.Temp("captures");
+        using var temp = TestCli.Temp("captures");
         var gallery = Path.Combine(temp.Path, "gallery");
         Directory.CreateDirectory(gallery);
         var capture = Path.Combine(gallery, "loans--light--1440.png");
@@ -32,15 +32,15 @@ public sealed class ScreenCaptureTests
         File.SetLastWriteTimeUtc(capture, new DateTime(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc));
         File.WriteAllText(Path.Combine(temp.Path, "other--dark--390.png"), "png");
 
-        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.json"), """
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """
             {
               "project": { "name": "library" },
               "size": "small",
               "shape": "server",
               "packs": ["lite"],
               "stacks": ["dotnet"],
-              "conformance": "full",
-              "reviewedLiteSpecVersion": "4.0.0",
+              "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+              "reviewedLiteSpecVersion": "5.0.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }
             """);
@@ -64,9 +64,9 @@ public sealed class ScreenCaptureTests
     /// <summary>A missing gallery folder captures nothing and fails nothing.</summary>
     /// <proves>litespec/core/model#record-each-screens-captures-from-the-gallery</proves>
     [Fact]
-    public void Missing_Gallery_Captures_Nothing()
+    public void MissingGalleryCapturesNothing()
     {
-        using var temp = Cli.Temp("captures");
+        using var temp = TestCli.Temp("captures");
         var config = TestModel.Config(temp.Path);
         var model = TestModel.Model(
             config,

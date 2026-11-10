@@ -9,13 +9,11 @@ The Learn pages explain LiteSpec, the standard for building one business applica
 - [Why LiteSpec Exists](why-litespec.md): the problem LiteSpec solves, for a team that is deciding whether LiteSpec fits.
 - [How LiteSpec Works](how-litespec-works.md): the standard, the records, the model, and the tools, traced through one Claimwick use case.
 - [Read the Standard](reading-the-standard.md): project selections, page arrangement, and provision IDs; how to find the rules that apply to a project.
-- [Records and the Project Model](records-and-the-model.md): the four layers, what a project writes down, where each record lives, and what the model builder computes.
 - [Reading Tracks](reading-tracks.md): which records to read in which order: why before how, one journey end to end, one module end to end, and the structural words.
-- [How the Tools Fit Together](the-tooling.md): the CLI, the analyzers, and the site, in the order one change moves through them.
-- [How LiteSpec Compares](how-litespec-compares.md): LiteSpec beside ten other approaches to spec-driven development, and when each fits.
+- [How LiteSpec Compares](how-litespec-compares.md): LiteSpec beside 14 other approaches to spec-driven development, and when each fits.
 - [Lineage](lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
-- [Adopt LiteSpec in Steps](adopting-litespec.md): adopting LiteSpec by conformance level: the record model at `records`, traceability at `traced`, and the full contract at `full`, with the records path through the tutorial.
+- [Adopt LiteSpec in Steps](adopting-litespec.md): adopting LiteSpec by record layer: the record model first, then code traced to records, then LiteSpec's layers, with the records path through the tutorial.
 
 ## Next
 

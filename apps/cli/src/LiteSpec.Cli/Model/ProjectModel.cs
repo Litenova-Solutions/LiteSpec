@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
 
@@ -15,10 +16,10 @@ sealed class ProjectModel
     public List<Finding> Problems { get; } = [];
 
     /// <summary>Gets or sets the check findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
-    public IReadOnlyList<object>? FindingsJson { get; set; }
+    public JsonArray? FindingsJson { get; set; }
 
-    /// <summary>Gets or sets the known findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
-    public IReadOnlyList<object>? KnownJson { get; set; }
+    /// <summary>Gets or sets the covered findings written into model.json, as the objects `model check --format json` writes; null when no check result was recorded for this model.</summary>
+    public JsonArray? CoveredJson { get; set; }
     /// <summary>Gets the written records read from the project pages, with derived records added.</summary>
     public List<Record> Records { get; } = [];
     /// <summary>Gets the explanation and document bodies, for the book and the model JSON.</summary>
@@ -100,12 +101,6 @@ sealed class ProjectModel
     /// <summary>Gets per aggregate, by id, plus <c>kernel</c>: the unmarked Domain types its folder holds, as <c>path:name</c>.</summary>
     public Dictionary<string, List<string>> Constituents { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets code no scenario test reaches; empty when no scenario-only coverage file was read.</summary>
-    public List<CoverageGap> UnreachedCode { get; } = [];
-
-    /// <summary>Gets or sets a value indicating whether whether a scenario-only coverage file was read, so an empty <see cref="UnreachedCode"/> means something.</summary>
-    public bool CoverageRead { get; set; }
-
     /// <summary>Gets results of measured checks read from tool result files.</summary>
     public List<MeasureResult> Measures { get; } = [];
 
@@ -122,15 +117,6 @@ sealed class ProjectModel
     /// <summary>The cached records-by-id index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _byId;
 
-    /// <summary>Gets records by qualified identifier.</summary>
-    public IReadOnlyDictionary<string, Record> ByQualified =>
-        _byQualified ??= Records
-            .Where(record => record.QualifiedId.Length > 0)
-            .GroupBy(record => record.QualifiedId, StringComparer.Ordinal)
-            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-
-    /// <summary>The cached records-by-qualified-identifier index, built on first use.</summary>
-    private IReadOnlyDictionary<string, Record>? _byQualified;
 
     /// <summary>Gets use-case records by the name their identifier ends in, the first one when names repeat.</summary>
     public IReadOnlyDictionary<string, Record> UseCasesByName
@@ -163,10 +149,10 @@ sealed class ProjectModel
     /// <returns>The model serialized as indented JSON.</returns>
     public string ToJson()
     {
-        var options = new JsonSerializerOptions { WriteIndented = true, NewLine = "\n" };
+        var options = CliJson.Options;
 
         using var stream = new MemoryStream();
-        using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
+        using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true, Encoder = options.Encoder }))
         {
             writer.WriteStartObject();
             writer.WriteNumber("version", 1);
@@ -187,7 +173,17 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("type", record.Type);
                 writer.WriteString("id", record.Id);
-                writer.WriteString("qualifiedId", record.QualifiedId);
+                writer.WriteString("folder", record.Folder);
+
+                if (record.Module is { } module)
+                {
+                    writer.WriteString("module", module);
+                }
+                else
+                {
+                    writer.WriteNull("module");
+                }
+
                 writer.WriteString("title", record.Title);
 
                 if (record.Derived)
@@ -205,7 +201,7 @@ sealed class ProjectModel
                     writer.WriteString("evidenceStrength", LiteSpec.Model.Checks.IntentChecks.EvidenceStrengthOf(record));
                 }
 
-                writer.WriteString("file", Config.Relative(record.File));
+                writer.WriteString("file", PathText.Relative(Config.Root, record.File));
                 writer.WriteNumber("line", record.Line);
 
                 if (bodies.TryGetValue((record.File, record.Id), out var text))
@@ -215,7 +211,7 @@ sealed class ProjectModel
                 writer.WritePropertyName("fields");
                 record.Raw.WriteTo(writer);
                 writer.WritePropertyName("links");
-                JsonSerializer.Serialize(writer, ModelBuilder.ResolvedLinks(this, record), options);
+                CliJson.StringLists(ModelBuilder.ResolvedLinks(this, record)).WriteTo(writer, options);
 
                 if (Completion.TryGetValue(record.Id, out var completion))
                 {
@@ -277,7 +273,7 @@ sealed class ProjectModel
                 writer.WriteString("useCase", handler.UseCaseId);
                 writer.WriteString("operation", handler.Operation);
                 writer.WriteString("kind", handler.Kind);
-                writer.WriteString("path", Config.Relative(handler.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, handler.File));
                 writer.WriteString("class", handler.Class);
                 writer.WriteNumber("line", handler.Line);
                 writer.WriteString("messageType", handler.MessageType);
@@ -289,7 +285,7 @@ sealed class ProjectModel
                     writer.WriteStartObject();
                     writer.WriteString("receiver", call.Receiver);
                     writer.WriteString("method", call.Method);
-                    writer.WriteString("path", Config.Relative(call.File));
+                    writer.WriteString("path", PathText.Relative(Config.Root, call.File));
                     writer.WriteNumber("line", call.Line);
                     writer.WriteEndObject();
                 }
@@ -301,7 +297,7 @@ sealed class ProjectModel
                 {
                     writer.WriteStartObject();
                     writer.WriteString("type", collaborator.Type);
-                    writer.WriteString("path", Config.Relative(collaborator.File));
+                    writer.WriteString("path", PathText.Relative(Config.Root, collaborator.File));
                     writer.WriteNumber("line", collaborator.Line);
                     writer.WriteEndObject();
                 }
@@ -314,7 +310,7 @@ sealed class ProjectModel
                     writer.WriteStartObject();
                     writer.WriteString("repository", read.Repository);
                     writer.WriteString("method", read.Method);
-                    writer.WriteString("path", Config.Relative(read.File));
+                    writer.WriteString("path", PathText.Relative(Config.Root, read.File));
                     writer.WriteNumber("line", read.Line);
                     writer.WriteEndObject();
                 }
@@ -325,7 +321,7 @@ sealed class ProjectModel
                 foreach (var filter in handler.MemoryFilters ?? [])
                 {
                     writer.WriteStartObject();
-                    writer.WriteString("path", Config.Relative(filter.File));
+                    writer.WriteString("path", PathText.Relative(Config.Root, filter.File));
                     writer.WriteNumber("line", filter.Line);
                     writer.WriteEndObject();
                 }
@@ -342,7 +338,7 @@ sealed class ProjectModel
             {
                 writer.WriteStartObject();
                 writer.WriteString("class", reaction.Class);
-                writer.WriteString("path", Config.Relative(reaction.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, reaction.File));
                 WriteNullable(writer, "useCase", reaction.UseCaseId);
                 writer.WriteNumber("line", reaction.Line);
                 writer.WriteNumber("dependencyCount", reaction.DependencyCount);
@@ -359,7 +355,7 @@ sealed class ProjectModel
             {
                 writer.WriteStartObject();
                 writer.WriteString("class", job.Class);
-                writer.WriteString("path", Config.Relative(job.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, job.File));
                 WriteNullable(writer, "useCase", job.UseCaseId);
                 writer.WriteNumber("line", job.Line);
                 writer.WriteNumber("dependencyCount", job.DependencyCount);
@@ -376,7 +372,7 @@ sealed class ProjectModel
             {
                 writer.WriteStartObject();
                 writer.WriteString("code", literal.Value);
-                writer.WriteString("path", Config.Relative(literal.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, literal.File));
                 WriteNullable(writer, "class", literal.Class);
                 writer.WriteEndObject();
             }
@@ -398,7 +394,7 @@ sealed class ProjectModel
                 }
 
                 writer.WriteEndArray();
-                writer.WriteString("path", Config.Relative(method.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, method.File));
                 writer.WriteNumber("line", method.Line);
                 writer.WriteEndObject();
             }
@@ -412,7 +408,7 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("operation", action.Operation);
                 writer.WriteString("action", action.Action);
-                writer.WriteString("path", Config.Relative(action.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, action.File));
                 writer.WriteNumber("line", action.Line);
                 writer.WriteEndObject();
             }
@@ -428,7 +424,7 @@ sealed class ProjectModel
                 writer.WriteString("useCase", endpoint.UseCaseId);
                 writer.WriteString("method", endpoint.Method);
                 writer.WriteString("route", endpoint.Route);
-                writer.WriteString("path", Config.Relative(endpoint.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, endpoint.File));
                 writer.WriteNumber("line", endpoint.Line);
                 writer.WriteEndObject();
             }
@@ -441,7 +437,7 @@ sealed class ProjectModel
             {
                 writer.WriteStartObject();
                 writer.WriteString("class", domainEvent.Class);
-                writer.WriteString("path", Config.Relative(domainEvent.File));
+                writer.WriteString("path", PathText.Relative(Config.Root, domainEvent.File));
                 WriteNullable(writer, "event", domainEvent.EventId);
                 writer.WriteEndObject();
             }
@@ -521,7 +517,7 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("frontend", test.Frontend);
                 writer.WriteString("title", test.Title);
-                writer.WriteString("file", Config.Relative(test.File));
+                writer.WriteString("file", PathText.Relative(Config.Root, test.File));
                 writer.WriteNumber("line", test.Line);
                 writer.WriteStartArray("proves");
 
@@ -569,7 +565,7 @@ sealed class ProjectModel
                 writer.WriteStartObject();
                 writer.WriteString("scenario", test.Name);
                 writer.WriteString("class", test.Class);
-                writer.WriteString("file", Config.Relative(test.File));
+                writer.WriteString("file", PathText.Relative(Config.Root, test.File));
                 writer.WriteNumber("line", test.Line);
                 writer.WriteStartArray("claims");
 
@@ -735,26 +731,6 @@ sealed class ProjectModel
 
             writer.WriteEndObject();
 
-            if (CoverageRead)
-            {
-                writer.WriteStartArray("unreachedCode");
-
-                foreach (var gap in UnreachedCode)
-                {
-                    writer.WriteStartObject();
-                    writer.WriteString("path", Config.Relative(gap.File));
-                    writer.WriteNumber("line", gap.Line);
-                    writer.WriteString("member", gap.Member);
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndArray();
-            }
-            else
-            {
-                writer.WriteNull("unreachedCode");
-            }
-
             writer.WriteStartArray("measures");
 
             foreach (var measure in Measures)
@@ -764,7 +740,7 @@ sealed class ProjectModel
                 writer.WriteString("check", measure.Check);
                 writer.WriteBoolean("passed", measure.Passed);
                 WriteNullable(writer, "value", measure.Value);
-                writer.WriteString("source", Config.Relative(measure.Source));
+                writer.WriteString("source", PathText.Relative(Config.Root, measure.Source));
                 writer.WriteEndObject();
             }
 
@@ -791,18 +767,18 @@ sealed class ProjectModel
             }
             else
             {
-                JsonSerializer.Serialize(writer, FindingsJson, options);
+                FindingsJson.WriteTo(writer, options);
             }
 
-            writer.WritePropertyName("known");
+            writer.WritePropertyName("covered");
 
-            if (KnownJson is null)
+            if (CoveredJson is null)
             {
                 writer.WriteNullValue();
             }
             else
             {
-                JsonSerializer.Serialize(writer, KnownJson, options);
+                CoveredJson.WriteTo(writer, options);
             }
 
             writer.WriteEndObject();
@@ -853,7 +829,7 @@ sealed class ProjectModel
         {
             writer.WriteStartObject();
             writer.WriteString("type", collaborator.Type);
-            writer.WriteString("path", Config.Relative(collaborator.File));
+            writer.WriteString("path", PathText.Relative(Config.Root, collaborator.File));
             writer.WriteNumber("line", collaborator.Line);
             writer.WriteEndObject();
         }
@@ -873,7 +849,7 @@ sealed class ProjectModel
             writer.WriteStartObject();
             writer.WriteString("repository", read.Repository);
             writer.WriteString("method", read.Method);
-            writer.WriteString("path", Config.Relative(read.File));
+            writer.WriteString("path", PathText.Relative(Config.Root, read.File));
             writer.WriteNumber("line", read.Line);
             writer.WriteEndObject();
         }

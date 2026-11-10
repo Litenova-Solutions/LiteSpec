@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -52,7 +52,7 @@ The system holds one delivery approach and one operating model:
 
 ### What the System Combines
 
-The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, journeys, modules, and roles. The [behavior page](behavior.md) states the bounded context, the glossary, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../backend/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
+The system combines product intent, domain behavior, access control, and the operating behavior the application itself performs into one specification that joins intent to code. The [intent page](intent.md) states goals, problems, features, constraints, research, decisions, requirements, journeys, modules, and roles. The [behavior page](behavior.md) states the bounded context, the glossary, aggregates, rules, events, use cases, results, scenarios, reactions, jobs, notifications, and settings. The [access page](access.md) states actors, permissions, entry points, and external systems. The [layers page](layers.md) states how each record layer is written from the one above it, and the [model page](model.md) states records, identifiers, links, authority, authoring order, verification, and the builder that computes how intent connects to code. What the builder computes lives in `litespec/core/model#compute-proof-statuses-in-the-builder`. The mark rules keep their one home on the [model page](model.md), and the [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) page states where each code element goes, the mark it carries, and what checks it.
 
 Each page owns its tables and rules, and this page cites them without copying. A reader who needs a record type, a link field, or the authority order opens the owning page.
 
@@ -62,7 +62,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#keep-decision-authority-with-accountable-people`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -76,7 +76,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#drive-work-from-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -90,9 +90,9 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-code-and-tests-up-to-records`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
 **Statement:** Every code element the marks table on the [model page](model.md) assigns a mark MUST carry one naming the record it serves, with each handler marking exactly one record.
 
@@ -106,23 +106,23 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#point-every-technical-class-up-to-its-record-or-choice`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: any; conformance: traced
+**Applies to:** artifact: any; layer: implementation; trace: yes
 
-**Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or exception that shapes it.
+**Statement:** Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an `implements` mark naming a Behavior record it serves, or a `follows` mark naming the LiteSpec provision, decision, or departure that shapes it.
 
-**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or an exception allows it, and a `follows` mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a `follows` mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.
+**Rationale:** Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in `implements` like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, or a departure allows it, and a `follows` mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a `follows` mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.
 
 **Example:** The Claimwick submit-expense validator carries `/// <implements>use-case/spending.submit-expense</implements>`. The receipt PDF renderer carries `/// <follows>decision/0005-render-receipts-as-pdf</follows>`, and the command pipeline's commit step carries `/// <follows>litespec/backend/persistence#commit-each-command-pipeline-once</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or exception, or a provision on a page the project's stacks do not apply.
+**Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (check level S), and `dotnet build` reports `LS5001` and `LS5002`, for a technical class with no mark, an `implements` mark naming no Behavior record, or a `follows` mark naming no provision of the carried release, no decision or departure, or a provision on a page the project's stacks do not apply.
 
 ### Declare Every Edge Between Records
 
 **ID:** `litespec/core/system#declare-every-edge-between-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -136,7 +136,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#deliver-one-complete-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -152,7 +152,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **ID:** `litespec/core/system#update-records-with-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

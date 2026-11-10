@@ -6,13 +6,13 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the reaction, job and exception record types and the link verbs are registered.</summary>
+/// <summary>Proves the reaction, job and departure record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic record type and the review report page style are gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Topic_And_Review_Report_Are_Gone()
+    public void TopicAndReviewReportAreGone()
     {
         Assert.DoesNotContain("topic", RecordTypes.All);
         Assert.DoesNotContain("topic", RecordTypes.LayerByType.Keys);
@@ -23,7 +23,7 @@ public sealed class RecordTypesTests
     /// <summary>Cites links the six reason types and the requirements a journey shows.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
-    public void Cites_Links_Reasons_And_Requirements()
+    public void CitesLinksReasonsAndRequirements()
     {
         Assert.True(RecordTypes.LinkTargets["cites"].SetEquals(
             ["goal", "problem", "feature", "constraint", "research", "decision", "requirement"]));
@@ -33,7 +33,7 @@ public sealed class RecordTypesTests
     /// <summary>Addresses links the actors a page speaks to and the permission an event needs.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
     [Fact]
-    public void Addresses_Links_Actors_And_Permissions()
+    public void AddressesLinksActorsAndPermissions()
     {
         Assert.True(RecordTypes.LinkTargets["addresses"].SetEquals(
             ["actor", "permission"]));
@@ -43,7 +43,7 @@ public sealed class RecordTypesTests
     /// <summary>The reaction and the job are Behavior record types with a home, and automation is gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Reactions_And_Jobs_Are_Behavior_Record_Types()
+    public void ReactionsAndJobsAreBehaviorRecordTypes()
     {
         Assert.Contains("reaction", RecordTypes.All);
         Assert.Equal("behavior", RecordTypes.LayerByType["reaction"]);
@@ -54,13 +54,13 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("automation", RecordTypes.All);
     }
 
-    /// <summary>The exception is a Governance record type, and deviation and known gap are gone.</summary>
+    /// <summary>The departure is a Governance record type, and deviation and known gap are gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void Exception_Is_A_Governance_Record_Type()
+    public void DepartureIsAGovernanceRecordType()
     {
-        Assert.Contains("exception", RecordTypes.All);
-        Assert.Equal("governance", RecordTypes.LayerByType["exception"]);
+        Assert.Contains("departure", RecordTypes.All);
+        Assert.Equal("governance", RecordTypes.LayerByType["departure"]);
         Assert.DoesNotContain("deviation", RecordTypes.All);
         Assert.DoesNotContain("known-gap", RecordTypes.All);
     }
@@ -68,7 +68,7 @@ public sealed class RecordTypesTests
     /// <summary>The effect verbs link the records each effect reaches, with no retired verb left.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Effect_Verbs_Link_Their_Targets()
+    public void EffectVerbsLinkTheirTargets()
     {
         Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(["use-case"]));
         Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
@@ -81,7 +81,7 @@ public sealed class RecordTypesTests
     /// <summary>The reaction trigger links the events that set it off, and the old trigger is gone.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void TriggeredBy_Links_Events()
+    public void TriggeredByLinksEvents()
     {
         Assert.True(RecordTypes.LinkTargets["triggeredBy"].SetEquals(
             ["event", "integration-event"]));
@@ -91,9 +91,8 @@ public sealed class RecordTypesTests
     /// <summary>The structured objects link through their containers to the records they name.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Object_Links_Resolve_Through_Their_Containers()
+    public void ObjectLinksResolveThroughTheirContainers()
     {
-        Assert.True(RecordTypes.LinkTargets["compensation"].SetEquals(["use-case"]));
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
             ["external-system", "integration-event"]));
@@ -105,7 +104,7 @@ public sealed class RecordTypesTests
     /// <summary>BasedOn links the records a limit or a choice rests on, and the renamed fields are gone.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void BasedOn_Links_Limits_And_Choices()
+    public void BasedOnLinksLimitsAndChoices()
     {
         Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
             ["constraint", "research", "decision", "requirement"]));
@@ -116,7 +115,7 @@ public sealed class RecordTypesTests
     /// <summary>The link sets match the Written on columns of the Links table.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
-    public void Link_Sets_Match_The_Links_Table()
+    public void LinkSetsMatchTheLinksTable()
     {
         var rows = LinksRows(File.ReadAllText(Path.Combine(FindRepository(), "docs", "core", "model.md")));
 
@@ -207,7 +206,7 @@ public sealed class RecordTypesTests
     {
         for (var folder = new DirectoryInfo(AppContext.BaseDirectory); folder is not null; folder = folder.Parent)
         {
-            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.json")))
+            if (File.Exists(Path.Combine(folder.FullName, "litespec.manifest.yaml")))
             {
                 return folder.FullName;
             }

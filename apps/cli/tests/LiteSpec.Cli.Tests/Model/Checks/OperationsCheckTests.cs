@@ -1,49 +1,49 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the operations checks: alerts, drills, operations files and the alert inventory.</summary>
 public sealed class OperationsCheckTests
 {
     /// <summary>An alert naming its requirement and runbook reports nothing.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_With_Requirement_And_Runbook_Passes()
+    public void AlertWithRequirementAndRunbookPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-link-missing", check.Output, StringComparison.Ordinal);
     }
 
     /// <summary>A Grafana rule named by title reads like a Prometheus rule named by alert.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Title_Named_Rule_Passes()
+    public void TitleNamedRulePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertGrafana);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-link-missing", check.Output, StringComparison.Ordinal);
     }
 
     /// <summary>An alert without a requirement label reports the rule.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Without_Requirement_Label_Reports()
+    public void AlertWithoutRequirementLabelReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement: requirement/performance.list-loans-latency", "requirement:"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -54,14 +54,14 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a missing requirement reports the id.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Naming_No_Requirement_Reports()
+    public void AlertNamingNoRequirementReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/performance.list-loans-latency", "requirement/performance.no-such-thing"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -72,14 +72,14 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a functional requirement reports the kind.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Naming_A_Functional_Requirement_Reports()
+    public void AlertNamingAFunctionalRequirementReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("requirement/performance.list-loans-latency", "requirement/borrowing.max-active-loans"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -88,14 +88,14 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert without a runbook label reports the rule.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Without_Runbook_Label_Reports()
+    public void AlertWithoutRunbookLabelReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("runbook: runbook/slow-listings", "runbook:"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -106,14 +106,14 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a missing runbook reports the id.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Naming_No_Runbook_Reports()
+    public void AlertNamingNoRunbookReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("runbook/slow-listings", "runbook/no-such-runbook"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -123,14 +123,14 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An alert naming a record that is no runbook reports the type.</summary>
-    /// <proves>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</proves>
+    /// <proves>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</proves>
     [Fact]
-    public void Alert_Naming_A_Non_Runbook_Reports()
+    public void AlertNamingANonRunbookReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("runbook: runbook/slow-listings", "runbook: requirement/borrowing.max-active-loans"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unlinked = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-link-missing]", StringComparison.Ordinal));
 
@@ -141,12 +141,12 @@ public sealed class OperationsCheckTests
     /// <summary>An alert carrying its measure's numbers reports no drift.</summary>
     /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
     [Fact]
-    public void Threshold_Carrying_Measure_Numbers_Passes()
+    public void ThresholdCarryingMeasureNumbersPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("alert-threshold-drift", check.Output, StringComparison.Ordinal);
@@ -155,12 +155,12 @@ public sealed class OperationsCheckTests
     /// <summary>An alert carrying none of its measure's numbers reports advisory drift.</summary>
     /// <proves>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</proves>
     [Fact]
-    public void Threshold_Missing_Measure_Numbers_Reports()
+    public void ThresholdMissingMeasureNumbersReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing.Replace("histogram_quantile(0.99, rate(list_loans_seconds_bucket[5m])) > 0.3", "up == 0"));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path, "--all");
+        var check = TestCli.Run("model", "check", "--root", temp.Path, "--all");
         var drift = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[alert-threshold-drift]", StringComparison.Ordinal));
 
@@ -171,9 +171,9 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement named by an alert reports nothing, even with no passing run.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_Covered_By_Alert_Passes()
+    public void QualityCoveredByAlertPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteLatencyRequirement(temp.Path);
@@ -182,7 +182,7 @@ public sealed class OperationsCheckTests
         Write(temp.Path, AlertFile, AlertPassing);
         SetPaths(temp.Path, alerts: [AlertDir], checkResults: CheckResultsDir);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(1, check.Status);
         Assert.Contains("requirement-measure-missing", check.Output, StringComparison.Ordinal);
@@ -190,9 +190,9 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>A quality requirement matched by a check result reports nothing.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_Covered_By_Check_Result_Passes()
+    public void QualityCoveredByCheckResultPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteLatencyRequirement(temp.Path);
@@ -201,40 +201,42 @@ public sealed class OperationsCheckTests
         Write(temp.Path, CaddyFile, CaddyPassing);
         SetPaths(temp.Path, operations: [CaddyFile], checkResults: CheckResultsDir);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement a live exception covers reports as known.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <summary>A quality requirement a live departure covers reports as known.</summary>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_Covered_By_Exception_Reports_Known()
+    public void QualityCoveredByDepartureReportsCovered()
     {
         using var temp = ModelFixture.Prepare("small");
+        SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
-        WriteRecord(temp.Path, ExceptionFile, ExceptionJson, ExceptionExplanation);
+        WriteRecord(temp.Path, DepartureFile, DepartureJson, DepartureExplanation);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(1, check.Status);
         Assert.Contains("requirement-measure-missing", check.Output, StringComparison.Ordinal);
-        Assert.Contains("[known G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
+        Assert.Contains("[covered G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
         Assert.DoesNotContain("[G] [quality-alert-missing]", check.Output, StringComparison.Ordinal);
     }
 
     /// <summary>A quality requirement with no alert or check reports.</summary>
-    /// <proves>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
+    /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void Quality_With_No_Alert_Or_Check_Reports()
+    public void QualityWithNoAlertOrCheckReports()
     {
         using var temp = ModelFixture.Prepare("small");
+        SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unalerted = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[quality-alert-missing]", StringComparison.Ordinal));
 
@@ -246,7 +248,7 @@ public sealed class OperationsCheckTests
     /// <summary>A passing check result counts toward its requirement's measure.</summary>
     /// <proves>litespec/ext/delivery#record-each-drill-run-as-a-check-result</proves>
     [Fact]
-    public void Passing_Check_Result_Counts_Toward_Measure()
+    public void PassingCheckResultCountsTowardMeasure()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteLatencyRequirement(temp.Path);
@@ -255,7 +257,7 @@ public sealed class OperationsCheckTests
         Write(temp.Path, CaddyFile, CaddyPassing);
         SetPaths(temp.Path, operations: [CaddyFile], checkResults: CheckResultsDir);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unmeasured = check.Output.Split('\n').Where(candidate =>
             candidate.Contains("[requirement-measure-missing]", StringComparison.Ordinal));
 
@@ -267,7 +269,7 @@ public sealed class OperationsCheckTests
     /// <summary>A failing check result leaves its requirement unmeasured but watched.</summary>
     /// <proves>litespec/ext/delivery#record-each-drill-run-as-a-check-result</proves>
     [Fact]
-    public void Failing_Check_Result_Counts_Nothing()
+    public void FailingCheckResultCountsNothing()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteLatencyRequirement(temp.Path);
@@ -275,7 +277,7 @@ public sealed class OperationsCheckTests
         Write(temp.Path, ResultFile, ResultPassing.Replace("\"passed\": true", "\"passed\": false"));
         SetPaths(temp.Path, checkResults: CheckResultsDir);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(1, check.Status);
         Assert.Contains("requirement-measure-missing", check.Output, StringComparison.Ordinal);
@@ -283,16 +285,16 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file pointing at its decision reports nothing and follows it.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Operations_File_With_Follows_Passes()
+    public void OperationsFileWithFollowsPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyPassing);
         SetPaths(temp.Path, operations: [CaddyFile]);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.True(check.Status == 0, check.Output);
         Assert.DoesNotContain("mark-missing", check.Output, StringComparison.Ordinal);
@@ -301,16 +303,16 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations file with no follows mark reports.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Operations_File_Without_Mark_Reports()
+    public void OperationsFileWithoutMarkReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyMissing);
         SetPaths(temp.Path, operations: [CaddyFile]);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var missing = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[mark-missing]", StringComparison.Ordinal));
 
@@ -321,34 +323,34 @@ public sealed class OperationsCheckTests
     }
 
     /// <summary>An operations mark naming no decision reports.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Operations_Mark_Naming_Nothing_Reports()
+    public void OperationsMarkNamingNothingReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
         Write(temp.Path, CaddyFile, CaddyPassing.Replace("decision/0002-loan-index", "decision/0099-no-such-thing"));
         SetPaths(temp.Path, operations: [CaddyFile]);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var unresolved = check.Output.Split('\n').Single(candidate =>
             candidate.Contains("[mark-unknown]", StringComparison.Ordinal));
 
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);
         Assert.Contains("decision/0099-no-such-thing", unresolved, StringComparison.Ordinal);
-        Assert.Contains("matches no decision or exception", unresolved, StringComparison.Ordinal);
+        Assert.Contains("matches no decision or departure", unresolved, StringComparison.Ordinal);
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
-    /// <proves>litespec/quality/operations#point-each-operations-file-at-its-decision</proves>
+    /// <proves>litespec/ext/delivery#point-each-operations-file-at-its-decision</proves>
     [Fact]
-    public void Decision_With_No_Follower_Reports_Unfollowed()
+    public void DecisionWithNoFollowerReportsUnfollowed()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteRecord(temp.Path, DecisionFile, LonelyDecisionJson, DecisionExplanation);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         Assert.Equal(1, check.Status);
         Assert.Contains("decision-unimplemented", check.Output, StringComparison.Ordinal);
@@ -357,13 +359,13 @@ public sealed class OperationsCheckTests
     /// <summary>Render writes the alert inventory from the alert files.</summary>
     /// <proves>litespec/core/model#render-generated-regions-from-the-model</proves>
     [Fact]
-    public void Alert_Inventory_Renders_Rules()
+    public void AlertInventoryRendersRules()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteWatchedSetup(temp.Path, AlertPassing);
         Write(temp.Path, LimitsFile, LimitsPage);
 
-        var render = Cli.Run("model", "render", "--root", temp.Path);
+        var render = TestCli.Run("model", "render", "--root", temp.Path);
         var limits = File.ReadAllText(Path.Combine(temp.Path, LimitsFile.Replace('/', Path.DirectorySeparatorChar)));
 
         Assert.True(render.Status == 0, render.Output);
@@ -395,13 +397,24 @@ public sealed class OperationsCheckTests
         Write(root, AlertFile, alert);
         Write(root, ResultFile, ResultPassing);
         Write(root, CaddyFile, CaddyPassing);
+        SelectDelivery(root);
         SetPaths(root, alerts: [AlertDir], operations: [CaddyFile], checkResults: CheckResultsDir);
+    }
+
+    /// <summary>Selects the delivery extension, whose alert and runbook codes the layer claim gates.</summary>
+    /// <param name="root">The fixture consumer root folder.</param>
+    static void SelectDelivery(string root)
+    {
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "delivery", ["criterion"] = "The project runs alerts and runbooks in production." });
+        File.WriteAllText(projectFile, project.ToJsonString());
     }
 
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)
     {
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
         var paths = project["paths"]!.AsObject();
 
         if (alerts is not null)
@@ -451,7 +464,7 @@ public sealed class OperationsCheckTests
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string ExceptionFile = ".litespec/governance/exceptions/list-loans-latency-unwatched.yaml";
+    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched.yaml";
 
     const string RequirementJson = """
         {
@@ -661,12 +674,11 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string ExceptionJson = """
+    const string DepartureJson = """
         {
-          "type": "exception",
-          "id": "exception/list-loans-latency-unwatched",
+          "type": "departure",
+          "id": "departure/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
-          "kind": "gap",
           "covers": [
             "quality-alert-missing"
           ],
@@ -679,7 +691,7 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string ExceptionExplanation = """
+    const string DepartureExplanation = """
         # List loans latency unwatched
 
         Listing latency has no alert yet.

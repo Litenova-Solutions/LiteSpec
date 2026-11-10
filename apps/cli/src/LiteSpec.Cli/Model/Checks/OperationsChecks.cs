@@ -10,10 +10,10 @@ namespace LiteSpec.Model.Checks;
 ///     runbook and carries its measure's numbers, every quality requirement is
 ///     watched, and every operations file points at its decision.
 /// </summary>
-/// <follows>litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert</follows>
+/// <follows>litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert</follows>
 /// <follows>litespec/ext/delivery#keep-each-alert-threshold-to-its-requirements-measure</follows>
-/// <follows>litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check</follows>
-/// <follows>litespec/quality/operations#point-each-operations-file-at-its-decision</follows>
+/// <follows>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</follows>
+/// <follows>litespec/ext/delivery#point-each-operations-file-at-its-decision</follows>
 internal static class OperationsChecks
 {
     /// <summary>Runs alert-link-missing, alert-threshold-drift, quality-alert-missing and the operations-file marks.</summary>
@@ -188,7 +188,7 @@ internal static class OperationsChecks
 
         foreach (var file in OperationsMarkReader.Files(model.Config))
         {
-            var relative = model.Config.Relative(file);
+            var relative = PathText.Relative(model.Config.Root, file);
 
             if (!byFile.TryGetValue(file, out var held) || held.Count == 0)
             {
@@ -207,7 +207,7 @@ internal static class OperationsChecks
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
     ///     the carried release on an applied page, which no selected extension
-    ///     replaces, or a decision or exception.
+    ///     replaces, or a decision or departure.
     /// </summary>
     /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and provisions and every record.</param>
     /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
@@ -240,11 +240,11 @@ internal static class OperationsChecks
             return;
         }
 
-        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("exception/", StringComparison.Ordinal))
+        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("departure/", StringComparison.Ordinal))
         {
-            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Exception))
+            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Departure))
             {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or exception.", mark.File, mark.Line, id));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or departure.", mark.File, mark.Line, id));
             }
 
             return;
@@ -252,11 +252,11 @@ internal static class OperationsChecks
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or exception.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or departure.", mark.File, mark.Line, id));
         }
         else
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or exception.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or departure.", mark.File, mark.Line, id));
         }
     }
 

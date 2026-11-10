@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Folder-based layout cases: shipped stacks and the pages a selection applies.</summary>
 public sealed class LayoutTests
@@ -44,10 +44,8 @@ public sealed class LayoutTests
         Page(root, "docs/frontend/principles.md");
         Page(root, "docs/frontend/web/shared.md");
         Page(root, "docs/frontend/web/react/stack.md");
-        Page(root, "docs/frontend/web/react/components.md");
         Page(root, "docs/frontend/web/react/native/stack.md");
         Page(root, "docs/frontend/web/svelte/stack.md");
-        Page(root, "docs/frontend/web/svelte/components.md");
         Page(root, "docs/ext/outbox.md");
         StandardsFixture.Write(root, "docs/frontend/web/notes.txt", "not a page\n");
     }
@@ -101,7 +99,6 @@ public sealed class LayoutTests
             "docs/backend/sample/stack.md",
             "docs/core/system.md",
             "docs/frontend/principles.md",
-            "docs/frontend/web/react/components.md",
             "docs/frontend/web/react/stack.md",
             "docs/frontend/web/shared.md",
             "docs/quality/security.md",
@@ -126,7 +123,6 @@ public sealed class LayoutTests
             "docs/backend/domain.md",
             "docs/core/system.md",
             "docs/frontend/principles.md",
-            "docs/frontend/web/react/components.md",
             "docs/frontend/web/react/stack.md",
             "docs/frontend/web/shared.md",
             "docs/quality/security.md",

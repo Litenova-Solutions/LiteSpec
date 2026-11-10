@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests;
+namespace LiteSpec.Cli.Tests;
 
 /// <summary>Proves the shared argument parser and the last-resort failure handler.</summary>
 public sealed class CliArgsTests
@@ -9,7 +9,7 @@ public sealed class CliArgsTests
     /// <summary>A repeated option is a usage error in both spellings.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Repeated_Option_Is_A_Usage_Error()
+    public void RepeatedOptionIsAUsageError()
     {
         var spaced = CliArgs.Parse(["--root", "a", "--root", "b"], [], ["--root"]);
         Assert.NotNull(spaced.Error);
@@ -23,7 +23,7 @@ public sealed class CliArgsTests
     /// <summary>An empty value for --root, --model, --out or --editor is a usage error in both spellings.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Empty_Value_Is_A_Usage_Error()
+    public void EmptyValueIsAUsageError()
     {
         foreach (var option in new[] { "--root", "--model", "--out", "--editor" })
         {
@@ -40,7 +40,7 @@ public sealed class CliArgsTests
     /// <summary>A usage error is reported before --help is honoured.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Usage_Error_Comes_Before_Help()
+    public void UsageErrorComesBeforeHelp()
     {
         var parsed = CliArgs.Parse(["--bogus", "--help"], [], ["--root"]);
 
@@ -51,7 +51,7 @@ public sealed class CliArgsTests
     /// <summary>A clean --help still reports help and no error.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Help_Without_An_Error_Still_Works()
+    public void HelpWithoutAnErrorStillWorks()
     {
         var parsed = CliArgs.Parse(["--help"], [], ["--root"]);
 
@@ -62,9 +62,9 @@ public sealed class CliArgsTests
     /// <summary>The model check command reports a bogus option before --help and exits 2.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Model_Check_Bogus_Option_With_Help_Exits_2()
+    public void ModelCheckBogusOptionWithHelpExits2()
     {
-        var result = Cli.Run("model", "check", "--bogus", "--help");
+        var result = TestCli.Run("model", "check", "--bogus", "--help");
 
         Assert.Equal(2, result.Status);
         Assert.Contains("--bogus", result.Output, StringComparison.Ordinal);
@@ -73,15 +73,15 @@ public sealed class CliArgsTests
     /// <summary>The authoring commands accept only the --root spelling, not --home.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void Home_Is_Not_An_Option()
+    public void HomeIsNotAnOption()
     {
-        using var temp = Cli.Temp("cli-args-home");
+        using var temp = TestCli.Temp("cli-args-home");
 
-        var created = Cli.Run("new", "topic", "spending.example", "--home", temp.Path);
+        var created = TestCli.Run("new", "topic", "spending.example", "--home", temp.Path);
         Assert.Equal(2, created.Status);
         Assert.Contains("--home", created.Output, StringComparison.Ordinal);
 
-        var renamed = Cli.Run(
+        var renamed = TestCli.Run(
             "rename", "topic/spending.example", "topic/spending.other", "--home", temp.Path);
         Assert.Equal(2, renamed.Status);
         Assert.Contains("--home", renamed.Output, StringComparison.Ordinal);
@@ -90,7 +90,7 @@ public sealed class CliArgsTests
     /// <summary>An unexpected exception becomes one Failed line on standard error and exit code 1.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void LastResort_Writes_One_Failed_Line_Without_A_Stack_Trace()
+    public void LastResortWritesOneFailedLineWithoutAStackTrace()
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
@@ -111,7 +111,7 @@ public sealed class CliArgsTests
     /// <summary>With JSON format an unexpected exception becomes one error object on standard output.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void LastResort_With_Json_Writes_An_Error_Object()
+    public void LastResortWithJsonWritesAnErrorObject()
     {
         var stdout = new StringWriter();
         var stderr = new StringWriter();
@@ -131,11 +131,38 @@ public sealed class CliArgsTests
     /// <summary>JSON format is detected in both spellings.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact]
-    public void LastResort_Detects_Json_Format()
+    public void LastResortDetectsJsonFormat()
     {
         Assert.True(LastResort.WantsJson(["model", "--format", "json"]));
         Assert.True(LastResort.WantsJson(["model", "--format=json"]));
         Assert.False(LastResort.WantsJson(["model", "--format", "text"]));
         Assert.False(LastResort.WantsJson(["model"]));
+    }
+
+    /// <summary>Under JSON format a usage error writes one error object on standard output and nothing on standard error.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact]
+    public void ModelCheckUsageErrorUnderJsonWritesOneErrorObject()
+    {
+        var result = TestCli.Run("model", "check", "--format", "json", "--bogus");
+
+        Assert.Equal(2, result.Status);
+        Assert.Equal("", result.Stderr);
+        var error = JsonNode.Parse(result.Stdout)!.AsObject();
+        Assert.Contains("--bogus", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
+    }
+
+    /// <summary>Under JSON format a root without a project file writes the same one error object.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact]
+    public void ModelCheckUnreadableProjectUnderJsonWritesOneErrorObject()
+    {
+        using var temp = TestCli.Temp("model-json-error");
+        var result = TestCli.Run("model", "check", "--root", temp.Path, "--format", "json");
+
+        Assert.Equal(2, result.Status);
+        Assert.Equal("", result.Stderr);
+        var error = JsonNode.Parse(result.Stdout)!.AsObject();
+        Assert.Contains("holds no .litespec/project.yaml", error["error"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 }

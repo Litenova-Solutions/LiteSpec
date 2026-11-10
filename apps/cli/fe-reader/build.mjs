@@ -1,4 +1,5 @@
-// Bundles the reader into one ES module. The TypeScript compiler is CommonJS and reads
+// Bundles the reader into one ES module. The target is Node 20, so the bundle runs on any Node 20 or later,
+// the runtimes a consumer may have. The TypeScript compiler is CommonJS and reads
 // require, __filename and __dirname, which an ES module lacks, so the banner defines them.
 import { build } from "esbuild";
 

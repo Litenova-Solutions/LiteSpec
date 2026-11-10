@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>
 ///     Copies a model fixture to a fresh temporary folder and applies a broken overlay.
@@ -15,10 +15,10 @@ static class ModelFixture
     /// <returns>The temp folder holding the prepared fixture; the caller deletes it.</returns>
     public static TempFolder Prepare(string fixtureName, string? overlayName = null)
     {
-        var temp = Cli.Temp("model-cases");
+        var temp = TestCli.Temp("model-cases");
         try
         {
-            CopyContents(Cli.Fixture($"Model/{fixtureName}"), temp.Path);
+            CopyContents(TestCli.Fixture($"Model/{fixtureName}"), temp.Path);
             if (overlayName is not null)
             {
                 ApplyOverlay(overlayName, temp.Path);
@@ -52,7 +52,7 @@ static class ModelFixture
     // then deletes the paths DELETES.txt lists, one per line.
     static void ApplyOverlay(string overlayName, string target)
     {
-        var overlay = Cli.Fixture($"Model/broken/{overlayName}");
+        var overlay = TestCli.Fixture($"Model/broken/{overlayName}");
         foreach (var file in Directory.GetFiles(overlay, "*", SearchOption.AllDirectories))
         {
             var relative = Path.GetRelativePath(overlay, file);

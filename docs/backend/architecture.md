@@ -1,7 +1,7 @@
 # Backend Architecture
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -39,7 +39,7 @@ Every node (product root, module, aggregate) may hold the same layer folders. Ea
     Domain/  Application/  Infrastructure/            types used by two or more aggregates; module registration
     WebApi/                                           transport types used by use cases of two or more aggregates
     Teams/                                            aggregate
-      Domain/          Team, TeamState, ITeamRepository, Events/, Refusals/
+      Domain/          Team, TeamState, TeamRepository (contract), Events/, Refusals/
       Application/     types used by two or more Team use cases
       Infrastructure/  TeamRepository
       WebApi/          transport types used by two or more Team use cases (headers, links, partial models)
@@ -71,7 +71,7 @@ CQRS separates the command and query models inside the one Application layer: a 
 
 | From | May not reference |
 |:---|:---|
-| Domain | Application, Infrastructure or WebApi types; persistence, web, mediator, logging and dependency injection namespaces |
+| Domain | Application, Infrastructure or WebApi types; persistence, web, mediator, logging and dependency injection concerns |
 | Application | Infrastructure or WebApi types; host transport types |
 | WebApi | Domain types other than typed identifiers and shared-kernel values; repositories |
 | A use case folder | Any type in another use case folder |
@@ -89,7 +89,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#point-dependencies-inward`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -107,7 +107,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#own-each-layers-contract-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -121,7 +121,7 @@ Behavior records map onto code one way: each code element carries a mark naming 
 
 **ID:** `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -176,7 +176,7 @@ fail when a type path contains Shared, Common, Util, Helpers, Core, or Misc
 
 **ID:** `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -196,7 +196,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#keep-implementation-types-hidden`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, endpoint, query-handler, reaction, repository, validator
 
@@ -210,7 +210,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#keep-business-invariants-in-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, command-handler, job, query-handler, reaction, value-object
 
@@ -224,7 +224,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#separate-command-and-query-behavior`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, query-handler
 
@@ -238,7 +238,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#read-another-module-only-through-its-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, port, query-handler
 
@@ -254,7 +254,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#restrict-commands-to-their-own-module-aggregates`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -270,7 +270,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#subscribe-across-modules-only-to-integration-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: reaction
 
@@ -286,7 +286,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 **ID:** `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -296,7 +296,7 @@ Domain's shared kernel is the one product `Domain/` folder a solution keeps. Its
 
 The declaration lives in a Decision record following `litespec/core/model#record-each-technical-choice-as-a-decision`. Durable dispatch and queue consumption follow the outbox extension, and scheduled work follows the jobs extension.
 
-The host is a composition decision, not a code-placement decision. The hosted operation classes live in Worker or Infrastructure, because they hold provider and scheduling concerns: in Worker when the project exists, otherwise in Infrastructure. The host registers them.
+The host is a composition decision, not a code-placement decision. The hosted operations live in Worker or Infrastructure, because they hold provider and scheduling concerns: in Worker when the project exists, otherwise in Infrastructure. The host registers them.
 
 **Example:** A Decision naming WebApi as the execution host states that durable dispatch shares the request process, and states what an unavailable process costs.
 
@@ -306,7 +306,7 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **ID:** `litespec/backend/architecture#create-a-worker-project-when-background-work-needs-its-own-process`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -322,38 +322,29 @@ The host is a composition decision, not a code-placement decision. The hosted op
 
 **ID:** `litespec/backend/architecture#test-structural-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
 **Statement:** A structural boundary that no LiteSpec analyzer or `model check` finding covers MUST have an architecture test.
 
-**Rationale:** Layer references, package boundaries, visibility, module folders, and aggregate inheritance are invisible at runtime: the application runs the same with or without them, so each one needs mechanical proof on every run. The analyzers and `model check` already give that proof for the boundaries in the table below. `LS1001`, for one, reports an outer-layer call inside a method body, which a test over compiled signatures misses. An architecture test that repeats a covered boundary holds a second copy of a rule the build or the check already enforces, and the copy drifts while the analyzer or the check keeps reporting the breach. Architecture tests hold the rest: a boundary the table covers only in part, and a structural decision the project itself made that no LiteSpec tool names.
+**Rationale:** Layer references, package boundaries, visibility, module folders, and aggregate inheritance are invisible at runtime: the application runs the same with or without them, so each one needs mechanical proof on every run. The analyzers and `model check` already give that proof for the boundaries that a stack page names as checked and for the rows in the table below. A check over method bodies, for one, reports an outer-layer call inside a method, which a test over compiled signatures misses. An architecture test that repeats a covered boundary holds a second copy of a rule the build or the check already enforces, and the copy drifts while the analyzer or the check keeps reporting the breach. Architecture tests hold the rest: a boundary the checks cover only in part, and a structural decision the project itself made that no LiteSpec tool names.
 
 | Structural boundary | Covered by |
 |:---|:---|
-| Domain names an outer-layer type or namespace, including a persistence, web, mediator, logging, or dependency injection namespace | `LS1001` from `dotnet build` |
-| Application or WebApi names a type outside its layer | `LS2018` from `dotnet build` |
-| A module names another module's type outside its `Contracts/` folder | `LS2020` from `dotnet build` |
-| A use case folder names a type declared in another use case folder | `LS2019` from `dotnet build` |
-| A handler, validator, definition, persistence implementation, or endpoint implementation is not `internal sealed` | `LS2001` from `dotnet build` |
 | A folder sits outside the closed set its level allows, or a module folder names no declared module | `folder-invalid` and `module-undeclared` from `litespec model check` |
 | A marked code element, test, or folder sits outside the folder its record names, or a folder names no declared record | `mark-folder-drift` and `code-placement-drift` from `litespec model check` |
 | A folder or type carries a technical grouping name such as `Shared`, `Common`, or `Helpers` outside the declared shared kernel | `name-reason-missing` from `litespec model check` |
-| An aggregate exposes no `State` property typed as an abstract record, or a state case is not sealed | `LS1003` and `LS1004` from `dotnet build` |
-| Domain declares an enum for a closed set | `LS1002` from `dotnet build` |
-| A command handler holds or calls through a document session or database context | `LS2004` from `dotnet build` |
-| A handler throws a forbidden refusal or takes the authorization guard | `LS2012` from `dotnet build` |
 
-**Example:** In the Claimwick product, no architecture test repeats `LS1001`, `LS1002`, `LS2004`, or `LS2012`: the build reports a Domain file that names a Marten type, an enum declared in Domain, a command handler that holds a document session, and a handler that throws a forbidden refusal or takes the authorization guard. The architecture suite keeps a test that no module reaches another module outside its `dependsOn`, which `LS2020` allows when the named type sits in the other module's `Contracts/` folder.
+**Example:** In the Claimwick product, no architecture test repeats the checks that report an outer-layer type in Domain, an enum in Domain, a command handler that holds a write session, or a handler that authorizes itself; the stack's checks report each one. The architecture suite keeps a test that no module reaches another module outside its `dependsOn`, and a type in the other module's `Contracts/` folder stays allowed.
 
-**Reviewed for:** Which structural boundaries have no LiteSpec analyzer or `model check` finding in the table and no architecture test, or which architecture tests repeat a boundary the table covers? Look at the architecture tests beside the analyzer and `model check` runs.
+**Reviewed for:** Which structural boundaries have no analyzer or `model check` finding and no architecture test, or which architecture tests repeat a boundary a check covers? Look at the architecture tests beside the analyzer and `model check` runs.
 
 ### Compose Each Process Explicitly
 
 **ID:** `litespec/backend/architecture#compose-each-process-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -400,4 +391,4 @@ Publishing a post follows this direction:
 2. Application loads the post through its domain repository.
 3. Domain publishing enforces publication rules and raises the post-published event.
 4. Infrastructure stages and commits the post through the command pipeline.
-5. One event handler class answers the event through the reaction its record declares under `litespec/backend/application#keep-reaction-implementations-explicit`, carrying one mark naming that record.
+5. One event handler answers the event through the reaction its record declares under `litespec/backend/application#keep-reaction-implementations-explicit`, carrying one mark naming that record.

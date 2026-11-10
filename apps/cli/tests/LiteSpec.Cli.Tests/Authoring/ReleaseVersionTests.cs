@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.Authoring;
 
 /// <summary>
 ///     Proves every place that names the release names the same one: a tag publishes the
@@ -10,10 +10,10 @@ namespace LiteSpec.Tests.Authoring;
 /// </summary>
 public sealed class ReleaseVersionTests
 {
-    static string Read(params string[] parts) => File.ReadAllText(Path.Combine([Cli.Repository, .. parts]));
+    static string Read(params string[] parts) => File.ReadAllText(Path.Combine([TestCli.Repository, .. parts]));
 
     static string Manifest() =>
-        JsonDocument.Parse(Read("litespec.manifest.json")).RootElement.GetProperty("version").GetString()!;
+        ((string?)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!["version"])!;
 
     static string PackageVersion(params string[] project) =>
         Regex.Match(Read(project), "<Version>(?<v>[^<]+)</Version>").Groups["v"].Value;
@@ -31,10 +31,10 @@ public sealed class ReleaseVersionTests
         RegexOptions.CultureInvariant);
 
     static string Relative(string file) =>
-        Path.GetRelativePath(Cli.Repository, file).Replace('\\', '/');
+        Path.GetRelativePath(TestCli.Repository, file).Replace('\\', '/');
 
     static IEnumerable<string> FilesUnder(string folder, string pattern) =>
-        Directory.EnumerateFiles(Path.Combine(Cli.Repository, folder), pattern, SearchOption.AllDirectories)
+        Directory.EnumerateFiles(Path.Combine(TestCli.Repository, folder), pattern, SearchOption.AllDirectories)
             .OrderBy(file => file, StringComparer.Ordinal);
 
     // The project-file reference page quotes one error that names a reviewed
@@ -47,33 +47,42 @@ public sealed class ReleaseVersionTests
     /// <summary>The Tool Package Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void The_Tool_Package_Names_The_Manifest_Release() =>
+    public void TheToolPackageNamesTheManifestRelease() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "cli", "src", "LiteSpec.Cli", "LiteSpec.Cli.csproj"));
+
+    /// <summary>The security policy supports the release line the manifest prepares.</summary>
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
+    [Fact]
+    public void TheSecurityPolicySupportsTheManifestReleaseLine()
+    {
+        var parts = Manifest().Split('.');
+        Assert.Contains($"| {parts[0]}.{parts[1]}.x | Yes |", Read("SECURITY.md"), StringComparison.Ordinal);
+    }
 
     /// <summary>The Analyzer Package Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void The_Analyzer_Package_Names_The_Manifest_Release() =>
+    public void TheAnalyzerPackageNamesTheManifestRelease() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "analyzers", "src", "LiteSpec.Analyzers", "LiteSpec.Analyzers.csproj"));
 
     /// <summary>The Changelog Opens With The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void The_Changelog_Opens_With_The_Manifest_Release() =>
+    public void TheChangelogOpensWithTheManifestRelease() =>
         Assert.Equal($"## v{Manifest()}", Read("CHANGELOG.md").Split('\n').Select(line => line.TrimEnd('\r')).First(line => line.StartsWith("## ", StringComparison.Ordinal)));
 
     /// <summary>The Consumer Template Reviews The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void The_Consumer_Template_Reviews_The_Manifest_Release() =>
+    public void TheConsumerTemplateReviewsTheManifestRelease() =>
         Assert.Equal(
             Manifest(),
-            JsonDocument.Parse(Read("templates", "consumer", "project.json")).RootElement.GetProperty("reviewedLiteSpecVersion").GetString());
+            (string?)DataFile.Read(Path.Combine(TestCli.Repository, "templates", "consumer", "project.yaml"))!["reviewedLiteSpecVersion"]);
 
     /// <summary>Every Schema Id Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void Every_Schema_Id_Names_The_Manifest_Release()
+    public void EverySchemaIdNamesTheManifestRelease()
     {
         var manifest = Manifest();
         var mismatches = new List<string>();
@@ -111,7 +120,7 @@ public sealed class ReleaseVersionTests
     /// <summary>Every Template And Example Schema Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void Every_Template_And_Example_Schema_Names_The_Manifest_Release()
+    public void EveryTemplateAndExampleSchemaNamesTheManifestRelease()
     {
         var manifest = Manifest();
         var mismatches = new List<string>();
@@ -145,18 +154,19 @@ public sealed class ReleaseVersionTests
     /// <summary>Every Versioned Url And Install Version Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]
-    public void Every_Versioned_Url_And_Install_Version_Names_The_Manifest_Release()
+    public void EveryVersionedUrlAndInstallVersionNamesTheManifestRelease()
     {
         var manifest = Manifest();
         var mismatches = new List<string>();
         var files = new List<string>
         {
-            Path.Combine(Cli.Repository, "apps", "cli", "src", "LiteSpec.Cli", "PACKAGE.md"),
-            Path.Combine(Cli.Repository, "README.md"),
-            Path.Combine(Cli.Repository, "CONTRIBUTING.md"),
+            Path.Combine(TestCli.Repository, "apps", "cli", "src", "LiteSpec.Cli", "README.md"),
+            Path.Combine(TestCli.Repository, "README.md"),
+            Path.Combine(TestCli.Repository, "CONTRIBUTING.md"),
         };
         files.AddRange(FilesUnder("docs", "*.md"));
         files.AddRange(FilesUnder(".github", "*"));
+        files.AddRange(FilesUnder(Path.Combine("apps", "cli", "install"), "*"));
 
         foreach (var file in files.OrderBy(candidate => candidate, StringComparer.Ordinal))
         {

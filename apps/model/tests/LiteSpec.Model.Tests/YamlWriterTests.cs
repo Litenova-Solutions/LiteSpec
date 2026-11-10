@@ -9,7 +9,7 @@ public sealed class YamlWriterTests
     /// <summary>Plain-safe strings write without quotes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Plain_Scalars_Without_Quotes()
+    public void WritesPlainScalarsWithoutQuotes()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"type\":\"use-case\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\"}"));
 
@@ -19,7 +19,7 @@ public sealed class YamlWriterTests
     /// <summary>Strings that would resolve as non-strings write double-quoted.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Quoted_Scalars_That_Resolve_As_Non_String()
+    public void WritesQuotedScalarsThatResolveAsNonString()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"a\":\"\",\"b\":\"true\",\"c\":\"123\",\"d\":\"a: b\",\"e\":\"a # b\",\"f\":\" leading\",\"g\":\"trailing \",\"h\":\"- dash\",\"i\":\"#hash\"}"));
 
@@ -29,7 +29,7 @@ public sealed class YamlWriterTests
     /// <summary>Multi-line text writes as a literal block with the matching chomp.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Multiline_Text_As_Literal_Blocks()
+    public void WritesMultilineTextAsLiteralBlocks()
     {
         var json = "{\"a\":\"line1\\nline2\",\"b\":\"line1\\nline2\\n\",\"c\":\"single\"}";
         var text = YamlWriter.Write(JsonText.Parse(json));
@@ -43,7 +43,7 @@ public sealed class YamlWriterTests
     /// <summary>Multi-line text that a block cannot hold writes quoted.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Unsafe_Multiline_Text_Quoted()
+    public void WritesUnsafeMultilineTextQuoted()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"d\":\" leading\\nline2\",\"e\":\"line1 \\nline2\"}"));
 
@@ -53,7 +53,7 @@ public sealed class YamlWriterTests
     /// <summary>Empty collections write inline.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Empty_Collections_Inline()
+    public void WritesEmptyCollectionsInline()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"emptyArray\":[],\"emptyObject\":{}}"));
 
@@ -66,7 +66,7 @@ public sealed class YamlWriterTests
     /// <summary>Nested blocks write mappings and sequences that read back unchanged.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Nested_Blocks_With_Two_Space_Indentation()
+    public void WritesNestedBlocksWithTwoSpaceIndentation()
     {
         var json = "{\"type\":\"use-case\",\"id\":\"use-case/lending.borrow-copy\",\"title\":\"Borrow copy\",\"summary\":\"Lend copies\",\"records\":[{\"type\":\"result\",\"id\":\"result/borrow-copy.borrowed\",\"title\":\"Borrowed\",\"outcome\":\"success\"},{\"type\":\"result\",\"id\":\"result/borrow-copy.copy-unavailable\",\"title\":\"Copy unavailable\",\"outcome\":\"refusal\"}]}";
         var text = YamlWriter.Write(JsonText.Parse(json));
@@ -81,7 +81,7 @@ public sealed class YamlWriterTests
     /// <summary>Given keys write first in order; the rest follow in file order.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Keys_In_Given_Order()
+    public void WritesKeysInGivenOrder()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"b\":1,\"a\":2,\"c\":3}"), _ => ["a", "c"]);
 
@@ -96,7 +96,7 @@ public sealed class YamlWriterTests
     /// <summary>Keys that would resolve as non-strings or hold punctuation write quoted.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Quotes_Keys_That_Need_It()
+    public void QuotesKeysThatNeedIt()
     {
         var text = YamlWriter.Write(JsonText.Parse("{\"123\":\"numeric\",\"a: b\":\"colon\",\"plain\":\"ok\"}"));
 
@@ -106,7 +106,7 @@ public sealed class YamlWriterTests
     /// <summary>Plain safety matches what the reader reads back as the same string.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void IsPlainSafe_Matches_Readback()
+    public void IsPlainSafeMatchesReadback()
     {
         Assert.True(YamlWriter.IsPlainSafe("hello"));
         Assert.True(YamlWriter.IsPlainSafe("Borrow copy"));
@@ -127,7 +127,7 @@ public sealed class YamlWriterTests
     /// <summary>Writing then parsing gives the same JSON.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Write_Then_Parse_Round_Trips()
+    public void WriteThenParseRoundTrips()
     {
         var cases = new[]
         {
@@ -150,7 +150,7 @@ public sealed class YamlWriterTests
     /// <summary>Writing a parsed write gives the same text.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Write_Is_Stable()
+    public void WriteIsStable()
     {
         var cases = new[]
         {
@@ -172,7 +172,7 @@ public sealed class YamlWriterTests
     /// <summary>Top-level strings write quoted; other scalars write plain.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Writes_Top_Level_Scalars_Quoted()
+    public void WritesTopLevelScalarsQuoted()
     {
         Assert.Equal("\"hello\"\n", YamlWriter.Write(JsonText.Parse("\"hello\"")));
         Assert.Equal("\"true\"\n", YamlWriter.Write(JsonText.Parse("\"true\"")));
@@ -185,7 +185,7 @@ public sealed class YamlWriterTests
     /// <summary>Every write ends with one line end.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Ends_With_One_Line_End()
+    public void EndsWithOneLineEnd()
     {
         var cases = new[]
         {

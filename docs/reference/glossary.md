@@ -78,6 +78,12 @@ Checks on the shape of a command or query, run before business behavior runs.
 
 Source: LiteSpec.
 
+### Layer Claim
+
+The record layer a project claims in `layers`, with the practice it follows in that layer: `intent` and `behavior` take `litespec`, and `implementation` and `proof` take `litespec` or `own`.
+
+Source: LiteSpec.
+
 ### Layer Projects
 
 The backend layout with one project per architecture layer, selected through the layer-projects extension.
@@ -164,7 +170,7 @@ Source: RBAC.
 
 ### Aggregate
 
-One unit of business state that stays consistent and changes in one step. Its kind is entity, saga, or store.
+One unit of business state that stays consistent and changes in one step. Its kind is entity or store.
 
 Layer: Behavior.
 
@@ -232,16 +238,6 @@ Layer: Behavior.
 
 Source: CQRS.
 
-### Compensation
-
-The per-step undo of a saga: the use case that reverses one step, or none with its reason.
-
-Layer: Behavior.
-
-Aliases: undo.
-
-Source: LiteSpec.
-
 ### Conclusion
 
 The one sentence a research record concludes, stated as data so a decision can cite it.
@@ -289,6 +285,14 @@ One dated choice with options weighed and evidence cited.
 Layer: Intent.
 
 Source: decision records.
+
+### Departure
+
+One recorded departure from a provision or a check, with its reason, the provisions, pages or finding codes it covers, the records or paths it covers, and an expiry date with an exit when the team means to close it.
+
+Layer: Intent or Behavior.
+
+Source: LiteSpec.
 
 ### Domain
 
@@ -345,16 +349,6 @@ Source: plain English.
 One table of rows a scenario walks through, holding the values the parts argue about.
 
 Source: BDD.
-
-### Exception
-
-One recorded departure from a provision or one check held red, with its reason and expiry date.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
-
-Rejected: deviation and known gap, which named two records where one holds both.
 
 ### External System
 
@@ -578,12 +572,6 @@ Layer: Behavior.
 
 Source: the GDPR.
 
-### Qualified Identifier
-
-The display form of a record identifier with its placement, built from the identifier's segments plus placement. Links never use it.
-
-Source: LiteSpec.
-
 ### Quality Requirement
 
 One requirement stating how well the product performs, with a measure and a target.
@@ -634,7 +622,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows or one guarantee it keeps. A departure names its fallback requirement; a tenant-set value is not a departure. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 
@@ -691,16 +679,6 @@ The steps to run or recover the product.
 Layer: Implementation.
 
 Source: the SRE book.
-
-### Saga
-
-One coordinating aggregate whose steps run use cases on other aggregates, each with its compensation.
-
-Layer: Behavior.
-
-Aliases: process manager.
-
-Source: LiteSpec.
 
 ### Scenario
 
@@ -804,6 +782,14 @@ Layer: Behavior.
 
 Source: Cockburn.
 
+### User
+
+The person the product serves, reached through a browser or device entry point.
+
+Layer: Behavior.
+
+Source: LiteSpec.
+
 ## Standard Terms
 
 These terms name the parts of the LiteSpec standard itself.
@@ -852,7 +838,7 @@ Source: LiteSpec.
 
 ### Check Level
 
-One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports and never blocks.
+One of the three check levels: G reads records only and always blocks, S reads code through a stack reader, A reports, and blocks only for the release-readiness findings under `litespec model check --release`.
 
 Source: LiteSpec.
 
@@ -868,9 +854,21 @@ The specification with every record decided and every required link holding.
 
 Source: LiteSpec.
 
+### Coded
+
+The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.
+
+Source: LiteSpec.
+
 ### Command Page
 
 One page that documents one shipped command: its arguments, options, exit codes, and what it runs underneath.
+
+Source: LiteSpec.
+
+### Completion Stage
+
+One of the four stages of a record's completion: unfulfilled, specified, coded, or verified.
 
 Source: LiteSpec.
 
@@ -885,18 +883,6 @@ Rejected: SBOM, which names one format where the inventory names the content.
 ### Configuration Page
 
 One page holding every setting a reader can change.
-
-Source: LiteSpec.
-
-### Conformance
-
-The claim that a project meets the LiteSpec contract it pins.
-
-Source: the W3C QA Framework.
-
-### Conformance Level
-
-The part of the LiteSpec contract a project claims: `records`, `traced` or `full`, each level including the one below it.
 
 Source: LiteSpec.
 
@@ -929,6 +915,12 @@ Source: LiteSpec.
 The browser rule that decides which origins can call the API.
 
 Source: the Fetch standard.
+
+### Covered
+
+The outcome of a finding a departure record covers: reported, and never blocking.
+
+Source: LiteSpec.
 
 ### Current Standards Material
 
@@ -1010,7 +1002,7 @@ Source: LiteSpec.
 
 ### Governance
 
-The group of records beside the four record layers, holding exceptions.
+The group of records beside the four record layers, holding departures.
 
 Source: LiteSpec.
 
@@ -1025,12 +1017,6 @@ Source: LiteSpec.
 One page that solves one stated problem for a reader who already has a working result.
 
 Source: Diataxis.
-
-### Implemented
-
-The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.
-
-Source: LiteSpec.
 
 ### Index
 
@@ -1060,17 +1046,11 @@ Source: LiteSpec.
 
 ### Mark
 
-One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or exception shaping it, holding the identifier in the project mark style.
+One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or departure shaping it, holding the identifier in the project mark style.
 
 Source: LiteSpec.
 
 Rejected: anchor and tag, which name the link by one of its forms.
-
-### Met
-
-The computed state of a requirement everything fulfilling it verifies, with its measure's check passing.
-
-Source: LiteSpec.
 
 ### Normative
 
@@ -1124,7 +1104,7 @@ Source: LiteSpec.
 
 ### Provision
 
-One rule, default, or piece of advice on a standards page, carrying an identifier, a strength, and a verification line.
+One rule, convention, or pattern on a standards page, carrying an identifier, a strength, and a verification line.
 
 Source: LiteSpec.
 
@@ -1137,6 +1117,12 @@ Source: web API practice.
 ### Reachable
 
 The computed state of an aggregate state a transition leads into.
+
+Source: LiteSpec.
+
+### Reader
+
+The stack reader that reads code for the model and the checks. The reader of a documentation page is not a reader in this sense.
 
 Source: LiteSpec.
 
@@ -1214,6 +1200,12 @@ Research kept outside the documentation, which carries no authority on its own.
 
 Source: LiteSpec.
 
+### Specified
+
+The completion stage of a record that is named in the specification but has no code and no passing proof.
+
+Source: LiteSpec.
+
 ### Stack
 
 One technology binding of the specification, held in one folder.
@@ -1240,7 +1232,7 @@ Source: LiteSpec.
 
 ### Strength
 
-One of the three provision strengths: rule, default, or advice.
+One of the three provision strengths: required, default, or advisory.
 
 Source: LiteSpec.
 
@@ -1274,9 +1266,15 @@ The command page section stating what the command runs.
 
 Source: LiteSpec.
 
+### Unfulfilled
+
+The completion stage of a record the specification names but nothing yet specifies, codes or verifies.
+
+Source: LiteSpec.
+
 ### Verified
 
-The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale.
+The computed state of a use case whose every scenario has a passing proof through the public boundary that is not stale, and of a requirement everything fulfilling it verifies, with its measure's check passing.
 
 Source: LiteSpec.
 

@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Tables;
+namespace LiteSpec.Cli.Tests.Model.Tables;
 
 /// <summary>Proves the test run writes its date, preferring result timestamps.</summary>
 public sealed class TestRunDateTests
@@ -11,7 +11,7 @@ public sealed class TestRunDateTests
     /// <summary>A TRX run writes its finish day.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Trx_Run_Writes_Its_Finish_Day()
+    public void TrxRunWritesItsFinishDay()
     {
         using var temp = ModelFixture.Prepare("small");
         CopyResults(temp.Path, "trx", "results.trx", "results.trx");
@@ -24,7 +24,7 @@ public sealed class TestRunDateTests
     /// <summary>A JUnit run writes its suite timestamp day.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void JUnit_Run_Writes_Its_Suite_Timestamp_Day()
+    public void JUnitRunWritesItsSuiteTimestampDay()
     {
         using var temp = ModelFixture.Prepare("small");
         var file = CopyResults(temp.Path, "junit", "results.xml", "results.xml");
@@ -39,7 +39,7 @@ public sealed class TestRunDateTests
     /// <summary>A JUnit run without a timestamp writes its file day.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void JUnit_Run_Without_A_Timestamp_Writes_The_File_Day()
+    public void JUnitRunWithoutATimestampWritesTheFileDay()
     {
         using var temp = ModelFixture.Prepare("small");
         var file = CopyResults(temp.Path, "junit", "results.xml", "results.xml");
@@ -53,7 +53,7 @@ public sealed class TestRunDateTests
     /// <summary>A combined run writes the latest day across formats.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Combined_Run_Writes_The_Latest_Day()
+    public void CombinedRunWritesTheLatestDay()
     {
         using var temp = ModelFixture.Prepare("small");
         CopyResults(temp.Path, "trx", "results.trx", "results.trx");
@@ -73,7 +73,7 @@ public sealed class TestRunDateTests
         var folder = Path.Combine(root, "TestResults");
         Directory.CreateDirectory(folder);
         var destination = Path.Combine(folder, target);
-        File.Copy(Cli.Fixture($"Model/{fixture}/{name}"), destination);
+        File.Copy(TestCli.Fixture($"Model/{fixture}/{name}"), destination);
 
         return destination;
     }

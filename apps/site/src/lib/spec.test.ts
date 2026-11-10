@@ -1,11 +1,11 @@
-// Tests for the standard reader: the slug matches the shared CLI fixture,
-// structure inside fenced blocks is ignored, provisions attach from the
-// generated index, and every index entry resolves to a page.
+// Tests for the standard reader: the slug matches the shared CLI fixture, the page
+// index covers every docs page and every shipped stack and extension, every selection
+// names only indexed pages, and provisions attach from the generated index.
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
-import { appliedPages, pages, parsePageContent, provisions, root, slug, type ProvisionIndexEntry } from "./spec.ts";
+import { appliedPages, backendStacks, extensionStack, frontendStacks, layers, manifest, pages, provisions, root, selectionKey, selectionLayers, selections, slug, type ProvisionIndexEntry } from "./spec.ts";
 
 describe("slug", () => {
   it("matches the shared CLI fixture for every entry", () => {
@@ -18,51 +18,53 @@ describe("slug", () => {
   });
 });
 
-describe("parsePageContent", () => {
-  const read = (body: string[]) => parsePageContent("docs/backend/test.md", ["# Test Page", "", ...body].join("\n"));
+/** Every Markdown file under docs/, relative to the repository root. */
+function docsFiles(dir: string): string[] {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return docsFiles(full);
+    return entry.name.endsWith(".md") ? [path.relative(root, full).split(path.sep).join("/")] : [];
+  });
+}
 
-  it("reads the title, the style and the first paragraph of the Intent section", () => {
-    const page = read(["## Intent", "", "Why this page exists.", "", "## Standards", ""]);
-    assert.strictEqual(page.title, "Test Page");
-    assert.strictEqual(page.style, "standard");
-    assert.strictEqual(page.intent, "Why this page exists.");
-    assert.deepStrictEqual(page.sections, ["Intent", "Standards"]);
+describe("page index", () => {
+  it("lists every docs page exactly once", () => {
+    const onDisk = docsFiles(path.join(root, "docs")).sort();
+    const indexed = pages.map((page) => page.file).sort();
+    assert.deepStrictEqual(indexed, onDisk);
   });
 
-  it("ignores an H2 inside a backtick fence", () => {
-    const page = read(["## Intent", "", "Why this page exists.", "", "```markdown", "## Hidden Section", "```", "", "## Standards", ""]);
-    assert.deepStrictEqual(page.sections, ["Intent", "Standards"]);
+  it("gives every page a title and a path under docs", () => {
+    for (const page of pages) {
+      assert.ok(page.title.length > 0, page.file);
+      assert.strictEqual(page.file, `docs/${page.path}.md`, page.file);
+      assert.strictEqual(page.area, page.path.split("/")[0], page.file);
+    }
   });
 
-  it("ignores an H2 inside a tilde fence", () => {
-    const page = read(["## Intent", "", "Why this page exists.", "", "~~~markdown", "## Hidden Section", "~~~", "", "## Standards", ""]);
-    assert.deepStrictEqual(page.sections, ["Intent", "Standards"]);
-  });
-
-  it("attaches no provisions to a page the index does not list", () => {
-    const page = read(["## Intent", "", "Why this page exists.", "", "## Standards", "", "### Shown Provision", "", "**Statement:** Something MUST hold.", ""]);
-    assert.deepStrictEqual(page.provisions, []);
-  });
-});
-
-describe("record pages", () => {
-  it("parses a research page with style research and no provisions", () => {
-    const page = parsePageContent("docs/intent/research/sample-study.md", ["# Sample Study", "", "## Answer", "", "What the sources say.", "", "### A Finding", "", "A detail.", ""].join("\n"));
-    assert.strictEqual(page.style, "research");
-    assert.deepStrictEqual(page.provisions, []);
-    assert.deepStrictEqual(page.sections, ["Answer"]);
-  });
-
-  it("parses a decision page with style decision and no provisions", () => {
-    const page = parsePageContent("docs/intent/decisions/0001-sample-choice.md", ["# Sample Choice", "", "## Context", "", "Why a choice is needed.", "", "## Decision", "", "The selected option.", "", "## Consequences", "", "What follows.", ""].join("\n"));
-    assert.strictEqual(page.style, "decision");
-    assert.deepStrictEqual(page.provisions, []);
-    assert.deepStrictEqual(page.sections, ["Context", "Decision", "Consequences"]);
+  it("lists every stack and extension the manifest ships", () => {
+    assert.deepStrictEqual([...backendStacks, ...frontendStacks].sort(), Object.keys(manifest.stacks).sort());
+    for (const id of Object.keys(manifest.extensions)) {
+      const owner = extensionStack(id);
+      assert.ok(owner === null || owner in manifest.stacks, `${id} supports ${owner}`);
+      assert.ok(layers().some((layer) => layer.key === `ext/${id}`), `no layer for extension ${id}`);
+    }
   });
 
   it("applies no record page in any selection", () => {
-    const files = appliedPages({ shape: "server", stacks: ["dotnet"], extensions: [] });
-    assert.ok(files.every((file) => !file.startsWith("docs/intent/") && !file.startsWith("docs/implementation/")));
+    for (const selection of selections()) {
+      assert.ok(appliedPages(selection).every((file) => !file.startsWith("docs/intent/") && !file.startsWith("docs/implementation/")), selectionKey(selection));
+    }
+  });
+
+  it("names only indexed pages and layers in every selection", () => {
+    const files = new Set(pages.map((page) => page.file));
+    const keys = new Set(layers().map((layer) => layer.key));
+    for (const selection of selections()) {
+      assert.strictEqual(selectionKey(selection), [selection.shape, ...selection.stacks].join("."));
+      for (const file of appliedPages(selection)) assert.ok(files.has(file), `${selectionKey(selection)} applies ${file}`);
+      for (const key of selectionLayers(selection)) assert.ok(keys.has(key), `${selectionKey(selection)} lists layer ${key}`);
+    }
   });
 });
 
@@ -77,7 +79,7 @@ describe("provision index", () => {
       assert.ok(entry.heading.length > 0, entry.id);
       assert.ok(["rule", "convention", "pattern"].includes(entry.kind), entry.id);
       assert.ok(["", "checkable", "guidance"].includes(entry.mark ?? ""), entry.id);
-      assert.ok(["", "rule", "default", "advice"].includes(entry.strength ?? ""), entry.id);
+      assert.ok(["", "required", "default", "advisory"].includes(entry.strength ?? ""), entry.id);
     }
   });
 

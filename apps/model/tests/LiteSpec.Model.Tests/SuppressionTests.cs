@@ -4,13 +4,13 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves an exception holds its covered findings on its subjects and paths while it is live.</summary>
+/// <summary>Proves an departure holds its covered findings on its subjects and paths while it is live.</summary>
 public sealed class SuppressionTests
 {
-    /// <summary>An open exception moves its covered finding to known.</summary>
+    /// <summary>An open departure moves its covered finding to known.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Open_Exception_Covers_Its_Finding()
+    public void OpenDepartureCoversItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -22,11 +22,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-unimplemented",
+                "departure",
+                "departure/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -40,13 +39,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Empty(partition.Findings);
-        Assert.Single(partition.Known);
+        Assert.Single(partition.Covered);
     }
 
-    /// <summary>An expired exception keeps its finding reported.</summary>
+    /// <summary>An expired departure keeps its finding reported.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Expired_Exception_Keeps_Its_Finding()
+    public void ExpiredDepartureKeepsItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -58,11 +57,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-unimplemented",
+                "departure",
+                "departure/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2020-01-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -76,13 +74,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
+        Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An exception holds only the codes it covers, not every finding on its subject.</summary>
+    /// <summary>An departure holds only the codes it covers, not every finding on its subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Exception_Covers_Only_Its_Codes()
+    public void DepartureCoversOnlyItsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -94,11 +92,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-unimplemented",
+                "departure",
+                "departure/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -112,13 +109,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
+        Assert.Empty(partition.Covered);
     }
 
     /// <summary>A paths glob holds a finding on a matching file, even with no subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Paths_Glob_Covers_A_Subjectless_Finding()
+    public void PathsGlobCoversASubjectlessFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -130,11 +127,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/legacy-shop",
+                "departure",
+                "departure/legacy-shop",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -148,13 +144,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Empty(partition.Findings);
-        Assert.Single(partition.Known);
+        Assert.Single(partition.Covered);
     }
 
     /// <summary>A paths glob keeps a finding on a file outside the glob reported.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Paths_Glob_Misses_Another_Folder()
+    public void PathsGlobMissesAnotherFolder()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -166,11 +162,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/legacy-docs",
+                "departure",
+                "departure/legacy-docs",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -184,13 +179,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
+        Assert.Empty(partition.Covered);
     }
 
     /// <summary>A departure holds the codes its provision governs.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Covers_Its_Provisions_Codes()
+    public void DepartureCoversItsProvisionsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -202,11 +197,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-departure",
+                "departure",
+                "departure/list-loans-departure",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "departure",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -227,13 +221,13 @@ public sealed class SuppressionTests
                 : Array.Empty<string>());
 
         Assert.Empty(partition.Findings);
-        Assert.Single(partition.Known);
+        Assert.Single(partition.Covered);
     }
 
     /// <summary>A departure holds nothing when no provision lookup is given.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Departure_Covers_Nothing_Without_A_Lookup()
+    public void DepartureCoversNothingWithoutALookup()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -245,11 +239,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-departure",
+                "departure",
+                "departure/list-loans-departure",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "departure",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -263,35 +256,34 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
+        Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An expiry finding is never held, even on the exception's own subject.</summary>
+    /// <summary>An expiry finding is never held, even on the departure's own subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Expiry_Finding_Is_Never_Held()
+    public void ExpiryFindingIsNeverHeld()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
-            "exception-expired",
-            "Exception 'exception/list-loans-unimplemented' stands past its end 2020-01-01.",
-            Path.Combine(root, "docs", "governance", "exceptions", "list-loans-unimplemented.md"),
+            "departure-expired",
+            "Departure 'departure/list-loans-unimplemented' stands past its end 2020-01-01.",
+            Path.Combine(root, "docs", "governance", "departures", "list-loans-unimplemented.md"),
             3,
-            "exception/list-loans-unimplemented");
+            "departure/list-loans-unimplemented");
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-unimplemented",
+                "departure",
+                "departure/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["exception-expired"],
-                    ["subject"] = ["exception/list-loans-unimplemented"],
+                    ["covers"] = ["departure-expired"],
+                    ["subject"] = ["departure/list-loans-unimplemented"],
                 }),
         ];
 
@@ -299,13 +291,13 @@ public sealed class SuppressionTests
             [finding], records, root, new DateTime(2026, 10, 28), _ => null);
 
         Assert.Single(partition.Findings);
-        Assert.Empty(partition.Known);
+        Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An exception naming a use case also holds findings about its scenarios.</summary>
+    /// <summary>An departure naming a use case also holds findings about its scenarios.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void Use_Case_Subject_Covers_Its_Scenario()
+    public void UseCaseSubjectCoversItsScenario()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -317,11 +309,10 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFacts> records =
         [
             new FakeRecord(
-                "exception",
-                "exception/list-loans-unproved",
+                "departure",
+                "departure/list-loans-unproved",
                 fields: new Dictionary<string, string>
                 {
-                    ["kind"] = "gap",
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
@@ -339,6 +330,6 @@ public sealed class SuppressionTests
             home => home == "list-loans" ? "use-case/lending.list-loans" : null);
 
         Assert.Empty(partition.Findings);
-        Assert.Single(partition.Known);
+        Assert.Single(partition.Covered);
     }
 }

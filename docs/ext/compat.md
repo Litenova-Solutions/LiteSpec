@@ -1,7 +1,7 @@
 # API Compatibility
 
 **Stack:** any
-**Layer:** web-api
+**Concern:** web-api
 
 ## Intent
 
@@ -29,7 +29,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-independent-consumer-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -43,7 +43,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-breaking-contract-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -57,7 +57,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#treat-removed-behavior-fields-as-breaking`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -71,7 +71,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#classify-compatible-additions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -85,13 +85,13 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#review-exhaustive-consumer-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
 **Statement:** An API change reviewer MUST require consumer review for an added enum value or polymorphic subtype.
 
-**Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server now sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
+**Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
 
 **Reviewed for:** Which added enum values or discriminator cases shipped without consumer review? Look at the consumer reviews.
 
@@ -99,7 +99,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#preserve-stable-error-codes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -113,7 +113,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#resolve-uncertain-classifications-safely`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -127,7 +127,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-breaking-behavior-changes-as-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -141,7 +141,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-release-baselines`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -155,7 +155,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#diff-release-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -169,7 +169,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#reject-breaking-diffs-without-authorization`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -183,7 +183,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#assign-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -199,7 +199,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-compatible-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -213,7 +213,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#assign-versioned-operation-ids`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -227,7 +227,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#version-breaking-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -241,7 +241,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retain-supported-versions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -255,7 +255,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-version-retirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -269,7 +269,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#signal-planned-public-removal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: endpoint
 
@@ -283,7 +283,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#publish-deprecation-context`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -297,7 +297,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#record-deprecation-conditions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:decision
 
@@ -311,7 +311,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#treat-errors-as-contracts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -325,7 +325,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#gate-new-error-outcomes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -339,7 +339,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#exercise-generated-consumers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -349,25 +349,11 @@ This extension switches on no optional record type.
 
 **Reviewed for:** Which first-party clients skip compiling or exercising the changed contract? Look at the client test runs.
 
-### Declare Published Facts as Integration Events
-
-**ID:** `litespec/ext/compat#declare-published-facts-as-integration-events`
-
-**Strength:** rule
-
-**Applies to:** artifact: record:integration-event
-
-**Statement:** A fact consumed outside the product MUST be declared as an integration event with its direction, payload, and trust.
-
-**Rationale:** A consumer outside the product reads the fact without reading the product's code, so the integration-event record states what the consumer may rely on: the direction, the payload with its classifications, and the trust readers place in it. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record. An undeclared fact reaches outside consumers as an implementation detail that changes without notice.
-
-**Reviewed for:** Which outside-consumed facts lack an integration-event record with direction, payload, and trust? Look at the integration-event records beside the outside consumers.
-
 ### Classify Integration Event Changes
 
 **ID:** `litespec/ext/compat#classify-integration-event-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -381,7 +367,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#version-breaking-integration-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -395,7 +381,7 @@ This extension switches on no optional record type.
 
 **ID:** `litespec/ext/compat#retire-integration-events-with-notice`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

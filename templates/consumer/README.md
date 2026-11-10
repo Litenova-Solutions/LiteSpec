@@ -2,7 +2,7 @@
 
 ## Intent
 
-These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.json` and the `## LiteSpec` block in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other JSON templates carry working example values; adjust them to the project.
+These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `## LiteSpec` block in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
 
 A record file carries its record in YAML, with the entries in `records`. An article type (research, decision) also keeps an explanation file beside its record file. A document holds no record. Requirements sit on a feature file. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record with its screens beside it. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
 
@@ -10,10 +10,10 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 
 | Template | Target | Purpose |
 |:---|:---|:---|
-| `project.json` | `.litespec/project.json` | Selects the size, shape, stacks, reviewed LiteSpec release, paths, and selected extensions. |
+| `project.yaml` | `.litespec/project.yaml` | Selects the size, shape, stacks, reviewed LiteSpec release, paths, and selected extensions. |
 | `project-agents.md` | `AGENTS.md` | Provides the short consumer agent entry point with the `## LiteSpec` block. |
 | `glossary.yaml` | `.litespec/glossary.yaml` | Holds the Term entries prose is checked against, with layers, aliases, rejected words, and mannered terms. |
-| `example-cast.md` | `.litespec/behavior/example-cast.md` | Fixes the people, place, dates, and amounts every `Example` section draws from. |
+| `example-cast.md` | `.litespec/example-cast.md` | Fixes the people, place, dates, and amounts every `Example` section draws from. |
 
 ## Page Records
 
@@ -43,14 +43,14 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<name>.yaml` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
-| `exception.yaml` | `.litespec/governance/exceptions/<name>.yaml` | Records one departure from a provision or one gap whose check stays red, with reason and expiry date. |
+| `departure.yaml` | `.litespec/governance/departures/<name>.yaml` | Records one departure from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
 
 ## Entry Lists and Page Styles
 
 | Template | Target | Purpose |
 |:---|:---|:---|
 | `permission-list.yaml` | `.litespec/behavior/modules/<module>/permissions.yaml` | Holds the permission entries of one module that roles allow. |
-| `setting-set.yaml` | `.litespec/behavior/modules/<module>/settings.yaml` | Holds the setting entries a module runs with. |
+| `setting-set.yaml` | `.litespec/behavior/modules/<module>/settings/<name>.yaml` | Holds the setting entries a module runs with. |
 | `retention-schedule.yaml` | `.litespec/behavior/retention-schedule.yaml` | Holds the retention rows for every data class. |
 | `rule-set.yaml` | `.litespec/behavior/modules/<module>/rules/<name>.yaml` | Holds rule entries that sit together outside one aggregate. |
 | `convention.md` | `.litespec/governance/conventions/<name>.md` | States one project convention in provision shape, with ID, strength, and scope. |
@@ -83,7 +83,7 @@ Only research and decision scaffold an explanation file today. For the other rec
 | Template | Target | Purpose |
 |:---|:---|:---|
 | `design-contract.md` | `packages/ui/DESIGN.md` | States the brand, tokens, composites, and voice every frontend composes from. |
-| `ui-source-lock.json` | `packages/ui/ui-source-lock.json` | Records the installed registry source, digests, and dependencies. |
-| `ui-pattern-catalog.json` | `.litespec/implementation/patterns/catalog.json` | Records each recurring interface decision with its options and choice. |
+| `ui-source-lock.yaml` | `packages/ui/ui-source-lock.yaml` | Records the installed registry source, digests, and dependencies. |
+| `ui-pattern-catalog.yaml` | `.litespec/implementation/patterns/catalog.yaml` | Records each recurring interface decision with its options and choice. |
 
 The model builder reads each record and computes its state in memory, and the book renders that state.

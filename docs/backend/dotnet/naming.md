@@ -1,7 +1,7 @@
 # .NET Naming and Code Style
 
 **Stack:** dotnet
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -32,7 +32,7 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **ID:** `litespec/backend/dotnet/naming#match-c-files-and-primary-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A C# file MUST contain one primary top-level type and take that type's exact name.
 
@@ -44,13 +44,49 @@ Mapping classes use `ApiMappings` instead of the context-dependent `Mappings` su
 
 **ID:** `litespec/backend/dotnet/naming#keep-implementation-style-consistent`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production C# MUST use file-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes.
 
 **Rationale:** File-scoped namespaces, braces on every body, explicit access modifiers, and sealed concrete classes change diff readability rather than behavior. One shared setting removes the debate from every review and keeps generated and hand-written code alike.
 
 **Checked by:** `dotnet build` reports `LS3004` for a concrete class with no derived type that is not sealed.
+
+### Check Architectural Role Suffixes
+
+**ID:** `litespec/backend/dotnet/naming#check-architectural-role-suffixes`
+
+**Strength:** required
+
+**Statement:** In the dotnet stack, a handler, endpoint, reaction, or job MUST carry the suffix its role assigns in the Role Suffixes table.
+
+**Rationale:** The suffix states the architectural role in the name, so a reader and a tool tell command coordination, projection, and boundaries apart without opening the file. This provision binds `litespec/workspace/naming#use-architectural-suffixes` for .NET.
+
+**Checked by:** `dotnet build` reports `LS2005` for a handler missing its command or query suffix, `LS2006` for an endpoint missing its suffix, and `LS2007` for a reaction or job whose name hides its kind.
+
+### Check Result Part Names
+
+**ID:** `litespec/backend/dotnet/naming#check-result-part-names`
+
+**Strength:** required
+
+**Statement:** In the dotnet stack, a type a use-case result reaches through its properties MUST be named after the result it belongs to.
+
+**Rationale:** A result part named for its result keeps each part beside the result it belongs to and avoids collisions between use cases shaping the same concept. This provision binds `litespec/workspace/naming#name-result-parts-after-their-result` for .NET.
+
+**Checked by:** `dotnet build` reports `LS2009` for a type a use-case result reaches through its properties whose name does not start with the result name.
+
+### Check Repository Variable Names
+
+**ID:** `litespec/backend/dotnet/naming#check-repository-variable-names`
+
+**Strength:** required
+
+**Statement:** In the dotnet stack, a repository parameter, field, or local MUST be named after its interface without the `I` prefix.
+
+**Rationale:** Naming the variable after its interface keeps one name per repository at every use site. This provision binds `litespec/workspace/naming#name-repository-variables-after-their-interface` for .NET.
+
+**Checked by:** `dotnet build` reports `LS2010` for a repository parameter, field, or local whose name does not follow its interface.
 
 ## Conventions
 

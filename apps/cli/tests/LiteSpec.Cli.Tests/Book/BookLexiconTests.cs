@@ -1,8 +1,8 @@
 using LiteSpec.Book;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book lexicon reads LiteSpec's own words: link phrases, type questions, layers, fields, glossary, sections and findings, and fails naming the file.</summary>
 public sealed class BookLexiconTests
@@ -10,9 +10,9 @@ public sealed class BookLexiconTests
     /// <summary>Each link reads in both directions, in the Links table's own phrases.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Links_Read_In_Both_Directions()
+    public void LinksReadInBothDirections()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var links = lexicon.ToJson()["links"]!.AsArray();
         var solves = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "solves")!.AsObject();
@@ -26,9 +26,9 @@ public sealed class BookLexiconTests
     /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Transitions_By_Resolves_To_Its_Row()
+    public void TransitionsByResolvesToItsRow()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.True(lexicon.TryPhrase("transitions.by", "aggregate", out var forward, out var inverse));
@@ -43,9 +43,9 @@ public sealed class BookLexiconTests
     /// <summary>A nested effects path reads as its effects row; a leading record type reads the same; an unknown nested path reads nothing.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Nested_Effects_Calls_Resolves_To_Effects_Row()
+    public void NestedEffectsCallsResolvesToEffectsRow()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.True(lexicon.TryPhrase("effects.calls", "use-case", out var forward, out var inverse));
@@ -66,9 +66,9 @@ public sealed class BookLexiconTests
     /// <summary>The actor row's two readings split by carrier: a journey is walked by, an external system acts as.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Actor_Row_Splits_By_Carrier()
+    public void ActorRowSplitsByCarrier()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.True(lexicon.TryPhrase("actor", "journey", out var forward, out var inverse));
@@ -83,9 +83,9 @@ public sealed class BookLexiconTests
     /// <summary>Rows sharing one field stay apart by carrier: each serves row keeps its own carriers.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Serves_Rows_Stay_Apart_By_Carrier()
+    public void ServesRowsStayApartByCarrier()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var serves = lexicon.Links.Where(link => link.Field == "serves").ToList();
         Assert.Equal(2, serves.Count);
@@ -100,9 +100,9 @@ public sealed class BookLexiconTests
     /// <summary>The terms row widens to every record type, since any record may use a term.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Terms_Row_Covers_Every_Record_Type()
+    public void TermsRowCoversEveryRecordType()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var terms = lexicon.Links.Single(link => link.Field == "terms");
         Assert.Equal(RecordTypes.All.Count, terms.Carriers.Count);
@@ -117,9 +117,9 @@ public sealed class BookLexiconTests
     /// <summary>A Written on cell naming a nested carrier keeps only the record types.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void BasedOn_Row_Skips_Non_Record_Carriers()
+    public void BasedOnRowSkipsNonRecordCarriers()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var basedOn = lexicon.Links.Single(link => link.Field == "basedOn");
         Assert.Equal(new List<string> { "decision" }, basedOn.Carriers.ToList());
@@ -131,9 +131,9 @@ public sealed class BookLexiconTests
     /// <summary>Each type carries its label, plural, layer and question; research stays whole in the plural.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Types_Carry_Label_Plural_Layer_And_Question()
+    public void TypesCarryLabelPluralLayerAndQuestion()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var types = lexicon.ToJson()["types"]!.AsObject();
 
@@ -151,9 +151,9 @@ public sealed class BookLexiconTests
     /// <summary>Each layer carries its writers; governance and glossary read beside the four rows with none.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Layers_Carry_Writers()
+    public void LayersCarryWriters()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var layers = lexicon.ToJson()["layers"]!.AsObject();
 
@@ -172,9 +172,9 @@ public sealed class BookLexiconTests
     /// <summary>Each field reads under its label, with the renamed fields under their new names.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Fields_Label_By_Field_Name()
+    public void FieldsLabelByFieldName()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.Equal("Finished when", lexicon.Fields["finishedWhen"]);
@@ -210,11 +210,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Skipped when", lexicon.Fields["skippedWhen"]);
         Assert.Equal("Runs", lexicon.Fields["runs"]);
         Assert.Equal("Emits", lexicon.Fields["emits"]);
-        Assert.Equal("Driven by", lexicon.Fields["drivenBy"]);
-        Assert.Equal("Reaction", lexicon.Fields["reaction"]);
-        Assert.Equal("Job", lexicon.Fields["job"]);
-        Assert.Equal("Person", lexicon.Fields["person"]);
-        Assert.Equal("Due within", lexicon.Fields["dueWithin"]);
         Assert.Equal("Binds", lexicon.Fields["binds"]);
         Assert.Equal("Exercises", lexicon.Fields["exercises"]);
         Assert.Equal("Background", lexicon.Fields["background"]);
@@ -260,7 +255,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Label", lexicon.Fields["label"]);
         Assert.Equal("Classification", lexicon.Fields["classification"]);
         Assert.Equal("Effective from", lexicon.Fields["effectiveFrom"]);
-        Assert.Equal("Compensation", lexicon.Fields["compensation"]);
         Assert.Equal("Restart", lexicon.Fields["restart"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));
@@ -301,9 +295,9 @@ public sealed class BookLexiconTests
     /// <summary>Each glossary term carries its definition, layer and source; aliases and rejected words stay out.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void Glossary_Splits_Definition_Layer_And_Source()
+    public void GlossarySplitsDefinitionLayerAndSource()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var glossary = lexicon.ToJson()["glossary"]!.AsObject();
         Assert.Equal(3, glossary.Count);
@@ -327,9 +321,9 @@ public sealed class BookLexiconTests
     /// <summary>Each named section carries its first paragraph and names its LiteSpec source.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void Sections_Carry_First_Paragraph_And_Source()
+    public void SectionsCarryFirstParagraphAndSource()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var sections = lexicon.ToJson()["sections"]!.AsObject();
         Assert.Equal(2, sections.Count);
@@ -346,9 +340,9 @@ public sealed class BookLexiconTests
     /// <summary>Each finding code carries its tier and meaning; the reason-code table is not a finding table.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void Findings_Carry_Tier_And_Meaning()
+    public void FindingsCarryTierAndMeaning()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var findings = lexicon.ToJson()["findings"]!.AsObject();
         Assert.Equal(2, findings.Count);
@@ -362,9 +356,9 @@ public sealed class BookLexiconTests
     /// <summary>The finding table reads by column name, so an added Fix column never moves it.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void Findings_Read_By_Column_Name_With_Extra_Columns()
+    public void FindingsReadByColumnNameWithExtraColumns()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var tools = ToolsPage()
             .Replace("| Code | Level | Meaning |", "| Code | Level | Meaning | Fix |", StringComparison.Ordinal)
             .Replace("|:---|:---|:---|", "|:---|:---|:---|:---|", StringComparison.Ordinal)
@@ -389,9 +383,9 @@ public sealed class BookLexiconTests
     /// <summary>A page without its Links section fails, naming the page.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
-    public void Missing_Links_Table_Fails_Naming_The_File()
+    public void MissingLinksTableFailsNamingTheFile()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var model = ModelPage().Replace("### Links", "### Gone", StringComparison.Ordinal);
         var home = WriteHome(temp, model, ToolsPage(), GlossaryPage());
         var modelFile = Path.Combine(home, "docs", "core", "model.md");
@@ -402,9 +396,9 @@ public sealed class BookLexiconTests
     /// <summary>A Links table in the old three-column shape fails, naming the page.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
-    public void Old_Links_Shape_Fails_Naming_The_File()
+    public void OldLinksShapeFailsNamingTheFile()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var model = ModelPage()
             .Replace(
                 "| Field | Written on | Points at | Reads as | Read back as |",
@@ -420,9 +414,9 @@ public sealed class BookLexiconTests
     /// <summary>A missing carried page fails, naming the page.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
-    public void Missing_Page_Fails_Naming_The_File()
+    public void MissingPageFailsNamingTheFile()
     {
-        using var temp = Cli.Temp("book-lexicon");
+        using var temp = TestCli.Temp("book-lexicon");
         var home = WriteHome(temp, ModelPage(), ToolsPage(), null);
         var glossaryFile = Path.Combine(home, "docs", "reference", "glossary.md");
         var exception = Assert.Throws<BookLexiconException>(() => BookLexicon.Load(home));
@@ -432,7 +426,7 @@ public sealed class BookLexiconTests
     static string WriteHome(TempFolder temp, string? model, string? tools, string? glossary)
     {
         WriteFile(temp, ["docs", "core", "model.md"], model);
-        WriteFile(temp, ["docs", "tools", "model.md"], tools);
+        WriteFile(temp, ["docs", "reference", "finding-codes.md"], tools);
         WriteFile(temp, ["docs", "reference", "glossary.md"], glossary);
         return temp.Path;
     }

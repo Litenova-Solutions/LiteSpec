@@ -6,14 +6,14 @@ namespace LiteSpec.Analyzers.Rules;
 
 /// <summary>
 ///     The base of every LiteSpec analyzer: skips opted-out compilations, gates a
-///     compilation once by the conformance level it claims and by its declared or
+///     compilation once by the record layers it claims and by its declared or
 ///     layer-projects layer, and registers the rule for per-file gating under the
-///     module layout. Generated code is skipped. At the records level no rule
-///     runs, and at the traced level only the traceability rules run, so a rule
-///     added later inherits the gate from this base.
+///     module layout. Generated code is skipped. A rule runs only when the claim
+///     covers every diagnostic it reports, so a rule added later inherits the gate
+///     from this base.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
+/// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
 public abstract class LayerAnalyzer : DiagnosticAnalyzer
 {
     /// <inheritdoc />
@@ -23,7 +23,7 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            if (!ConformanceGate.Allows(ConformanceGate.Declared(start.Options), SupportedDiagnostics))
+            if (!ClaimGate.Allows(ClaimGate.Declared(start.Options), SupportedDiagnostics))
             {
                 return;
             }

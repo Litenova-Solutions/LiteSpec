@@ -92,7 +92,7 @@ static partial class DotnetScreenReader
                 continue;
             }
 
-            var relative = Relative(frontend, file);
+            var relative = PathText.Relative(frontend.Path, file);
             var blocks = CodeBlocks(text);
             var masked = Masked(text, blocks);
             var marks = ComponentMarks(file, text, blocks, problems, reported);
@@ -158,7 +158,7 @@ static partial class DotnetScreenReader
                 continue;
             }
 
-            var relative = Relative(frontend, file);
+            var relative = PathText.Relative(frontend.Path, file);
             var root = tree.GetRoot();
 
             foreach (var destination in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
@@ -846,13 +846,6 @@ static partial class DotnetScreenReader
             }
         }
     }
-
-    /// <summary>The file path relative to the frontend root, with forward slashes.</summary>
-    /// <param name="frontend">The frontend whose files are read.</param>
-    /// <param name="file">The file path to make relative to the frontend root.</param>
-    /// <returns>The relative path text, using forward slashes as separators.</returns>
-    private static string Relative(FrontendConfig frontend, string file) =>
-        Path.GetRelativePath(frontend.Path, file).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>The 1-based line that contains the character offset.</summary>
     /// <param name="text">The text whose lines are counted.</param>

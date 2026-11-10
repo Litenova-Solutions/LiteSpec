@@ -1,8 +1,7 @@
 # .NET Domain Layer
 
 **Stack:** dotnet
-
-**Layer:** domain
+**Concern:** domain
 
 ## Intent
 
@@ -30,7 +29,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **ID:** `litespec/backend/dotnet/domain#keep-domain-free-of-outer-layer-concerns`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -44,7 +43,7 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **ID:** `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -54,11 +53,41 @@ Each aggregate identity is a small struct over one version 7 `Guid`, created by 
 
 **Reviewed for:** Which aggregate root declarations escape the sealed class deriving from the project-owned `AggregateRoot<TId>`? Look at each root declaration.
 
+### Mark Each Changing Root Method with One Use Case
+
+**ID:** `litespec/backend/dotnet/domain#mark-each-changing-root-method-with-one-use-case`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** A root method that changes state MUST carry exactly one `<implements>` mark naming its use case.
+
+**Rationale:** The mark is the XML documentation tag that ties a method to the use case whose act it performs, so the builder and the analyzer read the same link. A reading or private method performs no act and carries no use-case mark, which `LS5002` reports. This provision binds `litespec/backend/domain#give-each-use-case-its-own-act` for .NET; the model check on the same rule stays on that generic provision.
+
+**Example:**
+
+```csharp
+/// <implements>use-case/spending.approve-expense</implements>
+public void Approve(ApproverId approverId, DateTimeOffset decidedAt)
+{
+    if (State is not ExpenseSubmittedState)
+    {
+        throw new ExpenseNotSubmittedException(Id);
+    }
+
+    State = new ExpenseApprovedState(approverId, decidedAt);
+    RaiseDomainEvent(new ExpenseApprovedEvent(Id, approverId, decidedAt));
+}
+```
+
+**Checked by:** `dotnet build` reports `LS5003` for a root method carrying other than one use-case mark, and `LS5002` for a mark on a reading or private method.
+
 ### Model Child Entities as Sealed Classes
 
 **ID:** `litespec/backend/dotnet/domain#model-child-entities-as-sealed-classes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -100,7 +129,7 @@ public sealed class OrderLine : Entity<OrderLineId>
 
 **ID:** `litespec/backend/dotnet/domain#model-value-objects-as-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -180,7 +209,7 @@ If order is not part of the value, creation normalizes to the documented compari
 
 **ID:** `litespec/backend/dotnet/domain#implement-domain-services-as-stateless-classes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -212,7 +241,7 @@ Application supplies the lines and passes the returned `Money` to `Order.Confirm
 
 **ID:** `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -245,7 +274,7 @@ public sealed record ProfileActiveState : ProfileState;
 
 **ID:** `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -357,7 +386,7 @@ The diagram shows the `MerchantRole` hierarchy with its cases, `Code`, and `From
 
 **ID:** `litespec/backend/dotnet/domain#use-strongly-typed-version-7-identifiers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -415,11 +444,35 @@ The `IParsable<TId>` implementation supports Minimal API route and query binding
 
 **Checked by:** `dotnet build` reports `LS1012` for an `Id` struct outside the strongly typed form, or a raw `Guid` as an aggregate identity.
 
+### Keep Clock Reads and Random Values Out of Domain
+
+**ID:** `litespec/backend/dotnet/domain#keep-clock-reads-and-random-values-out-of-domain`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Domain code MUST NOT read a clock, a random source or a new `Guid`, so every such value arrives as an argument.
+
+**Rationale:** `DateTime`, `DateTimeOffset`, `TimeProvider`, `Random`, `RandomNumberGenerator` and `Guid.NewGuid` or `Guid.CreateVersion7` return a different value on each call, so a Domain method that reads one cannot be tested with a fixed value. Receiving each value as an argument keeps every Domain call a pure function of its inputs. The Application layer obtains each value through its owned port and passes it in. This provision binds `litespec/backend/domain#pass-nondeterministic-values-into-domain` for .NET.
+
+**Example:**
+
+```csharp
+// Prohibited: the rule reads the clock itself.
+public void Publish() => PublishedAt = DateTimeOffset.UtcNow;
+
+// Required: the caller passes the time in.
+public void Publish(DateTimeOffset publishedAt) => PublishedAt = publishedAt;
+```
+
+**Checked by:** `dotnet build` reports `LS1009` for a clock, randomness, or identifier read in Domain.
+
 ### Make Money and Decimal Rules Explicit
 
 **ID:** `litespec/backend/dotnet/domain#make-money-and-decimal-rules-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -456,11 +509,32 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Reviewed for:** Which monetary amounts escape the `decimal` inside the shared `Money` object with amount and currency? Look at each monetary amount.
 
+### Keep Double and Float Out of Exact Quantities
+
+**ID:** `litespec/backend/dotnet/domain#keep-double-and-float-out-of-exact-quantities`
+
+**Strength:** required
+
+**Applies to:** artifact: value-object
+
+**Statement:** Domain code MUST NOT declare a `double` or `float` for a monetary amount, a rate applied to one, or a quantity compared for exact equality.
+
+**Rationale:** `double` and `float` represent most decimal fractions only approximately, so two amounts that read as equal compare as different. The shared `Money` object holds a `decimal`, and a rate applied to a `Money` amount is a `decimal` too. The analyzer reports the declaration in Domain that breaks this form. This provision binds `litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities` for .NET.
+
+**Example:**
+
+```csharp
+// Required: a rate applied to a Money amount is a decimal.
+public Money ApplyRate(decimal rate) => Create(Amount * rate, Currency);
+```
+
+**Checked by:** `dotnet build` reports `LS1008` for a `double` or `float` type in Domain.
+
 ### Keep Repository Interfaces in Domain
 
 **ID:** `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -496,32 +570,11 @@ public async Task<Post> GetByIdAsync(PostId id, CancellationToken cancellationTo
 
 **Checked by:** `dotnet build` reports `LS1010` for a repository interface exposing a query surface.
 
-### Expose Cross-Record Keys from the Aggregate
-
-**ID:** `litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** An aggregate needing a cross-record uniqueness key MUST expose its current keys through a `UniquenessKeys` method.
-
-**Rationale:** That method is the only uniqueness code in Domain: the aggregate declares its current keys, and persistence claims and releases them in the commit that changes the aggregate, following `litespec/backend/persistence#claim-a-cross-record-key-at-commit`. The method computes keys from current state and validates nothing about other records, because the store arbitrates the race. This provision binds `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate` for .NET.
-
-**Example:** In the library product, a book holding a list of copies returns each barcode:
-
-```csharp
-public IReadOnlyCollection<string> UniquenessKeys() =>
-    Copies.Select(copy => copy.Barcode).ToList().AsReadOnly();
-```
-
-**Reviewed for:** Which aggregates with a cross-record uniqueness rule miss `UniquenessKeys`, or carry other uniqueness code in Domain? Look at each such aggregate.
-
 ### Raise Immutable Domain Facts
 
 **ID:** `litespec/backend/dotnet/domain#raise-immutable-domain-facts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -535,7 +588,7 @@ public IReadOnlyCollection<string> UniquenessKeys() =>
 
 **ID:** `litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -587,7 +640,7 @@ Application validators handle malformed caller input through validation errors. 
 
 **ID:** `litespec/backend/dotnet/domain#document-every-public-domain-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -596,22 +649,6 @@ Application validators handle malformed caller input through validation errors. 
 **Rationale:** A public Domain member is a business promise, and its XML documentation is where a reader learns the constraint, result, or failure it represents. A summary that restates the member name adds nothing; a mutation method names its source states, resulting state, protected invariant, and recorded event. Without that, callers infer the contract from the implementation and miss the rule. This provision binds `litespec/backend/domain#describe-every-public-domain-contract-in-documentation` for .NET.
 
 **Checked by:** `dotnet build` reports `LS1011` for a public Domain type or member without XML documentation.
-
-### Raise the Past Tense of a Method's Own Verb
-
-**ID:** `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`
-
-**Strength:** rule
-
-**Applies to:** artifact: aggregate
-
-**Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
-
-**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The past tense comes from the baseline table beside the use-case verbs, with irregulars spelled out, from the project's `vocabulary.pastTense` map for domain verbs, and otherwise from the regular form. An event may carry the past tense as a whole segment followed by a complement that opens with a preposition or particle. A `mark` method sets a state, so its event names that state the way a `record` method names its fact. A method may raise further events for the consequences of its act, as long as one of its events names the act itself.
-
-**Example:** `Abandon` raises `OrderAbandonedEvent` and passes; `Abandon` raising `OrderVoidedEvent` is reported, as is `Cancel` raising `OrderCanceledEvent` with one `l`. `AssignToApprover` raising `ExpenseAssignedToApproverEvent` passes with its `to` complement, and `MarkOverdue` raising `LoanOverdueEvent` passes by naming its state.
-
-**Reviewed for:** Which state-changing aggregate methods raise an event named for another verb? Look at the events each changed aggregate method raises.
 
 ## Conventions
 
@@ -727,7 +764,6 @@ Concrete aggregates validate that `id.Value` is not `Guid.Empty` before or while
 | JSON | UUID string | WebApi converter |
 | OpenAPI | `type: string`, `format: uuid` | WebApi schema transformer |
 | Marten | Native UUID identity plus explicit typed-ID mapping | Infrastructure |
-| EF Core extension | Explicit value converter to UUID | Infrastructure |
 | Generated TypeScript | `string` from OpenAPI | Generated client |
 
 For multiple IDs, WebApi uses one converter factory restricted to `IStronglyTypedId` implementations. The OpenAPI transformer applies the same restriction. The factory does not convert every `IParsable<T>` type into a UUID schema.

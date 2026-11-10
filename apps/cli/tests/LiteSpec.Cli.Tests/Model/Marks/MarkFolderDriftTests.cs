@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 using Record = LiteSpec.Model.Record;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves the backend mark-to-folder check and the per-language mark style check.</summary>
 public sealed class MarkFolderDriftTests
@@ -11,9 +11,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Handler In Another Module Folder Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Handler_In_Another_Module_Folder_Reports_Mark_Folder_Drift()
+    public void HandlerInAnotherModuleFolderReportsMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -31,9 +31,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Handler Marking Another Use Case In Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Handler_Marking_Another_Use_Case_In_Its_Module_Reports_Mark_Folder_Drift()
+    public void HandlerMarkingAnotherUseCaseInItsModuleReportsMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.release-hold"));
@@ -50,9 +50,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Handler In Its Module And Use Case Folder Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Handler_In_Its_Module_And_Use_Case_Folder_Reports_No_Mark_Folder_Drift()
+    public void HandlerInItsModuleAndUseCaseFolderReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Booking", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -63,9 +63,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Endpoint Under Endpoints Folder Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Endpoint_Under_Endpoints_Folder_Reports_No_Mark_Folder_Drift()
+    public void EndpointUnderEndpointsFolderReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "WebApi", "Endpoints", "Billing", "Invoices", "RaiseInvoice", "RaiseInvoiceEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RaiseInvoiceEndpoint", file, "use-case/billing.raise-invoice"));
@@ -76,9 +76,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Aggregate Root Outside Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Aggregate_Root_Outside_Its_Module_Reports_Mark_Folder_Drift()
+    public void AggregateRootOutsideItsModuleReportsMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Domain", "Lending", "Loans", "Invoice.cs");
         model.Code.Elements.Add(Element(CodeKind.AggregateRoot, "Invoice", file, "aggregate/billing.invoice"));
@@ -95,9 +95,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Job Outside Its Module Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Job_Outside_Its_Module_Reports_Mark_Folder_Drift()
+    public void JobOutsideItsModuleReportsMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Lending", "Jobs", "SendRemindersJob.cs");
         model.Code.Elements.Add(Element(CodeKind.Job, "SendRemindersJob", file, "job/billing.send-reminders"));
@@ -114,9 +114,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Element Outside Layer Roots Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Element_Outside_Layer_Roots_Reports_No_Mark_Folder_Drift()
+    public void ElementOutsideLayerRootsReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = Path.Combine(temp.Path, "scratch", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -127,9 +127,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Element Directly In Layer Root Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Element_Directly_In_Layer_Root_Reports_No_Mark_Folder_Drift()
+    public void ElementDirectlyInLayerRootReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -140,9 +140,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Mark Naming No Record Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Mark_Naming_No_Record_Reports_No_Mark_Folder_Drift()
+    public void MarkNamingNoRecordReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.ghost"));
@@ -153,9 +153,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Test Element Outside Its Module Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Test_Element_Outside_Its_Module_Reports_No_Mark_Folder_Drift()
+    public void TestElementOutsideItsModuleReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Application", "Billing", "Holds", "HoldRoom", "HoldRoomCommandHandler.cs");
         var element = Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room") with
@@ -170,9 +170,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Element Under Provider Plumbing Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Element_Under_Provider_Plumbing_Reports_No_Mark_Folder_Drift()
+    public void ElementUnderProviderPlumbingReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = LayerFile(temp.Path, "Infrastructure", "Persistence", "Postgres", "NpgsqlModule.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "NpgsqlModule", file, "use-case/booking.hold-room"));
@@ -183,9 +183,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Element Under Cross Module Contracts Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Element_Under_Cross_Module_Contracts_Reports_No_Mark_Folder_Drift()
+    public void ElementUnderCrossModuleContractsReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.Application.Abstractions", "Shared", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "use-case/booking.hold-room"));
@@ -196,9 +196,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Element Under Shared Kernel Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Element_Under_Shared_Kernel_Reports_No_Mark_Folder_Drift()
+    public void ElementUnderSharedKernelReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path, "xml", "\"sharedKernel\": \"apps/api/src/Library.SharedKernel\"");
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.SharedKernel", "Domain", "Money.cs");
         model.Code.Elements.Add(Element(CodeKind.Technical, "Money", file, "aggregate/billing.invoice"));
@@ -209,9 +209,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Frontend Mark In Undeclared Style Reports No Mark Style Invalid.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Frontend_Mark_In_Undeclared_Style_Reports_No_Mark_Style_Invalid()
+    public void FrontendMarkInUndeclaredStyleReportsNoMarkStyleInvalid()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path, "attribute");
         var webFile = Path.Combine(temp.Path, "apps", "web", "src", "lib", "modules", "booking", "holds", "hold-room", "litespec.ts");
         model.Code.Elements.Add(new MarkedElement(
@@ -231,9 +231,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Handler Outside Its Module In The Module Layout Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Handler_Outside_Its_Module_Reports_Mark_Folder_Drift()
+    public void ModuleLayoutHandlerOutsideItsModuleReportsMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
         var file = ProductFile(temp.Path, "Billing", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -248,9 +248,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Handler In Its Module In The Module Layout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Handler_In_Its_Module_Reports_No_Mark_Folder_Drift()
+    public void ModuleLayoutHandlerInItsModuleReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
         var file = ProductFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
@@ -261,9 +261,9 @@ public sealed class MarkFolderDriftTests
     /// <summary>Host Endpoint In The Module Layout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
-    public void Module_Layout_Host_Endpoint_Reports_No_Mark_Folder_Drift()
+    public void ModuleLayoutHostEndpointReportsNoMarkFolderDrift()
     {
-        using var temp = Cli.Temp("marks");
+        using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
         var file = Path.Combine(temp.Path, "apps", "api", "src", "Library.WebApi", "Protocol", "SignOutEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SignOutEndpoint", file, "use-case/booking.hold-room"));
@@ -277,7 +277,7 @@ public sealed class MarkFolderDriftTests
     static ProjectModel ModuleModel(string root)
     {
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"xml\", \"stackConfig\": {\"dotnet\": {\"modules\": \"apps/api/src/Library.Modules\", \"webapi\": \"apps/api/src/Library.WebApi\"}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 
@@ -323,7 +323,7 @@ public sealed class MarkFolderDriftTests
         }
 
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             "{\"owners\": [\"lending-team\"], \"marks\": \"" + marks + "\", \"stackConfig\": {\"dotnet\": {" + dotnet + "}}}");
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
 

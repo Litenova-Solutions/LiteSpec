@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves transitions mark the states they enter, and the states that start a lifecycle.</summary>
 public sealed class ReachabilityTests
@@ -12,7 +12,7 @@ public sealed class ReachabilityTests
     /// <summary>Entered states reach, and so does the state the lifecycle starts from.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Transitions_Mark_Entered_And_Starting_States_Reachable()
+    public void TransitionsMarkEnteredAndStartingStatesReachable()
     {
         using var temp = ModelFixture.Prepare("small");
         PatchRecord(temp.Path, Aggregate, front =>
@@ -49,7 +49,7 @@ public sealed class ReachabilityTests
     /// <summary>An aggregate without transitions reaches no state.</summary>
     /// <proves>litespec/core/domain-model#connect-every-state-through-transitions</proves>
     [Fact]
-    public void Aggregate_Without_Transitions_Reaches_No_State()
+    public void AggregateWithoutTransitionsReachesNoState()
     {
         using var temp = ModelFixture.Prepare("small");
         PatchRecord(temp.Path, Aggregate, front => front.Remove("transitions"));

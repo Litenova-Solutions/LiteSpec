@@ -1,7 +1,7 @@
 # Frontend Structure
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -27,7 +27,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -50,7 +50,7 @@ Imports point one way: routes import modules, modules import the frame, and the 
 
 **ID:** `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -78,7 +78,7 @@ A query that describes no one aggregate has its record home under `use-cases/` b
 
 The diagram shows the backend path beside its frontend mirror, with one arrow per translated segment.
 
-![The backend folder Spending, Expenses, SubmitExpense beside the frontend folders spending, expenses, submit-expense, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
+![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
 **Reviewed for:** Which use-case folders sit outside `{module}/{aggregate}/{use-case}/` in kebab case, or resolve to no backend folder of the same names? Look in the module tree and the structure test proving the mirror.
 
@@ -86,7 +86,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#keep-a-use-case-folder-flat`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -100,23 +100,23 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#place-a-shared-file-in-the-folder-that-owns-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
 **Statement:** A file read by several use cases of one aggregate MUST sit flat in that aggregate's folder.
 
-**Rationale:** A file read by several use cases of one aggregate belongs flat in that aggregate's folder: the lowest folder holding every reader. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the aggregate. A file read by several aggregates rises one more level, to the module folder, by the same rule.
+**Rationale:** A file read by several use cases of one aggregate belongs flat in that aggregate's folder: the lowest folder holding every consumer. There it sits beside its consumers, found by browsing rather than through an index, and moving it changes nothing outside the aggregate. A file read by several aggregates rises one more level, to the module folder, by the same rule.
 
 **Example:** Three expense queries share one tab strip, so the tab strip sits flat in the aggregate folder. A file read by several aggregates sits flat in the module folder.
 
-**Reviewed for:** Which files read by several use cases sit outside the narrowest folder holding every reader? Look in the aggregate and module folders.
+**Reviewed for:** Which files read by several use cases sit outside the narrowest folder holding every consumer? Look in the aggregate and module folders.
 
 ### Reject a Folder Name That Owns Nothing
 
 **ID:** `litespec/frontend/structure#reject-a-folder-name-that-owns-nothing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -132,7 +132,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#keep-a-route-entry-thin`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -148,7 +148,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#mark-each-route-with-its-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: route
 
@@ -164,7 +164,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 **ID:** `litespec/frontend/structure#order-imports-from-routes-to-shared-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -186,7 +186,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-applications-independent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -200,7 +200,7 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#keep-shared-packages-non-application-specific`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -214,13 +214,13 @@ The direction refuses three imports: a module reaching a route, a shared package
 
 **ID:** `litespec/frontend/structure#locate-cross-route-values-in-the-frame`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
 **Statement:** A frontend MUST place cross-route values in its frame: client configuration, session read, language choice, permissions, formatting, and shell data.
 
-**Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. A route holding one of them holds a copy beside every other route's copy, with nothing keeping the copies equal. The frame holds each once, where every route reaches it. A browser API a use-case module needs belongs in the frame too, because a module renders and reads data rather than touching the device.
+**Rationale:** Client configuration, session read, language choice, permissions, formatting, and shell data cross every route. A route holding one of them holds a copy beside every other route's copy, with nothing keeping the copies equal. The frame holds each once, where every route reaches it. A browser API a use-case module needs belongs in the frame for the same reason: a module renders and reads data rather than touching the device.
 
 **Reviewed for:** Which client configuration, session read, language choice, permissions, formatting, shell data, or browser uses sit outside the frame? Look in the frame.
 

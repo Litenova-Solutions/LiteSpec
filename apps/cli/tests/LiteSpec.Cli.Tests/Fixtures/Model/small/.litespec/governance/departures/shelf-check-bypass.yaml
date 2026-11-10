@@ -1,0 +1,11 @@
+type: departure
+id: departure/shelf-check-bypass
+title: Shelf check bypass
+covers:
+  - litespec/backend/application#enforce-target-authorization-in-the-pipeline
+subject:
+- use-case/lending.register-copy
+reason: The import runs before opening.
+consequences: The morning import skips the quiet check. The bypass ends when the import moves after opening.
+exit: The import moves after opening, and the bypass is removed.
+expiresOn: 2027-01-01

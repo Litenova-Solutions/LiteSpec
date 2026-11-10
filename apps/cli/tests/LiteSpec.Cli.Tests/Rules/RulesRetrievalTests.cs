@@ -1,7 +1,7 @@
 using System.Text.Json;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Rules;
+namespace LiteSpec.Cli.Tests.Rules;
 
 /// <summary>
 ///     The retrieval evaluation: each case names a real path or record id with the
@@ -17,15 +17,16 @@ public sealed class RulesRetrievalTests
 
     /// <summary>The agreed provisions are all returned and precision meets 0.8.</summary>
     /// <param name="name">The evaluation case name.</param>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Theory]
     [MemberData(nameof(CaseNames))]
-    public void Rules_Retrieval_Meets_Precision_Target(string name)
+    public void RulesRetrievalMeetsPrecisionTarget(string name)
     {
         var evaluation = Cases();
         var agreed = evaluation.Agreed[name];
         var target = evaluation.Targets[name];
         var root = evaluation.Roots[name];
-        var result = Cli.Run("rules", "--root", root, target);
+        var result = TestCli.Run("rules", "--root", root, target);
 
         Assert.Equal(0, result.Status);
 
@@ -62,7 +63,7 @@ public sealed class RulesRetrievalTests
 
         foreach (var file in new[] { "scopes-small.json", "scopes-records.json", "scopes-frontend.json", "scopes-artifacts.json" })
         {
-            using var document = JsonDocument.Parse(File.ReadAllText(Cli.Fixture($"rules-eval/{file}")));
+            using var document = JsonDocument.Parse(File.ReadAllText(TestCli.Fixture($"rules-eval/{file}")));
 
             foreach (var set in document.RootElement.GetProperty("sets").EnumerateObject())
             {
@@ -77,7 +78,7 @@ public sealed class RulesRetrievalTests
         var targets = new Dictionary<string, string>(StringComparer.Ordinal);
         var roots = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        using var cases = JsonDocument.Parse(File.ReadAllText(Cli.Fixture("rules-eval/cases.json")));
+        using var cases = JsonDocument.Parse(File.ReadAllText(TestCli.Fixture("rules-eval/cases.json")));
 
         foreach (var entry in cases.RootElement.GetProperty("cases").EnumerateArray())
         {
@@ -109,9 +110,9 @@ public sealed class RulesRetrievalTests
             targets[name] = entry.GetProperty("target").GetString()!;
             roots[name] = entry.GetProperty("root").GetString()! switch
             {
-                "claimwick" => Path.Combine(Cli.Repository, "examples", "claimwick"),
-                "rules-basic" => Cli.Fixture("rules-basic"),
-                "rules-layered" => Cli.Fixture("rules-layered"),
+                "claimwick" => Path.Combine(TestCli.Repository, "examples", "claimwick"),
+                "rules-basic" => TestCli.Fixture("rules-basic"),
+                "rules-layered" => TestCli.Fixture("rules-layered"),
                 var other => throw new InvalidOperationException($"Unknown evaluation root '{other}'."),
             };
         }

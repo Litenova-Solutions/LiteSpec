@@ -1,0 +1,16 @@
+type: decision
+id: decision/0025-remove-fields-nothing-reads
+title: Remove Fields Nothing Reads
+options:
+  - name: "Remove every field no tool reads, and keep the toolchain pins"
+    pros: "A file shows only what a check reads, so a value cannot drift from the value the tool uses."
+    cons: "A project that sets a removed field fails validation until it deletes the field, and the upgrade notes list each edit."
+  - name: "Keep every field and document that tools ignore it"
+    pros: "No project breaks."
+    cons: "A field with no reader drifts unseen, and readers meet settings that do nothing."
+  - name: "Keep every field and add a check that reads each one"
+    pros: "Each field gains a reader."
+    cons: "Each check adds code for a field no product behavior needs, against the rule that tools stay small."
+choice: "Remove every field no tool reads, and keep the toolchain pins"
+consequences: "The project file loses `conformance`, which `layers` replaces, and also `unstructuredDocs`, `apiSolution`, `sites`, `surfaces`, `refusals.prefixes` and `paths.records`. It moves `paths.frontends` and `paths.uiPackage` to `frontends` and `ui.package`. The pattern catalog loses `registry`, `decision.record` and `option.reference`. The design contract loses `kind` and `shell`. The manifest loses its `$schema` key, its `profiles` enum and the duplicated baseline fields. The manifest keeps its `stack` pins, which the Blazor, Android and guide pages cite, and the repository's own Node and pnpm versions must equal them."
+reopenedWhen: "A tool needs one of the removed fields to decide a check, or a team needs a value that a field carried and its replacement cannot state."

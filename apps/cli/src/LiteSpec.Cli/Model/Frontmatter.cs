@@ -57,11 +57,10 @@ static class Frontmatter
 
         try
         {
-            var tree = YamlText.Parse(yaml);
-            using var document = JsonDocument.Parse(tree.ToJson());
+            var root = RecordFile.ElementOf(YamlText.Parse(yaml));
             var body = string.Join('\n', lines[(closing + 1)..]);
 
-            parsed = new Parsed(document.RootElement.Clone(), body, closing + 2);
+            parsed = new Parsed(root, body, closing + 2);
             return true;
         }
         catch (JsonTextException exception)

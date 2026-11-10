@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for the shared UI package and API contracts.</summary>
 public sealed partial class ConsumerValidatorTests
@@ -14,10 +14,10 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("dotnet", "react");
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "web", ["path"] = "apps/web", ["platform"] = "react" });
         });
-        AssertProblem(RunConsumer(folder.Path), "no 'paths.uiPackage'");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'ui'");
     }
 
     /// <summary>Frontend outside the controlled contract stays quiet.</summary>
@@ -29,7 +29,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("dotnet", "blazor");
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject { ["name"] = "desk", ["path"] = "apps/desk", ["platform"] = "blazor" });
         });
         AssertAbsent(RunConsumer(folder.Path), "controlled UI");
@@ -46,7 +46,7 @@ public sealed partial class ConsumerValidatorTests
         ConsumerFixture.MutateProject(folder.Path, project =>
         {
             project["stacks"] = new JsonArray("dotnet", "react");
-            PathsOf(project)["frontends"] = new JsonArray(
+            project["frontends"] = new JsonArray(
                 new JsonObject
                 {
                     ["name"] = "web",
@@ -54,7 +54,7 @@ public sealed partial class ConsumerValidatorTests
                     ["platform"] = "react",
                     ["ui"] = new JsonObject { ["profile"] = "application-balanced" },
                 });
-            PathsOf(project)["uiPackage"] = new JsonObject
+            project["ui"] = new JsonObject { ["package"] = new JsonObject
             {
                 ["name"] = "fixture-ui",
                 ["path"] = "packages/ui",
@@ -64,7 +64,7 @@ public sealed partial class ConsumerValidatorTests
                 ["sourceLock"] = "packages/ui/lock.json",
                 ["designContract"] = "packages/ui/DESIGN.md",
                 ["publicExports"] = new JsonArray("fixture-ui"),
-            };
+            } };
         });
         ConsumerFixture.WriteFile(folder.Path, "apps/web/package.json", "{}\n");
         ConsumerFixture.WriteFile(folder.Path, "packages/ui/components.json", "{}\n");
@@ -81,10 +81,10 @@ public sealed partial class ConsumerValidatorTests
     public void MalformedProjectFileKeepsTheMachineReadableContract()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.WriteFile(folder.Path, ".litespec/project.json", "{\n");
+        ConsumerFixture.WriteFile(folder.Path, ".litespec/project.yaml", "{\n");
         var result = RunConsumer(folder.Path, "--format", "json");
         Assert.Equal(2, result.Status);
-        Assert.Contains("not valid JSON", result.Output, StringComparison.Ordinal);
+        Assert.Contains("not valid YAML or JSON", result.Output, StringComparison.Ordinal);
     }
 
     /// <summary>Failing run writes its problems as an array.</summary>
@@ -138,7 +138,7 @@ public sealed partial class ConsumerValidatorTests
     }
 
     /// <summary>Page with a leading byte-order mark.</summary>
-    /// <proves>litespec/core/authoring#declare-structured-specification-metadata</proves>
+    /// <proves>litespec/core/model#declare-structured-specification-metadata</proves>
     [Fact(DisplayName = "page with a leading byte-order mark")]
     public void PageWithALeadingByteOrderMark()
     {
@@ -173,8 +173,8 @@ public sealed partial class ConsumerValidatorTests
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.WriteFile(
             folder.Path,
-            ".litespec/project.json",
-            char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.ReadFile(folder.Path, ".litespec/project.json"));
+            ".litespec/project.yaml",
+            char.ConvertFromUtf32(0xFEFF) + ConsumerFixture.ReadFile(folder.Path, ".litespec/project.yaml"));
         AssertClean(RunConsumer(folder.Path));
     }
 

@@ -1,7 +1,7 @@
 # Automation
 
 **Stack:** any
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -42,7 +42,7 @@ A job may hold scenario child records ending in a result of a use case its effec
 
 ### Runbook
 
-A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. It keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, and any record or effect names its recovery in `onFailure.runbook`. It keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 
@@ -50,7 +50,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#trigger-every-reaction-from-its-declared-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -66,7 +66,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#run-every-job-from-its-declared-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -82,7 +82,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#declare-every-reaction-and-job-edge-in-effects`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -96,7 +96,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#write-no-aggregate-directly-from-a-reaction-or-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -110,7 +110,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#file-every-reaction-and-job-with-the-module-it-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -124,7 +124,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -140,7 +140,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#name-each-job-for-the-use-case-it-runs`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -156,7 +156,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#state-the-failure-handling-of-every-reaction-and-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -170,7 +170,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#point-reaction-and-job-scenarios-at-the-run-result`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction, record:job
 
@@ -184,7 +184,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#keep-job-fields-off-reactions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:reaction
 
@@ -194,13 +194,13 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Example:** The send-due-notice reaction answers its event with no `selection` and no `guard`.
 
-**Checked by:** `litespec model check` fails a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
+**Checked by:** `litespec model check` reports `record-invalid` for a reaction carrying `kind`, `schedule`, `runbook`, `runsWhere`, `guard`, `cursor`, `selection`, `lease`, `batchSize`, `serviceLevel`, or `evidence`.
 
 ### Guard Every Manual Job
 
 **ID:** `litespec/core/automation#guard-every-manual-job`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: job
 
@@ -216,17 +216,17 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **ID:** `litespec/core/automation#write-every-runbook-to-run-or-recover`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
 **Statement:** Each runbook MUST state its `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
-**Rationale:** A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
+**Rationale:** A runbook named by a job, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
 
 **Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending team.
 
-**Checked by:** `litespec model check` fails a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
+**Checked by:** `litespec model check` reports `record-invalid` for a runbook page without `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, or `escalation`.
 
 ## Conventions
 

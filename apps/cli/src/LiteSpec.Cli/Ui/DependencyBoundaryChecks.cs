@@ -80,7 +80,7 @@ sealed class DependencyBoundaryChecks
     {
         foreach (var file in PackageManifests())
         {
-            var packageJson = session.ReadJson(file, "ui-dependency-invalid");
+            var packageJson = session.ReadData(file, "ui-dependency-invalid");
             if (packageJson is null)
             {
                 continue;

@@ -1,8 +1,11 @@
 // Request and response types of the frontend facts protocol, version 1. Field
 // names and shapes follow the protocol exactly; see the corpus request files.
 
+import readerPackage from "../package.json";
+
 export const PROTOCOL_VERSION = 1;
-export const READER_VERSION = "1.0.0";
+// The reader version is the package version, so a release names one number.
+export const READER_VERSION = readerPackage.version;
 
 export interface FrontendRequest {
   name: string;

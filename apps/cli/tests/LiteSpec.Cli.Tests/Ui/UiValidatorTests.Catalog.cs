@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// The design contract, pattern catalog and pattern citation cases.
@@ -13,7 +13,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Shared Package With No Design Contract.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void Shared_Package_With_No_Design_Contract()
+    public void SharedPackageWithNoDesignContract()
     {
         using var fixture = UiFixture.Create();
         File.Delete(fixture.DesignFile);
@@ -23,7 +23,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Design Contract Missing A Required Section.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void Design_Contract_Missing_A_Required_Section()
+    public void DesignContractMissingARequiredSection()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
@@ -34,7 +34,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Design Contract Naming Another Package.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void Design_Contract_Naming_Another_Package()
+    public void DesignContractNamingAnotherPackage()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
@@ -45,7 +45,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Design Contract Naming No Floorplan.</summary>
     /// <proves>litespec/frontend/ui#declare-a-closed-floorplan-set</proves>
     [Fact]
-    public void Design_Contract_Naming_No_Floorplan()
+    public void DesignContractNamingNoFloorplan()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
@@ -56,7 +56,7 @@ public sealed partial class UiValidatorTests
     /// <summary>The Shipped Design Contract Is Accepted.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void The_Shipped_Design_Contract_Is_Accepted()
+    public void TheShippedDesignContractIsAccepted()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.Run());
@@ -65,7 +65,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Design Contract Without A Vocabulary Section Stays Clean.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]
-    public void A_Design_Contract_Without_A_Vocabulary_Section_Stays_Clean()
+    public void ADesignContractWithoutAVocabularySectionStaysClean()
     {
         using var fixture = UiFixture.Create();
         File.WriteAllText(fixture.DesignFile,
@@ -82,7 +82,7 @@ public sealed partial class UiValidatorTests
     /// <summary>The Shipped Pattern Catalog Is Accepted.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void The_Shipped_Pattern_Catalog_Is_Accepted()
+    public void TheShippedPatternCatalogIsAccepted()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.Run());
@@ -91,7 +91,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Workspace With No Pattern Catalog.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Workspace_With_No_Pattern_Catalog()
+    public void AWorkspaceWithNoPatternCatalog()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPatterns"));
@@ -101,17 +101,18 @@ public sealed partial class UiValidatorTests
     /// <summary>A Declared Pattern Catalog That Is Missing.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Declared_Pattern_Catalog_That_Is_Missing()
+    public void ADeclaredPatternCatalogThatIsMissing()
     {
         using var fixture = UiFixture.Create();
+        fixture.MutateProject(project => ((JsonObject)project["paths"]!)["uiPatterns"] = ".litespec/implementation/patterns/catalog.yaml");
         File.Delete(fixture.CatalogFile);
-        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/implementation/patterns/catalog.json'");
+        UiFixture.AssertProblem(fixture.Run(), "no catalog at '.litespec/implementation/patterns/catalog.yaml'");
     }
 
     /// <summary>A Catalog That Breaks The Schema.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Catalog_That_Breaks_The_Schema()
+    public void ACatalogThatBreaksTheSchema()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -125,7 +126,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Decision Naming No Recorded Option.</summary>
     /// <proves>litespec/frontend/patterns#record-every-option-considered</proves>
     [Fact]
-    public void A_Decision_Naming_No_Recorded_Option()
+    public void ADecisionNamingNoRecordedOption()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -141,7 +142,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Compact Variant Naming No Recorded Option.</summary>
     /// <proves>litespec/frontend/patterns#declare-the-compact-behavior</proves>
     [Fact]
-    public void A_Compact_Variant_Naming_No_Recorded_Option()
+    public void ACompactVariantNamingNoRecordedOption()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -157,7 +158,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Extension Naming No Recorded Option.</summary>
     /// <proves>litespec/frontend/patterns#record-every-option-considered</proves>
     [Fact]
-    public void An_Extension_Naming_No_Recorded_Option()
+    public void AnExtensionNamingNoRecordedOption()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -173,7 +174,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Compact Variant Naming No Breakpoint.</summary>
     /// <proves>litespec/frontend/patterns#declare-the-compact-behavior</proves>
     [Fact]
-    public void A_Compact_Variant_Naming_No_Breakpoint()
+    public void ACompactVariantNamingNoBreakpoint()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -189,7 +190,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Pattern Naming No Catalog Group.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Pattern_Naming_No_Catalog_Group()
+    public void APatternNamingNoCatalogGroup()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -205,7 +206,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Component Path That Does Not Exist.</summary>
     /// <proves>litespec/frontend/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
-    public void A_Component_Path_That_Does_Not_Exist()
+    public void AComponentPathThatDoesNotExist()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -223,7 +224,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Adopted Status With No Components.</summary>
     /// <proves>litespec/frontend/patterns#implement-a-chosen-pattern-once</proves>
     [Fact]
-    public void An_Adopted_Status_With_No_Components()
+    public void AnAdoptedStatusWithNoComponents()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -240,7 +241,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Partial Status With No Gap.</summary>
     /// <proves>litespec/frontend/patterns#state-the-implementation-status</proves>
     [Fact]
-    public void A_Partial_Status_With_No_Gap()
+    public void APartialStatusWithNoGap()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -257,7 +258,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Pending Status With No Gap.</summary>
     /// <proves>litespec/frontend/patterns#state-the-implementation-status</proves>
     [Fact]
-    public void A_Pending_Status_With_No_Gap()
+    public void APendingStatusWithNoGap()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -274,7 +275,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Two Patterns Sharing One Id.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void Two_Patterns_Sharing_One_Id()
+    public void TwoPatternsSharingOneId()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -288,7 +289,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Two Options Sharing One Id.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void Two_Options_Sharing_One_Id()
+    public void TwoOptionsSharingOneId()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -307,7 +308,7 @@ public sealed partial class UiValidatorTests
     /// <summary>The Fixture Validator Accepts The Shipped Catalog.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void The_Fixture_Validator_Accepts_The_Shipped_Catalog()
+    public void TheFixtureValidatorAcceptsTheShippedCatalog()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.RunWithFixtureHome());
@@ -316,7 +317,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Pattern Citing The LiteSpec Pattern It Matches.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Pattern_Citing_The_LiteSpec_Pattern_It_Matches()
+    public void APatternCitingTheLiteSpecPatternItMatches()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -338,7 +339,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Pattern Citing A Pattern No Page Holds.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Pattern_Citing_A_Pattern_No_Page_Holds()
+    public void APatternCitingAPatternNoPageHolds()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>
@@ -354,7 +355,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Pattern Renaming A LiteSpec Option.</summary>
     /// <proves>litespec/frontend/patterns#keep-one-pattern-catalog</proves>
     [Fact]
-    public void A_Pattern_Renaming_A_LiteSpec_Option()
+    public void APatternRenamingALiteSpecOption()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateCatalog(catalog =>

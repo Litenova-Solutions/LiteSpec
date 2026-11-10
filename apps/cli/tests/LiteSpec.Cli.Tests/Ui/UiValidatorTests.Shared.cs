@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// The source boundary, shared package, additional registry and source lock cases.
@@ -12,7 +12,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Second Visual System In The Workspace Root.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Second_Visual_System_In_The_Workspace_Root()
+    public void SecondVisualSystemInTheWorkspaceRoot()
     {
         using var fixture = UiFixture.Create();
         fixture.WriteManifest("dependencies", new JsonObject { ["@mui/material"] = "7.0.0" });
@@ -24,7 +24,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Second Visual System In OptionalDependencies.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Second_Visual_System_In_OptionalDependencies()
+    public void SecondVisualSystemInOptionalDependencies()
     {
         using var fixture = UiFixture.Create();
         fixture.WriteManifest("optionalDependencies", new JsonObject { ["bootstrap"] = "5.3.3" });
@@ -36,7 +36,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Second Visual System Pinned Through Pnpm Overrides.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Second_Visual_System_Pinned_Through_Pnpm_Overrides()
+    public void SecondVisualSystemPinnedThroughPnpmOverrides()
     {
         using var fixture = UiFixture.Create();
         fixture.WriteManifest("pnpm", new JsonObject
@@ -51,7 +51,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Second Visual System Pinned Through Resolutions.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Second_Visual_System_Pinned_Through_Resolutions()
+    public void SecondVisualSystemPinnedThroughResolutions()
     {
         using var fixture = UiFixture.Create();
         fixture.WriteManifest("resolutions", new JsonObject { ["antd"] = "5.0.0" });
@@ -63,32 +63,32 @@ public sealed partial class UiValidatorTests
     /// <summary>UI Exception With An Expired Date.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void UI_Exception_With_An_Expired_Date()
+    public void UIExceptionWithAnExpiredDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
+        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01");
         UiFixture.AssertProblem(
             fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
+            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the departure or close the gap");
     }
 
     /// <summary>UI Exception With A Live Date.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void UI_Exception_With_A_Live_Date()
+    public void UIExceptionWithALiveDate()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
+        fixture.WriteDeparture("ui-authority", "litespec/frontend/ui#select-one-visual-authority", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>Exception Against Another Area Stays Unread By The UI Validator.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Exception_Against_Another_Area_Stays_Unread_By_The_UI_Validator()
+    public void ExceptionAgainstAnotherAreaStaysUnreadByTheUIValidator()
     {
         using var fixture = UiFixture.Create();
-        fixture.WriteException("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
+        fixture.WriteDeparture("other-area", "litespec/core/agent#select-task-context", "2020-01-01");
         var problems = UiFixture.Problems(fixture.Run());
 
         // The model check owns the expiry of every exception, so it reports this
@@ -99,86 +99,27 @@ public sealed partial class UiValidatorTests
             problem => problem.Contains("[litespec/core/agent#select-task-context]", StringComparison.Ordinal));
     }
 
-    /// <summary>Exceptions Folder Set Through Paths Records Exception.</summary>
-    /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
-    [Fact]
-    public void Exceptions_Folder_Set_Through_Paths_Records_Exception()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-        {
-            ((JsonObject)project["paths"]!)["records"] = new JsonObject { ["exception"] = ".litespec/departures" };
-        });
-        fixture.WriteExceptionFile(
-            ".litespec/departures/moved.yaml",
-            UiFixture.ExceptionMeta("exception/moved", "Moved exception", "litespec/frontend/ui#select-one-visual-authority", "2020-01-01"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] expiresOn 2020-01-01 has passed; renew the exception");
-    }
-
     // Shared package (litespec/frontend/ui#pin-the-baseline-in-the-shared-package).
 
     /// <summary>A Controlled Frontend With No Shared Package.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void A_Controlled_Frontend_With_No_Shared_Package()
+    public void AControlledFrontendWithNoSharedPackage()
     {
         using var fixture = UiFixture.Create();
-        fixture.MutateProject(project => ((JsonObject)project["paths"]!).Remove("uiPackage"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#select-one-visual-authority] 1 controlled frontend(s) and no paths.uiPackage");
-    }
-
-    /// <summary>A Controlled Frontend With No Ui Block.</summary>
-    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
-    [Fact]
-    public void A_Controlled_Frontend_With_No_Ui_Block()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!).Remove("ui"));
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': a controlled frontend requires a 'ui' block declaring its density profile");
-    }
-
-    /// <summary>A Controlled Frontend With An Unknown Profile.</summary>
-    /// <proves>litespec/frontend/ui#use-the-product-profiles</proves>
-    [Fact]
-    public void A_Controlled_Frontend_With_An_Unknown_Profile()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-            ((JsonObject)((JsonArray)project["paths"]!["frontends"]!)[0]!["ui"]!)["profile"] = "fixture-dense");
-        UiFixture.AssertProblem(
-            fixture.Run(),
-            "[litespec/frontend/ui#use-the-product-profiles] frontend 'web': profile must be one of public-light, application-balanced, admin-dense");
-    }
-
-    /// <summary>A Shared Package With No Public Export.</summary>
-    /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
-    [Fact]
-    public void A_Shared_Package_With_No_Public_Export()
-    {
-        using var fixture = UiFixture.Create();
-        fixture.MutateProject(project =>
-        {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["publicExports"] = new JsonArray();
-        });
-        UiFixture.AssertProblem(fixture.Run(), "publicExports must contain at least one entry point");
+        fixture.MutateProject(project => project.Remove("ui"));
+        Assert.Contains("[project-invalid] missing required property 'ui'", fixture.Run().Output, StringComparison.Ordinal);
     }
 
     /// <summary>A Shared Package Declaring The Same Export Twice.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void A_Shared_Package_Declaring_The_Same_Export_Twice()
+    public void ASharedPackageDeclaringTheSameExportTwice()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["publicExports"] =
+            ((JsonObject)((JsonObject)project["ui"]!)["package"]!)["publicExports"] =
                 new JsonArray("@fixture/ui/floorplans", "@fixture/ui/floorplans");
         });
         UiFixture.AssertProblem(fixture.Run(), "duplicate '@fixture/ui/floorplans'");
@@ -187,12 +128,12 @@ public sealed partial class UiValidatorTests
     /// <summary>A Source Lock Outside The Package Root.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void A_Source_Lock_Outside_The_Package_Root()
+    public void ASourceLockOutsideThePackageRoot()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateProject(project =>
         {
-            ((JsonObject)((JsonObject)project["paths"]!)["uiPackage"]!)["sourceLock"] = ".litespec/ui-source-lock.json";
+            ((JsonObject)((JsonObject)project["ui"]!)["package"]!)["sourceLock"] = ".litespec/ui-source-lock.yaml";
         });
         UiFixture.AssertProblem(fixture.Run(), "sourceLock must live inside the shared package root");
     }
@@ -200,7 +141,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Components Json Naming An Icon Library The Baseline Does Not Pin.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void Components_Json_Naming_An_Icon_Library_The_Baseline_Does_Not_Pin()
+    public void ComponentsJsonNamingAnIconLibraryTheBaselineDoesNotPin()
     {
         using var fixture = UiFixture.Create();
         var components = (JsonObject)UiFixture.ReadJson(fixture.ComponentsFile)!;
@@ -212,7 +153,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Source Lock Describing A Preset The Manifest Does Not Pin.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void Source_Lock_Describing_A_Preset_The_Manifest_Does_Not_Pin()
+    public void SourceLockDescribingAPresetTheManifestDoesNotPin()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateLock(sourceLock => ((JsonObject)sourceLock["preset"]!)["style"] = "fixture-style");
@@ -224,18 +165,18 @@ public sealed partial class UiValidatorTests
     /// <summary>An Additional Registry With The Exception Passes Both Gates.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void An_Additional_Registry_With_The_Exception_Passes_Both_Gates()
+    public void AnAdditionalRegistryWithTheExceptionPassesBothGates()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
-        fixture.WriteException("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
+        fixture.WriteDeparture("extra-registry", "litespec/frontend/ui#pin-the-baseline-in-the-shared-package", "2099-01-01");
         UiFixture.AssertClean(fixture.Run());
     }
 
     /// <summary>The Configuration Gate Refuses Without The Exception.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void The_Configuration_Gate_Refuses_Without_The_Exception()
+    public void TheConfigurationGateRefusesWithoutTheException()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
@@ -247,7 +188,7 @@ public sealed partial class UiValidatorTests
     /// <summary>The Source Lock Gate Refuses Without The Exception.</summary>
     /// <proves>litespec/frontend/ui#pin-the-baseline-in-the-shared-package</proves>
     [Fact]
-    public void The_Source_Lock_Gate_Refuses_Without_The_Exception()
+    public void TheSourceLockGateRefusesWithoutTheException()
     {
         using var fixture = UiFixture.Create();
         fixture.AddAdditionalRegistry();
@@ -261,7 +202,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Changed Copied Source Without A Fork Record.</summary>
     /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
-    public void Changed_Copied_Source_Without_A_Fork_Record()
+    public void ChangedCopiedSourceWithoutAForkRecord()
     {
         using var fixture = UiFixture.Create();
         File.AppendAllText(fixture.ButtonFile, "// local change\n");
@@ -271,7 +212,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Dependency The Manifest Does Not Pin.</summary>
     /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
-    public void A_Dependency_The_Manifest_Does_Not_Pin()
+    public void ADependencyTheManifestDoesNotPin()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateLock(sourceLock =>
@@ -287,7 +228,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Path Escaping The Package Root.</summary>
     /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
-    public void A_Path_Escaping_The_Package_Root()
+    public void APathEscapingThePackageRoot()
     {
         using var fixture = UiFixture.Create();
         fixture.MutateLock(sourceLock =>
@@ -301,7 +242,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Findings Carry Their Code And Level.</summary>
     /// <proves>litespec/frontend/ui#select-one-visual-authority</proves>
     [Fact]
-    public void Findings_Carry_Their_Code_And_Level()
+    public void FindingsCarryTheirCodeAndLevel()
     {
         using var fixture = UiFixture.Create();
         fixture.WriteManifest("dependencies", new JsonObject { ["@mui/material"] = "7.0.0" });

@@ -1,8 +1,8 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Model.Checks;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model.Checks;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the builder computes the completion stage of every requirement, use case, journey, feature and goal.</summary>
 /// <follows>litespec/core/model#compute-completion-in-the-builder</follows>
@@ -11,9 +11,9 @@ public sealed class CompletionTests
     /// <summary>A requirement with no fulfiller is unfulfilled and holds itself.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_With_No_Fulfiller_Is_Unfulfilled()
+    public void RequirementWithNoFulfillerIsUnfulfilled()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"));
@@ -25,15 +25,15 @@ public sealed class CompletionTests
         Assert.Equal("unfulfilled", completion.Stage);
         Assert.Equal("unknown", completion.Proof);
         Assert.Equal(["requirement/borrowing.max-loans"], completion.HeldBy);
-        Assert.Equal(0, completion.Counts["fulfillers implemented"].Of);
+        Assert.Equal(0, completion.Counts["fulfillers coded"].Of);
     }
 
     /// <summary>A requirement whose fulfiller has no code is specified.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_With_Fulfiller_Without_Code_Is_Specified()
+    public void RequirementWithFulfillerWithoutCodeIsSpecified()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -45,16 +45,16 @@ public sealed class CompletionTests
 
         Assert.Equal("specified", completion.Stage);
         Assert.Equal(["use-case/lending.borrow-copy"], completion.HeldBy);
-        Assert.Equal(0, completion.Counts["fulfillers implemented"].Done);
-        Assert.Equal(1, completion.Counts["fulfillers implemented"].Of);
+        Assert.Equal(0, completion.Counts["fulfillers coded"].Done);
+        Assert.Equal(1, completion.Counts["fulfillers coded"].Of);
     }
 
-    /// <summary>A requirement with code for every fulfiller and no test run is implemented with proof unknown.</summary>
+    /// <summary>A requirement with code for every fulfiller and no test run is coded with proof unknown.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_Implemented_With_No_Test_Run_Reads_Proof_Unknown()
+    public void RequirementCodedWithNoTestRunReadsProofUnknown()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -65,19 +65,19 @@ public sealed class CompletionTests
 
         var completion = model.Completion["requirement/borrowing.max-loans"];
 
-        Assert.Equal("implemented", completion.Stage);
+        Assert.Equal("coded", completion.Stage);
         Assert.Equal("unknown", completion.Proof);
         Assert.Equal(["use-case/lending.borrow-copy"], completion.HeldBy);
-        Assert.Equal(1, completion.Counts["fulfillers implemented"].Done);
-        Assert.Equal(0, completion.Counts["fulfillers proven"].Done);
+        Assert.Equal(1, completion.Counts["fulfillers coded"].Done);
+        Assert.Equal(0, completion.Counts["fulfillers verified"].Done);
     }
 
-    /// <summary>A requirement proven with fresh proof is proven with proof known.</summary>
+    /// <summary>A requirement verified with fresh proof is verified with proof known.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Requirement_Proven_With_Test_Run_Reads_Proof_Known()
+    public void RequirementVerifiedWithTestRunReadsProofKnown()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", "{}"),
@@ -90,18 +90,18 @@ public sealed class CompletionTests
 
         var completion = model.Completion["requirement/borrowing.max-loans"];
 
-        Assert.Equal("proven", completion.Stage);
+        Assert.Equal("verified", completion.Stage);
         Assert.Equal("known", completion.Proof);
         Assert.Empty(completion.HeldBy);
-        Assert.Equal(1, completion.Counts["fulfillers proven"].Done);
+        Assert.Equal(1, completion.Counts["fulfillers verified"].Done);
     }
 
     /// <summary>A journey is as far as its weakest step, and the unserved step holds it.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Journey_Is_As_Far_As_Its_Weakest_Step()
+    public void JourneyIsAsFarAsItsWeakestStep()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("journey", "journey/borrowing-a-copy", Path.Combine(temp.Path, "journey.yaml"), """{"serves": ["goal/borrow"], "steps": [{"id": "s1"}, {"id": "s2"}]}"""),
@@ -116,22 +116,22 @@ public sealed class CompletionTests
         Assert.Equal(["journey/borrowing-a-copy#s2"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["journey steps served"].Done);
         Assert.Equal(2, completion.Counts["journey steps served"].Of);
-        Assert.Equal(1, completion.Counts["steps implemented"].Done);
+        Assert.Equal(1, completion.Counts["steps coded"].Done);
         Assert.Equal(0, completion.Counts["steps exercised"].Done);
     }
 
-    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap exception names it: completion follows proof alone.</summary>
+    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap departure names it: completion follows proof alone.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Feature_With_Unfulfilled_Requirement_Ignores_Its_Gap_Exception()
+    public void FeatureWithUnfulfilledRequirementIgnoresItsGapDeparture()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""),
             Requirement(temp.Path, "requirement/borrowing.no-card", """{"cites": ["feature/borrowing"]}"""),
-            TestModel.Record("exception", "exception/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"kind": "gap", "subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
+            TestModel.Record("departure", "departure/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
             UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));
@@ -143,15 +143,15 @@ public sealed class CompletionTests
         Assert.Equal(["requirement/borrowing.no-card"], completion.HeldBy);
         Assert.Equal(1, completion.Counts["requirements fulfilled"].Done);
         Assert.Equal(2, completion.Counts["requirements fulfilled"].Of);
-        Assert.Equal(0, completion.Counts["requirements proven"].Done);
+        Assert.Equal(0, completion.Counts["requirements verified"].Done);
     }
 
     /// <summary>A feature with an unfulfilled requirement and no gap is unfulfilled, held by that requirement.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Feature_With_Unfulfilled_Requirement_Is_Unfulfilled()
+    public void FeatureWithUnfulfilledRequirementIsUnfulfilled()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Feature(temp.Path),
@@ -168,9 +168,9 @@ public sealed class CompletionTests
     /// <summary>A goal is as far as its weakest feature.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void Goal_Is_As_Far_As_Its_Weakest_Feature()
+    public void GoalIsAsFarAsItsWeakestFeature()
     {
-        using var temp = Cli.Temp("completion");
+        using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("goal", "goal/borrow", Path.Combine(temp.Path, "goal.yaml"), "{}"),
@@ -183,8 +183,8 @@ public sealed class CompletionTests
 
         Assert.Equal("unfulfilled", completion.Stage);
         Assert.Contains("feature/borrowing", completion.HeldBy);
-        Assert.Equal(0, completion.Counts["features proven"].Done);
-        Assert.Equal(1, completion.Counts["features proven"].Of);
+        Assert.Equal(0, completion.Counts["features verified"].Done);
+        Assert.Equal(1, completion.Counts["features verified"].Of);
     }
 
     static LiteSpec.Model.Record Requirement(string root, string id, string fields) =>

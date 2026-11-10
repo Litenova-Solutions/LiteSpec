@@ -7,9 +7,9 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     Identifier shapes and citation matching.
 /// </summary>
-/// <follows>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</follows>
-/// <follows>litespec/backend/identifiers#name-records-with-one-to-six-words</follows>
-/// <follows>litespec/backend/identifiers#resolve-every-identifier-citation</follows>
+/// <follows>litespec/core/language#follow-the-identifier-form-of-each-record-type</follows>
+/// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/core/language#resolve-every-identifier-citation</follows>
 public static class Identifiers
 {
     /// <summary>A citation of a project record.</summary>
@@ -20,9 +20,24 @@ public static class Identifiers
         @"\blitespec/[a-z0-9]+(?:-[a-z0-9]+)*(?:/[a-z0-9]+(?:-[a-z0-9]+)*)*#[a-z0-9]+(?:-[a-z0-9]+)*",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>The pattern of a whole event record id.</summary>
-    private static readonly Regex EventIdRegex = new Regex(
+    /// <summary>The pattern of a whole event record id, such as <c>event/expense.submitted</c>.</summary>
+    public static readonly Regex EventId = new Regex(
         @"^event/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*$",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>The pattern of an implements anchor on a reaction or job.</summary>
+    public static readonly Regex ImplementsTag = new Regex(
+        @"<implements>\s*(?<id>use-case/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</implements>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>The pattern of a test's proves claim.</summary>
+    public static readonly Regex ProvesTag = new Regex(
+        @"<proves>\s*(?<id>(?:scenario|rule)/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</proves>",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>The pattern of a provision heading line, which holds no ID text.</summary>
+    public static readonly Regex ProvisionHeading = new Regex(
+        @"^###\s+(?<heading>.+?)\s*$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>The pattern of a refusal code in identifier form.</summary>
@@ -30,44 +45,13 @@ public static class Identifiers
         @"\b[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+(?:-[a-z0-9]+)*\b",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    /// <summary>The pattern of an implements anchor on a reaction or job.</summary>
-    private static readonly Regex ImplementsTagRegex = new Regex(
-        @"<implements>\s*(?<id>use-case/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</implements>",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-    /// <summary>The pattern of a test's proves claim.</summary>
-    private static readonly Regex ProvesTagRegex = new Regex(
-        @"<proves>\s*(?<id>(?:scenario|rule)/[A-Za-z0-9][A-Za-z0-9._-]*)\s*</proves>",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-    /// <summary>The pattern of a provision heading line.</summary>
-    private static readonly Regex ProvisionHeadingRegex = new Regex(
-        @"^###\s+(?<heading>.+?)\s*$",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
     /// <summary>A citation of a shared standards provision: litespec/&lt;page&gt;#&lt;slug&gt;.</summary>
     /// <returns>The shared-citation pattern.</returns>
     public static Regex SharedCitation() => SharedCitationRegex;
 
-    /// <summary>A whole event record id, such as <c>event/expense.submitted</c>.</summary>
-    /// <returns>The whole-event-id pattern.</returns>
-    public static Regex EventId() => EventIdRegex;
-
     /// <summary>A refusal code in identifier form: module and name in kebab-case.</summary>
     /// <returns>The refusal-code pattern.</returns>
     public static Regex RefusalCode() => RefusalCodeRegex;
-
-    /// <summary>A written anchor on a reaction or job.</summary>
-    /// <returns>The implements-tag pattern.</returns>
-    public static Regex ImplementsTag() => ImplementsTagRegex;
-
-    /// <summary>A test's claim of the scenario or rule it proves.</summary>
-    /// <returns>The proves-tag pattern.</returns>
-    public static Regex ProvesTag() => ProvesTagRegex;
-
-    /// <summary>A shared provision carried as a heading, which holds no ID text.</summary>
-    /// <returns>The provision-heading pattern.</returns>
-    public static Regex ProvisionHeading() => ProvisionHeadingRegex;
 
     /// <summary>Builds the record-citation pattern from every record type.</summary>
     /// <returns>The record-citation pattern.</returns>

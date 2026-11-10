@@ -11,7 +11,7 @@ sources:
   - path: docs/core/access.md
     readOn: 2026-10-30
     key: access
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
 question: How do Behavior records find their parent today, and where does parentage rest on a file name or exist not at all?

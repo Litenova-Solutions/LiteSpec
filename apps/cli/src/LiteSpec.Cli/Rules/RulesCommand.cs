@@ -7,8 +7,8 @@ namespace LiteSpec.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or
-///     record identifier, grouped by strength, with project conventions and departure
-///     exceptions merged in.
+///     record identifier, grouped by strength, with project conventions and departures
+///     merged in.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 static class RulesCommand
@@ -25,7 +25,6 @@ static class RulesCommand
     /// <summary>Runs the rules command.</summary>
     /// <param name="args">The command arguments, the target first.</param>
     /// <returns>The exit code: 0 listed, 1 unknown target, 2 usage error or unreadable input.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Run is the last-resort command handler: every failure becomes a Failed message with exit code 1, so no exception type is excluded.")]
     public static int Run(string[] args)
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
@@ -44,60 +43,22 @@ static class RulesCommand
 
         if (parsed.Error is { } error)
         {
-            Console.Error.WriteLine(error);
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError(error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var target])
         {
-            Console.Error.WriteLine("Rules needs a path or record id.");
-            Console.Error.WriteLine(Usage);
-            return 2;
+            return LastResort.UsageError("Rules needs a path or record id.", Usage, json: false);
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Value("--root"));
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Value("--root")}': {exception.Message}");
-            return 2;
+            return openExit;
         }
 
-        if (!Directory.Exists(root))
-        {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            return 2;
-        }
-
-        // Without a project file the selection is unknown, and the command
-        // would list provisions for stacks the consumer never selected.
-        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
-        {
-            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
-            return 2;
-        }
-
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
-        }
-        catch (InvalidOperationException exception)
-        {
-            Console.Error.WriteLine(exception.Message);
-            return 2;
-        }
+        var root = config.Root;
 
         string home;
 
@@ -107,43 +68,32 @@ static class RulesCommand
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine($"Cannot find the carried LiteSpec release: {exception.Message}");
-            return 2;
+            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         if (LoadManifest(home) is not { } manifest)
         {
-            Console.Error.WriteLine($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.");
-            return 2;
+            return LastResort.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
         }
 
         var backendStack = LiteSpec.Authoring.Layout.Stacks(manifest)
             .FirstOrDefault(stack => stack.Kind == "backend" && config.Stacks.Contains(stack.Id, StringComparer.Ordinal))
             ?.Id ?? "";
 
-        try
+        var context = PathContext.Resolve(config, backendStack, target);
+
+        if (context is null)
         {
-            var context = PathContext.Resolve(config, backendStack, target);
-
-            if (context is null)
-            {
-                Console.Error.WriteLine($"No file or record '{target}'.");
-                return 1;
-            }
-
-            var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
-            var conventions = ConventionStore.Load(config);
-            var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-            var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
-
-            Print(context, results, parsed.Has("--full"), config.Conformance);
-            return 0;
+            return LastResort.Fail($"No file or record '{target}'.", json: false, code: 1);
         }
-        catch (Exception exception)
-        {
-            Console.Error.WriteLine($"Failed: {exception.Message}");
-            return 1;
-        }
+
+        var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
+        var conventions = ConventionStore.Load(config);
+        var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
+
+        Print(context, results, parsed.Has("--full"), config.Layers);
+        return 0;
     }
 
     /// <summary>Reads the release manifest object, or null when it cannot be read.</summary>
@@ -153,10 +103,9 @@ static class RulesCommand
     {
         try
         {
-            var file = Path.Combine(home, LiteSpecHome.ManifestFile);
-            return JsonNode.Parse(File.ReadAllText(file)) as JsonObject;
+            return LiteSpecHome.ReadManifest(home);
         }
-        catch (Exception exception) when (exception is IOException or JsonException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is IOException or JsonTextException or UnauthorizedAccessException)
         {
             return null;
         }
@@ -173,8 +122,8 @@ static class RulesCommand
     /// <param name="context">The rules target.</param>
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
-    /// <param name="conformance">The conformance level the project claims.</param>
-    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, ConformanceLevel conformance)
+    /// <param name="claims">The record layers the project claims.</param>
+    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, LayerClaims claims)
     {
         var parts = new List<string>();
 
@@ -183,9 +132,9 @@ static class RulesCommand
             parts.Add($"stack: {context.Stack}");
         }
 
-        if (context.Layer.Length > 0)
+        if (context.Concern.Length > 0)
         {
-            parts.Add($"layer: {context.Layer}");
+            parts.Add($"concern: {context.Concern}");
         }
 
         if (context.Artifact.Length > 0)
@@ -199,8 +148,8 @@ static class RulesCommand
 
         if (results.Count == 0)
         {
-            Console.WriteLine(conformance == ConformanceLevel.Records && context.IsCodePath
-                ? "No provisions apply at the records conformance level for a code path: the project claims the record model only, so provisions about code do not apply. Query a record id for the provisions about records."
+            Console.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
+                ? "No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records."
                 : "No provisions apply.");
             return;
         }
@@ -214,7 +163,7 @@ static class RulesCommand
         foreach (var group in ProvisionEntry.GroupOrder)
         {
             var items = results
-                .Where(result => result.Entry.Group == group && !result.IsChecked && !result.IsLayerWide)
+                .Where(result => result.Entry.Group == group && !result.IsChecked && !result.IsConcernWide)
                 .ToList();
 
             if (items.Count == 0)
@@ -246,13 +195,13 @@ static class RulesCommand
         }
 
         var layerItems = results
-            .Where(result => result.IsLayerWide)
+            .Where(result => result.IsConcernWide)
             .OrderBy(result => result.Entry.Id, StringComparer.Ordinal)
             .ToList();
 
         if (layerItems.Count > 0)
         {
-            Console.WriteLine("Layer-wide:");
+            Console.WriteLine("Concern-wide:");
 
             foreach (var item in layerItems)
             {

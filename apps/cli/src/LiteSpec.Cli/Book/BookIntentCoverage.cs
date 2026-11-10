@@ -111,10 +111,10 @@ static class BookIntentCoverage
             var reachedBy = new JsonArray();
             foreach (var source in entry.ReachedBy)
             {
-                reachedBy.Add(source);
+                reachedBy.Add((JsonNode)source);
             }
 
-            entries.Add(new JsonObject
+            entries.Add((JsonNode)new JsonObject
             {
                 ["id"] = entry.Id,
                 ["kind"] = entry.Kind,

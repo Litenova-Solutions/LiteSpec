@@ -1,4 +1,5 @@
-using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Ui;
 
 namespace LiteSpec.Model;
 
@@ -24,6 +25,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the glossary.</summary>
     public string GlossaryPath { get; private set; } = "";
 
+    /// <summary>Gets the UI pattern catalog, from <c>paths.uiPatterns</c> or its default: YAML under the record root, but not a record.</summary>
+    public string UiPatternCatalog { get; private set; } = "";
+
     /// <summary>Gets where behavior records live.</summary>
     public string BehaviorDocs { get; private set; } = "";
 
@@ -42,9 +46,6 @@ sealed class ConsumerConfig
     /// <summary>Gets the HTTP status each refusal code answers with, by refusal code.</summary>
     public IReadOnlyDictionary<string, int> RefusalStatuses { get; private set; } =
         new Dictionary<string, int>(StringComparer.Ordinal);
-
-    /// <summary>Gets the refusal-code prefixes the project shares across modules, such as a shared kernel.</summary>
-    public IReadOnlyList<string> RefusalPrefixes { get; private set; } = [];
 
     /// <summary>
     ///     Gets the refusal codes the project composes at run time from a key, each a template with one <c>{key}</c>
@@ -110,8 +111,11 @@ sealed class ConsumerConfig
     /// <summary>Gets the committed OpenAPI document, or null when the project names none.</summary>
     public string? ContractPath { get; private set; }
 
-    /// <summary>Gets the conformance level the project claims; full when the project file names none, which the schema check reports.</summary>
-    public ConformanceLevel Conformance { get; private set; } = ConformanceLevel.Full;
+    /// <summary>Gets the record layers the project claims in <c>layers</c>; every layer with LiteSpec's practice when the project file names none, which the schema check reports.</summary>
+    public LayerClaims Layers { get; private set; } = LayerClaims.All;
+
+    /// <summary>Gets a value indicating whether the project claims Implementation or Proof, so the stack readers read code, screens, tests and test runs.</summary>
+    public bool ReadsCode => Layers.Implementation is not null || Layers.Proof is not null;
 
     /// <summary>Gets the project size: small or large.</summary>
     public string Size { get; private set; } = "large";
@@ -119,7 +123,7 @@ sealed class ConsumerConfig
     /// <summary>Gets the project shape: server or client-only.</summary>
     public string Shape { get; private set; } = "server";
 
-    /// <summary>Gets the stacks the project names in <c>.litespec/project.json</c>.</summary>
+    /// <summary>Gets the stacks the project names in <c>.litespec/project.yaml</c>.</summary>
     public IReadOnlyList<string> Stacks { get; private set; } = [];
 
     /// <summary>Gets the extension ids the project selects in <c>selectedExtensions</c>.</summary>
@@ -148,30 +152,20 @@ sealed class ConsumerConfig
         var file = ConsumerRoot.ProjectFile(config.Root);
         var text = File.Exists(file) ? File.ReadAllText(file) : "{}";
 
-        using var document = JsonDocument.Parse(text);
-
-        if (!ProjectSettings.TryParse(text, out var settings, out var error))
+        if (!ProjectPaths.TryRead(file, text, out var projectPaths, out var error) || projectPaths is null)
         {
             throw new InvalidOperationException(error!);
         }
 
-        config.Marks = settings.Marks;
+        var document = DataFile.Parse(text, DataFile.IsYaml(file)) as JsonObject ?? new JsonObject();
+        config.Marks = projectPaths.Settings.Marks;
+        config.Layers = projectPaths.Settings.Layers;
 
-        var paths = document.RootElement.TryGetProperty("paths", out var found)
-            && found.ValueKind == JsonValueKind.Object
-                ? found
-                : (JsonElement?)null;
-
-        var dotnet = document.RootElement.TryGetProperty("stackConfig", out var stacksConfig)
-            && stacksConfig.ValueKind == JsonValueKind.Object
-            && stacksConfig.TryGetProperty("dotnet", out var dotnetConfig)
-            && dotnetConfig.ValueKind == JsonValueKind.Object
-                ? dotnetConfig
-                : (JsonElement?)null;
-
+        var paths = ObjectAt(document, "paths");
+        var dotnet = ObjectAt(ObjectAt(document, "stackConfig"), "dotnet");
         var problems = new List<Finding>();
-        var layerProjects = SelectsExtension(document.RootElement, "layer-projects");
-        var selectsDotnet = SelectsDotnet(document.RootElement);
+        var layerProjects = SelectsExtension(document, "layer-projects");
+        var selectsDotnet = SelectsDotnet(document);
 
         void ReportMissing(string field, string pattern, string resolved, bool declared)
         {
@@ -191,10 +185,7 @@ sealed class ConsumerConfig
 
         string DeclaredRootOrEmpty(string field)
         {
-            if (dotnet is not null
-                && dotnet.Value.TryGetProperty(field, out var value)
-                && value.ValueKind == JsonValueKind.String
-                && value.GetString() is { Length: > 0 } pattern)
+            if (StringAt(dotnet, field) is { } pattern)
             {
                 return DeclaredRoot(field, pattern, reportDefault: false);
             }
@@ -204,10 +195,7 @@ sealed class ConsumerConfig
 
         string DeclaredRoot(string field, string fallback, bool reportDefault)
         {
-            if (dotnet is not null
-                && dotnet.Value.TryGetProperty(field, out var value)
-                && value.ValueKind == JsonValueKind.String
-                && value.GetString() is { Length: > 0 } pattern)
+            if (StringAt(dotnet, field) is { } pattern)
             {
                 var resolved = Resolve(config.Root, pattern);
 
@@ -231,10 +219,9 @@ sealed class ConsumerConfig
 
         IReadOnlyList<string> DeclaredRoots(string field, string fallback)
         {
-            if (dotnet is not null && dotnet.Value.TryGetProperty(field, out var value))
+            if (dotnet is not null && dotnet[field] is { } value)
             {
-                if (value.ValueKind == JsonValueKind.String
-                    && value.GetString() is { Length: > 0 } single)
+                if (StringAt(dotnet, field) is { } single)
                 {
                     var roots = new List<string>();
 
@@ -251,14 +238,13 @@ sealed class ConsumerConfig
                     return roots;
                 }
 
-                if (value.ValueKind == JsonValueKind.Array)
+                if (value is JsonArray array)
                 {
                     var roots = new List<string>();
 
-                    foreach (var entry in value.EnumerateArray())
+                    foreach (var entry in array)
                     {
-                        if (entry.ValueKind != JsonValueKind.String
-                            || entry.GetString() is not { Length: > 0 } pattern)
+                        if (JsonValues.AsString(entry) is not { Length: > 0 } pattern)
                         {
                             continue;
                         }
@@ -285,10 +271,12 @@ sealed class ConsumerConfig
         }
 
         // Records live under the record roots that paths.docs names, which default
-        // to the one LiteSpec folder at the repository root.
-        config.RecordRoots = ReadRoots(config.Root, paths, "docs", [".litespec"]);
-        config.GlossaryPath = Combine(config.Root, ReadString(paths, "glossary", ".litespec/glossary.yaml"));
-        config.BehaviorDocs = Combine(config.Root, ReadString(paths, "behaviorDocs", ".litespec/behavior"));
+        // to the one LiteSpec folder at the repository root. The paths come from
+        // the shared reader the analyzers use too.
+        config.RecordRoots = [.. projectPaths.DocsRoots.Select(Native)];
+        config.GlossaryPath = Native(projectPaths.GlossaryPath);
+        config.UiPatternCatalog = Combine(config.Root, ReadString(paths, "uiPatterns", CatalogChecks.DefaultCatalog));
+        config.BehaviorDocs = Native(projectPaths.BehaviorDocs);
         config.ModulesRoot = DeclaredRoot("modules", layerProjects ? "apps/api/src/*.Application" : "apps/api/src/*.Modules", reportDefault: true);
         config.DomainRoot = layerProjects ? DeclaredRoot("domain", "apps/api/src/*.Domain", reportDefault: true) : DeclaredRootOrEmpty("domain");
         config.WebApiRoots = DeclaredRoots("webapi", "apps/api/src/*.WebApi");
@@ -296,10 +284,7 @@ sealed class ConsumerConfig
         config.WorkerRoots = DeclaredRoots("worker", "apps/api/src/*.Worker");
         config.SharedKernelRoot = DeclaredRoot("sharedKernel", "apps/api/src/*.SharedKernel", reportDefault: false);
 
-        if (dotnet is not null
-            && dotnet.Value.TryGetProperty("templateStore", out var store)
-            && store.ValueKind == JsonValueKind.String
-            && store.GetString() is { Length: > 0 } storePath)
+        if (StringAt(dotnet, "templateStore") is { } storePath)
         {
             config.TemplateStore = Combine(config.Root, storePath);
         }
@@ -309,70 +294,48 @@ sealed class ConsumerConfig
         config.CheckResultsDir = Combine(config.Root, ReadString(paths, "checkResults", ".litespec/proof/checks"));
         config.Sboms = ReadRoots(config.Root, paths, "sbom", []);
 
-        if (document.RootElement.TryGetProperty("dependencies", out var dependencies)
-            && dependencies.ValueKind == JsonValueKind.Object
-            && dependencies.TryGetProperty("licenses", out var licenses)
-            && licenses.ValueKind == JsonValueKind.Array)
+        if (ObjectAt(document, "dependencies") is { } dependencies
+            && dependencies["licenses"] is JsonArray licenses)
         {
-            config.AcceptedLicenses = licenses.EnumerateArray()
-                .Where(entry => entry.ValueKind == JsonValueKind.String)
-                .Select(entry => entry.GetString()!)
+            config.AcceptedLicenses = licenses
+                .Select(JsonValues.AsString)
+                .OfType<string>()
                 .ToHashSet(StringComparer.Ordinal);
         }
+
         config.TestRoots = ReadRoots(config.Root, paths, "testRoots", []);
-        config.Frontends = ReadFrontends(config.Root, paths);
+        config.Frontends = ReadFrontends(config.Root, document);
         config.ApiClientSrc = Path.Combine(
             Combine(config.Root, ReadString(paths, "apiClient", "packages/api")), "src");
         config.TestResultsDir = Combine(config.Root, ReadString(paths, "testResults", "TestResults"));
         config.ContractPath = ReadString(paths, "contract", "") is { Length: > 0 } contract ? Combine(config.Root, contract) : null;
 
-        if (document.RootElement.TryGetProperty("conformance", out var conformance)
-            && conformance.ValueKind == JsonValueKind.String
-            && ConformanceLevels.TryParse(conformance.GetString(), out var level))
+        if (JsonValues.AsString(document["size"]) is { } size && size is "small" or "large")
         {
-            config.Conformance = level;
+            config.Size = size;
         }
 
-        if (document.RootElement.TryGetProperty("size", out var size)
-            && size.ValueKind == JsonValueKind.String
-            && size.GetString() is "small" or "large")
-        {
-            config.Size = size.GetString()!;
-        }
-
-        if (document.RootElement.TryGetProperty("shape", out var shape)
-            && shape.ValueKind == JsonValueKind.String
-            && shape.GetString() is { Length: > 0 } shapeName)
+        if (JsonValues.AsString(document["shape"]) is { Length: > 0 } shapeName)
         {
             config.Shape = shapeName;
         }
 
-        if (document.RootElement.TryGetProperty("stacks", out var stacks)
-            && stacks.ValueKind == JsonValueKind.Array)
+        if (document["stacks"] is JsonArray stacks)
         {
-            config.Stacks =
-            [
-                .. stacks.EnumerateArray()
-                             .Where(entry => entry.ValueKind == JsonValueKind.String)
-                             .Select(entry => entry.GetString()!),
-            ];
+            config.Stacks = [.. stacks.Select(JsonValues.AsString).OfType<string>()];
         }
 
-        if (document.RootElement.TryGetProperty("selectedExtensions", out var extensions)
-            && extensions.ValueKind == JsonValueKind.Array)
+        if (document["selectedExtensions"] is JsonArray extensions)
         {
             var ids = new List<string>();
 
-            foreach (var entry in extensions.EnumerateArray())
+            foreach (var entry in extensions)
             {
-                if (entry.ValueKind == JsonValueKind.String && entry.GetString() is { Length: > 0 } id)
+                if (JsonValues.AsString(entry) is { Length: > 0 } id)
                 {
                     ids.Add(id);
                 }
-                else if (entry.ValueKind == JsonValueKind.Object
-                    && entry.TryGetProperty("id", out var named)
-                    && named.ValueKind == JsonValueKind.String
-                    && named.GetString() is { Length: > 0 } objectId)
+                else if (entry is JsonObject container && JsonValues.PropString(container, "id") is { Length: > 0 } objectId)
                 {
                     ids.Add(objectId);
                 }
@@ -382,61 +345,44 @@ sealed class ConsumerConfig
             config.IsLayerProjects = ids.Contains("layer-projects", StringComparer.Ordinal);
         }
 
-        if (document.RootElement.TryGetProperty("proof", out var proof)
-            && proof.ValueKind == JsonValueKind.Object)
+        if (ObjectAt(document, "proof") is { } proof)
         {
             config.JobTriggerSteps = ReadNames(proof, "jobTriggerSteps");
             config.OutcomeOnlySteps = ReadNames(proof, "outcomeOnlySteps");
         }
 
-        if (document.RootElement.TryGetProperty("refusals", out var refusals)
-            && refusals.ValueKind == JsonValueKind.Object)
+        if (ObjectAt(document, "refusals") is { } refusals)
         {
-            if (refusals.TryGetProperty("forbidden", out var forbidden)
-                && forbidden.ValueKind == JsonValueKind.String
-                && forbidden.GetString() is { Length: > 0 } forbiddenCode)
+            if (StringAt(refusals, "forbidden") is { } forbiddenCode)
             {
                 config.ForbiddenCode = forbiddenCode;
             }
 
-            if (refusals.TryGetProperty("invalidInput", out var invalid)
-                && invalid.ValueKind == JsonValueKind.String
-                && invalid.GetString() is { Length: > 0 } invalidCode)
+            if (StringAt(refusals, "invalidInput") is { } invalidCode)
             {
                 config.InvalidInputCode = invalidCode;
             }
 
             config.RefusalStatuses = ReadStatuses(refusals);
             config.RefusalAliases = ReadAliases(refusals);
-            config.RefusalPrefixes = ReadNames(refusals, "prefixes");
             config.RefusalComposed = [.. ReadNames(refusals, "composed").Where(RefusalTemplate.IsWellFormed)];
         }
 
-        if (document.RootElement.TryGetProperty("screenshots", out var screenshots)
-            && screenshots.ValueKind == JsonValueKind.Object)
+        if (ObjectAt(document, "screenshots") is { } screenshots)
         {
-            if (screenshots.TryGetProperty("galleries", out var galleries)
-                && galleries.ValueKind == JsonValueKind.Array)
+            if (screenshots["galleries"] is JsonArray galleries)
             {
                 config.ScreenshotGalleries =
                 [
-                    .. galleries.EnumerateArray()
-                                  .Where(entry => entry.ValueKind == JsonValueKind.String)
-                                  .Select(entry => entry.GetString()!)
-                                  .Where(gallery => gallery.Length > 0)
-                                  .Select(gallery => Combine(config.Root, gallery)),
+                    .. galleries
+                        .Select(JsonValues.AsString)
+                        .OfType<string>()
+                        .Where(gallery => gallery.Length > 0)
+                        .Select(gallery => Combine(config.Root, gallery)),
                 ];
             }
-            else if (screenshots.TryGetProperty("gallery", out var gallery)
-                && gallery.ValueKind == JsonValueKind.String
-                && gallery.GetString() is { Length: > 0 } single)
-            {
-                config.ScreenshotGalleries = [Combine(config.Root, single)];
-            }
 
-            if (screenshots.TryGetProperty("pattern", out var pattern)
-                && pattern.ValueKind == JsonValueKind.String
-                && pattern.GetString() is { Length: > 0 } named)
+            if (StringAt(screenshots, "pattern") is { } named)
             {
                 config.ScreenshotPattern = named;
             }
@@ -448,38 +394,39 @@ sealed class ConsumerConfig
         return config;
     }
 
-    /// <summary>
-    ///     A path written with forward slashes, relative to the root.
-    /// </summary>
-    /// <param name="absolute">The absolute path to make relative.</param>
-    /// <returns>The path relative to the root, with forward slashes.</returns>
-    public string Relative(string absolute) =>
-        Path.GetRelativePath(Root, absolute).Replace(Path.DirectorySeparatorChar, '/');
+    /// <summary>The object a field holds, or null when the field is missing or not an object.</summary>
+    /// <param name="node">The object holding the field, or null.</param>
+    /// <param name="field">The field name.</param>
+    /// <returns>The nested object, or null.</returns>
+    private static JsonObject? ObjectAt(JsonNode? node, string field) =>
+        node is JsonObject container && container[field] is JsonObject found ? found : null;
+
+    /// <summary>The non-empty string a field holds, or null when the field is missing or not a string.</summary>
+    /// <param name="node">The object holding the field, or null.</param>
+    /// <param name="field">The field name.</param>
+    /// <returns>The string, or null.</returns>
+    private static string? StringAt(JsonNode? node, string field) =>
+        node is JsonObject container && JsonValues.AsString(container[field]) is { Length: > 0 } text ? text : null;
 
     /// <summary>Whether the declaration selects the extension id in selectedExtensions.</summary>
     /// <param name="root">The declaration root object.</param>
     /// <param name="id">The extension id to test for.</param>
     /// <returns>True when selectedExtensions names the id as a string or an object with that id.</returns>
-    private static bool SelectsExtension(JsonElement root, string id)
+    private static bool SelectsExtension(JsonObject root, string id)
     {
-        if (!root.TryGetProperty("selectedExtensions", out var extensions)
-            || extensions.ValueKind != JsonValueKind.Array)
+        if (root["selectedExtensions"] is not JsonArray extensions)
         {
             return false;
         }
 
-        foreach (var entry in extensions.EnumerateArray())
+        foreach (var entry in extensions)
         {
-            if (entry.ValueKind == JsonValueKind.String
-                && string.Equals(entry.GetString(), id, StringComparison.Ordinal))
+            if (JsonValues.AsString(entry) == id)
             {
                 return true;
             }
 
-            if (entry.ValueKind == JsonValueKind.Object
-                && entry.TryGetProperty("id", out var named)
-                && named.ValueKind == JsonValueKind.String
-                && string.Equals(named.GetString(), id, StringComparison.Ordinal))
+            if (entry is JsonObject container && JsonValues.PropString(container, "id") == id)
             {
                 return true;
             }
@@ -491,54 +438,37 @@ sealed class ConsumerConfig
     /// <summary>Whether the declaration selects a stack whose sources the .NET reader reads.</summary>
     /// <param name="root">The declaration root object.</param>
     /// <returns>True when the stacks array names dotnet, blazor or android.</returns>
-    private static bool SelectsDotnet(JsonElement root)
-    {
-        if (!root.TryGetProperty("stacks", out var stacks)
-            || stacks.ValueKind != JsonValueKind.Array)
-        {
-            return false;
-        }
-
-        foreach (var entry in stacks.EnumerateArray())
-        {
-            if (entry.ValueKind == JsonValueKind.String
-                && entry.GetString() is "dotnet" or "blazor" or "android")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    private static bool SelectsDotnet(JsonObject root) =>
+        root["stacks"] is JsonArray stacks
+        && stacks.Any(entry => JsonValues.AsString(entry) is "dotnet" or "blazor" or "android");
 
     /// <summary>Reads a string array field, keeping only its string entries.</summary>
-    /// <param name="element">The JSON object holding the field.</param>
+    /// <param name="container">The JSON object holding the field.</param>
     /// <param name="field">The field name to read.</param>
     /// <returns>The string entries of the field, or an empty list when the field is missing or not an array.</returns>
-    private static IReadOnlyList<string> ReadNames(JsonElement element, string field) =>
-        element.TryGetProperty(field, out var names) && names.ValueKind == JsonValueKind.Array
-            ? [.. names.EnumerateArray().Where(entry => entry.ValueKind == JsonValueKind.String).Select(entry => entry.GetString()!)]
+    private static IReadOnlyList<string> ReadNames(JsonObject container, string field) =>
+        container[field] is JsonArray names
+            ? [.. names.Select(JsonValues.AsString).OfType<string>()]
             : [];
 
     /// <summary>The refusal statuses table: each declared code with the HTTP status it answers with.</summary>
     /// <param name="refusals">The refusals object holding the statuses table.</param>
     /// <returns>The HTTP status for each declared refusal code.</returns>
-    private static Dictionary<string, int> ReadStatuses(JsonElement refusals)
+    private static Dictionary<string, int> ReadStatuses(JsonObject refusals)
     {
         var statuses = new Dictionary<string, int>(StringComparer.Ordinal);
 
-        if (refusals.TryGetProperty("statuses", out var table)
-            && table.ValueKind == JsonValueKind.Object)
+        if (ObjectAt(refusals, "statuses") is { } table)
         {
-            foreach (var entry in table.EnumerateObject())
+            foreach (var entry in table)
             {
-                if (entry.Name.Length > 0
-                    && entry.Value.ValueKind == JsonValueKind.Number
-                    && entry.Value.TryGetInt32(out var status)
+                if (entry.Key.Length > 0
+                    && entry.Value is JsonValue value
+                    && value.TryGetValue<int>(out var status)
                     && status is >= 100 and <= 599
-                    && !statuses.ContainsKey(entry.Name))
+                    && !statuses.ContainsKey(entry.Key))
                 {
-                    statuses.Add(entry.Name, status);
+                    statuses.Add(entry.Key, status);
                 }
             }
         }
@@ -549,21 +479,19 @@ sealed class ConsumerConfig
     /// <summary>The refusal code map: each client code with the declared code it translates to.</summary>
     /// <param name="refusals">The refusals object holding the aliases table.</param>
     /// <returns>The declared code for each client code.</returns>
-    private static Dictionary<string, string> ReadAliases(JsonElement refusals)
+    private static Dictionary<string, string> ReadAliases(JsonObject refusals)
     {
         var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
 
-        if (refusals.TryGetProperty("aliases", out var table)
-            && table.ValueKind == JsonValueKind.Object)
+        if (ObjectAt(refusals, "aliases") is { } table)
         {
-            foreach (var entry in table.EnumerateObject())
+            foreach (var entry in table)
             {
-                if (entry.Name.Length > 0
-                    && entry.Value.ValueKind == JsonValueKind.String
-                    && entry.Value.GetString() is { Length: > 0 } code
-                    && !aliases.ContainsKey(entry.Name))
+                if (entry.Key.Length > 0
+                    && JsonValues.AsString(entry.Value) is { Length: > 0 } code
+                    && !aliases.ContainsKey(entry.Key))
                 {
-                    aliases.Add(entry.Name, code);
+                    aliases.Add(entry.Key, code);
                 }
             }
         }
@@ -576,13 +504,8 @@ sealed class ConsumerConfig
     /// <param name="field">The field name to read.</param>
     /// <param name="fallback">The value used when the field is missing or empty.</param>
     /// <returns>The field string, or the fallback.</returns>
-    private static string ReadString(JsonElement? paths, string field, string fallback) =>
-        paths is not null
-        && paths.Value.TryGetProperty(field, out var value)
-        && value.ValueKind == JsonValueKind.String
-        && value.GetString() is { Length: > 0 } text
-            ? text
-            : fallback;
+    private static string ReadString(JsonObject? paths, string field, string fallback) =>
+        StringAt(paths, field) ?? fallback;
 
     /// <summary>Reads a roots field: one path or an array of paths, resolved against the root.</summary>
     /// <param name="root">The consumer root the paths resolve against.</param>
@@ -591,68 +514,55 @@ sealed class ConsumerConfig
     /// <param name="fallback">The relative suffixes used when the field is missing.</param>
     /// <returns>The resolved absolute roots, or the resolved fallback suffixes.</returns>
     private static IReadOnlyList<string> ReadRoots(
-        string root, JsonElement? paths, string field, string[] fallback)
+        string root, JsonObject? paths, string field, string[] fallback)
     {
-        if (paths is not null && paths.Value.TryGetProperty(field, out var value))
+        if (StringAt(paths, field) is { } single)
         {
-            if (value.ValueKind == JsonValueKind.String && value.GetString() is { Length: > 0 } single)
-            {
-                return [Combine(root, single)];
-            }
+            return [Combine(root, single)];
+        }
 
-            if (value.ValueKind == JsonValueKind.Array)
-            {
-                return
-                [
-                    .. value.EnumerateArray()
-                              .Where(entry => entry.ValueKind == JsonValueKind.String)
-                              .Select(entry => Combine(root, entry.GetString()!)),
-                ];
-            }
+        if (paths?[field] is JsonArray array)
+        {
+            return
+            [
+                .. array
+                    .Select(JsonValues.AsString)
+                    .OfType<string>()
+                    .Where(entry => entry.Length > 0)
+                    .Select(entry => Combine(root, entry)),
+            ];
         }
 
         return [.. fallback.Select(suffix => Combine(root, suffix))];
     }
 
-    /// <summary>Reads the declared frontends from the paths object.</summary>
+    /// <summary>Reads the declared frontends, the top-level frontends array.</summary>
     /// <param name="root">The consumer root the frontend paths resolve against.</param>
-    /// <param name="paths">The paths object, or null when the declaration names none.</param>
+    /// <param name="document">The project file object.</param>
     /// <returns>The declared frontends in declaration order, or an empty list when none are declared.</returns>
-    private static List<FrontendConfig> ReadFrontends(string root, JsonElement? paths)
+    private static List<FrontendConfig> ReadFrontends(string root, JsonObject document)
     {
-        if (paths is null
-            || !paths.Value.TryGetProperty("frontends", out var frontends)
-            || frontends.ValueKind != JsonValueKind.Array)
+        if (document["frontends"] is not JsonArray frontends)
         {
             return [];
         }
 
         var found = new List<FrontendConfig>();
 
-        foreach (var frontend in frontends.EnumerateArray())
+        foreach (var frontend in frontends.OfType<JsonObject>())
         {
-            if (frontend.TryGetProperty("name", out var name)
-                && frontend.TryGetProperty("path", out var path)
-                && name.GetString() is { } named
-                && path.GetString() is { } located)
+            if (JsonValues.PropString(frontend, "name") is { } named
+                && JsonValues.PropString(frontend, "path") is { } located)
             {
-                var platform = frontend.TryGetProperty("platform", out var declared)
-                    ? declared.GetString() ?? ""
-                    : "";
+                var platform = JsonValues.PropString(frontend, "platform") ?? "";
 
                 string? Optional(string field) =>
-                    frontend.TryGetProperty(field, out var value)
-                    && value.ValueKind == JsonValueKind.String
-                    && value.GetString() is { Length: > 0 } text
-                        ? Combine(root, text)
-                        : null;
+                    StringAt(frontend, field) is { } text ? Combine(root, text) : null;
 
                 found.Add(new FrontendConfig(
                     named, Combine(root, located), platform,
                     Optional("refusalDictionary"), Optional("routeSuite"), Optional("visualGoldens"),
-                    frontend.TryGetProperty("entryPoint", out var entry) && entry.ValueKind == JsonValueKind.String
-                        ? entry.GetString()
-                        : null));
+                    JsonValues.PropString(frontend, "entryPoint")));
             }
         }
 
@@ -665,6 +575,11 @@ sealed class ConsumerConfig
     /// <returns>The absolute combined path.</returns>
     private static string Combine(string root, string relative) =>
         Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+
+    /// <summary>Converts a resolved path written with forward slashes to the operating system's form.</summary>
+    /// <param name="path">The absolute path with forward slashes, as <see cref="ProjectPaths" /> resolves it.</param>
+    /// <returns>The absolute path with the operating system's separators.</returns>
+    private static string Native(string path) => Path.GetFullPath(path.Replace('/', Path.DirectorySeparatorChar));
 
     /// <summary>
     ///     Resolves one path, expanding a single segment wildcard to the first match.

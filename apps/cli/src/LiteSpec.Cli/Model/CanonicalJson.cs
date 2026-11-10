@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace LiteSpec.Model;
 
@@ -44,7 +45,7 @@ static class CanonicalJson
                     }
 
                     first = false;
-                    built.Append(JsonSerializer.Serialize(property.Name));
+                    built.Append(Quote(property.Name));
                     built.Append(':');
                     Write(property.Value, built);
                 }
@@ -72,7 +73,7 @@ static class CanonicalJson
                 break;
 
             case JsonValueKind.String:
-                built.Append(JsonSerializer.Serialize(value.GetString()));
+                built.Append(Quote(value.GetString()!));
                 break;
 
             case JsonValueKind.Number:
@@ -125,13 +126,18 @@ static class CanonicalJson
             }
 
             first = false;
-            built.Append(JsonSerializer.Serialize(property.Name));
+            built.Append(Quote(property.Name));
             built.Append(':');
             Write(property.Value, built);
         }
 
         built.Append('}');
     }
+
+    /// <summary>One string as a JSON string literal, with the default escaping.</summary>
+    /// <param name="text">The string to quote.</param>
+    /// <returns>The quoted and escaped JSON string.</returns>
+    private static string Quote(string text) => JsonValue.Create(text).ToJsonString();
 
     /// <summary>
     ///     The canonical text of one number: the shortest invariant form with no

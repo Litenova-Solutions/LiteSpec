@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+project:
+  name: __PROJECT__
+size: small
+shape: server
+stacks:
+- dotnet
+- react
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
+reviewedLiteSpecVersion: 5.0.0
+screenshots:
+  galleries:
+  - apps/web/test-results/gallery
+  pattern: '{route}--{theme}--{width}.png'
+paths:
+  docs: .litespec
+  behaviorDocs: .litespec/behavior
+  testRoots:
+  - apps/api/tests
+stackConfig:
+  dotnet:
+    modules: apps/api/src/__PROJECT__.Modules
+    sharedKernel: apps/api/src/__PROJECT__.SharedKernel
+frontends:
+- name: web
+  path: apps/web
+  platform: react
+  ui:
+    profile: application-balanced
+    globalCss: apps/web/src/styles.css
+ui:
+  package:
+    name: '@__PROJECT__/ui'
+    path: packages/ui
+    componentsJson: packages/ui/components.json
+    primitives: packages/ui/src/components
+    tokens: packages/ui/src/styles/tokens.css
+    sourceLock: packages/ui/ui-source-lock.yaml
+    designContract: packages/ui/DESIGN.md
+    publicExports:
+    - '@__PROJECT__/ui/floorplans'
+selectedExtensions: []

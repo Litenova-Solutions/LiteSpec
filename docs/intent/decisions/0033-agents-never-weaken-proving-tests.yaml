@@ -1,0 +1,18 @@
+type: decision
+id: decision/0033-agents-never-weaken-proving-tests
+title: Agents Never Weaken Proving Tests
+options:
+  - name: "Forbid weakening, and report each changed proving test as an advisory finding"
+    pros: "An agent that edits a test to pass leaves a finding for the reviewer, and the hashes are cheap because the ledger already holds them."
+    cons: "The finding is advisory and never blocks, so a reviewer must read it. Browser proving tests carry no method hash yet, so the finding covers .NET methods only."
+  - name: "Rely on review of each change"
+    pros: "No new rule and no new finding."
+    cons: "A test changed to match new code reads as a fix in review, unless the reviewer compares it with the scenario."
+  - name: "Block every change to a proving test"
+    pros: "No proving test changes without a block."
+    cons: "A correct edit to a proving test blocks too, and each test refactor needs a departure."
+choice: "Forbid weakening, and report each changed proving test as an advisory finding"
+consequences: "`litespec/core/agent#protect-proofs-from-implementation-edits` states the rule: an agent does not delete, skip or weaken a proving test, or change its expected values, unless the scenario changed in the same change. `litespec model check --since <ref>` reports `proof-hash-drift`, at level A on the Proof layer, for each scenario whose proving test method changed while the scenario did not. The proof ledger keeps one method hash per scenario beside its file hash, and each method hash covers the method's own text."
+reopenedWhen: "A test runner is added whose method boundary the builder cannot read, or a review finds a weakened proving test that the finding did not report."
+basedOn:
+  - research/agent-testing-evidence

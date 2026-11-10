@@ -1,8 +1,7 @@
 # Web UI
 
-**Stack:** any
-
-**Layer:** frontend-ui
+**Stack:** react, svelte
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -31,6 +30,10 @@ The browser suite discovers its routes from the generated route tree rather than
 | Target size | Every pointer target meets the minimum size or spacing |
 | Announcements | Asynchronous status changes announce through a live region |
 
+### Pattern Implementation
+
+A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints, and product-added options are drawn in a product registry at the catalog breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`.
+
 ### Rules Kept on the Base Page
 
 The UI rules for the baseline, floorplans, layout, page references, tones, tokens, the base color, styling, route checks, result proof, and change evidence live on [Controlled UI Governance](../ui.md). The web stacks add the registry, suite marks, CSS decisions, and source rules this page states.
@@ -44,7 +47,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 - Base color: `litespec/frontend/ui#hold-the-declared-base-color`
 - Styling gate: `litespec/frontend/ui#restrict-styling-to-semantic-tokens`
 - Route checks: `litespec/frontend/ui#check-every-route`
-- Result proof: `litespec/frontend/ui#prove-every-result-a-route-calls`
+- Result proof: `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 - Change evidence: `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
 ## Standards
@@ -53,7 +56,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#publish-one-registry-item-per-floorplan`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -67,13 +70,13 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#mark-the-route-suite-and-goldens-with-what-they-prove`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
 **Statement:** The route suite and every visual golden MUST carry a `proves` annotation for each UI provision, pattern provision, or quality requirement they enforce.
 
-**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `paths.frontends[]` entry, so the check has a named subject instead of a convention.
+**Rationale:** The route suite is the one place accessibility is enforced for every page, and a visual golden is the one place a pattern's look is held, yet neither proves anything a tool can read while it names nothing. Marking them turns the suite into the evidence for the UI provisions it checks, and each golden into the evidence for the pattern it protects, so a passing run marks those records tested. Neither proves a scenario: a route suite asserts every page, not one use case. Each frontend names its route suite in `routeSuite` and its goldens in `visualGoldens` in its `frontends[]` entry, so the check has a named subject instead of a convention.
 
 **Example:** Claimwick's route suite, named in its web frontend's `routeSuite`, carries `proves("litespec/frontend/ui#check-every-route")`.
 
@@ -83,7 +86,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **ID:** `litespec/frontend/web/ui#restrict-css-decisions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: component, route
 
@@ -91,21 +94,21 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value answers to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
 
-**Checked by:** `litespec model check` reports each arbitrary value, raw palette value, important modifier, and inline style with its file.
+**Checked by:** `litespec model check` reports `ui-class-invalid` for each arbitrary value, raw palette value, and important modifier, and `ui-stylesheet-invalid` for each inline style, with its file.
 
 ### Track Source Changes
 
 **ID:** `litespec/frontend/web/ui#track-source-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
 **Statement:** The shared package's source lock MUST record the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive.
 
-**Rationale:** The source lock records the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive. Normalizing source before hashing lets two workspaces compute the same digest for identical source. One lock beside one copy is what makes a changed primitive report a fork instead of passing unreported.
+**Rationale:** The source lock records the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive. Normalizing source before hashing lets two workspaces compute the same digest for identical source. One lock beside one copy is what makes a changed primitive report a fork instead of passing unreported. `litespec model render` writes the digests, the preset and the CLI pin, so a person reviews a changed digest in the pull request diff and never computes one. Settled by [decision/0024-keep-the-ui-source-lock](decision/0024-keep-the-ui-source-lock).
 
-**Checked by:** `litespec model check` recomputes each digest and reports changed primitive source.
+**Checked by:** `litespec model check` recomputes each digest and reports `ui-sourcelock-invalid` for changed primitive source.
 
 ## Conventions
 

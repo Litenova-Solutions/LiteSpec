@@ -1,11 +1,10 @@
-using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
 namespace LiteSpec.Ui;
 
 /// <summary>The collected result of one <see cref="UiValidator.Validate"/> run.</summary>
 /// <param name="ExitCode">What the UI pass returns: 0 pass, 1 problems, 2 unusable root.</param>
-/// <param name="Problems">The findings the JSON output's problems array holds.</param>
+/// <param name="Problems">The findings the UI pass reported.</param>
 /// <param name="Consumer">The consumer root the run checked.</param>
 /// <param name="SharedPackage">The declared shared package, or null when none resolved.</param>
 /// <param name="ControlledFrontends">How many controlled frontends were checked.</param>
@@ -20,78 +19,4 @@ sealed record UiReport(
     int ControlledFrontends,
     IReadOnlyList<UiFrontend> SkippedFrontends,
     bool HasPackage,
-    IReadOnlyList<UiFrontend> Frontends)
-{
-    /// <summary>Builds the JSON object <c>--format json</c> writes.</summary>
-    /// <returns>The JSON report.</returns>
-    public JsonObject ToJson()
-    {
-        JsonNode? shared = null;
-        if (SharedPackage is not null)
-        {
-            var package = new JsonObject();
-            if (SharedPackage.NameFound)
-            {
-                package["name"] = SharedPackage.Name?.DeepClone();
-            }
-
-            if (SharedPackage.PathFound)
-            {
-                package["path"] = SharedPackage.Path?.DeepClone();
-            }
-
-            var exports = new JsonArray();
-            foreach (var entry in SharedPackage.Exports)
-            {
-                exports.Add(entry?.DeepClone());
-            }
-
-            package["exports"] = exports;
-            shared = package;
-        }
-
-        var skipped = new JsonArray();
-        foreach (var frontend in SkippedFrontends)
-        {
-            var entry = new JsonObject();
-            if (frontend.NameFound)
-            {
-                entry["name"] = frontend.Name?.DeepClone();
-            }
-
-            entry["platform"] = frontend.Platform?.DeepClone();
-            skipped.Add(entry);
-        }
-
-        var problems = new JsonArray();
-        foreach (var problem in Problems)
-        {
-            var item = new JsonObject
-            {
-                ["code"] = problem.Code,
-                ["level"] = problem.Tier,
-                ["message"] = problem.Message,
-                ["path"] = Path.GetRelativePath(Consumer, problem.Path).Replace(Path.DirectorySeparatorChar, '/'),
-                ["line"] = problem.Line,
-            };
-
-            if (problem.Subject is not null)
-            {
-                item["subject"] = problem.Subject;
-            }
-
-            problems.Add(item);
-        }
-
-        return new JsonObject
-        {
-            ["tool"] = "ui",
-            ["consumer"] = Consumer,
-            ["ok"] = Problems.Count == 0,
-            ["sharedPackage"] = shared,
-            ["controlledFrontends"] = ControlledFrontends,
-            ["skippedFrontends"] = skipped,
-            ["problems"] = problems,
-        };
-    }
-}
+    IReadOnlyList<UiFrontend> Frontends);

@@ -1,7 +1,7 @@
 # .NET Workspace
 
 **Stack:** dotnet
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -11,7 +11,7 @@ A .NET backend lives under `apps/api/`, with the solution beside its projects. T
 
 ### Solutions and Project Homes
 
-The API solution sits directly under `apps/api/` and remains the solution builds, test runs, and `paths.apiSolution` name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path. When the workspace holds a second .NET deployable, a root solution lists both sets for editors that open across them.
+The API solution sits directly under `apps/api/` and remains the solution builds and test runs name. Production projects live under `src/` and test projects under `tests/`, so a test dependency reaching production shows in the path. When the workspace holds a second .NET deployable, a root solution lists both sets for editors that open across them.
 
 ### The AppHost Placement
 
@@ -23,11 +23,11 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 **ID:** `litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A root solution MUST list the .NET projects of more than one deployable unit, with builds, test runs, and configuration still naming the API solution.
 
-**Rationale:** The API solution stays at `apps/api/` and remains the one builds, test runs, and `paths.apiSolution` name. A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where `litespec/workspace/structure#keep-production-and-test-code-separate` puts them.
+**Rationale:** The API solution stays at `apps/api/` and remains the one builds and test runs name. A workspace with a second .NET deployable, such as a command-line tool, otherwise has no single file an editor can open across both. Two solution files listing overlapping projects are a supported MSBuild arrangement, and the projects stay where `litespec/workspace/structure#keep-production-and-test-code-separate` puts them.
 
 **Example:** A workspace with an API and a command-line tool carries `apps/api/{Product}.slnx`, `apps/cli/{Product}.Cli.slnx` where one exists, and a root `{Product}.slnx` listing both sets.
 
@@ -37,7 +37,7 @@ An AppHost that runs the API alone stays under `apps/api/src/` with the projects
 
 **ID:** `litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An AppHost that runs more than one application under `apps/` MUST live at `apps/apphost/{ProjectName}.AppHost/` rather than under `apps/api/src/`.
 

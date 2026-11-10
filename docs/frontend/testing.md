@@ -1,7 +1,7 @@
 # Frontend Testing
 
 **Stack:** any
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 
@@ -34,11 +34,12 @@ Element queries follow the Testing Library guiding principles: query by role, la
 
 ### Related Rules
 
-Three related rules live on other pages:
+Four related rules live on other pages:
 
 - `litespec/core/release#run-frontend-release-checks` owns the gates a changed frontend runs.
 - `litespec/frontend/structure#place-tests-at-their-ownership-boundary` owns the test layout.
 - `litespec/frontend/ui#prove-ui-behavior-and-appearance` owns the evidence a UI change runs.
+- `litespec/quality/testing#use-one-mock-rule-for-every-stack` owns the one mock rule every stack follows.
 
 ## Standards
 
@@ -46,7 +47,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#match-test-level-to-risk`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend MUST use a logic test for pure logic, a browser specification for navigation and integration, and the route contract for every address.
 
@@ -58,7 +59,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#mark-the-scenario-a-browser-test-proves`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST carry a `proves` annotation naming that scenario.
 
@@ -72,7 +73,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST reach a screen that offers the scenario's use case by a `page.goto` literal or template matching that screen's `address`.
 
@@ -86,7 +87,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#assert-the-result-a-scenario-ends-in`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that proves a scenario MUST assert the result the scenario ends in by its refusal code or by the success result's declared text or code.
 
@@ -100,7 +101,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#assert-each-declared-refusal-by-its-code`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An evidence specification for a use case declaring a refusal MUST reach that refusal and assert it by its result's code.
 
@@ -114,7 +115,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#prove-each-scenario-at-one-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A scenario MUST carry one `proves` mark, on the test at the cheapest boundary that represents its risk.
 
@@ -128,7 +129,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test that walks several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
 
@@ -142,7 +143,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#test-observable-states`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Statement:** A frontend test MUST assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.
 
@@ -150,23 +151,11 @@ Three related rules live on other pages:
 
 **Reviewed for:** Which tests assert internal state instead of observable behavior in the states their situation reaches? Look in the test assertions.
 
-### Keep Mocks at Owned Boundaries
-
-**ID:** `litespec/frontend/testing#keep-mocks-at-owned-boundaries`
-
-**Strength:** rule
-
-**Statement:** A frontend test MUST NOT mock the generated contract types or an implementation-private function, nor a library its stack names.
-
-**Rationale:** A mock is a claim about code the test no longer exercises. Mocking the generated contract types, an implementation-private function, or a library the stack names replaces the project's own contract or someone else's internals with the test author's guess of how they behave. The generated client boundary stays replaceable because it is an owned contract: the project wrote it, so the project can stand in for it.
-
-**Reviewed for:** Which mocks replace generated contract types, private functions, or stack-named libraries? Look in the test doubles.
-
 ### Use Network Mocks for Component Tests
 
 **ID:** `litespec/frontend/testing#use-network-mocks-for-component-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A component or logic test that needs HTTP MUST serve its answers through network mocks generated from the published contract.
 
@@ -180,7 +169,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#isolate-browser-tests`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser test MUST create or identify its own data, its own authentication context, and its own expected state.
 
@@ -192,7 +181,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend calling the API MUST hold a test asserting that its module tree resolves to the backend use-case folders and names no refused folder.
 
@@ -206,7 +195,7 @@ Three related rules live on other pages:
 
 **ID:** `litespec/frontend/testing#run-browser-checks-through-the-command-line`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A browser suite MUST run through the command line, addressable per route and per file.
 

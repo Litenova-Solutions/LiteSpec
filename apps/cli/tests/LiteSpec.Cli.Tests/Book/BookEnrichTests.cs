@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book enrich step emits computed record details from the model only.</summary>
 public sealed class BookEnrichTests
@@ -10,7 +10,7 @@ public sealed class BookEnrichTests
     /// <summary>Each detail keeps the mockup shape: identity, stripped fields and source, with no status, owner or decider.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Build_Keeps_The_Mockup_Record_Shape()
+    public void BuildKeepsTheMockupRecordShape()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var loan = details["aggregate/lending.loan"];
@@ -38,7 +38,7 @@ public sealed class BookEnrichTests
     /// <summary>Every parent matches the outline parent for the same record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Parent_Matches_The_Outline_Parent_For_Every_Record()
+    public void ParentMatchesTheOutlineParentForEveryRecord()
     {
         var model = LoadFixture("Book/review.json");
         var outline = BookOutline.Build(model);
@@ -53,7 +53,7 @@ public sealed class BookEnrichTests
     /// <summary>Layers follow the outline roots, one of the six known layer keys.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Layer_Follows_The_Outline_Layers()
+    public void LayerFollowsTheOutlineLayers()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.Equal("intent", Str(details["goal/faster-borrowing"], "layer"));
@@ -70,7 +70,7 @@ public sealed class BookEnrichTests
     /// <summary>Scenarios and rules read norun while the model holds no test run.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Proof_Is_Norun_Without_A_Test_Run()
+    public void ProofIsNorunWithoutATestRun()
     {
         var model = LoadFixture("Book/review.json");
         model["testRun"] = null;
@@ -90,7 +90,7 @@ public sealed class BookEnrichTests
     /// <summary>Proof maps passing and unproved states, with the proving test file and line.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Proof_Maps_Passing_And_Unproved_With_Test_Lines()
+    public void ProofMapsPassingAndUnprovedWithTestLines()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var passing = Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof");
@@ -110,14 +110,14 @@ public sealed class BookEnrichTests
     /// <summary>Machine states come from the status maps the builder already writes: verified use cases, met requirements.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Machine_States_Come_From_Status_Maps()
+    public void MachineStatesComeFromStatusMaps()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var borrow = Obj(details["use-case/lending.borrow-copy"], "machine");
-        Assert.True(BoolOf(borrow["implemented"]));
+        Assert.True(BoolOf(borrow["coded"]));
         Assert.False(BoolOf(borrow["verified"]));
         var returned = Obj(details["use-case/lending.return-copy"], "machine");
-        Assert.False(BoolOf(returned["implemented"]));
+        Assert.False(BoolOf(returned["coded"]));
         var shelf = Obj(details["requirement/self-checkout.copy-shelf-home"], "machine");
         Assert.True(BoolOf(shelf["met"]));
         Assert.Null(shelf["verified"]);
@@ -132,7 +132,7 @@ public sealed class BookEnrichTests
     /// <summary>A stored scenario state wins over the proves links; a scenario without one still reads its links.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Stored_Scenario_Status_Wins_Over_Proves_Links()
+    public void StoredScenarioStatusWinsOverProvesLinks()
     {
         var model = NewModel(
             Record("scenario", "scenario/borrow-copy.stored", "Stored"),
@@ -164,7 +164,7 @@ public sealed class BookEnrichTests
     /// <summary>An indirect proof reads indirect, never passing.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Indirect_Proof_Reads_Indirect()
+    public void IndirectProofReadsIndirect()
     {
         var model = NewModel(Record("scenario", "scenario/borrow-copy.background", "Background"));
         model["testRun"] = new JsonObject { ["date"] = "2026-10-20" };
@@ -184,7 +184,7 @@ public sealed class BookEnrichTests
     /// <summary>Tested proof targets read their tested state from the tested map the builder wrote.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tested_Comes_From_Tested_Map()
+    public void TestedComesFromTestedMap()
     {
         var model = NewModel(
             Record("requirement", "requirement/borrowing.fast-desk", "Fast Desk", "approved", "approved", """{"kind": "quality"}"""),
@@ -216,7 +216,7 @@ public sealed class BookEnrichTests
     /// <summary>Aggregates list their reachable states; other types carry no reachable list.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Reachable_Lists_Aggregate_States()
+    public void ReachableListsAggregateStates()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var reachable = Arr(details["aggregate/lending.loan"], "reachable");
@@ -229,7 +229,7 @@ public sealed class BookEnrichTests
     /// <summary>Requirements count the fulfilling records by type.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void KeptBy_Counts_Fulfilling_Types()
+    public void KeptByCountsFulfillingTypes()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var kept = Obj(details["requirement/self-checkout.max-wait"], "keptBy");
@@ -242,7 +242,7 @@ public sealed class BookEnrichTests
     /// <summary>Journey steps list their servers and screens, and the steps a test walked.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Journey_Steps_List_Servers_Screens_And_Exercised()
+    public void JourneyStepsListServersScreensAndExercised()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var journey = details["journey/borrowing"];
@@ -257,7 +257,7 @@ public sealed class BookEnrichTests
     /// <summary>A reaction and a job serving steps read as their servers, and a walked step reads walked.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Reaction_And_Job_Served_And_Exercised_Steps()
+    public void ReactionAndJobServedAndExercisedSteps()
     {
         var model = LoadFixture("Book/review.json");
         var reactionId = "";
@@ -298,7 +298,7 @@ public sealed class BookEnrichTests
     /// <summary>Screens carry their route, called use cases and a route implementation entry.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Screen_Route_And_Calls_Come_From_Screens_And_Links()
+    public void ScreenRouteAndCallsComeFromScreensAndLinks()
     {
         var screen = Record("screen", "screen/library.search", "Search", "approved", "approved", """{"entryPoint": "entry-point/library-app"}""");
         var entry = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
@@ -334,7 +334,7 @@ public sealed class BookEnrichTests
     /// <summary>Mark lines come from model data only; implements links open at the file head.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Impl_Uses_Model_Lines_And_Null_For_Implements()
+    public void ImplUsesModelLinesAndNullForImplements()
     {
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved", """{"reachedThrough": ["entry-point/library-app"]}""");
         var model = NewModel(useCase);
@@ -371,12 +371,12 @@ public sealed class BookEnrichTests
     /// <summary>Expectations and missing marks are computed once from code and tests.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Tests_Expect_And_Lacks_Are_Computed_Once()
+    public void TestsExpectAndLacksAreComputedOnce()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.True(HasString(Arr(details["use-case/lending.borrow-copy"], "lacks"), "scenarios not tested"));
         Assert.True(HasString(Arr(details["use-case/lending.return-copy"], "lacks"), "scenarios not tested"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "lacks"));
         Assert.True(HasString(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "lacks"), "not tested"));
         var expect = Obj(details["use-case/lending.borrow-copy"], "expect");
@@ -402,21 +402,21 @@ public sealed class BookEnrichTests
     /// <summary>Findings group by subject base id, open and known apart, unknown dropped.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Findings_Group_By_Subject_Base()
+    public void FindingsGroupBySubjectBase()
     {
         var model = LoadFixture("Book/review.json");
         model["findings"] = model["findings"] as JsonArray ?? new JsonArray();
-        model["known"] = model["known"] as JsonArray ?? new JsonArray();
+        model["covered"] = model["covered"] as JsonArray ?? new JsonArray();
         (model["findings"] as JsonArray)!.Add(new JsonObject
         {
             ["code"] = "use-case-unimplemented",
             ["tier"] = "G",
-            ["message"] = "Missing handler.",
+            ["message"] = "Missing handler for 'missing/x.y'.",
             ["subject"] = "use-case/lending.borrow-copy#step",
             ["path"] = ".litespec/a.yaml",
             ["line"] = 3,
         });
-        (model["known"] as JsonArray)!.Add(new JsonObject
+        (model["covered"] as JsonArray)!.Add(new JsonObject
         {
             ["code"] = "step-screen-missing",
             ["tier"] = "A",
@@ -436,17 +436,18 @@ public sealed class BookEnrichTests
         Assert.Single(borrowFindings);
         var finding = borrowFindings[0] as JsonObject ?? new JsonObject();
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
-        Assert.False(BoolOf(finding["known"]));
+        Assert.False(BoolOf(finding["covered"]));
+        Assert.Equal("Missing handler for <code>missing/x.y</code>.", Str(finding, "messageHtml"));
         var journeyFindings = Arr(details["journey/borrowing"], "findings");
         Assert.Single(journeyFindings);
-        Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["known"]));
+        Assert.True(BoolOf((journeyFindings[0] as JsonObject ?? new JsonObject())["covered"]));
         Assert.False(details.ContainsKey("use-case/missing.nope"));
     }
 
     /// <summary>Explanations render to HTML with hash record links, split into intro and sections.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void BodyHtml_Renders_Markdown_With_Hash_Links_And_Sections()
+    public void BodyHtmlRendersMarkdownWithHashLinksAndSections()
     {
         var loan = DetailsOf(LoadFixture("Book/review.json"))["aggregate/lending.loan"];
         var html = Str(loan, "bodyHtml") ?? "";
@@ -467,7 +468,7 @@ public sealed class BookEnrichTests
     /// <summary>Outgoing and incoming edges carry field keys with no wording.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Out_And_In_Edges_Use_Field_Keys()
+    public void OutAndInEdgesUseFieldKeys()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var useOut = Arr(details["use-case/lending.borrow-copy"], "out");
@@ -488,7 +489,7 @@ public sealed class BookEnrichTests
     /// <summary>Nested link fields form dotted keys, and step fragments resolve to the record.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Nested_Effects_Form_Dotted_Keys()
+    public void NestedEffectsFormDottedKeys()
     {
         var caller = Record("use-case", "use-case/lending.borrow-copy", "Borrow", "approved", "approved", """{"effects": [{"calls": "external-system/address-lookup#validate"}]}""");
         var external = Record("external-system", "external-system/address-lookup", "Address Lookup", "approved", "approved");
@@ -500,26 +501,21 @@ public sealed class BookEnrichTests
     /// <summary>Wave-5 link objects resolve to dotted edges, and a mode-only object resolves to none while reaching the client intact.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Wave5_Link_Objects_Form_Record_Edges()
+    public void Wave5LinkObjectsFormRecordEdges()
     {
-        var saga = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"kind": "saga", "steps": [{"id": "hold-place", "runs": "use-case/lending.return-copy", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}, "guard": "the hold exists"}]}""");
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved");
-        var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
         var rule = Record("rule", "rule/loan.hold-release", "Hold Release", "approved", "approved", """{"releasedBy": "use-case/lending.borrow-copy"}""");
         var kept = Record("rule", "rule/loan.ever-held", "Ever Held", "approved", "approved", """{"releasedBy": {"mode": "never", "reason": "the hold lasts"}}""");
-        var details = DetailsOf(NewModel(saga, useCase, runner, rule, kept));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.borrow-copy", "aggregate.steps.compensation.useCase"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "in"), "aggregate/lending.hold-queue", "aggregate.steps.compensation.useCase"));
+        var details = DetailsOf(NewModel(useCase, rule, kept));
         Assert.True(HasEdge(Arr(details["rule/loan.hold-release"], "out"), "use-case/lending.borrow-copy", "rule.releasedBy"));
         Assert.Empty(Arr(details["rule/loan.ever-held"], "out"));
         Assert.Equal("never", Str(Obj(Obj(details["rule/loan.ever-held"], "fields"), "releasedBy"), "mode"));
     }
 
-    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, saga runs and drivers, binds, exercises and typed references.</summary>
+    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, binds, exercises and typed references.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Wave6_Link_Shapes_Form_Record_Edges()
+    public void Wave6LinkShapesFormRecordEdges()
     {
         var loan = Record("aggregate", "aggregate/lending.loan", "Loan", "approved", "approved");
         var room = Record("aggregate", "aggregate/inventory.room", "Room", "approved", "approved");
@@ -554,20 +550,6 @@ public sealed class BookEnrichTests
             "approved",
             "approved",
             """{"dataschema": "https://example.com/schemas/loan-borrowed.json", "payload": [{"name": "loanId", "type": "id", "of": "aggregate/lending.loan", "required": true}]}""");
-        var saga = Record(
-            "aggregate",
-            "aggregate/lending.refund-stay",
-            "Refund Stay",
-            "approved",
-            "approved",
-            """{"kind": "saga", "steps": [{"id": "release-room", "runs": "use-case/lending.return-copy", "compensation": {"mode": "none", "reason": "the room returns"}, "guard": "the stay is cancelled"}], "exits": ["refunded"], "drivenBy": {"reaction": "reaction/lending.send-due-reminder-on-loan-due"}}""");
-        var sweep = Record(
-            "aggregate",
-            "aggregate/lending.nightly-sweep",
-            "Nightly Sweep",
-            "approved",
-            "approved",
-            """{"kind": "saga", "steps": [{"id": "send-notices", "runs": "use-case/lending.return-copy", "compensation": {"mode": "none", "reason": "notices resend"}, "guard": "notices wait"}], "exits": ["swept"], "drivenBy": {"job": "job/lending.send-overdue-notices"}}""");
         var rule = Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "approved", "approved", """{"binds": ["aggregate/lending.loan", "aggregate/inventory.room"]}""");
         var result = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved");
         var scenario = Record(
@@ -579,7 +561,7 @@ public sealed class BookEnrichTests
             """{"result": "result/borrow-copy.borrowed", "exercises": ["rule/loan.one-loan-per-copy"], "given": "A copy sits available.", "when": "The member borrows.", "then": "The loan is active."}""");
         var door = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
         var runbook = Record("runbook", "runbook/overdue-notice", "Overdue Notice", "approved", "approved");
-        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, saga, sweep, rule, result, scenario, door, runbook));
+        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, rule, result, scenario, door, runbook));
 
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "use-case/lending.return-copy", "use-case.effects.runs"));
@@ -589,9 +571,6 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "runbook/overdue-notice", "reaction.onFailure.runbook"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "notification/lending.due-reminder", "job.effects.sends"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "runbook/overdue-notice", "job.runbook"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "reaction/lending.send-due-reminder-on-loan-due", "aggregate.drivenBy.reaction"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.nightly-sweep"], "out"), "job/lending.send-overdue-notices", "aggregate.drivenBy.job"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "aggregate/lending.loan", "rule.binds"));
         Assert.True(HasEdge(Arr(details["scenario/borrow-copy.borrowing-succeeds"], "out"), "rule/loan.one-loan-per-copy", "scenario.exercises"));
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.input.of"));
@@ -602,10 +581,10 @@ public sealed class BookEnrichTests
     /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_Captures_And_Evidence_Strength_With_Computed_Completion()
+    public void DetailsCarryCapturesAndEvidenceStrengthWithComputedCompletion()
     {
         var screen = Record("screen", "screen/home", "Home", fieldsJson: """{"address":"/home"}""");
-        screen["completion"] = JsonNode.Parse("""{"stage":"implemented","proof":"unknown","heldBy":[],"counts":{}}""");
+        screen["completion"] = JsonNode.Parse("""{"stage":"coded","proof":"unknown","heldBy":[],"counts":{}}""");
         screen["approval"] = JsonNode.Parse("""{"by":"Ada","rule":"product owner"}""");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -624,26 +603,25 @@ public sealed class BookEnrichTests
         Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));
     }
 
-    /// <summary>Each detail carries the qualified identifier the model states beside the record, or the identifier itself when the model states none.</summary>
+    /// <summary>Each detail carries the folder path and module the model states beside the record.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_The_Qualified_Identifier()
+    public void DetailsCarryTheFolderAndTheModule()
     {
         var placed = Record("problem", "problem/slow-desk", "Slow Desk");
-        placed["qualifiedId"] = "lending/problem/slow-desk";
+        placed["folder"] = "docs/intent/lending";
+        placed["module"] = "lending";
 
         var details = DetailsOf(NewModel(placed));
 
-        Assert.Equal("lending/problem/slow-desk", Str(details["problem/slow-desk"], "qualifiedId"));
-
-        var fixture = DetailsOf(LoadFixture("Book/review.json"));
-        Assert.Equal("goal/faster-borrowing", Str(fixture["goal/faster-borrowing"], "qualifiedId"));
+        Assert.Equal("docs/intent/lending", Str(details["problem/slow-desk"], "folder"));
+        Assert.Equal("lending", Str(details["problem/slow-desk"], "module"));
     }
 
     /// <summary>Completion reads from proof: code, tests and passing scenarios, each null when the record expects nothing there.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Completion_Is_Computed_From_Proof()
+    public void CompletionIsComputedFromProof()
     {
         var details = DetailsOf(LoadFixture("Book/review.json"));
         var borrow = Obj(details["use-case/lending.borrow-copy"], "completion");
@@ -665,7 +643,7 @@ public sealed class BookEnrichTests
     }
 
     static JsonObject LoadFixture(string relative) =>
-        (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture(relative)))!;
+        (JsonObject)DataFile.Read(TestCli.Fixture(relative))!;
 
     static IReadOnlyDictionary<string, JsonObject> DetailsOf(JsonObject model) =>
         BookEnrich.Build(model, BookOutline.Build(model));
@@ -706,7 +684,7 @@ public sealed class BookEnrichTests
             ["screens"] = new JsonArray(),
             ["exercisedSteps"] = new JsonArray(),
             ["findings"] = new JsonArray(),
-            ["known"] = new JsonArray(),
+            ["covered"] = new JsonArray(),
             ["testRun"] = null,
         };
     }

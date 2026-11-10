@@ -5,7 +5,7 @@ sources:
   - path: templates/consumer/research.md
     readOn: 2026-10-30
     key: research
-  - path: schemas/record.schema.json
+  - path: schemas/record.schema.yaml
     readOn: 2026-10-30
     key: record-schema
   - path: docs/core/intent.md

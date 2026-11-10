@@ -1,4 +1,6 @@
-namespace LiteSpec.Tests.Authoring;
+using LiteSpec.Authoring;
+
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Self-mark cases: MARK_MISSING and MARK_UNRESOLVED over fixture projects.</summary>
 public sealed partial class StandardsValidatorTests
@@ -103,7 +105,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "unmarked class with a method reports MARK_MISSING")]
     public void UnmarkedClassWithMethodReportsMarkMissing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Widget.cs", UnmarkedClass),
-        ["MARK_MISSING"]);
+        [Diagnostics.Codes.MarkMissing]);
 
     /// <summary>Marked class with a method reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
@@ -138,7 +140,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "unknown proves mark reports MARK_UNRESOLVED")]
     public void UnknownProvesMarkReportsMarkUnresolved() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/tests/X.Tests", "WidgetTests.cs", UnknownProof),
-        ["MARK_UNRESOLVED"]);
+        [Diagnostics.Codes.MarkUnresolved]);
 
     /// <summary>Known proves mark reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>

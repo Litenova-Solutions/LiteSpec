@@ -1,16 +1,17 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Rules;
+namespace LiteSpec.Cli.Tests.Rules;
 
 /// <summary>Proves the settled artifact vocabulary the scope page declares.</summary>
 public sealed class ArtifactVocabularyTests
 {
     /// <summary>The scope page names every code kind the path rules classify.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact]
-    public void Artifact_Vocabulary_Names_Every_Code_Kind()
+    public void ArtifactVocabularyNamesEveryCodeKind()
     {
-        var vocabulary = Scopes.Load(Cli.Repository);
+        var vocabulary = Scopes.Load(TestCli.Repository);
 
         Assert.True(vocabulary.Readable);
         Assert.Contains("use-case", vocabulary.Artifacts);
@@ -24,18 +25,20 @@ public sealed class ArtifactVocabularyTests
     }
 
     /// <summary>The value any is the layer-wide artifact and stands alone.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void Layer_Wide_Artifact_Is_The_Value_Any()
+    public void LayerWideArtifactIsTheValueAny()
     {
-        Assert.True(Scopes.IsLayerWide("any"));
-        Assert.True(Scopes.IsLayerWide(" any "));
-        Assert.False(Scopes.IsLayerWide("aggregate"));
+        Assert.True(Scopes.IsConcernWide("any"));
+        Assert.True(Scopes.IsConcernWide(" any "));
+        Assert.False(Scopes.IsConcernWide("aggregate"));
         Assert.Equal(Scopes.AnyArtifact, "any");
     }
 
     /// <summary>Several artifact values split on the comma that separates them.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact]
-    public void Artifact_Values_Split_On_Comma()
+    public void ArtifactValuesSplitOnComma()
     {
         Assert.Equal(["command-handler", "query-handler"], Scopes.ArtifactValues("command-handler, query-handler"));
         Assert.Equal(["any"], Scopes.ArtifactValues("any"));

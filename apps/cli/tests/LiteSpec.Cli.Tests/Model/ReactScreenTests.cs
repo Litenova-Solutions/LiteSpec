@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>
 ///     Proves the builder reads React routes: each file under <c>src/routes</c> that declares
@@ -13,7 +13,7 @@ public sealed class ReactScreenTests
     /// <summary>React Route Files Become Screens At Their Visible Address.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void React_Route_Files_Become_Screens_At_Their_Visible_Address()
+    public void ReactRouteFilesBecomeScreensAtTheirVisibleAddress()
     {
         using var temp = ModelFixture.Prepare("large");
         AddReactFrontend(temp.Path);
@@ -29,7 +29,7 @@ public sealed class ReactScreenTests
     /// <summary>Root Lazy And Ignored Route Files Declare No Screen Of Their Own.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Root_Lazy_And_Ignored_Route_Files_Declare_No_Screen_Of_Their_Own()
+    public void RootLazyAndIgnoredRouteFilesDeclareNoScreenOfTheirOwn()
     {
         using var temp = ModelFixture.Prepare("large");
         AddReactFrontend(temp.Path);
@@ -53,9 +53,9 @@ public sealed class ReactScreenTests
         Write(routes, "_console/loans/$loanId.tsx", "export const Route = createFileRoute(\"/_console/loans/$loanId\")({});\n");
         Write(routes, "-components/LoanRow.tsx", "export function LoanRow() { return null; }\n");
 
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
-        project["paths"]!["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 

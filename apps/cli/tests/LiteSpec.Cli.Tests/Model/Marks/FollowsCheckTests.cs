@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Tests the follows checks against the marks-follows fixture consumer.</summary>
 public sealed class FollowsCheckTests
@@ -144,7 +144,7 @@ public sealed class FollowsCheckTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "LoanIndexer.cs");
 
-        Assert.Contains("which matches no decision or exception.", finding.Message);
+        Assert.Contains("which matches no decision or departure.", finding.Message);
     }
 
     /// <summary>No other mark-unknown fires in the follows fixture.</summary>
@@ -246,15 +246,15 @@ public sealed class FollowsCheckTests
 
     static TempFolder WriteAttributeConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
-            Write(temp.Path, ".litespec/project.json", """
+            Write(temp.Path, ".litespec/project.yaml", """
                 {"project": {"name": "Marks Follows Attribute Fixture"}, "size": "small", "shape": "server",
-                  "stacks": ["dotnet"], "conformance": "full", "reviewedLiteSpecVersion": "4.0.0", "owners": ["lending-team"],
+                  "stacks": ["dotnet"], "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"}, "reviewedLiteSpecVersion": "5.0.0", "owners": ["lending-team"],
                   "marks": "attribute",
-                  "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": [], "frontends": []},
+                  "frontends": [], "paths": {"docs": ".litespec", "glossary": ".litespec/glossary.yaml", "testRoots": []},
                   "stackConfig": {"dotnet": {"modules": "apps/api/src/Library.Application"}}}
                 """);
             Write(temp.Path, ".litespec/glossary.yaml", """

@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.Authoring;
 
 /// <summary>Proves <c>litespec rename</c> rewrites marks and leaves other strings alone.</summary>
 public sealed class RenameMarksTests
@@ -9,16 +9,16 @@ public sealed class RenameMarksTests
     const string New = "use-case/lending.borrow-item";
 
     /// <summary>Rename Rewrites A Doc Tag An Attribute And A Frontend Constant.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Rewrites_A_Doc_Tag_An_Attribute_And_A_Frontend_Constant()
+    public void RenameRewritesADocTagAnAttributeAndAFrontendConstant()
     {
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", Old, New, "--root", temp.Path);
+        var result = TestCli.Run("rename", Old, New, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<implements>{New}</implements>", File.ReadAllText(DocTag(temp.Path)));
         Assert.DoesNotContain(Old, File.ReadAllText(DocTag(temp.Path)));
         Assert.Contains($"[Implements(\"{New}\")]", File.ReadAllText(Attribute(temp.Path)));
@@ -28,33 +28,33 @@ public sealed class RenameMarksTests
     }
 
     /// <summary>Rename Leaves An Unrelated String Alone.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Leaves_An_Unrelated_String_Alone()
+    public void RenameLeavesAnUnrelatedStringAlone()
     {
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", Old, New, "--root", temp.Path);
+        var result = TestCli.Run("rename", Old, New, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"public const string BorrowCopy = \"{Old}\";", File.ReadAllText(Unrelated(temp.Path)));
     }
 
     /// <summary>Rename Rewrites A Decision Id Inside Follows Marks In Both Styles.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Rewrites_A_Decision_Id_Inside_Follows_Marks_In_Both_Styles()
+    public void RenameRewritesADecisionIdInsideFollowsMarksInBothStyles()
     {
         const string oldDecision = "decision/0002-store-loans-as-documents";
         const string newDecision = "decision/0002-store-loans-as-files";
 
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
+        var result = TestCli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<follows>{newDecision}</follows>", File.ReadAllText(FollowsTag(temp.Path)));
         Assert.DoesNotContain(oldDecision, File.ReadAllText(FollowsTag(temp.Path)));
         Assert.Contains($"[Follows(\"{newDecision}\")]", File.ReadAllText(FollowsAttribute(temp.Path)));
@@ -62,21 +62,21 @@ public sealed class RenameMarksTests
     }
 
     /// <summary>Rename Keeps A Technical Decision Under Implementation.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Keeps_A_Technical_Decision_Under_Implementation()
+    public void RenameKeepsATechnicalDecisionUnderImplementation()
     {
         const string oldDecision = "decision/0002-store-loans-as-documents";
         const string newDecision = "decision/0002-store-loans-as-files";
 
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
         var intentPage = Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-documents.yaml");
         var technicalFolder = Path.Combine(temp.Path, ".litespec", "implementation", "decisions");
         Directory.CreateDirectory(technicalFolder);
         File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.yaml"));
 
-        var result = Cli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
+        var result = TestCli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
 
         Assert.True(result.Status == 0, result.Output);
         Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.yaml")), result.Output);
@@ -84,19 +84,19 @@ public sealed class RenameMarksTests
     }
 
     /// <summary>Rename Rewrites A Requirement Id Inside Proves Marks In Both Styles.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Rewrites_A_Requirement_Id_Inside_Proves_Marks_In_Both_Styles()
+    public void RenameRewritesARequirementIdInsideProvesMarksInBothStyles()
     {
         const string oldRequirement = "requirement/performance.borrow-latency";
         const string newRequirement = "requirement/performance.borrow-speed";
 
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
+        var result = TestCli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newRequirement}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newRequirement}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -104,19 +104,19 @@ public sealed class RenameMarksTests
     }
 
     /// <summary>Rename Rewrites An External System Id Inside Proves Marks In Both Styles.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Rewrites_An_External_System_Id_Inside_Proves_Marks_In_Both_Styles()
+    public void RenameRewritesAnExternalSystemIdInsideProvesMarksInBothStyles()
     {
         const string oldSystem = "external-system/text-gateway";
         const string newSystem = "external-system/sms-gateway";
 
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", oldSystem, newSystem, "--root", temp.Path);
+        var result = TestCli.Run("rename", oldSystem, newSystem, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newSystem}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldSystem, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newSystem}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -124,19 +124,19 @@ public sealed class RenameMarksTests
     }
 
     /// <summary>Rename Rewrites An Integration Event Id Inside Proves Marks In Both Styles.</summary>
-    /// <proves>litespec/core/authoring#rewrite-every-link-on-a-rename</proves>
+    /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
     [Fact]
-    public void Rename_Rewrites_An_Integration_Event_Id_Inside_Proves_Marks_In_Both_Styles()
+    public void RenameRewritesAnIntegrationEventIdInsideProvesMarksInBothStyles()
     {
         const string oldEvent = "integration-event/loan-borrowed";
         const string newEvent = "integration-event/loan-extended";
 
-        using var temp = Cli.Temp("rename-marks");
+        using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
 
-        var result = Cli.Run("rename", oldEvent, newEvent, "--root", temp.Path);
+        var result = TestCli.Run("rename", oldEvent, newEvent, "--root", temp.Path);
 
-        Assert.Equal(0, result.Status);
+        Assert.True(result.Status == 0, result.Stderr);
         Assert.Contains($"<proves>{newEvent}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldEvent, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newEvent}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -169,7 +169,7 @@ public sealed class RenameMarksTests
 
     static void WriteConsumer(string root)
     {
-        Write(Path.Combine(root, ".litespec/project.json"), """
+        Write(Path.Combine(root, ".litespec/project.yaml"), """
             {
               "project": {
                 "name": "Rename Fixture"
@@ -298,7 +298,7 @@ public sealed class RenameMarksTests
                 /// <proves>external-system/text-gateway</proves>
                 /// <proves>integration-event/loan-borrowed</proves>
                 [Fact]
-                public void Borrowing_stays_fast()
+                public void BorrowingStaysFast()
                 {
                 }
             }
@@ -312,7 +312,7 @@ public sealed class RenameMarksTests
                 [Proves("external-system/text-gateway")]
                 [Proves("integration-event/loan-borrowed")]
                 [Fact]
-                public void Borrowing_stays_fast()
+                public void BorrowingStaysFast()
                 {
                 }
             }

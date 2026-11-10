@@ -13,13 +13,13 @@ namespace LiteSpec.Analyzers.Rules.Traceability;
 
 /// <summary>
 ///     What every traceability rule needs for one compilation: its layer, the
-///     conformance level the project claims, the consumer's records, the
+///     record layers the project claims, the consumer's records, the
 ///     cross-file kind names, the event id of every event type marked in
-///     source, and the live exceptions built once so reporting a diagnostic
+///     source, and the live departures built once so reporting a diagnostic
 ///     never rescans every record.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-/// <follows>litespec/core/scope#declare-the-conformance-level</follows>
+/// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
 internal sealed class TraceabilityContext
 {
     /// <summary>Holds the traceability context built for each compilation, keyed weakly so compilations stay collectable.</summary>
@@ -31,17 +31,17 @@ internal sealed class TraceabilityContext
     /// <summary>Initializes a new instance of the <see cref="TraceabilityContext"/> class.Creates the context for one compilation.</summary>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
-    /// <param name="conformance">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <param name="kinds">The cross-file kind names.</param>
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        Layout layout, string? declared, ConformanceLevel conformance, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        Layout layout, string? declared, LayerClaims claims, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
         Layout = layout;
         Declared = declared;
-        Conformance = conformance;
+        Claims = claims;
         Store = store;
         Kinds = kinds;
         EventIds = eventIds;
@@ -52,10 +52,16 @@ internal sealed class TraceabilityContext
 
         foreach (var record in store.Index.Records)
         {
-            if (record.Type == "exception"
-                && record.Field("expiresOn") is string expiresOn
-                && IsoDate(expiresOn, out var expires)
-                && today <= expires)
+            if (record.Type != "departure")
+            {
+                continue;
+            }
+
+            // A departure with no expiry date is lasting: it stays live until the record changes.
+            var expiresOn = record.Field("expiresOn");
+
+            if (expiresOn is null
+                || (IsoDate(expiresOn, out var expires) && today <= expires))
             {
                 live.Add(new LiveException(record));
             }
@@ -68,8 +74,8 @@ internal sealed class TraceabilityContext
     /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
     public string? Declared { get; }
 
-    /// <summary>Gets the conformance level the project claims.</summary>
-    public ConformanceLevel Conformance { get; }
+    /// <summary>Gets the record layers the project claims.</summary>
+    public LayerClaims Claims { get; }
 
     /// <summary>Gets the consumer's records.</summary>
     public RecordStore Store { get; }
@@ -123,16 +129,16 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>
-    ///     Whether a live exception covers the finding, as
+    ///     Whether a live departure covers the finding, as
     ///     <see cref="Suppression.Partition" /> decides for the CLI but from the
-    ///     sets built once in the constructor. An exception is live when it is
+    ///     sets built once in the constructor. A departure is live when it is
     ///     present and unexpired.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
     public bool IsKnown(Finding finding)
     {
-        if (finding.Code == "exception-expired")
+        if (finding.Code == "departure-expired")
         {
             return false;
         }
@@ -154,15 +160,15 @@ internal sealed class TraceabilityContext
 
         var relative = RootRelative(Store.Root, finding.Path);
 
-        foreach (var exception in live)
+        foreach (var departure in live)
         {
-            if (!exception.Codes.Contains(finding.Code))
+            if (!departure.Codes.Contains(finding.Code))
             {
                 continue;
             }
 
-            if (subjects.Any(subject => exception.Subjects.Contains(subject))
-                || exception.Paths.Any(pattern => GlobMatches(pattern, relative)))
+            if (subjects.Any(subject => departure.Subjects.Contains(subject))
+                || departure.Paths.Any(pattern => GlobMatches(pattern, relative)))
             {
                 return true;
             }
@@ -181,16 +187,16 @@ internal sealed class TraceabilityContext
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
     public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
-        Create(compilation, layout, declared, ConformanceLevel.Full, store);
+        Create(compilation, layout, declared, LayerClaims.All, store);
 
-    /// <summary>Builds the context for one compilation at the level it claims.</summary>
+    /// <summary>Builds the context for one compilation under the layers it claims.</summary>
     /// <param name="compilation">The compilation.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
-    /// <param name="conformance">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, ConformanceLevel conformance, RecordStore store)
+    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, LayerClaims claims, RecordStore store)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -224,7 +230,7 @@ internal sealed class TraceabilityContext
         }
 
         return new TraceabilityContext(
-            layout, declared, conformance, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
+            layout, declared, claims, store, new KindContext(roots, exceptions, ports), events, compilation.AssemblyName ?? string.Empty);
     }
 
     /// <summary>Reads the cached context for the compilation, when one was built.</summary>
@@ -244,30 +250,30 @@ internal sealed class TraceabilityContext
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
     public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
-        GetOrCreate(compilation, layout, declared, ConformanceLevel.Full, store);
+        GetOrCreate(compilation, layout, declared, LayerClaims.All, store);
 
-    /// <summary>Reads the cached context for the compilation or builds and caches it at the level it claims.</summary>
+    /// <summary>Reads the cached context for the compilation or builds and caches it under the layers it claims.</summary>
     /// <param name="compilation">The compilation.</param>
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
-    /// <param name="conformance">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, ConformanceLevel conformance, RecordStore store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, LayerClaims claims, RecordStore store)
     {
         if (Cache.TryGetValue(compilation, out var cached)
             && cached.Layout == layout
             && cached.Declared == declared
-            && cached.Conformance == conformance
+            && cached.Claims == claims
             && ReferenceEquals(cached.Store, store))
         {
             return cached;
         }
 
-        var created = Create(compilation, layout, declared, conformance, store);
+        var created = Create(compilation, layout, declared, claims, store);
         var result = Cache.GetValue(compilation, _ => created);
 
-        if (result.Layout == layout && result.Declared == declared && result.Conformance == conformance && ReferenceEquals(result.Store, store))
+        if (result.Layout == layout && result.Declared == declared && result.Claims == claims && ReferenceEquals(result.Store, store))
         {
             return result;
         }
@@ -514,25 +520,25 @@ internal sealed class TraceabilityContext
     private static bool IsoDate(string text, out DateTime date) =>
         DateTime.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
-    /// <summary>A live exception, with the codes, subjects and paths it holds.</summary>
+    /// <summary>A live departure, with the codes, subjects and paths it holds.</summary>
     private sealed class LiveException
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
-        /// <param name="exception">The exception type under inspection.</param>
-        public LiveException(IRecordFacts exception)
+        /// <param name="departure">The departure record under inspection.</param>
+        public LiveException(IRecordFacts departure)
         {
-            Subjects = new HashSet<string>(exception.Ids("subject"), StringComparer.Ordinal);
-            Paths = exception.Ids("paths");
-            Codes = new HashSet<string>(exception.Ids("covers"), StringComparer.Ordinal);
+            Subjects = new HashSet<string>(departure.Ids("subject"), StringComparer.Ordinal);
+            Paths = departure.Ids("paths");
+            Codes = new HashSet<string>(departure.Ids("covers"), StringComparer.Ordinal);
         }
 
-        /// <summary>Gets the subjects for the live exception.</summary>
+        /// <summary>Gets the subjects for the live departure.</summary>
         public HashSet<string> Subjects { get; }
 
-        /// <summary>Gets the paths for the live exception.</summary>
+        /// <summary>Gets the paths for the live departure.</summary>
         public IReadOnlyList<string> Paths { get; }
 
-        /// <summary>Gets the codes for the live exception.</summary>
+        /// <summary>Gets the covers for the live departure.</summary>
         public HashSet<string> Codes { get; }
     }
 

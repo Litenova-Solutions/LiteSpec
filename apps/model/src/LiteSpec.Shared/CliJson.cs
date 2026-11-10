@@ -21,16 +21,37 @@ public static class CliJson
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    /// <summary>Serializes a value with <see cref="Options"/>.</summary>
-    /// <typeparam name="T">The value type.</typeparam>
-    /// <param name="value">The value to serialize.</param>
+    /// <summary>
+    ///     Serializes a JSON node with <see cref="Options"/>. Every command builds its output as a
+    ///     node tree, because the native build has no reflection to read an object's properties.
+    /// </summary>
+    /// <param name="value">The JSON node to serialize, or null for a JSON null.</param>
     /// <returns>The JSON text.</returns>
-    public static string Serialize<T>(T value) => JsonSerializer.Serialize(value, Options);
+    public static string Serialize(JsonNode? value) => value?.ToJsonString(Options) ?? "null";
 
-    /// <summary>Writes a value to standard output with <see cref="Options"/>.</summary>
-    /// <typeparam name="T">The value type.</typeparam>
-    /// <param name="value">The value to write.</param>
-    public static void Write<T>(T value) => Console.WriteLine(Serialize(value));
+    /// <summary>Writes a JSON node to standard output with <see cref="Options"/>.</summary>
+    /// <param name="value">The JSON node to write, or null for a JSON null.</param>
+    public static void Write(JsonNode? value) => Console.WriteLine(Serialize(value));
+
+    /// <summary>A JSON array of strings, in sequence order.</summary>
+    /// <param name="values">The strings to hold.</param>
+    /// <returns>The JSON array.</returns>
+    public static JsonArray Strings(IEnumerable<string> values) => new([.. values.Select(value => (JsonNode?)value)]);
+
+    /// <summary>A JSON object that maps each key to an array of strings, in sequence order.</summary>
+    /// <param name="lists">The keys and their strings.</param>
+    /// <returns>The JSON object.</returns>
+    public static JsonObject StringLists(IEnumerable<KeyValuePair<string, List<string>>> lists)
+    {
+        var json = new JsonObject();
+
+        foreach (var (key, values) in lists)
+        {
+            json[key] = Strings(values);
+        }
+
+        return json;
+    }
 
     /// <summary>Reads a JSON file, or returns null when it is missing or not JSON.</summary>
     /// <param name="file">The file to read.</param>

@@ -47,7 +47,7 @@ static class BookRequiresDetail
         var list = new JsonArray();
         foreach (var requirementId in citing)
         {
-            list.Add(requirementId);
+            list.Add((JsonNode)requirementId);
         }
 
         detail["requires"] = list;

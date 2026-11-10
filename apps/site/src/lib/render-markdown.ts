@@ -8,6 +8,7 @@
 // and each provision heading gains its card, badges and ID.
 import { createMarkdownProcessor, type MarkdownRenderer } from "@astrojs/markdown-remark";
 import path from "node:path";
+import { escape } from "./html";
 import { pageByFile, pageUrl, slug, type Page } from "./spec";
 import { paths } from "./icons";
 import { parseWireframe, renderWireframe } from "./wireframe/index.js";
@@ -55,10 +56,6 @@ function unescape(value: string): string {
     .replace(/&gt;/g, ">")
     .replace(/&lt;/g, "<")
     .replace(/&amp;/g, "&");
-}
-
-function escape(value: string): string {
-  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 // One inline line icon on the 24px grid, drawn like the Icon component draws it.

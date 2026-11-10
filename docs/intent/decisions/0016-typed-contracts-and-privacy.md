@@ -10,4 +10,4 @@ Use-case inputs and integration-event payload fields carry `type` (`text`, `inte
 
 ## Evidence with Confidence
 
-`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind D31 and D33, high confidence.
+`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind `decision/0016-typed-contracts-and-privacy`, high confidence.

@@ -1,0 +1,15 @@
+type: research
+id: research/agent-testing-evidence
+title: How Agent-Written Tests Fail and What Guards Them
+sources:
+  - url: https://arxiv.org/abs/2602.00409
+    readOn: 2026-11-10
+    key: hora-robbes-over-mocked
+  - url: https://arxiv.org/abs/2607.22883
+    readOn: 2026-11-10
+    key: zhao-misguidance
+  - url: https://arxiv.org/abs/2510.20270
+    readOn: 2026-11-10
+    key: impossiblebench
+question: Which failure modes of agent-written tests does LiteSpec's testing standard need to guard, and which have measured evidence?
+conclusion: Two studies measure coding agents adding mocks and models asserting buggy behavior from buggy code. A benchmark measures shortcuts on conflicting tests but gives no rate here.

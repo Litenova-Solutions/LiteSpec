@@ -2,9 +2,9 @@ using System.Text.Json;
 using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves each screen call keeps the operation that reached its use case.</summary>
 public sealed class CallsLinkTests
@@ -12,9 +12,9 @@ public sealed class CallsLinkTests
     /// <summary>Screen Reaching Two Use Cases Through Two Operations Names Each Operation.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Screen_Reaching_Two_Use_Cases_Through_Two_Operations_Names_Each_Operation()
+    public void ScreenReachingTwoUseCasesThroughTwoOperationsNamesEachOperation()
     {
-        using var temp = Cli.Temp("calls-link");
+        using var temp = TestCli.Temp("calls-link");
         WriteProject(temp.Path);
         var config = ConsumerConfig.Load(temp.Path);
         var code = CodeWithEndpoints(
@@ -76,9 +76,9 @@ public sealed class CallsLinkTests
     /// <summary>Use Case Reached Through Two Operations Gets One Link Per Operation.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Use_Case_Reached_Through_Two_Operations_Gets_One_Link_Per_Operation()
+    public void UseCaseReachedThroughTwoOperationsGetsOneLinkPerOperation()
     {
-        using var temp = Cli.Temp("calls-link");
+        using var temp = TestCli.Temp("calls-link");
         WriteProject(temp.Path);
         var config = ConsumerConfig.Load(temp.Path);
         var code = CodeWithEndpoints(
@@ -101,9 +101,9 @@ public sealed class CallsLinkTests
     /// <summary>Use Case With Unknown Operation Keeps An Empty Operation.</summary>
     /// <proves>litespec/core/edges#match-a-screens-offers-to-its-calls</proves>
     [Fact]
-    public void Use_Case_With_Unknown_Operation_Keeps_An_Empty_Operation()
+    public void UseCaseWithUnknownOperationKeepsAnEmptyOperation()
     {
-        using var temp = Cli.Temp("calls-link");
+        using var temp = TestCli.Temp("calls-link");
         WriteProject(temp.Path);
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
         model.Screens.Add(new ScreenInfo(
@@ -153,13 +153,12 @@ public sealed class CallsLinkTests
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """
             {
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "svelte" }
-                ]
+                ], "paths": {
               }
             }
             """);

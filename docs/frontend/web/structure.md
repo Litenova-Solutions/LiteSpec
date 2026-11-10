@@ -1,8 +1,7 @@
 # Web Structure
 
-**Stack:** any
-
-**Layer:** frontend-ui
+**Stack:** react, svelte
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -25,7 +24,7 @@ The structure rules for thin route entries, import direction, public entry point
 
 **ID:** `litespec/frontend/web/structure#use-the-frontend-application-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -77,7 +76,7 @@ The generated route artifacts, build output, and dependency folders stay untrack
 
 **ID:** `litespec/frontend/web/structure#mark-each-use-case-module-with-its-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -111,7 +110,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **ID:** `litespec/frontend/web/structure#generate-the-records-file-into-the-frame`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -127,7 +126,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **ID:** `litespec/frontend/web/structure#refuse-stack-specific-folder-names`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -141,7 +140,7 @@ export const litespec = { implements: "use-case/spending.list-expenses" } as con
 
 **ID:** `litespec/frontend/web/structure#locate-the-frame-in-the-app-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

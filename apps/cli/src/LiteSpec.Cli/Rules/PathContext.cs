@@ -12,7 +12,7 @@ namespace LiteSpec.Rules;
 /// <param name="Root">The consumer root.</param>
 /// <param name="RelativePath">The root-relative path with forward slashes, or empty for a record.</param>
 /// <param name="Stack">The owning stack id, or empty when no stack owns the target.</param>
-/// <param name="Layer">The derived layer, or empty when the path names none.</param>
+/// <param name="Concern">The derived concern, such as domain or tests, or empty when the path names none.</param>
 /// <param name="Artifact">The derived artifact, or empty when the path names none.</param>
 /// <param name="Marked">The record and provision identifiers the file marks, in file order.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -22,12 +22,12 @@ internal sealed record PathContext(
     string Root,
     string RelativePath,
     string Stack,
-    string Layer,
+    string Concern,
     string Artifact,
     IReadOnlyList<string> Marked)
 {
     /// <summary>Gets a value indicating whether the target names code rather than a record or a record file.</summary>
-    public bool IsCodePath => !IsRecord && Layer != "records";
+    public bool IsCodePath => !IsRecord && Concern != "records";
 
     /// <summary>The record type to artifact map: the artifact whose provisions govern the record.</summary>
     static readonly Dictionary<string, string> RecordArtifacts = new(StringComparer.Ordinal)
@@ -39,7 +39,7 @@ internal sealed record PathContext(
         ["job"] = "job",
         ["reaction"] = "reaction",
         ["decision"] = "decision",
-        ["exception"] = "exception",
+        ["departure"] = "departure",
         ["goal"] = "goal",
         ["problem"] = "problem",
         ["feature"] = "feature",
@@ -124,7 +124,7 @@ internal sealed record PathContext(
 
         foreach (var root in config.RecordRoots)
         {
-            if (Under(absolute, root) && Path.GetRelativePath(root, absolute) is { } relative && relative != ".")
+            if (Under(absolute, root) && PathText.Relative(root, absolute) is { } relative && relative != ".")
             {
                 candidates.Add(relative.Replace(Path.DirectorySeparatorChar, '/'));
             }
@@ -148,7 +148,7 @@ internal sealed record PathContext(
     /// <returns>The derived context.</returns>
     static PathContext FromPath(ConsumerConfig config, string backendStack, string absolute, bool isFolder)
     {
-        var relative = config.Relative(absolute);
+        var relative = PathText.Relative(config.Root, absolute);
         var name = Path.GetFileName(absolute);
         var extension = Path.GetExtension(absolute).ToLowerInvariant();
         var segments = relative.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -223,7 +223,7 @@ internal sealed record PathContext(
 
     /// <summary>Derives the context of a record identifier.</summary>
     /// <param name="config">The consumer configuration.</param>
-    /// <param name="target">The record identifier or qualified identifier.</param>
+    /// <param name="target">The record identifier or record folder path.</param>
     /// <returns>The derived context, or null when the target names no record type.</returns>
     static PathContext? FromRecord(ConsumerConfig config, string target)
     {
@@ -311,7 +311,7 @@ internal sealed record PathContext(
 
         if (name.EndsWith(".svelte", StringComparison.Ordinal) || name.EndsWith(".tsx", StringComparison.Ordinal))
         {
-            var relative = config.Relative(absolute);
+            var relative = PathText.Relative(config.Root, absolute);
 
             if (relative.Split('/', StringSplitOptions.RemoveEmptyEntries).Any(segment => segment == "components"))
             {

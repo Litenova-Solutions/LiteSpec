@@ -1,7 +1,7 @@
 # Domain Layer
 
 **Stack:** any
-**Layer:** domain
+**Concern:** domain
 
 ## Intent
 
@@ -27,7 +27,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#keep-domain-independent-of-outer-layers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -41,7 +41,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#use-one-ubiquitous-language`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -55,7 +55,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#treat-aggregates-as-consistency-boundaries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -69,7 +69,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#take-identity-and-events-from-the-project-root-contract`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -83,7 +83,7 @@ A closed set is a fixed menu of values where the type system knows every case, s
 
 **ID:** `litespec/backend/domain#model-every-aggregate-lifecycle-with-state-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: state-record
 
@@ -103,7 +103,7 @@ In the Claimwick product, `aggregate/spending.expense` records the `Submitted`, 
 
 **ID:** `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -121,7 +121,7 @@ This provision owns the Domain form. The same set is mirrored in Application und
 
 **ID:** `litespec/backend/domain#create-valid-aggregates-through-named-factories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -139,7 +139,7 @@ A root created with its children composes them inside the same factory call. The
 
 **ID:** `litespec/backend/domain#express-transitions-through-business-methods`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -159,23 +159,23 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#call-the-marked-act-from-each-command-handler`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A command handler changing an entity or saga aggregate MUST change it by calling a root method marked with the handler's use case.
+**Statement:** A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler's use case.
 
-**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
-**Checked by:** `litespec model check` reports `use-case-act-missing` (level S) for a command handler changing an entity or saga aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
+**Checked by:** `litespec model check` reports `use-case-act-missing` (level S) for a command handler changing an entity aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.
 
 ### Give Each Use Case Its Own Act
 
 **ID:** `litespec/backend/domain#give-each-use-case-its-own-act`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -185,13 +185,13 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** In the Claimwick product, a manager approving an expense and a delegate approving it for an absent manager both record an approval. The expense root offers `Approve` marked `use-case/spending.approve-expense` and `ApproveOnBehalf` marked `use-case/spending.approve-expense-on-behalf`, each raising its own event, and both call a private `RecordApproval`.
 
-**Checked by:** `litespec model check` reports `mark-count-invalid` (level S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unknown` and `LS5002` report a mark on a method that changes no state.
+**Checked by:** `litespec model check` reports `mark-count-invalid` (level S) for a root method carrying more than one use-case mark, and `mark-unknown` (level S) for a mark on a method that changes no state.
 
 ### Raise the Declared Events from the Marked Act
 
 **ID:** `litespec/backend/domain#raise-the-declared-events-from-the-marked-act`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -203,11 +203,27 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Checked by:** `litespec model check` reports `act-event-undeclared` (level S) for a marked method raising an event its use case does not list, and `act-event-unimplemented` (level S) for a listed event no marked method raises.
 
+### Raise the Past Tense of a Method's Own Verb
+
+**ID:** `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
+
+**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The event name takes the past tense of the act's verb, as `litespec/core/domain-model#name-every-event-in-the-past-tense` requires for every event. An event name may place the past tense as a whole word followed by a complement that opens with a preposition or particle. A method that sets a state names that state in its event, and a method may raise further events for the consequences of its act, as long as one of its events names the act itself.
+
+**Example:** In the Claimwick product, `Approve` on an expense raises `event/expense.approved` and passes. `Approve` raising `event/expense.signed-off` is reported, because that name belongs to another act.
+
+**Reviewed for:** Which state-changing aggregate methods raise an event named for another verb? Look at the events each changed aggregate method raises.
+
 ### Keep Child Entities Inside the Aggregate Boundary
 
 **ID:** `litespec/backend/domain#keep-child-entities-inside-the-aggregate-boundary`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -221,7 +237,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **ID:** `litespec/backend/domain#identify-aggregates-with-strongly-typed-version-7-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -239,7 +255,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#use-immutable-value-objects-for-domain-concepts`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -255,7 +271,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#define-collection-value-semantics-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -271,7 +287,7 @@ Version 7 values come from the caller-supplied generator, so Domain observes no 
 
 **ID:** `litespec/backend/domain#model-money-with-exact-decimal-values`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -293,7 +309,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **ID:** `litespec/backend/domain#keep-binary-floating-point-out-of-exact-quantities`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -303,13 +319,13 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Example:** A tax rate multiplied into a `Money` amount uses an exact decimal type. A measured latency in a diagnostic log is not a Domain quantity and is outside this rule.
 
-**Checked by:** `dotnet build` reports `LS1008` for a `double` or `float` type in Domain.
+**Reviewed for:** Which Domain values hold a binary floating-point type for a monetary amount, a rate applied to one, or a quantity compared for exact equality? Look at the field, parameter and return types in Domain.
 
 ### Use Stateless Domain Services for Ownerless Rules
 
 **ID:** `litespec/backend/domain#use-stateless-domain-services-for-ownerless-rules`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: value-object
 
@@ -327,7 +343,7 @@ A domain service is stateless and takes no port, so its tests are Domain tests. 
 
 **ID:** `litespec/backend/domain#expose-repositories-for-one-aggregate-only`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -347,7 +363,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -363,7 +379,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#declare-cross-record-keys-on-the-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -379,7 +395,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#raise-immutable-facts-as-domain-events`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: domain-event
 
@@ -393,7 +409,7 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **ID:** `litespec/backend/domain#reject-business-violations-with-dedicated-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate, value-object
 
@@ -413,7 +429,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **ID:** `litespec/backend/domain#reference-other-aggregates-by-id`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -427,7 +443,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **ID:** `litespec/backend/domain#pass-nondeterministic-values-into-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -435,13 +451,13 @@ Application validators handle malformed caller input through validity findings. 
 
 **Rationale:** Domain behavior that read a clock or generated identifiers would return different results for the same call, which makes tests nondeterministic. Receiving time, randomness, and new identifiers as arguments keeps every Domain call a pure function of its inputs: a test supplies explicit values and stays deterministic. Application obtains each value through an owned port and passes it in. A method that needs more than one value receives a clock or a generator through its arguments, and version 7 identifiers come from the caller-supplied generator.
 
-**Checked by:** `dotnet build` reports `LS1009` for a clock, randomness, or identifier read in Domain.
+**Reviewed for:** Which Domain methods read a clock, a random source or a new identifier instead of receiving it? Look at the calls Domain code makes.
 
 ### Describe Every Public Domain Contract in Documentation
 
 **ID:** `litespec/backend/domain#describe-every-public-domain-contract-in-documentation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

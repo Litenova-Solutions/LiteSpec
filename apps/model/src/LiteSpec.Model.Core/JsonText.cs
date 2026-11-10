@@ -67,6 +67,10 @@ public sealed class JsonText
     /// <returns>The string text, or null when the value is no string.</returns>
     public string? GetString() => Kind == JsonKind.String ? value : null;
 
+    /// <summary>The number's text as written, or null when the value is no number.</summary>
+    /// <returns>The number text, or null when the value is no number.</returns>
+    public string? GetNumber() => Kind == JsonKind.Number ? value : null;
+
     /// <summary>Gets the object's properties in file order; empty when the value is no object.</summary>
     public IReadOnlyList<KeyValuePair<string, JsonText>> Properties => properties;
 
@@ -94,6 +98,41 @@ public sealed class JsonText
         List<KeyValuePair<string, JsonText>>? properties = null,
         List<JsonText>? items = null) =>
         new JsonText(kind, line, value, properties ?? new List<KeyValuePair<string, JsonText>>(), items ?? new List<JsonText>());
+
+    /// <summary>Builds one string value, for a host that writes a record in code.</summary>
+    /// <param name="value">The string text.</param>
+    /// <returns>The string value, on line 1.</returns>
+    public static JsonText Text(string value) =>
+        new JsonText(JsonKind.String, 1, value, new List<KeyValuePair<string, JsonText>>(), new List<JsonText>());
+
+    /// <summary>Builds one object, for a host that writes a record in code.</summary>
+    /// <param name="properties">The object's properties, in the order they are written.</param>
+    /// <returns>The object, on line 1.</returns>
+    public static JsonText ObjectOf(IEnumerable<KeyValuePair<string, JsonText>> properties) =>
+        new JsonText(JsonKind.Object, 1, string.Empty, new List<KeyValuePair<string, JsonText>>(properties), new List<JsonText>());
+
+    /// <summary>Builds one array, for a host that writes a record in code.</summary>
+    /// <param name="items">The array's items, in order.</param>
+    /// <returns>The array, on line 1.</returns>
+    public static JsonText ArrayOf(IEnumerable<JsonText> items) =>
+        new JsonText(JsonKind.Array, 1, string.Empty, new List<KeyValuePair<string, JsonText>>(), new List<JsonText>(items));
+
+    /// <summary>Builds one number from its text, for a host that writes a record in code.</summary>
+    /// <param name="text">The number as JSON writes it.</param>
+    /// <returns>The number, on line 1.</returns>
+    public static JsonText Number(string text) =>
+        new JsonText(JsonKind.Number, 1, text, new List<KeyValuePair<string, JsonText>>(), new List<JsonText>());
+
+    /// <summary>Builds one boolean, for a host that writes a record in code.</summary>
+    /// <param name="value">The boolean value.</param>
+    /// <returns>The boolean, on line 1.</returns>
+    public static JsonText Boolean(bool value) =>
+        new JsonText(value ? JsonKind.True : JsonKind.False, 1, string.Empty, new List<KeyValuePair<string, JsonText>>(), new List<JsonText>());
+
+    /// <summary>Builds the null value, for a host that writes a record in code.</summary>
+    /// <returns>The null value, on line 1.</returns>
+    public static JsonText Null() =>
+        new JsonText(JsonKind.Null, 1, string.Empty, new List<KeyValuePair<string, JsonText>>(), new List<JsonText>());
 
     /// <summary>Appends the value as compact JSON.</summary>
     /// <param name="built">The text built so far.</param>

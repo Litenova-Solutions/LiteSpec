@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** application
+**Concern:** application
 
 ## Intent
 
@@ -28,7 +28,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **ID:** `litespec/ext/ai#name-the-closed-tool-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -38,13 +38,13 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The support answer query names `orders.lookup` and `docs.search` as its only tools.
 
-**Reviewed for:** The mediated queries list their closed tools with no call outside the list.
+**Reviewed for:** Which mediated queries call a tool outside their closed tool set? Look at each query's tool set beside the tool calls its tests record.
 
 ### Refuse Unknown Tools
 
 **ID:** `litespec/ext/ai#refuse-unknown-tools`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -54,13 +54,13 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** A run that calls `billing.refund` outside its set is refused before the call leaves the product.
 
-**Reviewed for:** The mediated query tests refuse runs calling tools outside the closed set.
+**Reviewed for:** Which mediated query tests allow a run to call a tool outside the closed set? Look at the refused-run tests.
 
 ### Assert Structure and Never Wording
 
 **ID:** `litespec/ext/ai#assert-structure-and-never-wording`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -70,13 +70,13 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The scenario asserts the answer carries `orderId` and one cited source, not the sentence around them.
 
-**Reviewed for:** The mediated query scenarios assert fields, codes, and cited sources with no exact-word assertions.
+**Reviewed for:** Which mediated query scenarios assert exact words instead of fields, codes, and cited sources? Look at the scenario assertions.
 
 ### Pin a Deterministic Stub in Proof
 
 **ID:** `litespec/ext/ai#pin-a-deterministic-stub-in-proof`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
@@ -86,13 +86,13 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The support answer tests run against `stub-answers v4`, which returns one fixed tool trace per prompt.
 
-**Reviewed for:** The mediated query tests run against the pinned stub version with no live model calls.
+**Reviewed for:** Which mediated query tests call a live model instead of the pinned stub version? Look at the test configuration beside the stub version.
 
 ### Record Provenance in the Output
 
 **ID:** `litespec/ext/ai#record-provenance-in-the-output`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -102,13 +102,13 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The answer returns `model: support-7, tools: [orders.lookup], sources: [order-8841]`.
 
-**Reviewed for:** The mediated query answers carry model, tools called, and sources read.
+**Reviewed for:** Which mediated query answers lack the model, the tools called, or the sources read? Look at the provenance on each answer.
 
 ### Bound Tool Calls per Query
 
 **ID:** `litespec/ext/ai#bound-tool-calls-per-query`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -118,7 +118,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Example:** The support answer query allows eight tool calls per run and refuses the ninth.
 
-**Reviewed for:** The mediated queries state a per-run tool-call bound enforced in the run tests.
+**Reviewed for:** Which mediated queries state no per-run tool-call bound, or exceed it in the run tests? Look at the query definitions beside the run tests.
 
 ## Conventions
 
@@ -136,7 +136,7 @@ A model-mediated query names its closed `tools` set, proves itself with structur
 
 **Rationale:** Production answers need after-the-fact review: what was asked, what the model touched, and what came back. The run log holds the three without storing full prompts.
 
-**Reviewed for:** The run log holds prompt hash, tools called, and outcome per run, or the AI documentation names other evidence.
+**Reviewed for:** Which run log entries lack a prompt hash, the tools called, or an outcome, with no other evidence named in the AI documentation? Look at the run log.
 
 ## Dependencies
 

@@ -5,7 +5,7 @@ namespace LiteSpec.Model.Readers.Operations;
 ///     the project lists in paths.operations, from their hash comment lines,
 ///     through the shared mark parser.
 /// </summary>
-/// <follows>litespec/quality/operations#point-each-operations-file-at-its-decision</follows>
+/// <follows>litespec/ext/delivery#point-each-operations-file-at-its-decision</follows>
 static class OperationsMarkReader
 {
     /// <summary>Every operations file: a named file as named, every file below a named folder except its Markdown documentation.</summary>

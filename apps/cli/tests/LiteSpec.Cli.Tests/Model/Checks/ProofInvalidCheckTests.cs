@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the proof-invalid check against hand-built models.</summary>
 public sealed class ProofInvalidCheckTests
@@ -12,9 +12,9 @@ public sealed class ProofInvalidCheckTests
     /// <summary>Flaky Test Reports.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Flaky_Test_Reports()
+    public void FlakyTestReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ProofScenarios.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -49,9 +49,9 @@ public sealed class ProofInvalidCheckTests
     /// <summary>Steady Test Passes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Steady_Test_Passes()
+    public void SteadyTestPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ProofScenarios.cs");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -80,9 +80,9 @@ public sealed class ProofInvalidCheckTests
     /// <summary>Missing Run Passes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Missing_Run_Passes()
+    public void MissingRunPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));

@@ -2,11 +2,11 @@
 
 **Stack:** dotnet
 
-**Layer:** infrastructure
+**Concern:** infrastructure
 
 ## Intent
 
-A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md); the `efcore` extension names the aggregates that use Entity Framework Core for storage instead of Marten.
+A .NET backend persists aggregates through Marten, the baseline document store: command handlers stage writes through Domain repositories, queries project through the read session, and one post-handler commits each command pipeline. This page states those .NET bindings with the Infrastructure folder layout and session lifetime they assume, so every command keeps one transaction. The shared persistence rules live on [Persistence](../persistence.md).
 
 ## Concepts
 
@@ -16,7 +16,7 @@ One scoped session serves a whole command: the Domain repositories stage aggrega
 
 ### The Baseline Provider and Its Replacement
 
-Marten is the baseline provider, supplying the session, the read session, and document storage. The `efcore` extension replaces no baseline provision; every provision on this page binds those paths unchanged.
+Marten is the baseline provider, supplying the session, the read session, and document storage.
 
 ## Standards
 
@@ -24,7 +24,7 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **ID:** `litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -34,11 +34,27 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **Checked by:** `dotnet build` reports `LS2004` for a command handler writing through a document session or database context.
 
+### Keep Pipeline-Owned Collaborators Out of Handlers
+
+**ID:** `litespec/backend/dotnet/persistence#keep-pipeline-owned-collaborators-out-of-handlers`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler
+
+**Statement:** A command or query handler MUST NOT take a pipeline-owned collaborator, such as `IUnitOfWork`, `IIdempotencyStore`, or `ITransactionalOutbox`, through its constructor.
+
+**Rationale:** The pipeline owns the unit of work, the idempotency store, the outbox, and the uniqueness claim service, so a handler that takes one of them commits or reserves work outside the post-handler that owns the commit. The analyzer's default list names the LiteBus types, and a project adds its own claim service to the `litespec.LS2016.pipeline_owned_types` key. This provision binds `litespec/backend/persistence#keep-uniqueness-out-of-handlers` for .NET.
+
+**Example:** The submit-expense handler takes its Domain repository and no unit of work, so the commit stays in the one post-handler. A handler constructor that adds `IUnitOfWork` is reported at the parameter.
+
+**Checked by:** `dotnet build` reports `LS2016` for a command or query handler whose constructor takes a pipeline-owned type.
+
 ### Query Through IQuerySession
 
 **ID:** `litespec/backend/dotnet/persistence#query-through-iquerysession`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -49,7 +65,6 @@ Marten is the baseline provider, supplying the session, the read session, and do
 | Provider | Query surface |
 |:---|:---|
 | Marten baseline | `IQuerySession` |
-| EF Core extension | The context type the extension declares |
 
 The table names the binding per provider. The obligation to project with filter, scope, ordering, and limit holds under each.
 
@@ -79,7 +94,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **ID:** `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -87,7 +102,7 @@ var rows = await session.AdvancedSql.QueryAsync<SpendingTotalRow>(
 
 **Rationale:** Exactly one post-handler commits, so a failed command leaves the scoped session uncommitted and no partial work persists. A second committer, in a handler, repository, validator, reaction, job, or endpoint, would store work the pipeline later refuses. This provision binds `litespec/backend/persistence#commit-each-command-pipeline-once` for .NET.
 
-The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. For aggregates the `efcore` extension names it is `DbContext.SaveChangesAsync`. The pipeline wraps the call in an explicit transaction when it writes through more than one context. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
+The obligation is one commit for one pipeline, not one named method. Under the baseline provider that commit is `IDocumentSession.SaveChangesAsync`. Under `consistency: atomic` that commit covers everything the handler staged. Other modes split work across commands: each command still commits once, and the job resumes from its cursor or runs the declared compensation.
 
 **Reviewed for:** Which pipelines commit outside one post-handler file calling `SaveChangesAsync`? Look at the `SaveChangesAsync` calls in each pipeline.
 
@@ -95,7 +110,7 @@ The obligation is one commit for one pipeline, not one named method. Under the b
 
 **ID:** `litespec/backend/dotnet/persistence#enforce-uniqueness-with-marten-unique-indexes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -125,7 +140,7 @@ session.Store(new PayoutDocument(expense.Id, payoutNumber));
 
 **ID:** `litespec/backend/dotnet/persistence#claim-cross-record-keys-with-a-claims-document`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -150,7 +165,7 @@ session.Insert(new BarcodeClaim(barcode));
 
 **ID:** `litespec/backend/dotnet/persistence#map-constraint-violations-with-the-postgresql-refusal-classifier`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -175,7 +190,7 @@ services.UseFaultRefusalClassifierInstance(
 
 **ID:** `litespec/backend/dotnet/persistence#apply-optimistic-concurrency-to-every-aggregate-document`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -195,7 +210,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
 
 **ID:** `litespec/backend/dotnet/persistence#map-marten-concurrency-faults-to-conflict-refusals`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 

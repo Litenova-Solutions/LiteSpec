@@ -11,7 +11,7 @@ public sealed class SeverityTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void Advisory_Finding_Reports_And_Never_Blocks(bool readerQualified)
+    public void AdvisoryFindingReportsAndNeverBlocks(bool readerQualified)
     {
         var decided = Severity.Of(At("prose-missing", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
@@ -24,7 +24,7 @@ public sealed class SeverityTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public void General_Finding_Blocks_Under_Any_Reader(bool readerQualified)
+    public void GeneralFindingBlocksUnderAnyReader(bool readerQualified)
     {
         var decided = Severity.Of(At("record-invalid", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
@@ -38,7 +38,7 @@ public sealed class SeverityTests
     [Theory]
     [InlineData(true, Outcome.Blocking)]
     [InlineData(false, Outcome.Reported)]
-    public void Stack_Finding_Follows_Reader_Qualification(bool readerQualified, Outcome outcome)
+    public void StackFindingFollowsReaderQualification(bool readerQualified, Outcome outcome)
     {
         var decided = Severity.Of(At("use-case-unimplemented", "use-case/lending.list-loans"), readerQualified, continuousIntegration: false);
 
@@ -52,7 +52,7 @@ public sealed class SeverityTests
     [Theory]
     [InlineData(true, Outcome.Blocking)]
     [InlineData(false, Outcome.Reported)]
-    public void Missing_Subject_Follows_The_Tier(bool readerQualified, Outcome outcome)
+    public void MissingSubjectFollowsTheTier(bool readerQualified, Outcome outcome)
     {
         var decided = Severity.Of(At("behavior-unrecorded", null), readerQualified, continuousIntegration: false);
 
@@ -62,7 +62,7 @@ public sealed class SeverityTests
     /// <summary>A finding graded apart from its code follows the override tier.</summary>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Fact]
-    public void Tier_Override_Decides_The_Severity()
+    public void TierOverrideDecidesTheSeverity()
     {
         var lifted = Severity.Of(Graded("result-scenario-missing", "G"), true, continuousIntegration: false);
         var lowered = Severity.Of(Graded("requirement-measure-missing", "A"), true, continuousIntegration: false);

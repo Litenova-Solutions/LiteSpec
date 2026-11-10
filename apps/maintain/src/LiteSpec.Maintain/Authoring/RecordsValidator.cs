@@ -34,7 +34,8 @@ internal sealed partial class RecordsValidator
     // (litespec/core/maintaining#record-the-reasoning-behind-each-release)
     /// <summary>Checks the records among the parsed pages.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
-    internal void CheckRecords(List<ParsedPage> parsedPages)
+    /// <param name="activeIds">The active provision identifiers.</param>
+    internal void CheckRecords(List<ParsedPage> parsedPages, HashSet<string> activeIds)
     {
         var records = CollectRecords(parsedPages);
         CheckRecordText(records);
@@ -44,6 +45,29 @@ internal sealed partial class RecordsValidator
         CheckRecordSources(records);
         CheckRecordReferences(records, parsedPages);
         CheckRecordDecisionCitations(records, parsedPages);
+        CheckRecordProvisionCitations(records, activeIds);
+    }
+
+    // A decision record states its reasoning in its fields, so a provision it cites
+    // lives in the record file, not in a page the page scan reads. Research records
+    // are dated evidence and may cite what was weighed, so they are not checked.
+    // (litespec/core/authoring#run-repeatable-authoring-checks)
+    /// <summary>Checks that every provision a decision record cites names an active provision.</summary>
+    /// <param name="records">The collected records.</param>
+    /// <param name="activeIds">The active provision identifiers.</param>
+    private void CheckRecordProvisionCitations(List<ParsedRecord> records, HashSet<string> activeIds)
+    {
+        var add = Context.Add;
+        foreach (var record in records.Where(record => record.Kind == "decision"))
+        {
+            foreach (Match match in CitationPattern.Matches(record.Raw))
+            {
+                if (!activeIds.Contains(match.Value))
+                {
+                    add(record.Relative, LineNumber(record.Raw, match.Index), Diagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
+                }
+            }
+        }
     }
 
     /// <summary>Parses a record file's strict YAML text.</summary>
@@ -56,7 +80,7 @@ internal sealed partial class RecordsValidator
         node = null;
         try
         {
-            node = JsonNode.Parse(YamlText.Parse(text).ToJson());
+            node = DataFile.NodeOf(YamlText.Parse(text));
             error = "";
             return true;
         }
@@ -91,11 +115,11 @@ internal sealed partial class RecordsValidator
         var records = new List<ParsedRecord>();
         foreach (var file in Walk(Path.Combine(Context.Root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            var relative = Slash(Path.GetRelativePath(Context.Root, file));
+            var relative = PathText.Relative(Context.Root, file);
             var kind = PageValidator.PageClass(Path.ChangeExtension(relative, ".md"));
             if (kind is "research" or "decision")
             {
-                var raw = ReadText(file);
+                var raw = FileText.ReadText(file);
                 _ = TryParseRecordFile(raw, out var node, out var error);
                 records.Add(new ParsedRecord(relative, kind, raw, node, error, explanations.GetValueOrDefault(relative)));
             }
@@ -112,13 +136,13 @@ internal sealed partial class RecordsValidator
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var file in Walk(Path.Combine(root, "docs"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             if (PageValidator.PageClass(Path.ChangeExtension(relative, ".md")) is not ("research" or "decision"))
             {
                 continue;
             }
 
-            if (TryParseRecordFile(ReadText(file), out var node, out _)
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _)
                 && JsonString((node as JsonObject)?["id"]) is { } id)
             {
                 ids.Add(id);
@@ -140,7 +164,7 @@ internal sealed partial class RecordsValidator
             var offset = NonAsciiOffset(record.Raw);
             if (offset >= 0)
             {
-                add(record.Relative, LineNumber(record.Raw, offset), "PROSE_NON_ASCII", NonAsciiMessage(record.Raw[offset], "non-ASCII character "));
+                add(record.Relative, LineNumber(record.Raw, offset), Diagnostics.Codes.ProseNonAscii, NonAsciiMessage(record.Raw[offset], "non-ASCII character "));
             }
         }
     }
@@ -161,7 +185,7 @@ internal sealed partial class RecordsValidator
             return;
         }
 
-        var schemaFile = JoinRoot(root, "schemas/record.schema.json");
+        var schemaFile = JoinRoot(root, "schemas/record.schema.yaml");
         if (!File.Exists(schemaFile))
         {
             return;
@@ -170,7 +194,7 @@ internal sealed partial class RecordsValidator
         JsonNode? schema;
         try
         {
-            schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
+            schema = DataFile.Read(schemaFile);
         }
         catch (IOException)
         {
@@ -200,7 +224,7 @@ internal sealed partial class RecordsValidator
         {
             if (record.Node is null)
             {
-                add(record.Relative, 1, "RECORD_SCHEMA", $"record file is invalid: {record.Error}");
+                add(record.Relative, 1, Diagnostics.Codes.RecordSchema, $"record file is invalid: {record.Error}");
                 continue;
             }
 
@@ -226,7 +250,7 @@ internal sealed partial class RecordsValidator
                 var text = message.StartsWith(record.Relative + ": ", StringComparison.Ordinal)
                     ? message[(record.Relative.Length + 2)..]
                     : message;
-                add(record.Relative, 1, "RECORD_SCHEMA", text);
+                add(record.Relative, 1, Diagnostics.Codes.RecordSchema, text);
             }
         }
     }
@@ -244,7 +268,7 @@ internal sealed partial class RecordsValidator
         {
             if (record.Explanation is null)
             {
-                add(record.Relative, 1, "RECORD_EXPLANATION_MISSING", $"record has no explanation file '{Path.ChangeExtension(record.Relative, ".md")}' beside it; research and decision records require one");
+                add(record.Relative, 1, Diagnostics.Codes.RecordExplanationMissing, $"record has no explanation file '{Path.ChangeExtension(record.Relative, ".md")}' beside it; research and decision records require one");
             }
         }
 
@@ -254,7 +278,7 @@ internal sealed partial class RecordsValidator
             if (page.Parsed.Kind is "research" or "decision"
                 && !recordFiles.Contains(Path.ChangeExtension(page.Relative, ".yaml")))
             {
-                add(page.Relative, 1, "RECORD_EXPLANATION_ORPHANED", $"explanation file has no record file '{Path.ChangeExtension(page.Relative, ".yaml")}' beside it");
+                add(page.Relative, 1, Diagnostics.Codes.RecordExplanationOrphaned, $"explanation file has no record file '{Path.ChangeExtension(page.Relative, ".yaml")}' beside it");
             }
         }
     }
@@ -279,7 +303,7 @@ internal sealed partial class RecordsValidator
             var expected = $"{record.Kind}/{stem}";
             if (id != expected)
             {
-                add(record.Relative, 1, "RECORD_ID_MISMATCH", $"record id '{id}' does not match file name; expected '{expected}'");
+                add(record.Relative, 1, Diagnostics.Codes.RecordIdMismatch, $"record id '{id}' does not match file name; expected '{expected}'");
             }
         }
     }
@@ -309,13 +333,13 @@ internal sealed partial class RecordsValidator
                 var read = JsonString(entry["readOn"]);
                 if (read is null || read.Length == 0)
                 {
-                    add(record.Relative, 1, "RECORD_SOURCE", $"source {index + 1} has no read date");
+                    add(record.Relative, 1, Diagnostics.Codes.RecordSource, $"source {index + 1} has no read date");
                 }
 
                 var path = JsonString(entry["path"]);
                 if (path is not null && path.Length > 0 && !File.Exists(JoinRoot(root, path)))
                 {
-                    add(record.Relative, 1, "RECORD_SOURCE", $"source {index + 1} path '{path}' does not exist");
+                    add(record.Relative, 1, Diagnostics.Codes.RecordSource, $"source {index + 1} path '{path}' does not exist");
                 }
             }
         }
@@ -363,7 +387,7 @@ internal sealed partial class RecordsValidator
                         continue;
                     }
 
-                    add(record.Relative, 1, "RECORD_UNKNOWN_REFERENCE", $"'{field}' names unknown record '{target}'");
+                    add(record.Relative, 1, Diagnostics.Codes.RecordUnknownReference, $"'{field}' names unknown record '{target}'");
                 }
             }
         }
@@ -383,7 +407,7 @@ internal sealed partial class RecordsValidator
                     continue;
                 }
 
-                add(page.Relative, LineNumber(prose, match.Index), "RECORD_UNKNOWN_REFERENCE", $"active content references unknown record '{id}'");
+                add(page.Relative, LineNumber(prose, match.Index), Diagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
             }
         }
 
@@ -397,7 +421,7 @@ internal sealed partial class RecordsValidator
                     continue;
                 }
 
-                add(record.Relative, LineNumber(record.Raw, match.Index), "RECORD_UNKNOWN_REFERENCE", $"active content references unknown record '{id}'");
+                add(record.Relative, LineNumber(record.Raw, match.Index), Diagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
             }
         }
     }
@@ -411,7 +435,7 @@ internal sealed partial class RecordsValidator
         var ids = new HashSet<string>(StringComparer.Ordinal);
         foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
         {
-            if (TryParseRecordFile(ReadText(file), out var node, out _)
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _)
                 && JsonString((node as JsonObject)?["id"]) is { } id
                 && (id.StartsWith("research/", StringComparison.Ordinal) || id.StartsWith("decision/", StringComparison.Ordinal)))
             {
@@ -420,6 +444,56 @@ internal sealed partial class RecordsValidator
         }
 
         return ids;
+    }
+
+    // Every identifier the Claimwick example states, at any depth: a record file, an entry
+    // of a list file such as a permission list, and a result or scenario inside a use case.
+    /// <summary>Lists every record identifier the Claimwick example states.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Each identifier the example's record files state.</returns>
+    internal static HashSet<string> ExampleAllRecordIds(string root)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var file in Walk(Path.Combine(root, "examples", "claimwick", ".litespec"), candidate => candidate.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (TryParseRecordFile(FileText.ReadText(file), out var node, out _))
+            {
+                CollectIds(node, ids);
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>Adds every string identifier under a parsed record node.</summary>
+    /// <param name="node">The parsed node.</param>
+    /// <param name="ids">The set to add to.</param>
+    private static void CollectIds(JsonNode? node, HashSet<string> ids)
+    {
+        switch (node)
+        {
+            case JsonObject item:
+                foreach (var (key, value) in item)
+                {
+                    if (key == "id" && JsonString(value) is { } id)
+                    {
+                        ids.Add(id);
+                    }
+                    else
+                    {
+                        CollectIds(value, ids);
+                    }
+                }
+
+                break;
+            case JsonArray items:
+                foreach (var entry in items)
+                {
+                    CollectIds(entry, ids);
+                }
+
+                break;
+        }
     }
 
     // A decision settles at least one provision, so its Rationale cites it.
@@ -483,7 +557,7 @@ internal sealed partial class RecordsValidator
         {
             if (!rationales.Any(text => text.Contains(id, StringComparison.Ordinal)))
             {
-                add(relative, 1, "RECORD_DECISION_UNCITED", $"decision '{id}' is cited by no provision Rationale");
+                add(relative, 1, Diagnostics.Codes.RecordDecisionUncited, $"decision '{id}' is cited by no provision Rationale");
             }
         }
     }

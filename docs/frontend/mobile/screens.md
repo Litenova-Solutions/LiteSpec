@@ -1,7 +1,7 @@
 # Mobile Screens and Navigation
 
 **Stack:** any
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
@@ -19,7 +19,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#render-with-the-platforms-own-views`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A mobile app MUST render every screen with the platform's native UI toolkit, with no product screen in a WebView or a cross-platform UI layer.
 
@@ -31,7 +31,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#own-navigation-in-one-controller`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The current screen, the open overlay, and the history MUST live in one controller per app, with screens raising events instead of navigating.
 
@@ -43,7 +43,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#route-app-links-to-journey-entry-screens`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A screen a journey can be entered from MUST open directly from its app link, with the controller resolving the link to that screen and its record.
 
@@ -57,7 +57,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#follow-the-system-back-gesture`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The system back gesture MUST close the open overlay first, then step back one screen, and leave the app only from the first screen.
 
@@ -69,7 +69,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#draw-edge-to-edge-with-insets`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Screens MUST draw under the system bars and apply the system bar and cutout insets to their controls and text.
 
@@ -81,7 +81,7 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#honor-reduced-motion`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** When the system turns animations off, a screen MUST replace looping motion and video with a still state.
 
@@ -93,11 +93,11 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#release-media-with-its-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A player, animator, or decoded image MUST be released or cancelled when its view leaves the window.
 
-**Rationale:** Media holds memory and hardware the app no longer shows once its view leaves the window. A player that keeps playing, or a decoded image that stays resident, drains the battery and starves the screen the user now sees. Releasing with the view ties each resource's life to the screen that uses it.
+**Rationale:** Media holds memory and hardware the app stops showing once its view leaves the window. A player that keeps playing, or a decoded image that stays resident, drains the battery and starves the screen the user now sees. Releasing with the view ties each resource's life to the screen that uses it.
 
 **Reviewed for:** Which players, animators, or decoded images survive their view leaving the window? Look in the view teardown.
 
@@ -105,19 +105,19 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **ID:** `litespec/frontend/mobile/screens#meet-touch-and-text-accessibility`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every interactive view MUST carry a content description, meet a minimum touch target of 48 dp on Android or 44 pt on iOS, and scale its text with the system font scale.
 
-**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the reader who enlarged the system font to read at all. Meeting the platform target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings. The device tests on the [Mobile Testing](testing.md) page prove each screen against this rule.
+**Rationale:** A view without a content description is silent to a screen reader, and a target below the platform minimum is missed by the finger it was drawn for. Text fixed at one size ignores the user who enlarged the system font to read at all. Meeting the platform target size and scaling with its font scale keeps every screen usable with the platform's own accessibility settings. The device tests on the [Mobile Testing](testing.md) page prove each screen against this rule.
 
 **Reviewed for:** Which interactive views lack a content description or the platform-minimum touch target, and which text ignores the system font scale? Look in the views, the text styles, and the accessibility device tests the Mobile Testing page names.
 
 ## Conventions
 
-### Restore the Visitor's Place
+### Restore the User's Place
 
-**ID:** `litespec/frontend/mobile/screens#restore-the-visitors-place`
+**ID:** `litespec/frontend/mobile/screens#restore-the-users-place`
 
 **Strength:** default
 
@@ -125,6 +125,6 @@ A screen is one full-window state of the app, such as the expense list or the re
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** The platform may destroy the app's process while it is in the background, and recreation without saved state drops the visitor on the first screen. Saving the controller's navigation state in the platform's saved-state mechanism returns the visitor to the same screen with the same overlay and history. Each stack page names the saved-state mechanism for its platform.
+**Rationale:** The platform may destroy the app's process while it is in the background, and recreation without saved state drops the user on the first screen. Saving the controller's navigation state in the platform's saved-state mechanism returns the user to the same screen with the same overlay and history. Each stack page names the saved-state mechanism for its platform.
 
-**Reviewed for:** Which process recreations drop the visitor outside the screen the saved navigation state names? Look in the saved-state handling.
+**Reviewed for:** Which process recreations drop the user outside the screen the saved navigation state names? Look in the saved-state handling.

@@ -25,8 +25,8 @@ LiteSpec makes the written record durable and the person or agent doing the work
 It does that with three parts:
 
 - **A standard.** A versioned set of rules for building one [bounded-context business application](../core/scope.md): how Intent states promises, how Behavior keeps them, and how code, tests, security, operations, and releases work. Each rule carries a stable ID, so a person, an agent, or a tool cites exactly one rule, and each states its strength, so an agent tells binding from advisory without a check existing. [Read the standard](reading-the-standard.md) explains how the standard is organized.
-- **Records.** A project writes its intent as small record files of fixed types: the product, its modules with their features and requirements, its journeys, its aggregates, rules, use cases with their results, the reactions, jobs, notifications, and settings around them, and the decisions behind them. A record in git is decided, and the pull request that changes it is its review. [Records and the project model](records-and-the-model.md) explains what a project writes down.
-- **A model builder.** A command-line tool reads the records, follows the marks by which code and tests point up to them, and works out how they connect: which handler implements which use case, which screen calls it, and which test proves it. It reports what is missing, and it renders the book the team reads. [How the tools fit together](the-tooling.md) explains when each tool runs.
+- **Records.** A project writes its intent as small record files of fixed types: the product, its modules with their features and requirements, its journeys, its aggregates, rules, use cases with their results, the reactions, jobs, notifications, and settings around them, and the decisions behind them. A record in git is decided, and the pull request that changes it is its review. [How LiteSpec Works](how-litespec-works.md) explains what a project writes down.
+- **A model builder.** A command-line tool reads the records, follows the marks by which code and tests point up to them, and works out how they connect: which handler implements which use case, which screen calls it, and which test proves it. It reports what is missing, and it renders the book the team reads. [How LiteSpec Works](how-litespec-works.md) explains when each tool runs.
 
 The standard tells everyone how to build. The records say what to build, top down from promises to behavior to code. The model shows whether the two match.
 
@@ -38,7 +38,7 @@ Work runs top down through four layers. People and agents write Intent first: wh
 
 Decisions live in git. Product people read Intent as journey detail: what each journey promises and what changes. Developers read Behavior: the modules, aggregates, use cases, reactions, jobs, notifications, and settings that carry the promises out. The tools prove that code matches Behavior and that every promised example passes.
 
-The same shape makes a specification easy to learn and easy to use: a reader always knows where they are, what sits above (why) and what sits below (how), and which records they are expected to read. [Records and the project model](records-and-the-model.md) states the four layers and what the builder computes.
+The same shape makes a specification easy to learn and easy to use: a reader always knows where they are, what sits above (why) and what sits below (how), and which records they are expected to read. [How LiteSpec Works](how-litespec-works.md) states the four layers and what the builder computes.
 
 ## Non-Goals
 

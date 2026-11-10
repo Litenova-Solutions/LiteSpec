@@ -1,9 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the dependency checks against the bill of materials and the admitting decisions.</summary>
 public sealed class DependencyCheckTests
@@ -11,13 +11,13 @@ public sealed class DependencyCheckTests
     /// <summary>A direct package with no pin and no admission reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Unadmitted_Direct_Package_Reports()
+    public void UnadmittedDirectPackageReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("UnknownLib", "1.0.0", "MIT", "pkg:nuget/UnknownLib@1.0.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
@@ -32,7 +32,7 @@ public sealed class DependencyCheckTests
     /// <summary>A direct package a technical decision admits reports no dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Admitted_Direct_Package_Passes()
+    public void AdmittedDirectPackagePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -40,7 +40,7 @@ public sealed class DependencyCheckTests
         WriteDecision(temp.Path, CompleteAdmits);
         WriteFollower(temp.Path);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -48,13 +48,13 @@ public sealed class DependencyCheckTests
     /// <summary>A pinned package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Pinned_Package_At_Pin_Passes()
+    public void PinnedPackageAtPinPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT", "pkg:nuget/Marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -62,13 +62,13 @@ public sealed class DependencyCheckTests
     /// <summary>A pinned package shipped at another version reports dependency-version-drift.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Version_Drift_Reports()
+    public void VersionDriftReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "1.0.0", "MIT", "pkg:nuget/Marten@1.0.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
 
         Assert.Equal(1, check.Status);
@@ -84,13 +84,13 @@ public sealed class DependencyCheckTests
     /// <summary>A direct package under a rejected license reports dependency-license-unknown.</summary>
     /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void License_Not_Accepted_Reports()
+    public void LicenseNotAcceptedReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "AGPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
 
         Assert.Equal(1, check.Status);
@@ -105,13 +105,13 @@ public sealed class DependencyCheckTests
     /// <summary>An expression with every identifier accepted reports no license finding.</summary>
     /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Expression_With_All_Licenses_Accepted_Passes()
+    public void ExpressionWithAllLicensesAcceptedPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR Apache-2.0", "pkg:nuget/Marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -119,13 +119,13 @@ public sealed class DependencyCheckTests
     /// <summary>An expression with one identifier rejected reports dependency-license-unknown.</summary>
     /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void Expression_With_One_License_Rejected_Reports()
+    public void ExpressionWithOneLicenseRejectedReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.1", "MIT OR GPL-3.0-only", "pkg:nuget/Marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-license-unknown]"));
 
         Assert.Equal(1, check.Status);
@@ -135,7 +135,7 @@ public sealed class DependencyCheckTests
     /// <summary>A license the admitting decision names reports no license finding.</summary>
     /// <proves>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</proves>
     [Fact]
-    public void License_Named_On_Admission_Passes()
+    public void LicenseNamedOnAdmissionPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -143,7 +143,7 @@ public sealed class DependencyCheckTests
         WriteDecision(temp.Path, GplAdmits);
         WriteFollower(temp.Path);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -151,7 +151,7 @@ public sealed class DependencyCheckTests
     /// <summary>An admits entry missing a fact reports admission-invalid.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Admission_Missing_Fact_Reports()
+    public void AdmissionMissingFactReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -159,7 +159,7 @@ public sealed class DependencyCheckTests
         WriteDecision(temp.Path, IncompleteAdmits);
         WriteFollower(temp.Path);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
@@ -175,7 +175,7 @@ public sealed class DependencyCheckTests
     /// <summary>An admits entry naming every fact reports no admission-invalid.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Complete_Admission_Passes()
+    public void CompleteAdmissionPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
@@ -183,7 +183,7 @@ public sealed class DependencyCheckTests
         WriteDecision(temp.Path, CompleteAdmits);
         WriteFollower(temp.Path);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -191,14 +191,14 @@ public sealed class DependencyCheckTests
     /// <summary>Without paths.sbom the bill checks stay silent over a violating bill.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Without_Sbom_Path_Bill_Checks_Silent()
+    public void WithoutSbomPathBillChecksSilent()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(
             ("UnknownLib", "9.9.9", "GPL-3.0-only", "pkg:nuget/UnknownLib@9.9.9"),
             ("Marten", "1.0.0", "AGPL-3.0-only", "pkg:nuget/Marten@1.0.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -206,12 +206,12 @@ public sealed class DependencyCheckTests
     /// <summary>A configured bill of materials path that does not exist reports reader-missing naming the path.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Configured_Sbom_Missing_Reports_Reader_Missing()
+    public void ConfiguredSbomMissingReportsReaderMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbomPath(temp.Path, ".litespec/proof/sbom/missing.json");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
 
         Assert.Equal(1, check.Status);
@@ -223,13 +223,13 @@ public sealed class DependencyCheckTests
     /// <summary>A configured bill of materials that is not JSON reports reader-missing naming the file.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Configured_Sbom_Unparsable_Reports_Reader_Missing()
+    public void ConfiguredSbomUnparsableReportsReaderMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/broken.json", "not json");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
 
         Assert.Equal(1, check.Status);
@@ -240,13 +240,13 @@ public sealed class DependencyCheckTests
     /// <summary>A configured bill of materials that is neither SPDX nor CycloneDX reports reader-missing naming the file.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Configured_Sbom_Neither_Format_Reports_Reader_Missing()
+    public void ConfiguredSbomNeitherFormatReportsReaderMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/other.json", """{"name": "not a bill of materials"}""");
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
 
         Assert.Equal(1, check.Status);
@@ -258,13 +258,13 @@ public sealed class DependencyCheckTests
     /// <summary>A configured bill of materials that yields no packages reports reader-missing naming the file.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Configured_Sbom_With_No_Packages_Reports_Reader_Missing()
+    public void ConfiguredSbomWithNoPackagesReportsReaderMissing()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/empty.spdx.json", SpdxDoc());
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[reader-missing]"));
 
         Assert.Equal(1, check.Status);
@@ -276,13 +276,13 @@ public sealed class DependencyCheckTests
     /// <summary>admission-invalid runs even when the project names no bill of materials.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Admission_Incomplete_Without_Sbom_Reports()
+    public void AdmissionIncompleteWithoutSbomReports()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteDecision(temp.Path, IncompleteAdmits);
         WriteFollower(temp.Path);
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[admission-invalid]"));
 
         Assert.Equal(1, check.Status);
@@ -292,13 +292,13 @@ public sealed class DependencyCheckTests
     /// <summary>A CycloneDX direct package with no pin and no admission reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void CycloneDx_Unadmitted_Reports()
+    public void CycloneDxUnadmittedReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.cdx.json", CycloneDxDoc(("UnknownCdx", "1.0.0", "MIT", false, "pkg:nuget/UnknownCdx@1.0.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
@@ -310,13 +310,13 @@ public sealed class DependencyCheckTests
     /// <summary>A CycloneDX pinned package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void CycloneDx_Pinned_Passes()
+    public void CycloneDxPinnedPasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.cdx.json", CycloneDxDoc(("Marten", "9.50.1", "MIT", false, "pkg:nuget/Marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -324,13 +324,13 @@ public sealed class DependencyCheckTests
     /// <summary>A NuGet pin matches whatever case the bill spells the name in.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void NuGet_Pin_Match_Ignores_Case()
+    public void NuGetPinMatchIgnoresCase()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("marten", "9.50.1", "MIT", "pkg:nuget/marten@9.50.1")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -338,13 +338,13 @@ public sealed class DependencyCheckTests
     /// <summary>An npm name in another case than its pin reports dependency-undeclared.</summary>
     /// <proves>litespec/workspace/dependencies#approve-new-packages-explicitly</proves>
     [Fact]
-    public void Npm_Pin_Match_Respects_Case_Reports()
+    public void NpmPinMatchRespectsCaseReports()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("React", "19.3.0", "MIT", "pkg:npm/React@19.3.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
         var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-undeclared]"));
 
         Assert.Equal(1, check.Status);
@@ -354,13 +354,13 @@ public sealed class DependencyCheckTests
     /// <summary>An npm package at its pin with an accepted license reports nothing.</summary>
     /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
     [Fact]
-    public void Npm_Pinned_Package_Passes()
+    public void NpmPinnedPackagePasses()
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
         Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("react", "19.3.0", "MIT", "pkg:npm/react@19.3.0")));
 
-        var check = Cli.Run("model", "check", "--root", temp.Path);
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
 
         AssertNoDependencyFindings(check);
     }
@@ -375,8 +375,8 @@ public sealed class DependencyCheckTests
 
     static void ConfigureSbom(string root)
     {
-        var file = Path.Combine(root, ".litespec/project.json");
-        var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var node = DataFile.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(".litespec/proof/sbom");
         node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
@@ -385,8 +385,8 @@ public sealed class DependencyCheckTests
     static void ConfigureSbomPath(string root, string sbom)
     {
         ConfigureSbom(root);
-        var file = Path.Combine(root, ".litespec/project.json");
-        var node = JsonNode.Parse(File.ReadAllText(file))!.AsObject();
+        var file = Path.Combine(root, ".litespec/project.yaml");
+        var node = DataFile.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(sbom);
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }

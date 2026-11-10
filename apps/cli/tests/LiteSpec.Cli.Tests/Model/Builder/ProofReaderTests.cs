@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>
 ///     Proves the proof shapes a shared harness writes confirm their claim: a probe table, a step that requests
@@ -20,7 +20,7 @@ public sealed class ProofReaderTests
     /// <summary>A probe step whose argument keys a route of the use case's endpoint confirms.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Probe_Step_Confirms_The_Use_Case_Whose_Route_Its_Argument_Keys()
+    public void ProbeStepConfirmsTheUseCaseWhoseRouteItsArgumentKeys()
     {
         Assert.True(Confirmed(Extend, ProbeScenarios("loan extension"), ("Probe/ProbeSteps.cs", ProbeSteps)));
     }
@@ -28,7 +28,7 @@ public sealed class ProofReaderTests
     /// <summary>A probe step whose argument keys no route in the table confirms nothing.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Probe_Step_With_An_Unknown_Key_Does_Not_Confirm()
+    public void ProbeStepWithAnUnknownKeyDoesNotConfirm()
     {
         Assert.False(Confirmed(Extend, ProbeScenarios("loan renewal"), ("Probe/ProbeSteps.cs", ProbeSteps)));
     }
@@ -36,7 +36,7 @@ public sealed class ProofReaderTests
     /// <summary>A when step fetched inline through Steps&lt;T&gt;() runs on the type argument's steps class.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Inline_Steps_Call_Reaches_Its_Type_Argument()
+    public void InlineStepsCallReachesItsTypeArgument()
     {
         Assert.True(Confirmed(Return, InlineScenarios("ReturnCopySteps")));
     }
@@ -44,7 +44,7 @@ public sealed class ProofReaderTests
     /// <summary>An inline steps call of another use case's class confirms nothing.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Inline_Steps_Call_Of_Another_Class_Does_Not_Confirm()
+    public void InlineStepsCallOfAnotherClassDoesNotConfirm()
     {
         Assert.False(Confirmed(Return, InlineScenarios("ListLoansSteps")));
     }
@@ -52,7 +52,7 @@ public sealed class ProofReaderTests
     /// <summary>A step that requests the use case's endpoint route itself confirms.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Step_Requesting_The_Endpoint_Route_Confirms()
+    public void StepRequestingTheEndpointRouteConfirms()
     {
         Assert.True(Confirmed(Return, DeskScenarios, ("Desk/DeskSteps.cs", DeskSteps("return"))));
     }
@@ -60,7 +60,7 @@ public sealed class ProofReaderTests
     /// <summary>A step that requests another endpoint's route confirms nothing.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Step_Requesting_Another_Route_Does_Not_Confirm()
+    public void StepRequestingAnotherRouteDoesNotConfirm()
     {
         Assert.False(Confirmed(Return, DeskScenarios, ("Desk/DeskSteps.cs", DeskSteps("archive"))));
     }
@@ -68,7 +68,7 @@ public sealed class ProofReaderTests
     /// <summary>A then step that asserts the refusal's mapped status inside its class confirms the refusal.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Then_Step_Asserting_The_Mapped_Status_Inside_Its_Class_Confirms()
+    public void ThenStepAssertingTheMappedStatusInsideItsClassConfirms()
     {
         Assert.True(Confirmed(Refusal, RefusedScenarios, ("Answers/AnswerSteps.cs", AnswerSteps("Conflict"))));
     }
@@ -76,7 +76,7 @@ public sealed class ProofReaderTests
     /// <summary>A then step that asserts another status inside its class does not confirm the refusal.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Then_Step_Asserting_Another_Status_Does_Not_Confirm()
+    public void ThenStepAssertingAnotherStatusDoesNotConfirm()
     {
         Assert.False(Confirmed(Refusal, RefusedScenarios, ("Answers/AnswerSteps.cs", AnswerSteps("Forbidden"))));
     }
@@ -84,7 +84,7 @@ public sealed class ProofReaderTests
     /// <summary>A use case run in a given step and observed by a later when and then step confirms.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Use_Case_Observed_After_A_Given_Step_Confirms()
+    public void UseCaseObservedAfterAGivenStepConfirms()
     {
         Assert.True(Confirmed(Extend, ObservedScenarios("new ExtendLoanSteps().ExtendTheLoan(\"loan-1\")")));
     }
@@ -92,7 +92,7 @@ public sealed class ProofReaderTests
     /// <summary>A given step of another use case observed later confirms nothing for the claimed one.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Another_Use_Case_In_The_Given_Step_Does_Not_Confirm()
+    public void AnotherUseCaseInTheGivenStepDoesNotConfirm()
     {
         Assert.False(Confirmed(Extend, ObservedScenarios("new RegisterCopySteps().RegisterACopy(\"copy-1\")")));
     }
@@ -100,7 +100,7 @@ public sealed class ProofReaderTests
     /// <summary>A when step driving a use case whose effects run the claimed use case confirms on an effect assertion.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Producer_Whose_Effects_Run_The_Use_Case_Confirms()
+    public void ProducerWhoseEffectsRunTheUseCaseConfirms()
     {
         Assert.True(Confirmed(Extend, ProducerScenarios, effects: true));
     }
@@ -108,7 +108,7 @@ public sealed class ProofReaderTests
     /// <summary>A when step driving a use case that declares no edge to the claimed one confirms nothing.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void Producer_Without_An_Edge_Does_Not_Confirm()
+    public void ProducerWithoutAnEdgeDoesNotConfirm()
     {
         Assert.False(Confirmed(Extend, ProducerScenarios, effects: false));
     }
@@ -180,8 +180,8 @@ public sealed class ProofReaderTests
 
     static void WriteRefusals(string root, string statuses)
     {
-        var path = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+        var path = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(path)!.AsObject();
         project["refusals"] = JsonNode.Parse($$"""
             {
               "forbidden": "authorization.forbidden",

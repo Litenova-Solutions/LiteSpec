@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>
 ///     Proves the shared refusal rule in the CLI: a bare refusal code is the
@@ -11,7 +11,7 @@ public sealed class RefusalCodeCheckTests
     /// <summary>Bare Refusal With A Wrong Code Reports Runtime Value Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
-    public void Bare_Refusal_With_A_Wrong_Code_Reports_Runtime_Value_Drift()
+    public void BareRefusalWithAWrongCodeReportsRuntimeValueDrift()
     {
         using var temp = WriteConsumer();
         var drifts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "runtime-value-drift");
@@ -25,7 +25,7 @@ public sealed class RefusalCodeCheckTests
     /// <summary>Bare Refusal With The Equal Code Reports No Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
-    public void Bare_Refusal_With_The_Equal_Code_Reports_No_Drift()
+    public void BareRefusalWithTheEqualCodeReportsNoDrift()
     {
         using var temp = WriteConsumer();
         var drifts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "runtime-value-drift");
@@ -36,7 +36,7 @@ public sealed class RefusalCodeCheckTests
     /// <summary>Refusal To A Success Result Reports No Drift.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
     [Fact]
-    public void Refusal_To_A_Success_Result_Reports_No_Drift()
+    public void RefusalToASuccessResultReportsNoDrift()
     {
         using var temp = WriteConsumer();
         var drifts = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "runtime-value-drift");
@@ -48,11 +48,11 @@ public sealed class RefusalCodeCheckTests
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
-            Write(temp.Path, ".litespec/project.json", """
+            Write(temp.Path, ".litespec/project.yaml", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -62,8 +62,8 @@ public sealed class RefusalCodeCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "5.0.0",
                   "owners": [
                     "lending-team"
                   ],

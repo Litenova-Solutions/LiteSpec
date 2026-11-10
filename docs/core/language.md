@@ -2,11 +2,11 @@
 
 **Stack:** any
 
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
-Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values and codes of project records.
+Record Language states one grammar and one tone for every name, every identifier and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values, identifiers and codes of project records.
 
 ## Concepts
 
@@ -38,7 +38,7 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 | A state something is in: aggregate state names, proof words | Past participle or adjective | `Held`, `Paid`, `withdrawn`, `verified`, `stale` |
 | What to do: runbook steps, procedure steps | Imperative, one action per step | "Restart the payment worker." |
 | A condition: `*When`, `condition`, `skippedWhen` | A clause that completes "when ...", without the word | "the application links to no event" |
-| A reason: `rationale`, `*Because`, exception `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
+| A reason: `rationale`, `*Because`, departure `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
 | A definition: `meaning` of a term, a field, a setting | A noun phrase starting with A, An or The, at most 25 words, no leading verb | "A confirmed reservation of one room for one stay." |
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
 | A finding message | One present-tense sentence of fact | "Requirement 'booking.service-fee' is fulfilled by no Behavior record." |
@@ -95,7 +95,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | external operation | verb first | `create-charge` |
 | screen | `<entry-point>.<noun>` | `webshop.basket` |
 | runbook | verb first, what the reader does | `clear-stuck-refunds` |
-| exception | noun phrase of what it allows | `payment-retries-later` |
+| departure | noun phrase of what it sets aside | `retry-limit-for-payments` |
 | term | the singular word itself | `booking` |
 
 A record name is not its title. Every record title takes the title form of its type on the [Writing Standard](writing.md) page.
@@ -106,26 +106,50 @@ American spelling is the project spelling for field names and enum values: `lice
 
 Names an outside standard fixes stay exactly as that standard spells them. Gherkin fixes `given`, `when`, and `then`, and CloudEvents fixes its attribute names; these are the only names outside the word classes.
 
+### Identifier Forms
+
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and an event home is an aggregate name. A use-case name is unique across the project, so a result cites only that name; an aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification and setting home is the module that owns it. An integration event has no module home. A rule name keeps the negation its statement makes. A journey step identifier is `journey/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
+
+### Name Rules
+
+The name is the last segment of the identifier. Every name follows these rules:
+
+- Write one to six lowercase words joined by hyphens.
+- Place digits inside a word; a name of digits alone breaks the rules.
+- Count the decision number as a word.
+- Let a person choose the name; no tool builds one by stripping words from a sentence.
+
+Use case and aggregate names stay unique across the project.
+
+### Wire Codes
+
+A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape and they stay unchanged once clients read them.
+
+### Resolution
+
+Resolution means every identifier citation names a record that exists. The model check fails an unresolved citation, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
+
 ### Finding Codes and Tool Names
 
-A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of fourteen words, each with one meaning.
+A finding code reads as `<subject>-<problem>`: the subject is a record type or field as the glossary spells it, and the problem is one of the words in the problem-word table below, each with one meaning.
 
 | Problem | Meaning | Example |
 |:---|:---|:---|
 | `missing` | a required thing is absent | `use-case-scenario-missing` |
-| `unknown` | a name matches nothing declared | `actor-unknown` |
+| `unknown` | a name matches nothing declared | `link-unknown` |
 | `undeclared` | used without a declaration | `erasure-undeclared` |
 | `unrecorded` | true in code but written in no record | `behavior-unrecorded` |
 | `unimplemented` | declared but built nowhere | `use-case-unimplemented` |
 | `unreached` | built but reached by no flow | `use-case-unreached` |
+| `unverified` | a use case holds scenarios with no passing proof | `use-case-unverified` |
 | `drift` | the built thing differs from its record | `setting-key-drift` |
 | `invalid` | a value breaks its form | `field-invalid` |
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
-| `clash` | two names collide | `term-clash` |
-| `expired` | the date passed | `exception-expired` |
+| `expired` | the date passed | `departure-expired` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
+| `break` | a contract the base published no longer holds | `contract-break` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
 
@@ -137,7 +161,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-field-by-its-word-class`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every record field MUST use the name its word class gives it in the word-class table.
 
@@ -151,7 +175,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-a-boolean-as-a-predicate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every boolean field MUST read as a present-tense predicate that is true about the record when the value is true.
 
@@ -165,13 +189,13 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-date-by-what-it-marks`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
-**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when an exception ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
+**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a departure ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
 
-**Example:** A Claimwick constraint carries `readOn` with the date its authority was read, and an exception carries `expiresOn` with the date it ends.
+**Example:** A Claimwick constraint carries `readOn` with the date its authority was read, and a departure carries `expiresOn` with the date it ends.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 
@@ -179,7 +203,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-each-kind-of-text-in-its-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every project text MUST use the form the text-kind table gives its kind.
 
@@ -193,7 +217,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-each-value-in-the-value-style`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every `statement`, `meaning`, `rationale`, `*Because`, `*When`, `condition`, `failure`, and `title` value MUST use the value style the value-style table states.
 
@@ -207,7 +231,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-quantities-in-standard-units`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every quantity in a record MUST use an ISO 8601 date, an ISO 8601 duration, an amount with an ISO 4217 currency, or a number with its unit.
 
@@ -221,7 +245,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-record-by-its-types-name-form`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every record name MUST use the name form the record-name table gives its type.
 
@@ -235,7 +259,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#write-in-american-english`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every field name and enum value MUST use American spelling.
 
@@ -249,7 +273,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#keep-names-an-outside-standard-fixes`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every name an outside standard fixes MUST stay exactly as that standard spells it.
 
@@ -263,21 +287,21 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-each-finding-code-by-subject-and-problem`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the fourteen problem words.
+**Statement:** Every finding code MUST read as `<subject>-<problem>` with the problem drawn from the problem-word table.
 
-**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. Fourteen problem words, each with one meaning, keep codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
+**Rationale:** A code in subject-problem form tells a reader what the finding is about and what is wrong with it before the message is opened. A closed set of problem words, each with one meaning, keeps codes comparable across tools: one word for absent, one for expired, and no synonyms. The problem-word table holds each word with its meaning and an example.
 
 **Example:** A use case with no scenario takes the code `use-case-scenario-missing`.
 
-**Reviewed for:** Which finding codes miss the subject-problem form or use a problem word outside the fourteen? Look at the finding codes the change adds, beside the problem-word table.
+**Reviewed for:** Which finding codes miss the subject-problem form or end in a word the problem-word table does not hold? Look at the finding codes the change adds, beside the problem-word table.
 
 ### Write Each Finding Message as a Fact
 
 **ID:** `litespec/core/language#write-each-finding-message-as-a-fact`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every finding message MUST state one present-tense fact that opens with the subject title and its quoted identifier.
 
@@ -291,7 +315,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **ID:** `litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every subcommand MUST read as a verb and every flag as the mode or value it sets.
 
@@ -301,12 +325,195 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Reviewed for:** Which subcommands read as nouns, or which flags name something other than their mode or value? Look at the commands and flags the change adds.
 
+### Follow the Identifier Form of Each Record Type
+
+**ID:** `litespec/core/language#follow-the-identifier-form-of-each-record-type`
+
+**Strength:** required
+
+**Statement:** A record identifier MUST follow the form the model states for its record type.
+
+**Rationale:** A reader who meets `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
+
+**Example:** `event/expense.submitted` names an event of the expense aggregate.
+
+**Checked by:** `litespec model check` reports `identifier-invalid` for an identifier outside the form its type uses.
+
+### Name Records with One to Six Words
+
+**ID:** `litespec/core/language#name-records-with-one-to-six-words`
+
+**Strength:** required
+
+**Statement:** A name MUST carry one to six lowercase hyphenated words.
+
+**Rationale:** A short hyphenated name reads aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.
+
+**Example:** `decision/0001-receipt-threshold` counts its number as one word.
+
+**Checked by:** `litespec model check` reports `identifier-invalid` for a name outside one to six lowercase hyphenated words.
+
+### Use Every Identifier Once
+
+**ID:** `litespec/core/language#use-every-identifier-once`
+
+**Strength:** required
+
+**Statement:** A record identifier MUST name exactly one record.
+
+**Rationale:** An identifier used twice names two records at once, so every citation of it points both ways. One use per identifier keeps each citation single-valued.
+
+**Example:** Two records named `use-case/spending.submit-expense` leave the model check reporting the duplicate on the second record.
+
+**Checked by:** `litespec model check` reports `identifier-duplicate` for an identifier used twice.
+
+### Keep Wire Codes Stable
+
+**ID:** `litespec/core/language#keep-wire-codes-stable`
+
+**Strength:** required
+
+**Statement:** A wire code MUST stay unchanged once clients read it.
+
+**Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
+
+**Reviewed for:** Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.
+
+### Resolve Every Identifier Citation
+
+**ID:** `litespec/core/language#resolve-every-identifier-citation`
+
+**Strength:** required
+
+**Statement:** Every identifier citation MUST resolve to a written record.
+
+**Rationale:** A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.
+
+**Checked by:** `litespec model check` reports `reference-unknown` for a citation naming no written record.
+
+### Cite Shared Provisions in Their Published Form
+
+**ID:** `litespec/core/language#cite-shared-provisions-in-their-published-form`
+
+**Strength:** required
+
+**Statement:** A shared provision citation MUST use its published identifier.
+
+**Rationale:** A shared provision is cited across projects, so its identifier looks the same everywhere. The published `litespec/<page>#<slug>` form stays fixed, while project records use the type forms above.
+
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
+### Exclude Declared Content Paths from the ASCII Check
+
+**ID:** `litespec/core/language#exclude-declared-content-paths-from-the-ascii-check`
+
+**Strength:** required
+
+**Statement:** An ASCII check MUST exclude only the natural-language content paths that the project record declares.
+
+**Rationale:** A product whose subject is another language carries that language in its content files, where a diacritic is part of a word rather than a styling choice. Excluding only the declared content paths keeps the check strict everywhere else: documents about that content stay in scope, so styled prose filed beside content still meets the check.
+
+**Reviewed for:** Which non-ASCII prose sits outside the paths the project record declares? Look at the content files beside the declaration.
+
+### Record the Project Vocabulary as Data
+
+**ID:** `litespec/core/language#record-the-project-vocabulary-as-data`
+
+**Strength:** required
+
+**Statement:** A consumer MUST record each term, its rejected synonyms, the scope of each rejection, and its mannered terms in the project glossary satisfying `schemas/glossary.schema.yaml`.
+
+**Rationale:** A glossary column headed "Avoid" speaks to a reader and to nothing else: no tool can check it. A rule held as data reaches the reader and the validator alike, so the same rejection appears in prose guidance and in diagnostics.
+
+**Example:** A rejection carries the scope that binds it, because a word that is right in one module is wrong in another.
+
+```json
+{ "id": "term/customer", "term": "customer", "meaning": "A person or company that buys.",
+  "rejected": [{ "word": "client", "scope": "^domain/modules/orders/",
+    "reason": "client names the API consumer" }] }
+```
+
+**Checked by:** `litespec model check` reports `glossary-invalid` for a glossary that fails the glossary schema.
+
+### Reject a Recorded Synonym Inside Its Scope
+
+**ID:** `litespec/core/language#reject-a-recorded-synonym-inside-its-scope`
+
+**Strength:** required
+
+**Statement:** Authored prose MUST NOT use a synonym that the project glossary rejects for the scope the page sits in.
+
+**Rationale:** Term drift is invisible one page at a time and plain across a module: each page looks fine while the project slowly speaks two languages. The expensive case is a synonym that is a defined term elsewhere, because one word then names two things and every reader guesses which one.
+
+**Reviewed for:** Which words on the page are synonyms the project glossary rejects for the scope the page sits in?
+
+### State Mannered Terms Literally
+
+**ID:** `litespec/core/language#state-mannered-terms-literally`
+
+**Strength:** required
+
+**Statement:** Authored prose MUST NOT use a mannered term the project glossary lists.
+
+**Rationale:** A metaphor or stock phrase reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish. The glossary lists each mannered term with the literal phrase that carries its meaning, so the check points at the flourish and names the plain words to reach for.
+
+**Example:** The glossary lists `{ "term": "leverage", "instead": "use" }`, so prose reads "use the retry queue" rather than "leverage the retry queue".
+
+**Reviewed for:** Which mannered terms on the page stand where the glossary asks for the literal word?
+
+### Exclude the Compound That Names Another Concept
+
+**ID:** `litespec/core/language#exclude-the-compound-that-names-another-concept`
+
+**Strength:** required
+
+**Statement:** A glossary rejection MUST list, in `except`, every compound in which a rejected word names a concept other than the one the rejection is about.
+
+**Rationale:** A rejection matches a word, and a word can belong to more than one term: Claimwick rejects `docket` in favor of `receipt` for payment proof while a docket still names the shipping list. Without the `except` list, the check would force the project to rename an unrelated concept or drop a sound rejection.
+
+**Example:** The exemption covers the compound only, so the bare word stays rejected.
+
+```json
+{ "word": "docket", "reason": "one word for a payment receipt and a shipping list",
+  "scope": "^.litespec/domain/modules/spending/", "except": ["shipping docket"] }
+```
+
+**Reviewed for:** Which compounds use a rejected word to name another concept without being listed in the rejection's `except`?
+
+### Review Each Term for Its Lookalikes
+
+**ID:** `litespec/core/language#review-each-term-for-its-lookalikes`
+
+**Strength:** required
+
+**Statement:** A project MUST resolve each pair of terms that differ only in hyphenation, spelling variant, plurality, or a compound split.
+
+**Rationale:** Two spellings of one concept split every search and every listing, and a reader cannot tell whether they name one concept or two. One spelling per concept keeps each term defined once and checked once. A hyphenated pair whose first part is a function word is two words side by side, not one compound split in two, so the check skips it: `a`, `an`, `as`, `at`, `by`, `in`, `of`, `on`, `or`, `to`, and `with`.
+
+**Example:** The notification `send-receiptreminder-confirmation` and the reaction `send-receipt-reminder-on-expense-submitted` name one concept with two spellings; the project picks one and renames the other. `send-on-line-notice` beside `send-online-notice` is not reported, since `on` opens no compound.
+
+**Reviewed for:** Which terms differ from another term only in hyphenation, spelling, plurality, or a compound split? Look at the terms the change adds, beside the glossary.
+
+### Use the Declared Record Identifier Grammar
+
+**ID:** `litespec/core/language#use-the-declared-record-identifier-grammar`
+
+**Strength:** required
+
+**Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
+
+**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [Project Model](model.md) states the form each type uses, and the Identifier Forms section above states the name rules and checks.
+
+**Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
+
+**Checked by:** `litespec model check` reports `identifier-invalid` for a record identifier outside the declared grammar.
+
 ## Conventions
 
 None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, and `litespec/core/language#write-each-finding-message-as-a-fact`.
+This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#follow-the-identifier-form-of-each-record-type`.
 
-Claimwick holds booked rooms with the use case `hold-room`, which reads the setting `checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."
+Claimwick holds booked rooms with the use case `use-case/booking.hold-room`, which reads the setting `setting/booking.checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."

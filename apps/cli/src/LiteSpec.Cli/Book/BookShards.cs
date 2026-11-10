@@ -159,7 +159,7 @@ static class BookShards
         var children = new JsonArray();
         foreach (var child in node.Children)
         {
-            children.Add(OutlineNodeJson(child, shardOf));
+            children.Add((JsonNode)OutlineNodeJson(child, shardOf));
         }
 
         json["children"] = children;
@@ -191,7 +191,7 @@ static class BookShards
             var array = new JsonArray();
             foreach (var node in packs[shard])
             {
-                array.Add(node);
+                array.Add((JsonNode)node);
             }
 
             WriteShard(dataDir, key, array);

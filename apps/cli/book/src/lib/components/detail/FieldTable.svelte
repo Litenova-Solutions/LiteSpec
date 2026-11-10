@@ -2,6 +2,7 @@
   import { base, book, cap } from "$lib/book";
   import type { BookRecord, Fields } from "$lib/book/types";
   import { esc } from "$lib/book/html";
+  import { formatLabel } from "$lib/utils";
   import SourceLink from "$lib/components/book/SourceLink.svelte";
   import type { Fact } from "./facts";
   import { codeCls, inlineRefHtml, teamValue } from "./helpers";
@@ -45,7 +46,7 @@
     const parent = book.parent(id);
     if (parent) add("Parent", inlineRefHtml(parent));
     if (r.type === "permission" && Array.isArray(f.risk) && f.risk.length)
-      add("Risk", f.risk.map((x: unknown) => esc(cap(String(x).replace(/-/g, " ")))).join("; "));
+      add("Risk", f.risk.map((x: unknown) => esc(cap(formatLabel(x)))).join("; "));
     if (r.type === "problem") {
       if (f.costToday) add("Cost today", esc(f.costToday));
       if (f.workaroundToday) add("Workaround today", esc(f.workaroundToday));
@@ -55,7 +56,7 @@
     if (r.type === "screen") {
       if (f.address || f.host) add("Address", `<span class="${codeCls}">${esc(String(f.address || f.host))}</span>`);
       if (f.entryPoint) add("Entry point", inlineRefHtml(base(String(f.entryPoint))));
-      if (f.floorplan) add("Floorplan", esc(cap(String(f.floorplan).replace(/-/g, " "))));
+      if (f.floorplan) add("Floorplan", esc(cap(formatLabel(f.floorplan))));
       if (r.route) {
         if (routePath) out.push({ label: "Route", html: "", route: true });
         else add("Route", "No page carries this screen");

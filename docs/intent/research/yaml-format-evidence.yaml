@@ -1,0 +1,24 @@
+type: research
+id: research/yaml-format-evidence
+title: Can Editors Check YAML Against LiteSpec Schemas
+sources:
+  - url: https://github.com/redhat-developer/yaml-language-server
+    readOn: 2026-11-10
+    key: yaml-language-server
+  - url: https://yaml.org/spec/1.2.2/
+    readOn: 2026-11-10
+    key: yaml-spec
+  - url: https://www.nuget.org/packages/YamlDotNet/18.1.0
+    readOn: 2026-11-10
+    key: yamldotnet-package
+  - url: https://github.com/eemeli/yaml/blob/main/LICENSE
+    readOn: 2026-11-10
+    key: yaml-npm-license
+  - path: schemas/litespec-project.schema.yaml
+    readOn: 2026-11-10
+    key: project-schema
+  - path: schemas/record.schema.yaml
+    readOn: 2026-11-10
+    key: record-schema
+question: Can the YAML language server check LiteSpec's YAML files against YAML-held schemas, and which JSON Schema drafts must it read?
+conclusion: The language server reads a schema named by a modeline, validates draft 2020-12, which every LiteSpec schema declares, and accepts a schema written in JSON or YAML.

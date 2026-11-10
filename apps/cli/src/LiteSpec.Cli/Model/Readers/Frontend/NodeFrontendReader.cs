@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 
@@ -12,7 +11,7 @@ namespace LiteSpec.Model.Readers.Frontend;
 ///     Node absent, a non-zero exit, unparseable output or a protocol mismatch
 ///     leaves every affected frontend with empty facts and one
 ///     <c>reader-missing</c> cause. The reader is qualified when its
-///     handshake matched; nothing in <c>.litespec/project.json</c> disqualifies it.
+///     handshake matched; nothing in <c>.litespec/project.yaml</c> disqualifies it.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 static class NodeFrontendReader
@@ -142,50 +141,22 @@ static class NodeFrontendReader
     private static (string Output, string Error) RunReader(
         ConsumerConfig config, IReadOnlyList<FrontendConfig> web, string bundle, string node)
     {
-        var start = new ProcessStartInfo(node)
+        var result = ProcessRunner.Capture(node, [bundle], config.Root, Timeout, BuildRequest(config, web));
+
+        if (result.TimedOut)
         {
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = config.Root,
-        };
-
-        start.ArgumentList.Add(bundle);
-
-        using var process = Process.Start(start)
-            ?? throw new ReaderFailure("Node could not be started.");
-        var stdout = process.StandardOutput.ReadToEndAsync();
-        var stderr = process.StandardError.ReadToEndAsync();
-
-        process.StandardInput.Write(BuildRequest(config, web));
-        process.StandardInput.Close();
-
-        if (!process.WaitForExit(Timeout))
-        {
-            try
-            {
-                process.Kill(entireProcessTree: true);
-            }
-            catch (InvalidOperationException)
-            {
-            }
-
             throw new ReaderFailure("the TypeScript reader did not finish in two minutes.");
         }
 
-        var output = stdout.GetAwaiter().GetResult();
-        var error = stderr.GetAwaiter().GetResult();
-
-        if (process.ExitCode != 0)
+        if (result.Status != 0)
         {
-            var first = error.Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() ?? "";
+            var first = result.Error.Split('\n', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() ?? "";
 
             throw new ReaderFailure(
-                $"the TypeScript reader exited with code {process.ExitCode}" + (first.Length > 0 ? $": {first}" : "."));
+                $"the TypeScript reader exited with code {result.Status}" + (first.Length > 0 ? $": {first}" : "."));
         }
 
-        return (output, error);
+        return (result.Stdout, result.Error);
     }
 
     /// <summary>The versioned JSON request the protocol states, with absolute forward-slash paths.</summary>
@@ -206,15 +177,15 @@ static class NodeFrontendReader
                 writer.WriteStartObject();
                 writer.WriteString("name", frontend.Name);
                 writer.WriteString("platform", frontend.Platform);
-                writer.WriteString("root", Slash(frontend.Path));
-                writer.WriteString("routes", Slash(frontend.RoutesRoot));
-                writer.WriteString("modules", Slash(frontend.ModulesRoot));
-                writer.WriteString("frame", Slash(frontend.FrameRoot));
+                writer.WriteString("root", FileText.Slash(frontend.Path));
+                writer.WriteString("routes", FileText.Slash(frontend.RoutesRoot));
+                writer.WriteString("modules", FileText.Slash(frontend.ModulesRoot));
+                writer.WriteString("frame", FileText.Slash(frontend.FrameRoot));
                 writer.WriteStartArray("testRoots");
 
                 foreach (var root in TestRoots(config, frontend))
                 {
-                    writer.WriteStringValue(Slash(root));
+                    writer.WriteStringValue(FileText.Slash(root));
                 }
 
                 writer.WriteEndArray();
@@ -222,16 +193,16 @@ static class NodeFrontendReader
 
                 foreach (var (alias, target) in Aliases(frontend))
                 {
-                    writer.WriteString(alias, Slash(target));
+                    writer.WriteString(alias, FileText.Slash(target));
                 }
 
                 writer.WriteEndObject();
-                writer.WriteString("apiClient", Slash(config.ApiClientSrc));
+                writer.WriteString("apiClient", FileText.Slash(config.ApiClientSrc));
                 writer.WriteEndObject();
             }
 
             writer.WriteEndArray();
-            writer.WriteString("cache", Slash(Path.Combine(config.Root, ".litespec", "model", "frontend-facts")));
+            writer.WriteString("cache", FileText.Slash(Path.Combine(config.Root, ".litespec", "model", "frontend-facts")));
             writer.WriteEndObject();
         }
 
@@ -453,9 +424,4 @@ static class NodeFrontendReader
     /// <returns>The line the entry states, or 1 when it states none or a non-positive line.</returns>
     private static int Line(JsonElement owner) =>
         owner.TryGetProperty("line", out var value) && value.TryGetInt32(out var line) && line > 0 ? line : 1;
-
-    /// <summary>The path with forward slashes, for facts and requests.</summary>
-    /// <param name="path">The path to resolve or report.</param>
-    /// <returns>The path with forward slashes.</returns>
-    private static string Slash(string path) => path.Replace(Path.DirectorySeparatorChar, '/');
 }

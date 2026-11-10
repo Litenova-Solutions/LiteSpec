@@ -14,7 +14,8 @@ static class ProvisionDiffCommand
 
         Writes the Added, Removed, and Renamed provision IDs since the ref, with the added
         and removed extensions, into the marked section of CHANGELOG.md. The ref is a git
-        tag or commit; the old index and manifest are read with git show.
+        tag or commit; the old index is read with git show, and the extensions are the ext
+        pages each index names.
 
           --from    The git tag or commit to compare with. Required.
           --root    The repository root. Defaults to the LiteSpec checkout.
@@ -104,14 +105,10 @@ static class ProvisionDiffCommand
         try
         {
             var newJson = ReadInput(root, Provisions.JsonPath, " Run: litespec-maintain provisions");
-            var newManifest = ReadInput(root, LiteSpecHome.ManifestFile, "");
-            var oldManifest = ProvisionDiff.ShowAtRef(root, fromRef, LiteSpecHome.ManifestFile);
             changelog = ReadInput(root, ProvisionDiff.ChangelogPath, "");
-            diff = ProvisionDiff.Compare(
-                ProvisionDiff.RowsAtRef(root, fromRef),
-                ProvisionDiff.ReadRows(newJson, Provisions.JsonPath),
-                ProvisionDiff.ReadExtensions(oldManifest, $"'{fromRef}:{LiteSpecHome.ManifestFile}'"),
-                ProvisionDiff.ReadExtensions(newManifest, LiteSpecHome.ManifestFile));
+            var oldRows = ProvisionDiff.RowsAtRef(root, fromRef);
+            var newRows = ProvisionDiff.ReadRows(newJson, Provisions.JsonPath);
+            diff = ProvisionDiff.Compare(oldRows, newRows, ProvisionDiff.ExtensionsOf(oldRows), ProvisionDiff.ExtensionsOf(newRows));
         }
         catch (InvalidOperationException exception)
         {

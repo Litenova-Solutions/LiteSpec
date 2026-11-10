@@ -196,7 +196,7 @@ static class BookEdges
         var list = new JsonArray();
         foreach (var edge in edges)
         {
-            list.Add(new JsonObject
+            list.Add((JsonNode)new JsonObject
             {
                 ["id"] = edge.Id,
                 ["key"] = edge.Key,

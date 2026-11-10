@@ -1,8 +1,7 @@
 # Web Data and State
 
-**Stack:** any
-
-**Layer:** frontend-data
+**Stack:** react, svelte
+**Concern:** frontend-data
 
 ## Intent
 

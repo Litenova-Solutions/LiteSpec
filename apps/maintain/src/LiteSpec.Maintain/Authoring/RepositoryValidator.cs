@@ -45,6 +45,10 @@ internal sealed partial class RepositoryValidator
         ["tutorial.md"] = "docs/tutorial/template.md",
         ["command.md"] = "docs/tools/template.md",
         ["reference.md"] = "docs/reference/template.md",
+        ["stack.md"] = "docs/backend/template/stack.md",
+        ["pattern.md"] = "docs/frontend/patterns/template.md",
+        ["explanation.md"] = "docs/learn/template.md",
+        ["index.md"] = "docs/template/README.md",
     };
 
     /// <summary>Gets the page paths reserved as authoring template stems.</summary>
@@ -92,7 +96,7 @@ internal sealed partial class RepositoryValidator
                     : segments[index];
                 if (!KebabSegmentPattern().IsMatch(name))
                 {
-                    add(page.Relative, 1, "ID_PAGE_FILENAME", $"path segment '{name}' is not lowercase kebab case");
+                    add(page.Relative, 1, Diagnostics.Codes.IdPageFilename, $"path segment '{name}' is not lowercase kebab case");
                 }
             }
         }
@@ -112,7 +116,7 @@ internal sealed partial class RepositoryValidator
             {
                 if (!activeIds.Contains(match.Value))
                 {
-                    add(page.Relative, LineNumber(prose, match.Index), "ID_UNKNOWN_REFERENCE", $"active content references unknown provision '{match.Value}'");
+                    add(page.Relative, LineNumber(prose, match.Index), Diagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
                 }
             }
         }
@@ -132,7 +136,13 @@ internal sealed partial class RepositoryValidator
         .Replace("{How-To Title}", "How-To Title", StringComparison.Ordinal)
         .Replace("{Tutorial Title}", "Tutorial Title", StringComparison.Ordinal)
         .Replace("{Command Title}", "Command Title", StringComparison.Ordinal)
-        .Replace("{Reference Title}", "Reference Title", StringComparison.Ordinal);
+        .Replace("{Reference Title}", "Reference Title", StringComparison.Ordinal)
+        .Replace("{Stack Title}", "Stack Title", StringComparison.Ordinal)
+        .Replace("{Pattern Title}", "Pattern Title", StringComparison.Ordinal)
+        .Replace("{Explanation Title}", "Explanation Title", StringComparison.Ordinal)
+        .Replace("{litespec/page#apply-one-stack-obligation}", "litespec/backend/template/stack#apply-one-stack-obligation", StringComparison.Ordinal)
+        .Replace("{litespec/page#use-one-stack-default}", "litespec/backend/template/stack#use-one-stack-default", StringComparison.Ordinal)
+        .Replace("{litespec/page#record-header}", "litespec/frontend/patterns/template#record-header", StringComparison.Ordinal);
 
     /// <summary>Checks every authoring template against the page contract it seeds.</summary>
     internal void CheckAuthoringTemplates()
@@ -142,16 +152,16 @@ internal sealed partial class RepositoryValidator
         var templateRoot = Path.Combine(root, "templates", "standard");
         foreach (var file in Walk(templateRoot, candidate => candidate.EndsWith(".md", StringComparison.Ordinal)))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             var virtualRelative = TemplateVirtualPath.GetValueOrDefault(Path.GetFileName(file), "docs/core/template.md");
-            var normalized = NormalizeTemplate(relative, ReadText(file));
+            var normalized = NormalizeTemplate(relative, FileText.ReadText(file));
             var templateReader = PageReader.Parse(normalized);
             var stripped = string.Join('\n', templateReader.Lines.Select((line, index) =>
                 templateReader.FencedLines.Contains(index + 1) || templateReader.GeneratedLines.Contains(index + 1) ? "" : line));
             var nonAscii = NonAsciiOffset(stripped);
             if (nonAscii >= 0)
             {
-                add(relative, 1, "PROSE_NON_ASCII", NonAsciiMessage(stripped[nonAscii], "authoring template contains non-ASCII character "));
+                add(relative, 1, Diagnostics.Codes.ProseNonAscii, NonAsciiMessage(stripped[nonAscii], "authoring template contains non-ASCII character "));
             }
 
             Context.Pages.ParsePage(virtualRelative, templateReader, @virtual: true);
@@ -169,13 +179,13 @@ internal sealed partial class RepositoryValidator
         var readers = new Dictionary<string, PageReader>(StringComparer.Ordinal);
         foreach (var file in files)
         {
-            readers[file] = PageReader.Parse(ReadText(file));
+            readers[file] = PageReader.Parse(FileText.ReadText(file));
         }
 
         foreach (var file in files)
         {
             var reader = readers[file];
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             foreach (var link in reader.Links)
             {
                 var href = link.Target.Trim();
@@ -198,7 +208,7 @@ internal sealed partial class RepositoryValidator
 
                 if (!TryDecodeURIComponent(targetPart, out var decoded))
                 {
-                    add(relative, link.Line, "LINK_BROKEN", $"link target '{href}' holds a malformed percent escape");
+                    add(relative, link.Line, Diagnostics.Codes.LinkBroken, $"link target '{href}' holds a malformed percent escape");
                     continue;
                 }
 
@@ -207,7 +217,7 @@ internal sealed partial class RepositoryValidator
                     : file;
                 if (targetPart.Length > 0 && !File.Exists(target) && !Directory.Exists(target))
                 {
-                    add(relative, link.Line, "LINK_BROKEN", $"link target '{href}' does not exist");
+                    add(relative, link.Line, Diagnostics.Codes.LinkBroken, $"link target '{href}' does not exist");
                     continue;
                 }
 
@@ -215,12 +225,12 @@ internal sealed partial class RepositoryValidator
                 {
                     if (!readers.TryGetValue(target, out var targetReader))
                     {
-                        targetReader = PageReader.Parse(ReadText(target));
+                        targetReader = PageReader.Parse(FileText.ReadText(target));
                     }
 
                     if (!targetReader.Anchors.Contains(anchor))
                     {
-                        add(relative, link.Line, "ANCHOR_BROKEN", $"anchor '#{anchor}' does not exist in '{Slash(Path.GetRelativePath(root, target))}'");
+                        add(relative, link.Line, Diagnostics.Codes.AnchorBroken, $"anchor '#{anchor}' does not exist in '{PathText.Relative(root, target)}'");
                     }
                 }
             }
@@ -273,7 +283,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var lines = SplitLines(ReadText(indexFile));
+        var lines = SplitLines(FileText.ReadText(indexFile));
         for (var index = 0; index < lines.Length; index++)
         {
             var row = TemplateRowPattern().Match(lines[index]);
@@ -286,7 +296,7 @@ internal sealed partial class RepositoryValidator
             var target = Path.Combine(root, "templates", "consumer", template);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add(relative, index + 1, "TEMPLATE_INDEX_PATH", $"template '{template}' named in the index does not exist");
+                add(relative, index + 1, Diagnostics.Codes.TemplateIndexPath, $"template '{template}' named in the index does not exist");
             }
         }
 
@@ -315,7 +325,7 @@ internal sealed partial class RepositoryValidator
                 continue;
             }
 
-            add(relative, 1, "TEMPLATE_INDEX_PATH", $"template '{entry}' is tracked but no index row names it");
+            add(relative, 1, Diagnostics.Codes.TemplateIndexPath, $"template '{entry}' is tracked but no index row names it");
         }
     }
 
@@ -340,7 +350,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var schemaFile = JoinRoot(root, "schemas/record.schema.json");
+        var schemaFile = JoinRoot(root, "schemas/record.schema.yaml");
         if (!File.Exists(schemaFile))
         {
             return;
@@ -349,7 +359,7 @@ internal sealed partial class RepositoryValidator
         JsonNode? schema;
         try
         {
-            schema = JsonNode.Parse(TrimBom(ReadText(schemaFile)));
+            schema = DataFile.Read(schemaFile);
         }
         catch (Exception)
         {
@@ -364,7 +374,7 @@ internal sealed partial class RepositoryValidator
 
         foreach (var file in Directory.GetFileSystemEntries(directory).OrderBy(name => name, StringComparer.Ordinal))
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
+            var relative = PathText.Relative(root, file);
             JsonObject? template = null;
             string? type = null;
 
@@ -377,9 +387,9 @@ internal sealed partial class RepositoryValidator
                     continue;
                 }
 
-                if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out var error))
+                if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var record, out var error))
                 {
-                    add(relative, 1, "TEMPLATE_SCHEMA", $"record file is invalid: {error}");
+                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"record file is invalid: {error}");
                     continue;
                 }
 
@@ -387,15 +397,15 @@ internal sealed partial class RepositoryValidator
                 type = JsonString(template?["type"]);
                 if (type is null || type.Length == 0)
                 {
-                    // A non-record template carries its own schema's discriminator
-                    // instead of a record type, and its schema owns it, so the
-                    // record check does not apply.
-                    if (JsonString(template?["kind"]) is not null)
+                    // A LiteSpec file that is not a record, such as the project file or the
+                    // UI catalog, carries schemaVersion and its own schema, which the schema
+                    // checks read, so the record check does not apply.
+                    if (template?["schemaVersion"] is not null)
                     {
                         continue;
                     }
 
-                    add(relative, 1, "TEMPLATE_SCHEMA", "template names no record type");
+                    add(relative, 1, Diagnostics.Codes.TemplateSchema, "template names no record type");
                     continue;
                 }
 
@@ -405,11 +415,11 @@ internal sealed partial class RepositoryValidator
                 {
                     if (RecordTypes.PageStyles.Contains(type))
                     {
-                        add(relative, 1, "TEMPLATE_SCHEMA", $"type '{type}' is a document style; its template lives in '{type}.md', not in this YAML file");
+                        add(relative, 1, Diagnostics.Codes.TemplateSchema, $"type '{type}' is a document style; its template lives in '{type}.md', not in this YAML file");
                     }
                     else
                     {
-                        add(relative, 1, "TEMPLATE_SCHEMA", $"template type '{type}' matches no record definition");
+                        add(relative, 1, Diagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
                     }
 
                     continue;
@@ -419,7 +429,7 @@ internal sealed partial class RepositoryValidator
             {
                 // An explanation template carries no frontmatter; a document
                 // template carries its document style between the fences.
-                var raw = ReadText(file);
+                var raw = FileText.ReadText(file);
                 if (raw.Split('\n')[0].TrimEnd('\r') != "---")
                 {
                     continue;
@@ -427,7 +437,7 @@ internal sealed partial class RepositoryValidator
 
                 if (!TryParseDocumentFrontmatter(raw, out var frontmatter, out var error))
                 {
-                    add(relative, 1, "TEMPLATE_SCHEMA", $"document frontmatter is invalid: {error}");
+                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"document frontmatter is invalid: {error}");
                     continue;
                 }
 
@@ -435,15 +445,14 @@ internal sealed partial class RepositoryValidator
                 type = JsonString(template?["type"]);
                 if (type is null || type.Length == 0)
                 {
-                    // A non-record template carries its own schema's discriminator
-                    // instead of a page style. The design contract names a kind,
-                    // and its schema owns it, so the check does not apply.
-                    if (JsonString(template?["kind"]) is not null)
+                    // A LiteSpec document that is not a page, such as the design contract,
+                    // carries schemaVersion and its own schema, so the check does not apply.
+                    if (template?["schemaVersion"] is not null)
                     {
                         continue;
                     }
 
-                    add(relative, 1, "TEMPLATE_SCHEMA", "template frontmatter names no document style");
+                    add(relative, 1, Diagnostics.Codes.TemplateSchema, "template frontmatter names no document style");
                     continue;
                 }
 
@@ -451,7 +460,7 @@ internal sealed partial class RepositoryValidator
                 // holding a record type is the shape the record files replaced.
                 if (RecordTypes.All.Contains(type) || ContainerPageStyles.Contains(type))
                 {
-                    add(relative, 1, "TEMPLATE_SCHEMA", $"type '{type}' is a record type; its template lives in '{type}.yaml', not in this Markdown file");
+                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"type '{type}' is a record type; its template lives in '{type}.yaml', not in this Markdown file");
                     continue;
                 }
             }
@@ -468,7 +477,7 @@ internal sealed partial class RepositoryValidator
             var def = defs[TemplateDefName(type)];
             if (def is null)
             {
-                add(relative, 1, "TEMPLATE_SCHEMA", $"template type '{type}' matches no record definition");
+                add(relative, 1, Diagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
                 continue;
             }
 
@@ -490,7 +499,7 @@ internal sealed partial class RepositoryValidator
                 var text = message.StartsWith(relative + ": ", StringComparison.Ordinal)
                     ? message[(relative.Length + 2)..]
                     : message;
-                add(relative, 1, "TEMPLATE_SCHEMA", text);
+                add(relative, 1, Diagnostics.Codes.TemplateSchema, text);
             }
         }
     }
@@ -607,7 +616,7 @@ internal sealed partial class RepositoryValidator
         ["settingId"] = "setting/sample.entry",
         ["integrationEventId"] = "integration-event/sample",
         ["runbookId"] = "runbook/sample",
-        ["exceptionId"] = "exception/sample",
+        ["departureId"] = "departure/sample",
         ["termId"] = "term/sample",
         ["refusalCode"] = "sample.entry",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",
@@ -1192,7 +1201,7 @@ internal sealed partial class RepositoryValidator
             return;
         }
 
-        var reader = PageReader.Parse(ReadText(file));
+        var reader = PageReader.Parse(FileText.ReadText(file));
         var routingLine = -1;
         var firstGroupLine = -1;
         var h2s = reader.Headings.Where(heading => heading.Level == 2).ToList();
@@ -1231,13 +1240,13 @@ internal sealed partial class RepositoryValidator
 
         if (routingLine < 0)
         {
-            add(relative, 1, "INDEX_MISSING_ROUTING", $"documentation root index has no '{RoutingHeading}' section, so a reader cannot tell which page class answers their question");
+            add(relative, 1, Diagnostics.Codes.IndexMissingRouting, $"documentation root index has no '{RoutingHeading}' section, so a reader cannot tell which page class answers their question");
             return;
         }
 
         if (firstGroupLine >= 0 && routingLine > firstGroupLine)
         {
-            add(relative, routingLine, "INDEX_MISSING_ROUTING", $"'{RoutingHeading}' appears after the first navigation group at line {firstGroupLine}");
+            add(relative, routingLine, Diagnostics.Codes.IndexMissingRouting, $"'{RoutingHeading}' appears after the first navigation group at line {firstGroupLine}");
         }
     }
 
@@ -1277,25 +1286,25 @@ internal sealed partial class RepositoryValidator
 
                 if (closer < 0)
                 {
-                    add(page.Relative, index + 1, "GENERATED_STALE", "generated counts region has no closing marker");
+                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, "generated counts region has no closing marker");
                     continue;
                 }
 
                 var content = string.Join('\n', lines[(index + 1)..closer]);
                 if (source.Length == 0)
                 {
-                    add(page.Relative, index + 1, "GENERATED_STALE", "generated counts region names no count source; name provisions or analyzer-rules");
+                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, "generated counts region names no count source; name provisions or analyzer-rules");
                 }
                 else if (!counts.TryGetValue(source, out var expected))
                 {
-                    add(page.Relative, index + 1, "GENERATED_STALE", $"generated counts region names unknown count source '{source}'");
+                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, $"generated counts region names unknown count source '{source}'");
                 }
                 else
                 {
                     var match = CountNumberPattern().Match(content);
                     if (!match.Success || !int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var stated) || stated != expected)
                     {
-                        add(page.Relative, index + 1, "GENERATED_STALE", match.Success
+                        add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, match.Success
                             ? $"generated counts region states {match.Value} but the source holds {expected}"
                             : "generated counts region states no count");
                     }

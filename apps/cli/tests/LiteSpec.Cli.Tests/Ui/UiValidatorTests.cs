@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// Controlled UI pass cases: one test per validator rule, asserting the expected diagnostics.
@@ -10,7 +10,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Tracked Templates Validate As Shipped.</summary>
     /// <proves>litespec/frontend/web/ui#track-source-changes</proves>
     [Fact]
-    public void Tracked_Templates_Validate_As_Shipped()
+    public void TrackedTemplatesValidateAsShipped()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.Run());
@@ -21,7 +21,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Approved Layout Utilities.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Approved_Layout_Utilities()
+    public void ApprovedLayoutUtilities()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -31,7 +31,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Semantic Token Classes.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Semantic_Token_Classes()
+    public void SemanticTokenClasses()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -41,7 +41,7 @@ public sealed partial class UiValidatorTests
     /// <summary>State And Container Variants.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void State_And_Container_Variants()
+    public void StateAndContainerVariants()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -51,7 +51,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Class Merge Helper.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Class_Merge_Helper()
+    public void ClassMergeHelper()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -61,7 +61,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Pinned Icon Family.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Pinned_Icon_Family()
+    public void PinnedIconFamily()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -71,7 +71,7 @@ public sealed partial class UiValidatorTests
     /// <summary>The Primitive Library Named By The Package That Owns It.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void The_Primitive_Library_Named_By_The_Package_That_Owns_It()
+    public void ThePrimitiveLibraryNamedByThePackageThatOwnsIt()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -81,7 +81,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Javascript Negation Is Not An Important Modifier.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Javascript_Negation_Is_Not_An_Important_Modifier()
+    public void JavascriptNegationIsNotAnImportantModifier()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -91,7 +91,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Class Name Inside A Comment Is Prose.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Class_Name_Inside_A_Comment_Is_Prose()
+    public void AClassNameInsideACommentIsProse()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -101,7 +101,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Composed Functional Variants.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Composed_Functional_Variants()
+    public void ComposedFunctionalVariants()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CompositeCase(
@@ -111,7 +111,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A File Under Tests Is Outside The Controlled Surface.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_File_Under_Tests_Is_Outside_The_Controlled_Surface()
+    public void AFileUnderTestsIsOutsideTheControlledSurface()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -122,7 +122,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A File Under The Copied Primitive Boundary Is Unedited Source.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_File_Under_The_Copied_Primitive_Boundary_Is_Unedited_Source()
+    public void AFileUnderTheCopiedPrimitiveBoundaryIsUneditedSource()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -133,7 +133,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Visual File Keeps Its Own Layout.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Visual_File_Keeps_Its_Own_Layout()
+    public void AVisualFileKeepsItsOwnLayout()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -144,7 +144,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Visual File Is Still Held To The Token Rule.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Visual_File_Is_Still_Held_To_The_Token_Rule()
+    public void AVisualFileIsStillHeldToTheTokenRule()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -157,7 +157,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Generated Web Asset Is Ignored.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Generated_Web_Asset_Is_Ignored()
+    public void GeneratedWebAssetIsIgnored()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -168,7 +168,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Route Composing One Floorplan.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Route_Composing_One_Floorplan()
+    public void ARouteComposingOneFloorplan()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.AppCaseWith(
@@ -180,7 +180,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Arbitrary Length.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Arbitrary_Length()
+    public void ArbitraryLength()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -191,7 +191,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Arbitrary Color.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Arbitrary_Color()
+    public void ArbitraryColor()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -202,7 +202,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Raw Palette Value.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Raw_Palette_Value()
+    public void RawPaletteValue()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -213,7 +213,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Raw Palette Value With Opacity.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Raw_Palette_Value_With_Opacity()
+    public void RawPaletteValueWithOpacity()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -224,7 +224,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Important Modifier Prefix.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Important_Modifier_Prefix()
+    public void ImportantModifierPrefix()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -235,7 +235,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Escaped Quote Keeps The Following Literal Readable.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void An_Escaped_Quote_Keeps_The_Following_Literal_Readable()
+    public void AnEscapedQuoteKeepsTheFollowingLiteralReadable()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -246,7 +246,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Arbitrary Selector Variant In A Drawing.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void An_Arbitrary_Selector_Variant_In_A_Drawing()
+    public void AnArbitrarySelectorVariantInADrawing()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -259,7 +259,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Runtime Measurement In A Composite.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Runtime_Measurement_In_A_Composite()
+    public void ARuntimeMeasurementInAComposite()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.PathCase(
@@ -270,7 +270,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Feature Selector In The Token Entry.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Feature_Selector_In_The_Token_Entry()
+    public void FeatureSelectorInTheTokenEntry()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -281,7 +281,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Comma Inside A Quoted Attribute Value Is Not A Selector List.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Comma_Inside_A_Quoted_Attribute_Value_Is_Not_A_Selector_List()
+    public void ACommaInsideAQuotedAttributeValueIsNotASelectorList()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CssCase(UiFixture.CleanCss + "[data-token=\",.promo\"]{color:red}\n"));
@@ -290,7 +290,7 @@ public sealed partial class UiValidatorTests
     /// <summary>A Brace Inside A Quoted Attribute Value Is Not A Block.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void A_Brace_Inside_A_Quoted_Attribute_Value_Is_Not_A_Block()
+    public void ABraceInsideAQuotedAttributeValueIsNotABlock()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertClean(fixture.CssCase(UiFixture.CleanCss + "[data-token=\"{\"]{color:red}\n"));
@@ -299,7 +299,7 @@ public sealed partial class UiValidatorTests
     /// <summary>An Unterminated String Is Reported Once.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void An_Unterminated_String_Is_Reported_Once()
+    public void AnUnterminatedStringIsReportedOnce()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -310,7 +310,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Apply Directive Outside The Generated Base Layer.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Apply_Directive_Outside_The_Generated_Base_Layer()
+    public void ApplyDirectiveOutsideTheGeneratedBaseLayer()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(
@@ -321,7 +321,7 @@ public sealed partial class UiValidatorTests
     /// <summary>Unapproved Global Import.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
-    public void Unapproved_Global_Import()
+    public void UnapprovedGlobalImport()
     {
         using var fixture = UiFixture.Create();
         UiFixture.AssertProblem(

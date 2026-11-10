@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves only Behavior records fulfil a requirement.</summary>
 public sealed class FulfillmentTests
@@ -19,7 +19,7 @@ public sealed class FulfillmentTests
     // The InlineData values name each Behavior record type case.
     public void Behavior_Fulfiller_Passes(string type)
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
@@ -31,9 +31,9 @@ public sealed class FulfillmentTests
     /// <summary>Journey Alone Reports Unfulfilled.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
-    public void Journey_Alone_Reports_Unfulfilled()
+    public void JourneyAloneReportsUnfulfilled()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""),
@@ -45,9 +45,9 @@ public sealed class FulfillmentTests
     /// <summary>No Fulfiller Reports Unfulfilled.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
-    public void No_Fulfiller_Reports_Unfulfilled()
+    public void NoFulfillerReportsUnfulfilled()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));
@@ -58,9 +58,9 @@ public sealed class FulfillmentTests
     /// <summary>Message Names The Six Types.</summary>
     /// <proves>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</proves>
     [Fact]
-    public void Message_Names_The_Six_Types()
+    public void MessageNamesTheSixTypes()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most five active loans."}"""));

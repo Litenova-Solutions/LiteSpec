@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the refusal-unimplemented check reads a code the project composes from a key at run time.</summary>
 public sealed class ComposedRefusalTests
@@ -9,9 +9,9 @@ public sealed class ComposedRefusalTests
     /// <summary>Composed Code Whose Key Is In Code Passes.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Composed_Code_Whose_Key_Is_In_Code_Passes()
+    public void ComposedCodeWhoseKeyIsInCodePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = BarcodeModel(temp.Path);
         model.Code.KeyLiterals.Add("copy-barcode");
 
@@ -21,9 +21,9 @@ public sealed class ComposedRefusalTests
     /// <summary>Composed Code Whose Key No Code Holds Reports.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Composed_Code_Whose_Key_No_Code_Holds_Reports()
+    public void ComposedCodeWhoseKeyNoCodeHoldsReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = BarcodeModel(temp.Path);
         model.Code.KeyLiterals.Add("copy-shelfmark");
 
@@ -34,9 +34,9 @@ public sealed class ComposedRefusalTests
     /// <summary>Code Outside Every Template Still Reports.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Code_Outside_Every_Template_Still_Reports()
+    public void CodeOutsideEveryTemplateStillReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = BarcodeModel(temp.Path, "lending.copy-barcode-taken");
         model.Code.KeyLiterals.Add("copy-barcode");
 
@@ -61,7 +61,7 @@ public sealed class ComposedRefusalTests
 
     static ProjectModel BarcodeModel(string root, string code = "uniqueness.copy-barcode-taken")
     {
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), """{"refusals": {"composed": ["uniqueness.{key}-taken"]}}""");
         var file = Path.Combine(root, "register-copy.md");
 
         return TestModel.Model(

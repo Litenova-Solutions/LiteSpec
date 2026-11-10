@@ -1,4 +1,4 @@
-$schema: https://litespec.dev/4.0.0/schemas/glossary.schema.json
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/glossary.schema.yaml
 schemaVersion: 2
 terms:
   - id: term/<name>

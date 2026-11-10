@@ -3,10 +3,10 @@ using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Dotnet;
 using LiteSpec.Model.Readers.JUnit;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Readers;
+namespace LiteSpec.Cli.Tests.Model.Readers;
 
 /// <summary>Proves a JUnit case proves the Behavior scenarios its litespec.proves properties name.</summary>
 public sealed class JUnitProvesTests
@@ -23,9 +23,9 @@ public sealed class JUnitProvesTests
     /// <summary>A passing case with a proves property proves the scenario as passed.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_Case_With_A_Proves_Property_Proves_The_Scenario()
+    public void PassingCaseWithAProvesPropertyProvesTheScenario()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow)));
 
@@ -37,9 +37,9 @@ public sealed class JUnitProvesTests
     /// <summary>One property with comma-separated ids proves each scenario.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void One_Property_With_Comma_Separated_Ids_Proves_Each_Scenario()
+    public void OnePropertyWithCommaSeparatedIdsProvesEachScenario()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves($"{Borrow}, {Return}")));
 
@@ -52,9 +52,9 @@ public sealed class JUnitProvesTests
     /// <summary>One property per scenario proves each scenario.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void One_Property_Per_Scenario_Proves_Each_Scenario()
+    public void OnePropertyPerScenarioProvesEachScenario()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow, Return)));
 
@@ -67,9 +67,9 @@ public sealed class JUnitProvesTests
     /// <summary>A failing case proves as failed.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Failing_Case_Proves_As_Failed()
+    public void FailingCaseProvesAsFailed()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Failure));
 
@@ -81,9 +81,9 @@ public sealed class JUnitProvesTests
     /// <summary>A case with an error proves as failed.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Error_Case_Proves_As_Failed()
+    public void ErrorCaseProvesAsFailed()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Error));
 
@@ -95,9 +95,9 @@ public sealed class JUnitProvesTests
     /// <summary>A skipped case proves as skipped.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Skipped_Case_Proves_As_Skipped()
+    public void SkippedCaseProvesAsSkipped()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Skip));
 
@@ -109,9 +109,9 @@ public sealed class JUnitProvesTests
     /// <summary>A case without a proves property proves nothing.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Case_Without_A_Proves_Property_Proves_Nothing()
+    public void CaseWithoutAProvesPropertyProvesNothing()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", ""));
 
@@ -123,9 +123,9 @@ public sealed class JUnitProvesTests
     /// <summary>Other properties and blank ids prove nothing.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Other_Properties_And_Blank_Ids_Prove_Nothing()
+    public void OtherPropertiesAndBlankIdsProveNothing()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(
             temp.Path,
@@ -146,9 +146,9 @@ public sealed class JUnitProvesTests
     /// <summary>A failure wins when two files prove one scenario.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Failure_Wins_When_Two_Files_Prove_One_Scenario()
+    public void FailureWinsWhenTwoFilesProveOneScenario()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "first.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow)));
         WriteJUnit(temp.Path, "second.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Failure));
@@ -162,9 +162,9 @@ public sealed class JUnitProvesTests
     /// <summary>A combined run merges scenario outcomes across files.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Combined_Run_Merges_Scenario_Outcomes_Across_Files()
+    public void CombinedRunMergesScenarioOutcomesAcrossFiles()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteJUnit(temp.Path, "first.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow, Return)));
         WriteJUnit(temp.Path, "second.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Failure));
@@ -180,9 +180,9 @@ public sealed class JUnitProvesTests
     /// <summary>A combined run keeps scenario outcomes beside other formats.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Combined_Run_Keeps_Scenario_Outcomes_Beside_Other_Formats()
+    public void CombinedRunKeepsScenarioOutcomesBesideOtherFormats()
     {
-        using var temp = Cli.Temp("reader-junit-proves");
+        using var temp = TestCli.Temp("reader-junit-proves");
         WriteProject(temp.Path);
         WriteTrx(temp.Path, "results.trx", Method, "Passed");
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow)));
@@ -197,7 +197,7 @@ public sealed class JUnitProvesTests
     /// <summary>A passing JUnit property confirms the scenario it names.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Passing_JUnit_Property_Confirms_The_Scenario_It_Names()
+    public void PassingJUnitPropertyConfirmsTheScenarioItNames()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
@@ -217,7 +217,7 @@ public sealed class JUnitProvesTests
     /// <summary>A failing JUnit property leaves the scenario not passing.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Failing_JUnit_Property_Leaves_The_Scenario_Not_Passing()
+    public void FailingJUnitPropertyLeavesTheScenarioNotPassing()
     {
         using var temp = ModelFixture.Prepare("small");
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
@@ -237,7 +237,7 @@ public sealed class JUnitProvesTests
     /// <summary>An unknown scenario id in a JUnit property proves nothing.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Unknown_Scenario_Id_In_A_JUnit_Property_Proves_Nothing()
+    public void UnknownScenarioIdInAJUnitPropertyProvesNothing()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_unknown_copy_succeeds", Proves(Unknown)));
@@ -248,7 +248,7 @@ public sealed class JUnitProvesTests
     }
 
     static void WriteProject(string root) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), """{ "owners": ["team"] }""");
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), """{ "owners": ["team"] }""");
 
     static void WriteTrx(string root, string file, string testName, string outcome)
     {

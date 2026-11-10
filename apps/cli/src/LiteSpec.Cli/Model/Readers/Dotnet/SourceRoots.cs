@@ -139,7 +139,7 @@ static class SourceRoots
         }
 
         var layer = LayerResolver.FileLayer(
-            Path.GetRelativePath(root, file),
+            PathText.Relative(root, file),
             FolderName(root),
             config.IsLayerProjects ? Layout.LayerProjects : Layout.Modules,
             declared: null);
@@ -260,7 +260,7 @@ static class SourceRoots
             return false;
         }
 
-        var relative = Path.GetRelativePath(root, file);
+        var relative = PathText.Relative(root, file);
 
         return !relative.StartsWith("..", StringComparison.Ordinal)
             && !Path.IsPathRooted(relative);
@@ -280,7 +280,7 @@ static class SourceRoots
     /// <returns>The path segments with the module first, or null when the file sits outside the module layout.</returns>
     static string[]? UnderLayerRoot(string root, string file, bool skipEndpoints, bool skipPersistence)
     {
-        var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var segments = PathText.Relative(root, file).Split('/');
 
         if (segments.Length < 2)
         {
@@ -310,7 +310,7 @@ static class SourceRoots
     /// <returns>The path segments with the module first and the file name last, or null when the file sits outside any module.</returns>
     static string[]? UnderProductRoot(string root, string file)
     {
-        var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var segments = PathText.Relative(root, file).Split('/');
 
         if (segments.Length < 2)
         {

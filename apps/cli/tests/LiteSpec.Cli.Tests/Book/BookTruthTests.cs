@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book says only true things about proof, steps and checks: never-run proof, reaction serving, walked steps and embedded findings.</summary>
 public sealed class BookTruthTests
@@ -9,9 +9,9 @@ public sealed class BookTruthTests
     /// <summary>A model with no test run carries a null run and the not-run proof state on every scenario and rule, with machine truth kept.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_With_No_Test_Run_Says_Not_Run()
+    public void BookWithNoTestRunSaysNotRun()
     {
-        using var temp = Cli.Temp("book-truth");
+        using var temp = TestCli.Temp("book-truth");
         var model = WriteReviewModel(root => root["testRun"] = null);
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
@@ -35,7 +35,7 @@ public sealed class BookTruthTests
         Assert.Equal(1, Obj(details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"], "proof")["tests"]?.GetValue<int>());
 
         var borrow = details["use-case/lending.borrow-copy"];
-        Assert.True(BoolOf(Obj(borrow, "machine")["implemented"]));
+        Assert.True(BoolOf(Obj(borrow, "machine")["coded"]));
         Assert.False(BoolOf(Obj(borrow, "machine")["verified"]));
         Assert.Null(borrow["proof"]);
     }
@@ -43,9 +43,9 @@ public sealed class BookTruthTests
     /// <summary>A journey step served only by a reaction lists the reaction as its server and no screen.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Journey_Step_Served_Only_By_A_Reaction_Reads_As_Reaction()
+    public void JourneyStepServedOnlyByAReactionReadsAsReaction()
     {
-        using var temp = Cli.Temp("book-truth");
+        using var temp = TestCli.Temp("book-truth");
         var reactionId = "";
         var model = WriteReviewModel(root =>
         {
@@ -67,9 +67,9 @@ public sealed class BookTruthTests
     /// <summary>A journey step a passing test walked lists as exercised; the step no passing test walked does not.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Exercised_Step_Renders_As_Walked()
+    public void ExercisedStepRendersAsWalked()
     {
-        using var temp = Cli.Temp("book-truth");
+        using var temp = TestCli.Temp("book-truth");
         var model = WriteReviewModel(root => root["exercisedSteps"] = new JsonArray("journey/borrowing#s1"));
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
@@ -82,9 +82,9 @@ public sealed class BookTruthTests
     /// <summary>Findings embedded in the model reach their subject records, open and known apart.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Embedded_Findings_Reach_Their_Records()
+    public void EmbeddedFindingsReachTheirRecords()
     {
-        using var temp = Cli.Temp("book-truth");
+        using var temp = TestCli.Temp("book-truth");
         var model = ModelWithEmbeddedFindings();
         BookTestBooks.Write(model, temp.Path, Out(temp));
 
@@ -95,14 +95,14 @@ public sealed class BookTruthTests
         Assert.Equal("use-case-unimplemented", Str(finding, "code"));
         Assert.Equal("G", Str(finding, "tier"));
         Assert.Contains("has no handler, reaction or job", Str(finding, "message") ?? "", StringComparison.Ordinal);
-        Assert.False(BoolOf(finding["known"]));
+        Assert.False(BoolOf(finding["covered"]));
         Assert.Equal(".litespec/behavior/modules/lending/loans/return-copy.yaml", Str(finding, "path"));
         Assert.Equal(3, finding["line"]?.GetValue<int>());
 
         var known = Arr(details["journey/borrowing"], "findings");
         Assert.Single(known);
         Assert.Equal("step-screen-missing", Str(known[0]!.AsObject(), "code"));
-        Assert.True(BoolOf(known[0]!.AsObject()["known"]));
+        Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
         Assert.Equal("accepted", Str(known[0]!.AsObject(), "outcome"));
         Assert.Equal("The kiosk covers it next quarter.", Str(known[0]!.AsObject(), "reason"));
     }
@@ -122,7 +122,7 @@ public sealed class BookTruthTests
                     ["path"] = ".litespec/behavior/modules/lending/loans/return-copy.yaml",
                     ["line"] = 3,
                 });
-            root["known"] = new JsonArray(
+            root["covered"] = new JsonArray(
                 new JsonObject
                 {
                     ["code"] = "step-screen-missing",
@@ -136,7 +136,7 @@ public sealed class BookTruthTests
 
     static JsonObject WriteReviewModel(Action<JsonObject> mutate)
     {
-        var root = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/review.json")))!;
+        var root = (JsonObject)DataFile.Read(TestCli.Fixture("Book/review.json"))!;
         mutate(root);
         return root;
     }

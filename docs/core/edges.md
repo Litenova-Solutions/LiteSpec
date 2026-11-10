@@ -1,7 +1,7 @@
 # Edges and Screens
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -72,7 +72,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-integration-event-for-its-direction`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -80,13 +80,13 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A published fact without a direction is read both ways: an outbound notice is answered as an order, an inbound claim is trusted as law. The direction, the CloudEvents type, source, and subject, the payload with classifications and types, and the trust of `trigger-only` or `payload` state what the fact is and how far readers follow it. Each payload field carries the field types use-case inputs use, as `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification` states, and a money field carries an amount with an ISO 4217 currency, as the [Record Language](language.md) states. An event may name the `dataschema` URL its payload follows. An inbound event also declares its `correlation`; an outbound event declares its `translates` domain event and its optional `addresses`.
 
-**Checked by:** `litespec model check` fails an integration event without direction, CloudEvents identity, typed payload, or trust.
+**Checked by:** `litespec model check` reports `record-invalid` for an integration event without direction, CloudEvents identity, typed payload, or trust.
 
 ### Publish Every Outbound Integration Event from Effects
 
 **ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:reaction, record:job
 
@@ -100,7 +100,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#name-published-events-in-the-domains-words`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: record:integration-event
 
@@ -118,7 +118,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:integration-event
 
@@ -132,7 +132,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -146,7 +146,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#keep-notification-templates-and-the-template-store-one-set`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -162,7 +162,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#use-every-declared-template-parameter`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -178,7 +178,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#name-each-template-for-its-subject-event-and-audience`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -194,7 +194,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#claim-every-notification-promise-from-a-requirement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:notification
 
@@ -208,7 +208,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-each-entry-point-a-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -216,15 +216,15 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** A door with no kind is entered any way: a webhook is called as a page, a device as a browser. Declaring the kind of `browser`, `api`, `webhook`, `device`, `cli`, `mcp`, or `served-content` with its auth states how callers arrive and prove themselves.
 
-**Checked by:** `litespec model check` fails an entry point without `kind` or `auth`.
+**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` or `auth`.
 
 ### Give Every Page Its Screen Record
 
 **ID:** `litespec/core/edges#give-every-page-its-screen-record`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: route, record:screen; conformance: traced
+**Applies to:** artifact: route, record:screen; layer: implementation; trace: yes
 
 **Statement:** Every route a browser or device entry point serves MUST be the implementation of exactly one screen record.
 
@@ -238,7 +238,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-every-screen-an-address-or-a-host`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -248,13 +248,13 @@ An external system is one system outside the bounded context the product exchang
 
 **Example:** The expense list carries the address `/expenses`; its confirm overlay names the expense list in `host` instead.
 
-**Checked by:** `litespec model check` fails a screen without exactly one of `address` and `host`.
+**Checked by:** `litespec model check` reports `record-invalid` for a screen without exactly one of `address` and `host`.
 
 ### Match a Screen's Offers to Its Calls
 
 **ID:** `litespec/core/edges#match-a-screens-offers-to-its-calls`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -270,7 +270,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#serve-only-the-steps-a-screens-use-cases-serve`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -286,7 +286,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#give-every-browser-step-a-screen`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:screen
 
@@ -302,13 +302,13 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** artifact: record:screen, test; conformance: traced
+**Applies to:** artifact: record:screen, test; layer: proof; trace: yes
 
 **Statement:** Every refusal a use case a screen offers can return MUST have a sentence in the refusal dictionary its frontend names in `refusalDictionary` or a browser test that asserts its code.
 
-**Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `paths.frontends[]` entry, so the check reads that frontend's words rather than a convention.
+**Rationale:** A refusal a person can trigger on a page is part of what the page says to them. Without a sentence, the person sees a code or a generic error; without a test, nobody knows what they see. Requiring one of the two only where a screen can reach the refusal avoids demanding sentences for refusals no person meets. Each frontend names its dictionary in its `frontends[]` entry, so the check reads that frontend's words rather than a convention.
 
 **Example:** The expense form offers `use-case/spending.submit-expense`, whose `spending.receipt-missing` refusal has a sentence in the dictionary the Claimwick web frontend names in `refusalDictionary`.
 
@@ -318,7 +318,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#serve-static-content-through-served-content`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -332,7 +332,7 @@ An external system is one system outside the bounded context the product exchang
 
 **ID:** `litespec/core/edges#describe-every-external-system-operation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -340,7 +340,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Rationale:** An outside call without a declared shape fails by surprise: timeouts hang, retries double-charge, responses unparse. Describing each operation with its direction of `out` or `in`, its timeout with its timeout handling, its response, and its cache states the coupling beside the system. The `retries` prose states the retry behavior in words beside `onTimeout`. The retry count lives on the calling edge in `onFailure.retry.maxAttempts`. The system stands alone and names no actor.
 
-**Checked by:** `litespec model check` fails an external system operation without direction, timeout, timeout handling, response, or cache.
+**Checked by:** `litespec model check` reports `record-invalid` for an external system operation without direction, timeout, timeout handling, response, or cache.
 
 ## Conventions
 

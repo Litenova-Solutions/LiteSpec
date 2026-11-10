@@ -1,7 +1,7 @@
 # Access
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -73,7 +73,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#keep-access-records-in-their-homes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor, record:role, record:permission, record:entry-point, record:external-system
 
@@ -87,7 +87,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#name-every-actor-with-its-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -103,7 +103,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-every-role-hold-with-its-scope`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor
 
@@ -117,13 +117,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 "holds": [{ "role": "role/employee", "scope": "self" }]
 ```
 
-**Checked by:** `litespec model check` reports `role-orphan` for a role held by no actor.
+**Checked by:** `litespec model check` reports `role-orphaned` for a role held by no actor.
 
 ### Scope Every Role
 
 **ID:** `litespec/core/access#scope-every-role`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -139,7 +139,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-permissions-through-roles`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:role
 
@@ -155,7 +155,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#state-every-permission-with-its-meaning`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission
 
@@ -171,7 +171,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#state-the-scope-of-every-permission`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission
 
@@ -181,13 +181,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Example:** `permission/manage-copies` carries `scope: platform`, the same level as the librarian role that grants it.
 
-**Checked by:** `litespec model check` fails a permission entry without `scope`.
+**Checked by:** `litespec model check` reports `record-invalid` for a permission entry without `scope`.
 
 ### Declare Access on Every Use Case
 
 **ID:** `litespec/core/access#declare-access-on-every-use-case`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -207,7 +207,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -223,7 +223,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-every-use-case-through-a-declared-grant`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -239,7 +239,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#remove-a-target-that-must-be-the-caller`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -255,7 +255,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#scope-every-grant-to-its-tenant-reach`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -271,7 +271,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#cite-the-setting-or-plan-behind-every-entitlement`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -287,7 +287,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -303,7 +303,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#record-a-delegated-grant-inside-one-tenant-as-a-role-assignment`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case, record:aggregate
 
@@ -319,7 +319,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#grant-across-tenants-only-through-declared-delegation`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -331,27 +331,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Reviewed for:** Which cross tenant delegation grants lack a declared grant on both sides? Look at the delegation grants the tenancy extension declares.
 
-### Name Every Entry Point with Its Kind
-
-**ID:** `litespec/core/access#name-every-entry-point-with-its-kind`
-
-**Strength:** rule
-
-**Applies to:** artifact: record:entry-point
-
-**Statement:** An entry point MUST name its kind in `kind`.
-
-**Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, and served content serves a static file. Without the kind, a webhook and a page look alike.
-
-**Example:** The library app carries `browser`, and a kiosk handshake carries `device`.
-
-**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` and `field-invalid` for a kind outside browser, api, webhook, device, cli, mcp, and served-content.
-
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
 **ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:entry-point
 
@@ -363,27 +347,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Checked by:** `litespec model check` reports `record-invalid` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
 
-### Declare Every Operation on Every External System
-
-**ID:** `litespec/core/access#declare-every-operation-on-every-external-system`
-
-**Strength:** rule
-
-**Applies to:** artifact: record:external-system
-
-**Statement:** An external system MUST declare every operation the product may call in `operations`.
-
-**Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency with no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
-
-**Example:** A payout bank declares a `settle-batch` operation with its timeout, timeout handling, and response shape, which the payout effect cites as `calls`.
-
-**Checked by:** `litespec model check` reports `record-invalid` for an external system without `operations` and `reference-unknown` for a `calls` edge naming no declared operation.
-
 ### Declare Erasure for Every External System
 
 **ID:** `litespec/core/access#declare-erasure-for-every-external-system`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -399,7 +367,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **ID:** `litespec/core/access#write-a-summary-on-every-actor-and-role-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:actor, record:role
 
@@ -407,13 +375,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row.
 
-**Checked by:** `litespec model check` fails an actor or role page without `summary`.
+**Checked by:** `litespec model check` reports `prose-missing` for an actor or role page without `summary`.
 
 ### Write a Summary on Every External System Page
 
 **ID:** `litespec/core/access#write-a-summary-on-every-external-system-page`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -421,13 +389,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row.
 
-**Checked by:** `litespec model check` fails an external system page without `summary`.
+**Checked by:** `litespec model check` reports `prose-missing` for an external system page without `summary`.
 
 ### Keep Permission Lists to Entries
 
 **ID:** `litespec/core/access#keep-permission-lists-to-entries`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:permission-list
 

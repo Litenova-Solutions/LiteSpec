@@ -1,11 +1,11 @@
 # Workspace Structure
 
-**Stack:** `any`
-**Layer:** `workspace`
+**Stack:** any
+**Concern:** workspace
 
 ## Intent
 
-A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `.litespec/project.json` declares. It applies to anyone who creates a file, and to agents locating code without asking.
+A LiteSpec consumer, a project built with LiteSpec, keeps one monorepo tree for its applications, shared packages, documentation, tests, and records. This page states that tree, where each file kind lives inside it, and what `.litespec/project.yaml` declares. It applies to anyone who creates a file, and to agents locating code without asking.
 
 ## Concepts
 
@@ -25,7 +25,7 @@ The model builder writes generated working files under `.litespec/model/` while 
 
 **ID:** `litespec/workspace/structure#use-the-canonical-root-tree`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A consumer workspace MUST use the canonical root tree declared in this section.
 
@@ -36,7 +36,7 @@ The model builder writes generated working files under `.litespec/model/` while 
   .config/
     dotnet-tools.json
   .litespec/
-    project.json
+    project.yaml
     glossary.yaml
     intent/
       product.yaml
@@ -75,10 +75,10 @@ The model builder writes generated working files under `.litespec/model/` while 
         {module}/
           decisions/ runbooks/
     governance/
-      exceptions/                       create with the first exception record
+      departures/                       create with the first departure record
       modules/
         {module}/
-          exceptions/
+          departures/
     proof/                              generated registers, gate files and run outputs; no authored records
     model/                              generated; ignored
   apps/
@@ -108,19 +108,19 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#declare-size-and-application-stacks-in-project-config`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** `.litespec/project.json` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
+**Statement:** `.litespec/project.yaml` MUST declare `size` as `small` or `large` and one stack for the backend and for each frontend.
 
-**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `.litespec/project.json` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
+**Rationale:** Size decides which record types and test projects apply: small or large selects the project's required-record set. Each stack decides which technology pages and checks apply to its application. Declaring both in `.litespec/project.yaml` lets tools and reviewers read the selection from one file. The [scope page](../core/scope.md) states the full selection.
 
-**Reviewed for:** `.litespec/project.json` at the workspace root declares `size` and one stack for the backend and for each frontend.
+**Reviewed for:** `.litespec/project.yaml` at the workspace root declares `size` and one stack for the backend and for each frontend.
 
 ### Keep the Generated Model Out of Source Control
 
 **ID:** `litespec/workspace/structure#keep-the-generated-model-out-of-source-control`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The generated `.litespec/model/` folder MUST stay out of source control.
 
@@ -132,7 +132,7 @@ A record file lives at the home the [model page](../core/model.md) names for its
 
 **ID:** `litespec/workspace/structure#keep-production-and-test-code-separate`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Production code MUST live under `apps/api/src/` and test code under `apps/api/tests/`.
 
@@ -153,7 +153,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-runnable-applications-under-apps`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An independently runnable frontend, API, or deployed host MUST live under `apps/{name}/`.
 
@@ -165,7 +165,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#limit-shared-typescript-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A shared TypeScript package MUST have at least two consumers or carry generated output shared by design.
 
@@ -177,7 +177,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-consumer-documentation-at-the-root`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Project records MUST live under the root `.litespec/` directory.
 
@@ -189,7 +189,7 @@ apps/api/
 
 **ID:** `litespec/workspace/structure#keep-orientation-documents-separate-from-canonical-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A README under `.litespec/` MUST link to the record rather than restate its content.
 
@@ -207,11 +207,11 @@ apps/api/
 
 **Default:** Name a frontend for its audience, such as `web`, `admin`, `portal`, or `docs`.
 
-**Replacement:** A project whose frontends serve one audience records its own frontend names in `.litespec/project.json` under `paths.frontends`.
+**Replacement:** A project whose frontends serve one audience records its own frontend names in `.litespec/project.yaml` under `frontends`.
 
 **Rationale:** `apps/web` tells the reader who it serves; `apps/frontend` tells them only what it is built with. Naming each frontend for its audience keeps the folder meaningful when the technology changes. `frontend`, `client`, or `app` names the technology rather than the audience it serves.
 
-**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `paths.frontends` in `.litespec/project.json` names the project's own frontend names.
+**Reviewed for:** Each directory under `apps/` carries an audience name; where replaced, `frontends` in `.litespec/project.yaml` names the project's own frontend names.
 
 ### Keep Generated API Contracts in Packages
 

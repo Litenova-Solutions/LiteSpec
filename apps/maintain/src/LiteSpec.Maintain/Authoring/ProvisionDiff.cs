@@ -2,7 +2,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
 namespace LiteSpec.Authoring;
 
@@ -13,7 +15,7 @@ namespace LiteSpec.Authoring;
 ///     and writes those lists into the marked section of <c>CHANGELOG.md</c>.
 /// </summary>
 /// <follows>litespec/core/authoring#generate-the-provision-diff-for-each-release</follows>
-static class ProvisionDiff
+static partial class ProvisionDiff
 {
     /// <summary>The changelog that carries the marked provision-change section, relative to the repository root.</summary>
     public const string ChangelogPath = "CHANGELOG.md";
@@ -242,33 +244,25 @@ static class ProvisionDiff
         }
     }
 
-    /// <summary>Reads the extension names from one manifest text.</summary>
-    /// <param name="json">The manifest text.</param>
-    /// <param name="source">The source name used in failure messages.</param>
+    /// <summary>
+    ///     Reads the extension names from provision rows: an extension is a page under an
+    ///     <c>ext/</c> folder, other than its index. The provision index holds the same shape at
+    ///     every release, so the old and the new extensions come from one kind of source.
+    /// </summary>
+    /// <param name="rows">The provision rows.</param>
     /// <returns>The extension names, in ordinal order.</returns>
-    public static List<string> ReadExtensions(string json, string source)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(json);
+    public static List<string> ExtensionsOf(IEnumerable<Row> rows) =>
+        rows.Select(row => ExtensionPage().Match(row.Page))
+            .Where(match => match.Success && match.Groups[1].Value != "README")
+            .Select(match => match.Groups[1].Value)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToList();
 
-            if (!document.RootElement.TryGetProperty("extensions", out var extensions) || extensions.ValueKind == JsonValueKind.Null)
-            {
-                return [];
-            }
-
-            if (extensions.ValueKind != JsonValueKind.Object)
-            {
-                throw new InvalidOperationException($"{source} holds an invalid manifest: extensions is not an object.");
-            }
-
-            return extensions.EnumerateObject().Select(property => property.Name).OrderBy(name => name, StringComparer.Ordinal).ToList();
-        }
-        catch (JsonException exception)
-        {
-            throw new InvalidOperationException($"{source} holds an invalid manifest: {exception.Message}", exception);
-        }
-    }
+    /// <summary>The page path of an extension, capturing its name.</summary>
+    /// <returns>The pattern.</returns>
+    [GeneratedRegex(@"^docs/(?:.+/)?ext/([A-Za-z0-9-]+)\.md$", RegexOptions.CultureInvariant)]
+    private static partial Regex ExtensionPage();
 
     /// <summary>Compares the old provision identities and extensions with the current ones.</summary>
     /// <param name="oldRows">The provision identities at the git ref.</param>

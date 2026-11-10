@@ -29,11 +29,11 @@ internal sealed record RuleResult(
     /// <summary>Gets a value indicating whether a tool checks the provision and no departure replaces it, so it prints as one checked line.</summary>
     public bool IsChecked => Departure is null && Entry.IsChecked;
 
-    /// <summary>Gets a value indicating whether the provision governs only through its layer, so it prints by identifier under the layer-wide heading.</summary>
-    public bool IsLayerWide => Departure is null
+    /// <summary>Gets a value indicating whether the provision governs only through its concern, so it prints by identifier under the layer-wide heading.</summary>
+    public bool IsConcernWide => Departure is null
         && !Entry.IsChecked
         && Entry.Source == ProvisionEntry.LiteSpecSource
-        && (Entry.AppliesTo.Length == 0 || Scopes.ArtifactValues(Entry.AppliesTo).All(value => Scopes.IsLayerWide(value)))
+        && (Entry.AppliesTo.Length == 0 || Scopes.ArtifactValues(Entry.AppliesTo).All(value => Scopes.IsConcernWide(value)))
         && Reasons.Count > 0
-        && Reasons.All(reason => reason.StartsWith("layer ", StringComparison.Ordinal));
+        && Reasons.All(reason => reason.StartsWith("concern ", StringComparison.Ordinal));
 }

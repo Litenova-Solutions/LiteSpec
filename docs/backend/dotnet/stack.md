@@ -1,17 +1,17 @@
 # .NET Stack
 
 **Stack:** dotnet
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
-A backend built on .NET declares the `dotnet` stack in `.litespec/project.json`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
+A backend built on .NET declares the `dotnet` stack in `.litespec/project.yaml`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, the result formats the builder reads, and the test projects, packages, and runners.
 
 ## Concepts
 
 ### Marks and Their Lookup
 
-The [marks table](../../core/model.md#marks) owns which mark each code element carries. [Write Code for a Use Case](../write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
+The [marks table](../../core/model.md#marks) owns which mark each code element carries. [Write Code for a Use Case](../../guide/write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
 
 ## Standards
 
@@ -19,19 +19,19 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#declare-dotnet-as-the-backend-stack`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.json`.
+**Statement:** A project whose backend runs on .NET MUST name `dotnet` in the `stacks` of `.litespec/project.yaml`.
 
 **Rationale:** The `stacks` entry applies every page in this folder with its checks and analyzers, so an undeclared backend follows no .NET rule. It also selects the readers the model builder uses for C# handlers, events, refusal codes, and scenarios.
 
-**Reviewed for:** Does the `stacks` array in `.litespec/project.json` list `dotnet` when the backend runs on .NET? Look at `.litespec/project.json`.
+**Reviewed for:** Does the `stacks` array in `.litespec/project.yaml` list `dotnet` when the backend runs on .NET? Look at `.litespec/project.yaml`.
 
 ### Read .NET Code Through the Stack Reader
 
 **ID:** `litespec/backend/dotnet/stack#read-net-code-through-the-stack-reader`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The .NET stack reader MUST read marks in both styles, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
@@ -39,17 +39,17 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the event handler class carries `/// <implements>reaction/spending.send-approver-reminder-on-expense-submitted</implements>`.
 
-**Checked by:** `litespec model check` reports its level beside each level S finding read from C# code and test results.
+**Reviewed for:** Does the .NET reader read each shape the statement names? Look at the stack reader source for marks, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
 ### Read Every Declared Web and Worker Host
 
 **ID:** `litespec/backend/dotnet/stack#read-every-declared-web-and-worker-host`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The .NET stack reader MUST read every project that `stackConfig.dotnet.webapi` and `stackConfig.dotnet.worker` name, whether each field holds one glob string or a list of glob strings.
 
-**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root: it names its surface under `paths.surfaces` instead.
+**Rationale:** A backend can serve its use cases from more than one web host and run more than one worker host, and each host holds endpoints or jobs the other does not. Reading only the first host leaves the use cases that only the other hosts serve looking unimplemented, so each named host is a source root of the read. A host that is not a WebApi or worker project, such as a command-line host, is not a stack root.
 
 **Example:** Claimwick serves member requests from one web host and partner requests from a second web host, so `webapi` lists both host projects and the reader reads the endpoints of each.
 
@@ -59,7 +59,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#report-a-stack-root-that-matches-no-folder`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The model builder MUST report `reader-missing` for a configured .NET stack root that matches no folder, and for the default modules root, and the default Domain and Infrastructure roots under the layer-projects layout, when that default matches no folder in a project that selects the .NET reader.
 
@@ -69,17 +69,17 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Checked by:** `litespec model check` reports `reader-missing` (level S) naming the field, the written pattern and the resolved folder that does not exist.
 
-### Identify an Aggregate Root by Its Mark and State Record at Traced
+### Identify an Aggregate Root by Its Mark and State Record
 
-**ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced`
+**ID:** `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record`
 
-**Strength:** rule
+**Strength:** required
 
-**Applies to:** conformance: traced
+**Applies to:** trace: yes
 
-**Statement:** At the traced conformance level, the .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
+**Statement:** The .NET stack reader MUST recognize a type that carries an `aggregate` mark and a `State` property backed by an abstract state record as an aggregate root.
 
-**Rationale:** A project at traced keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements and the state record states its lifecycle, and together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the traced reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
+**Rationale:** A project that claims Implementation with `own` keeps its own code layout and its own aggregate base, so a root that follows the LiteSpec base type is not the only root the code holds. The aggregate mark names the record the type implements and the state record states its lifecycle, and together they identify the root without the base type. A type with only the mark, or only the state record, does not state both facts, so it stays unrecognized. This provision states the `trace: yes` reading of the aggregate root beside `litespec/backend/dotnet/domain#use-the-project-aggregate-root-contract`, which governs the full contract.
 
 **Example:** The library loan type carries `/// <implements>aggregate/lending.loan</implements>` and a `LoanState State` property backed by the abstract `LoanState` record, so the reader reads it as the loan aggregate root and reads its public methods as aggregate methods.
 
@@ -89,7 +89,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **ID:** `litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A .NET mark MUST be an `implements`, `proves`, or `follows` documentation tag when `marks` is `xml`, and an `Implements`, `Proves`, or `Follows` attribute when `marks` is `attribute`.
 
@@ -118,7 +118,7 @@ internal sealed class ReimburseExpenseCommandHandler(IExpenseRepository expenseR
 
 **ID:** `litespec/backend/dotnet/stack#generate-runtime-values-from-the-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A domain event `Classification` and a domain exception `Code` MUST equal the values their records state.
 
@@ -139,7 +139,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Code MUST read a use case's identity, its grant, a permission's facts, and a role's permission set from the classes the analyzer package generates from the marks and the records, never from a hand-written copy.
 
@@ -153,7 +153,7 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#declare-marked-events-and-exceptions-as-partial-types`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A project that references the analyzer package MUST declare every marked domain event and rule exception as a `partial` type.
 
@@ -167,14 +167,70 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **ID:** `litespec/backend/dotnet/stack#write-test-results-the-model-builder-reads`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A .NET test run MUST write its results as TRX or JUnit XML under `paths.testResults`.
 
 **Rationale:** The model builder computes verified status from TRX and JUnit XML only. A run written in another format, or outside `paths.testResults`, proves no scenario even when every test passes. A JUnit `testcase` proves a Behavior scenario without a `proves` mark by carrying the scenario id in a `litespec.proves` property, one property per scenario or several ids separated by commas in one value; the case proves each id it names with the same rules as a `proves` mark on a test method.
 
-**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.json`.
+**Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.yaml`.
+
+### Test with xUnit v3 on Microsoft.Testing.Platform
+
+**ID:** `litespec/backend/dotnet/stack#test-with-xunit-v3-on-microsoft-testing-platform`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** A .NET test project MUST reference xUnit v3 and run on Microsoft.Testing.Platform, with `global.json` naming that runner.
+
+**Rationale:** The .NET 10 `dotnet test` command refuses the VSTest mode for xUnit v3 projects, so each test project runs on the platform runner, and the root `global.json` states that choice once for every project beneath it. A project that runs on another runner reports its results in a shape the model builder does not read.
+
+**Reviewed for:** Which test project references no xUnit v3 package, or runs on a runner other than Microsoft.Testing.Platform? Look at each test project file and at `global.json`.
+
+### Pin the Test Packages in the Manifest
+
+**ID:** `litespec/backend/dotnet/stack#pin-the-test-packages-in-the-manifest`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** A .NET test project MUST reference each test package at the version `litespec.manifest.yaml` pins.
+
+**Rationale:** A test package that moves to a newer version changes what the tests prove without any change to the code under test. The manifest is the one place the release names its pins, so the test SDK, the Microsoft.Testing.Platform extensions, the xUnit runner, the property-test and mock libraries, and the PostgreSQL container each resolve to the version the release reviewed.
+
+**Reviewed for:** Which test project references a test package at a version the manifest does not pin? Look at each test project file beside the package pins in `litespec.manifest.yaml`.
+
+### Start the Integration Database in a Container
+
+**ID:** `litespec/backend/dotnet/stack#start-the-integration-database-in-a-container`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** The .NET integration test project MUST start the pinned PostgreSQL in a Testcontainers container.
+
+**Rationale:** A container from the pinned image gives every test run the database version the release runs, and it starts and stops with the test run, so no shared server carries state from one run to the next. The fixture that owns the container is the one `litespec/backend/testing#share-one-production-faithful-integration-harness` names.
+
+**Reviewed for:** Which integration test reaches a database that no container started for the run? Look at the integration fixture and the Testcontainers package reference in the integration test project.
 
 ## Conventions
 
-None.
+### Run Mutation Testing with Stryker.NET
+
+**ID:** `litespec/backend/dotnet/stack#run-mutation-testing-with-stryker-net`
+
+**Strength:** default
+
+**Applies to:** layer: proof
+
+**Default:** Run the mutation gate with the Stryker.NET runner that the root tool manifest pins.
+
+**Replacement:** A consumer can replace this default with an explicit local convention.
+
+**Rationale:** Stryker.NET is the .NET runner for the mutation gate that `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines` names, and the root tool manifest pins its version, so a developer and CI run the same mutants against the same tool.
+
+**Reviewed for:** Does the mutation gate run Stryker.NET at the version the root tool manifest pins? Look at `.config/dotnet-tools.json` and the mutation job's command.

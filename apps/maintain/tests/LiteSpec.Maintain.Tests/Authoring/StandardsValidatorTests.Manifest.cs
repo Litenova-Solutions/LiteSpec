@@ -1,7 +1,7 @@
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Manifest, stack, shape, extension, and vocabulary cases.</summary>
 public sealed partial class StandardsValidatorTests
@@ -79,19 +79,19 @@ public sealed partial class StandardsValidatorTests
 
     static void LayerPage(string root, string relative) => StandardsFixture.Write(root, relative, "# Sample\n");
 
-    /// <summary>Manifest JSON.</summary>
+    /// <summary>Manifest YAML.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
-    [Fact(DisplayName = "manifest JSON")]
-    public void ManifestJson() => Check(
-        root => StandardsFixture.Write(root, "litespec.manifest.json", "{"),
-        ["MANIFEST_JSON"]);
+    [Fact(DisplayName = "manifest YAML")]
+    public void ManifestYaml() => Check(
+        root => StandardsFixture.Write(root, "litespec.manifest.yaml", "{"),
+        [Diagnostics.Codes.ManifestYaml]);
 
     /// <summary>Manifest path.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest path")]
     public void ManifestPath() => Check(
-        root => StandardsFixture.Write(root, "litespec.manifest.json", "{\"agentsEntry\":\"missing.md\"}"),
-        ["MANIFEST_PATH"]);
+        root => StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"agentsEntry\":\"missing.md\"}"),
+        [Diagnostics.Codes.ManifestPath]);
 
     /// <summary>Manifest anchor.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
@@ -100,25 +100,25 @@ public sealed partial class StandardsValidatorTests
         root =>
         {
             StandardsFixture.Write(root, "docs/core/topic.md", "# Topic\n\n## Intent\n\nText.\n");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"agentsEntry\":\"docs/core/topic.md#missing\"}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"agentsEntry\":\"docs/core/topic.md#missing\"}");
         },
-        ["MANIFEST_ANCHOR"]);
+        [Diagnostics.Codes.ManifestAnchor]);
 
     /// <summary>Manifest duplicate path.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "manifest duplicate path")]
     public void ManifestDuplicatePath() => Check(
-        root => StandardsFixture.Write(root, "litespec.manifest.json", "{\"shapes\":{\"server\":{\"backendStacks\":1,\"backendPages\":[\"docs/backend/topic.md\",\"docs/backend/topic.md\"]}}}"),
-        ["MANIFEST_DUPLICATE_PATH"]);
+        root => StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"shapes\":{\"server\":{\"backendStacks\":1,\"backendPages\":[\"docs/backend/topic.md\",\"docs/backend/topic.md\"]}}}"),
+        [Diagnostics.Codes.ManifestDuplicatePath]);
 
     /// <summary>Stack folder that does not exist.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
     [Fact(DisplayName = "stack folder that does not exist")]
     public void StackFolderMissing()
     {
-        var codes = LayerCodes(root => StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}"));
+        var codes = LayerCodes(root => StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}"));
 
-        Assert.Contains("STACK_FOLDER", codes);
+        Assert.Contains(Diagnostics.Codes.StackFolder, codes);
     }
 
     /// <summary>Stack folder outside the stack areas.</summary>
@@ -129,10 +129,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/core/topic.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/core\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/core\"}}}");
         });
 
-        Assert.Contains("STACK_FOLDER", codes);
+        Assert.Contains(Diagnostics.Codes.StackFolder, codes);
     }
 
     /// <summary>Stack folder without a stack.md.</summary>
@@ -143,10 +143,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/backend/sample/domain.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}");
         });
 
-        Assert.Contains("STACK_FOLDER", codes);
+        Assert.Contains(Diagnostics.Codes.StackFolder, codes);
     }
 
     /// <summary>Stack folders holding stack.md.</summary>
@@ -159,10 +159,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/frontend/web/shared.md");
             LayerPage(root, "docs/frontend/web/sample/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web/sample\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web/sample\"}}}");
         });
 
-        Assert.DoesNotContain("STACK_FOLDER", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.StackFolder, codes);
     }
 
     /// <summary>Stack requiring a stack the manifest does not ship.</summary>
@@ -173,10 +173,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/backend/sample/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\",\"requires\":[\"cobol\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\",\"requires\":[\"cobol\"]}}}");
         });
 
-        Assert.Contains("STACK_REFERENCE", codes);
+        Assert.Contains(Diagnostics.Codes.StackReference, codes);
     }
 
     /// <summary>Stack pairing with a stack the manifest does not ship.</summary>
@@ -187,10 +187,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/frontend/web/sample/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"web\":{\"folder\":\"docs/frontend/web/sample\",\"pairsWith\":[\"cobol\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"web\":{\"folder\":\"docs/frontend/web/sample\",\"pairsWith\":[\"cobol\"]}}}");
         });
 
-        Assert.Contains("STACK_REFERENCE", codes);
+        Assert.Contains(Diagnostics.Codes.StackReference, codes);
     }
 
     /// <summary>Stack pairing with a frontend stack.</summary>
@@ -202,10 +202,10 @@ public sealed partial class StandardsValidatorTests
         {
             LayerPage(root, "docs/frontend/web/sample/stack.md");
             LayerPage(root, "docs/frontend/other/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"web\":{\"folder\":\"docs/frontend/web/sample\",\"pairsWith\":[\"other\"]},\"other\":{\"folder\":\"docs/frontend/other\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"web\":{\"folder\":\"docs/frontend/web/sample\",\"pairsWith\":[\"other\"]},\"other\":{\"folder\":\"docs/frontend/other\"}}}");
         });
 
-        Assert.Contains("STACK_REFERENCE", codes);
+        Assert.Contains(Diagnostics.Codes.StackReference, codes);
     }
 
     /// <summary>Stack references naming shipped stacks.</summary>
@@ -217,10 +217,10 @@ public sealed partial class StandardsValidatorTests
         {
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/frontend/web/sample/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web/sample\",\"requires\":[\"sample\"],\"pairsWith\":[\"sample\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web/sample\",\"requires\":[\"sample\"],\"pairsWith\":[\"sample\"]}}}");
         });
 
-        Assert.DoesNotContain("STACK_REFERENCE", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.StackReference, codes);
     }
 
     /// <summary>Extension outside every ext folder.</summary>
@@ -231,10 +231,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/core/sample.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/core/sample.md\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/core/sample.md\"}}}");
         });
 
-        Assert.Contains("EXTENSION_LOCATION", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionLocation, codes);
     }
 
     /// <summary>Extension file not naming the extension.</summary>
@@ -245,10 +245,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/ext/other.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/other.md\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/other.md\"}}}");
         });
 
-        Assert.Contains("EXTENSION_LOCATION", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionLocation, codes);
     }
 
     /// <summary>Located extensions.</summary>
@@ -261,10 +261,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/ext/outbox.md");
             LayerPage(root, "docs/backend/sample/ext/efcore.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}},\"extensions\":{\"outbox\":{\"path\":\"docs/ext/outbox.md\"},\"efcore\":{\"path\":\"docs/backend/sample/ext/efcore.md\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}},\"extensions\":{\"outbox\":{\"path\":\"docs/ext/outbox.md\"},\"efcore\":{\"path\":\"docs/backend/sample/ext/efcore.md\"}}}");
         });
 
-        Assert.DoesNotContain("EXTENSION_LOCATION", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.ExtensionLocation, codes);
     }
 
     /// <summary>Ext page no extension lists.</summary>
@@ -275,10 +275,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/ext/stray.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{}}");
         });
 
-        Assert.Contains("EXTENSION_UNLISTED", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionUnlisted, codes);
     }
 
     /// <summary>Every ext page listed.</summary>
@@ -291,10 +291,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/ext/outbox.md");
             LayerPage(root, "docs/backend/sample/ext/efcore.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}},\"extensions\":{\"outbox\":{\"path\":\"docs/ext/outbox.md\"},\"efcore\":{\"path\":\"docs/backend/sample/ext/efcore.md\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}},\"extensions\":{\"outbox\":{\"path\":\"docs/ext/outbox.md\"},\"efcore\":{\"path\":\"docs/backend/sample/ext/efcore.md\"}}}");
         });
 
-        Assert.DoesNotContain("EXTENSION_UNLISTED", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.ExtensionUnlisted, codes);
     }
 
     /// <summary>Page in a stack folder the manifest does not list.</summary>
@@ -307,10 +307,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/backend/stray/stack.md");
             LayerPage(root, "docs/backend/stray/orphan.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"}}}");
         });
 
-        Assert.Contains("LAYER_UNREACHABLE", codes);
+        Assert.Contains(Diagnostics.Codes.LayerUnreachable, codes);
     }
 
     /// <summary>Page in a folder holding no stack applies with its parent.</summary>
@@ -323,10 +323,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/backend/sample/nested/deep.md");
             LayerPage(root, "docs/frontend/patterns/record-detail.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"web\":{\"folder\":\"docs/frontend/web\"}}}");
         });
 
-        Assert.DoesNotContain("LAYER_UNREACHABLE", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.LayerUnreachable, codes);
     }
 
     /// <summary>Pages in stack folders and their ancestors.</summary>
@@ -340,10 +340,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/backend/sample/stack.md");
             LayerPage(root, "docs/frontend/web/shared.md");
             LayerPage(root, "docs/frontend/web/react/stack.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"react\":{\"folder\":\"docs/frontend/web/react\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"stacks\":{\"sample\":{\"folder\":\"docs/backend/sample\"},\"react\":{\"folder\":\"docs/frontend/web/react\"}}}");
         });
 
-        Assert.DoesNotContain("LAYER_UNREACHABLE", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.LayerUnreachable, codes);
     }
 
     /// <summary>Shape backend page in a stack folder.</summary>
@@ -354,10 +354,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/backend/sample/domain.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/backend/sample/domain.md\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/backend/sample/domain.md\"]}}}");
         });
 
-        Assert.Contains("SHAPE_PAGE", codes);
+        Assert.Contains(Diagnostics.Codes.ShapePage, codes);
     }
 
     /// <summary>Shape backend page outside the backend area.</summary>
@@ -368,10 +368,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/core/topic.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/core/topic.md\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/core/topic.md\"]}}}");
         });
 
-        Assert.Contains("SHAPE_PAGE", codes);
+        Assert.Contains(Diagnostics.Codes.ShapePage, codes);
     }
 
     /// <summary>Shape backend pages directly in docs/backend.</summary>
@@ -383,10 +383,10 @@ public sealed partial class StandardsValidatorTests
         {
             LayerPage(root, "docs/backend/architecture.md");
             LayerPage(root, "docs/backend/domain.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/backend/architecture.md\",\"docs/backend/domain.md\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"shapes\":{\"client-only\":{\"backendStacks\":0,\"backendPages\":[\"docs/backend/architecture.md\",\"docs/backend/domain.md\"]}}}");
         });
 
-        Assert.DoesNotContain("SHAPE_PAGE", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.ShapePage, codes);
     }
 
     /// <summary>Page outside the known areas.</summary>
@@ -397,10 +397,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             LayerPage(root, "docs/profile/leftover.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         });
 
-        Assert.Contains("LAYER_UNLISTED", codes);
+        Assert.Contains(Diagnostics.Codes.LayerUnlisted, codes);
     }
 
     /// <summary>Every page inside a known area.</summary>
@@ -413,10 +413,10 @@ public sealed partial class StandardsValidatorTests
             LayerPage(root, "docs/core/topic.md");
             LayerPage(root, "docs/backend/architecture.md");
             LayerPage(root, "docs/guide/sample.md");
-            StandardsFixture.Write(root, "litespec.manifest.json", "{}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         });
 
-        Assert.DoesNotContain("LAYER_UNLISTED", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.LayerUnlisted, codes);
     }
 
     /// <summary>Extension scope mismatch.</summary>
@@ -427,10 +427,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage);
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"project\"}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"project\"}}}");
         });
 
-        Assert.Contains("EXTENSION_SCOPE", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionScope, codes);
     }
 
     /// <summary>Extension kind mismatch.</summary>
@@ -441,10 +441,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage);
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"workflow\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"workflow\"]}}}");
         });
 
-        Assert.Contains("EXTENSION_KIND", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionKind, codes);
     }
 
     /// <summary>Missing extension activation.</summary>
@@ -455,10 +455,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage.Replace("\nEnable this extension when the sample capability is required.\n", "\n"));
-            StandardsFixture.Write(root, "litespec.manifest.json", SampleExtensionManifest);
+            StandardsFixture.Write(root, "litespec.manifest.yaml", SampleExtensionManifest);
         });
 
-        Assert.Contains("EXTENSION_ACTIVATION", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionActivation, codes);
     }
 
     /// <summary>Empty baseline relationship.</summary>
@@ -469,10 +469,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage.Replace("This extension replaces no baseline provision.\n", ""));
-            StandardsFixture.Write(root, "litespec.manifest.json", SampleExtensionManifest);
+            StandardsFixture.Write(root, "litespec.manifest.yaml", SampleExtensionManifest);
         });
 
-        Assert.Contains("EXTENSION_BASELINE", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionBaseline, codes);
     }
 
     /// <summary>Empty extension dependencies.</summary>
@@ -483,10 +483,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage.Replace("## Dependencies\n\nNone.", "## Dependencies\n"));
-            StandardsFixture.Write(root, "litespec.manifest.json", SampleExtensionManifest);
+            StandardsFixture.Write(root, "litespec.manifest.yaml", SampleExtensionManifest);
         });
 
-        Assert.Contains("EXTENSION_DEPENDENCIES", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionDependencies, codes);
     }
 
     /// <summary>Extension replacing an unknown provision.</summary>
@@ -497,10 +497,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage);
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/core/sample#no-such-provision\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/core/sample#no-such-provision\"]}}}");
         });
 
-        Assert.Contains("EXTENSION_REPLACES_UNKNOWN", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionReplacesUnknown, codes);
     }
 
     /// <summary>Extension enforcing a replaced provision.</summary>
@@ -511,10 +511,10 @@ public sealed partial class StandardsValidatorTests
         var codes = LayerCodes(root =>
         {
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage);
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/ext/sample#record-extension-activation\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/ext/sample#record-extension-activation\"]}}}");
         });
 
-        Assert.Contains("EXTENSION_REPLACES_ENFORCED", codes);
+        Assert.Contains(Diagnostics.Codes.ExtensionReplacesEnforced, codes);
     }
 
     /// <summary>Extension replacing a baseline provision.</summary>
@@ -526,11 +526,11 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "docs/core/sample.md", LayerTopicPage);
             StandardsFixture.Write(root, "docs/ext/sample.md", LayerExtensionPage);
-            StandardsFixture.Write(root, "litespec.manifest.json", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/core/sample#keep-the-topic-bounded\"]}}}");
+            StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"extensions\":{\"sample\":{\"path\":\"docs/ext/sample.md\",\"activationScope\":\"local\",\"applicableKinds\":[\"use-case\"],\"replaces\":[\"litespec/core/sample#keep-the-topic-bounded\"]}}}");
         });
 
-        Assert.DoesNotContain("EXTENSION_REPLACES_UNKNOWN", codes);
-        Assert.DoesNotContain("EXTENSION_REPLACES_ENFORCED", codes);
+        Assert.DoesNotContain(Diagnostics.Codes.ExtensionReplacesUnknown, codes);
+        Assert.DoesNotContain(Diagnostics.Codes.ExtensionReplacesEnforced, codes);
     }
 
     /// <summary>Page file name that is not lowercase kebab case.</summary>
@@ -540,14 +540,14 @@ public sealed partial class StandardsValidatorTests
     {
         var codes = LayerCodes(root => StandardsFixture.Write(root, "docs/core/TwoWords.md", LayerTopicPage));
 
-        Assert.Contains("ID_PAGE_FILENAME", codes);
+        Assert.Contains(Diagnostics.Codes.IdPageFilename, codes);
     }
 
     /// <summary>Lowercase workflow prose passes.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "lowercase workflow prose passes")]
     public void LowercaseWorkflowPasses() => Check(
-        root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nThe release workflow runs weekly.\n\n" + StandardsFixture.IndexRouting),
+        root => StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme("The release workflow runs weekly.")),
         []);
 
     static readonly string AnalyzerProjectFile = """
@@ -573,7 +573,7 @@ public sealed partial class StandardsValidatorTests
 
     static void AnalyzerPinFiles(string root, string pin)
     {
-        StandardsFixture.Write(root, "litespec.manifest.json", "{\"packages\":{\"nuget\":{\"LiteSpec.Analyzers\":\"" + pin + "\"}}}");
+        StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"packages\":{\"nuget\":{\"LiteSpec.Analyzers\":\"" + pin + "\"}}}");
         StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj", AnalyzerProjectFile);
     }
 
@@ -591,7 +591,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "analyzer pin behind the analyzer project")]
     public void AnalyzerPinBehindProject() => Check(
         root => AnalyzerPinFiles(root, "0.1.0"),
-        ["MANIFEST_ANALYZER_PIN"]);
+        [Diagnostics.Codes.ManifestAnalyzerPin]);
 
     /// <summary>Analyzer pin matching the analyzer project.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>
@@ -610,7 +610,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "apps/analyzers/src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md", AnalyzerShippedFile);
             CiteAnalyzerRule(root, "LS9999");
         },
-        ["MANIFEST_ANALYZER_RULE"]);
+        [Diagnostics.Codes.ManifestAnalyzerRule]);
 
     /// <summary>Stack page citing a rule the pinned release ships.</summary>
     /// <proves>litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest</proves>

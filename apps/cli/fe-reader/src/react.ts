@@ -6,10 +6,10 @@
 // The address is the createFileRoute argument when present, else derived from
 // the file name with groups, pathless segments and index files removed.
 
-import { collectRouteCalls, CallScope } from "./calls.js";
-import { baseName, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files.js";
-import { firstMarkLine, markValues, readFacts } from "./parse.js";
-import { ReaderContext, RouteFacts } from "./protocol.js";
+import { collectRouteCalls, CallScope } from "./calls";
+import { baseName, listFilesRecursive, parentDir, relativeTo, toPosix } from "./files";
+import { firstMarkLine, markValues, readFacts } from "./parse";
+import { ReaderContext, RouteFacts } from "./protocol";
 
 function withoutExtension(name: string): string {
   return name.endsWith(".tsx") ? name.slice(0, -4) : name.endsWith(".ts") ? name.slice(0, -3) : name;

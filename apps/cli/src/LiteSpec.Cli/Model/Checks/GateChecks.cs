@@ -7,10 +7,10 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
 
-/// <summary>The gate checks: every decision names what it decides or what it rests on, exceptions expire, and a negating rule keeps its restriction in its name.</summary>
+/// <summary>The gate checks: every decision names what it decides or what it rests on, and a negating rule keeps its restriction in its name.</summary>
 /// <follows>litespec/core/model#name-what-every-decision-decides</follows>
 /// <follows>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</follows>
-/// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
+/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 /// <follows>litespec/core/domain-model#keep-the-negation-word-in-the-rule-name</follows>
 internal static class GateChecks
 {
@@ -21,13 +21,11 @@ internal static class GateChecks
         "refused", "refuses", "refusal", "forbidden", "blocked", "rejected", "non",
     };
 
-    /// <summary>Reports decision-decides-missing, decision-basis-missing, exception-expired and rule-name-invalid.</summary>
+    /// <summary>Reports decision-decides-missing, decision-basis-missing and rule-name-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
         foreach (var decision in model.Records.Where(candidate =>
             candidate.Type == RecordTypes.Decision && !MarkChecks.UnderImplementationDecisions(model.Config, candidate.File)))
         {
@@ -43,16 +41,6 @@ internal static class GateChecks
             if (!decision.Ids(RecordFields.BasedOn).Any())
             {
                 findings.Add(new Finding("decision-basis-missing", $"Decision '{decision.Id}' names no constraint or requirement in basedOn.", decision.File, decision.Line, SubjectOf(decision)));
-            }
-        }
-
-        foreach (var exception in model.Records.Where(record => record.Type == RecordTypes.Exception))
-        {
-            if (exception.Field(RecordFields.ExpiresOn) is { } expiresOn
-                && IsoDate(expiresOn, out var expires)
-                && today > expires)
-            {
-                findings.Add(new Finding("exception-expired", $"Exception '{exception.Id}' stands past its expiresOn {expiresOn}.", exception.File, exception.Line, SubjectOf(exception)));
             }
         }
 

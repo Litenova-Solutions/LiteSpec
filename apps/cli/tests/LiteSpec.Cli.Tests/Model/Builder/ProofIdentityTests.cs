@@ -1,9 +1,9 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves tests match runs by fully qualified name, never by bare method name.</summary>
 public sealed class ProofIdentityTests
@@ -11,7 +11,7 @@ public sealed class ProofIdentityTests
     /// <summary>A passing run for another class's same-named method leaves the scenario awaiting its run.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Same_Method_Name_In_Another_Class_Does_Not_Verify()
+    public void SameMethodNameInAnotherClassDoesNotVerify()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteScenario(temp.Path);
@@ -21,7 +21,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.Equal("implemented", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("coded", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 
@@ -32,7 +32,7 @@ public sealed class ProofIdentityTests
     /// <summary>A data-row suffix on the run's test name still matches the scenario's test.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Data_Row_Arguments_Are_Ignored_In_Proof_Identity()
+    public void DataRowArgumentsAreIgnoredInProofIdentity()
     {
         using var temp = ModelFixture.Prepare("small");
         WriteScenario(temp.Path);
@@ -42,7 +42,7 @@ public sealed class ProofIdentityTests
         using var document = Build(temp.Path);
         var root = document.RootElement;
 
-        Assert.Equal("proven", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
+        Assert.Equal("verified", CompletionOf(root, "use-case/lending.borrow-copy").GetProperty("stage").GetString());
 
         var link = ProvesLink(root, "scenario/borrow-copy.borrowing-an-available-copy-succeeds");
 

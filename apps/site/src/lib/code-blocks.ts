@@ -1,6 +1,7 @@
 // Wraps Shiki-highlighted code blocks in a figure with a header strip that
 // shows the language name and a copy button. Plain wireframe text blocks are
 // plain pre elements without the astro-code class, so they pass through.
+import { escape } from "./html";
 import { paths } from "./icons";
 
 function languageLabel(id: string): string {
@@ -67,18 +68,6 @@ function decodeEntities(value: string): string {
     .replace(/&amp;/g, "&");
 }
 
-function escapeAttr(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-function escapeHtml(value: string): string {
-  return escapeAttr(value);
-}
-
 function copySvg(): string {
   return (
     `<svg class="icon icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" ` +
@@ -96,9 +85,9 @@ export function decorateCodeBlocks(html: string): string {
       .replace(/\r\n/g, "\n")
       .replace(/\r/g, "\n")
       .replace(/\n+$/, "");
-    const label = escapeHtml(languageLabel(lang));
-    const copy = escapeAttr(lang);
-    const dataCopy = escapeAttr(text);
+    const label = escape(languageLabel(lang));
+    const copy = escape(lang);
+    const dataCopy = escape(text);
     return (
       `<figure class="code-block" data-language="${copy}">` +
       `<figcaption class="code-head" data-pagefind-ignore>` +

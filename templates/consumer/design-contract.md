@@ -1,9 +1,7 @@
 ---
-kind: design-contract
-schemaVersion: 1
+schemaVersion: 2
 package: "@__PROJECT__/ui"
 profile: application-balanced
-shell: application-shell/default
 patterns:
   - list-page
   - entity-page

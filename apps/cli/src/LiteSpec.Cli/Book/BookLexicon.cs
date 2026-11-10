@@ -62,7 +62,7 @@ sealed class BookLexicon
     public static BookLexicon Load(string liteSpecRoot)
     {
         var modelFile = Path.Combine(liteSpecRoot, "docs", "core", "model.md");
-        var toolsFile = Path.Combine(liteSpecRoot, "docs", "tools", "model.md");
+        var toolsFile = Path.Combine(liteSpecRoot, "docs", "reference", "finding-codes.md");
         var glossaryFile = Path.Combine(liteSpecRoot, "docs", "reference", "glossary.md");
 
         var model = BookLexiconTables.ReadLines(modelFile);

@@ -12,7 +12,7 @@
   import Tiles from "../blocks/Tiles.svelte";
   import { tdHtml } from "../helpers";
 
-  // A requirement: its exceptions, its measure, and the values it takes over time.
+  // A requirement: its departures, its measure, and the values it takes over time.
   let { id, r }: { id: string; r: BookRecord } = $props();
   const f = $derived(r.fields ?? {});
   const exc = $derived(((f.except as Fields[] | undefined) ?? []) as Fields[]);

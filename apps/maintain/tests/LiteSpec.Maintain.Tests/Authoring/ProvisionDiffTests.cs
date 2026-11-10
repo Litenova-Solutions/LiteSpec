@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using LiteSpec.Authoring;
-using LiteSpec.Tests.Support;
+using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Authoring;
 
 /// <summary>Tests for <c>litespec-maintain changelog</c>.</summary>
 public sealed class ProvisionDiffTests
@@ -10,7 +10,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare finds the added and removed identifiers.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Finds_The_Added_And_Removed_Identifiers()
+    public void CompareFindsTheAddedAndRemovedIdentifiers()
     {
         var oldRows = new List<ProvisionDiff.Row>
         {
@@ -33,7 +33,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare pairs a rename on the same page and statement.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Pairs_A_Rename_On_The_Same_Page_And_Statement()
+    public void ComparePairsARenameOnTheSamePageAndStatement()
     {
         var oldRows = new List<ProvisionDiff.Row>
         {
@@ -54,7 +54,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare keeps a reworded statement as removed and added.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Keeps_A_Reworded_Statement_As_Removed_And_Added()
+    public void CompareKeepsARewordedStatementAsRemovedAndAdded()
     {
         var oldRows = new List<ProvisionDiff.Row>
         {
@@ -75,7 +75,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare does not pair a rename across pages.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Does_Not_Pair_A_Rename_Across_Pages()
+    public void CompareDoesNotPairARenameAcrossPages()
     {
         var oldRows = new List<ProvisionDiff.Row>
         {
@@ -96,7 +96,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare pairs several renames in identifier order.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Pairs_Several_Renames_In_Identifier_Order()
+    public void ComparePairsSeveralRenamesInIdentifierOrder()
     {
         var oldRows = new List<ProvisionDiff.Row>
         {
@@ -125,7 +125,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Compare diffs the extension names.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Compare_Diffs_The_Extension_Names()
+    public void CompareDiffsTheExtensionNames()
     {
         var result = ProvisionDiff.Compare([], [], ["alpha", "retired"], ["alpha", "delivery"]);
 
@@ -136,7 +136,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Read rows reads the identifier, the page, and the statement.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Read_Rows_Reads_The_Identifier_The_Page_And_The_Statement()
+    public void ReadRowsReadsTheIdentifierThePageAndTheStatement()
     {
         var rows = ProvisionDiff.ReadRows(
             IndexJson(new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary.")),
@@ -150,7 +150,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Read rows skips a row without an identifier.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Read_Rows_Skips_A_Row_Without_An_Identifier()
+    public void ReadRowsSkipsARowWithoutAnIdentifier()
     {
         var rows = ProvisionDiff.ReadRows(IndexJson(new ProvisionDiff.Row("", "docs/core/topic.md", "Consumers MUST date the topic.")), "provisions.json");
 
@@ -160,35 +160,42 @@ public sealed class ProvisionDiffTests
     /// <summary>Read rows refuses provision data without a provisions array.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Read_Rows_Refuses_Provision_Data_Without_A_Provisions_Array()
+    public void ReadRowsRefusesProvisionDataWithoutAProvisionsArray()
     {
         var exception = Assert.Throws<InvalidOperationException>(() => ProvisionDiff.ReadRows("{ \"provisions\": {} }", "provisions.json"));
 
         Assert.Contains("holds invalid provision data", exception.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Read extensions reads the extension names in order.</summary>
+    /// <summary>The extensions are the ext pages the provision rows name, in order, without the index.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Read_Extensions_Reads_The_Extension_Names_In_Order()
+    public void ExtensionsOfReadsTheExtPagesInOrder()
     {
-        var extensions = ProvisionDiff.ReadExtensions(ManifestJson("delivery", "alpha"), "litespec.manifest.json");
+        var rows = new[]
+        {
+            new ProvisionDiff.Row("litespec/ext/delivery#a", "docs/ext/delivery.md", "A."),
+            new ProvisionDiff.Row("litespec/backend/dotnet/ext/bdd#b", "docs/backend/dotnet/ext/bdd.md", "B."),
+            new ProvisionDiff.Row("litespec/ext/delivery#c", "docs/ext/delivery.md", "C."),
+            new ProvisionDiff.Row("litespec/ext/README#d", "docs/ext/README.md", "D."),
+            new ProvisionDiff.Row("litespec/core/scope#e", "docs/core/scope.md", "E."),
+        };
 
-        Assert.Equal(["alpha", "delivery"], extensions);
+        Assert.Equal(["bdd", "delivery"], ProvisionDiff.ExtensionsOf(rows));
     }
 
-    /// <summary>Read extensions reads no extensions as empty.</summary>
+    /// <summary>Rows with no ext page name no extension.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Read_Extensions_Reads_No_Extensions_As_Empty()
+    public void ExtensionsOfReadsNoExtPagesAsEmpty()
     {
-        Assert.Empty(ProvisionDiff.ReadExtensions("{ \"version\": \"0.2.0\" }", "litespec.manifest.json"));
+        Assert.Empty(ProvisionDiff.ExtensionsOf([new ProvisionDiff.Row("litespec/core/scope#e", "docs/core/scope.md", "E.")]));
     }
 
     /// <summary>Render writes every group with its count.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Render_Writes_Every_Group_With_Its_Count()
+    public void RenderWritesEveryGroupWithItsCount()
     {
         var result = new ProvisionDiff.Result(
             ["litespec/core/topic#added-rule"],
@@ -230,7 +237,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Render writes none for every empty group.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Render_Writes_None_For_Every_Empty_Group()
+    public void RenderWritesNoneForEveryEmptyGroup()
     {
         var block = ProvisionDiff.Render(new ProvisionDiff.Result([], [], [], [], []), "v3.0.0");
 
@@ -265,7 +272,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Apply replaces the marked section in place.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Apply_Replaces_The_Marked_Section_In_Place()
+    public void ApplyReplacesTheMarkedSectionInPlace()
     {
         var changelog = "# Changelog\n\n## v0.2.0\n\nProse.\n\n<!-- generated:provision-diff -->\nOld.\n<!-- /generated:provision-diff -->\n\n## v0.1.0\n\nOld prose.\n";
 
@@ -277,7 +284,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Apply adds the section at the end of the topmost release.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Apply_Adds_The_Section_At_The_End_Of_The_Topmost_Release()
+    public void ApplyAddsTheSectionAtTheEndOfTheTopmostRelease()
     {
         var changelog = "# Changelog\n\n## v0.2.0\n\nProse.\n\n### Part A\n\n- One thing.\n\n## v0.1.0\n\nOld prose.\n";
 
@@ -289,7 +296,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Apply appends the section when the changelog holds one release.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Apply_Appends_The_Section_When_The_Changelog_Holds_One_Release()
+    public void ApplyAppendsTheSectionWhenTheChangelogHoldsOneRelease()
     {
         var updated = ProvisionDiff.Apply("# Changelog\n\n## v0.2.0\n\nProse.\n", "<!-- generated:provision-diff -->\nBody.\n<!-- /generated:provision-diff -->");
 
@@ -299,7 +306,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog help exits zero.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_Help_Exits_Zero()
+    public void ChangelogHelpExitsZero()
     {
         var result = Cli.Run("changelog", "--help");
 
@@ -310,7 +317,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog with an unknown option is a usage error.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_With_An_Unknown_Option_Is_A_Usage_Error()
+    public void ChangelogWithAnUnknownOptionIsAUsageError()
     {
         var result = Cli.Run("changelog", "--bogus");
 
@@ -321,7 +328,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog without from is a usage error.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_Without_From_Is_A_Usage_Error()
+    public void ChangelogWithoutFromIsAUsageError()
     {
         var result = Cli.Run("changelog");
 
@@ -332,7 +339,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog with an empty from is a usage error.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_With_An_Empty_From_Is_A_Usage_Error()
+    public void ChangelogWithAnEmptyFromIsAUsageError()
     {
         var result = Cli.Run("changelog", "--from=");
 
@@ -343,7 +350,7 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog refuses a root without docs.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_Refuses_A_Root_Without_Docs()
+    public void ChangelogRefusesARootWithoutDocs()
     {
         using var folder = Cli.Temp("changelog");
 
@@ -356,11 +363,11 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog with an unknown ref is an input error.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_With_An_Unknown_Ref_Is_An_Input_Error()
+    public void ChangelogWithAnUnknownRefIsAnInputError()
     {
         using var folder = Cli.Temp("changelog");
         StandardsFixture.Base(folder.Path);
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
 
         var result = Cli.Run("changelog", "--from", "no-such-ref", "--root", folder.Path);
@@ -372,30 +379,31 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog writes the provision changes of a git checkout.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_Writes_The_Provision_Changes_Of_A_Git_Checkout()
+    public void ChangelogWritesTheProvisionChangesOfAGitCheckout()
     {
         using var folder = Cli.Temp("changelog");
         Git(folder.Path, "-c", "init.defaultBranch=main", "init");
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
             IndexJson(
                 new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary."),
                 new ProvisionDiff.Row("litespec/core/topic#old-name", "docs/core/topic.md", "Consumers MUST record the topic owner."),
-                new ProvisionDiff.Row("litespec/core/topic#retired-rule", "docs/core/topic.md", "Consumers MUST file the topic weekly.")));
+                new ProvisionDiff.Row("litespec/core/topic#retired-rule", "docs/core/topic.md", "Consumers MUST file the topic weekly."),
+                new ProvisionDiff.Row("litespec/ext/alpha#keep-alpha", "docs/ext/alpha.md", "Consumers MUST keep alpha.")));
         Git(folder.Path, "add", "-A");
         Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
         Git(folder.Path, "tag", "v0.1.0");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha", "beta"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
             IndexJson(
                 new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary."),
                 new ProvisionDiff.Row("litespec/core/topic#new-name", "docs/core/topic.md", "Consumers MUST record the topic owner."),
-                new ProvisionDiff.Row("litespec/core/topic#added-rule", "docs/core/topic.md", "Consumers MUST date the topic.")));
+                new ProvisionDiff.Row("litespec/core/topic#added-rule", "docs/core/topic.md", "Consumers MUST date the topic."),
+                new ProvisionDiff.Row("litespec/ext/alpha#keep-alpha", "docs/ext/alpha.md", "Consumers MUST keep alpha."),
+                new ProvisionDiff.Row("litespec/ext/beta#keep-beta", "docs/ext/beta.md", "Consumers MUST keep beta.")));
 
         var stale = Cli.Run("changelog", "--from", "v0.1.0", "--check", "--root", folder.Path);
         Assert.Equal(1, stale.Status);
@@ -411,7 +419,8 @@ public sealed class ProvisionDiffTests
         Assert.Contains("- `litespec/core/topic#added-rule`", changelog, StringComparison.Ordinal);
         Assert.Contains("- `litespec/core/topic#retired-rule`", changelog, StringComparison.Ordinal);
         Assert.Contains("- `litespec/core/topic#old-name` to `litespec/core/topic#new-name`", changelog, StringComparison.Ordinal);
-        Assert.Contains("Added (1):", changelog, StringComparison.Ordinal);
+        Assert.Contains("Added (2):", changelog, StringComparison.Ordinal);
+        Assert.Contains("- `litespec/ext/beta#keep-beta`", changelog, StringComparison.Ordinal);
         Assert.Contains("Removed (1):", changelog, StringComparison.Ordinal);
         Assert.Contains("Renamed (1):", changelog, StringComparison.Ordinal);
         Assert.Contains("Extensions added (1):", changelog, StringComparison.Ordinal);
@@ -426,12 +435,12 @@ public sealed class ProvisionDiffTests
     /// <summary>Changelog rebuilds the index from the pages at a ref that predates the generated index.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void Changelog_Reads_The_Pages_At_A_Ref_Without_A_Generated_Index()
+    public void ChangelogReadsThePagesAtARefWithoutAGeneratedIndex()
     {
         using var folder = Cli.Temp("changelog");
         Git(folder.Path, "-c", "init.defaultBranch=main", "init");
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.json", ManifestJson("alpha"));
+        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(folder.Path, "docs/core/topic.md", StandardsFixture.TopicPage);
         Git(folder.Path, "add", "-A");
         Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
@@ -458,9 +467,9 @@ public sealed class ProvisionDiffTests
 
     /// <summary>Builds a minimal manifest text from the extension names.</summary>
     /// <param name="extensions">The extension names.</param>
-    /// <returns>The manifest text.</returns>
-    static string ManifestJson(params string[] extensions) =>
-        "{\"version\": \"0.2.0\", \"extensions\": {" + string.Join(", ", extensions.Select(name => $"\"{name}\": {{}}")) + "}}";
+    /// <returns>The manifest text, in YAML.</returns>
+    static string ManifestYaml(params string[] extensions) =>
+        "version: 0.2.0\nextensions:\n" + string.Concat(extensions.Select(name => $"  {name}: {{}}\n"));
 
     /// <summary>Runs git with the arguments in the working directory, failing the test when git fails.</summary>
     /// <param name="workingDirectory">The working directory.</param>

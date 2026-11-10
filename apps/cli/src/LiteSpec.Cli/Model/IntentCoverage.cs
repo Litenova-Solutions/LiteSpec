@@ -3,11 +3,11 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The computed Intent coverage status: for each Intent requirement and
 ///     journey step, whether some Behavior record reaches it, and the share
-///     reached. The book shows it at every conformance level, first on the
+///     reached. The book shows it whatever layers the project claims, first on the
 ///     Intent part.
 /// </summary>
 /// <param name="Entries">The requirement and journey step entries, requirements first in identifier order, then steps by journey and step order.</param>
-/// <follows>litespec/core/model#reach-behavior-from-every-intent-record</follows>
+/// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
 sealed record IntentCoverage(IReadOnlyList<IntentCoverage.Entry> Entries)
 {
     /// <summary>Gets the number of Intent items the status covers.</summary>

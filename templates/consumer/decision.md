@@ -10,7 +10,7 @@ Compare each real option on the same points, with what speaks for it and against
 
 ## Decision
 
-State the selected option in one paragraph. A decision present in git is decided; to change it, delete the file and record a new decision.
+State the selected option in one paragraph. A decision present in git is decided; to change it, edit this record in place, and git keeps the earlier text.
 
 ## Evidence with Confidence
 

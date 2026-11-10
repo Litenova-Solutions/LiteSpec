@@ -1,8 +1,8 @@
 using System.Text.Json;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>
 ///     Runs every golden corpus case of the TypeScript reader through its bundle
@@ -15,10 +15,10 @@ public sealed class ReaderCorpusTests
     /// <summary>Every Corpus Case Matches Its Expected Facts.</summary>
     /// <proves>litespec/frontend/structure#mark-each-route-with-its-screen</proves>
     [Fact]
-    public void Every_Corpus_Case_Matches_Its_Expected_Facts()
+    public void EveryCorpusCaseMatchesItsExpectedFacts()
     {
-        var bundle = Path.Combine(Cli.Repository, "apps", "cli", "fe-reader", "dist", "litespec-fe-reader.mjs");
-        var corpus = Path.Combine(Cli.Repository, "apps", "cli", "fe-reader", "corpus");
+        var bundle = Path.Combine(TestCli.Repository, "apps", "cli", "fe-reader", "dist", "litespec-fe-reader.mjs");
+        var corpus = Path.Combine(TestCli.Repository, "apps", "cli", "fe-reader", "corpus");
 
         if (!File.Exists(bundle))
         {

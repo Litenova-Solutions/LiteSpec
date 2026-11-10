@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves the record-side traceability findings against the marks fixtures.</summary>
 public sealed class CoverageCheckTests
@@ -8,7 +8,7 @@ public sealed class CoverageCheckTests
     /// <summary>Aggregate Without A Marked Root Reports Aggregate Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Aggregate_Without_A_Marked_Root_Reports_Aggregate_Unimplemented()
+    public void AggregateWithoutAMarkedRootReportsAggregateUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "aggregate-unimplemented");
@@ -20,7 +20,7 @@ public sealed class CoverageCheckTests
     /// <summary>Store Aggregate Without A Root Reports Nothing.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Store_Aggregate_Without_A_Root_Reports_Nothing()
+    public void StoreAggregateWithoutARootReportsNothing()
     {
         using var temp = WriteKindConsumer();
         var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
@@ -31,7 +31,7 @@ public sealed class CoverageCheckTests
     /// <summary>Entity Aggregate Without A Root Still Reports.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Entity_Aggregate_Without_A_Root_Still_Reports()
+    public void EntityAggregateWithoutARootStillReports()
     {
         using var temp = WriteKindConsumer();
         var findings = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "aggregate-unimplemented");
@@ -43,7 +43,7 @@ public sealed class CoverageCheckTests
     /// <summary>Reaction Without A Marked Handler Reports Reaction Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Reaction_Without_A_Marked_Handler_Reports_Reaction_Unimplemented()
+    public void ReactionWithoutAMarkedHandlerReportsReactionUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "reaction-unimplemented");
@@ -55,7 +55,7 @@ public sealed class CoverageCheckTests
     /// <summary>Job Without A Marked Host Reports Job Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Job_Without_A_Marked_Host_Reports_Job_Unimplemented()
+    public void JobWithoutAMarkedHostReportsJobUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "job-unimplemented");
@@ -67,7 +67,7 @@ public sealed class CoverageCheckTests
     /// <summary>System Without A Marked Port Reports External System Unimplemented.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void System_Without_A_Marked_Port_Reports_External_System_Unimplemented()
+    public void SystemWithoutAMarkedPortReportsExternalSystemUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("unimplemented");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "external-system-unimplemented");
@@ -79,7 +79,7 @@ public sealed class CoverageCheckTests
     /// <summary>Browser Use Case Without An Endpoint Reports Use Case Unexposed.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Browser_Use_Case_Without_An_Endpoint_Reports_Use_Case_Unexposed()
+    public void BrowserUseCaseWithoutAnEndpointReportsUseCaseUnexposed()
     {
         using var fixture = MarksFixture.Prepare("exposed");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-endpoint-missing");
@@ -92,7 +92,7 @@ public sealed class CoverageCheckTests
     /// <summary>Browser Use Case Without A Screen Reports Use Case Unreached.</summary>
     /// <proves>litespec/core/model#implement-each-mapped-behavior-record-behind-a-mark</proves>
     [Fact]
-    public void Browser_Use_Case_Without_A_Screen_Reports_Use_Case_Unreached()
+    public void BrowserUseCaseWithoutAScreenReportsUseCaseUnreached()
     {
         using var fixture = MarksFixture.Prepare("exposed");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "use-case-unreached");
@@ -105,7 +105,7 @@ public sealed class CoverageCheckTests
     /// <summary>Declared Edge No Code Takes Reports Effect Unimplemented.</summary>
     /// <proves>litespec/core/system#declare-every-edge-between-records</proves>
     [Fact]
-    public void Declared_Edge_No_Code_Takes_Reports_Effect_Unimplemented()
+    public void DeclaredEdgeNoCodeTakesReportsEffectUnimplemented()
     {
         using var fixture = MarksFixture.Prepare("effects");
         var findings = MarksFixture.WithCode(MarksFixture.Check(fixture.Path), "effect-unimplemented");
@@ -119,11 +119,11 @@ public sealed class CoverageCheckTests
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteKindConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
-            Write(temp.Path, ".litespec/project.json", """
+            Write(temp.Path, ".litespec/project.yaml", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -133,8 +133,8 @@ public sealed class CoverageCheckTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "5.0.0",
                   "owners": [
                     "lending-team"
                   ],

@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves the shared file walk: stable order, skipped folders, extension filter and glob match.</summary>
 public sealed class SourceTreeTests
@@ -17,9 +17,9 @@ public sealed class SourceTreeTests
     /// <summary>Every file is returned in ordinal path order, including extensionless files.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Files_Returns_Every_File_In_Ordinal_Path_Order()
+    public void FilesReturnsEveryFileInOrdinalPathOrder()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
         Write(Path.Combine(temp.Path, "b.txt"));
         Write(Path.Combine(temp.Path, "a.md"));
         Write(Path.Combine(temp.Path, "LICENSE"));
@@ -40,9 +40,9 @@ public sealed class SourceTreeTests
     /// <summary>Build output, installed packages and tool folders are left out at any depth, without regard to case.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Files_Leaves_Out_Build_And_Tool_Folders()
+    public void FilesLeavesOutBuildAndToolFolders()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
         foreach (var skipped in new[] { "bin", "obj", "TestResults", "node_modules", ".git", ".svelte-kit", "build", "dist", "coverage" })
         {
             Write(Path.Combine(temp.Path, skipped, "left-out.txt"));
@@ -58,9 +58,9 @@ public sealed class SourceTreeTests
     /// <summary>A missing directory walks as no files.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Files_Returns_Empty_When_Directory_Is_Missing()
+    public void FilesReturnsEmptyWhenDirectoryIsMissing()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
 
         Assert.Empty(SourceTree.Files(Path.Combine(temp.Path, "no-such-folder")));
     }
@@ -68,9 +68,9 @@ public sealed class SourceTreeTests
     /// <summary>Extensions match by file-name ending, without regard to case.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Files_With_Extensions_Keeps_Matches_Without_Regard_To_Case()
+    public void FilesWithExtensionsKeepsMatchesWithoutRegardToCase()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
         Write(Path.Combine(temp.Path, "a.cs"));
         Write(Path.Combine(temp.Path, "b.CS"));
         Write(Path.Combine(temp.Path, "c.txt"));
@@ -99,9 +99,9 @@ public sealed class SourceTreeTests
     /// <summary>Includes collect and excludes leave out, both in the glob dialect.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Match_Collects_Includes_And_Honors_Excludes()
+    public void MatchCollectsIncludesAndHonorsExcludes()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
         Write(Path.Combine(temp.Path, "keep", "a.md"));
         Write(Path.Combine(temp.Path, "keep", "b.yaml"));
         Write(Path.Combine(temp.Path, "keep", "d.txt"));
@@ -118,9 +118,9 @@ public sealed class SourceTreeTests
     /// <summary>A missing directory matches no files.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Match_Returns_Empty_When_Directory_Is_Missing()
+    public void MatchReturnsEmptyWhenDirectoryIsMissing()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
 
         Assert.Empty(SourceTree.Match(Path.Combine(temp.Path, "no-such-folder"), ["**/*"]));
     }
@@ -128,9 +128,9 @@ public sealed class SourceTreeTests
     /// <summary>Read returns the file text.</summary>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Fact]
-    public void Read_Returns_The_File_Text()
+    public void ReadReturnsTheFileText()
     {
-        using var temp = Cli.Temp("source-tree");
+        using var temp = TestCli.Temp("source-tree");
         var file = Path.Combine(temp.Path, "note.txt");
         File.WriteAllText(file, "kept text");
 

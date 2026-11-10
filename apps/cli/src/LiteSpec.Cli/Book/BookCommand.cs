@@ -15,16 +15,17 @@ namespace LiteSpec.Book;
 static class BookCommand
 {
     /// <summary>The command's usage text.</summary>
-    public const string Usage =
-        "Usage: litespec book [--root <folder>] [--out <folder>] [--editor <template>]\n"
-        + "\n"
-        + "Options:\n"
-        + "  --root <folder>      The consumer root to read. Defaults to the consumer found from the working directory.\n"
-        + "  --out <folder>       The folder to write the static site to. Defaults to `.litespec/book` under the consumer root.\n"
-        + "  --editor <template>  The editor link template with {root}, {path} and {line}, or \"none\" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.\n"
-        + "  --help               Print this text and exit.\n"
-        + "\n"
-        + "Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error, a missing carried release, or a missing or broken lexicon page.\n";
+    public const string Usage = """
+        Usage: litespec book [--root <folder>] [--out <folder>] [--editor <template>]
+
+        Options:
+          --root <folder>      The consumer root to read. Defaults to the consumer found from the working directory.
+          --out <folder>       The folder to write the static site to. Defaults to `.litespec/book` under the consumer root.
+          --editor <template>  The editor link template with {root}, {path} and {line}, or "none" to suppress links. Defaults to vscode://file/{root}/{path}:{line}.
+          --help               Print this text and exit.
+
+        Exit codes: 0 written, 1 unreadable input or unwritable output, 2 usage error, a missing carried release, or a missing or broken lexicon page.
+        """;
 
     /// <summary>The default editor link template, with its three placeholders.</summary>
     public const string DefaultEditor = "vscode://file/{root}/{path}:{line}";
@@ -41,58 +42,23 @@ static class BookCommand
         var parsed = ParseArgs(args);
         if (parsed.Help)
         {
-            Console.Out.Write(Usage);
+            Console.WriteLine(Usage);
             return 0;
         }
 
         if (parsed.Error is not null)
         {
-            Console.Error.Write($"{parsed.Error}\n{Usage}");
-            return 2;
+            return LastResort.UsageError(parsed.Error, Usage, json: false);
         }
 
-        string root;
+        var config = ConsumerRoot.Open(parsed.Root, json: false, out var openExit);
 
-        try
+        if (config is null)
         {
-            root = ConsumerRoot.Resolve(parsed.Root);
-        }
-        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-        {
-            Console.Error.WriteLine($"Invalid root '{parsed.Root}': {exception.Message}");
-            return 2;
+            return openExit;
         }
 
-        if (!Directory.Exists(root))
-        {
-            Console.Error.WriteLine($"Root '{root}' does not exist.");
-            return 2;
-        }
-
-        // Without a project file every path falls back to a default, and the
-        // book would render a folder that is not a consumer at all.
-        if (!File.Exists(ConsumerRoot.ProjectFile(root)))
-        {
-            Console.Error.WriteLine($"Root '{root}' holds no .litespec/project.json.");
-            return 2;
-        }
-
-        ConsumerConfig config;
-
-        try
-        {
-            config = ConsumerConfig.Load(root);
-        }
-        catch (JsonException exception)
-        {
-            Console.Error.WriteLine($".litespec/project.json is not valid JSON: {exception.Message}");
-            return 2;
-        }
-        catch (InvalidOperationException exception)
-        {
-            Console.Error.WriteLine(exception.Message);
-            return 2;
-        }
+        var root = config.Root;
 
         string liteSpecRoot;
         try
@@ -101,8 +67,7 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot find the carried LiteSpec release: {exception.Message}\n");
-            return 2;
+            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         BookLexicon lexicon;
@@ -112,8 +77,7 @@ static class BookCommand
         }
         catch (BookLexiconException exception)
         {
-            Console.Error.Write($"Cannot load the book words from '{exception.File}': {exception.Message}\n");
-            return 2;
+            return LastResort.Fail($"Cannot load the book words from '{exception.File}': {exception.Message}", json: false, code: 2);
         }
 
         ProjectModel model;
@@ -123,35 +87,28 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot build the model from '{root}': {exception.Message}\n");
-            return 1;
+            return LastResort.Fail($"Cannot build the model from '{root}': {exception.Message}", json: false, code: 1);
         }
 
-        var (modelFindings, known) = Checker.Check(model);
-        var findings = modelFindings.ToList();
+        // The book takes the findings that model check takes, under the layer claims, so the two never disagree.
+        List<Finding> findings;
+        IReadOnlyList<Finding> covered;
 
-        // The consumer pass reads the project file, the record pages,
-        // the glossary and the controlled UI into the same finding
-        // shape, so the book shows the whole consumer.
         try
         {
-            var consumerRun = new ConsumerRun(root);
-            consumerRun.Execute();
-            findings.AddRange(consumerRun.Errors);
+            (findings, covered) = ModelCommand.Collect(model, root);
         }
         catch (FailFast fail)
         {
-            Console.Error.WriteLine(fail.Message);
-            return fail.Code;
+            return LastResort.Fail(fail.Message, json: false, code: fail.Code);
         }
 
-        model.FindingsJson = findings.Select(finding => FindingJson(config, model, finding)).ToList();
-        model.KnownJson = known.Select(gap => KnownJson(config, gap)).ToList();
+        model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)ModelCommand.AsJson(config, finding, ModelCommand.Decide(model, config, finding, release: false)))]);
+        model.CoveredJson = new JsonArray([.. covered.Select(finding => (JsonNode?)ModelCommand.AsCoveredJson(config, finding))]);
 
         if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
         {
-            Console.Error.Write("The built model holds no records array.\n");
-            return 1;
+            return LastResort.Fail("The built model holds no records array.", json: false, code: 1);
         }
 
         store["intentCoverage"] = BookIntentCoverage.ToJson(IntentCoverage.Compute(model));
@@ -161,20 +118,19 @@ static class BookCommand
 
         try
         {
-            var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Conformance);
+            var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Layers);
             Console.Out.Write(line + "\n");
             return 0;
         }
         catch (Exception exception)
         {
-            Console.Error.Write($"Cannot write to '{outDir}': {exception.Message}\n");
-            return 1;
+            return LastResort.Fail($"Cannot write to '{outDir}': {exception.Message}", json: false, code: 1);
         }
     }
 
     /// <summary>
-    ///     Writes the book for a parsed model at the full conformance level:
-    ///     one shell with sharded data under the output folder.
+    ///     Writes the book for a parsed model with every layer claimed: one
+    ///     shell with sharded data under the output folder.
     ///     The command calls it with the model it built in memory; tests call it with a frozen model.
     /// </summary>
     /// <param name="store">The model object that holds the records array.</param>
@@ -185,14 +141,14 @@ static class BookCommand
     /// <param name="outDir">The folder to write the static site to.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
     internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir) =>
-        WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, ConformanceLevel.Full);
+        WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, LayerClaims.All);
 
     /// <summary>
-    ///     Writes the book for a parsed model at one conformance level: one
-    ///     shell with sharded data under the output folder. At
-    ///     <see cref="ConformanceLevel.Records" /> the book leaves out code,
-    ///     proof and level S findings. At every level the manifest and the
-    ///     Intent part carry the computed Intent coverage.
+    ///     Writes the book for a parsed model under the layers the project claims: one
+    ///     shell with sharded data under the output folder. A layer the project does
+    ///     not claim shows as not claimed, and the book leaves out its code, proof and
+    ///     level S findings. At every claim the manifest and the Intent part carry the
+    ///     computed Intent coverage.
     /// </summary>
     /// <param name="store">The model object that holds the records array.</param>
     /// <param name="root">The absolute consumer root for source links and captures.</param>
@@ -200,16 +156,16 @@ static class BookCommand
     /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
     /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
     /// <param name="outDir">The folder to write the static site to.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <returns>The console line naming the output folder, the record count, the shard count and the unplaced ids.</returns>
-    internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir, ConformanceLevel level)
+    internal static string WriteBook(JsonObject store, string root, BookLexicon lexicon, string liteSpecRoot, string editor, string outDir, LayerClaims claims)
     {
         // One pass over the one index: the outline and the details are each
         // built once, then packed into shards. Nothing is recomputed per record.
         var coverage = BookIntentCoverage.Of(store);
         var index = BookIndexBuilder.BuildIndex(store);
-        var outline = BookOutline.Build(store, level);
-        var details = BookEnrich.Build(store, outline, level);
+        var outline = BookOutline.Build(store, claims);
+        var details = BookEnrich.Build(store, outline, claims);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
 
         var dataDir = Path.Combine(outDir, "data");
@@ -226,7 +182,7 @@ static class BookCommand
         {
             var keys = BookShards.WriteLayer(dataDir, layerRoot.Id, layerRoot.Children, shardOf);
             shards += keys.Count;
-            layers.Add(new JsonObject
+            layers.Add((JsonNode)new JsonObject
             {
                 ["key"] = layerRoot.Id,
                 ["label"] = LayerLabel(lexicon, layerRoot.Id),
@@ -244,7 +200,7 @@ static class BookCommand
         BookShards.WriteShard(
             dataDir,
             "manifest",
-            ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn, level, coverage));
+            ManifestJson(store, outline, layers, shardOf, searchKeys, root, liteSpecRoot, editor, generatedOn, claims, coverage));
         shards += 1;
 
         var project = ProjectOf(store);
@@ -290,64 +246,6 @@ static class BookCommand
         return new Parsed(false, null, parsed.Value("--out"), parsed.Value("--root"), parsed.Value("--editor"));
     }
 
-    /// <summary>
-    ///     Decides one finding's severity the way <c>model check</c> does without flags:
-    ///     TypeScript findings take the handshake qualification, Roslyn findings stay
-    ///     qualified, and a finding with no reader is qualified.
-    /// </summary>
-    /// <param name="model">The built project model the finding belongs to.</param>
-    /// <param name="config">The consumer configuration of the project.</param>
-    /// <param name="finding">The finding to decide.</param>
-    /// <returns>The severity of the finding.</returns>
-    static Severity Decide(ProjectModel model, ConsumerConfig config, Finding finding) =>
-        Severity.Of(
-            finding,
-            (finding.Code == "reader-missing" && config.IsContinuousIntegration) || finding.Reader switch
-            {
-                Finding.TypeScriptReader => model.TypeScriptQualified,
-                Finding.RoslynReader => true,
-                _ => true,
-            },
-            config.IsContinuousIntegration);
-
-    /// <summary>One standing finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
-    /// <param name="config">The consumer configuration, for the relative path.</param>
-    /// <param name="model">The built project model the finding belongs to.</param>
-    /// <param name="finding">The finding to project.</param>
-    /// <returns>The JSON object for the finding.</returns>
-    static object FindingJson(ConsumerConfig config, ProjectModel model, Finding finding)
-    {
-        var severity = Decide(model, config, finding);
-
-        return new
-        {
-            code = finding.Code,
-            level = finding.Tier,
-            outcome = severity.Outcome == Outcome.Blocking ? "blocking" : "reported",
-            reason = (string?)null,
-            message = finding.Message,
-            path = config.Relative(finding.Path),
-            line = finding.Line,
-            subject = finding.Subject,
-        };
-    }
-
-    /// <summary>One known-gap finding as its JSON object, the shape <c>model check --format json</c> writes.</summary>
-    /// <param name="config">The consumer configuration, for the relative path.</param>
-    /// <param name="finding">The known-gap finding to project.</param>
-    /// <returns>The JSON object for the known-gap finding.</returns>
-    static object KnownJson(ConsumerConfig config, Finding finding) => new
-    {
-        code = finding.Code,
-        level = finding.Tier,
-        outcome = "known",
-        reason = (string?)null,
-        message = finding.Message,
-        path = config.Relative(finding.Path),
-        line = finding.Line,
-        subject = finding.Subject,
-    };
-
     /// <summary>One layer's display label from the lexicon, else the layer key itself.</summary>
     /// <param name="lexicon">The book lexicon that holds the layer labels.</param>
     /// <param name="key">The layer key whose label is sought.</param>
@@ -389,7 +287,7 @@ static class BookCommand
         return totals;
     }
 
-    /// <summary>The search rows in identifier order: id, title, type and excerpt each, with the qualified identifier appended when it differs.</summary>
+    /// <summary>The search rows in identifier order: id, title, type and excerpt each, with the folder path and module appended when present.</summary>
     /// <param name="index">The model index that holds the raw record objects.</param>
     /// <param name="details">The enriched record details keyed by record identifier.</param>
     /// <returns>The search rows in identifier order, each holding identifier, title, type and excerpt.</returns>
@@ -401,11 +299,12 @@ static class BookCommand
             var detail = details[id];
             var raw = index.ById.TryGetValue(id, out var found) ? found : detail;
             var excerpt = BookShards.SearchExcerpt(raw);
-            var qualified = StrProp(detail, "qualifiedId");
-            var text = qualified is { Length: > 0 } && !string.Equals(qualified, id, StringComparison.Ordinal)
-                ? (excerpt.Length > 0 ? excerpt + " " + qualified : qualified)
+            var placement = string.Join(" ", new[] { StrProp(detail, "folder"), StrProp(detail, "module") }
+                .Where(part => part is { Length: > 0 }));
+            var text = placement.Length > 0
+                ? (excerpt.Length > 0 ? excerpt + " " + placement : placement)
                 : excerpt;
-            rows.Add(new JsonArray(
+            rows.Add((JsonNode)new JsonArray(
                 id,
                 StrProp(detail, "title") ?? id,
                 StrProp(detail, "type") ?? "",
@@ -415,11 +314,21 @@ static class BookCommand
         return rows;
     }
 
+    /// <summary>The layer claims as the project file writes them: one entry per claimed layer, in layer order.</summary>
+    /// <param name="claims">The record layers the project claims.</param>
+    /// <returns>The entries, each with its layer and its practice.</returns>
+    static JsonArray ClaimsJson(LayerClaims claims) =>
+        new JsonArray([.. claims.Entries().Select(entry => (JsonNode?)new JsonObject
+        {
+            ["layer"] = entry.Key,
+            ["practice"] = entry.Value,
+        })]);
+
     /// <summary>
     ///     The manifest shard value: project, roots, editor template, test run,
     ///     totals, layers with their outline shards, the shard map, the search
-    ///     shards, the unplaced ids, the generation date, the conformance
-    ///     level and the Intent coverage. At the records level the test run
+    ///     shards, the unplaced ids, the generation date, the layer
+    ///     claims and the Intent coverage. Without a Proof claim the test run
     ///     is null, because the book leaves out proof.
     /// </summary>
     /// <param name="store">The model object that holds the records and the test run.</param>
@@ -431,7 +340,7 @@ static class BookCommand
     /// <param name="liteSpecRoot">The absolute path of the carried LiteSpec release.</param>
     /// <param name="editor">The editor link template with its root, path and line placeholders.</param>
     /// <param name="generatedOn">The generation timestamp text in UTC.</param>
-    /// <param name="level">The conformance level the project claims.</param>
+    /// <param name="claims">The record layers the project claims.</param>
     /// <param name="coverage">The computed Intent coverage status.</param>
     /// <returns>The manifest shard value.</returns>
     static JsonObject ManifestJson(
@@ -444,7 +353,7 @@ static class BookCommand
         string liteSpecRoot,
         string editor,
         string generatedOn,
-        ConformanceLevel level,
+        LayerClaims claims,
         IntentCoverage coverage)
     {
         var project = ProjectOf(store);
@@ -474,9 +383,9 @@ static class BookCommand
                 ["litespec"] = liteSpecRoot,
             },
             ["editor"] = editor,
-            ["conformance"] = ConformanceLevels.Name(level),
+            ["claims"] = ClaimsJson(claims),
             ["intentCoverage"] = BookIntentCoverage.ToJson(coverage),
-            ["testRun"] = level == ConformanceLevel.Records ? JsonNode.Parse("null")! : store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
+            ["testRun"] = claims.Proof is null ? JsonNode.Parse("null")! : store["testRun"]?.DeepClone() ?? JsonNode.Parse("null")!,
             ["totals"] = totals,
             ["layers"] = layers,
             ["shardOf"] = map,
@@ -513,7 +422,7 @@ static class BookCommand
                     : null;
                 var text = "Acts across tenants"
                     + (grant is { Length: > 0 } ? ", through " + TitleOf(details, grant) : "");
-                items.Add(new JsonObject
+                items.Add((JsonNode)new JsonObject
                 {
                     ["kind"] = "cross",
                     ["id"] = id,
@@ -528,7 +437,7 @@ static class BookCommand
                     && call.TryGetValue<string>(out var to)
                     && to.Length > 0)
                 {
-                    items.Add(new JsonObject
+                    items.Add((JsonNode)new JsonObject
                     {
                         ["kind"] = "calls",
                         ["id"] = id,
@@ -555,7 +464,7 @@ static class BookCommand
                         text += ", on erasure " + fate;
                     }
 
-                    items.Add(new JsonObject
+                    items.Add((JsonNode)new JsonObject
                     {
                         ["kind"] = "data",
                         ["id"] = id,

@@ -1,8 +1,8 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the record name-shape checks: template keys, setting units and published event names.</summary>
 public sealed class RecordNameCheckTests
@@ -10,9 +10,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Template Key Ending In Its Audience Passes.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
-    public void Template_Key_Ending_In_Its_Audience_Passes()
+    public void TemplateKeyEndingInItsAudiencePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -24,9 +24,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Comma Separated Template Keys Pass With None Skipped.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
-    public void Comma_Separated_Template_Keys_Pass_With_None_Skipped()
+    public void CommaSeparatedTemplateKeysPassWithNoneSkipped()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -38,9 +38,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Template Key Missing Its Audience Reports.</summary>
     /// <proves>litespec/core/edges#name-each-template-for-its-subject-event-and-audience</proves>
     [Fact]
-    public void Template_Key_Missing_Its_Audience_Reports()
+    public void TemplateKeyMissingItsAudienceReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -53,9 +53,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Setting With A Unit Passes.</summary>
     /// <proves>litespec/core/use-cases#state-the-unit-of-every-quantity-setting</proves>
     [Fact]
-    public void Setting_With_A_Unit_Passes()
+    public void SettingWithAUnitPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -68,9 +68,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Quantity Setting Without A Unit Reports.</summary>
     /// <proves>litespec/core/use-cases#state-the-unit-of-every-quantity-setting</proves>
     [Fact]
-    public void Quantity_Setting_Without_A_Unit_Reports()
+    public void QuantitySettingWithoutAUnitReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -83,9 +83,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Outbound Event Named For Its Fact Passes.</summary>
     /// <proves>litespec/core/edges#name-published-events-in-the-domains-words</proves>
     [Fact]
-    public void Outbound_Event_Named_For_Its_Fact_Passes()
+    public void OutboundEventNamedForItsFactPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -98,9 +98,9 @@ public sealed class RecordNameCheckTests
     /// <summary>Outbound Event Naming Machinery Reports.</summary>
     /// <proves>litespec/core/edges#name-published-events-in-the-domains-words</proves>
     [Fact]
-    public void Outbound_Event_Naming_Machinery_Reports()
+    public void OutboundEventNamingMachineryReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path, """{}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -111,5 +111,5 @@ public sealed class RecordNameCheckTests
     }
 
     static void WriteProject(string root, string json) =>
-        File.WriteAllText(Path.Combine(root, ".litespec/project.json"), json);
+        File.WriteAllText(Path.Combine(root, ".litespec/project.yaml"), json);
 }

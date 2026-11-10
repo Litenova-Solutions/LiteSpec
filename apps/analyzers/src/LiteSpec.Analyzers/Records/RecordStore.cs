@@ -11,9 +11,9 @@ namespace LiteSpec.Analyzers.Records;
 ///     The consumer's records for one compilation: the project settings and the
 ///     record index built from the record files. Loads from the project file and
 ///     the record files found among the additional files, and stays silent
-///     (returns null) when no project file is in reach, when its settings do not
-///     parse, or when the docs root cannot be resolved; the CLI owns those
-///     configuration errors. Results are cached by the files' content checksums,
+///     (returns null) when no project file is in reach, when it does not read
+///     through <see cref="ProjectPaths" />, or when no record page sits under its
+///     docs roots; the CLI owns those configuration errors. Results are cached by the files' content checksums,
 ///     so a keystroke in C# does not reparse record files.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -27,8 +27,8 @@ public sealed class RecordStore
 
     /// <summary>Holds the use case by home collected for this operation, keyed or ordered as the type states.</summary>
     private readonly Dictionary<string, string> useCaseByHome;
-    /// <summary>Holds the docs roots collected for this operation, keyed or ordered as the type states.</summary>
-    private readonly List<string> docsRoots;
+    /// <summary>Holds the record roots the project file declares, in declaration order.</summary>
+    private readonly IReadOnlyList<string> docsRoots;
 
     /// <summary>Initializes a new instance of the <see cref="RecordStore"/> class.</summary>
     /// <param name="settings">The project settings parsed from the project file.</param>
@@ -36,7 +36,7 @@ public sealed class RecordStore
     /// <param name="root">The syntax root of the tree being searched.</param>
     /// <param name="projectFile">The project file path, as the host reported it.</param>
     /// <param name="docsRoots">The docs roots resolved from the project file, in declaration order.</param>
-    private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile, List<string> docsRoots)
+    private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile, IReadOnlyList<string> docsRoots)
     {
         Settings = settings;
         Index = index;
@@ -97,8 +97,8 @@ public sealed class RecordStore
     /// <summary>
     ///     Loads the store from file paths and texts, consulting the checksum
     ///     cache first. Returns null when the rules must stay silent: no project
-    ///     file, unparsable settings, an unresolvable docs root, or no record
-    ///     page under the roots.
+    ///     file, a project file that does not read, or no record page under the
+    ///     docs roots.
     /// </summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The store, or null when the rules stay silent.</returns>
@@ -130,9 +130,9 @@ public sealed class RecordStore
     }
 
     /// <summary>
-    ///     Whether a live exception covers the finding, as
+    ///     Whether a live departure covers the finding, as
     ///     <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
-    ///     An exception is live when it is present and unexpired.
+    ///     A departure is live when it is present and unexpired, or lasting.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>
@@ -170,38 +170,14 @@ public sealed class RecordStore
         return false;
     }
 
-    /// <summary>Returns the uncached.</summary>
+    /// <summary>Returns the store read from the project file and the record files, or null when none applies.</summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
-    /// <returns>The uncached, or null when none applies.</returns>
+    /// <returns>The store, or null when the project file does not read or no record page sits under its roots.</returns>
     private static RecordStore? LoadUncached(IReadOnlyList<RecordFile> files)
     {
         var project = ProjectFileOf(files);
 
-        if (project is null)
-        {
-            return null;
-        }
-
-        if (!ProjectSettings.TryParse(project.Text, out var settings, out _))
-        {
-            return null;
-        }
-
-        JsonText root;
-
-        try
-        {
-            root = JsonText.Parse(project.Text);
-        }
-        catch (JsonTextException)
-        {
-            return null;
-        }
-
-        var directory = RepositoryRootOf(project.Path);
-        var roots = DocsRoots(root, directory, out var docsRoots);
-
-        if (roots is null || roots.Count == 0)
+        if (project is null || !ProjectPaths.TryRead(project.Path, project.Text, out var paths, out _) || paths is null)
         {
             return null;
         }
@@ -210,7 +186,7 @@ public sealed class RecordStore
 
         foreach (var file in files)
         {
-            if (IsRecordFile(file.Path) && UnderRoots(file.Path, roots))
+            if (IsRecordFile(file.Path) && UnderRoots(file.Path, paths.DocsRoots))
             {
                 records.AddRange(RecordFiles.Read(file.Path, file.Text));
             }
@@ -221,21 +197,19 @@ public sealed class RecordStore
             return null;
         }
 
-        return new RecordStore(settings, new RecordIndex(records), directory, project.Path, docsRoots);
+        return new RecordStore(paths.Settings, new RecordIndex(records), paths.RepositoryRoot, project.Path, paths.DocsRoots);
     }
 
-    /// <summary>Returns the file of.</summary>
+    /// <summary>Returns the project file among the files, the first by path when several hold one.</summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
-    /// <returns>The file of, or null when none applies.</returns>
+    /// <returns>The project file, or null when none applies.</returns>
     private static RecordFile? ProjectFileOf(IReadOnlyList<RecordFile> files)
     {
         RecordFile? found = null;
 
         foreach (var file in files)
         {
-            var normalized = file.Path.Replace('\\', '/');
-
-            if (normalized.EndsWith("/.litespec/project.json", StringComparison.OrdinalIgnoreCase)
+            if (ProjectPaths.IsProjectFile(file.Path)
                 && (found is null || string.Compare(file.Path, found.Path, StringComparison.Ordinal) < 0))
             {
                 found = file;
@@ -243,146 +217,6 @@ public sealed class RecordStore
         }
 
         return found;
-    }
-
-    /// <summary>
-    ///     The repository root holding the project file: the folder above
-    ///     <c>.litespec/</c> when the file sits in that folder, else its own folder.
-    ///     Paths in the project file resolve against the repository root.
-    /// </summary>
-    /// <param name="projectPath">The project file path, as the host reported it.</param>
-    /// <returns>The repository root the project file's paths resolve against.</returns>
-    private static string RepositoryRootOf(string projectPath)
-    {
-        var directory = DirectoryOf(projectPath).Replace('\\', '/');
-        var slash = directory.LastIndexOf('/');
-
-        return directory.EndsWith("/.litespec", StringComparison.OrdinalIgnoreCase) && slash > 0
-            ? directory.Substring(0, slash)
-            : directory;
-    }
-
-    /// <summary>Returns the directory of the path.</summary>
-    /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>The directory of the path.</returns>
-    private static string DirectoryOf(string path)
-    {
-        var slash = Math.Max(path.LastIndexOf('/'), path.LastIndexOf('\\'));
-
-        return slash < 0 ? string.Empty : path.Substring(0, slash);
-    }
-
-    /// <summary>
-    ///     The docs roots from the project file: <c>paths.docs</c> (one folder or
-    ///     an array, defaulting to <c>.litespec</c>) plus <c>paths.behaviorDocs</c>
-    ///     (defaulting to <c>.litespec/behavior</c>), resolved against the repository
-    ///     root. Returns null when the paths do not resolve.
-    /// </summary>
-    /// <param name="root">The syntax root of the tree being searched.</param>
-    /// <param name="directory">The directory the folder is resolved against.</param>
-    /// <param name="docsOnly">The docs-only roots that receive the folder beside the index roots.</param>
-    /// <returns>The roots, in the order this method builds them.</returns>
-    private static List<string>? DocsRoots(JsonText root, string directory, out List<string> docsOnly)
-    {
-        var roots = new List<string>();
-        docsOnly = new List<string>();
-        JsonText? paths = null;
-
-        if (root.TryGetProperty("paths", out var found))
-        {
-            if (found.Kind == JsonKind.Null)
-            {
-                paths = null;
-            }
-            else if (found.Kind == JsonKind.Object)
-            {
-                paths = found;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        if (paths is null || !paths.TryGetProperty("docs", out var docs) || docs.Kind == JsonKind.Null)
-        {
-            AddDocsRoot(roots, docsOnly, Combine(directory, ".litespec"));
-        }
-        else if (docs.Kind == JsonKind.String && docs.GetString() is string single)
-        {
-            if (single.Length == 0)
-            {
-                AddDocsRoot(roots, docsOnly, Combine(directory, ".litespec"));
-            }
-            else
-            {
-                AddDocsRoot(roots, docsOnly, Combine(directory, single));
-            }
-        }
-        else if (docs.Kind == JsonKind.Array)
-        {
-            foreach (var entry in docs.Items)
-            {
-                if (entry.Kind == JsonKind.String && entry.GetString() is string folder && folder.Length > 0)
-                {
-                    AddDocsRoot(roots, docsOnly, Combine(directory, folder));
-                }
-            }
-        }
-        else
-        {
-            return null;
-        }
-
-        if (paths is null
-            || !paths.TryGetProperty("behaviorDocs", out var behavior)
-            || behavior.Kind == JsonKind.Null
-            || (behavior.Kind == JsonKind.String && behavior.GetString() is string blank && blank.Length == 0))
-        {
-            roots.Add(Combine(directory, ".litespec/behavior"));
-        }
-        else if (behavior.Kind == JsonKind.String && behavior.GetString() is string folder && folder.Length > 0)
-        {
-            roots.Add(Combine(directory, folder));
-        }
-        else if (behavior.Kind != JsonKind.String)
-        {
-            return null;
-        }
-
-        return roots;
-    }
-
-    /// <summary>Adds a <c>paths.docs</c> folder to both the index roots and the docs-only roots.</summary>
-    /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
-    /// <param name="docsOnly">The docs-only roots that receive the folder beside the index roots.</param>
-    /// <param name="folder">The folder to add, as the project file states it.</param>
-    private static void AddDocsRoot(List<string> roots, List<string> docsOnly, string folder)
-    {
-        roots.Add(folder);
-        docsOnly.Add(folder);
-    }
-
-    /// <summary>Resolves the folder against the directory and returns the combined path.</summary>
-    /// <param name="directory">The directory the folder is resolved against.</param>
-    /// <param name="folder">The folder to add, as the project file states it.</param>
-    /// <returns>The string as text.</returns>
-    private static string Combine(string directory, string folder)
-    {
-        var combined = folder.Replace('\\', '/');
-
-        if (combined.StartsWith("/", StringComparison.Ordinal)
-            || (combined.Length >= 2 && combined[1] == ':'))
-        {
-            return combined;
-        }
-
-        if (directory.Length == 0)
-        {
-            return combined;
-        }
-
-        return directory.Replace('\\', '/').TrimEnd('/') + "/" + combined.TrimStart('/');
     }
 
     /// <summary>Returns true when the path is a record file; otherwise false.</summary>
@@ -395,7 +229,7 @@ public sealed class RecordStore
     /// <param name="path">The file path as the host reports it.</param>
     /// <param name="roots">The docs roots that bound the search, as absolute or project-relative paths.</param>
     /// <returns>True when the under-roots condition holds; otherwise false.</returns>
-    private static bool UnderRoots(string path, List<string> roots)
+    private static bool UnderRoots(string path, IReadOnlyList<string> roots)
     {
         var candidate = path.Replace('\\', '/');
 

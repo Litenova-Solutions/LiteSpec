@@ -1,4 +1,4 @@
-namespace LiteSpec.Tests.Support;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>The exit code and the two output streams of one maintainer tool run.</summary>
 /// <param name="Status">The exit code.</param>

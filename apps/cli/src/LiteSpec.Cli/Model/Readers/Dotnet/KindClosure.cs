@@ -8,8 +8,8 @@ namespace LiteSpec.Model.Readers.Dotnet;
 /// <summary>
 ///     Collects the cross-file names kind recognition needs: the aggregate roots,
 ///     the domain exceptions, the marked ports, the technical classes, and the
-///     handler, event handler, job host and domain event contracts. At the traced
-///     conformance level an aggregate root is also found by its aggregate mark and
+///     handler, event handler, job host and domain event contracts. When the project claims
+///     Implementation or Proof, an aggregate root is also found by its aggregate mark and
 ///     its state record, so a project that keeps its own aggregate base still reads.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
@@ -97,7 +97,7 @@ static class KindClosure
             }
         }
 
-        if (config.Conformance != ConformanceLevel.Records)
+        if (config.ReadsCode)
         {
             var stateRecords = new HashSet<string>(StringComparer.Ordinal);
             var stateRecordNames = new HashSet<string>(StringComparer.Ordinal);

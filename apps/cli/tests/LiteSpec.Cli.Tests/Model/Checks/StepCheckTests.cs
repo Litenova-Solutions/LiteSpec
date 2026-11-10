@@ -1,16 +1,18 @@
 using Record = LiteSpec.Model.Record;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the step check counts use cases, reactions and jobs.</summary>
 public sealed class StepCheckTests
 {
+    /// <summary>Use Case Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
-    public void Use_Case_Serving_A_Step_Passes()
+    public void UseCaseServingAStepPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
@@ -19,10 +21,12 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
-    public void Reaction_Serving_A_Step_Passes()
+    public void ReactionServingAStepPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
@@ -31,10 +35,12 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Job Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
-    public void Job_Serving_A_Step_Passes()
+    public void JobServingAStepPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path),
@@ -43,10 +49,12 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Step With No Server Reports.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
-    public void Step_With_No_Server_Reports()
+    public void StepWithNoServerReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Journey(temp.Path));

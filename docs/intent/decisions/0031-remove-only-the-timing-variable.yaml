@@ -1,0 +1,16 @@
+type: decision
+id: decision/0031-remove-only-the-timing-variable
+title: Remove Only the Timing Variable
+options:
+  - name: "Remove `LITESPEC_TIMING`, and keep `book --editor` and the www redirect Worker"
+    pros: "Nothing in CI or the docs sets the variable, and no test covers it."
+    cons: "A person who set the variable for local timing loses the switch."
+  - name: "Keep all three"
+    pros: "No change for any caller."
+    cons: "A switch with no test and no user reads as a feature the tools honor."
+  - name: "Remove all three"
+    pros: "The smallest surface."
+    cons: "It reverses the decision the owner accepted for the editor option and the redirect Worker."
+choice: "Remove `LITESPEC_TIMING`, and keep `book --editor` and the www redirect Worker"
+consequences: "`LITESPEC_TIMING` leaves the code and the docs. `book --editor` stays. The www redirect Worker stays as it is, and any change to its deploy waits for the owner."
+reopenedWhen: "A person needs the timing output and no other tool gives it, or the owner asks for the redirect Worker to be removed."

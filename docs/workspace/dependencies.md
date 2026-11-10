@@ -1,7 +1,7 @@
 # Dependencies
 
-**Stack:** `any`
-**Layer:** `workspace`
+**Stack:** any
+**Concern:** workspace
 
 ## Intent
 
@@ -21,7 +21,7 @@ The backend holds four architecture layers: Domain, Application, Infrastructure,
 
 ### Pins and the Manifest
 
-Every version resolves in one owned place: `litespec.manifest.json` pins the baseline stack the standards name, the consumer's own central file or lockfile pins the product's own packages, and no version sits inline in a module file. A central entry still does not authorize every layer to reference the package: the ownership table in the conventions below decides who takes what.
+Every version resolves in one owned place: `litespec.manifest.yaml` pins the baseline stack the standards name, the consumer's own central file or lockfile pins the product's own packages, and no version sits inline in a module file. A central entry still does not authorize every layer to reference the package: the ownership table in the conventions below decides who takes what.
 
 ### Approving a New Package
 
@@ -35,7 +35,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#follow-the-declared-dependency-graph`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A dependency between layers or modules MUST follow the declared graph and add no other edge.
 
@@ -47,7 +47,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-domain-dependency-free`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The Domain layer MUST depend on no external package or framework.
 
@@ -59,7 +59,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-application-free-of-provider-packages`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Application MUST depend only on messaging abstractions, required read abstractions, and the one declared read boundary.
 
@@ -71,7 +71,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-providers-in-infrastructure`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A database provider, external SDK, resilience, discovery, or serialization adapter MUST live in Infrastructure.
 
@@ -83,9 +83,9 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#pin-every-dependency-version-centrally`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.json` states where it states one.
+**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.yaml` states where it states one.
 
 **Rationale:** An inline version in one module file is invisible to the manifest that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place: the manifest pins the baseline stack the standards name, and the consumer's own central file or lockfile pins the product's own packages. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer's pins live beside its code, admitted by `litespec/workspace/dependencies#approve-new-packages-explicitly`.
 
@@ -97,7 +97,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#approve-new-packages-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A package absent from the manifest MUST be admitted by a technical decision whose `admits` entry names the package with its owning layer, license, processing location, account owner, failure behavior, and operating cost.
 
@@ -111,7 +111,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-frontend-applications-isolated`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A frontend MUST NOT import another application's source or another module's internal feature files.
 
@@ -123,13 +123,13 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **ID:** `litespec/workspace/dependencies#keep-the-approved-web-ui-dependency-boundary`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.json`, and a Svelte web frontend from `uiBaselineSvelte`.
+**Statement:** A React web frontend MUST take its UI packages from the `uiBaseline` in `litespec.manifest.yaml`, and a Svelte web frontend from `uiBaselineSvelte`.
 
 **Rationale:** A fixed UI baseline keeps every screen drawing from the same design system, styling, base components, icons, and utilities. Taking UI packages only from `uiBaseline` for React and `uiBaselineSvelte` for Svelte keeps that set reviewed and versioned in one place. Each baseline pins the design system, styling, base components, icons, and the utility packages the installed source imports directly.
 
-**Reviewed for:** Each React frontend manifest takes UI packages only from `uiBaseline`, and each Svelte one only from `uiBaselineSvelte`, in `litespec.manifest.json`.
+**Reviewed for:** Each React frontend manifest takes UI packages only from `uiBaseline`, and each Svelte one only from `uiBaselineSvelte`, in `litespec.manifest.yaml`.
 
 ## Conventions
 

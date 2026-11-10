@@ -4,13 +4,13 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 4.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only) and its stacks: one backend stack for a server project, and one stack per frontend.
+LiteSpec 5.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
-`litespec.manifest.json` lists the stacks, shapes, extensions and pinned versions. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
+`litespec.manifest.yaml` lists the stacks, shapes, extensions and pinned versions. Every hand-written LiteSpec file is YAML, and so is every record file a consumer writes. `docs/README.md` is the human index. A provision ID is `litespec/<page>#<slug>` as its `**ID:**` line states it, and `docs/reference/provisions.md` lists them all.
 
-Sources: `litespec/core/scope#keep-one-bounded-context`, `litespec/core/scope#select-a-size-a-shape-and-stacks`, `litespec/core/stacks#apply-the-complete-stack`, `litespec/core/scope#select-conditional-extensions-explicitly`, `litespec/core/authoring#use-the-declared-identifier-grammar`.
+Sources: `litespec/core/scope#keep-one-bounded-context`, `litespec/core/scope#select-a-size-a-shape-and-stacks`, `litespec/core/stacks#apply-the-complete-stack`, `litespec/core/scope#select-conditional-extensions-explicitly`, `litespec/core/scope#claim-the-record-layers-the-project-uses`, `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml`, `litespec/core/authoring#use-the-declared-identifier-grammar`.
 
 ## Principles
 
@@ -24,7 +24,7 @@ LiteSpec is clean, plain, straightforward and, above all, consistent. Every chan
 6. **Readable cold.** Every page, record and book page stands alone for a reader who arrives from a link with nothing read before it: it says what kind of thing it is, who it concerns and what is at stake before it points anywhere else. A field a reader needs gets a place in the record type, never a convention in prose. (`litespec/core/writing#write-for-the-reader-who-arrives-cold`)
 7. **The product, not the company.** LiteSpec specifies the application: behavior it performs, data it holds and limits it enforces. Running the company (prices as an offer, markets, sales, hiring, launch dates, founder risks) stays out; it enters only as a constraint or as dated research. Engineering practice a small project can skip lives in the opt-in `delivery` extension.
 8. **Completion is computed.** What a reader asks first is how much of a thing exists and is proven. The model computes it from code, tests and passing scenarios, and nobody types it.
-9. **Guidance states its strength.** Every provision says whether it is a rule, a default or advice, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
+9. **Guidance states its strength.** Every provision says whether it is required, a default or advisory, and where it applies. A check is an aid where one is cheap and sure, never the condition for a provision to exist.
 10. **Tools stay small.** A command, check, generated file or package exists because the owner approved it, and is removed when nothing uses it.
 
 LiteSpec serves many projects. Never name a consumer project in it.
@@ -42,7 +42,7 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 
 In a consumer:
 
-1. Read the consumer's `AGENTS.md` and `.litespec/project.json`.
+1. Read the consumer's `AGENTS.md` and `.litespec/project.yaml`.
 2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the YAML record files themselves with their explanation files.
 3. Before you generate files or change a public boundary, read the full standards pages those records cite.
 4. Before you edit inside an extension's boundary, read the extension.
@@ -56,11 +56,11 @@ Sources: `litespec/core/agent#select-task-context`, `litespec/core/agent#read-th
 
 ## Precedence
 
-When guidance overlaps, apply it in this order: a project deviation, a selected extension's replacement, a deeper page, then a shallower page. A deviation names the provision it replaces and carries a reason and a scope.
+When guidance overlaps, apply it in this order: a project departure, a selected extension's replacement, a deeper page, then a shallower page. A departure names the provisions it covers and carries a reason and a scope. A project never edits a provision to depart from it.
 
 If two requirements conflict and nothing above decides, stop. Quote both provision IDs and their paths, and ask for a decision.
 
-Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#stop-on-unresolved-conflict`.
+Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#stop-on-unresolved-conflict`, `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`.
 
 ## Making a Change
 
@@ -77,7 +77,7 @@ Sources: `litespec/core/agent#make-coherent-scoped-changes`, `litespec/core/agen
 
 ## Writing
 
-Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check and what the page contract needs: ASCII only, one term per concept from the glossary, capitalized modal words only inside a Statement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases.
+Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check on LiteSpec's own pages: ASCII only, one term per concept, capitalized modal words only inside a Statement, Deviation, Default or Replacement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases. The [Project Model](docs/core/model.md) and [Record Language](docs/core/language.md) pages state the rules a consumer's YAML record files follow: their types, identifiers, names, glossary and departures.
 
 Each page uses the sections of its page style. A Standard states one testable obligation. Every provision states its strength and where it applies, and has the same layout, in this order:
 
@@ -86,9 +86,9 @@ Each page uses the sections of its page style. A Standard states one testable ob
 
 **ID:** `litespec/frontend/components#keep-shared-ui-in-one-package`
 
-**Strength:** rule
+**Strength:** required
 
-**Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default and Rationale, with an optional Compact)
+**Statement:** ...   (a convention: Default and Replacement; a pattern: Question, Default, Compact and Rationale)
 
 **Rationale:** ...
 
@@ -97,15 +97,15 @@ Each page uses the sections of its page style. A Standard states one testable ob
 **Reviewed for:** ...   (or Checked by: the command, the finding code and the scope)
 ```
 
-The ID line holds the ID the heading derives, and the Strength line states rule, default or advice. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
+The ID line holds the ID the heading derives, and the Strength line states `required`, `default` or `advisory`. A Standard is `required` or `advisory`; a Convention or a pattern is `default`. `litespec-maintain provisions` writes the index from these lines. When you rename a provision, replace every citation of the old ID in the same change.
 
-Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
+Sources: `litespec/core/authoring#keep-authored-prose-ascii-safe`, `litespec/core/authoring#use-one-normative-vocabulary`, `litespec/core/authoring#use-one-term-for-one-concept`, `litespec/core/authoring#use-controlled-capitalization`, `litespec/core/authoring#use-the-declared-page-contract`, `litespec/core/authoring#write-atomic-standards-provisions`, `litespec/core/authoring#place-the-id-under-every-provision-heading`, `litespec/core/authoring#regenerate-the-provision-index`, `litespec/core/principles#state-the-strength-of-every-provision`, `litespec/core/maintaining#replace-every-citation-on-a-rename`.
 
 ## Releases
 
 Each LiteSpec release is a complete contract. Don't add compatibility, migration, deprecation or alias work between LiteSpec releases, and keep no history-specific paths, IDs or transition checks. That rule covers LiteSpec's own releases only: a consumer product's API compatibility, migration and rollback provisions still apply.
 
-The highest git tag is the current release. The manifest, `CHANGELOG.md` and the consumer template carry the release being prepared, and tagging it makes it current. A consumer keeps a pinned release for as long as it wants and records it in `reviewedLiteSpecVersion`.
+The highest git tag is the current release. The manifest, `CHANGELOG.md` and the consumer template carry the release being prepared, and tagging it makes it current. A consumer keeps a pinned release for as long as it wants and records it in `reviewedLiteSpecVersion` within `.litespec/project.yaml`.
 
 Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, `litespec/core/authoring#exclude-cross-release-compatibility-work`, `litespec/core/authoring#exclude-historical-transition-material`, `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`, `litespec/core/authoring#record-the-reviewed-litespec-release`.
 
@@ -155,20 +155,22 @@ In this repository, run these before a change is done:
 ```bash
 dotnet build LiteSpec.slnx
 dotnet test --solution LiteSpec.slnx
-dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions
+dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions --check
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 git diff --check
-pnpm --dir apps/cli/book install --frozen-lockfile && pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book test && pnpm --dir apps/cli/book build
-pnpm --dir apps/site install --frozen-lockfile && pnpm --dir apps/site test && pnpm --dir apps/site build
+pnpm install --frozen-lockfile
+pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book test && pnpm --dir apps/cli/book build
+pnpm --dir apps/cli/fe-reader check
+pnpm --dir apps/site test && pnpm --dir apps/site build
 ```
 
-The last two lines are the web jobs CI runs; a change that passes the .NET checks and fails them is not done.
+`provisions --check` fails when the provision index is stale, so run `provisions` without `--check` to write it. The pnpm lines are the web jobs CI runs; a change that passes the .NET checks and fails them is not done.
 
 `litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links and verification marks.
 
 In a consumer, run the gates that the job table in [continuous integration](docs/quality/ci.md) selects for each changed area, Playwright for the browser flows the change affects, and the checks of every selected extension.
 
-Sources: `litespec/core/authoring#run-repeatable-authoring-checks`, `litespec/quality/ci#run-applicable-gates-on-every-pull-request`, `litespec/core/release#run-boundary-selected-checks`.
+Sources: `litespec/core/authoring#run-repeatable-authoring-checks`, `litespec/core/authoring#regenerate-the-provision-index`, `litespec/quality/ci#run-applicable-gates-on-every-pull-request`, `litespec/core/release#run-boundary-selected-checks`.
 
 ## Finishing
 

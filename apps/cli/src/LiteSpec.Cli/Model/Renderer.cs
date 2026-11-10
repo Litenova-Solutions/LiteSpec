@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
 static partial class Renderer
 {
-    /// <summary>Renders every known region, returning the changed files.</summary>
+    /// <summary>Renders every generated region the builder writes, returning the changed files.</summary>
     /// <param name="model">The built project model the regions render from.</param>
     /// <returns>The pages rewritten, relative to the root, in read order.</returns>
     public static IReadOnlyList<string> Render(ProjectModel model)
@@ -40,28 +40,13 @@ static partial class Renderer
                 if (rewritten != text)
                 {
                     File.WriteAllText(file, rewritten);
-                    changed.Add(model.Config.Relative(file));
+                    changed.Add(PathText.Relative(model.Config.Root, file));
                 }
             }
         }
 
         return changed;
     }
-
-    /// <summary>Every region name the builder renders.</summary>
-    public static readonly HashSet<string> KnownRegions = new(StringComparer.Ordinal)
-    {
-        "alert-inventory", "operations-log", "runbook-index",
-    };
-
-    /// <summary>One region fence: its name and the offset where it opens.</summary>
-    public sealed record RegionFence(string Name, int Index);
-
-    /// <summary>Every generated-region fence the text carries.</summary>
-    /// <param name="text">The page text to scan.</param>
-    /// <returns>Every fence in text order, with its offset.</returns>
-    public static IReadOnlyList<RegionFence> Regions(string text) =>
-        [.. Region().Matches(text).Select(match => new RegionFence(match.Groups["name"].Value, match.Index))];
 
     /// <summary>The rendered content of one region on one page.</summary>
     /// <param name="model">The built project model the region renders from.</param>
@@ -91,7 +76,7 @@ static partial class Renderer
         {
             var trigger = runbook.Field(RecordFields.Trigger) ?? "";
 
-            lines.Add($"- [{runbook.Title}]({RelativeLink(file, runbook.File)}): {trigger}");
+            lines.Add($"- [{runbook.Title}]({PathText.Relative(Path.GetDirectoryName(file)!, runbook.File)}): {trigger}");
         }
 
         return string.Join('\n', lines);
@@ -136,7 +121,7 @@ static partial class Renderer
             var requirement = RecordCell(model, file, RuleLabel(rule, "requirement"), RecordTypes.Requirement);
             var runbook = RecordCell(model, file, RuleLabel(rule, "runbook"), RecordTypes.Runbook);
             var severity = Cell(RuleLabel(rule, "severity"));
-            var source = Cell(model.Config.Relative(rule.File));
+            var source = Cell(PathText.Relative(model.Config.Root, rule.File));
 
             lines.Add($"| {requirement} | {Cell(rule.Name)} | {runbook} | {severity} | {source} |");
         }
@@ -161,15 +146,8 @@ static partial class Renderer
         id.Length == 0
             ? ""
             : model.ById.TryGetValue(id, out var record) && record.Type == type
-                ? $"[`{id}`]({RelativeLink(file, record.File)})"
+                ? $"[`{id}`]({PathText.Relative(Path.GetDirectoryName(file)!, record.File)})"
                 : $"`{id}`";
-
-    /// <summary>Builds the link target from one page to another file.</summary>
-    /// <param name="from">The page the link sits on.</param>
-    /// <param name="to">The file the link points at.</param>
-    /// <returns>The relative path from the page folder to the target, with forward slashes.</returns>
-    private static string RelativeLink(string from, string to) =>
-        Path.GetRelativePath(Path.GetDirectoryName(from)!, to).Replace(Path.DirectorySeparatorChar, '/');
 
     /// <summary>Escapes one cell for a Markdown table row.</summary>
     /// <param name="text">The cell text to escape.</param>

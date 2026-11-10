@@ -32,9 +32,9 @@
           {#if q}
             <span class={codeCls}>{String(q.fields?.address ?? "")}</span>
             {#if q.route}
-              <FactBadge text="implemented" />
+              <FactBadge text="coded" />
             {:else}
-              <FactBadge text="not implemented" />
+              <FactBadge text="not coded" />
             {/if}
             {#if ((q.calls as string[] | undefined) ?? []).includes(id)}
               <FactBadge text="calls" />

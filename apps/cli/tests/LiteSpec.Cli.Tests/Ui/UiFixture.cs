@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Ui;
+namespace LiteSpec.Cli.Tests.Ui;
 
 /// <summary>
 /// A throwaway UI consumer built from the tracked templates. Each test creates its own instance
@@ -110,16 +110,16 @@ sealed class UiFixture : IDisposable
     public string AppStyles => Join("apps/web/src/styles.css");
 
     /// <summary>Gets the consumer project file.</summary>
-    public string ProjectFile => Join(".litespec/project.json");
+    public string ProjectFile => Join(".litespec/project.yaml");
 
     /// <summary>Gets the source lock.</summary>
-    public string LockFile => Join("packages/ui/ui-source-lock.json");
+    public string LockFile => Join("packages/ui/ui-source-lock.yaml");
 
     /// <summary>Gets the design contract.</summary>
     public string DesignFile => Join("packages/ui/DESIGN.md");
 
     /// <summary>Gets the pattern catalog.</summary>
-    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.json");
+    public string CatalogFile => Join(".litespec/implementation/patterns/catalog.yaml");
 
     /// <summary>Gets the baseline configuration file.</summary>
     public string ComponentsFile => Join("packages/ui/components.json");
@@ -134,7 +134,7 @@ sealed class UiFixture : IDisposable
     /// <returns>The fresh fixture.</returns>
     public static UiFixture Create()
     {
-        var fixture = new UiFixture(Cli.Temp("ui"), Cli.Temp("ui-home"));
+        var fixture = new UiFixture(TestCli.Temp("ui"), TestCli.Temp("ui-home"));
         fixture.Build();
         return fixture;
     }
@@ -142,7 +142,7 @@ sealed class UiFixture : IDisposable
     /// <summary>Reads a JSON file.</summary>
     /// <param name="file">The JSON file path.</param>
     /// <returns>The parsed JSON value, or null when the file holds null.</returns>
-    public static JsonNode? ReadJson(string file) => JsonNode.Parse(File.ReadAllText(file));
+    public static JsonNode? ReadJson(string file) => DataFile.Read(file);
 
     /// <summary>Writes a JSON file two-space indented with a trailing newline.</summary>
     /// <param name="file">The JSON file path.</param>
@@ -161,7 +161,7 @@ sealed class UiFixture : IDisposable
     /// <summary>The finding codes the controlled UI pass reports.</summary>
     static readonly HashSet<string> UiCodes = new(StringComparer.Ordinal)
     {
-        "exception-expired", "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
+        "departure-expired", "ui-package-invalid", "ui-baseline-missing", "ui-frontend-invalid",
         "ui-components-invalid", "ui-sourcelock-invalid", "ui-design-contract-invalid",
         "ui-stylesheet-invalid", "ui-class-invalid", "ui-import-invalid", "ui-dependency-invalid",
         "ui-catalog-invalid", "ui-route-suite-missing",
@@ -169,14 +169,14 @@ sealed class UiFixture : IDisposable
 
     /// <summary>Runs <c>litespec model check</c> against the fixture.</summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
-    public CliResult Run() => Cli.Run("model", "check", "--root", Root);
+    public CliResult Run() => TestCli.Run("model", "check", "--root", Root);
 
     /// <summary>
     /// Runs <c>litespec model check</c> against the fixture with the LiteSpec home pointed at the
     /// fixture release, so the pattern pages it reads are the fixture pages.
     /// </summary>
     /// <returns>The exit code and the two output streams of the run.</returns>
-    public CliResult RunWithFixtureHome() => Cli.Run(
+    public CliResult RunWithFixtureHome() => TestCli.Run(
         ["model", "check", "--root", Root],
         null,
         new Dictionary<string, string> { ["LITESPEC_HOME"] = HomeDir });
@@ -259,39 +259,39 @@ sealed class UiFixture : IDisposable
         return Run();
     }
 
-    /// <summary>Writes one Exception record under the default exceptions folder.</summary>
-    /// <param name="name">The exception file and record name.</param>
-    /// <param name="provision">The provision id the exception covers.</param>
-    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
-    /// <returns>The full path to the exception file.</returns>
-    public string WriteException(string name, string provision, string expiresOn) =>
-        WriteExceptionFile($".litespec/governance/exceptions/{name}.yaml",
-            ExceptionMeta($"exception/{name}", $"Fixture exception {name}", provision, expiresOn));
+    /// <summary>Writes one departure record under the default departures folder.</summary>
+    /// <param name="name">The departure file and record name.</param>
+    /// <param name="provision">The provision id the departure covers.</param>
+    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
+    /// <returns>The full path to the departure file.</returns>
+    public string WriteDeparture(string name, string provision, string expiresOn) =>
+        WriteDepartureFile($".litespec/governance/departures/{name}.yaml",
+            DepartureMeta($"departure/{name}", $"Fixture departure {name}", provision, expiresOn));
 
-    /// <summary>Writes one Exception record at a consumer-relative path.</summary>
+    /// <summary>Writes one departure record at a consumer-relative path.</summary>
     /// <param name="relative">The file path under the fixture root.</param>
-    /// <param name="meta">The exception record fields.</param>
-    /// <returns>The full path to the exception file.</returns>
-    public string WriteExceptionFile(string relative, JsonObject meta) =>
+    /// <param name="meta">The departure record fields.</param>
+    /// <returns>The full path to the departure file.</returns>
+    public string WriteDepartureFile(string relative, JsonObject meta) =>
         TestRecords.Write(Root, relative, meta.ToJsonString());
 
-    /// <summary>The fields of a fixture Exception record.</summary>
-    /// <param name="id">The exception record id.</param>
-    /// <param name="title">The exception title.</param>
-    /// <param name="provision">The provision id the exception covers.</param>
-    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
-    /// <returns>The exception record fields.</returns>
-    public static JsonObject ExceptionMeta(string id, string title, string provision, string expiresOn) => new()
+    /// <summary>The fields of a fixture departure record.</summary>
+    /// <param name="id">The departure record id.</param>
+    /// <param name="title">The departure title.</param>
+    /// <param name="provision">The provision id the departure covers.</param>
+    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
+    /// <returns>The departure record fields.</returns>
+    public static JsonObject DepartureMeta(string id, string title, string provision, string expiresOn) => new()
     {
-        ["type"] = "exception",
+        ["type"] = "departure",
         ["id"] = id,
         ["title"] = title,
-        ["kind"] = "departure",
-        ["covers"] = provision,
+        ["covers"] = new JsonArray(provision),
         ["paths"] = new JsonArray("packages/ui/**"),
         ["reason"] = "The fixture needs this departure.",
-        ["consequences"] = "The fixture ships with this departure until the exception expires.",
+        ["consequences"] = "The fixture ships with this departure until it expires.",
         ["expiresOn"] = expiresOn,
+        ["exit"] = "The fixture closes this gap when the departure expires.",
     };
 
     /// <summary>Mutates the source lock in place.</summary>
@@ -347,7 +347,7 @@ sealed class UiFixture : IDisposable
     {
         MutateProject(project =>
         {
-            ((JsonObject)project["paths"]!)["frontends"] = new JsonArray(new JsonObject
+            project["frontends"] = new JsonArray(new JsonObject
             {
                 ["name"] = "web",
                 ["path"] = "apps/web",
@@ -401,7 +401,7 @@ sealed class UiFixture : IDisposable
             "apps/web/src/routes",
             "apps/web/src/modules",
             "apps/web/tests/routes",
-            ".litespec/governance/exceptions",
+            ".litespec/governance/departures",
         })
         {
             Directory.CreateDirectory(Join(directory));
@@ -409,8 +409,8 @@ sealed class UiFixture : IDisposable
 
         Directory.CreateDirectory(Path.Join(HomeDir, "schemas"));
         Directory.CreateDirectory(Path.Join(HomeDir, "docs", "frontend", "patterns"));
-        File.Copy(Path.Join(Cli.Repository, "litespec.manifest.json"), Path.Join(HomeDir, "litespec.manifest.json"));
-        foreach (var schema in Directory.GetFiles(Path.Join(Cli.Repository, "schemas")))
+        File.Copy(Path.Join(TestCli.Repository, "litespec.manifest.yaml"), Path.Join(HomeDir, "litespec.manifest.yaml"));
+        foreach (var schema in Directory.GetFiles(Path.Join(TestCli.Repository, "schemas")))
         {
             File.Copy(schema, Path.Join(HomeDir, "schemas", Path.GetFileName(schema)));
         }
@@ -419,14 +419,14 @@ sealed class UiFixture : IDisposable
         // pattern page they read is this fixture rather than the release's own pages.
         File.WriteAllText(FixturePatternPage, FixturePatternPageText);
 
-        var project = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/project.json"))!;
+        var project = (JsonObject)ReadJson(Path.Join(TestCli.Repository, "templates/consumer/project.yaml"))!;
         ResolvePlaceholders(project);
-        var uiPackage = (JsonObject)project["paths"]!["uiPackage"]!;
+        var uiPackage = (JsonObject)project["ui"]!["package"]!;
         uiPackage["name"] = "@fixture/ui";
         uiPackage["publicExports"] = new JsonArray("@fixture/ui/floorplans");
         WriteJson(ProjectFile, project);
 
-        var sourceLock = (JsonObject)ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-source-lock.json"))!;
+        var sourceLock = (JsonObject)ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-source-lock.yaml"))!;
         WriteJson(LockFile, sourceLock);
 
         File.WriteAllText(Join("packages/ui/src/components/button.tsx"), ButtonSource);
@@ -439,13 +439,13 @@ sealed class UiFixture : IDisposable
 
         WriteJson(ComponentsFile, ComponentsJson());
 
-        var contract = File.ReadAllText(Path.Join(Cli.Repository, "templates/consumer/design-contract.md"));
+        var contract = File.ReadAllText(Path.Join(TestCli.Repository, "templates/consumer/design-contract.md"));
         File.WriteAllText(DesignFile, contract.Replace("__PROJECT__", "fixture", StringComparison.Ordinal));
 
         // The catalog travels with the consumer: the fixture copies the shipped template
         // to the path the project file names, then creates every source path the catalog
         // names, so the baseline proves the template as shipped.
-        var catalog = ReadJson(Path.Join(Cli.Repository, "templates/consumer/ui-pattern-catalog.json"))!;
+        var catalog = ReadJson(Path.Join(TestCli.Repository, "templates/consumer/ui-pattern-catalog.yaml"))!;
         WriteJson(CatalogFile, catalog);
         foreach (var pattern in (JsonArray)catalog["patterns"]!)
         {

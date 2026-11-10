@@ -1,12 +1,11 @@
 # Admin Screen Patterns
 
 **Stack:** any
-
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
-Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, spreadsheet imports, the payout account, subscription invoices, and budget codes. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.
+Settings screens configure the company itself, and this page shows each screen as drawn options with a named default to build: the team and its roles, API keys and webhooks, data import, the payout account, subscription invoices, and budget limits and advances. The product owner chooses among the options when the team builds or revises a settings area. Consistent admin layouts keep powerful commands, such as granting access, rotating secrets, and paying invoices, safe to operate.
 
 ## Concepts
 
@@ -16,7 +15,7 @@ Each pattern answers one recurring question about a settings screen, such as how
 
 ### The Running Example
 
-The drawings on this page use the Claimwick settings for Harbor and Pine: the team with Dana as Owner, the Accounting export API key, the staff-2026-01.csv import, the Example Bank payout account, subscription invoice INV-2026-09, and budget code TRIP10. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent.
+The drawings on this page use the Claimwick settings for Harbor and Pine: the team with Dana as Owner, the Accounting export API key, the staff-2026-01.csv import, the Example Bank payout account, subscription invoice INV-2026-09, budget code TRIP10, and advance AC-2026-0117. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a new secret shows in full only once, and an invitation or role change shows what the role allows before it is sent.
 
 ## Standards
 
@@ -24,7 +23,7 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-a-new-secret-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A screen MUST show a newly created API key or secret in full only once, at creation.
 
@@ -36,7 +35,7 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **ID:** `litespec/frontend/patterns/admin-screens#show-what-a-role-allows-before-granting-it`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** An invitation or role change MUST show what the chosen role allows before it is sent.
 
@@ -58,9 +57,11 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The members table with invitations below is the default because it answers three questions in one scan: who is in, who is invited, and what each may do. The permission matrix is the runner-up; prefer it on the role page, where capabilities are compared across roles. Never ship the matrix as the team page, because the team page manages people, and a capability grid hides who holds what.
+**Rationale:** The members table with invitations below is the default because it answers three questions in one scan: who is in, who is invited, and what each may do. The permission matrix is the runner-up; prefer it on the roles page, where capabilities are compared across roles. The cost-centre cards are the alternative for a staff group that claims for one cost centre and whose access ends on a date.
 
-**Reviewed for:** Which built staff list or invitation breaks from the chosen wireframe? Open the built team screen, with its invitations, beside the catalog entry recording the chosen option and its reason.
+Never ship the matrix as the team page, because the team page manages people, and a capability grid hides who holds what. The invite command opens a dialog on this page, with the role and its capabilities beside the address, and a reader who cannot manage the team sees the same list without the row commands.
+
+**Reviewed for:** Which built member list, permission matrix, or staff card breaks from the chosen wireframe? Open the built team or roles screen beside the catalog entry recording the chosen option and its reason.
 
 #### `members-with-the-invitations-below`: Members with the Invitations Below
 
@@ -79,7 +80,7 @@ page
       item: text "nina@example.org" · text muted "Invited as Spender · expires 13 Oct" · status "Sent" info · action "Resend"
 ```
 
-**Rationale:** Linear lists members with role and state in line, and pending invitations below in the same view, because invited and active people are two states of one team list. The owner acts on a row, such as resending or revoking, without opening it.
+**Rationale:** The member list carries role and state in line, with pending invitations below in the same view, because invited and active people are two states of one team list. The owner acts on a row, such as resending or revoking, without opening it.
 
 **Cost:** Row commands for suspend, remove, change role, and limit access cannot all fit, so most move into a menu per row.
 
@@ -100,38 +101,11 @@ page
     message "Spenders submit and attach receipts. Only Finance reimburses." info
 ```
 
-**Rationale:** GitHub compares team roles in a capability matrix, which answers what each role may do without opening roles one by one. The matrix fits custom roles because it shows every capability side by side instead of hiding grants inside dialogs.
+**Rationale:** A capability matrix compares roles, which answers what each role may do without opening roles one by one. The matrix fits custom roles because it shows every capability side by side instead of hiding grants inside dialogs.
 
-**Cost:** Past about twenty capabilities the matrix needs grouping by area, and it reads as a reference table rather than a working page.
+**Cost:** Past about 20 capabilities the matrix needs grouping by area, and it reads as a reference table rather than a working page.
 
 **Reference:** GitHub
-
-#### `inviting-one-member-in-a-dialog`: Inviting One Member in a Dialog
-
-```wireframe
-page
-  breadcrumb "Settings" "Team"
-  header
-    heading "Team"
-    text "Harbor and Pine · 5 members · 2 invitations outstanding."
-  region "Members"
-    list 2
-      item: avatar "D" · text "Dana" · text muted "Owner · everything" · status "Active" positive
-  dialog "Invite member"
-    field "Email address" text = "nina@example.org"
-    field "Role" select = "Spender"
-    field "Access" select = "Travel cost centre only"
-    text muted "Spenders are limited to the cost centre they claim for."
-    text muted "The invitation expires in 7 days."
-    action "Cancel"
-    action primary "Send invitation"
-```
-
-**Rationale:** Clerk invites with address, role, and scope in one dialog, because an invitation is one decision with three fields. The scope line limits spenders to one cost centre at the point of inviting.
-
-**Cost:** Inviting a whole seasonal crew means repeating the dialog per person, so bulk inviting needs a different shape.
-
-**Reference:** Clerk
 
 #### `warehouse-scoped-staff-cards`: Cost-Centre-Scoped Staff Cards
 
@@ -148,58 +122,11 @@ page
     message "Seasonal access ends on the date on the card. Nothing is removed by hand." info
 ```
 
-**Rationale:** Vercel scopes team access per project, which fits interns who claim for one cost centre and nothing else. The card names the cost centre, the role, and the end of the access.
+**Rationale:** Access scoped to one cost centre fits interns who claim for it and nothing else. The card names the cost centre, the role, and the end of the access.
 
 **Cost:** Staff cards separate from the member list split the team into two places, and the owner checks both.
 
 **Reference:** Vercel
-
-#### `suspending-a-member-with-the-reason`: Suspending a Member with the Reason
-
-```wireframe
-page
-  breadcrumb "Settings" "Team"
-  header
-    heading "Team"
-    text "Harbor and Pine · 5 members."
-  region "Members"
-    list 1
-      item: avatar "E" · text "Eli" · text muted "Spender · two cost centres" · status "Active" positive · action "Suspend"
-  dialog "Suspend Eli"
-    text "Sign-in stops at once. Open work stays assigned until it is moved."
-    field "Reason" text
-    text muted "Recorded in the audit trail. Required."
-    fact "Open expenses" "2 submitted · decide them first"
-    fact "History" "Kept · nothing is deleted"
-    action "Cancel"
-    action destructive "Suspend member"
-```
-
-**Rationale:** GitHub suspends with the reason recorded, because a suspension is reviewed later and the recorded reason is what the reviewer reads. The dialog states what the member keeps, such as history, and what stops, such as sign-in.
-
-**Cost:** A dialog per member action means suspend, remove, reinstate, and transfer ownership each carry their own copy to maintain.
-
-**Reference:** GitHub
-
-#### `the-team-as-a-member-without-controls-sees-it`: The Team as a Member Without Controls Sees It
-
-```wireframe
-page
-  breadcrumb "Settings" "Team"
-  header
-    heading "Team"
-    text "Harbor and Pine · 5 members."
-  region "Members"
-    list 5
-      item: avatar "D" · text "Dana" · text muted "Owner"
-    message "Only the owner manages the team. Membership states and invitations are not shown here." info
-```
-
-**Rationale:** Linear shows the member list without controls to members who cannot manage, because the names and roles are shared and the commands are not. The page is the same shape with the commands gone.
-
-**Cost:** A read-only page shaped like the managing page invites clicking where nothing happens, so it must show no disabled buttons or empty menus, only the names and roles.
-
-**Reference:** Linear
 
 ### API Keys and Webhooks
 
@@ -213,9 +140,11 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The keys table with the shown-once dialog is the default: the list states each key's grants, and the dialog protects the secret at creation. The endpoint with its delivery log is the runner-up; prefer it on the webhooks tab, where deliveries are the work. Never show the secret outside the creation dialog: a secret that can be read again is not a secret.
+**Rationale:** The keys table with the grants in line is the default: the list states what each key may do, and last use tells finance whether it still runs. The secret dialog pairs with it at creation, where the new secret shows once and cannot be read again. The endpoint with its delivery log is the runner-up; prefer it on the webhooks tab, where deliveries are the work.
 
-**Reviewed for:** Which built credential or delivery list breaks from the chosen wireframe? Open the built keys screen, with grants in line, beside the catalog entry recording the chosen option and its reason.
+Never show the secret outside the creation dialog: a secret that can be read again is not a secret. Keep the key list and the endpoint list on separate tabs, because a key grants access and an endpoint receives updates.
+
+**Reviewed for:** Which built key list, secret dialog, or delivery list breaks from the chosen wireframe? Open the built keys or webhooks screen beside the catalog entry recording the chosen option and its reason.
 
 #### `keys-table-with-the-grants-in-line`: Keys Table with the Grants in Line
 
@@ -224,15 +153,15 @@ page
   breadcrumb "Settings" "Developers"
   header
     heading "Developers"
-    text "API keys, webhooks and embedding origins."
+    text "Keys and the endpoints that receive updates."
     action primary "Create key"
-  tabs "API keys" "Webhooks" "Origins"
+  tabs "API keys" "Webhooks"
     region "Keys"
       table 3 "Key" "Grants" "Last used" "State"
         item: text "Accounting export" · text "Read expenses, read payouts" · text "8 Oct, 09:31" · status "Live" positive · action "Rotate"
 ```
 
-**Rationale:** The Stripe Dashboard lists API keys with grants, creation, and last use. Finance asks what a key may do and whether it is still used. Revoke and rotate sit on the row.
+**Rationale:** The key list states grants, last use, and state, because finance asks what a key may do and whether it is still used. Rotate sits on the row, and revoking is a command on the key page.
 
 **Cost:** Grants in line fit only as short labels, so the full grant list lives on the key page one click down.
 
@@ -245,8 +174,8 @@ page
   breadcrumb "Settings" "Developers"
   header
     heading "Developers"
-    text "API keys, webhooks and embedding origins."
-  tabs "API keys" "Webhooks" "Origins"
+    text "Keys and the endpoints that receive updates."
+  tabs "API keys" "Webhooks"
     region "Keys"
       list 2
         item: text "Accounting export" · text muted "Read expenses, read payouts" · status "Live" positive
@@ -258,7 +187,7 @@ page
     action primary "Secret stored, close"
 ```
 
-**Rationale:** GitHub shows a new token once with copy front and center, because the secret cannot be read again. The dialog states the grants so finance stores the right secret against the right system.
+**Rationale:** The creation dialog shows the new secret once with copy first, because the secret cannot be read again. The dialog states the grants so finance stores the right secret against the right system.
 
 **Cost:** A secret shown once is lost when the owner closes the dialog too soon, and the only repair is revoking and creating again.
 
@@ -282,105 +211,29 @@ page
     action "Resume"
 ```
 
-**Rationale:** Svix draws each endpoint with its recent deliveries and their states, because finance asks whether an update arrived. A failed delivery carries its next retry and a replay command.
+**Rationale:** Each endpoint sits with its recent deliveries and their states, because finance asks whether an update arrived. A failed delivery carries its next retry and a replay command.
 
 **Cost:** Deliveries multiply into the thousands on a busy day, so the list needs the endpoint as a filter and aggressive paging.
 
 **Reference:** Svix
 
-#### `grant-picker-on-a-new-key`: Grant Picker on a New Key
+### Importing Data from a File
 
-```wireframe
-page
-  breadcrumb "Settings" "Developers"
-  header
-    heading "Developers"
-    text "API keys, webhooks and embedding origins."
-  tabs "API keys" "Webhooks" "Origins"
-    region "Keys"
-      list 1
-        item: text "Accounting export" · text muted "Read expenses, read payouts" · status "Live" positive
-  dialog "Create API key"
-    field "Name" text = "Payout monitor"
-    field "Read expenses and receipts" checkbox
-    field "Read approval state" checkbox
-    field "Read payouts" checkbox
-    field "Reimburse an expense" checkbox
-    text muted "No key holds reimbursements. Only people reimburse."
-    action "Cancel"
-    action primary "Create key"
-```
-
-**Rationale:** GitHub scopes a new token with grouped checkboxes, because a key should hold the least it needs. The groups name the areas so the owner grants by area rather than by capability.
-
-**Cost:** Grouped grants hide the exact capabilities, so a careful owner opens each group and the dialog grows long.
-
-**Reference:** GitHub
-
-#### `rotating-a-key-that-may-have-leaked`: Rotating a Key That May Have Leaked
-
-```wireframe
-page
-  breadcrumb "Settings" "Developers"
-  header
-    heading "Developers"
-    text "API keys, webhooks and embedding origins."
-  tabs "API keys" "Webhooks" "Origins"
-    region "Keys"
-      list 1
-        item: text "Accounting export" · text muted "May be in a shared mailbox" · status "Live" positive · action "Rotate"
-  dialog "Rotate Accounting export"
-    text "A new secret is issued at once. The old secret works for 24 hours."
-    fact "New secret" "Shown once, on the next screen"
-    fact "Old secret" "Works until 9 Oct, 09:32"
-    fact "Grants" "Unchanged · read expenses, read payouts"
-    action "Cancel"
-    action primary "Rotate key"
-```
-
-**Rationale:** Vercel rotates with the old secret kept briefly, because the systems holding it need time to move. The dialog states the overlap and what happens to in-flight calls.
-
-**Cost:** An overlap keeps a leaked secret valid for its window, so the length of the overlap is a second decision with its own risk.
-
-**Reference:** Vercel
-
-#### `embedding-origins-beside-the-keys`: Embedding Origins Beside the Keys
-
-```wireframe
-page
-  breadcrumb "Settings" "Developers"
-  header
-    heading "Developers"
-    text "API keys, webhooks and embedding origins."
-    action primary "Add origin"
-  tabs "API keys" "Webhooks" "Origins"
-    region "Origins"
-      list 3
-        item: text "https://intranet.harbor-pine.example" · text muted "The intranet expense form" · status "Allowed" positive · action "Remove"
-      message "The expense form refuses any page not listed here. Changes apply at once." info
-```
-
-**Rationale:** Clerk lists allowed origins beside the keys, because the expense form runs on the company's pages and nowhere else. Each origin names where it is used.
-
-**Cost:** Origins are a third concern on a developers page, and keys, webhooks, and origins together crowd one set of tabs.
-
-**Reference:** Clerk
-
-### Bringing Data from Spreadsheets
-
-**ID:** `litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets`
+**ID:** `litespec/frontend/patterns/admin-screens#importing-data-from-a-file`
 
 **Strength:** default
 
-**Question:** Staff, budget lines, and payout consents arrive from spreadsheets. Each import names what was brought in and what was refused. Each refusal names why. Finance fixes refused rows without importing the file twice.
+**Question:** Staff, budget lines, and payout consents arrive in files. Each import names what was brought in and what was refused. Each refusal names why. Finance fixes refused rows without importing the file twice.
 
 **Default:** `imports-with-the-refused-rows-below`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The imports table with the refused rows below is the best option. History and repairs sit on one page. The column mapping is the runner-up. Prefer it at import time where the match is decided. Never ship the dropzone alone. An import without refused rows hides the work it creates.
+**Rationale:** The imports table with the refused rows below is the default, because history and repairs sit on one page. The column mapping is the runner-up; prefer it at import time, where the file's columns meet the product's fields. The dry run is the alternative before a large file lands, where the count of refusals decides whether to continue.
 
-**Reviewed for:** Which built column match or refused row breaks from the chosen wireframe? Open the built import flow beside the catalog entry recording the chosen option and its reason.
+Never ship the upload alone: an import without the refused rows hides the work it creates. Never show one list for refusals from several imports; each import groups its own refused rows.
+
+**Reviewed for:** Which built import, column match, or dry-run count breaks from the chosen wireframe? Open the built import flow beside the catalog entry recording the chosen option and its reason.
 
 #### `imports-with-the-refused-rows-below`: Imports with the Refused Rows Below
 
@@ -389,7 +242,7 @@ page
   breadcrumb "Settings" "Data imports"
   header
     heading "Data imports"
-    text "What was brought in from spreadsheets, and what came of it."
+    text "What was brought in from files, and what came of it."
     action primary "Register import"
   region "Imports"
     table 3 "File" "Brought in" "Accepted" "Refused" "State"
@@ -399,7 +252,7 @@ page
       item: text "Row 44 · no email" · text muted "Name present, email address missing." · action "Drop row"
 ```
 
-**Rationale:** Shopify shows an import with its failed rows and the reason per row, because a spreadsheet is never clean. Staff repair the refused rows without touching the rows that already went in.
+**Rationale:** An import shows its failed rows and the reason per row, because a spreadsheet is never clean. Staff repair the refused rows without touching the rows that already went in.
 
 **Cost:** Refused rows from several imports pile up, so each import needs its refused rows grouped under it rather than in one list.
 
@@ -421,35 +274,11 @@ page
     field "Opmerkingen" select = "Ignore"
 ```
 
-**Rationale:** Mailchimp matches spreadsheet columns to fields before importing, because the file's names never equal the system's. Each row pairs one column with one field and finance corrects the guesses.
+**Rationale:** A mapping step matches file columns to fields before the import, because the file's names never equal the system's. Each row pairs one column with one field and finance corrects the guesses.
 
-**Cost:** A wide file means twenty mapping rows, so the page needs the unmatched columns first and the matched ones collapsed.
+**Cost:** A wide file means 20 mapping rows, so the page needs the unmatched columns first and the matched ones collapsed.
 
 **Reference:** Mailchimp
-
-#### `dropzone-with-the-template-beside-it`: Dropzone with the Template Beside It
-
-```wireframe
-page
-  breadcrumb "Settings" "Data imports" "Register"
-  header
-    heading "Register import"
-    text "Bring staff, budget lines or consents from a spreadsheet."
-  split 1:1
-    region "Upload the file"
-      field "Drop the spreadsheet here" file
-      text muted "CSV or Excel · at most 5,000 rows · first row holds the column names."
-      action quiet "Choose file"
-    region "Start from the template"
-      list 3
-        item: text "Staff template" · text muted "First name, last name, email, phone, cost centre" · action "Download"
-```
-
-**Rationale:** Intercom pairs the upload with the template download, because the file imports cleanly only when it starts from the template. Finance downloads, fills, and drops in one loop.
-
-**Cost:** The template covers one kind of import, so contacts, budget lines, and consents each need their own and the page lists three.
-
-**Reference:** Intercom
 
 #### `dry-run-before-the-import`: Dry Run Before the Import
 
@@ -469,59 +298,11 @@ page
       item: text "12 rows · address missing" · text muted "Rows 44, 61 and 88." · action "Drop rows"
 ```
 
-**Rationale:** Stripe shows a dry run before a bulk change lands, because staff should see how many rows will fail before anything is written. The preview counts accepted, refused, and updated rows without writing anything.
+**Rationale:** A dry run before a bulk change lands shows staff how many rows will fail before anything is written. The preview counts accepted, refused, and repairable rows without writing anything.
 
 **Cost:** A dry run reads a large file twice, so files over 5,000 rows get no preview.
 
 **Reference:** Stripe
-
-#### `repairing-one-refused-row`: Repairing One Refused Row
-
-```wireframe
-page
-  breadcrumb "Settings" "Data imports"
-  header
-    heading "Data imports"
-    text "What was brought in from spreadsheets, and what came of it."
-  region "Refused rows · staff-2026-01.csv"
-    list 1
-      item: text "Row 207 · email already held" · text muted "ava@harbor-pine.example is already on staff." · action primary "Repair"
-  dialog "Repair row 207"
-    text "ava@harbor-pine.example is already on staff. Importing again would create a duplicate."
-    field "First name" text = "Ava"
-    field "Phone" text
-    text muted "The record holds no phone number. This fills it."
-    action "Update contact"
-    action "Drop row"
-```
-
-**Rationale:** Shopify repairs a failed row where it lists it, because the fix is one field and the context is the row. The dialog shows the refusal reason above the fields.
-
-**Cost:** One dialog per row is slow when eighteen rows share one cause, so the common causes need bulk commands too.
-
-**Reference:** Shopify
-
-#### `consent-import-refused-outright`: Consent Import Refused Outright
-
-```wireframe
-page
-  breadcrumb "Settings" "Data imports"
-  header
-    heading "Data imports"
-    text "What was brought in from spreadsheets, and what came of it."
-    action primary "Register import"
-  message "payout-consents.csv was refused. 312 rows carry no consent date." critical
-  region "Repair the file"
-    text "Add the date each employee consented, then import again."
-    action "Download the template"
-    action primary "Import again"
-```
-
-**Rationale:** Customer.io refuses a consent file without proof, because consent cannot be assumed and the company pays the fine. The page states the rule and the repair instead of importing part of the file.
-
-**Cost:** Refusing the whole file for some bad rows discards the good ones too, so finance fixes and re-imports rather than continuing.
-
-**Reference:** Customer.io
 
 ### Connecting the Payment Account
 
@@ -535,9 +316,11 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The connected account card with the methods list is the best option. Connection state and methods each have their place and costs sit in line. The capability checklist is the runner-up. Prefer it while the connection is new and methods still need approval. Never show the methods without the account card. A method means nothing while the account is disconnected.
+**Rationale:** The connected account card with the methods list is the default, because connection state and methods each have a place and costs sit in line. The capability checklist is the runner-up; prefer it while the connection is new and methods still need approval. The costs table is the alternative when finance compares methods on last month's payouts.
 
-**Reviewed for:** Which built connection step or method list breaks from the chosen wireframe? Open the built payment setup beside the catalog entry recording the chosen option and its reason.
+Never show the methods without the account card: a method means nothing while the account is disconnected. Before the company connects an account, the page names that state and offers one connect command, with no methods list.
+
+**Reviewed for:** Which built account card, capability checklist, or method cost breaks from the chosen wireframe? Open the built payment setup beside the catalog entry recording the chosen option and its reason.
 
 #### `connected-account-with-the-methods-below`: Connected Account with the Methods Below
 
@@ -561,30 +344,9 @@ page
       item: text "Bank payouts" · text "EUR 0.29 per payout" · status "Live" positive · action "Disable"
 ```
 
-**Rationale:** Stripe draws the connected account above the enabled methods, because methods depend on the connection. The card states the account, the payout bank, and when the capabilities were last refreshed.
+**Rationale:** The connected account sits above the enabled methods, because methods depend on the connection. The card states the account, the payout bank, and when the capabilities were last refreshed.
 
 **Cost:** The account and the methods each want the top of the page, so on a phone the methods start below the fold.
-
-**Reference:** Stripe
-
-#### `connecting-a-new-account-in-steps`: Connecting a New Account in Steps
-
-```wireframe
-page
-  breadcrumb "Settings" "Payments"
-  header
-    heading "Payments"
-    text "Connect the account payouts leave from."
-  region "Connect Example Bank"
-    timeline 3
-      item: status "Done" positive · text "Sign in at Example Bank" · text muted "Harbor and Pine authorized the connection on 8 Oct."
-    action primary "Continue with Example Bank"
-    message "The product never holds funds. The bank holds them and the product records the reference." info
-```
-
-**Rationale:** Stripe Connect onboards in named steps, because connecting means signing in at the provider, approving methods, and setting the payout bank. The steps name what is done and what is left.
-
-**Cost:** Steps imply an order the provider does not enforce, so a step can read as blocked when it is merely unordered.
 
 **Reference:** Stripe
 
@@ -602,7 +364,7 @@ page
       item: text "Send bank payouts" · text muted "Live · reversible within 5 days" · status "Live" positive
 ```
 
-**Rationale:** Adyen shows each method with its capabilities and approval state, because a method can be connected but not yet live. The checklist names what works and what is still pending.
+**Rationale:** A checklist of capabilities names what the connected account can do, because a method can be connected but not yet live. The list states what works and what is still pending.
 
 **Cost:** Capabilities change at the provider without warning, so the checklist is a cached reading with a timestamp rather than the truth.
 
@@ -622,64 +384,15 @@ page
       item: text "Bank payouts" · text "71%" · text "EUR 0.29 per payout" · text "EUR 702.47"
 ```
 
-**Rationale:** Mollie quotes each method with its fee in line, because finance compares costs when choosing methods. The estimate grounds the percentages in last month's payouts.
+**Rationale:** Each method carries its fee in line, because finance compares costs when choosing methods. The estimate grounds the percentages in last month's payouts.
 
 **Cost:** An estimate from last month misleads when the next month sells differently, so the figures need their basis in the open.
 
 **Reference:** Mollie
 
-#### `disconnecting-with-the-consequences-stated`: Disconnecting with the Consequences Stated
+### Subscription Invoices
 
-```wireframe
-page
-  breadcrumb "Settings" "Payments"
-  header
-    heading "Payments"
-    text "The account payouts leave from, and what it costs."
-  region "Example Bank · Connected"
-    text "Harbor and Pine · payouts from NL20 INGB 0001 2345 67."
-    action destructive "Disconnect"
-  dialog "Disconnect Example Bank"
-    text "New payouts stop at once. Payouts already sent stay sent and still arrive."
-    fact "Money sent" "Stays sent · payouts continue"
-    fact "New payouts" "Paused until an account is connected"
-    fact "Approval queue" "Keeps growing while disconnected"
-    action "Keep it connected"
-    action destructive "Disconnect"
-```
-
-**Rationale:** GitHub states the blast radius before a destructive command, which disconnecting is: new payouts stop at once. The dialog names what stops, what continues, and what happens to money already taken.
-
-**Cost:** A heavy dialog for a rare command is weight carried always and used once, but the cost of an accidental disconnect justifies it.
-
-**Reference:** GitHub
-
-#### `no-account-connected-yet`: No Account Connected Yet
-
-```wireframe
-page
-  breadcrumb "Settings" "Payments"
-  header
-    heading "Payments"
-    text "The account payouts leave from, and what it costs."
-  region "No payout account connected"
-    text "Nobody is reimbursed until Harbor and Pine connects its payout account."
-    text muted "Connecting takes about five minutes with the provider."
-    action primary "Connect account"
-  region "Pay approved expenses"
-    message "Disabled until a payout account is connected." neutral
-    action disabled "Send the payout run"
-```
-
-**Rationale:** Stripe shows an empty payments state with the single command that fixes it, because nobody can be paid until the account exists. The state names the step, not the product.
-
-**Cost:** The empty state cannot show methods or costs, so the back office connects without knowing what each method costs.
-
-**Reference:** Stripe
-
-### Supplier Invoice
-
-**ID:** `litespec/frontend/patterns/admin-screens#supplier-invoice`
+**ID:** `litespec/frontend/patterns/admin-screens#subscription-invoices`
 
 **Strength:** default
 
@@ -689,9 +402,11 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The invoice sheet with its lines is the best option. It reads as the document the books need, with the mandate and the download beside it. The plan page with the mandate is the runner-up. Prefer it for changing the plan rather than reading a month. Never show usage lines without their rates. A metered figure without its rate cannot be checked.
+**Rationale:** The invoice sheet with its lines is the default, because it reads as the document the books need, with the mandate and the download beside it. The plan page with the mandate is the runner-up; prefer it for changing the plan rather than reading a month. The invoice list is the alternative for the history of months, where state and total are the facts.
 
-**Reviewed for:** Which built invoice sheet or usage line breaks from the chosen wireframe? Open the built billing screens beside the catalog entry recording the chosen option and its reason.
+Never show usage lines without their rates: a metered figure without its rate cannot be checked. Never bury a failed payment in the list; the invoice states the failure and the next retry.
+
+**Reviewed for:** Which built invoice sheet, invoice list, or plan and mandate breaks from the chosen wireframe? Open the built billing screens beside the catalog entry recording the chosen option and its reason.
 
 #### `invoice-sheet-with-its-lines`: Invoice Sheet with Its Lines
 
@@ -711,7 +426,7 @@ page
     text muted "Paid by direct debit under mandate MND-8841."
 ```
 
-**Rationale:** Stripe Billing draws the invoice as the document itself, because the company files it and pays it. The lines carry quantities and rates, and the totals add up top to bottom.
+**Rationale:** The invoice reads as the document itself, because the company files it and pays it. The lines carry quantities and rates, and the totals add up top to bottom.
 
 **Cost:** A document-shaped page is read, not worked, so changing the plan or the mandate means leaving it.
 
@@ -731,7 +446,7 @@ page
       item: text "INV-2026-09 · September" · text muted "Business plan · 3,412 expenses · 812 messages" · text "EUR 1,308.16" · status "Paid" positive · action "Open"
 ```
 
-**Rationale:** Chargebee lists invoices with state and total in line, because the company asks which month is paid and which is open. The overdue row carries the retry date.
+**Rationale:** A list of invoices carries state and total in line, because the company asks which month is paid and which is open. The overdue row carries the retry date.
 
 **Cost:** The list shows totals without lines, so checking one figure means opening the invoice.
 
@@ -759,93 +474,29 @@ page
       action "Replace mandate"
 ```
 
-**Rationale:** Stripe Billing shows the plan, the mandate, and the next invoice together, because changing one affects the others. The company reads what it pays and how it pays before changing either.
+**Rationale:** The plan, the mandate, and the next invoice sit together, because changing one affects the others. The company reads what it pays and how it pays before changing the plan or the mandate.
 
 **Cost:** Plan, mandate, and next invoice each deserve the top, so the page orders three equals and one of them loses.
 
 **Reference:** Stripe Billing
 
-#### `usage-lines-with-their-rates`: Usage Lines with Their Rates
+### Budget Limits and Advances
 
-```wireframe
-page
-  breadcrumb "Settings" "Billing" "Invoices" "October"
-  header
-    heading "INV-2026-10 · October so far"
-    text "Draft · 412 expenses · issued 1 Nov."
-    action "Download draft"
-  region "Usage"
-    table 3 "Line" "Used" "Rate" "Amount"
-      item: text "Text messages" · text "96" · text "EUR 0.08 each" · text "EUR 7.68"
-```
-
-**Rationale:** Vercel draws metered usage with the rate beside the meter, because a usage line without its rate is a figure the company cannot check. Each line names the plan allowance it counts against.
-
-**Cost:** Rates differ per plan and over time, so the page must state which rate version priced each line.
-
-**Reference:** Vercel
-
-#### `overdue-with-the-retry-stated`: Overdue with the Retry Stated
-
-```wireframe
-page
-  breadcrumb "Settings" "Billing" "Invoices" "INV-2026-09"
-  header
-    heading "Invoice INV-2026-09"
-    text "Harbor and Pine · September 2026."
-    action "Download PDF"
-  message "The direct debit for EUR 1,308.16 failed. The next attempt is 10 Oct." critical
-  region "Fix the payment"
-    fact "Owed" "EUR 1,308.16 · due 15 Oct"
-    fact "Mandate" "MND-8841 · NL20 INGB 0001 2345 67"
-    fact "Next attempt" "10 Oct, automatically"
-    action primary "Pay now"
-    action "Replace mandate"
-```
-
-**Rationale:** Chargebee states the failed charge, the reason, and the next retry, because an overdue invoice is a problem with a date. The company fixes the mandate rather than the invoice.
-
-**Cost:** The overdue-payment wording on the invoice page alarms staff who open the invoice to file it, not to pay it.
-
-**Reference:** Chargebee
-
-#### `text-message-cost-for-the-month`: Text-Message Cost for the Month
-
-```wireframe
-page
-  breadcrumb "Settings" "Billing" "Costs"
-  header
-    heading "Message costs"
-    text "September · 812 text messages · EUR 64.96."
-  region "Cost by kind"
-    table 2 "Kind" "Sent" "Failed" "Cost"
-      item: text "Approval reminders" · text "604" · text "3" · text "EUR 48.32"
-    message "Mail is free and unlimited. Failed messages are not charged." info
-```
-
-**Rationale:** Resend breaks message cost down by kind, because reminders and payout notices fail at different rates. The company reads what each kind costs before the invoice arrives.
-
-**Cost:** Mail is free and text is metered, so one shared cost page mixes two different stories; the channels need either one page with both sections or a page each.
-
-**Reference:** Resend
-
-### Budget Codes and Advances
-
-**ID:** `litespec/frontend/patterns/admin-screens#budget-codes-and-advances`
+**ID:** `litespec/frontend/patterns/admin-screens#budget-limits-and-advances`
 
 **Strength:** default
 
-**Question:** A code funds one trip against its budget. Each code has its own ceiling, claim limit, and dates. Finance watches what each code spends. It retires what leaks. It issues new codes for trips and projects.
+**Question:** A budget code funds spending on one trip. Each code has its own ceiling, claim limit, and dates. An advance holds money for later expenses and spends down as claims arrive. Finance watches what each code spends, retires what leaks, and issues new codes for trips and projects.
 
 **Default:** `code-table-with-use-and-state`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** The code table with usage and state is the best option. It shows value, use, and dates in one scan. Retiring a leaked code is one command on the row. The editor is the runner-up.
+**Rationale:** The code table with use and state is the default, because it shows value, use, and dates in one scan, and a leaked code opens from the row and is retired in its editor. The condition editor is the runner-up; prefer it for creating or revising a code with several conditions. The advances list is the alternative when the balance of the money held is the question.
 
-Prefer it for creating a code with several conditions. Never ship the claims-only list. Claims explain the past and finance manages the codes.
+Never ship the claims-only list: claims explain the past, and finance manages the codes. A code with a handful of fields is issued from the list, and a code with conditions opens the editor.
 
-**Reviewed for:** Which built code table or claims list breaks from the chosen wireframe? Open the built budget screens beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built code table, condition editor, or advance balance breaks from the chosen wireframe? Open the built budget screens beside the catalog entry recording the chosen option and its reason.
 
 #### `code-table-with-use-and-state`: Code Table with Use and State
 
@@ -862,7 +513,7 @@ page
         item: text "TRIP10" · text "EUR 500 cap" · text "412 of 500" · text "1 Feb to 14 Mar" · status "Active" positive · action "Open"
 ```
 
-**Rationale:** Shopify lists discount codes with uses and limits in line, because finance asks what each code spends and whether it leaked. The state badge names what the code does now.
+**Rationale:** A code table shows value, use, and limits in line, because finance asks what each code spends and whether it leaked. The state badge names what the code does now.
 
 **Cost:** The conditions behind a code fit only as a second line. The code page holds the full rule.
 
@@ -892,7 +543,7 @@ page
         fact "State" "Active"
 ```
 
-**Rationale:** Shopify edits a discount as named condition blocks, which fits a code that funds some cost centres, some cities, and some dates. Each block reads as one sentence of the rule.
+**Rationale:** An editor that pairs each condition with the value it bounds fits a code whose ceiling, use limit, and end date all change together. The summary beside the fields states what the code spends before the change is saved.
 
 **Cost:** The blocks take a long page, so the back office cannot check one code and move to the next without scrolling past every condition.
 
@@ -913,83 +564,8 @@ page
         item: text "Advance AC-2026-0117" · text muted "Issued to Ava · 6 Oct" · text "EUR 25.00 of EUR 25.00 left" · status "Unused" info · action "Open"
 ```
 
-**Rationale:** Shopify draws gift cards as balances that spend down, because an advance is money held for a later expense. The balance, not the code, is the figure the company watches.
+**Rationale:** A balance that spends down fits an advance, which is money held for a later expense. The balance, not the code, is the figure the company watches.
 
 **Cost:** Advances and budget codes share little beyond the word code, so one list for both reads as two lists stapled together.
 
 **Reference:** Shopify
-
-#### `redemptions-newest-first`: Claims, Newest First
-
-```wireframe
-page
-  breadcrumb "Finance" "Budgets" "TRIP10"
-  header
-    heading "TRIP10 claims"
-    text "412 claims · EUR 1,854.00 claimed · newest first."
-    action "Export"
-  region "Claims"
-    table 3 "Expense" "Spender" "Claimed" "Funded"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · text "EUR 9.00"
-    text muted "1 to 3 of 412"
-```
-
-**Rationale:** Shopify lists discount redemptions per order, which answers where a leaked code went. Each line ties one claim to the expense that used it.
-
-**Cost:** Claims multiply into the hundreds, so the list needs the code as a filter and is a report rather than the page.
-
-**Reference:** Shopify
-
-#### `issuing-one-code-in-a-dialog`: Issuing One Code in a Dialog
-
-```wireframe
-page
-  breadcrumb "Finance" "Budgets"
-  header
-    heading "Budgets"
-    text "Budget codes, per-diem rates and advances across the company."
-  toolbar
-    field "Search codes" search
-  region "Codes"
-    list 2
-      item: text "TRIP10" · text muted "EUR 500 cap · 412 of 500 claimed" · status "Active" positive
-  dialog "Issue budget code"
-    field "Code" text = "PARTNER-"
-    field "Ceiling" select = "EUR 500"
-    field "Maximum uses" number = "100"
-    text muted "Letters, numbers and dashes. Spenders type it when they claim."
-    action "Cancel"
-    action primary "Issue code"
-```
-
-**Rationale:** Shopify issues a discount code from a short dialog, because a code for a trip is five fields and no conditions. The dialog keeps the list behind it for the names already taken.
-
-**Cost:** Conditions beyond value, limit, and dates do not fit, so a code with cost-centre or city rules needs the full editor anyway.
-
-**Reference:** Shopify
-
-#### `retiring-a-leaked-code`: Retiring a Leaked Code
-
-```wireframe
-page
-  breadcrumb "Finance" "Budgets"
-  header
-    heading "Budgets"
-    text "Budget codes, per-diem rates and advances across the company."
-  region "Codes"
-    list 1
-      item: text "LEAKED20" · text muted "EUR 200 cap · 1,890 of 200 claimed · posted on social media" · status "Active" positive · action destructive "Retire"
-  dialog "Retire LEAKED20"
-    text "1,890 expenses used this code, 1,690 over its limit of 200. Retiring stops new claims at once."
-    fact "Spent so far" "EUR 17,010.00"
-    fact "Expenses filed" "Keep their funding"
-    fact "New claims" "The code is refused"
-    action "Keep it active"
-    action destructive "Retire code"
-```
-
-**Rationale:** GitHub retires a leaked secret with the blast radius stated, which is what a leaked code needs. The dialog states the claims, the spend, and what happens to expenses already filed.
-
-**Cost:** A confirmation dialog per retirement slows staff who retire several codes after one leak.
-
-**Reference:** GitHub

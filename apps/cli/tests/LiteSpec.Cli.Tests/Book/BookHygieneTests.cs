@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the generated book stays clean: no object strings or raw JSON in shards, no invented labels, no broken links, and source links on one template.</summary>
 public sealed class BookHygieneTests
@@ -14,9 +14,9 @@ public sealed class BookHygieneTests
     /// <summary>No shard holds an object coercion or the old raw-JSON fallback block.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Shards_Hold_No_Object_String_Or_Raw_Json()
+    public void ShardsHoldNoObjectStringOrRawJson()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var files = Directory.GetFiles(Path.Combine(Out(temp), "data"), "*.js");
@@ -32,9 +32,9 @@ public sealed class BookHygieneTests
     /// <summary>Rendered labels never show a raw camel-case field key: the client reads the lexicon, and bodies keep keys inside code spans.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Rendered_Labels_Carry_No_Raw_Camel_Case()
+    public void RenderedLabelsCarryNoRawCamelCase()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         // Every lexicon label reads as words, never as the camel-case key itself.
@@ -73,9 +73,9 @@ public sealed class BookHygieneTests
     /// <summary>Every hash link and outgoing edge in the shards points at a record the shard map holds, and the client shows anything else as the missing-record text.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Generated_Links_Resolve_Or_Show_The_Missing_Record_Text()
+    public void GeneratedLinksResolveOrShowTheMissingRecordText()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
@@ -135,9 +135,9 @@ public sealed class BookHygieneTests
     /// <summary>Generated content holds no data-go target: the client renders those buttons itself, only for records and outline nodes it holds, and ignores empty ones.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Data_Go_Buttons_Render_Only_For_Known_Records()
+    public void DataGoButtonsRenderOnlyForKnownRecords()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var data = Path.Combine(Out(temp), "data");
@@ -150,9 +150,9 @@ public sealed class BookHygieneTests
     /// <summary>Record sources carry a path and line, and the client builds each link from the manifest template.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Source_Links_Follow_The_Configured_Editor_Template()
+    public void SourceLinksFollowTheConfiguredEditorTemplate()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(
             BookTestBooks.LoadFixture("Book/review.json"),
             temp.Path,
@@ -191,9 +191,9 @@ public sealed class BookHygieneTests
     /// <summary>Editor none keeps the manifest template at none and ships no editor link.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Editor_None_Suppresses_Source_Links()
+    public void EditorNoneSuppressesSourceLinks()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp), "none");
 
         var data = Path.Combine(Out(temp), "data");
@@ -212,9 +212,9 @@ public sealed class BookHygieneTests
     /// </summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Book_Client_Holds_No_Tier_Or_Fact_Badges()
+    public void BookClientHoldsNoTierOrFactBadges()
     {
-        using var temp = Cli.Temp("book-hygiene");
+        using var temp = TestCli.Temp("book-hygiene");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, Out(temp));
 
         var assets = Path.Combine(Out(temp), "assets");

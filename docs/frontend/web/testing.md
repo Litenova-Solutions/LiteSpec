@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** tests
+**Concern:** tests
 
 ## Intent
 
@@ -31,7 +31,7 @@ Pure logic runs in Vitest beside its module, navigation and integration run in P
 pnpm --filter @claimwick/web exec playwright test --project=routes --grep "expenses list keeps the route contract"
 ```
 
-Component and logic tests needing HTTP answer through `msw` handlers generated from the published OpenAPI document, running in the browser worker and the Node server alike, per `litespec/frontend/testing#use-network-mocks-for-component-tests`. The workspace keeps one mock-generation command that regenerates them. Each stack page names the libraries tests keep, per `litespec/frontend/testing#keep-mocks-at-owned-boundaries`. The module mirror check runs as a Vitest structure test resolving each folder against the backend module tree, per `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`:
+Component and logic tests needing HTTP answer through `msw` handlers generated from the published OpenAPI document, running in the browser worker and the Node server alike, per `litespec/frontend/testing#use-network-mocks-for-component-tests`. The workspace keeps one mock-generation command that regenerates them. Each stack page names the libraries tests keep, per `litespec/quality/testing#use-one-mock-rule-for-every-stack`. The module mirror check runs as a Vitest structure test resolving each folder against the backend module tree, per `litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test`:
 
 ```typescript
 test("every module folder names a backend use case, and no folder is named for nothing", () => {
@@ -45,7 +45,7 @@ A declared refusal is reached and asserted by its result code through the refusa
 await expect(refusalFor(page, "expenses.not-found")).toBeVisible({ timeout: AFTER_ACTION });
 ```
 
-Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`, and calculation properties run on fast-check inside Vitest with seed cases from the examples table, per `litespec/backend/testing#prove-every-calculation-with-property-tests`. Element queries follow the [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles): role, label, name, or visible text first, scoped to one floorplan through its `data-floorplan` attribute.
+Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines`, and calculation properties run on fast-check inside Vitest with seed cases from the examples table, per `litespec/backend/testing#prove-every-calculation-with-property-tests`. Element queries follow the [Testing Library guiding principles](https://testing-library.com/docs/guiding-principles): role, label, name, or visible text first, scoped to one floorplan through its `data-floorplan` attribute.
 
 ## Standards
 
@@ -53,7 +53,7 @@ Changed TypeScript lines run under StrykerJS in incremental mode, per `litespec/
 
 **ID:** `litespec/frontend/web/testing#refuse-a-test-without-an-assertion`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Lint MUST fail a Vitest or Playwright test that contains no `expect` assertion, through the `expect-expect` rule.
 

@@ -1,68 +1,72 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Rules;
+namespace LiteSpec.Cli.Tests.Rules;
 
 /// <summary>Proves the artifact a rules target path derives for each settled code kind.</summary>
 public sealed class PathContextTests
 {
     /// <summary>A command validator file derives the validator artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void Rules_Validator_File_Derives_Validator_Artifact()
+    public void RulesValidatorFileDerivesValidatorArtifact()
     {
         using var root = CopyFixtureWithFile(
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandValidator.cs", "sealed class SendInvoiceCommandValidator;\n");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandValidator.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: validator", result.Output);
+        Assert.Contains("concern: application, artifact: validator", result.Output);
     }
 
     /// <summary>A repository file derives the repository artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void Rules_Repository_File_Derives_Repository_Artifact()
+    public void RulesRepositoryFileDerivesRepositoryArtifact()
     {
         using var root = CopyFixtureWithFile(
             "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs", "sealed class InvoiceRepository;\n");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/Domain/InvoiceRepository.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: domain, artifact: repository", result.Output);
+        Assert.Contains("concern: domain, artifact: repository", result.Output);
     }
 
     /// <summary>A port file under a Ports folder derives the port artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void Rules_Port_File_Derives_Port_Artifact()
+    public void RulesPortFileDerivesPortArtifact()
     {
         using var root = CopyFixtureWithFile(
             "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs", "interface IPayoutBank;\n");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Contracts/Ports/IPayoutBank.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: port", result.Output);
+        Assert.Contains("concern: application, artifact: port", result.Output);
     }
 
     /// <summary>A command message file keeps the use-case artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
-    public void Rules_Message_File_Keeps_Use_Case_Artifact()
+    public void RulesMessageFileKeepsUseCaseArtifact()
     {
         using var root = CopyFixtureWithFile(
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommand.cs", "sealed class SendInvoiceCommand;\n");
-        var result = Cli.Run(
+        var result = TestCli.Run(
             "rules",
             "--root", root.Path,
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommand.cs");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("layer: application, artifact: use-case", result.Output);
+        Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
 
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
@@ -71,8 +75,8 @@ public sealed class PathContextTests
     /// <returns>The temporary consumer root.</returns>
     static TempFolder CopyFixtureWithFile(string relative, string contents)
     {
-        var source = Cli.Fixture("rules-basic");
-        var temp = Cli.Temp("rules-artifact");
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-artifact");
 
         foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
         {

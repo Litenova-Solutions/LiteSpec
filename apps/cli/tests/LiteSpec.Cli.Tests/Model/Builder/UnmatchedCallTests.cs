@@ -1,10 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Builder;
+namespace LiteSpec.Cli.Tests.Model.Builder;
 
 /// <summary>Proves a screen operation that matches no endpoint is reported, not dropped.</summary>
 public sealed class UnmatchedCallTests
@@ -12,7 +12,7 @@ public sealed class UnmatchedCallTests
     /// <summary>An operation with no endpoint lands in unmatched calls with an empty use case list.</summary>
     /// <proves>litespec/core/layers#implement-only-declared-behavior</proves>
     [Fact]
-    public void Screen_Operation_With_No_Endpoint_Is_Reported()
+    public void ScreenOperationWithNoEndpointIsReported()
     {
         using var temp = ModelFixture.Prepare("small");
         Write(temp.Path, "packages/api/src/generated/sdk.gen.ts", ClientFile);
@@ -37,9 +37,9 @@ public sealed class UnmatchedCallTests
 
     static void AddFrontend(string root)
     {
-        var projectFile = Path.Combine(root, ".litespec/project.json");
-        var project = JsonNode.Parse(File.ReadAllText(projectFile))!.AsObject();
-        project["paths"]!["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
+        var projectFile = Path.Combine(root, ".litespec/project.yaml");
+        var project = DataFile.Read(projectFile)!.AsObject();
+        project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 

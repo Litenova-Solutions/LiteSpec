@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** infrastructure
+**Concern:** infrastructure
 
 ## Intent
 
@@ -12,7 +12,7 @@ Commands change aggregates and queries read them, with neither touching the data
 
 ### The Storage Boundary
 
-A command handler reaches persistence only through Domain repositories. It loads aggregates through their Domain repositories, calls Domain behavior, and stages the changed aggregates back through those repositories. Exactly one command post-handler then commits the scoped session. A query handler projects its result through the read session instead of loading an aggregate, with filtering, scope, ordering, and limit applied before materialization.
+A command handler reaches persistence only through Domain repositories. It loads aggregates through their Domain repositories, calls Domain behavior, and stages the changed aggregates back through those repositories. Exactly one command post-handler then commits the command session. A query handler projects its result through the read session instead of loading an aggregate, with filtering, scope, ordering, and limit applied before materialization.
 
 In the Claimwick product, `use-case/spending.submit-expense` stages the new expense through its repository, and one post-handler commits once after the handler returns. A failed submission leaves the session uncommitted, so no partial expense is stored. One store stays the default, configured in the product-level `Infrastructure/` folder, while each module's mappings and repositories live in its own `Infrastructure/` folders.
 
@@ -28,9 +28,9 @@ Provider-neutral provisions state the boundary, the transaction shape, and the o
 
 Provider-specific provisions name the member names and configuration surface the pinned provider supplies, such as the document alias, the JSON contract ownership, and the session registration. The [.NET persistence binding](dotnet/persistence.md) names the baseline provider and the calls that perform each obligation.
 
-The EF Core extension states in its own Baseline relationship section which provisions it replaces for the aggregates it owns. Each aggregate runs under exactly one provider.
+Each aggregate runs under exactly one provider.
 
-The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.json` records which choices a consumer made.
+The manifest pins both providers' packages, because the extension is part of this release. A pinned package is an available choice rather than an active one, and `.litespec/project.yaml` records which choices a consumer made.
 
 ## Standards
 
@@ -38,13 +38,13 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#stage-aggregate-writes-through-domain-repositories`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
 **Statement:** A command handler MUST reach persistence only through a Domain repository, never through the session directly.
 
-**Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the scoped session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
+**Rationale:** The repository is the only path from a handler to the store, so every write passes a reviewable boundary that loads one aggregate type. Infrastructure implements each repository with the command session, and the repository exposes no session, generic query, or save operation. A handler that reached the session directly bypasses aggregate loading and scatters store calls through Application.
 
 **Checked by:** `litespec model check` reports `repository-unimplemented` (level S) for an aggregate a use case changes that has no Infrastructure repository implementing its domain repository.
 
@@ -52,7 +52,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#query-through-the-read-session`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -66,7 +66,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **ID:** `litespec/backend/persistence#commit-each-command-pipeline-once`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -90,7 +90,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#honor-the-declared-consistency-mode`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -106,11 +106,11 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#collect-events-without-a-public-unit-of-work`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
-**Statement:** A repository MUST register each touched aggregate with the internal scoped event buffer that the post-handler drains.
+**Statement:** A repository MUST register each touched aggregate with the internal event buffer that the post-handler drains.
 
 **Rationale:** Pending events leave the process exactly when their write commits, so the post-handler drains the buffer and commits in one place. A public unit-of-work type exposes that mechanics to every handler; the internal buffer keeps it inside the pipeline. Async delivery leaves after the commit succeeds.
 
@@ -120,7 +120,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#keep-mappings-and-aliases-explicit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -134,7 +134,7 @@ A failed submission leaves the session uncommitted, so no partial expense is sto
 
 **ID:** `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -150,7 +150,7 @@ Registration covers the types this store actually persists. The store that write
 
 **ID:** `litespec/backend/persistence#evolve-stored-document-contracts-explicitly`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -166,7 +166,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#bound-aggregate-document-growth`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -180,13 +180,13 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#use-database-naming-conventions`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** A PostgreSQL schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
+**Statement:** A database schema, table, column, index, constraint, document alias, or SQL identifier MUST use `snake_case`.
 
-**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: under the baseline provider the store configuration sets the casing, and under the `efcore` extension a naming plugin applies it, so no configuration repeats the rule per entity.
+**Rationale:** One casing rule lets anyone predict a table or column name from the code type without opening the mapping. Code types keep normal language naming while the mapping layer converts once: the store configuration sets the casing, so no configuration repeats the rule per entity.
 
 **Reviewed for:** Which generated database identifiers break `snake_case`? Look at the schemas, tables, columns, and indexes.
 
@@ -194,7 +194,7 @@ An additive change is the only kind that needs no transformation, and it is addi
 
 **ID:** `litespec/backend/persistence#control-production-schema-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: migration
 
@@ -206,25 +206,25 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Reviewed for:** Which hosted schema changes run outside a reviewed step before traffic shifts? Look at the deployment steps beside the startup paths.
 
-### Test Persistence Against PostgreSQL
+### Test Persistence Against the Pinned Database
 
-**ID:** `litespec/backend/persistence#test-persistence-against-postgresql`
+**ID:** `litespec/backend/persistence#test-persistence-against-the-pinned-database`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: test
 
-**Statement:** Repository behavior, projections, mappings, correctness indexes, commit behavior, and schema application MUST run against the pinned PostgreSQL.
+**Statement:** Repository behavior, projections, mappings, correctness indexes, commit behavior, and schema application MUST run against the pinned database.
 
-**Rationale:** Only the pinned PostgreSQL runs the real query planner, constraints, and type behavior. An in-memory substitute proves the test's own model of the database, so a query that passes against it fails in production. HTTP integration through the real host is covered under `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
+**Rationale:** Only the pinned database runs the real query planner, constraints, and type behavior. An in-memory substitute proves the test's own model of the database, so a query that passes against it fails in production. HTTP integration through the real host is covered under `litespec/backend/testing#test-http-integration-through-the-real-application-host`.
 
-**Reviewed for:** Which persistence tests run outside the pinned PostgreSQL, or against an in-memory substitute? Look at the persistence test fixtures.
+**Reviewed for:** Which persistence tests run outside the pinned database, or against an in-memory substitute? Look at the persistence test fixtures.
 
 ### Read Collection Queries in the Store with Paging and Filters
 
 **ID:** `litespec/backend/persistence#read-collection-queries-in-the-store-with-paging-and-filters`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: query-handler
 
@@ -232,7 +232,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Rationale:** A query that loads a whole list to filter, sort, or page it in memory pays the full read on every call and breaks when the data grows. Repository list methods take the scope and the page and filter in the database, through the shared page request and page shapes.
 
-**Example:** The list-expenses query passes its employee scope and page to the repository, while a handler applying `Where` to a `ListAsync` result is reported.
+**Example:** The list-expenses query passes its employee scope and page to the repository, while a handler that filters a full list in memory is reported.
 
 **Checked by:** `litespec model check` reports `query-filter-invalid` (level A) for a query handler filtering a repository list in memory.
 
@@ -240,7 +240,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#assign-document-numbers-from-a-sequence`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler, repository
 
@@ -256,7 +256,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#enforce-uniqueness-in-the-store`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -272,7 +272,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#model-a-once-only-rule-as-aggregate-state`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -288,7 +288,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#claim-a-cross-record-key-at-commit`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: repository
 
@@ -304,7 +304,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#keep-uniqueness-out-of-handlers`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: command-handler
 
@@ -314,13 +314,13 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Example:** The register-reader handler creates the reader aggregate and stages it through its Domain repository, reserving no card number and checking no registry first. When two registrations race for one card number, the second commit violates the unique index and refuses with the use case conflict, with no reservation or cleanup code in the handler. The submit-expense handler likewise stages the expense and leaves the payout number to the store sequence.
 
-**Checked by:** `dotnet build` reports `LS2016` for a handler whose constructor takes a pipeline-owned type.
+**Reviewed for:** Which handlers reserve, claim, check, or release a uniqueness key? Look at each handler body.
 
 ### Map a Constraint Violation to Its Refusal
 
 **ID:** `litespec/backend/persistence#map-a-constraint-violation-to-its-refusal`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: any
 
@@ -336,7 +336,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **ID:** `litespec/backend/persistence#version-every-aggregate`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -416,7 +416,7 @@ Aggregate-specific configuration sits beside its aggregate, while session and co
 
 **ID:** `litespec/backend/persistence#review-query-plans-for-new-indexes`
 
-**Strength:** advice
+**Strength:** advisory
 
 **Applies to:** artifact: any
 
@@ -492,7 +492,7 @@ Adding a state discriminator breaks an older application version during a mixed-
 
 This informative example demonstrates `litespec/backend/persistence#keep-serialization-behavior-out-of-domain`.
 
-An `Order` document holds a `PaymentMethod` collection with `CardPayment` and `BankTransfer` values. Infrastructure registers stable `card` and `bank_transfer` discriminators through the JSON contract resolver. The Domain hierarchy carries no serialization metadata.
+An `Order` document holds a `PaymentMethod` collection with `CardPayment` and `BankTransfer` values. Infrastructure registers stable `card` and `bank_transfer` discriminators through the stored JSON contract. The Domain hierarchy carries no serialization metadata.
 
 A `Post` document stores one `state` object. The published case uses the stable `published` discriminator and owns `publishedAt`. The document does not also store an `isPublished` flag or an aggregate-level `publishedAt` value.
 

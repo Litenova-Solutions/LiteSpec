@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model;
+namespace LiteSpec.Cli.Tests.Model;
 
 /// <summary>Proves <c>litespec model check</c> against the fixtures, one test per broken overlay.</summary>
 public sealed class ModelCheckTests
@@ -17,11 +17,11 @@ public sealed class ModelCheckTests
         "effect-undeclared",
         "erasure-undeclared",
         "except-fallback-missing",
-        "exception-finding-unknown",
+        "departure-invalid",
         "identifier-duplicate",
         "identifier-invalid",
         "use-case-journey-missing",
-        "exception-expired",
+        "departure-expired",
         "link-unknown",
         "notification-sender-missing",
         "job-guard-missing",
@@ -85,20 +85,20 @@ public sealed class ModelCheckTests
     /// <summary>Clean small fixture exits 0.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Clean_Small_Fixture_Exits_0()
+    public void CleanSmallFixtureExits0()
     {
         using var fixture = ModelFixture.Prepare("small");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
     /// <summary>Clean large fixture exits 0.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Clean_Large_Fixture_Exits_0()
+    public void CleanLargeFixtureExits0()
     {
         using var fixture = ModelFixture.Prepare("large");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
@@ -116,30 +116,30 @@ public sealed class ModelCheckTests
         var environment = Severity.PlannedIntent.Contains(code)
             ? new Dictionary<string, string> { ["CI"] = "true" }
             : null;
-        var result = Cli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
+        var result = TestCli.Run(["model", "check", "--root", fixture.Path, "--format", "json"], environment: environment);
         Assert.Equal(1, result.Status);
         Assert.Contains(code, result.Output);
     }
 
-    /// <summary>Every listed code takes a conformance level, so each broken case runs at its claimed level and above.</summary>
-    /// <proves>litespec/core/scope#declare-the-conformance-level</proves>
+    /// <summary>Every listed code has a row in the finding code table, which states the layer, trace and extension its claim gate reads.</summary>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
     [Fact]
-    public void Finding_Codes_Take_A_Conformance_Level()
+    public void FindingCodesHaveAClaimRow()
     {
         foreach (var code in FindingCodeList)
         {
             Assert.True(
-                ConformanceLevels.Lowest.ContainsKey(code),
-                $"Finding code '{code}' takes no conformance level.");
+                FindingCodes.IsKnown(code),
+                $"Finding code '{code}' has no row in the finding code table.");
         }
     }
 
     /// <summary>Every listed code names a broken overlay folder, so a renamed code without its folder fails.</summary>
     /// <proves>litespec/core/release#run-consistency-checks</proves>
     [Fact]
-    public void Finding_Codes_Name_Broken_Overlay_Folders()
+    public void FindingCodesNameBrokenOverlayFolders()
     {
-        var overlays = Directory.GetDirectories(Cli.Fixture("Model/broken"))
+        var overlays = Directory.GetDirectories(TestCli.Fixture("Model/broken"))
             .Select(Path.GetFileName)
             .OfType<string>()
             .ToHashSet(StringComparer.Ordinal);
@@ -150,62 +150,61 @@ public sealed class ModelCheckTests
         }
     }
 
-    /// <summary>An open exception turns its findings into exit 0.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <summary>An open departure turns its findings into exit 0.</summary>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Open_Exception_Turns_Its_Findings_Into_Exit_0()
+    public void OpenDepartureTurnsItsFindingsIntoExit0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteException(
+        WriteDeparture(
             fixture.Path,
-            "exception/list-loans-unimplemented",
+            "departure/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
             ["use-case/lending.list-loans", "screen/library-app.loans"],
             "2035-06-01");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.True(result.Status == 0, result.Output);
     }
 
-    /// <summary>An expired exception exits 1.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <summary>An expired departure exits 1.</summary>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
-    public void Expired_Exception_Exits_1()
+    public void ExpiredDepartureExits1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteException(
+        WriteDeparture(
             fixture.Path,
-            "exception/list-loans-unimplemented",
+            "departure/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
             "2020-01-01");
-        var result = Cli.Run("model", "check", "--root", fixture.Path, "--format", "json");
+        var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes an exception covering the codes on the subjects.</summary>
+    /// <summary>Writes a departure covering the codes on the subjects.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="id">The exception record id.</param>
-    /// <param name="title">The exception page title.</param>
-    /// <param name="covers">The finding codes the exception covers.</param>
-    /// <param name="subject">The record ids the exception applies to.</param>
-    /// <param name="expiresOn">The date the exception expires, in ISO form.</param>
-    static void WriteException(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
+    /// <param name="id">The departure record id.</param>
+    /// <param name="title">The departure page title.</param>
+    /// <param name="covers">The finding codes the departure covers.</param>
+    /// <param name="subject">The record ids the departure applies to.</param>
+    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
+    static void WriteDeparture(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $".litespec/governance/exceptions/{name}.yaml", ExceptionJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $".litespec/governance/exceptions/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/departures/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/departures/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Builds the exception fields as JSON. An exception is live when present and unexpired.
-    static string ExceptionJson(string id, string title, string[] covers, string[] subject, string expiresOn)
+    // Builds the departure fields as JSON. A departure is live when present and unexpired.
+    static string DepartureJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         return "{\n"
-            + "  \"type\": \"exception\",\n"
+            + "  \"type\": \"departure\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
-            + "  \"kind\": \"gap\",\n"
             + "  \"covers\": [\n"
             + string.Join(",\n", covers.Select(code => $"    \"{code}\""))
             + "\n  ],\n"

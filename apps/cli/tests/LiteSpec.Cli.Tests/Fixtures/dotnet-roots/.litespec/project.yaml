@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml
+schemaVersion: 1
+stacks:
+- dotnet
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: own
+  proof: own
+stackConfig:
+  dotnet:
+    modules: src/App
+    webapi:
+    - src/First.WebApi
+    - src/Second.WebApi
+    worker:
+    - src/First.Worker
+    - src/Second.Worker

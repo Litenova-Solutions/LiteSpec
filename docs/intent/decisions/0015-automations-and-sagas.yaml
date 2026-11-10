@@ -2,8 +2,8 @@ type: decision
 id: decision/0015-automations-and-sagas
 title: Automations and Sagas
 options:
-  - name: Reactions and jobs in core, coordination in the workflow-engine extension
-    pros: Reaction and job name the two shapes explicitly, doors end the auth split, bound groups keep atomic writes visible, and coordination lives where its engine lives.
+  - name: Reactions and jobs in core, atomic writes through a bound rule
+    pros: Reaction and job name the two shapes explicitly, doors end the auth split, and bound groups keep atomic writes visible.
     cons: Reactions, jobs and entry points all migrate to the new shapes in one change.
   - name: Keep one automation record
     pros: One trigger shape ends the reaction and job split.
@@ -13,9 +13,9 @@ options:
     cons: The largest consumer's place-order writes seven aggregates atomically today, so the ban would force coordination where the business settles at once.
   - name: Coordination as a core aggregate kind
     pros: Multi-aggregate flows sit beside entities in core.
-    cons: No consumer uses them in core, and coordination belongs to the workflow-engine extension.
-choice: Reactions and jobs in core, coordination in the workflow-engine extension
-consequences: "`litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the entity and store kinds, with coordination in the workflow-engine extension. `litespec/core/edges#give-each-entry-point-a-kind` carries doors only, and `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries bound atomicity. `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the door, and `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case. `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`, `litespec/core/automation#name-each-job-for-the-use-case-it-runs`, and `litespec/core/automation#guard-every-manual-job` carry the reaction trigger, the job kind, the two name forms, and the manual job guard."
-reopenedWhen: Work appears that neither a reaction answering events nor a scheduled or manual job can carry.
+    cons: No consumer uses them in core, and the record schema would need a saga kind that no check reads.
+choice: Reactions and jobs in core, atomic writes through a bound rule
+consequences: "`litespec/core/domain-model#declare-the-kind-of-every-aggregate` carries the entity and store kinds, and no coordination kind exists. `litespec/core/edges#give-each-entry-point-a-kind` carries doors only, and `litespec/core/use-cases#state-the-consistency-of-every-use-case` carries the consistency modes `atomic`, `per-record` and `compensated`: an atomic write across aggregates cites its bound rule, and a compensated write names the undo of each write. `litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind` keeps auth on the door, and `litespec/core/access#grant-every-use-case-through-a-declared-grant` keeps the grant on the use case. `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, `litespec/core/automation#name-each-reaction-for-its-act-and-its-trigger`, `litespec/core/automation#name-each-job-for-the-use-case-it-runs`, and `litespec/core/automation#guard-every-manual-job` carry the reaction trigger, the job kind, the two name forms, and the manual job guard."
+reopenedWhen: Work appears that neither a reaction answering events nor a scheduled or manual job can carry, or a multi-aggregate flow that neither an atomic write nor a compensated use case can state.
 basedOn:
   - research/lower-layers-practice

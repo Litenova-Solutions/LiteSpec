@@ -1,6 +1,6 @@
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>
 ///     Proves a mark written with the wrong verb is unresolved: proves on a
@@ -11,7 +11,7 @@ public sealed class MarkVerbTests
     /// <summary>Proves On A Handler Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Proves_On_A_Handler_Reports_Mark_Unresolved()
+    public void ProvesOnAHandlerReportsMarkUnresolved()
     {
         using var temp = WriteConsumer();
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
@@ -25,7 +25,7 @@ public sealed class MarkVerbTests
     /// <summary>Implements On A Test Reports Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Implements_On_A_Test_Reports_Mark_Unresolved()
+    public void ImplementsOnATestReportsMarkUnresolved()
     {
         using var temp = WriteConsumer();
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
@@ -39,7 +39,7 @@ public sealed class MarkVerbTests
     /// <summary>Matching Verbs Report No Mark Unresolved.</summary>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Fact]
-    public void Matching_Verbs_Report_No_Mark_Unresolved()
+    public void MatchingVerbsReportNoMarkUnresolved()
     {
         using var temp = WriteConsumer();
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
@@ -53,11 +53,11 @@ public sealed class MarkVerbTests
     /// <returns>The temporary folder holding the consumer.</returns>
     static TempFolder WriteConsumer()
     {
-        var temp = Cli.Temp("marks");
+        var temp = TestCli.Temp("marks");
 
         try
         {
-            Write(temp.Path, ".litespec/project.json", """
+            Write(temp.Path, ".litespec/project.yaml", """
                 {
                   "project": {
                     "name": "Marks Fixture"
@@ -67,8 +67,8 @@ public sealed class MarkVerbTests
                   "stacks": [
                     "dotnet"
                   ],
-                  "conformance": "full",
-                  "reviewedLiteSpecVersion": "4.0.0",
+                  "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
+                  "reviewedLiteSpecVersion": "5.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -177,7 +177,7 @@ public sealed class MarkVerbTests
                 {
                     /// <implements>scenario/borrow-copy.borrowing-succeeds</implements>
                     [Fact]
-                    public void Borrowing_succeeds()
+                    public void BorrowingSucceeds()
                     {
                         Assert.True(true);
                     }
@@ -190,7 +190,7 @@ public sealed class MarkVerbTests
                 {
                     /// <proves>scenario/borrow-copy.borrowing-succeeds</proves>
                     [Fact]
-                    public void Borrowing_succeeds()
+                    public void BorrowingSucceeds()
                     {
                         Assert.True(true);
                     }

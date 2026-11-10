@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves <c>litespec book</c> writes one offline shell with sharded data from a fixture consumer.</summary>
 public sealed class BookCommandTests
@@ -10,11 +10,11 @@ public sealed class BookCommandTests
     /// <summary>The book writes <c>index.html</c>, the four assets, and the manifest, lexicon, outline, record, search and security shards.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Book_Writes_The_Sharded_Book()
+    public void BookWritesTheShardedBook()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", temp.Path);
@@ -59,11 +59,11 @@ public sealed class BookCommandTests
     /// <summary>The manifest carries the project, roots, editor template, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Manifest_Carries_The_Book_Contract()
+    public void ManifestCarriesTheBookContract()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", temp.Path);
@@ -131,9 +131,9 @@ public sealed class BookCommandTests
     /// <summary>The console line names each unplaced identifier with the failed record-parent-missing rule.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Unplaced_Console_Line_Names_The_Failed_Rule()
+    public void UnplacedConsoleLineNamesTheFailedRule()
     {
-        using var temp = Cli.Temp("book");
+        using var temp = TestCli.Temp("book");
         var model = (JsonObject)JsonNode.Parse(
             """
             {
@@ -152,11 +152,11 @@ public sealed class BookCommandTests
     /// <summary>The security shard carries the security items: cross-tenant access, outside calls and personal or sensitive data.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Security_Shard_Carries_Security_Items()
+    public void SecurityShardCarriesSecurityItems()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", temp.Path);
@@ -175,11 +175,11 @@ public sealed class BookCommandTests
     /// <summary>The lexicon shard carries LiteSpec's own words: type labels, layer writers, link phrases and finding meanings.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Lexicon_Shard_Carries_Types_And_Links()
+    public void LexiconShardCarriesTypesAndLinks()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", temp.Path);
@@ -195,11 +195,11 @@ public sealed class BookCommandTests
     /// <summary>The --root and --editor values reach the manifest; --editor none suppresses source links.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Root_And_Editor_Options_Reach_The_Manifest()
+    public void RootAndEditorOptionsReachTheManifest()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", Path.Combine(temp.Path, "out"),
@@ -210,8 +210,8 @@ public sealed class BookCommandTests
         Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
         Assert.Equal("none", manifest["editor"]!.GetValue<string>());
 
-        using var custom = Cli.Temp("book-editor");
-        result = Cli.Run(
+        using var custom = TestCli.Temp("book-editor");
+        result = TestCli.Run(
             "book",
             "--root", consumer.Path,
             "--out", custom.Path,
@@ -225,13 +225,13 @@ public sealed class BookCommandTests
     /// <summary>A screen capture the model lists is copied into the book output and its shard names the book path.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Screen_Captures_Are_Copied_Into_The_Book_Output()
+    public void ScreenCapturesAreCopiedIntoTheBookOutput()
     {
-        using var temp = Cli.Temp("book");
+        using var temp = TestCli.Temp("book");
         var plain = Path.Combine(temp.Path, "plain");
         Directory.CreateDirectory(Path.Combine(plain, "shots"));
         File.WriteAllBytes(Path.Combine(plain, "shots", "home.png"), [137, 80, 78, 71]);
-        var model = (JsonObject)JsonNode.Parse(File.ReadAllText(Cli.Fixture("Book/model.json")))!;
+        var model = (JsonObject)DataFile.Read(TestCli.Fixture("Book/model.json"))!;
         var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -247,12 +247,12 @@ public sealed class BookCommandTests
     /// <summary>The consumer root defaults to the consumer found from the working directory, and the output to its book folder.</summary>
     /// <proves>litespec/core/model#point-every-book-entry-to-its-source</proves>
     [Fact]
-    public void Root_And_Out_Default_To_The_Consumer_And_Its_Book_Folder()
+    public void RootAndOutDefaultToTheConsumerAndItsBookFolder()
     {
         using var consumer = ModelFixture.Prepare("small");
 
         // No --out: the book lands in .litespec/book under the consumer root.
-        var result = Cli.Run("book", "--root", consumer.Path);
+        var result = TestCli.Run("book", "--root", consumer.Path);
         Assert.Equal(0, result.Status);
 
         var bookDir = Path.Combine(consumer.Path, ".litespec", "book");
@@ -261,37 +261,42 @@ public sealed class BookCommandTests
         Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
 
         // No --root: the consumer is found by walking up from the working directory.
-        using var temp = Cli.Temp("book");
-        result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        result = TestCli.Run(
             ["book", "--out", Path.Combine(temp.Path, "cwd-out")],
             workingDirectory: Path.Combine(consumer.Path, ".litespec", "behavior"));
         Assert.Equal(0, result.Status);
 
+        // The operating system hands the CLI its working directory resolved, so on macOS a consumer under
+        // /var arrives as /private/var. The reported root is the consumer folder when it carries the
+        // consumer's own folder name and holds its project file, in either form.
         manifest = ReadShard(Path.Combine(temp.Path, "cwd-out", "data", "manifest.js"), "manifest");
-        Assert.Equal(Path.GetFullPath(consumer.Path), manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>());
+        var found = manifest["roots"]!.AsObject()["consumer"]!.GetValue<string>();
+        Assert.Equal(Path.GetFileName(Path.GetFullPath(consumer.Path)), Path.GetFileName(found));
+        Assert.True(File.Exists(Path.Combine(found, ".litespec", "project.yaml")), $"The reported root '{found}' holds no project file.");
     }
 
     /// <summary>A root without a project file exits 2 and names the missing file, the usage error for a root that is not a consumer.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Book_Without_Project_File_Exits_2()
+    public void BookWithoutProjectFileExits2()
     {
-        using var temp = Cli.Temp("book");
-        var result = Cli.Run("book", "--root", temp.Path);
+        using var temp = TestCli.Temp("book");
+        var result = TestCli.Run("book", "--root", temp.Path);
         Assert.Equal(2, result.Status);
-        Assert.Contains(".litespec/project.json", result.Output);
+        Assert.Contains(".litespec/project.yaml", result.Output);
     }
 
     /// <summary>An unwritable output exits 1 and names the output folder.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Unwritable_Output_Exits_1()
+    public void UnwritableOutputExits1()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
+        using var temp = TestCli.Temp("book");
         var blocker = Path.Combine(temp.Path, "blocker");
         File.WriteAllText(blocker, "not a folder");
-        var result = Cli.Run("book", "--root", consumer.Path, "--out", blocker);
+        var result = TestCli.Run("book", "--root", consumer.Path, "--out", blocker);
         Assert.Equal(1, result.Status);
         Assert.Contains(blocker, result.Output, StringComparison.Ordinal);
     }
@@ -299,13 +304,13 @@ public sealed class BookCommandTests
     /// <summary>A carried LiteSpec page that lost its shape exits 2 and names the file.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
-    public void Broken_Carried_Page_Exits_2_Naming_The_File()
+    public void BrokenCarriedPageExits2NamingTheFile()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        using var home = Cli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.json"), """{"version":"4.0.0"}""");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        using var home = TestCli.Temp("book-home");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"5.0.0"}""");
+        var result = TestCli.Run(
             ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);
@@ -315,12 +320,12 @@ public sealed class BookCommandTests
     /// <summary>A missing carried LiteSpec release exits 2, like every other command.</summary>
     /// <proves>litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it</proves>
     [Fact]
-    public void Missing_Carried_Release_Exits_2()
+    public void MissingCarriedReleaseExits2()
     {
         using var consumer = ModelFixture.Prepare("small");
-        using var temp = Cli.Temp("book");
-        using var home = Cli.Temp("book-no-home");
-        var result = Cli.Run(
+        using var temp = TestCli.Temp("book");
+        using var home = TestCli.Temp("book-no-home");
+        var result = TestCli.Run(
             ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
         Assert.Equal(2, result.Status);

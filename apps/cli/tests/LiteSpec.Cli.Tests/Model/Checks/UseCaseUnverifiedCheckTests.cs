@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the use-case-unverified check against hand-built models.</summary>
 public sealed class UseCaseUnverifiedCheckTests
@@ -9,14 +9,14 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case With Unproved Scenarios Reports.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_With_Unproved_Scenarios_Reports()
+    public void UseCaseWithUnprovedScenariosReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
-        model.Completion["use-case/lending.borrow-copy"] = new Completion("implemented", "known", [], new Dictionary<string, CompletionCount>());
+        model.Completion["use-case/lending.borrow-copy"] = new Completion("coded", "known", [], new Dictionary<string, CompletionCount>());
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "use-case-unverified");
         Assert.Equal("A", finding.Tier);
@@ -27,14 +27,14 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Verified Use Case Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Verified_Use_Case_Passes()
+    public void VerifiedUseCasePasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record("scenario", "scenario/borrow-copy.borrowing-an-available-copy-succeeds", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
-        model.Completion["use-case/lending.borrow-copy"] = new Completion("proven", "known", [], new Dictionary<string, CompletionCount>());
+        model.Completion["use-case/lending.borrow-copy"] = new Completion("verified", "known", [], new Dictionary<string, CompletionCount>());
 
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
     }
@@ -42,13 +42,13 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case Without Scenarios Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_Without_Scenarios_Passes()
+    public void UseCaseWithoutScenariosPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""));
-        model.Completion["use-case/lending.borrow-copy"] = new Completion("implemented", "known", [], new Dictionary<string, CompletionCount>());
+        model.Completion["use-case/lending.borrow-copy"] = new Completion("coded", "known", [], new Dictionary<string, CompletionCount>());
 
         Assert.DoesNotContain("use-case-unverified", TestModel.Codes(model));
     }
@@ -56,9 +56,9 @@ public sealed class UseCaseUnverifiedCheckTests
     /// <summary>Use Case Without Status Passes.</summary>
     /// <proves>litespec/core/model#report-unverified-use-cases</proves>
     [Fact]
-    public void Use_Case_Without_Status_Passes()
+    public void UseCaseWithoutStatusPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow-copy.yaml"), """{"kind": "command"}"""),

@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Consumer;
+namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>Consumer validator cases for the stage selection and its deferral exceptions.</summary>
 public sealed partial class ConsumerValidatorTests
@@ -15,7 +15,7 @@ public sealed partial class ConsumerValidatorTests
         };
 
     /// <summary>
-    ///     Writes a departure exception deferring the provision until the date: the
+    ///     Writes a departure deferring the provision until the date: the
     ///     record shape a pre-production consumer defers with. Every sentence stays
     ///     inside the prose measures, so the cases prove the checks.
     /// </summary>
@@ -23,11 +23,11 @@ public sealed partial class ConsumerValidatorTests
     /// <param name="provision">The provision id the deferral covers.</param>
     /// <param name="expiresOn">The date the deferral expires, in ISO form.</param>
     static void WriteDeferral(string root, string provision, string expiresOn = "2999-01-01") =>
-        TestRecords.Write(root, ".litespec/governance/exceptions/stage-deferral.yaml",
-            "{\"type\":\"exception\",\"id\":\"exception/stage-deferral\",\"title\":\"Stage Deferral\","
-            + "\"kind\":\"departure\","
-            + $"\"covers\":\"{provision}\",\"subject\":[\"use-case/orders.cancel-order\"],"
+        TestRecords.Write(root, ".litespec/governance/departures/stage-deferral.yaml",
+            "{\"type\":\"departure\",\"id\":\"departure/stage-deferral\",\"title\":\"Stage Deferral\","
+            + $"\"covers\":[\"{provision}\"],\"subject\":[\"use-case/orders.cancel-order\"],"
             + "\"consequences\":\"The shop defers the provision until promotion.\","
+            + "\"exit\":\"The shop adopts the provision at promotion.\","
             + $"\"reason\":\"No deployment holds customer data yet.\",\"expiresOn\":\"{expiresOn}\"}}");
 
     /// <summary>Stage selection with a live deferral.</summary>
@@ -63,7 +63,7 @@ public sealed partial class ConsumerValidatorTests
     [Fact(DisplayName = "deferral past its end date stays silent here")]
     public void DeferralPastItsEndDateStaysSilentHere()
     {
-        // Expiry belongs to the model check, which reports exception-expired:
+        // Expiry belongs to the model check, which reports departure-expired:
         // the consumer holds the deferral's shape and provision only.
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateProject(folder.Path, project =>

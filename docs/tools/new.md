@@ -22,7 +22,7 @@ This command creates one record file from the template for its type, with every 
 
 `new decision` takes only the kebab-case `<name>` and allocates the next decision number from the one decision sequence, so decision numbers stay unique without coordination. The full identifier is `decision/<number>-<name>`, and the file is written under the decisions folder with its explanation file beside it.
 
-Run it before writing any new record, as `litespec/core/authoring#scaffold-pages-and-reserve-identifiers` states. Validate the new file before committing it.
+Run it before writing any new record, as `litespec/core/model#scaffold-pages-and-reserve-identifiers` states. Validate the new file before committing it.
 
 `new result` and `new scenario` append one entry to a use-case file's `records` instead of scaffolding a file. The entry lands in house order, successes first, then refusals in precedence order, then scenarios, so a new refusal follows the existing refusals and a new scenario lands last; the file is written back in canonical form. The entry id is `result/<use-case>.<name>` or `scenario/<use-case>.<name>` from the use case's own name. `<use-case-id>` is the use-case identifier, with or without the `use-case/` prefix. `--code` is required for a refusal and carries `<module>.<reason>`; on a success it becomes the first of `codes`. `--result` names the scenario's result, written or derived. The command refuses a duplicate id and an unknown use case.
 
@@ -44,7 +44,7 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--root <path>` | the working directory | Selects the consumer repository to write into. |
+| `--root <path>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--outcome success` or `refusal` | none | For `result`: whether the entry ends in success or refusal. |
 | `--code <code>` | none | For `result`: the refusal code as `<module>.<reason>`; required for a refusal, the first of `codes` on a success. |
 | `--result <result-id>` | none | For `scenario`: the written or derived result the scenario ends in. |
@@ -55,8 +55,8 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 | Code | Meaning |
 |:---|:---|
 | `0` | The file was written and the identifier reserved, or the entry was appended. |
-| `1` | The release holds no readable template for the type, or the repository could not be read or written. |
-| `2` | The identifier is taken, the use case or file is unknown, the type is unknown or does not belong on the file, or an option is invalid. |
+| `1` | The records cannot be read, or the release holds no readable template for the type. |
+| `2` | The root or the project file is missing or invalid, the identifier is taken, the use case or file is unknown, the type is unknown or does not belong on the file, or an option is invalid. |
 
 ## Examples
 

@@ -11,9 +11,10 @@ namespace LiteSpec.Authoring;
 /// <param name="Mark">The inline verification mark, or empty when the provision carries none.</param>
 /// <param name="Evidence">The inline verification evidence, or empty when the provision carries none.</param>
 /// <param name="Stack">The page stack values, comma-separated, or empty when the page declares none.</param>
-/// <param name="Layer">The page layer values, comma-separated, or empty when the page declares none.</param>
+/// <param name="Concern">The page concern values, comma-separated, or empty when the page declares none.</param>
 /// <param name="Artifact">The narrowed artifact values, comma-separated, or empty when the provision carries none.</param>
-/// <param name="Conformance">The conformance level the provision belongs to: <c>records</c>, <c>traced</c>, or <c>full</c>.</param>
+/// <param name="Layer">The record layer the provision governs: <c>any</c>, <c>intent</c>, <c>behavior</c>, <c>implementation</c>, or <c>proof</c>.</param>
+/// <param name="Trace">Whether the provision ties its layer to the records, rather than stating LiteSpec's practice for it.</param>
 /// <param name="Strength">The named strength, or empty when the provision carries none.</param>
 /// <param name="Statement">The assertive line: the Statement, or the Default of a convention or pattern.</param>
 /// <param name="Rationale">The Rationale paragraph, or empty when the provision carries none.</param>
@@ -27,9 +28,10 @@ public sealed record ProvisionRow(
     string Mark,
     string Evidence,
     string Stack,
-    string Layer,
+    string Concern,
     string Artifact,
-    string Conformance,
+    string Layer,
+    bool Trace,
     string Strength,
     string Statement,
     string Rationale,

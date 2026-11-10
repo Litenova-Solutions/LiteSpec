@@ -1,7 +1,7 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the constituent derivation and the constituent-parent-missing check against hand-built models.</summary>
 public sealed class ConstituentCheckTests
@@ -9,9 +9,9 @@ public sealed class ConstituentCheckTests
     /// <summary>State Beside Its Root Is Listed Under The Aggregate.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void State_Beside_Its_Root_Is_Listed_Under_The_Aggregate()
+    public void StateBesideItsRootIsListedUnderTheAggregate()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var root = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "Loan.cs");
@@ -30,9 +30,9 @@ public sealed class ConstituentCheckTests
     /// <summary>Type In A Subfolder Of The Aggregate Folder Passes.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Type_In_A_Subfolder_Of_The_Aggregate_Folder_Passes()
+    public void TypeInASubfolderOfTheAggregateFolderPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var root = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans", "Loan.cs");
@@ -46,9 +46,9 @@ public sealed class ConstituentCheckTests
     /// <summary>Type In A Module Folder With No Root Reports.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Type_In_A_Module_Folder_With_No_Root_Reports()
+    public void TypeInAModuleFolderWithNoRootReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "src", "Domain", "Lending", "Copies", "CopyTitle.cs");
@@ -69,9 +69,9 @@ public sealed class ConstituentCheckTests
     /// <summary>Type In The Shared Kernel Is Listed Under Kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Type_In_The_Shared_Kernel_Is_Listed_Under_Kernel()
+    public void TypeInTheSharedKernelIsListedUnderKernel()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "src", "Library.SharedKernel", "Domain", "Money.cs");
@@ -87,9 +87,9 @@ public sealed class ConstituentCheckTests
     /// <summary>Marked Domain Service Is Never A Constituent.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Marked_Domain_Service_Is_Never_A_Constituent()
+    public void MarkedDomainServiceIsNeverAConstituent()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "src", "Domain", "Lending", "Copies", "CopyPricer.cs");
@@ -105,9 +105,9 @@ public sealed class ConstituentCheckTests
     /// <summary>Two Roots In One Folder Orphan The Type.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Two_Roots_In_One_Folder_Orphan_The_Type()
+    public void TwoRootsInOneFolderOrphanTheType()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         WriteProject(temp.Path);
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var folder = Path.Combine(temp.Path, "src", "Domain", "Lending", "Loans");
@@ -121,11 +121,11 @@ public sealed class ConstituentCheckTests
     /// <summary>Type At The Domain Root With No Kernel Belongs To The Kernel.</summary>
     /// <proves>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</proves>
     [Fact]
-    public void Type_At_The_Domain_Root_With_No_Kernel_Belongs_To_The_Kernel()
+    public void TypeAtTheDomainRootWithNoKernelBelongsToTheKernel()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         File.WriteAllText(
-            Path.Combine(temp.Path, ".litespec/project.json"),
+            Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"domain": "src/Domain"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
         var file = Path.Combine(temp.Path, "src", "Domain", "AuditStamp.cs");
@@ -140,7 +140,7 @@ public sealed class ConstituentCheckTests
 
     static void WriteProject(string root) =>
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"domain": "src/Domain", "sharedKernel": "src/Library.SharedKernel"}}}""");
 
     static void AddRoot(ProjectModel model, string file, string root, string aggregate, int line = 5) =>

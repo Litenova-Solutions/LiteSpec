@@ -2,7 +2,7 @@
 
 **Stack:** any
 
-**Layer:** workspace
+**Concern:** workspace
 
 ## Intent
 
@@ -32,7 +32,7 @@ A citation names the cited provision by its current identifier, whether the cita
 
 ### The LiteSpec Release
 
-A LiteSpec release is a tagged snapshot of the repository, and the highest git tag names the current release. Between releases, five places name the release being prepared: the version in `litespec.manifest.json`, the topmost `CHANGELOG.md` entry, the consumer template's `reviewedLiteSpecVersion`, and the package versions in `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj` and `apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj`. Tagging that version number makes it current. The manifest lists every stack, shape, extension, and version pin the release carries. Publishing the release puts the `LiteSpec.Cli` tool package, the `LiteSpec.Analyzers` package, and the site at the release version together, so the tool carries the manifest, schemas, docs, and templates the version names. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together. Each schema `$id` carries that release under `https://litespec.dev/<version>/schemas/`, so a consumer that pins the release keeps resolving the shapes it reviewed.
+A LiteSpec release is a tagged snapshot of the repository, and the highest git tag names the current release. Between releases, five places name the release being prepared: the version in `litespec.manifest.yaml`, the topmost `CHANGELOG.md` entry, the consumer template's `reviewedLiteSpecVersion`, and the package versions in `apps/cli/src/LiteSpec.Cli/LiteSpec.Cli.csproj` and `apps/analyzers/src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj`. Tagging that version number makes it current. The manifest lists every stack, shape, extension, and version pin the release carries. Publishing the release puts the `LiteSpec.Cli` tool packages, the standalone archives of the CLI with their checksums and install scripts, the `LiteSpec.Analyzers` package, and the site at the release version together, so every install of the CLI carries the manifest, schemas, docs, and templates the version names. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together. Each schema `$id` carries that release under `https://litespec.dev/<version>/schemas/`, so a consumer that pins the release keeps resolving the shapes it reviewed.
 
 ### Release Diagnostics
 
@@ -40,8 +40,10 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 | Family | Meaning | Codes |
 |:---|:---|:---|
-| `MANIFEST_*` | The manifest is not valid JSON, names a path or anchor that does not exist, or lists a shape page twice. | `MANIFEST_JSON`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH` |
-| `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid JSON, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_JSON`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
+| `MANIFEST_*` | The manifest is not valid YAML, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_YAML`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
+| Documentation bindings | A page cites a finding code, template, or example record that does not exist, a `Checked by` line for `litespec model check` names no finding code, the documentation index reaches no path to a page, or a pattern offers more than three options. | `FINDING_CODE_UNKNOWN`, `CHECKED_BY_FINDING_MISSING`, `TEMPLATE_CITED_UNKNOWN`, `EXAMPLE_RECORD_UNKNOWN`, `INDEX_PAGE_MISSING`, `PATTERN_OPTION_COUNT` |
+| Command pages | A command page shows in its Synopsis or Options section an option its command does not parse, or names a LiteSpec command that no usage text in source declares. | `COMMAND_OPTION_UNKNOWN` |
+| `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid YAML, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_YAML`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
 ## Standards
 
@@ -49,7 +51,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#state-the-provision-lifecycle`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A maintainer MUST keep each provision in exactly one of three states: draft, active, or retired.
 
@@ -63,7 +65,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#replace-every-citation-on-a-rename`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A provision rename MUST replace every citation of the old identifier in one change.
 
@@ -77,13 +79,13 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#keep-provision-identifiers-stable-within-a-major-version`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A minor LiteSpec release MUST keep every provision identifier of its major version, adding provisions and rewording provision text without removing or renaming an identifier.
 
-**Rationale:** Consumers cite provision identifiers in code marks, records, and exceptions, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
+**Rationale:** Consumers cite provision identifiers in code marks, records, and departures, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
 
-**Example:** A release in the 4.x line adds `litespec/core/scope#declare-the-conformance-level` and rewords a neighboring provision; both keep their identifiers, so every mark and exception written against the 4.x line still resolves.
+**Example:** A release in the 5.x line adds `litespec/core/scope#claim-the-record-layers-the-project-uses` and rewords a neighboring provision; both keep their identifiers, so every mark and departure written against the 5.x line still resolves.
 
 **Reviewed for:** Which provision identifiers did a minor release remove or rename? Compare the provision index at the previous tag with the provision index of the release, beside the changelog entry that lists the generated diff.
 
@@ -91,11 +93,11 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#publish-a-litespec-release-from-a-tag`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.
 
-**Rationale:** A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing.
+**Rationale:** A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing. Each release publishes the CLI as one native executable per platform, in the tool packages and in standalone archives, so the version reaches a consumer with or without .NET, settled by [decision/0021-native-command-line](decision/0021-native-command-line) on the evidence in [research/native-command-line-evidence](research/native-command-line-evidence).
 
 **Checked by:** `dotnet test --solution LiteSpec.slnx` fails `ReleaseVersionTests` when the changelog, the template, or either package version differs from the manifest version, and `.github/workflows/release.yml` refuses a tag that does not name the manifest version.
 
@@ -103,21 +105,21 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** The LiteSpec manifest MUST list every stack, shape, extension, and version pin the release carries.
 
 **Rationale:** The manifest is the release record that tools read: stacks and shapes decide which pages apply, extensions decide which conditional bundles a project selects from, and pins decide which versions build. A stack, shape, extension, or pin the manifest omits is one no consumer selects and no tool resolves. Listing all of them in one file keeps the release reproducible from its tag.
 
-**Example:** The Behavior extensions `privacy`, `devices`, `automation`, `workflow-engine`, `pipeline`, `queues`, and `ai` each appear with their page path and activation scope.
+**Example:** The manifest lists the `cache` extension with its page path `docs/ext/cache.md` and its `local` activation scope.
 
-**Checked by:** `litespec-maintain validate` fails when a stack, shape, extension, or pin the release carries is missing from the manifest.
+**Checked by:** `litespec-maintain validate` emits `EXTENSION_UNLISTED` for an extension page no manifest entry lists, `LAYER_UNREACHABLE` for a page no stack selection reaches, and `MANIFEST_ANALYZER_PIN` for an analyzer pin that differs from the analyzer project version.
 
 ### Mark the Tools with the Provisions They Follow
 
 **ID:** `litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** Every top-level class that declares a method in a .NET source project under `apps/`, and every test that verifies a provision, MUST name its provision in a mark: a `follows` mark on the class and a `proves` mark on the test.
 
@@ -131,7 +133,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **ID:** `litespec/core/maintaining#record-the-reasoning-behind-each-release`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A maintainer MUST keep the research and decisions behind each release as records under `docs/intent/`.
 

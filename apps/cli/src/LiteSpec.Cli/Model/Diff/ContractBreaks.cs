@@ -5,7 +5,7 @@ namespace LiteSpec.Model.Diff;
 ///     working tree: a removed result, a removed refusal code, and a changed
 ///     integration event. Each becomes a contract-break finding.
 /// </summary>
-/// <follows>litespec/backend/identifiers#keep-wire-codes-stable</follows>
+/// <follows>litespec/core/language#keep-wire-codes-stable</follows>
 static class ContractBreaks
 {
     /// <summary>Finds every breaking contract change from the base to the head.</summary>

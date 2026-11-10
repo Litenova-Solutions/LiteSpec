@@ -1,7 +1,7 @@
 # Privacy and Retention
 
 **Stack:** any
-**Layer:** records
+**Concern:** records
 
 ## Intent
 
@@ -32,7 +32,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#classify-every-aggregate-data-field`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: aggregate
 
@@ -46,7 +46,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#declare-every-data-class-with-its-erasure-position`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -62,13 +62,13 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#accept-every-retained-personal-data-class-in-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
 **Statement:** Each personal or sensitive data class kept with `pseudonymize`, `retain`, or `exempt` MUST name the Intent requirements or decisions accepting it in `basedOn`.
 
-**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming those requirements or decisions in `basedOn` keeps the keeping reviewable where the promise lives. The `risk-acceptance-missing` check reports a pseudonymized, retained, or exempt personal or sensitive class with no Intent acceptance.
+**Rationale:** Keeping personal data past erasure is a business choice, not a technical default: the statute or the business accepts it, with the reason on record. Pseudonymized data stays personal data, so it needs the same acceptance as retained data. Naming those requirements or decisions in `basedOn` keeps the keeping reviewable where the promise lives.
 
 **Reviewed for:** Which pseudonymized, retained, or exempt personal or sensitive classes name no accepting requirement or decision? Look at `basedOn` on each data class.
 
@@ -76,7 +76,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#route-every-external-erasure-through-an-operation-or-event`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:external-system
 
@@ -90,7 +90,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#schedule-every-data-class-for-retention`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -104,7 +104,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#keep-a-tombstone-where-deletion-stays-visible`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -120,7 +120,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#discard-rows-that-leave-no-trace`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -136,7 +136,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#remove-child-rows-through-their-parent-only`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -152,7 +152,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#move-data-to-its-next-controller-instead-of-erasing`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -168,7 +168,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#scope-erasure-to-what-the-subject-requested`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:use-case
 
@@ -184,7 +184,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#state-the-erasure-sentence-in-intent`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:requirement
 
@@ -200,7 +200,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#complete-the-subject-export-before-erasure`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -216,7 +216,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#require-a-fresh-export-after-changes`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 
@@ -232,7 +232,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#purge-erased-data-from-restored-backups`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:runbook
 
@@ -248,7 +248,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **ID:** `litespec/core/privacy#record-which-duty-wins-each-conflict`
 
-**Strength:** rule
+**Strength:** required
 
 **Applies to:** artifact: record:retention-schedule
 

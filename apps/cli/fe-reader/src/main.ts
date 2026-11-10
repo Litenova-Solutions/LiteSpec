@@ -5,14 +5,14 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { exit } from "node:process";
-import { collectOperations } from "./calls.js";
-import { absolute, canonical, ensureDir, joinPath, relativeTo, toPosix } from "./files.js";
-import { readTests } from "./tests.js";
-import { parseRequest, Diagnostic, FrontendFacts, FrontendRequest, PROTOCOL_VERSION, READER_VERSION, ReaderContext, ReaderResponse } from "./protocol.js";
+import { collectOperations } from "./calls";
+import { absolute, canonical, ensureDir, joinPath, relativeTo, toPosix } from "./files";
+import { readTests } from "./tests";
+import { parseRequest, Diagnostic, FrontendFacts, FrontendRequest, PROTOCOL_VERSION, READER_VERSION, ReaderContext, ReaderResponse } from "./protocol";
 import * as ts from "typescript";
 import { VERSION as SVELTE_VERSION } from "svelte/compiler";
-import { readReactRoutes } from "./react.js";
-import { readModules, readSvelteRoutes } from "./svelte.js";
+import { readReactRoutes } from "./react";
+import { readModules, readSvelteRoutes } from "./svelte";
 
 function readStdin(): string {
   return readFileSync(0, "utf8");

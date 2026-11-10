@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the qualified identifier the tool computes from the placement. Each step names the standard it satisfies, and the guide adds no rule of its own.
+Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the placement the tool reads from the folder path and the `module` field. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -81,27 +81,27 @@ Implementation holds how the product is built and operated. Runbooks and operati
 
 ### Place Governance Records
 
-Governance holds exceptions and project conventions. An exception sits at product level, or under the module holding every record it sets aside. Proof holds no authored records: generated registers, gate files, and operating logs only. Terms live in the product glossary at `.litespec/glossary.yaml`. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#give-every-record-one-parent`.
+Governance holds departures and project conventions. A departure sits at product level, or under the module holding every record it sets aside. Proof holds no authored records: generated registers, gate files, and operating logs only. Terms live in the product glossary at `.litespec/glossary.yaml`. This satisfies `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#give-every-record-one-parent`.
 
 | Folder | Holds | Parent |
 |:---|:---|:---|
-| `.litespec/governance/exceptions/` | Exceptions | Product |
-| `.litespec/governance/modules/<module>/exceptions/` | Exceptions | Module |
+| `.litespec/governance/departures/` | Departures | Product |
+| `.litespec/governance/modules/<module>/departures/` | Departures | Module |
 | `.litespec/governance/conventions/` | Project conventions | Product |
 
-### Read the Qualified Identifier
+### Read the Placement
 
-The identifier is short and unique in the product, and every link uses it. The qualified identifier adds the placement, is computed and never written, and the book and the tool show both. This satisfies `litespec/core/model#give-every-record-one-parent`.
+The identifier is short and unique in the product, and every link uses it. The placement is never a second name: the folder path and the `module` field show it, and the book and the tool read both. This satisfies `litespec/core/model#give-every-record-one-parent`.
 
-| Placement | Qualified identifier |
+| Placement | Folder path |
 |:---|:---|
-| Product level | `<type>/<name>`, the identifier itself |
-| Module level | `<module>/<type>/<name>` |
-| Under an aggregate | `<module>/<aggregate>/<type>/<name>` |
-| Under an entry point | `<entry-point>/<type>/<name>` |
-| An entry | The qualified identifier of its file, then `/<type>/<name>` |
+| Product level | Directly under the type folder, such as `.litespec/intent/problems/` |
+| Module level | Under the module, such as `.litespec/intent/modules/<module>/problems/` |
+| Under an aggregate | Under the aggregate, such as `.litespec/behavior/modules/<module>/<aggregate>/` |
+| Under an entry point | Under the entry point, such as `.litespec/behavior/entry-points/<entry-point>/screens/` |
+| An entry | Inside the file that holds it, which takes that file's folder path |
 
-For example, `problem/organizers-wait-for-ticket-money` at product level keeps its identifier, `finance/problem/organizers-wait-for-ticket-money` is the same form under the finance module, and `finance/payout/use-case/request-payout` is a use case under an aggregate.
+For example, the problem `problem/organizers-wait-for-ticket-money` lives in `.litespec/intent/problems/` at product level. When it belongs to the finance module it lives in `.litespec/intent/modules/finance/problems/`, and its identifier stays the same.
 
 ### Follow the Folder on a Move
 
@@ -110,4 +110,4 @@ The folder wins: an identifier whose home segment disagrees with its folder is a
 ## Check
 
 - `litespec model check` exits `0` from the consumer root with no finding on placement.
-- `litespec model query <qualified identifier>` resolves the record at the folder this guide lists.
+- `litespec model query <record identifier>` resolves the record at the folder this guide lists.

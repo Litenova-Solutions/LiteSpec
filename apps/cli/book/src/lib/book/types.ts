@@ -10,8 +10,9 @@ export interface TestStep {
 export interface BookRecord {
   type: string;
   title: string;
-  /** The qualified identifier, computed from the identifier segments plus placement; the identifier itself when placement adds no prefix. */
-  qualifiedId?: string;
+  /** The folder the record file sits in, relative to the consumer root. */
+  folder?: string;
+  module?: string | null;
   fields: Record<string, unknown>;
   layer?: string | null;
   src?: SourceRef | null;
@@ -32,7 +33,7 @@ export interface BookRecord {
     test?: { name?: string; path?: string | null; line?: number | null } | null;
   };
   machine?: {
-    implemented?: boolean;
+    coded?: boolean;
     verified?: boolean;
     met?: boolean;
     measurePassed?: boolean | null;
@@ -83,13 +84,15 @@ export interface BookTest {
   browser?: boolean;
 }
 
-/** One finding on a record: its code, level, message, and whether an exception covers it. */
+/** One finding on a record: its code, level, message, and whether a departure covers it. */
 export interface BookFinding {
   code?: string | null;
   tier?: string | null;
   level?: string | null;
   message?: string;
-  known?: boolean;
+  /** The message rendered by the CLI: record references as book links, inline Markdown as HTML. */
+  messageHtml?: string;
+  covered?: boolean;
   outcome?: unknown;
   reason?: unknown;
   path?: string | null;
@@ -175,12 +178,18 @@ export interface IntentCoverage {
   entries: IntentCoverageEntry[];
 }
 
-/** The manifest: project, roots, editor, test run, totals, layers, shard map, search, unplaced and generation date. */
+/** One record layer the project claims, with the practice it follows: litespec or own. */
+export interface LayerClaim {
+  layer: string;
+  practice: string;
+}
+
+/** The manifest: project, roots, editor, test run, totals, layers, claims, shard map, search, unplaced and generation date. */
 export interface Manifest {
   project: { id: string; title: string };
   roots: { consumer: string; litespec: string };
   editor: string;
-  conformance?: string;
+  claims?: LayerClaim[];
   intentCoverage?: IntentCoverage;
   testRun?: { date?: string; passed?: number; failed?: number; total?: number } | null;
   totals: Record<string, number>;

@@ -41,7 +41,7 @@ static class BookParents
             ["integration-event"] = new("integration-event", ["module"], "module"),
             ["external-system"] = new("external-system", ["product", "module"], "its folder node"),
             ["runbook"] = new("runbook", ["product", "module"], "product or module"),
-            ["exception"] = new("exception", ["product", "module"], "product or module"),
+            ["departure"] = new("departure", ["product", "module"], "product or module"),
             ["requirement"] = new("requirement", ["feature"], "feature"),
             ["aggregate"] = new("aggregate", ["module"], "module"),
             ["use-case"] = new("use-case", ["aggregate", "module"], "aggregate or module"),
@@ -190,7 +190,7 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "exception" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
             "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
             "feature" or "permission" or "integration-event" => ModuleFromFile(index, record),
             "requirement" => FeatureParent(index, id),

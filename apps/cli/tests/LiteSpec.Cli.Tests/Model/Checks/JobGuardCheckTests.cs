@@ -1,15 +1,17 @@
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Checks;
+namespace LiteSpec.Cli.Tests.Model.Checks;
 
 /// <summary>Proves the job guard and schedule checks against hand-built models.</summary>
 public sealed class JobGuardCheckTests
 {
+    /// <summary>Manual Job Without Guard Reports.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
-    public void Manual_Job_Without_Guard_Reports()
+    public void ManualJobWithoutGuardReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -17,10 +19,12 @@ public sealed class JobGuardCheckTests
         Assert.Contains("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Manual Job With Guard Passes.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
-    public void Manual_Job_With_Guard_Passes()
+    public void ManualJobWithGuardPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -28,10 +32,12 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job Without Guard Passes.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
-    public void Scheduled_Job_Without_Guard_Passes()
+    public void ScheduledJobWithoutGuardPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -39,10 +45,12 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job Without A Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
-    public void Scheduled_Job_Without_A_Schedule_Reports()
+    public void ScheduledJobWithoutAScheduleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -50,10 +58,12 @@ public sealed class JobGuardCheckTests
         Assert.True(Reports(model, "schedule-invalid", "runs on time with no structured schedule"));
     }
 
+    /// <summary>Scheduled Job Without A Readable Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
-    public void Scheduled_Job_Without_A_Readable_Schedule_Reports()
+    public void ScheduledJobWithoutAReadableScheduleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -61,10 +71,12 @@ public sealed class JobGuardCheckTests
         Assert.Contains("schedule-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job With Cron Passes.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
-    public void Scheduled_Job_With_Cron_Passes()
+    public void ScheduledJobWithCronPasses()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "scheduled", "schedule": {"cron": "0 3 * * *"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));
@@ -72,10 +84,12 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("schedule-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Manual Job With An Unreadable Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
-    public void Manual_Job_With_An_Unreadable_Schedule_Reports()
+    public void ManualJobWithAnUnreadableScheduleReports()
     {
-        using var temp = Cli.Temp("checks");
+        using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"status": "reviewed", "kind": "manual", "guard": "An operator starts the scan.", "schedule": {"at": "nightly"}, "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}]}"""));

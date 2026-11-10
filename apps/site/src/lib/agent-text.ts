@@ -6,6 +6,7 @@
 // the content type.
 import path from "node:path";
 import { groups } from "./areas";
+import { SITE_ORIGIN } from "./origin";
 import {
   appliedPages,
   backendStacks,
@@ -26,9 +27,6 @@ import {
   type Page,
   type Selection,
 } from "./spec";
-
-/** The public origin of the site, matching astro.config.mjs. */
-export const SITE_ORIGIN = "https://litespec.dev";
 
 /** Join the origin with a site path from the URL helpers in spec.ts. */
 export function absoluteUrl(sitePath: string): string {

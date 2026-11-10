@@ -6,7 +6,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>
-///     The placement checks: every backend mark sits under its record's qualified path with its namespace,
+///     The placement checks: every backend mark sits under the code folder its record's placement names with its namespace,
 ///     every test mirrors the code it proves, every frontend module names a declared module, and every
 ///     module folder names a declared record under a closed folder set.
 /// </summary>
@@ -73,7 +73,7 @@ internal static class PlacementChecks
     }
 
     /// <summary>
-    ///     Reports every backend mark whose namespace or aggregate folder misses its record's qualified path:
+    ///     Reports every backend mark whose namespace or aggregate folder misses the code folder its record's placement names:
     ///     a use case mark outside its aggregate folder, an event or rule mark outside its module or aggregate,
     ///     an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
@@ -144,7 +144,7 @@ internal static class PlacementChecks
                     continue;
                 }
 
-                var path = PathOf(record, model.Config);
+                var path = PathOf(record);
 
                 if (path.Module is null)
                 {
@@ -176,7 +176,7 @@ internal static class PlacementChecks
     /// <param name="element">The marked code element whose folder is checked.</param>
     /// <param name="mark">The mark naming the record the folder should hold.</param>
     /// <param name="record">The marked record.</param>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="ruleHomes">The aggregates a rule mark accepts, or null when the mark names no rule.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
@@ -255,7 +255,7 @@ internal static class PlacementChecks
     /// <param name="config">The project configuration that holds each layer root.</param>
     /// <param name="element">The marked handler or endpoint whose folder is checked.</param>
     /// <param name="mark">The mark naming the use case the folder should hold.</param>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
     private static bool CheckUseCaseElementFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, List<Finding> findings)
@@ -392,7 +392,7 @@ internal static class PlacementChecks
                 return null;
             }
 
-            var segments = Path.GetRelativePath(config.ModulesRoot, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
 
             if (segments.Length >= 2 && segments[0].Equals("Composition", StringComparison.OrdinalIgnoreCase))
             {
@@ -408,7 +408,7 @@ internal static class PlacementChecks
     /// <summary>Whether the file sits in the Contracts folder of the module the mark names, at any depth below it.</summary>
     /// <param name="config">The project configuration that holds the modules root.</param>
     /// <param name="file">The full path of the file under test.</param>
-    /// <param name="module">The module the qualified identifier states.</param>
+    /// <param name="module">The module the record's folder path states.</param>
     /// <returns>True when the file sits under the module Contracts folder in the module layout.</returns>
     private static bool IsInModuleContracts(ConsumerConfig config, string file, string module)
     {
@@ -417,7 +417,7 @@ internal static class PlacementChecks
             return false;
         }
 
-        var segments = Path.GetRelativePath(config.ModulesRoot, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var segments = PathText.Relative(config.ModulesRoot, file).Split('/');
 
         return segments.Length >= 3
             && SameName(segments[0], module)
@@ -427,7 +427,7 @@ internal static class PlacementChecks
     /// <summary>The aggregates a rule exception may sit beside: the rule home, and every same-module aggregate the rule governs or binds.</summary>
     /// <param name="model">The loaded project model that resolves the governed and bound records.</param>
     /// <param name="record">The marked rule record.</param>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <returns>The accepted aggregate folder names, starting with the rule home.</returns>
     private static List<string> AcceptedRuleAggregates(ProjectModel model, Record record, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path)
     {
@@ -457,7 +457,7 @@ internal static class PlacementChecks
     /// <summary>Adds the aggregate a governed or bound record enforces in, when it sits in the rule module.</summary>
     /// <param name="model">The loaded project model that resolves the governed or bound record.</param>
     /// <param name="id">The governed or bound record identifier.</param>
-    /// <param name="module">The module the rule qualified identifier states.</param>
+    /// <param name="module">The module the rule's folder path states.</param>
     /// <param name="accepted">The accepted aggregate folder names, receiving the enforcing aggregate.</param>
     private static void AddGovernedAggregate(ProjectModel model, string id, string module, List<string> accepted)
     {
@@ -471,7 +471,7 @@ internal static class PlacementChecks
             return;
         }
 
-        var path = PathOf(target, model.Config);
+        var path = PathOf(target);
 
         // Across modules a type is never shared: an aggregate of another module
         // names the exception through the owner Contracts folder instead.
@@ -483,12 +483,12 @@ internal static class PlacementChecks
         accepted.Add(path.Aggregate);
     }
 
-    /// <summary>Reports the backend namespace that names another path than the mark's qualified identifier.</summary>
+    /// <summary>Reports the backend namespace that names another path than the marked record's folder path.</summary>
     /// <param name="config">The project configuration that holds the product name.</param>
     /// <param name="element">The marked code element whose namespace is checked.</param>
     /// <param name="mark">The mark naming the record the namespace should place.</param>
     /// <param name="record">The marked record.</param>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="ruleHomes">The aggregates a rule mark accepts, or null when the mark names no rule.</param>
     /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -543,7 +543,7 @@ internal static class PlacementChecks
     }
 
     /// <summary>
-    ///     Reports every test whose folder or namespace misses the qualified path of the use case its scenario
+    ///     Reports every test whose folder or namespace misses the code folder of the use case its scenario
     ///     proves. A test proving another record carries no folder rule, and an adapter test under its adapter's
     ///     Infrastructure path is exempt by kind. A mark naming no scenario is <c>mark-unknown</c>, not drift.
     /// </summary>
@@ -580,7 +580,7 @@ internal static class PlacementChecks
                     continue;
                 }
 
-                var path = UseCasePathOf(record, model.Config);
+                var path = UseCasePathOf(record);
 
                 if (path.Module is null || path.Name is null)
                 {
@@ -595,11 +595,11 @@ internal static class PlacementChecks
         }
     }
 
-    /// <summary>Reports the test folder that misses the qualified path of the scenario's use case.</summary>
+    /// <summary>Reports the test folder that misses the code folder of the scenario's use case.</summary>
     /// <param name="config">The project configuration that holds each test root.</param>
     /// <param name="element">The marked test whose folder is checked.</param>
     /// <param name="mark">The proves mark naming the scenario.</param>
-    /// <param name="path">The module, aggregate and use case the scenario's qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and use case the scenario's folder path states.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
     private static bool CheckTestFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, List<Finding> findings)
@@ -659,7 +659,7 @@ internal static class PlacementChecks
     /// <param name="config">The project configuration that holds the product name.</param>
     /// <param name="element">The marked test whose namespace is checked.</param>
     /// <param name="mark">The proves mark naming the scenario.</param>
-    /// <param name="path">The module, aggregate and use case the scenario's qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and use case the scenario's folder path states.</param>
     /// <param name="namespaces">The parsed namespace per file, filled as files are read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckTestNamespace(ConsumerConfig config, MarkedElement element, CodeMark mark, (string? Module, string? Aggregate, string? Name, bool IsUseCase) path, Dictionary<string, string> namespaces, List<Finding> findings)
@@ -812,7 +812,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no shared kernel layer folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no shared kernel layer folder.", child, 1, null));
         }
     }
 
@@ -836,7 +836,7 @@ internal static class PlacementChecks
 
             if (modules.Count > 0 && !modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no Composition folder or declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no Composition folder or declared module.", module, 1, null));
                 continue;
             }
 
@@ -874,7 +874,7 @@ internal static class PlacementChecks
 
             if (aggregates.Count > 0 && !aggregates.Any(aggregate => SameName(moduleName, aggregate.Module) && SameName(name, aggregate.Aggregate)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or declared aggregate.", child, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or declared aggregate.", child, 1, null));
                 continue;
             }
 
@@ -894,13 +894,13 @@ internal static class PlacementChecks
 
             if (!ContractsKindFolders.Contains(name))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no Contracts kind folder.", child, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no Contracts kind folder.", child, 1, null));
             }
         }
 
         foreach (var file in ChildFiles(contracts))
         {
-            findings.Add(new Finding("code-placement-drift", $"File '{config.Relative(file)}' sits directly in Contracts/, which holds only its kind folders.", file, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"File '{PathText.Relative(config.Root, file)}' sits directly in Contracts/, which holds only its kind folders.", file, 1, null));
         }
     }
 
@@ -928,7 +928,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' names no layer folder or UseCases folder.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' names no layer folder or UseCases folder.", child, 1, null));
         }
     }
 
@@ -941,7 +941,7 @@ internal static class PlacementChecks
     {
         foreach (var child in ChildFolders(useCase))
         {
-            findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(child)}' sits in {kind} '{Path.GetFileName(useCase)}', which holds files only.", child, 1, null));
+            findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, child)}' sits in {kind} '{Path.GetFileName(useCase)}', which holds files only.", child, 1, null));
         }
     }
 
@@ -996,8 +996,8 @@ internal static class PlacementChecks
             findings.Add(new Finding(
                 "code-placement-drift",
                 aggregateName is null
-                    ? $"Folder '{config.Relative(child)}' names no declared use case or reaction folder."
-                    : $"Folder '{config.Relative(child)}' names no declared use case.",
+                    ? $"Folder '{PathText.Relative(config.Root, child)}' names no declared use case or reaction folder."
+                    : $"Folder '{PathText.Relative(config.Root, child)}' names no declared use case.",
                 child,
                 1,
                 null));
@@ -1027,7 +1027,7 @@ internal static class PlacementChecks
 
             if (!modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no declared module.", module, 1, null));
             }
         }
     }
@@ -1050,69 +1050,80 @@ internal static class PlacementChecks
 
             if (!modules.Any(declared => SameName(name, declared)))
             {
-                findings.Add(new Finding("code-placement-drift", $"Folder '{config.Relative(module)}' names no declared module.", module, 1, null));
+                findings.Add(new Finding("code-placement-drift", $"Folder '{PathText.Relative(config.Root, module)}' names no declared module.", module, 1, null));
             }
         }
     }
 
-    /// <summary>The module, aggregate and name the record's qualified identifier states for its folder and namespace.</summary>
+    /// <summary>The module, aggregate and name a record's placement states: its module folder, the aggregate folder under it, and its identifier name.</summary>
     /// <param name="record">The marked record.</param>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <returns>The module, aggregate and name, with nulls where the qualified identifier states no placement.</returns>
-    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) PathOf(Record record, ConsumerConfig config)
+    /// <returns>The module, aggregate and name, with nulls where the record's folder states no module.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) PathOf(Record record)
     {
-        var qualified = record.QualifiedId.Length > 0
-            ? record.QualifiedId
-            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
-        var segments = qualified.Split('/');
-
-        if (segments.Length < 2 || segments[0] == record.Type)
+        if (record.Module is not { Length: > 0 } module)
         {
             return (null, null, null, record.Type == RecordTypes.UseCase);
         }
 
-        var module = segments[0];
-        var at = Array.IndexOf(segments, record.Type, 1);
-
-        if (at < 0)
+        if (record.Type == RecordTypes.Aggregate)
         {
-            return record.Type == RecordTypes.Aggregate && segments.Length == 2
-                ? (module, segments[1], segments[1], false)
-                : (module, null, segments[^1], false);
+            var aggregate = AggregateOf(record) ?? NameOf(record);
+            return (module, aggregate, aggregate, false);
         }
 
         // The aggregate sits directly under the module, even when the record nests
         // deeper, such as an event its use case raises.
-        var aggregate = at > 1 ? segments[1] : null;
-        var name = at + 1 < segments.Length ? segments[at + 1] : null;
-
-        return (module, aggregate, name, record.Type == RecordTypes.UseCase);
+        return (module, AggregateOf(record), NameOf(record), record.Type == RecordTypes.UseCase);
     }
 
-    /// <summary>The module, aggregate and use case the scenario's qualified identifier states for its test.</summary>
+    /// <summary>The module, aggregate and use case the scenario's placement states for its test.</summary>
     /// <param name="record">The marked scenario record.</param>
-    /// <param name="config">The consumer configuration holding the record roots.</param>
-    /// <returns>The module, aggregate and use case home, with nulls where the qualified identifier states no placement.</returns>
-    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) UseCasePathOf(Record record, ConsumerConfig config)
+    /// <returns>The module, aggregate and use case home, with nulls where the record's folder states no module.</returns>
+    private static (string? Module, string? Aggregate, string? Name, bool IsUseCase) UseCasePathOf(Record record)
     {
-        var qualified = record.QualifiedId.Length > 0
-            ? record.QualifiedId
-            : QualifiedIdentifier.Of(record.Type, record.Id, record.File, config);
-        var segments = qualified.Split('/');
-        var at = Array.IndexOf(segments, RecordTypes.UseCase);
-
-        if (at <= 0 || at + 1 >= segments.Length)
+        if (record.Module is not { Length: > 0 } module)
         {
             return (null, null, null, false);
         }
 
-        var aggregate = at > 1 ? segments[at - 1] : null;
+        // A scenario or result takes the use case it belongs to as its name.
+        var name = record.Type is RecordTypes.Scenario or RecordTypes.Result
+            ? Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null
+            : NameOf(record);
 
-        return (segments[0], aggregate, segments[at + 1], true);
+        return (module, AggregateOf(record), name, true);
     }
 
-    /// <summary>The expected namespace segments after the product for the qualified path of the marked record type.</summary>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <summary>The identifier name of a record, or its whole identifier when the name is not split out.</summary>
+    /// <param name="record">The record.</param>
+    /// <returns>The name segment of the identifier.</returns>
+    private static string NameOf(Record record) =>
+        Identifiers.TrySplit(record.Id, out _, out _, out var name) && name.Length > 0 ? name : record.Id;
+
+    /// <summary>The aggregate folder a behavior record sits under: the folder after its module, when the module holds aggregates.</summary>
+    /// <param name="record">The record whose folder is read.</param>
+    /// <returns>The aggregate folder name, or null when the record sits in no aggregate folder.</returns>
+    private static string? AggregateOf(Record record)
+    {
+        var segments = record.Folder.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var moduleAt = Array.IndexOf(segments, "modules");
+
+        if (moduleAt < 1
+            || !string.Equals(segments[moduleAt - 1], "behavior", StringComparison.Ordinal)
+            || moduleAt + 2 >= segments.Length)
+        {
+            return null;
+        }
+
+        var next = segments[moduleAt + 2];
+
+        return next.Contains('.', StringComparison.Ordinal) || RecordFolders.BehaviorModuleFolders.Contains(next)
+            ? null
+            : next;
+    }
+
+    /// <summary>The expected namespace segments after the product for the code folder of the marked record type.</summary>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <returns>The expected segments in placement order, or an empty list when the path states no placement.</returns>
     private static List<string> ExpectedSegments((string? Module, string? Aggregate, string? Name, bool IsUseCase) path)
     {
@@ -1170,7 +1181,7 @@ internal static class PlacementChecks
     ///     The expected segments with the aggregate kept after its module when both share a name, because the
     ///     module layout gives such an aggregate its own folder, as in Directory.Directory.
     /// </summary>
-    /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="expected">The expected segments that drop the aggregate named like its module.</param>
     /// <returns>The expected segments with that aggregate, or the expected segments unchanged.</returns>
     private static List<string> WithModuleNamedAggregate((string? Module, string? Aggregate, string? Name, bool IsUseCase) path, List<string> expected)
@@ -1261,7 +1272,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var segments = Path.GetRelativePath(root, file).Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var segments = PathText.Relative(root, file).Split('/');
 
             if (segments.Length >= 3)
             {
@@ -1285,7 +1296,7 @@ internal static class PlacementChecks
             return null;
         }
 
-        var relative = Path.GetRelativePath(Path.GetFullPath(frontend.ModulesRoot), Path.GetFullPath(folder));
+        var relative = PathText.Relative(Path.GetFullPath(frontend.ModulesRoot), Path.GetFullPath(folder));
 
         if (relative.StartsWith("..", StringComparison.Ordinal) || Path.IsPathRooted(relative))
         {
@@ -1311,18 +1322,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var qualified = record.QualifiedId.Length > 0
-                ? record.QualifiedId
-                : QualifiedIdentifier.Of(record.Type, record.Id, record.File, model.Config);
-
-            if (qualified.Length > 0 && !qualified.Contains('/', StringComparison.Ordinal))
-            {
-                modules.Add(qualified);
-            }
-            else if (Identifiers.TrySplit(record.Id, out _, out _, out var name))
-            {
-                modules.Add(name);
-            }
+            modules.Add(NameOf(record));
         }
 
         return modules;
@@ -1330,7 +1330,7 @@ internal static class PlacementChecks
 
     /// <summary>The declared aggregates by module and aggregate name.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The module and aggregate names of each aggregate record with a placed qualified identifier.</returns>
+    /// <returns>The module and aggregate names of each aggregate record placed in a module folder.</returns>
     private static List<(string Module, string Aggregate)> DeclaredAggregates(ProjectModel model)
     {
         var aggregates = new List<(string Module, string Aggregate)>();
@@ -1342,7 +1342,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is not null && path.Aggregate is not null)
             {
@@ -1355,7 +1355,7 @@ internal static class PlacementChecks
 
     /// <summary>The declared use cases by module, aggregate and name.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The module, aggregate and name of each use case record with a placed qualified identifier.</returns>
+    /// <returns>The module, aggregate and name of each use case record placed in a module folder.</returns>
     private static List<(string Module, string? Aggregate, string Name)> DeclaredUseCases(ProjectModel model)
     {
         var useCases = new List<(string Module, string? Aggregate, string Name)>();
@@ -1367,7 +1367,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is not null && path.Name is not null)
             {
@@ -1384,7 +1384,7 @@ internal static class PlacementChecks
     ///     trigger with no marked class allows its name alone and its home and name, since either can name the class.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>The module and folder name of each reaction trigger with a placed qualified identifier.</returns>
+    /// <returns>The module and folder name of each reaction trigger placed in a module folder.</returns>
     private static List<(string Module, string Folder)> DeclaredReactionFolders(ProjectModel model)
     {
         var folders = new List<(string Module, string Folder)>();
@@ -1400,7 +1400,7 @@ internal static class PlacementChecks
                 continue;
             }
 
-            var path = PathOf(record, model.Config);
+            var path = PathOf(record);
 
             if (path.Module is null)
             {

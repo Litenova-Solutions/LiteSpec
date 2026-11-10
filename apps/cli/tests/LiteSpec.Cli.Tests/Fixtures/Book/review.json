@@ -1085,24 +1085,23 @@
       "links": {}
     },
     {
-      "type": "exception",
-      "id": "exception/kiosk-cache",
+      "type": "departure",
+      "id": "departure/kiosk-cache",
       "title": "Kiosk Cache",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/exceptions/kiosk-cache.yaml",
+      "file": ".litespec/governance/departures/kiosk-cache.yaml",
       "line": 3,
       "fields": {
-        "type": "exception",
-        "id": "exception/kiosk-cache",
+        "type": "departure",
+        "id": "departure/kiosk-cache",
         "title": "Kiosk Cache",
         "owner": "lending-team",
         "status": "approved",
-        "kind": "departure",
-        "covers": "litespec/ext/cache#define-cache-invalidation",
+        "covers": ["litespec/ext/cache#define-cache-invalidation"],
         "subject": [
           "feature/self-checkout"
         ],
@@ -1119,23 +1118,22 @@
       }
     },
     {
-      "type": "exception",
-      "id": "exception/offline-kiosk",
+      "type": "departure",
+      "id": "departure/offline-kiosk",
       "title": "Offline Kiosk",
       "owner": "lending-team",
       "status": "approved",
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/governance/exceptions/offline-kiosk.yaml",
+      "file": ".litespec/governance/departures/offline-kiosk.yaml",
       "line": 3,
       "fields": {
-        "type": "exception",
-        "id": "exception/offline-kiosk",
+        "type": "departure",
+        "id": "departure/offline-kiosk",
         "title": "Offline Kiosk",
         "owner": "lending-team",
         "status": "approved",
-        "kind": "gap",
         "covers": [
           "kiosk-offline"
         ],
@@ -1340,11 +1338,11 @@
   },
   "status": {
     "use-case/lending.borrow-copy": {
-      "implemented": true,
+      "coded": true,
       "verified": false
     },
     "use-case/lending.return-copy": {
-      "implemented": false,
+      "coded": false,
       "verified": false
     }
   },

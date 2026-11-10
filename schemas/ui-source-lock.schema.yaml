@@ -1,0 +1,146 @@
+$schema: 'https://json-schema.org/draft/2020-12/schema'
+$id: 'https://litespec.dev/5.0.0/schemas/ui-source-lock.schema.yaml'
+title: Litenova Shared UI Package Source Lock
+description: The record beside the one copy of the registry source. It names the pinned CLI, the registry it came from, and the digest of every installed primitive, so a hand edit to copied source reports rather than passing unreviewed.
+type: object
+additionalProperties: false
+required:
+- schemaVersion
+- generator
+- cli
+- preset
+- registry
+- formatter
+- components
+properties:
+  schemaVersion:
+    $comment: 'Each release pins one exact shape. A consumer adopting a later release absorbs every difference at that moment, so no minor-compatible range exists between two releases. See litespec/core/authoring#publish-each-release-as-a-complete-contract and litespec/core/authoring#exclude-cross-release-compatibility-work.'
+    const: 2
+  generator:
+    enum:
+    - shadcn/ui
+    - shadcn-svelte
+  cli:
+    type: string
+    pattern: '^\d+\.\d+\.\d+$'
+  preset:
+    description: The decoded preset the shared package installs. Every field matches the uiBaseline the LiteSpec manifest pins, so the lock and the manifest cannot describe two different presets.
+    type: object
+    additionalProperties: false
+    required:
+    - style
+    - base
+    - cssVariables
+    - baseColor
+    - theme
+    - chartColor
+    - font
+    - fontHeading
+    - icons
+    - radius
+    - menuAccent
+    - menuColor
+    - componentsStyle
+    properties:
+      style:
+        type: string
+        minLength: 1
+      base:
+        enum:
+        - base-ui
+        - bits-ui
+      cssVariables:
+        const: true
+      baseColor:
+        type: string
+        minLength: 1
+      theme:
+        type: string
+        minLength: 1
+      chartColor:
+        type: string
+        minLength: 1
+      font:
+        type: string
+        minLength: 1
+      fontHeading:
+        type: string
+        minLength: 1
+      icons:
+        const: lucide
+      radius:
+        type: string
+        minLength: 1
+      menuAccent:
+        enum:
+        - subtle
+        - bold
+      menuColor:
+        enum:
+        - default
+        - inverted
+        - default-translucent
+        - inverted-translucent
+      componentsStyle:
+        type: string
+        minLength: 1
+  registry:
+    description: The registry the installed source came from. A registry outside the built-in registry its generator names requires an override decision against the baseline provision the consuming profile states.
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - url
+    properties:
+      name:
+        type: string
+        minLength: 1
+      url:
+        type: string
+        minLength: 1
+  formatter:
+    type: string
+    minLength: 1
+  components:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - address
+      - status
+      - paths
+      - digest
+      - dependencies
+      properties:
+        name:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+        address:
+          type: string
+          minLength: 1
+        status:
+          enum:
+          - baseline
+          - extended
+          - forked
+          - specialist
+        paths:
+          description: Package-relative paths of the installed source. The validator resolves them against the shared package root, not against an application root.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+        digest:
+          type: string
+          pattern: '^sha256:[a-f0-9]{64}$'
+        dependencies:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1

@@ -1,8 +1,8 @@
 using System.Text.Json;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Marks;
+namespace LiteSpec.Cli.Tests.Model.Marks;
 
 /// <summary>Proves a test proves the lowest record it verifies, from each of the seven proof kinds.</summary>
 public sealed class ProofTargetTests
@@ -163,7 +163,7 @@ public sealed class ProofTargetTests
             finding => FileName(finding) == "UnappliedProvisionProofTests.cs");
 
         Assert.Contains("which sits on a page the project's stacks and extensions do not apply.", finding.Message);
-        Assert.Equal("litespec/frontend/web/svelte/components#write-components-in-runes-mode", finding.Subject);
+        Assert.Equal("litespec/frontend/web/svelte/stack#write-components-in-runes-mode", finding.Subject);
     }
 
     /// <summary>No other mark-unknown fires in the proof-targets fixture.</summary>
@@ -186,7 +186,7 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.Equal("proven", model.Completion["use-case/lending.borrow-copy"].Stage);
+        Assert.Equal("verified", model.Completion["use-case/lending.borrow-copy"].Stage);
     }
 
     /// <summary>A quality-requirement proof does not verify a use case.</summary>
@@ -197,7 +197,7 @@ public sealed class ProofTargetTests
         using var temp = MarksFixture.Prepare("proof-targets");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        Assert.NotEqual("proven", model.Completion["use-case/lending.extend-loan"].Stage);
+        Assert.NotEqual("verified", model.Completion["use-case/lending.extend-loan"].Stage);
     }
 
     /// <summary>Passing proving tests confirm the proves links of their proof targets.</summary>

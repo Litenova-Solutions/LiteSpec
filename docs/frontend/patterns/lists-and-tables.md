@@ -2,11 +2,11 @@
 
 **Stack:** any
 
-**Layer:** frontend-ui
+**Concern:** frontend-ui
 
 ## Intent
 
-This page holds the patterns for the expenses list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, cards, and phone layout. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.
+This page holds the patterns for the expenses list, which shows many records of one kind so a reader can find one record, compare rows, and act on them: columns, sorting, filters, row density, selection, paging, row actions, table states, status, money, export, search, grouping, expansion, pinning, and the layout of a short list. A team building a list screen starts from these patterns, an owner picks an option from the drawings, and the team records the choice in its pattern catalog, the file holding the project's interface decisions. One shared set of answers keeps every list in the product behaving the same way, so a reader who learns one list knows them all.
 
 ## Concepts
 
@@ -24,7 +24,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#keep-a-lists-view-in-its-address`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A list MUST keep its filters, sort order, and page in the URL.
 
@@ -36,7 +36,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#align-money-to-the-right-with-its-currency`
 
-**Strength:** rule
+**Strength:** required
 
 **Statement:** A table MUST right-align a money column and show the currency of every amount in it.
 
@@ -56,7 +56,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **Default:** `five-columns-nothing-removable`
 
-**Compact:** The recommended option reflows below `md`. One column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** Below 640 pixels the table becomes two-line rows with the amount on the right and a Sort control in the toolbar. The compact option is the compact form of `five-columns-nothing-removable`.
 
 **Rationale:** Keep the default five columns. They answer which expense, who, when, what state, and how much. The runner-up is the Columns popover. Add it once more than one team asks for a sixth fact such as method or cost centre.
 
@@ -78,172 +78,28 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: field "Select EXP-1042" checkbox · text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** The default set. Five columns is what fits 1440 without scrolling and covers the four questions: which expense, who, when, what state, and what money.
-
-**Cost:** Nothing can be dropped or added. A team that wants the trip as its own column, or that hides the email, has no way to get there.
-
-#### `six-columns-with-a-column-chooser`: Six Columns with a Column Chooser
-
-```wireframe
+```wireframe compact
 page
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
-    text "Every paid expense across every trip, newest first."
+    text "Every paid expense, newest first."
   toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-    action "Columns"
+    field "Expense number, name or email" search
+    field "Sort" select = "Newest first"
   region "Expenses"
-    table 6 "Expense" "Trip" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    list 6
+      item: link "EXP-1042" · text "EUR 125.00" · text muted "Ava, 8 Oct 09:32" · status "Paid" positive
 ```
 
-**Rationale:** Add the trip as its own column and offer a chooser so each reader keeps the columns they use. TanStack draws this as a plain per-user map, so the state is cheap.
+**Rationale:** The default set. Five columns is what fits 1440 without scrolling and covers the four questions: which expense, who, when, what state, and what money. On a phone the rows become two lines with the amount on the right and a Sort control replaces the headers.
 
-**Cost:** The chooser is one more control, and a table where everyone sees different columns is harder to talk about in a support reply.
-
-**Reference:** TanStack
-
-#### `a-chooser-that-shows-the-current-set`: A Chooser That Shows the Current Set
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    action "Columns"
-  split 3:1
-    region "Expenses"
-      table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-    aside "Columns"
-      field "Expense" checkbox
-      field "Spender" checkbox
-      field "Submitted" checkbox
-      field "State" checkbox
-      field "Paid" checkbox
-      field "Trip" checkbox
-      field "Method" checkbox
-      field "Cost centre" checkbox
-      action quiet "Reset"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The Columns control opens a list of every column with a checkbox, a drag handle, and a Reset to default. The reader sees what they are looking at rather than picking from memory.
-
-**Cost:** Two panes, so the table is squeezed while the chooser is open. A popover narrow enough to fit beside the button avoids that.
-
-#### `two-lines-per-row-one-column-per-fact-group`: Two Lines per Row, One Column per Fact Group
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 4 "Expense and trip" "Spender" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Fold trip into the expense cell and spender into one cell. The table is three columns wide and each row reads as two records of two lines.
-
-**Cost:** Sorting by trip becomes impossible, because trip is not a column. Carbon wants sorting in the headers, and a folded cell has nowhere to put an arrow.
-
-#### `columns-sized-to-their-content`: Columns Sized to Their Content
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text muted "Rotterdam client visit" · text "Ava" · text muted "ava@harbor-pine.example" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The money column is narrow and right-aligned, the spender column takes the slack, the date column is fixed. Each column is as wide as its values rather than an even split.
-
-**Cost:** A long spender name pushes its column wider on one row and narrower on the rest, because table layout is content-driven. Fixed widths are the only way to stop that.
-
-#### `one-column-per-question-headers-that-name-the-question`: One Column per Question, Headers That Name the Question
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-    field "Trip" select = "Any trip"
-  region "Expenses"
-    table 5 "Who claimed" "For which trip" "When they were paid" "What state" "How much"
-      item: text "Ava" · text "Rotterdam client visit" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Headers become the questions the reader asks: Who, Which trip, When, State, How much. Each header is sortable, and the reader can name what they are looking at.
-
-**Cost:** Longer headers take width from the data. A question-shaped header breaks the one-word-per-column feel.
-
-#### `customer-first-order-code-deferred-to-the-record`: Spender First, Expense Code Deferred to the Record
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Three expenses for Rotterdam client visit, newest first."
-  toolbar
-    field "Spender name" search
-    field "State" select = "Any state"
-    action "Export"
-  region "Expenses"
-    table 4 "Spender" "Trip" "State" "Paid"
-      item: text "Ava" · text "Rotterdam client visit" · status "Paid" positive · text "EUR 125.00" · action "Open"
-  footer
-    text "1 – 3 of 3"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Support starts from who is asking, not from a code. The spender and the trip lead, and the expense code waits on the record where it is needed.
-
-**Cost:** Two expenses by one spender for one trip read as near-identical rows until one is opened. Nothing on the row tells them apart, which costs the scannable identity the default expense column gives.
+**Cost:** Nothing can be dropped or added. A team that wants the trip as its own column, or that hides the email, has no way to get there. On a phone there are no headers, so sorting and comparison down a column move to a control or to the desktop.
 
 #### `a-columns-popover-listing-every-column`: A Columns Popover Listing Every Column
 
@@ -260,9 +116,9 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
   popover "Columns"
     field "Expense · Always shown" checkbox
     field "Spender" checkbox
@@ -275,11 +131,11 @@ page
     action quiet "Reset to default"
 ```
 
-**Rationale:** The Columns control opens a popover with every column, a checkbox each, and Reset to default. The expense column is always shown and says so. This is the shadcn/ui data-table view-options menu, and Linear Display panel works the same way.
+**Rationale:** The Columns control opens a popover with every column, a checkbox each, and Reset to default. The expense column is always shown and says so. The view-options menu and the display panel work the same way.
 
 **Cost:** The popover covers the table while it is open, and drag-to-reorder inside it is a second feature that most readers would never find.
 
-**Reference:** shadcn/ui
+**Reference:** shadcn/ui, Linear
 
 #### `saved-views-carry-their-own-columns`: Saved Views Carry Their Own Columns
 
@@ -297,16 +153,16 @@ page
       table 5 "Expense" "Submitted" "Method" "Paid" "Reversed"
         item: text "EXP-1042" · text "8 Oct 09:32" · text "Bank transfer" · text "EUR 125.00" · text muted "No reversal"
   footer
-    text "1 – 25 of 58"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 58"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** HubSpot and Linear tie a column set to a saved view. All expenses keep the default five, Finance swaps in method, paid, and reversed, and Payout run shows spender, trip, and lines. Each role opens the table it needs, and a support reply can name the view.
+**Rationale:** Saved views tie a column set to a view. All expenses keep the default five, Finance swaps in method, paid, and reversed, and Payout run shows spender, trip, and lines. Each role opens the table it needs, and a support reply can name the view.
 
 **Cost:** Views are a feature with their own lifecycle: who creates one, whether shared, and what follows when a column retires. Too much for a first release.
 
-**Reference:** HubSpot
+**Reference:** HubSpot, Linear
 
 ### Sorting
 
@@ -324,30 +180,72 @@ page
 
 Never ship multi-column sort. No finance question needs two keys.
 
-**Reviewed for:** Which built sort control breaks from the wireframe its catalog entry chose? Open the built arrows, stacks, and phone sort controls beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built sort control breaks from the wireframe its catalog entry chose? Open the built arrows and phone sort controls beside the catalog entry recording the chosen option and its reason.
 
-#### `arrow-on-the-sorted-column-only`: Arrow on the Sorted Column Only
+#### `every-sortable-header-carries-an-arrow`: Every Sortable Header Carries an Arrow
 
 ```wireframe
 page
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
-    text "Sorted by newest first."
+    text "Every paid expense across every trip."
   toolbar
     field "Search expenses" search
   region "Expenses"
-    table 5 "Expense" "Spender" "Submitted ↓" "State" "Paid"
+    table 5 "Expense ^v" "Spender" "Submitted v" "State ^v" "Paid ^v"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** One arrow, on the column the table is sorted by, showing which way. Every other header is plain text that becomes a button on hover.
+**Rationale:** Each sortable header is a ghost button with a faint up-down arrow, and the sorted one has a solid arrow. The common table examples and the dashboard tables do the same.
 
-**Cost:** Nothing tells a reader that the other headers sort at all until they hover, which is invisible on a touch screen.
+**Cost:** Five arrows is more ink in the header row, and the Spender header looks inert beside its neighbors.
+
+**Reference:** shadcn/ui, TanStack, Stripe
+
+#### `headers-on-a-desktop-a-sort-control-on-a-phone`: Headers on a Desktop, a Sort Control on a Phone
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every paid expense across every trip."
+  toolbar
+    field "Search expenses" search
+    field "Sort" select = "Newest first"
+  region "Expenses"
+    table 5 "Expense ^v" "Spender" "Submitted v" "State ^v" "Paid ^v"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  footer
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
+```
+
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every paid expense across every trip."
+  toolbar
+    field "Search expenses" search
+    field "Sort" select = "Newest first"
+  region "Expenses"
+    list 6
+      item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · 8 Oct 09:32" · status "Paid" positive
+```
+
+**Rationale:** A dashboard sorts from the headers on a wide screen. Its mobile list carries a Sort control instead, because rows have no headers to click. The same URL parameter drives both.
+
+**Cost:** Two controls for one state, and only worth building once the table becomes a list on a phone.
+
+**Reference:** Stripe
 
 #### `sort-as-a-control-above-the-table`: Sort as a Control Above the Table
 
@@ -365,175 +263,16 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** The sort is one named control rather than six header affordances: Sort newest first. Works on a touch screen and states itself in words.
+**Rationale:** The sort is one named control rather than several header affordances: Sort newest first. It works on a touch screen and states itself in words.
 
-**Cost:** The reader has to find the control to change the order, and Carbon guidance states that sorting belongs in the headers.
+**Cost:** The reader has to find the control to change the order, and sorting belongs in the headers on a desktop table.
 
-#### `arrows-on-hover-plus-a-reset`: Arrows on Hover Plus a Reset
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    action "Reset sort"
-  region "Expenses"
-    table 5 "Expense ↕" "Spender ↕" "Submitted ↓" "State ↕" "Paid ↕"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Every header carries a faint arrow, and the sorted one is dark. A Reset sort control appears only while a sort is applied, so the default state stays clean.
-
-**Cost:** The reset is a control that only sometimes exists, which is its own inconsistency. It is also invisible until a sort has been applied.
-
-#### `multi-column-sort-shown-as-a-stack`: Multi-Column Sort, Shown as a Stack
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    action "Sort: 2"
-  region "Expenses"
-    text "Sorted by trip, then by date inside each trip."
-    table 5 "Expense ↑ 1" "Trip" "Spender" "Submitted ↓ 2" "Paid"
-      item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "8 Oct 09:32" · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** When a reader sorts by trip and then by date, the table says so in words rather than relying on two arrows. Useful once a table genuinely needs a secondary key.
-
-**Cost:** Almost no reader needs two keys, and the control is a menu of menus. Carbon treats sorting as one column at a time.
-
-#### `sorting-stated-in-the-page-description`: Sorting Stated in the Page Description
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first. Click a heading to sort it."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The sort is stated once, in words, under the heading, and the headers stay plain. A reader who wants a different sort clicks a header.
-
-**Cost:** The statement goes stale the moment a reader sorts by clicking, so the page contradicts itself unless the description updates too.
-
-#### `sort-only-the-column-that-has-choices`: Sort Only the Column That Has Choices
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    text muted "Only date and money sort."
-    table 5 "Expense" "Spender" "Submitted ↓" "State" "Paid ↕"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Only two headers are buttons: money and date. Expense and state sort alphabetically, which almost nobody wants, so they are not buttons at all.
-
-**Cost:** Selective sorting breaks the expectation that every header is a control, and it hides a capability rather than offering it.
-
-#### `every-sortable-header-carries-an-arrow`: Every Sortable Header Carries an Arrow
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 6 "Expense ↕" "Spender" "Submitted ↓" "State ↕" "Paid ↕"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Each sortable header is a ghost button with a faint up-down arrow, and the sorted one has a solid arrow. The shadcn/ui and TanStack table examples do the same, and so does Stripe.
-
-**Cost:** Five arrows is more ink in the header row, and the Spender header looks inert beside its neighbors.
-
-**Reference:** shadcn/ui
-
-#### `headers-on-a-desktop-a-sort-control-on-a-phone`: Headers on a Desktop, a Sort Control on a Phone
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    field "Sort" select = "Newest first"
-  region "Expenses"
-    table 6 "Expense ↕" "Spender" "Submitted ↓" "State ↕" "Paid ↕"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-```wireframe compact
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip."
-  toolbar
-    field "Search expenses" search
-    field "Sort" select = "Newest first"
-  region "Expenses"
-    list 6
-      item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · 8 Oct 09:32" · status "Paid" positive
-```
-
-**Rationale:** Stripe sorts from the headers on a wide screen. Its mobile list carries a Sort control instead, because rows have no headers to click. The same URL parameter drives both.
-
-**Cost:** Two controls for one state, and only worth building once the table becomes a list on a phone.
-
-**Reference:** Stripe
+**Reference:** Carbon
 
 ### Filters
 
@@ -551,7 +290,7 @@ page
 
 Never ship every category inside one dropdown. It hides the applied state and contradicts the stated rule.
 
-**Reviewed for:** Which built filter control breaks from the wireframe its catalog entry chose? Open the built chips, panels, and facet buttons beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built filter control breaks from the wireframe its catalog entry chose? Open the built controls, panels, and facet buttons beside the catalog entry recording the chosen option and its reason.
 
 #### `one-filter-per-category-visible`: One Filter per Category, Visible
 
@@ -571,186 +310,14 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
 **Rationale:** Trip, state, date, and cost centre each get their own control in one row. No menu holds more than one category, so a reader can see what is available without opening anything.
 
 **Cost:** Four controls plus a search box is a wide toolbar. Below about 700 pixels they have to wrap or collapse, which is where the complexity moves.
-
-#### `applied-filters-restated-as-chips`: Applied Filters Restated as Chips
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "12 expenses match."
-  toolbar
-    field "Search expenses" search
-    field "Trip" select = "Rotterdam client visit"
-    field "State" select = "Any state"
-    field "Date" select = "This month"
-    action quiet "Clear all"
-  row
-    action quiet "Rotterdam client visit x"
-    action quiet "This month x"
-  region "Expenses"
-    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 12 of 12"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The controls stay, and the row underneath restates what is applied with a remove control each. The chip row is the honest answer to what the reader is looking at, which the toolbar alone is not.
-
-**Cost:** The chips restate the controls, saying one thing twice on one page.
-
-#### `filters-with-an-applied-count-on-the-control`: Filters with an Applied Count on the Control
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses across 40 trips."
-  toolbar
-    field "Search expenses" search
-    field "Trip" select = "Rotterdam client visit"
-    status "1" info
-    field "State" select = "Paid"
-    status "1" info
-    field "Date" select = "Any date"
-    status "0" neutral
-    action quiet "Clear 2"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Each closed control carries a count badge, so the reader knows a filter is narrowing the table without opening anything. Carbon asks for this minimum indicator.
-
-**Cost:** A count of one on a select reads as decoration unless the reader knows what it means. It is only clear beside a label.
-
-#### `a-filter-panel-beside-the-table`: A Filter Panel Beside the Table
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses across 40 trips."
-  split 1:3
-    aside "Filter"
-      field "Search" text
-      field "Trip" select = "Any trip"
-      field "State" select = "Any state"
-      field "Cost centre" select = "Any cost centre"
-      field "Only reversals" checkbox
-      action primary "Apply"
-      action quiet "Clear"
-    region "Expenses"
-      table 6 "Expense" "Spender" "Submitted" "State" "Paid"
-        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Filters in a panel down the left side, with every category open at once and nothing hidden. Carbon prefers this when there are more than three categories.
-
-**Cost:** A permanent panel takes about 190 pixels from the table on every page, and most visits apply no filter at all. The panel is a cost paid by everyone for the benefit of a few.
-
-**Reference:** Carbon
-
-#### `filters-in-one-dropdown`: Filters in One Dropdown
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses across 40 trips."
-  toolbar
-    field "Search expenses" search
-    action "Filters (2)"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** One Filters button holding every category, with the count on the button. Keeps the toolbar to two controls and leaves the table full width.
-
-**Cost:** Carbon states that multiple filter categories never sit inside a menu. A reader cannot see that a date filter exists without opening it, and closing it hides the applied state again.
-
-#### `views-as-tabs-filters-as-controls`: Views as Tabs, Filters as Controls
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  tabs "All 268" "Needs attention 12" "Awaiting money 31" "Reversed 18"
-    region "All expenses"
-      toolbar
-        field "Trip" select = "Any trip"
-        field "State" select = "Any state"
-        field "Date" select = "Any date"
-      table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The tabs carry the question the reader arrived with: All, Needs attention, Awaiting money. The filters below refine whichever tab is open.
-
-**Cost:** Two mechanisms over one table, and the reader has to work out whether to click a tab or a filter. HubSpot makes views do both jobs instead.
-
-#### `every-option-carries-its-count-before-it-is-applied`: Every Option Carries Its Count Before It Is Applied
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "58 of 268 expenses match."
-  toolbar
-    field "Search expenses" search
-    field "Trip" select = "Rotterdam client visit (41)"
-    field "State" select = "Any state (268)"
-    field "Date" select = "This month (58)"
-    action quiet "Clear all"
-  message "Each count answers the other filters as set." info
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 58"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Each filter option shows how many rows it matches under the other filters as set. The reader sees a zero before choosing it, rather than landing on an empty table. Fewer dead-end filterings instead of a better empty state afterwards.
-
-**Cost:** Each count is a read against the other filters, so opening one select costs several queries. Counts also go stale the moment another user acts, and a stale zero is worse than none.
 
 #### `faceted-filter-buttons-with-counts`: Faceted Filter Buttons with Counts
 
@@ -770,9 +337,9 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 58"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 58"
+    action quiet "< Previous"
+    action quiet "Next >"
   popover "Trip"
     field "Rotterdam client visit (41)" checkbox
     field "Utrecht audit (12)" checkbox
@@ -781,41 +348,43 @@ page
     action quiet "Clear this filter"
 ```
 
-**Rationale:** The shadcn/ui tasks example draws each category as a button that opens a checklist with a count per value. The reader sees the split before choosing, and several values in one category combine without one select per value.
+**Rationale:** The tasks example draws each category as a button that opens a checklist with a count per value. The reader sees the split before choosing, and several values in one category combine without one select per value.
 
 **Cost:** Counts per value are a read per category, and the popover covers the table while it is open. Worth it only where a category holds more than a few values.
 
 **Reference:** shadcn/ui
 
-#### `filter-conditions-as-removable-chips`: Filter Conditions as Removable Chips
+#### `a-filter-panel-beside-the-table`: A Filter Panel Beside the Table
 
 ```wireframe
 page
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
-    text "12 expenses match two conditions."
-  toolbar
-    field "Search expenses" search
-    action quiet "Clear all"
-  row
-    action quiet "State is Paid x"
-    action quiet "Trip is Rotterdam client visit x"
-    action quiet "Add condition"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+    text "268 expenses across 40 trips."
+  split 1:3
+    aside "Filter"
+      field "Search" text
+      field "Trip" select = "Any trip"
+      field "State" select = "Any state"
+      field "Cost centre" select = "Any cost centre"
+      field "Only reversals" checkbox
+      action primary "Apply"
+      action quiet "Clear"
+    region "Expenses"
+      table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+        item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 12 of 12"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** Linear states each condition as a chip with its field, its operator, and its value, and the chip removes itself. A compound filter reads as a sentence, and clearing one condition never touches the others.
+**Rationale:** Filters in a panel down the left side, with every category open at once and nothing hidden. This works when there are more than three categories.
 
-**Cost:** Chips wrap to several rows on a narrow screen. Building a condition needs a field menu, an operator menu, and a value menu in sequence.
+**Cost:** A permanent panel takes about 190 pixels from the table on every page, and most visits apply no filter at all. The panel is a cost paid by everyone for the benefit of a few.
 
-**Reference:** Linear
+**Reference:** Carbon
 
 ### Row Density
 
@@ -823,7 +392,7 @@ page
 
 **Strength:** default
 
-**Question:** How tall is a row in the expenses table. Carbon defines five heights from 24 to 64 pixels, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row, between `md` and `lg`.
+**Question:** How tall is a row in the expenses table. Five heights from 24 to 64 pixels are common, and the header, toolbar, and pagination match the row size. The default table runs near 47 pixels per row.
 
 **Default:** `40-pixels-the-default`
 
@@ -833,7 +402,7 @@ page
 
 Never ship a density control the reader sets. Most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.
 
-**Reviewed for:** Which built row height breaks from the wireframe its catalog entry chose? Open the built 24, 32, 40, and 48 pixel rows beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built row height breaks from the wireframe its catalog entry chose? Open the built 24, 32, and 40 pixel rows beside the catalog entry recording the chosen option and its reason.
 
 #### `40-pixels-the-default`: 40 Pixels, the Default
 
@@ -846,15 +415,15 @@ page
   toolbar
     field "Search expenses" search
   region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** Carbon `md` default. Two lines of text fit and the row scans.
+**Rationale:** The medium default height. Two lines of text fit and the row scans.
 
 **Cost:** Twenty-five rows is 1000 pixels, so a 268-row table is eleven screens. Fine for browsing, slow for counting.
 
@@ -872,95 +441,17 @@ page
     field "Search reversals" search
     field "Window" select = "Any window"
   region "Reversals"
-    table 7 "Expense ↑" "Spender" "State" "Amount" "Time left"
+    table 5 "Expense ^" "Spender" "State" "Amount" "Time left"
       item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
   footer
-    text "1 – 25 of 31"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 31"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** Carbon `xs`. One line per row, so the eye can travel straight down a column. The right choice for a queue a finance reader works through rather than reads.
+**Rationale:** The extra-small height. One line per row, so the eye can travel straight down a column. The right choice for a queue a finance reader works through rather than reads.
 
 **Cost:** One line means the trip name and the spender email have nowhere to go. Both have to be dropped or opened from the row.
-
-**Reference:** Carbon
-
-#### `32-pixels-a-working-table`: 32 Pixels, a Working Table
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "Four trips, three with a date still ahead."
-  toolbar
-    field "Search trips" search
-  tabs "Scheduled 3" "Past 1" "All 4"
-    region "Scheduled"
-      table 4 "Trip ↑" "Date" "State" "Claimed" "Budget"
-        item: text "Utrecht audit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 1,600" · text "EUR 2,000" · action "Open"
-  footer
-    text "1 – 4 of 4"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Carbon `sm`. Enough for a badge and one line, which covers a working table where every row gets an action.
-
-**Cost:** A two-line cell such as expense number over trip name does not fit, so the trip has to become a column or drop.
-
-**Reference:** Carbon
-
-#### `a-density-control-the-reader-sets`: A Density Control the Reader Sets
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "Rows" select = "Medium"
-  region "Expenses"
-    table 8 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Three densities offered as a small segmented control in the toolbar, persisted per user. Carbon treats density as a token, not a free choice, so three steps is the honest number.
-
-**Cost:** A third toolbar control for something most readers set once and never think about. And a screenshot test then has to hold three versions of every page.
-
-**Reference:** Carbon
-
-#### `dense-rows-with-a-zebra-pass`: Dense Rows with a Zebra Pass
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  region "Reversals"
-    table 6 "Expense" "Spender" "State" "Amount" "Time left"
-      item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
-  footer
-    text "1 – 25 of 31"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** At 24 pixels the eye loses its place across a wide row, so the Carbon zebra modifier returns. Every second row takes the muted surface.
-
-**Cost:** Zebra on a two-line row is noisy, because the bands cut through the cell content rather than sitting behind it. It works at one line and not at two.
 
 **Reference:** Carbon
 
@@ -979,67 +470,14 @@ page
     list 5
       item: text "EXP-1042 · Rotterdam client visit" · text "EUR 125.00" · text muted "Ava · ava@harbor-pine.example" · status "Paid" positive · action "Open"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
 **Rationale:** One card-width block per record with two lines and its own commands on the right. It is what the phone layout wants.
 
 **Cost:** No columns, so no sorting and no comparison across a column. It trades every table capability for reading one record well.
-
-#### `comfortable-48-px-rows-for-a-delivery-list`: Comfortable 48 Px Rows for a Trip List
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "Four trips, three with a date still ahead."
-  toolbar
-    field "Search trips" search
-  tabs "Scheduled 3" "Past 1" "All 4"
-    region "Scheduled"
-      table 4 "Trip" "State" "Claimed"
-        item: text "Utrecht audit" · text muted "Fri 9 Oct 2026 · Utrecht client site" · status "Scheduled" info · text "EUR 1,600 of EUR 2,000" · action "Open"
-  footer
-    text "1 – 4 of 4"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Shopify Polaris draws its product lists at a comfortable height with a second line under the name. Trips are read one by one rather than scanned down a column. The budget bar answers the only question the row exists for.
-
-**Cost:** Eight rows need a scroll where the compact table shows fourteen. Wrong for any queue a finance reader works through in order.
-
-**Reference:** Shopify Polaris
-
-#### `compact-rows-with-a-header-that-stays`: Compact Rows with a Header That Stays
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide. Sorted by how long you have left."
-    text "The header stays while the queue scrolls."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  region "Reversals"
-    table 8 "Expense" "Spender" "State" "Amount" "Time left"
-      item: text "EXP-1036" · text "Nina" · status "Window closed" critical · text "EUR 50.00" · text "Closed 34 days ago"
-  footer
-    text "1 – 25 of 31"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Linear lists keep the header pinned while hundreds of compact rows scroll under it, so the column names survive the scroll. The right shape for a queue that is worked top to bottom without paging.
-
-**Cost:** A pinned header only pays off on a long list. On five rows it is chrome with no job. It also needs a fixed list height, which fights the page scroll.
-
-**Reference:** Linear
 
 ### Bulk Action Bar
 
@@ -1057,7 +495,7 @@ page
 
 Never ship the bar at the foot. On a long table the action sits off screen while the checkboxes that enabled it do not.
 
-**Reviewed for:** Which built selection bar breaks from the wireframe its catalog entry chose? Open the built count bars, pills, and dropdowns beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built selection bar breaks from the wireframe its catalog entry chose? Open the built count bars, pills, and dialogs beside the catalog entry recording the chosen option and its reason.
 
 #### `a-bar-above-the-table-naming-the-count`: A Bar Above the Table Naming the Count
 
@@ -1078,7 +516,7 @@ page
     action primary "Reverse these 3"
     action quiet "Clear"
   region "Reversals"
-    table 5 "Expense" "Spender" "State" "Paid"
+    table 4 "Expense" "Spender" "State" "Paid"
       item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
@@ -1086,84 +524,36 @@ page
 
 **Cost:** The toolbar is still visible above the bar, so two rows of controls stack. Either the toolbar goes or the page gets taller.
 
-#### `the-bar-replaces-the-toolbar`: The Bar Replaces the Toolbar
+#### `a-floating-pill-with-the-count-and-one-menu`: A Floating Pill with the Count and One Menu
 
 ```wireframe
 page
-  breadcrumb "Home" "Expenses" "Reversals"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Reversals"
-    text "31 payouts to decide."
-  region "Selected"
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
+  toolbar
+    field "Search expenses" search
+    field "State" select = "Any state"
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  footer
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
+  popover "Selected"
     text "3 selected"
-    text muted "EUR 200.00"
-    action quiet "Clear"
-    action "Reverse part"
-    action primary "Reverse these 3"
-  region "Reversals"
-    table 5 "Expense" "Spender" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
+    action "Resend receipt"
+    action "Add tag"
+    action quiet "More actions"
 ```
 
-**Rationale:** While a selection exists the toolbar is replaced by the bulk bar. One set of controls at a time, and the page cannot be read as offering search while it is offering actions.
+**Rationale:** The selection bar can float over the content instead of pushing the table down. It holds the count, the one or two common commands, and a menu for the rest. The table never shifts when the first box is ticked.
 
-**Cost:** The layout shifts under the reader mid-decision. The search box they wanted to refine with is gone exactly when they are about to act.
+**Cost:** The pill covers the bottom rows while it is up, and money wants its total stated, which a pill has no room for. Keep it for reversible work.
 
-#### `bar-at-the-foot-above-the-pagination`: Bar at the Foot, Above the Pagination
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  region "Reversals"
-    table 5 "Expense" "Spender" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "2 selected · EUR 175.00"
-    action quiet "Clear"
-    action "Reverse part"
-    action primary "Reverse these 2"
-  footer
-    text "1 – 25 of 31"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** The bar sits where the reader's eye already goes after ticking boxes, above the row count. The selection controls stay next to the count they describe.
-
-**Cost:** On a long table the foot is off screen while the checkboxes are not. The reader scrolls to find the action its checkboxes enabled.
-
-#### `bar-with-the-escalation-and-money-named`: Bar with the Escalation, and Money Named
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  message "All 25 on this page are selected. 1,204 reversals match this filter in total." info
-  region "Selected"
-    text "25 selected"
-    text muted "EUR 1,125.00 of payout money on this page"
-    action quiet "Clear"
-    action "Reverse part"
-    action primary "Reverse these 25"
-  region "Reversals"
-    table 5 "Expense" "Spender" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** The bar carries both numbers: 25 on this page, 1,204 matching. It also names the money, because a reversal bulk action on the wrong scope is the expensive mistake this page invites.
-
-**Cost:** A long bar with two numbers and three buttons. It only fits above about 900 pixels, so the phone needs its own version of the same warning.
+**Reference:** Notion, Linear
 
 #### `bar-with-a-confirm-before-it-commits`: Bar with a Confirm Before It Commits
 
@@ -1183,7 +573,7 @@ page
     action "Reverse part"
     action primary "Reverse these 3"
   region "Reversals"
-    table 5 "Expense" "Spender" "State" "Paid"
+    table 4 "Expense" "Spender" "State" "Paid"
       item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
   dialog "Reverse 3 payouts in full?"
     text "EUR 200.00 comes back from 3 spenders."
@@ -1195,98 +585,11 @@ page
     action destructive "Reverse 3 payouts"
 ```
 
-**Rationale:** The primary button opens a dialog naming the count and the money. A bulk reversal is exactly the action NN/g says to interrupt when it is rare and irreversible.
+**Rationale:** The primary button opens a dialog naming the count and the money. A bulk reversal is the kind of action that is rare and irreversible and so needs an interruption.
 
 **Cost:** Two steps for a batch the reader has spent a minute selecting. Acceptable on money, wrong for anything reversible such as a bulk tag.
 
 **Reference:** NN/g
-
-#### `bar-with-the-action-inline-and-an-undo-after`: Bar with the Action Inline and an Undo After
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-  toast positive "Receipts resent to 3 spenders."
-```
-
-**Rationale:** The bulk action runs with no confirmation and the bar becomes an undo toast. Carbon keeps an action-bearing toast until it is dismissed rather than letting a timer take the undo away.
-
-**Cost:** On money the evidence argues against this option. NN/g reports reflex clicking when resends are routine. A reversal is not the place to train that reflex.
-
-#### `a-floating-pill-with-the-count-and-one-menu`: A Floating Pill with the Count and One Menu
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-  popover "Selected"
-    text "3 selected"
-    action "Resend receipt"
-    action "Add tag"
-    action quiet "More actions"
-```
-
-**Rationale:** Notion and Linear float the selection bar over the content instead of pushing the table down. It holds the count, the one or two common commands, and a menu for the rest. The table never shifts when the first box is ticked.
-
-**Cost:** The pill covers the bottom rows while it is up, and money wants its total stated, which a pill has no room for. Keep it for reversible work.
-
-**Reference:** Notion
-
-#### `bulk-actions-behind-one-dropdown`: Bulk Actions Behind One Dropdown
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-    field "State" select = "Any state"
-  toolbar
-    text "3 selected"
-    action quiet "Clear"
-    action "Actions"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: field "Select EXP-1042" checkbox · text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  popover "Actions"
-    action "Resend receipt"
-    action "Add tag"
-    action "Export selected"
-    action destructive "Void 3 expenses"
-```
-
-**Rationale:** Stripe dashboard keeps the bulk bar to a count and one Actions menu, drawn open here. Every command is named in one place, the bar stays narrow, and adding a fifth command costs no width.
-
-**Cost:** Two clicks to the common command instead of one, and nothing on the bar says that resending is what most finance readers reach for.
-
-**Reference:** Stripe
 
 ### Pagination
 
@@ -1320,145 +623,19 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
+    text "1 - 25 of 268"
     action quiet "1"
     action quiet "2"
     action quiet "3"
     action quiet "4"
     action quiet "5"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** The default shape with numbered pages added and the redundant Page 1 of 11 removed. The reader can jump, and the count still says where they are.
+**Rationale:** The default shape with numbered pages added and no redundant page label. The reader can jump, and the count still says where they are.
 
 **Cost:** Seven page numbers plus two chevrons is a wide control, and it has to collapse on a phone. The count and the numbers still overlap slightly.
-
-#### `count-page-size-and-chevrons`: Count, Page Size and Chevrons
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    field "Page size" select = "25 per page"
-    text "Page 1 of 11"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Carbon's three parts: items per page, the current range and total, and the current page. The page size is the control most tables leave out and finance readers most want on a long list.
-
-**Cost:** Three controls in one bar. On a phone it becomes a row of three stacked lines, which pushes the table off screen.
-
-**Reference:** Carbon
-
-#### `first-previous-numbers-next-last`: First, Previous, Numbers, Next, Last
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "101 – 125 of 268"
-    action quiet "First"
-    action quiet "Previous"
-    action quiet "4"
-    action quiet "5"
-    action quiet "6"
-    action quiet "7"
-    action quiet "8"
-    action quiet "Next"
-    action quiet "Last"
-```
-
-**Rationale:** Five controls plus a window of numbers. A reader on page 7 of 11 can reach either end in one click without scrolling the number strip.
-
-**Cost:** The widest pagination control there is, and the numbers still have to window or overflow. On a 268-row list it saves at most four clicks.
-
-#### `count-chevrons-and-jump-to-a-page`: Count, Chevrons, and Jump to a Page
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    text "1 – 25 of 268"
-    field "Page" number = "1"
-    text "of 11"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
-```
-
-**Rationale:** Two chevrons and a small jump field. Fewest controls, and a reader who knows the page number types it rather than clicking eight times.
-
-**Cost:** The jump field is a fourth thing to learn, and typing 11 then Enter is slower than clicking for most readers.
-
-#### `load-more-as-a-button-at-the-foot`: Load More as a Button at the Foot
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Search expenses" search
-  region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  footer
-    action "Load 25 more"
-    text muted "25 of 268 shown"
-```
-
-**Rationale:** GOV.UK warns that infinite scroll breaks keyboard users, so loading is a button a reader presses. The count stays visible, so the total is never a surprise.
-
-**Cost:** A link to a specific page 9 is no longer available. That link is the main reason Carbon and GOV.UK both land on pagination for admin lists.
-
-**Reference:** GOV.UK
-
-#### `no-pagination-because-the-list-is-short`: No Pagination, Because the List Is Short
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "10 open. All of them are shown."
-  toolbar
-    field "Search reversals" search
-  region "Reversals"
-    table 8 "Expense" "Spender" "Asked" "State" "Paid"
-      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
-  text "All 10 shown."
-```
-
-**Rationale:** Under about fifty records the whole list fits and pagination only adds a control that cannot do anything useful.
-
-**Cost:** It cannot be a rule for the whole product. Expenses reach thousands and trips reach hundreds, so the list page has to decide per query.
 
 #### `a-compact-pager-range-plus-two-chevrons`: A Compact Pager: Range Plus Two Chevrons
 
@@ -1474,37 +651,40 @@ page
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
   footer
-    text "1 – 25 of 268"
-    action quiet "‹ Previous"
-    action quiet "Next ›"
+    text "1 - 25 of 268"
+    action quiet "< Previous"
+    action quiet "Next >"
 ```
 
-**Rationale:** Stripe dashboard pager is the range and two chevrons, nothing else. It fits a phone without collapsing, and on a 268-row list most readers move one page at a time anyway.
+**Rationale:** The pager is the range and two chevrons, nothing else. It fits a phone without collapsing, and on a 268-row list most readers move one page at a time anyway.
 
 **Cost:** No jumping: reaching page 9 costs eight clicks. Only right where the reader rarely leaves the first pages.
 
 **Reference:** Stripe
 
-#### `no-pager-at-all-while-everything-fits`: No Pager at All While Everything Fits
+#### `load-more-as-a-button-at-the-foot`: Load More as a Button at the Foot
 
 ```wireframe
 page
-  breadcrumb "Home" "Expenses" "Reversals"
+  breadcrumb "Home" "Expenses"
   header
-    heading "Reversals"
-    text "10 open reversals, all shown below."
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
   toolbar
-    field "Search reversals" search
-  region "Reversals"
-    table 8 "Expense" "Spender" "Asked" "State" "Paid"
-      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · status "Open" neutral · text "EUR 50.00"
+    field "Search expenses" search
+  region "Expenses"
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
+  footer
+    action "Load 25 more"
+    text muted "25 of 268 shown"
 ```
 
-**Rationale:** GitHub draws no pagination on a list that fits one page: no range, no chevrons, no control that cannot do anything. The table ends and the page ends with it.
+**Rationale:** Infinite scroll breaks keyboard users, so loading is a button a reader presses. The count stays visible, so the total is never a surprise.
 
-**Cost:** Nothing states the total, so a reader cannot tell 10 rows from a filter that hid the rest. Only right where the heading already names the count.
+**Cost:** A link to a specific page is no longer available. That link is the main reason admin lists land on pagination.
 
-**Reference:** GitHub
+**Reference:** GOV.UK, Carbon
 
 ### Row Actions
 
@@ -1516,11 +696,11 @@ page
 
 **Default:** `one-inline-action-the-rest-in-a-row-menu`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** Below 640 pixels the list becomes one card per expense with its commands on the card. The compact option is the compact form of `one-inline-action-the-rest-in-a-row-menu`.
 
 **Rationale:** Keep one inline command with the rest in the row menu. The common job stays one click away and the row stays narrow. Prefer the side preview where acting needs the record context, such as the lines before a resend. Never ship hover-revealed actions. Hover fails on touch, and a second focusable render doubles the table for no gain.
 
-**Reviewed for:** Which built row command breaks from the wireframe its catalog entry chose? Open the built inline actions and row menus beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built row command breaks from the wireframe its catalog entry chose? Open the built inline actions, row menus, and side previews beside the catalog entry recording the chosen option and its reason.
 
 #### `one-inline-action-the-rest-in-a-row-menu`: One Inline Action, the Rest in a Row Menu
 
@@ -1538,140 +718,28 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
 ```
 
-**Rationale:** The first row command is drawn inline and everything else sits behind the row's overflow menu. It matches the Polaris instruction to put a row's other commands in its menu.
+```wireframe compact
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "268 expenses, one card each."
+  toolbar
+    field "Expense number, name or email" search
+  region "Expenses"
+    grid 4
+      card "EXP-1042, EUR 125.00"
+        text "Ava, Rotterdam client visit"
+        status "Paid" positive
+        action "Open"
+        action "Resend"
+```
 
-**Cost:** The second command is invisible, and the overflow is a 32-pixel target that has to be found in every row.
+**Rationale:** The first row command is drawn inline and everything else sits behind the row's overflow menu. The row's other commands belong in its menu. On a phone the list becomes cards with the commands on each card, because the phone is for acting on one expense.
+
+**Cost:** The second command is invisible, and the overflow is a 32-pixel target that has to be found in every row. Cards are tall: three expenses fill the screen where rows fit six.
 
 **Reference:** Shopify Polaris
-
-#### `the-row-is-the-only-action`: The Row Is the Only Action
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first. Click an expense to open it."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
-```
-
-**Rationale:** No commands on the row at all: clicking the expense number opens the record, and every command lives there. The table is for finding, the record is for acting.
-
-**Cost:** A bulk job becomes one row at a time, so this shape fits finding, not acting.
-
-#### `two-inline-actions-no-menu`: Two Inline Actions, No Menu
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide. Each row carries the two commands that apply to it."
-  toolbar
-    field "Search reversals" search
-    field "Window" select = "Any window"
-  region "Reversals"
-    table 5 "Expense" "Spender" "State" "Amount" "Time left"
-      item: text "EXP-1042" · text "Ava" · status "Open" neutral · text "EUR 125.00" · text "174 days left" · action "Reverse" · action "Deduct next payout"
-```
-
-**Rationale:** Two commands is the NN/g ceiling for inline placement. Anything beyond two becomes crowded, so this shape only works where a row genuinely has two.
-
-**Cost:** Two buttons plus a checkbox plus five columns is a wide row. At 24 pixels of density the buttons stop fitting and the row grows.
-
-**Reference:** NN/g
-
-#### `row-menu-only`: Row Menu Only
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · menu "More"
-```
-
-**Rationale:** Every command sits behind the overflow. The row stays one link plus one dot, which keeps the table narrow enough for a phone.
-
-**Cost:** Nothing on the row says what can be done. The reader has to open a menu to learn that anything can be done at all.
-
-#### `hover-reveals-the-action-always-focusable`: Hover Reveals the Action, Always Focusable
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action quiet "Resend"
-    text muted "The row action shows on hover and stays in the tab order."
-```
-
-**Rationale:** The row action appears on hover, so a quiet table stays quiet. It stays in the tab order, so a keyboard reader reaches it. This is the accessibility repair on the hover-only pattern.
-
-**Cost:** It still fails on touch, where there is no hover, and the two fixes together mean two renders of every row. Polaris and NN/g both warn about hover-only affordances.
-
-#### `one-destructive-command-in-the-row-guarded`: One Destructive Command in the Row, Guarded
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "Four trips, three with a date still ahead."
-  toolbar
-    field "Search trips" search
-  region "Trips"
-    table 4 "Trip" "Date" "State" "Claimed"
-      item: text "Utrecht audit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 1,600 of EUR 2,000" · action "Open" · menu "More"
-  popover
-    action "Open the trip"
-    action "Duplicate the trip"
-    action destructive "Cancel"
-```
-
-**Rationale:** The row's second command is a removal. It is drawn in the destructive tone and marked as the last item in the row menu. It never sits inline next to a harmless one.
-
-**Cost:** A red word in every row is visual noise on a page for scanning states. Carbon warns that a tone with no action required stays plain text.
-
-#### `the-row-menu-drawn-open`: The Row Menu Drawn Open
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · action "Resend" · menu "More"
-  popover
-    action "Open the expense"
-    action "Resend receipt"
-    action "Copy the expense link"
-    action destructive "Void the expense"
-```
-
-**Rationale:** The shadcn/ui dropdown menu on the row, drawn open: the harmless commands first, then a separator, then the destructive one last. The reader sees every command the row holds without guessing what the dots hide.
-
-**Cost:** An open menu covers the rows under it, so it only proves the menu's contents, not the table's reading. The menu must also flip sides near the table edge.
-
-**Reference:** shadcn/ui
 
 #### `open-in-a-side-preview-act-from-there`: Open in a Side Preview, Act from There
 
@@ -1696,11 +764,30 @@ page
     action destructive "Void the expense"
 ```
 
-**Rationale:** Shopify and Stripe open a row in a side panel that carries the record's facts and its commands together. Resending Ava's receipt happens beside the expense lines, so the reader checks what is sent before sending it.
+**Rationale:** A row can open in a side panel that carries the record's facts and its commands together. Resending Ava's receipt happens beside the expense lines, so the reader checks what is sent before sending it.
 
 **Cost:** A panel over the list hides the rows it came from. On a phone it is a full screen, which makes it a page by another name.
 
-**Reference:** Shopify
+**Reference:** Shopify, Stripe
+
+#### `the-row-is-the-only-action`: The Row Is the Only Action
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first. Click an expense to open it."
+  toolbar
+    field "Expense number, name or email" search
+  region "Expenses"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: link "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
+```
+
+**Rationale:** No commands on the row at all: clicking the expense number opens the record, and every command lives there. The table is for finding, the record is for acting.
+
+**Cost:** A bulk job becomes one row at a time, so this shape fits finding, not acting.
 
 ### Table's Own States
 
@@ -1714,7 +801,7 @@ page
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep three sentences for three facts. No data yet, no results, and loading each replace the table they stand for. Prefer the slow-read note that names what is loading when the list takes seconds. Never ship a bare spinner over the table body. Rows that shift when the data lands move the row the reader already chose.
+**Rationale:** Keep each state as its own sentence for its own fact. No data yet replaces the table. A failed refresh keeps the chrome and names how old the rows are. A slow read names what is loading. Never ship a bare spinner over the table body. Rows that shift when the data lands move the row the reader already chose.
 
 **Reviewed for:** Which built table state breaks from the wireframe its catalog entry chose? Open the built no-data, failed-read, and slow-read states beside the catalog entry recording the chosen option and its reason.
 
@@ -1736,49 +823,6 @@ page
 
 **Cost:** The reader cannot see what a row will look like, so the columns are undiscoverable until there is data.
 
-#### `no-results-for-a-search-filters-named`: No Results for a Search, Filters Named
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "No expenses match this search."
-  toolbar
-    field "Expense number, name or email" search = "ava eli"
-    field "Trip" select = "Rotterdam client visit"
-    field "State" select = "Paid"
-  region "Expenses"
-    message neutral "Nothing matches ava eli. 268 expenses exist, but none match this term with Rotterdam client visit and Paid applied."
-    action "Clear the search"
-    action "Clear the filters too"
-```
-
-**Rationale:** Something exists but nothing matches, so the copy names the term and the filters and offers to clear them. A different sentence from the no-data case, because a different thing happened.
-
-**Cost:** Two empty states means two pieces of copy per list page, both of which have to stay true as filters change.
-
-#### `loading-as-skeletons-at-the-real-row-height`: Loading as Skeletons at the Real Row Height
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text muted "Expense" · text muted "Spender" · text muted "Submitted" · text muted "State" · text muted "Paid"
-```
-
-**Rationale:** Skeleton rows shaped like real rows at the real height, so nothing shifts when the data lands. Carbon asks for skeletons rather than a spinner over the body.
-
-**Cost:** Carbon also requires the header, the toolbar, and the pagination to match the row size. A skeleton page has to get all four heights right or it jitters.
-
-**Reference:** Carbon
-
 #### `a-failed-read-keeps-the-chrome`: A Failed Read Keeps the Chrome
 
 ```wireframe
@@ -1799,73 +843,6 @@ page
 **Rationale:** The table rendered before, so a refresh failed. Keeping the headers and showing the error in place tells the reader the data they can see is stale rather than current.
 
 **Cost:** Old rows under an error can be acted on by mistake, which is the opposite of what the message wants to prevent.
-
-#### `a-failed-first-read-drops-the-table`: A Failed First Read Drops the Table
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    message critical "Expenses could not be loaded. Nothing has been lost."
-    action primary "Try again"
-```
-
-**Rationale:** Nothing ever loaded, so there is no table to keep. The empty state replaces the element it stands for, headers and footer included.
-
-**Cost:** The reader loses the column names, so a retry that succeeds looks like a different page rather than the page they were on.
-
-**Reference:** Carbon
-
-#### `refreshing-in-place-with-the-last-read-stated`: Refreshing in Place, with the Last Read Stated
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    text "Read 12 s ago"
-    action quiet "Stop"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** A queue reads itself on a timer. A quiet control says how often and when it last did, and offers to stop it.
-
-**Cost:** A timer on a page holding money means the reader may act on a value that changes a second later. A statement of when it last read is the mitigation, not a fix.
-
-#### `no-results-with-recent-searches`: No Results with Recent Searches
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "No expenses match this search."
-  toolbar
-    field "Expense number, name or email" search = "ava eli"
-    field "Trip" select = "Rotterdam client visit"
-  region "Expenses"
-    message neutral "Nothing matches ava eli. 268 expenses exist, but none match this term."
-    action "Clear the search"
-  region "Recent searches"
-    list 3
-      item: link "ava"
-```
-
-**Rationale:** The recent searches sit under a no-result state, so a mistyped term costs one click to repair instead of retyping. The recent terms are the reader's own, which makes them the most likely next query.
-
-**Cost:** Recent searches are stored state with their own lifecycle and their own privacy question. They also go stale as trips complete.
-
-**Reference:** Linear
 
 #### `a-slow-read-that-says-what-it-is-doing`: A Slow Read That Says What It Is Doing
 
@@ -1904,7 +881,49 @@ page
 
 **Rationale:** Give a tone only to the states that block. Disputed and Awaiting payment take a badge because somebody must act. Paid and Completed stay plain words. Prefer the reason on a second line for a disputes queue where the word alone never answers why. Never ship progress marks. Four blocks per row on a 268-row list cannot serve a lifecycle that branches.
 
-**Reviewed for:** Which built state badge breaks from the wireframe its catalog entry chose? Open the built tones, dots, and progress steps beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built state badge breaks from the wireframe its catalog entry chose? Open the built tones, badges, and reason lines beside the catalog entry recording the chosen option and its reason.
+
+#### `tone-only-on-the-states-that-block`: Tone Only on the States That Block
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
+  toolbar
+    field "Expense number, name or email" search
+  region "Expenses"
+    text muted "Disputed and Awaiting payment are toned. Paid is not."
+    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+      item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · status "Awaiting payment" caution · text "EUR 45.00"
+```
+
+**Rationale:** States that need a decision get a tone. The rest are plain words. This keeps states that need no action as plain text and keeps the table readable.
+
+**Cost:** The reader has to learn which states are toned, and a new state added later has to be classified before it is used.
+
+#### `status-with-the-reason-on-a-second-line`: Status with the Reason on a Second Line
+
+```wireframe
+page
+  breadcrumb "Home" "Expenses"
+  header
+    heading "Expenses"
+    text "Every paid expense across every trip, newest first."
+  toolbar
+    field "Expense number, name or email" search
+    field "Scope" select = "Needs attention"
+  region "Expenses"
+    table 4 "Expense" "Spender" "State" "Paid"
+      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text muted "Ben asked for evidence" · text "EUR 45.00"
+```
+
+**Rationale:** The payouts list can pair the state with its reason: Disputed with why Ben asked, Awaiting payment with how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
+
+**Cost:** Two lines doubles the row height for every row, including the paid ones whose reason is nothing. Only right on a queue where most rows need a decision.
+
+**Reference:** Stripe
 
 #### `a-badge-for-every-state`: A Badge for Every State
 
@@ -1923,152 +942,9 @@ page
 
 **Rationale:** Every state is a badge mapping a code to a word and a tone. The word is the signal. The tone repeats it.
 
-**Cost:** Carbon warns that more than five or six status indicators overwhelm the eye. A status needing no action stays plain text. A badge on all twenty-five rows is exactly that.
+**Cost:** More than five or six status indicators overwhelm the eye. A status needing no action works better as plain text. A badge on every row is the opposite of that.
 
-#### `plain-text-and-the-label-says-which-state`: Plain Text, and the Label Says Which State
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    text muted "The State column holds one plain word."
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
-```
-
-**Rationale:** Plain words with no tone, because none of these states needs a decision. The header says State and the column holds one word, which keeps the interface quiet.
-
-**Cost:** A reader scanning for a problem has to read every word. With 268 rows that is slow, which is the case for badges.
-
-#### `tone-only-on-the-states-that-block`: Tone Only on the States That Block
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    text muted "Disputed and Awaiting payment are toned. Paid is not."
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · status "Awaiting payment" caution · text "EUR 45.00"
-```
-
-**Rationale:** States that need a decision get a tone. The rest are plain words. This satisfies the plain-text rule for states needing no action and keeps the table readable. It is what the default expenses table draws.
-
-**Cost:** The reader has to learn which states are toned, and a new state added later has to be classified before it is used.
-
-#### `two-states-side-by-side-both-named`: Two States Side by Side, Both Named
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Payment" select = "Any payment"
-    field "Expense state" select = "Any expense"
-  region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "Payment" "Expense state" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "Open" · text "EUR 125.00"
-```
-
-**Rationale:** This fixes the default table's actual problem rather than hiding it. Payment state and expense state are separate columns. Paid and Completed stop looking like two names for one thing.
-
-**Cost:** A seventh column on a table that already carries five, for a distinction most readers do not need until something is wrong.
-
-#### `a-dot-beside-the-word`: A Dot Beside the Word
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · icon "dot" · text "Awaiting payment" · text "EUR 45.00"
-```
-
-**Rationale:** The word carries the meaning and a small dot carries the tone. The column stays quiet and a scan still finds the one row that needs a decision.
-
-**Cost:** A dot beside a word is a third channel after word and badge. It adds an element that has to be explained once. It is also below 3:1 against the row background unless the token is chosen for it.
-
-#### `the-state-as-a-progress-of-three-steps`: The State as a Progress of Three Steps
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    text muted "Submitted, approved, paid, closed."
-    table 4 "Expense" "Spender" "Progress" "Paid"
-      item: text "EXP-1042" · text "Ava" · image "Expense progress, 3 of 4 steps done" · text "EUR 125.00"
-```
-
-**Rationale:** Where an expense moves through a sequence, the column carries the sequence rather than the current step: submitted, approved, paid, closed. The reader sees both where it is and what is left.
-
-**Cost:** Four marks per row is heavy on a 268-row list, and it only works because the expense lifecycle genuinely is linear. A state with branches cannot use it.
-
-#### `status-with-the-reason-on-a-second-line`: Status with the Reason on a Second Line
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Needs attention"
-  region "Expenses"
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text muted "Ben asked for evidence" · text "EUR 45.00"
-```
-
-**Rationale:** The payouts list pairs the state with its reason: Disputed with why Ben asked, Awaiting payment with how old the wait is. The word says what, the line says why, and the reader never opens a row to learn the reason.
-
-**Cost:** Two lines doubles the row height for every row, including the paid ones whose reason is nothing. Only right on a queue where most rows need a decision.
-
-**Reference:** Stripe
-
-#### `a-stale-wait-takes-a-stronger-tone`: A Stale Wait Takes a Stronger Tone
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Six expenses still waiting on money."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Awaiting payment"
-  region "Expenses"
-    text muted "The tone follows the age of the wait."
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1039" · text "Eli" · status "Awaiting payment" caution · text muted "2 days old" · text "EUR 45.00"
-```
-
-**Rationale:** Zendesk and Intercom color a waiting state by its age. An awaiting payment that is two hours old is neutral. At two days it turns caution. The tone answers how urgent the wait is, rather than only that there is one.
-
-**Cost:** The tone now depends on the clock, so the same row reads differently in the morning and the evening. A support reply that says the yellow one goes stale within hours.
-
-**Reference:** Zendesk
+**Reference:** Carbon
 
 ### Money Column
 
@@ -2084,7 +960,7 @@ page
 
 **Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total. A derived percentage column answers a question no expenses list is asked.
 
-**Reviewed for:** Which built amount column breaks from the wireframe its catalog entry chose? Open the built aligned figures, shares, and totals footers beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built amount column breaks from the wireframe its catalog entry chose? Open the built aligned figures and reversal columns beside the catalog entry recording the chosen option and its reason.
 
 #### `number-only-right-aligned`: Number Only, Right-Aligned
 
@@ -2103,28 +979,9 @@ page
 
 **Rationale:** The default shape. A column headed Paid is unambiguous about the currency, so repeating EUR on every row is noise.
 
-**Cost:** EUR 0.00 reads as an error rather than as a fact. Two of the eight default rows are zero, and neither says why.
+**Cost:** EUR 0.00 reads as an error rather than as a fact. A zero row needs words that say why it is zero.
 
-#### `symbol-and-value-one-column`: Symbol and Value, One Column
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid (EUR)"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "€125.00"
-```
-
-**Rationale:** The symbol sits in the cell rather than the word EUR, which is shorter and still unambiguous in a Dutch-language back office. The column header names it as Paid, EUR.
-
-**Cost:** A symbol alone fails WCAG 2.2 SC 1.4.1 if it is the only distinction. A screen reader does not always read a symbol prefix. The currency belongs in the label as well.
-
-#### `a-zero-amount-says-why`: A Zero Amount Says Why
+#### `refunded-shown-under-the-charged-amount`: Reversed Shown Under the Charged Amount
 
 ```wireframe
 page
@@ -2137,12 +994,14 @@ page
     field "Scope" select = "Any state"
   region "Expenses"
     table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1036" · text "Nina" · text "7 Oct 22:14" · text "Reversed" · text muted "Nothing, reversed"
+      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text "EUR 45.00" · text muted "EUR 45.00 back from the spender"
 ```
 
-**Rationale:** EUR 0.00 is a real state, not an error, so the cell names it: Fully reversed. A bare zero reads as missing data, and the word says it is a fact.
+**Rationale:** Invoice lines can keep one money column and put what went back on its second line: the charged amount, then what returned from the spender. One column stays scannable and the reversal is still on the row.
 
-**Cost:** A word in a numeric column breaks the alignment. It has to be short enough not to push the column wide.
+**Cost:** Two lines doubles the row height, and a part reversal needs a third fact, the net, which has nowhere to go in this cell.
+
+**Reference:** Stripe
 
 #### `two-money-columns-charged-and-refunded`: Two Money Columns: Charged and Reversed
 
@@ -2165,103 +1024,13 @@ page
 
 **Cost:** Two money columns on a five-column table is a lot of numbers. Most rows are identical in both, so the reader scans two equal columns to learn nothing.
 
-#### `money-as-a-share-of-the-total`: Money as a Share of the Total
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Expenses"
-  header
-    heading "Rotterdam client visit"
-    text "1,204 expenses on this trip."
-  toolbar
-    field "Search expenses" search
-    field "Scope" select = "Any state"
-  region "Expenses"
-    table 6 "Expense" "Spender" "Submitted" "State" "Paid" "Share"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00" · text "100.0%"
-```
-
-**Rationale:** For a table read to answer what this trip claimed, the amount column is joined by a share. The reader gets proportion without a second table.
-
-**Cost:** A share is derived from the total, so it goes stale the moment the filter changes. One column of derived percentages is a small exception, not a pattern.
-
-#### `amounts-grouped-by-day`: Amounts Grouped by Day
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Newest first, grouped by day."
-  toolbar
-    field "Expense number, name or email" search
-  region "Today, 8 Oct 2026"
-    table 3 "Expense" "Spender" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-    text muted "Total EUR 270.00."
-  region "Yesterday, 7 Oct 2026"
-    table 2 "Expense" "Spender" "Paid"
-      item: text "EXP-1036" · text "Nina" · text "EUR 50.00"
-    text muted "Total EUR 95.00."
-```
-
-**Rationale:** Rather than a derived percentage, the table is grouped by day with a subtotal per group. The reader sees the shape of the money without a chart.
-
-**Cost:** Grouping removes the flat row order and makes the table a different component, so pagination and select-all both get harder to reason about.
-
-#### `a-totals-footer-under-the-money`: A Totals Footer Under the Money
-
-```wireframe
-page
-  breadcrumb "Home" "Trips" "Rotterdam client visit" "Expenses"
-  header
-    heading "Rotterdam client visit"
-    text "1,204 expenses on this trip."
-  toolbar
-    field "Search expenses" search
-    field "Scope" select = "Any state"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-    fact "Total on this page" "EUR 270.00"
-    text muted "The total covers the 25 expenses on this page, not the 1,204 in the filter."
-```
-
-**Rationale:** Shopify reports end the money column with a totals row. The row tells what the page holds and, where a filter narrows it, what the filter holds. Finance reads the answer without exporting the list to add it up.
-
-**Cost:** A page total invites reading it as the whole answer when the filter holds eleven pages. The footer has to say which total it is or it misleads.
-
-**Reference:** Shopify
-
-#### `refunded-shown-under-the-charged-amount`: Reversed Shown Under the Charged Amount
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Scope" select = "Any state"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · status "Disputed" critical · text "EUR 45.00" · text muted "EUR 45.00 back from the spender"
-```
-
-**Rationale:** Stripe invoice lines keep one money column. They put what went back on its second line: the charged amount, then what returned from the spender. One column stays scannable and the reversal is still on the row.
-
-**Cost:** Two lines doubles the row height, and a part reversal needs a third fact, the net, which has nowhere to go in this cell.
-
-**Reference:** Stripe
-
 ### Exporting the List
 
 **ID:** `litespec/frontend/patterns/lists-and-tables#exporting-the-list`
 
 **Strength:** default
 
-**Question:** A reader takes the expenses list elsewhere. Download serves one spreadsheet now. Print serves a paper sheet. A schedule serves a repeated question. Which export does the list offer.
+**Question:** A reader takes the expenses list elsewhere. Download serves one spreadsheet now. A schedule serves a repeated question. Which export does the list offer.
 
 **Default:** `one-export-button-that-downloads-csv`
 
@@ -2269,7 +1038,7 @@ page
 
 **Rationale:** Keep one Export button that downloads the filtered rows as CSV. The accountant job costs one click and no decisions. Prefer a background export past a few thousand rows where a download would time out. Never ship copy as the only export. Copying the visible page silently drops every row past the pager.
 
-**Reviewed for:** Which built download flow breaks from the wireframe its catalog entry chose? Open the built CSV buttons, dialogs, and histories beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built download flow breaks from the wireframe its catalog entry chose? Open the built CSV buttons, dialogs, and background exports beside the catalog entry recording the chosen option and its reason.
 
 #### `one-export-button-that-downloads-csv`: One Export Button That Downloads CSV
 
@@ -2290,120 +1059,6 @@ page
 **Rationale:** The default behavior. One button in the toolbar downloads exactly the rows in the current filter as CSV. The accountant gets the Rotterdam client visit expenses with one click and no decisions.
 
 **Cost:** There is no choice of columns or format. A reader who wants only expense number and paid, or an Excel file, trims or converts it elsewhere.
-
-#### `export-dialog-with-columns-and-format`: Export Dialog with Columns and Format
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action "Export"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  dialog
-    heading "Export expenses"
-    text "Exports the 268 expenses in the current filter."
-    field "Format" select = "CSV"
-    field "Expense" checkbox
-    field "Spender" checkbox
-    field "Submitted" checkbox
-    field "State" checkbox
-    field "Paid" checkbox
-    action "Cancel"
-    action primary "Export"
-```
-
-**Rationale:** The Export button opens a dialog where the reader picks the format and the columns before anything downloads. The reader states what leaves the product rather than trimming a fixed file afterwards.
-
-**Cost:** Two steps instead of one. The dialog has to remember or reset its choices on the next visit. The single button never has to decide.
-
-#### `scheduled-email-export`: Scheduled Email Export
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Scheduled exports"
-  header
-    heading "Scheduled exports"
-    text "Harbor and Pine receives its expenses by email, on a rhythm it sets once."
-    action "New schedule"
-  region "Monday figures"
-    text "One schedule per recipient, each with its own rhythm and scope."
-    field "Every" select = "Monday 07:00"
-    field "Send to" text = "finance@harbor-pine.example"
-    field "Scope" select = "Rotterdam client visit"
-    message info "The next export runs Monday at 07:00 and covers the expenses submitted since the last one."
-```
-
-**Rationale:** The team sets a rhythm once and finance receives the expenses without opening the product. A Monday 07:00 email answers the weekly question before anyone asks it.
-
-**Cost:** A schedule is invisible state. Nobody sees it on the expenses page. A stale recipient keeps receiving figures until someone remembers the schedule exists.
-
-#### `print-stylesheet-with-a-print-button`: Print Stylesheet with a Print Button
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action "Print"
-  region "Expenses"
-    message info "Printing hides the sidebar and the toolbar and keeps the expense rows."
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** The Print button opens the browser print path and the print stylesheet keeps only the rows: expense, spender, submitted, state, and paid. Finance gets a review sheet that works when the network does not.
-
-**Cost:** Paper freezes the list at print time. An expense paid after printing is missing. Nothing on the sheet says how old it is except the printed date.
-
-#### `per-row-receipt-download`: Per-Row Receipt Download
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Receipts"
-    text "One file per expense, for answering one spender."
-    list 1
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00" · action "Receipt"
-```
-
-**Rationale:** Each row carries its own receipt. Answering one spender means downloading one file rather than exporting the whole list and cutting it down. Expense EXP-1042 for Ava downloads as its own EUR 125.00 receipt.
-
-**Cost:** A button on every row narrows the table. It invites downloading receipts one by one for a job that wants the whole list. That is slower than one export.
-
-#### `copy-the-list-to-the-clipboard`: Copy the List to the Clipboard
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense for the Rotterdam client visit, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    action "Copy visible rows"
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  toast positive "25 visible expenses copied as tab-separated values."
-```
-
-**Rationale:** One button copies the visible rows as tab-separated values, which paste straight into a spreadsheet. Nothing downloads, so there is no file to find, rename, or delete afterwards.
-
-**Cost:** Only the visible page is copied. Pasting 25 rows when the filter holds 268 silently drops the rest unless the reader notices the pager.
 
 #### `a-large-export-that-runs-in-the-background`: A Large Export That Runs in the Background
 
@@ -2429,26 +1084,26 @@ page
 
 **Reference:** Shopify
 
-#### `export-history-with-repeat-download`: Export History with Repeat Download
+#### `scheduled-email-export`: Scheduled Email Export
 
 ```wireframe
 page
-  breadcrumb "Home" "Expenses" "Export history"
+  breadcrumb "Home" "Expenses" "Scheduled exports"
   header
-    heading "Export history"
-    text "Every file that left the expenses list, newest first."
-    action "New export"
-  region "Export history"
-    text "Files stay for 30 days, then they are removed."
-    table 4 "File" "Rows" "Asked" "By"
-      item: text "rotterdam-visit-expenses-oct.csv" · text "268" · text "8 Oct 09:41" · text "Cara" · action "Download"
+    heading "Scheduled exports"
+    text "Harbor and Pine receives its expenses by email, on a rhythm it sets once."
+    action "New schedule"
+  region "Monday figures"
+    text "One schedule per recipient, each with its own rhythm and scope."
+    field "Every" select = "Monday 07:00"
+    field "Send to" text = "finance@harbor-pine.example"
+    field "Scope" select = "Rotterdam client visit"
+    message info "The next export runs Monday at 07:00 and covers the expenses submitted since the last one."
 ```
 
-**Rationale:** The dashboard keeps every export in a list with its rows, its date, and who asked for it, and each one downloads again. The Monday figures are re-downloaded rather than re-built, and finance can see what left the product.
+**Rationale:** The team sets a rhythm once and finance receives the expenses without opening the product. A Monday 07:00 email answers the weekly question before anyone asks it.
 
-**Cost:** Stored files with spender data need their own retention and access rule. A history nobody prunes becomes a second database of personal data.
-
-**Reference:** Stripe
+**Cost:** A schedule is invisible state. Nobody sees it on the expenses page. A stale recipient keeps receiving figures until someone remembers the schedule exists.
 
 ### Searching with Highlighted Matches
 
@@ -2464,7 +1119,7 @@ page
 
 **Rationale:** Highlight the matches in the cells. The reader sees why each row matched without opening it. Prefer a scope control once readers search across trips and must say which one. Never ship a match column on its own. It spends a column stating what the highlight already shows.
 
-**Reviewed for:** Which built list search breaks from the wireframe its catalog entry chose? Open the built highlighted cells and match columns beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built list search breaks from the wireframe its catalog entry chose? Open the built highlighted cells and scoped searches beside the catalog entry recording the chosen option and its reason.
 
 #### `matches-highlighted-in-the-cells`: Matches Highlighted in the Cells
 
@@ -2477,11 +1132,11 @@ page
   toolbar
     field "Expense number, name or email" search = "ava"
   region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
+    table 4 "Expense" "Spender" "Submitted" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "Paid" · text "EUR 125.00"
 ```
 
-**Rationale:** The code search marks the matched text where it sits. The term stays visible in the box and every match glows in its cell, so the reader trusts the filter.
+**Rationale:** The search marks the matched text where it sits. The term stays visible in the box and every match is clear in its cell, so the reader trusts the filter.
 
 **Cost:** Highlighting needs the match offsets from the server, not the rows alone. A client-side guess highlights the wrong occurrence on long text.
 
@@ -2509,76 +1164,6 @@ page
 **Cost:** A scope is invisible once set. A reader who narrowed to one trip last week searches it again today and wonders where the rest went.
 
 **Reference:** Shopify
-
-#### `a-match-column-naming-where-it-matched`: A Match Column Naming Where It Matched
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "3 of 268 expenses match visit."
-  toolbar
-    field "Expense number, name or email" search = "visit"
-  region "Expenses"
-    table 4 "Expense" "Spender" "Matched" "Paid"
-      item: text "EXP-1042" · text "Ava" · text muted "Trip: Rotterdam client visit" · text "EUR 125.00"
-```
-
-**Rationale:** The issue search says which field matched when the term sits somewhere the row does not show. The column answers why this row is here for matches in notes or metadata.
-
-**Cost:** A column spent stating what a highlight already shows, on every row, for every search. It only earns its width where rows match on hidden fields.
-
-**Reference:** GitHub
-
-#### `first-match-focused-for-the-keyboard`: First Match Focused for the Keyboard
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "2 of 268 expenses match ava."
-  toolbar
-    field "Expense number, name or email" search = "ava"
-  region "Expenses"
-    text "Enter opens the first match. Up and down move between them."
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: link "EXP-1042" · text "Ava" · text "Paid" · text "EUR 125.00"
-```
-
-**Rationale:** The first result is focused as the reader types, so Enter opens it without a click. Support answering a caller moves from term to record without touching the mouse.
-
-**Cost:** A focused row looks selected, and Enter opening it surprises a reader who meant to refine the term. The hint has to teach the key or it misfires.
-
-**Reference:** Linear
-
-#### `recent-searches-under-the-box`: Recent Searches Under the Box
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense across every trip, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  region "Expenses"
-    table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-  popover
-    text "Recent searches"
-    action quiet "ava"
-    action quiet "EXP-1042"
-    action quiet "disputed"
-    action quiet "Clear recent searches"
-```
-
-**Rationale:** The reader's own recent terms sit under an empty search box. A term searched twice a day costs one click instead of fourteen keystrokes.
-
-**Cost:** Recent terms are stored per user with their own privacy question, and a term from a finished trip lingers until it is cleared.
-
-**Reference:** Vercel
 
 #### `a-searching-indicator-while-the-server-answers`: A Searching Indicator While the Server Answers
 
@@ -2615,7 +1200,7 @@ page
 
 **Rationale:** Keep grouped by day with subtotals. It answers what today paid without a chart and without leaving the list. The runner-up is grouped by trip with collapse toggles. Prefer it once trips grow so one day of rows stops fitting. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
 
-**Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, trip, and state groups beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, trip, and flat groupings beside the catalog entry recording the chosen option and its reason.
 
 #### `grouped-by-day-with-subtotals`: Grouped by Day with Subtotals
 
@@ -2638,7 +1223,7 @@ page
       item: text "EXP-1037" · text "Eli" · status "Disputed" critical · text "EUR 45.00"
 ```
 
-**Rationale:** Bank statements and Stripe payouts group money by day with a subtotal per group. The reader sees the shape of the spending and still opens any row.
+**Rationale:** Bank statements and payout lists group money by day with a subtotal per group. The reader sees the shape of the spending and still opens any row.
 
 **Cost:** Grouping removes the flat row order, so pagination and select-all both get harder to reason about across group edges.
 
@@ -2668,40 +1253,9 @@ page
     action quiet "Expand"
 ```
 
-**Rationale:** Linear's group-by puts a toggle on each group header, so a reader following one trip collapses the rest. The header carries the count and the subtotal even while collapsed.
+**Rationale:** Grouping by trip can put a toggle on each group header, so a reader following one trip collapses the rest. The header carries the count and the subtotal even while collapsed.
 
 **Cost:** Collapsed groups hide rows from find-in-page and from a reader who forgot they collapsed anything. The toggle state needs to survive a reload or it annoys.
-
-**Reference:** Linear
-
-#### `grouped-by-state`: Grouped by State
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Grouped by state, disputed first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Group" select = "State"
-  region "Disputed, 1 expense"
-    fact "Subtotal" "EUR 45.00"
-    table 4 "Expense" "Spender" "Submitted" "Paid"
-      item: text "EXP-1037" · text "Eli" · text "7 Oct 19:02" · text "EUR 45.00"
-  region "Awaiting payment, 1 expense"
-    fact "Subtotal" "EUR 45.00"
-    table 4 "Expense" "Spender" "Submitted" "Paid"
-      item: text "EXP-1039" · text "Eli" · text "8 Oct 06:22" · text "EUR 45.00"
-  region "Paid, 3 expenses"
-    fact "Subtotal" "EUR 220.00"
-    table 4 "Expense" "Spender" "Submitted" "Paid"
-      item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · text "EUR 125.00"
-```
-
-**Rationale:** Linear groups issues by status so the blocked ones read as one block. Here the disputed and awaiting rows sit together at the top, which is the triage order support wants.
-
-**Cost:** States change under the reader: paying an expense moves it to another group, which reads as the row vanishing. The list has to say where it went.
 
 **Reference:** Linear
 
@@ -2720,66 +1274,11 @@ page
     item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Carbon keeps the table flat and lets the reader sort by the would-be group field instead. Nothing hides, paging stays simple, and the eye groups adjacent equal values on its own.
+**Rationale:** The table can stay flat and let the reader sort by the would-be group field instead. Nothing hides, paging stays simple, and the eye groups adjacent equal values on its own.
 
 **Cost:** No subtotals: the reader who wants today's takings sorts by date and adds the rows up by hand. Sorting is not grouping, it only looks like it.
 
 **Reference:** Carbon
-
-#### `group-headers-that-select-the-group`: Group Headers That Select the Group
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses" "Reversals"
-  header
-    heading "Reversals"
-    text "31 payouts to decide, grouped by day."
-  toolbar
-    field "Search reversals" search
-    field "Any window" select = "Any window"
-  region "Today, 8 Oct 2026, 2 selected"
-    field "Select today, 8 Oct 2026" checkbox
-    fact "Subtotal" "EUR 175.00"
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  region "Yesterday, 7 Oct 2026, 2 expenses"
-    field "Select yesterday, 7 Oct 2026" checkbox
-    fact "Subtotal" "EUR 95.00"
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1037" · text "Eli" · status "Disputed" critical · text "EUR 45.00"
-```
-
-**Rationale:** Outlook and Gmail let a reader tick a whole conversation from its header. Here one checkbox reverses the day payouts together, which is the batch the team runs.
-
-**Cost:** Selecting a group selects rows the reader may not have seen, including a disputed one that should never be batch-reversed. The confirm has to name them all.
-
-**Reference:** Outlook
-
-#### `two-levels-month-then-day`: Two Levels: Month, Then Day
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Grouped by month, then by day."
-  toolbar
-    field "Expense number, name or email" search
-    field "Any state" select = "Any state"
-  region "October 2026, 231 expenses"
-    fact "Subtotal" "EUR 10,395.00"
-    text "Today, 8 Oct 2026, 4 expenses, EUR 270.00"
-    table 4 "Expense" "Spender" "State" "Paid"
-      item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  region "September 2026, 37 expenses"
-    fact "Subtotal" "EUR 1,665.00"
-```
-
-**Rationale:** Xero and bank statements nest day groups inside month groups for a year of rows. October holds its days, and the year reads as twelve subtotals before any row is shown.
-
-**Cost:** Two levels of headers for 268 rows is mostly chrome: the month header, the day header, then one row. Nesting pays off past thousands of rows, not hundreds.
-
-**Reference:** Xero
 
 ### Inline Row Expansion
 
@@ -2795,7 +1294,7 @@ page
 
 **Rationale:** Keep expansion to the expense lines. It answers what the spender claimed, which is the question asked from the list. The runner-up is expansion to lines with decision state. Prefer it on the decision list where handover is the work. Never ship expand-all: twenty expanded rows is a page nobody can scan, and one click fires a read per row.
 
-**Reviewed for:** Which built expandable row breaks from the wireframe its catalog entry chose? Open the built expense lines, timelines, and expand-all controls beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built expandable row breaks from the wireframe its catalog entry chose? Open the built expense lines and decision states beside the catalog entry recording the chosen option and its reason.
 
 #### `expand-to-the-order-lines`: Expand to the Expense Lines
 
@@ -2815,35 +1314,11 @@ page
     fact "Hotel night, 1" "EUR 35.00"
 ```
 
-**Rationale:** Stripe's invoice list expands a row to its lines: what was claimed, at what price, adding to the row total. Support answers 'what did I pay for' without leaving the list.
+**Rationale:** An invoice list can expand a row to its lines: what was claimed, at what price, adding to the row total. Support answers "what did I pay for" without leaving the list.
 
 **Cost:** The detail row breaks the column rhythm, and sorting reorders parents while children follow, which confuses a reader who sorted by money.
 
 **Reference:** Stripe
-
-#### `expand-to-the-order-timeline`: Expand to the Expense Timeline
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
-  card "EXP-1042 history"
-    action quiet "Collapse"
-    timeline 3
-      item: text "Submitted" · text muted "8 Oct 2026, 09:32"
-```
-
-**Rationale:** Zendesk expands a record to its history: submitted, paid, receipt sent. The history sits under the row it belongs to, newest last, so the reader sees what happened in order.
-
-**Cost:** History grows without bound: a disputed expense's expansion is a page of its own. It needs trimming to the last few entries with a link to the rest.
-
-**Reference:** Zendesk
 
 #### `expand-to-units-and-pickup-state`: Expand to Lines and Decision State
 
@@ -2866,56 +1341,6 @@ page
 **Rationale:** A decision list expands an expense to its lines with what is decided and by whom. Ben works the list between meetings instead of opening forty records.
 
 **Cost:** Decision state changes by the minute at busy times, so an expanded row goes stale while it is open. It needs the same refresh the decision screen has.
-
-#### `one-row-open-at-a-time`: One Row Open at a Time
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Opening a row closes the one that is open."
-  toolbar
-    field "Expense number, name or email" search
-  table 4 "Expense" "Spender" "State" "Paid"
-    item: text "EXP-1033" · text "Eli" · status "Paid" positive · text "EUR 50.00"
-  card "EXP-1033 lines"
-    action quiet "Collapse"
-    fact "Train fare, 1" "EUR 45.00"
-    fact "Booking fee, 1" "EUR 5.00"
-```
-
-**Rationale:** Carbon's accordion rule applied to the table: opening a row closes the last one. The list never grows past one detail, so the reader cannot lose their place in it.
-
-**Cost:** Comparing two expenses means opening, memorizing, closing, and opening. The rule trades comparison for tidiness.
-
-**Reference:** Carbon
-
-#### `an-expand-all-control-above-the-table`: An Expand-All Control Above the Table
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense, newest first."
-  toolbar
-    field "Expense number, name or email" search
-  table 3 "Expense" "Spender" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  card "EXP-1042 lines"
-    fact "2 train fares" "EUR 90.00"
-    fact "Hotel night, 1" "EUR 35.00"
-  card "EXP-1033 lines"
-    fact "Train fare, 1" "EUR 45.00"
-    fact "Booking fee, 1" "EUR 5.00"
-```
-
-**Rationale:** GOV.UK's accordion pairs every toggle with a Show all control, so a reader checking every expense's lines presses once instead of twenty-five times.
-
-**Cost:** Twenty expanded rows is a page nobody can scan, and each detail needs its own data, so Show all fires twenty-five reads at once.
-
-**Reference:** GOV.UK
 
 #### `no-expansion-the-row-opens-the-record`: No Expansion: The Row Opens the Record
 
@@ -2949,7 +1374,7 @@ page
 
 **Rationale:** Keep the expense column pinned while the rest scroll. The row stays named at any scroll position, and it costs no control. The runner-up pins the actions too. Prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
 
-**Reviewed for:** Which built fixed column breaks from the wireframe its catalog entry chose? Open the built frozen first columns and resize handles beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built fixed column breaks from the wireframe its catalog entry chose? Open the built frozen first columns beside the catalog entry recording the chosen option and its reason.
 
 #### `the-order-column-pinned-while-the-rest-scroll`: The Expense Column Pinned While the Rest Scroll
 
@@ -2965,7 +1390,7 @@ page
     item: text "EXP-1042" · text "Rotterdam client visit" · text "8 Oct 2026, 09:32" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
-**Rationale:** Shopify's orders index pins the order column and lets the other seven scroll under it. Nothing is folded, so every fact keeps its own scannable column.
+**Rationale:** An orders index can pin the order column and let the other columns scroll under it. Nothing is folded, so every fact keeps its own scannable column.
 
 **Cost:** On a phone the reader sees the expense code and one other column at a time. Pinning keeps the bearings, not the overview.
 
@@ -2985,56 +1410,11 @@ page
     item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "EUR 125.00" · action "Resend"
 ```
 
-**Rationale:** Airtable pins the record name on the left and the row commands on the right, so both survive any scroll position. Acting never requires scrolling back.
+**Rationale:** The record name can be pinned on the left and the row commands on the right, so both survive any scroll position. Acting never requires scrolling back.
 
 **Cost:** Two pinned columns on a phone leave no room for the middle at all. The pattern needs a wide screen to earn its keep.
 
 **Reference:** Airtable
-
-#### `draggable-widths-with-resize-handles`: Draggable Widths with Resize Handles
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Drag a header edge to resize. Double-click it to fit the content."
-  toolbar
-    field "Expense number, name or email" search
-  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** Airtable and Retool put a handle on every header edge: drag it and the column follows. A reader with long trip names spends width there instead of on the expense code.
-
-**Cost:** Widths are per-user stored state that support cannot see, screenshots cannot hold, and a new column resets. A wide table of eight resizable columns is also eight ways to break the layout.
-
-**Reference:** Airtable
-
-#### `pin-any-column-from-its-header-menu`: Pin Any Column from Its Header Menu
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "The Spender column menu is open."
-  toolbar
-    field "Expense number, name or email" search
-  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-  popover
-    action "Sort ascending"
-    action "Sort descending"
-    action "Pin to the left"
-    action "Hide column"
-```
-
-**Rationale:** Notion lets any column pin left from its header menu. This option draws the menu open on Spender. The reader decides what their bearings are instead of finance deciding for them.
-
-**Cost:** Pinning plus hiding plus sorting in one menu is three features wearing one trigger. Most readers find none of them.
-
-**Reference:** Notion
 
 #### `no-pinning-the-table-scrolls-as-one`: No Pinning: The Table Scrolls as One
 
@@ -3050,47 +1430,27 @@ page
     item: text "EXP-1042" · text "Rotterdam client visit" · text "Ava" · text "Travel" · status "Paid" positive · text "Bank transfer" · text "EUR 125.00"
 ```
 
-**Rationale:** Carbon's default: the table scrolls as one piece and every column leaves together. No sticky edges, no shadows, no special cases in the CSS.
+**Rationale:** The table scrolls as one piece and every column leaves together. No sticky edges, no shadows, no special cases in the layout.
 
 **Cost:** Halfway across, the money column arrives and the expense code is gone. The reader scrolls back to check which row the amount belongs to.
 
 **Reference:** Carbon
 
-#### `double-click-a-header-edge-to-fit-content`: Double-Click a Header Edge to Fit Content
+### The Layout of a Short List
 
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "The spender column is fitted to 150 pixels. Double-click its header edge to fit the longest value instead."
-  toolbar
-    field "Expense number, name or email" search
-  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-    item: text "EXP-1042" · text "Ava, ava@harbor-pine.example" · text "8 Oct 2026, 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** Google Sheets fits a column to its widest value on a double-click of the header edge. No dragging, no stored widths: the table answers the data it holds right now.
-
-**Cost:** Nobody discovers a double-click on a header edge without being told, and fitting to content reintroduces the page-2 shift that fixed widths prevent.
-
-**Reference:** Google Sheets
-
-### Trips as a Grid
-
-**ID:** `litespec/frontend/patterns/lists-and-tables#trips-as-a-grid`
+**ID:** `litespec/frontend/patterns/lists-and-tables#the-layout-of-a-short-list`
 
 **Strength:** default
 
-**Question:** Trips are few and dated: the company runs a handful a month and asks how each one is doing. A table answers with rows of numbers, while a card answers with the trip itself: its dates, its client site, and how much of its budget is claimed.
+**Question:** A small, dated list such as trips has a handful of records and asks how each one is doing. A table answers with rows of numbers, while a card or a date-led list can answer with the record itself: its dates, its place, and its progress.
 
 **Default:** `trip-cards-with-a-budget-bar`
 
 **Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
 
-**Rationale:** Keep trip cards with a budget bar. Four trips read better as four cards than as four rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of trips and cards stop fitting. Never ship the month calendar: it answers when, which the trips list is never asked.
+**Rationale:** Keep cards with a progress bar. A handful of trips reads better as cards than as rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of trips and cards stop fitting. Never ship a month calendar for this question: it answers when, which the list is never asked.
 
-**Reviewed for:** Which built trip overview breaks from the wireframe its catalog entry chose? Open the built cards, calendars, and table-grid toggles beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built short-list layout breaks from the wireframe its catalog entry chose? Open the built cards, table rows, and date-led lists beside the catalog entry recording the chosen option and its reason.
 
 #### `trip-cards-with-a-budget-bar`: Trip Cards with a Budget Bar
 
@@ -3131,7 +1491,7 @@ page
     item: text "Rotterdam client visit" · text "9 Oct 2026" · status "Scheduled" info · text "EUR 125.00 of EUR 400.00" · action "Open"
 ```
 
-**Rationale:** Shopify's product list keeps the table and adds an inventory bar per row. The trips stay sortable and comparable, and the bar still answers how much of the budget each one has claimed.
+**Rationale:** A product list can keep the table and add an inventory bar per row. The trips stay sortable and comparable, and the bar still answers how much of the budget each one has claimed.
 
 **Cost:** A bar in a table row is a chart without an axis. 80 percent of EUR 400.00 and 53 percent of EUR 600.00 read as two bars of different lengths for different totals.
 
@@ -3156,227 +1516,8 @@ page
       item: text "Utrecht audit" · text muted "Utrecht client site, 08:00" · status "Draft" neutral · text "Not scheduled yet"
 ```
 
-**Rationale:** Google Calendar's schedule view leads with the date and groups by month. A planner reads October, then December, then March, each trip under its own day.
+**Rationale:** A schedule view can lead with the date and group by month. A planner reads October, then December, then March, each trip under its own day.
 
 **Cost:** Dates lead and states follow, so finding the one draft means reading every month. The view answers when, not what needs work.
 
 **Reference:** Google Calendar
-
-#### `a-month-calendar-with-trip-chips`: A Month Calendar with Trip Chips
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "October 2026. Two trips scheduled."
-    action primary "New trip"
-  toolbar
-    action quiet "Previous month"
-    action quiet "Next month"
-  region "October 2026"
-    grid 31
-      item: text "9" · text "Rotterdam client visit"
-```
-
-**Rationale:** Google Calendar draws the month as a grid and each trip as a chip on its day. Clashes show as two chips on one square, which no list makes visible.
-
-**Cost:** Four trips on thirty squares is mostly empty grid, and nothing on a chip says how much of the budget is claimed. The calendar answers scheduling, not spending.
-
-**Reference:** Google Calendar
-
-#### `compact-rows-with-a-status-word`: Compact Rows with a Status Word
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "Four trips, three with a date still ahead."
-    action primary "New trip"
-  toolbar
-    field "Search trips" search
-  table 4 "Trip" "Owner" "State" "Date"
-    item: text "Rotterdam client visit" · text "Ava" · text muted "Scheduled" · text "9 Oct 2026"
-```
-
-**Rationale:** Linear's project list is one quiet row per project: name, owner, status, date. A team holding forty trips scans states down one column instead of opening forty cards.
-
-**Cost:** Quiet rows hide the budget: nothing says how much is claimed until the trip is opened. The list answers state, not spending.
-
-**Reference:** Linear
-
-#### `a-table-grid-toggle-the-reader-sets`: A Table/Grid Toggle the Reader Sets
-
-```wireframe
-page
-  breadcrumb "Home" "Trips"
-  header
-    heading "Trips"
-    text "Four trips, three with a date still ahead."
-    action primary "New trip"
-  toolbar
-    field "Search trips" search
-    field "View" select = "Grid"
-  grid 2
-    card "Rotterdam client visit"
-      image "Trip photo"
-      text "Fri 9 Oct 2026, Rotterdam client site"
-      status "Scheduled" info
-      fact "Claimed" "EUR 125.00 of EUR 400.00"
-      action "Open"
-```
-
-**Rationale:** Notion lets the reader switch a view between table and board without leaving the page. Finance keeps the table, the trip lead keeps the cards, and both read the same trips.
-
-**Cost:** Two views of one list is two layouts to build, two to test, and a toggle whose state must survive reloads and shared links.
-
-**Reference:** Notion
-
-### List on a Phone
-
-**ID:** `litespec/frontend/patterns/lists-and-tables#list-on-a-phone`
-
-**Strength:** default
-
-**Question:** At 390 pixels the five-column table cannot survive: the columns either crush or scroll. Every option here answers the same question, what the expenses list becomes on a phone. Each one keeps a different capability: reading, sorting, acting, or comparing.
-
-**Default:** `two-line-rows-with-money-right`
-
-**Compact:** Below 640 pixels the table becomes two-line rows with the amount right. Sorting moves to a Sort control. The compact option is `two-line-rows-with-money-right`.
-
-**Rationale:** Keep two-line rows with money right. The rows read well at 390 pixels and keep the expense code, the spender, and the amount. They pair with a Sort control where sorting matters. The runner-up is a scroll container with a sticky first column. Prefer it for the rare phone task that needs every column. Never ship a phone list that hides behind search: a list that starts empty teaches the reader there is nothing to see.
-
-**Reviewed for:** Which built narrow list breaks from the wireframe its catalog entry chose? Open the built two-line rows, cards, and sticky columns at 390 pixels beside the catalog entry recording the chosen option and its reason.
-
-#### `two-line-rows-with-money-right`: Two-Line Rows with Money Right
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every paid expense, newest first."
-  toolbar
-    field "Expense number, name or email" search
-    field "Any state" select = "Any state"
-  list 6
-    item: link "EXP-1042" · text "EUR 125.00" · text muted "Ava, 8 Oct 09:32" · status "Paid" positive
-```
-
-**Rationale:** Stripe's mobile list and Polaris condensed rows read as expense over spender on the left, money over state on the right. Everything fits 390 pixels with nothing scrolling sideways.
-
-**Cost:** No headers, so no sorting and no comparison down a column. Sorting moves to a control, and comparing moves to the desktop.
-
-**Reference:** Stripe
-
-#### `stacked-records-with-labeled-cells`: Stacked Records with Labeled Cells
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Every cell keeps its label. 268 expenses, two shown."
-  toolbar
-    field "Expense number, name or email" search
-  region "EXP-1042"
-    fact "Trip" "Rotterdam client visit"
-    fact "Spender" "Ava"
-    fact "Submitted" "8 Oct 2026, 09:32"
-    fact "State" "Paid"
-    fact "Paid" "EUR 125.00"
-  region "EXP-1043"
-    fact "Spender" "Nina"
-    fact "Paid" "EUR 50.00"
-```
-
-**Rationale:** GOV.UK's responsive tables stack each row into labeled values on a narrow screen. Nothing is dropped and nothing needs discovering: every fact keeps its name.
-
-**Cost:** One expense fills the screen, so six expenses is six screens of scrolling. Thorough, and too long to scan.
-
-**Reference:** GOV.UK
-
-#### `a-scroll-container-with-a-sticky-first-column`: A Scroll Container with a Sticky First Column
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Scroll sideways. The expense column stays."
-  toolbar
-    field "Expense number, name or email" search
-  table 5 "Expense" "Spender" "Submitted" "State" "Paid"
-    item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** Shopify's mobile tables keep every column and scroll sideways under a pinned first column. Nothing is redesigned for the phone: the table is the table, with its bearings kept.
-
-**Cost:** Sideways scrolling hides four of five columns at any moment, and comparing two columns means scrolling between them. The phone shows a window, not the list.
-
-**Reference:** Shopify
-
-#### `priority-columns-only`: Priority Columns Only
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Expense, submitted and email return on the record."
-  toolbar
-    field "Expense number, name or email" search
-  table 3 "Spender" "State" "Paid"
-    item: text "Ava" · status "Paid" positive · text "EUR 125.00"
-```
-
-**Rationale:** Financial tables keep spender, state, and money on a narrow screen and drop the rest. Three columns fit 390 pixels without scrolling, and opening the row recovers the dropped facts.
-
-**Cost:** The expense code, the submitted time, and the trip all leave. Support identifying a caller by code finds the one column they need is gone.
-
-#### `a-card-per-expense-with-its-actions`: A Card per Expense with Its Actions
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "268 expenses, one card each."
-  toolbar
-    field "Expense number, name or email" search
-  grid 4
-    card "EXP-1042, EUR 125.00"
-      text "Ava, Rotterdam client visit"
-      status "Paid" positive
-      action "Open"
-      action "Resend"
-```
-
-**Rationale:** Mobile expense apps draw each expense as a card with its own Resend button. The phone is for acting on one expense, not for comparing twenty, so each card carries its command.
-
-**Cost:** Cards are tall: three expenses fill the screen where rows fit six. A queue worked top to bottom becomes twice the scrolling.
-
-#### `search-and-chips-above-one-line-rows`: Search and Chips Above One-Line Rows
-
-```wireframe
-page
-  breadcrumb "Home" "Expenses"
-  header
-    heading "Expenses"
-    text "Find an expense, then open it."
-  toolbar
-    field "Search expenses" search
-  row
-    action "Needs attention"
-    action "Paid"
-    action "This week"
-  list 6
-    item: text "Ava" · text "EUR 125.00" · text muted "EXP-1042, Rotterdam client visit" · status "Paid" positive
-```
-
-**Rationale:** Gmail's mobile list leads with search and a chip row, then one line per message. Finding beats browsing on a phone, so the list spends its width on the query, not the columns.
-
-**Cost:** One line per expense holds the spender or the code, never both with the money. The row identifies enough to be opened, nothing more.
-
-**Reference:** Gmail

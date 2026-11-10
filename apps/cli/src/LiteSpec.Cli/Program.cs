@@ -13,7 +13,7 @@ const string usage = """
     Usage: litespec <command> [options]
 
     Commands in a consumer repository:
-      init          Write .litespec/project.json from a preset.
+      init          Write .litespec/project.yaml from a preset.
       new           Scaffold a record page and reserve its identifier.
       rename        Rename a record identifier and rewrite every link.
       model         Check, format, render or query the project model.
@@ -59,9 +59,5 @@ int Version()
     return 0;
 }
 
-int Unknown(string command)
-{
-    Console.Error.WriteLine($"Unknown command '{command}'.");
-    Console.Error.WriteLine(usage);
-    return 2;
-}
+int Unknown(string command) =>
+    LastResort.UsageError($"Unknown command '{command}'.", usage, json: false);

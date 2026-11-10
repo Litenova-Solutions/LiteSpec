@@ -1,0 +1,12 @@
+name: Set up the .NET SDK
+description: Installs the .NET SDK that global.json names, with the NuGet package cache. The caller checks out the repository first.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up the .NET SDK
+      uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      with:
+        global-json-file: global.json
+        cache: true
+        cache-dependency-path: "**/packages.lock.json"

@@ -55,7 +55,7 @@ internal static class ExplanationChecks
                     continue;
                 }
 
-                findings.Add(new Finding("explanation-orphaned", $"Explanation file '{model.Config.Relative(file)}' stands beside no record file.", file, 1, null));
+                findings.Add(new Finding("explanation-orphaned", $"Explanation file '{PathText.Relative(model.Config.Root, file)}' stands beside no record file.", file, 1, null));
             }
         }
     }
@@ -92,7 +92,7 @@ internal static class ExplanationChecks
             {
                 var expected = RecordFile.ExplanationPathOf(record.File);
 
-                findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no explanation file '{model.Config.Relative(expected)}'.", record.File, record.Line, SubjectOf(record)));
+                findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no explanation file '{PathText.Relative(model.Config.Root, expected)}'.", record.File, record.Line, SubjectOf(record)));
                 continue;
             }
 

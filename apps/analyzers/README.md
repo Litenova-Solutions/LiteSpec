@@ -1,6 +1,6 @@
 # LiteSpec.Analyzers
 
-## Who This Is For
+## Audience
 
 You maintain the Roslyn analyzers in `apps/analyzers/`. You add a rule, change what a rule reports, change layer resolution, or release the package. After reading this page you know which file owns each behavior, how to add a rule end to end, how the tests prove it, and how to check the package against a real project.
 
@@ -34,17 +34,11 @@ Install the package in a consumer project, or once in `Directory.Build.props`, a
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="4.0.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="5.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That floor comes from the Roslyn version below, not from the target framework.
-
-## Why netstandard2.0 and Roslyn 4.14
-
-The analyzer project targets `netstandard2.0` because analyzers load into every compiler host that builds a consumer project, and `netstandard2.0` loads everywhere. The project sets `LangVersion` to `latest` and disables implicit usings, so the code compiles the same way on any SDK.
-
-The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` through `VersionOverride`, while `Directory.Packages.props` pins the central version at `5.9.0` for the repository tools. Version `4.14.0` is the oldest compiler the package supports: the .NET 9.0.300 SDK and Visual Studio 17.14. You write analyzer code against the `4.14.0` API surface only, so the package keeps working for consumers who have not moved to a newer SDK. The reference uses `PrivateAssets="all"`, so Roslyn never leaks into the package. The test project pins the same `4.14.0` version, so the tests prove the rules against the oldest supported compiler.
 
 ## Layout
 
@@ -54,15 +48,15 @@ The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` throu
 | `src/LiteSpec.Analyzers/README.md` | Package README that ships on NuGet. Its Rules table is the user-facing rule list. |
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Unshipped.md` | No pending rules: every rule the package reports ships in the current release. |
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md` | Shipped rules: the 45 rules of Release 4.0.0. |
-| `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. |
+| `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. It passes the project file's `layers` as `LiteSpecImplementation` and `LiteSpecProof` (`litespec`, `own`, or empty when the layer is not claimed); a file with no `layers` reads as `litespec` for both. A project sets either property itself to override the file. |
 | `src/LiteSpec.Analyzers/Layers/FileScope.cs` | Decides whether a rule applies to one file, from the rule's layer predicate over the file's layer. |
 | `src/LiteSpec.Analyzers/Layers/CodeMap.cs` | Maps every source file of one compilation to its layer, module, and use case, reaction, or job folder. |
 | `src/LiteSpec.Analyzers/Layers/References.cs` | Resolves the type one written name refers to, skipping names an enclosing construct covers. |
-| `../../model/src/LiteSpec.Model.Core/Layers/` | The shared layer surface the analyzers, the CLI, and the checks read: the `Layer` and `Layout` enums and `LayerResolver`, which reads a file's layer from `LiteSpecLayer`, the assembly name, the nearest layer folder, or the file's role suffix. |
+| `../model/src/LiteSpec.Model.Core/Layers/` | The shared layer surface the analyzers, the CLI, and the checks read: the `Layer` and `Layout` enums and `LayerResolver`, which reads a file's layer from `LiteSpecLayer`, the assembly name, the nearest layer folder, or the file's role suffix. |
 | `src/LiteSpec.Analyzers/Rules/LayerAnalyzer.cs` | Base class of the layer-gated rules: gates a declared or layer-projects compilation once, and registers the rule for per-file gating under the module layout. `LayerNameAnalyzer` (`LS2017`) inherits `DiagnosticAnalyzer` directly. |
 | `src/LiteSpec.Analyzers/Rules/Descriptors.cs` | All 43 analyzer descriptors with IDs, categories, messages, provisions, and help links. The other 2 of the 45 diagnostics, `LS5009` and `LS5012`, live in `Generation/GeneratorDiagnostics.cs`. |
 | `src/LiteSpec.Analyzers/Generation/GeneratorDiagnostics.cs` | The generator diagnostics for `LS5009` and `LS5012` (three descriptors: the permission and role forms of `LS5009`, and `LS5012`) with IDs, messages, provisions, and help links. |
-| `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `4.0.0`. |
+| `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `5.0.0`. |
 | `src/LiteSpec.Analyzers/Rules/Domain/` | 11 analyzers for `LS1001` to `LS1013`. |
 | `src/LiteSpec.Analyzers/Rules/Layers/` | 18 analyzers for `LS2001` and `LS2003` to `LS2020`. |
 | `src/LiteSpec.Analyzers/Rules/Style/` | 2 analyzers for `LS3001` and `LS3004`. |
@@ -77,7 +71,7 @@ The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` throu
 
 The repository root adds three files the analyzers depend on. `Directory.Build.props` sets the default target to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. The analyzer project overrides the framework back to `netstandard2.0` and disables implicit usings. `Directory.Packages.props` pins the central package versions. `.github/workflows/ci.yml` builds `LiteSpec.slnx`, tests it, packs the analyzers to `artifacts`, checks the provision index, and validates the repository.
 
-## How a Compilation Flows Through the Package
+### How a Compilation Flows Through the Package
 
 The layer-gated rules inherit `LayerAnalyzer` (the traceability rules through `TraceabilityAnalyzer`), so they follow the same path through a compilation. `Initialize` disables analysis of generated code with `GeneratedCodeAnalysisFlags.None`, enables concurrent execution, and registers one compilation-start action. That action skips the compilation when the declared `LiteSpecLayer` value is `None` or unknown, gates a declared or layer-projects compilation once through `AppliesTo`, and otherwise registers the rule for per-file gating: each action builds a `FileScope` in `Register` and checks it for the file under analysis. A rule in the wrong layer registers nothing and costs nothing. `LS2017` is the exception: `LayerNameAnalyzer` inherits `DiagnosticAnalyzer` directly, reads the declared value itself, and reports an unknown one, whatever the layer. The generator is separate: `LiteSpecGenerator` implements `IIncrementalGenerator` and writes its sources through `Emitter.Execute`, which writes nothing and reports nothing when the layer is `None`, and writes the full surface for the module-layout application project.
 
@@ -128,13 +122,13 @@ The layer-gated rules inherit `LayerAnalyzer` (the traceability rules through `T
 
 Each analyzer registers the narrowest action its rule allows: a symbol action for declarations such as enums and exceptions, a syntax-node action for using directives and repository interfaces, an operation action for throws and invocations, and a syntax-tree action for file names. Rules that need the whole compilation decide at the end of compilation: `LS1003` and `LS1004` find aggregates and their state bases across all types, and `LS3004` collects every base type before it reports a leaf class nothing derives from. Those three descriptors carry the `CompilationEnd` tag, and every other rule reports as the compiler reads each declaration.
 
-`Descriptors.Create` builds every descriptor the same way: severity `Error`, enabled by default, the provision ID in the description as `Provision: litespec/<page>#<slug>` and in the custom tags, and the help link as `https://litespec.dev/4.0.0/<page>/#<slug>` from `Provision.HelpLink`. To cite a rule you quote its descriptor line and its `Provision.Of` line, which together name the category, the message, and the provision.
+`Descriptors.Create` builds every descriptor the same way: severity `Error`, enabled by default, the provision ID in the description as `Provision: litespec/<page>#<slug>` and in the custom tags, and the help link as `https://litespec.dev/5.0.0/<page>/#<slug>` from `Provision.HelpLink`. To cite a rule you quote its descriptor line and its `Provision.Of` line, which together name the category, the message, and the provision.
 
 Release tracking follows the Roslyn convention. `AnalyzerReleases.Shipped.md` lists the 45 rules of Release 4.0.0, each with category `LiteSpec.Domain`, `LiteSpec.Layers`, `LiteSpec.Style`, `LiteSpec.Tests`, or `LiteSpec.Traceability` and severity `Error`. `AnalyzerReleases.Unshipped.md` holds no pending rules. When you ship a rule, you move its row from the unshipped file to the shipped file under a release heading, as the release-tracking help linked at the top of each file describes.
 
 The project sets `EnforceExtendedAnalyzerRules` to `true`, so the Roslyn meta-analyzers check the rules themselves. It suppresses `RS1012` and `RS1013` in `NoWarn` because `LayerAnalyzer` registers each rule from its compilation-start action and hands that context to `Register`, which the meta-analyzer cannot see. It also suppresses `NU5128` because the package ships an analyzer with no `lib` folder. `TreatWarningsAsErrors` and `GenerateDocumentationFile` stay on, so analyzer code ships with XML documentation and a warning fails the build.
 
-## Test Harness
+### Test Harness
 
 `Verify.AnalyzerAsync` in `tests/LiteSpec.Analyzers.Tests/Support/Verify.cs` runs one analyzer over C# sources and compares its diagnostics with the spans the sources mark. A marked span reads `{|LS1002:OrderStatus|}`: the diagnostic ID, then the exact text the diagnostic covers. The harness strips the markup, builds a compilation from the clean text, runs the analyzer, and asserts that the actual diagnostics match the marked spans exactly, with nothing missing and nothing extra. Locations print as `ID Path(line,column)-(line,column)` with 1-based lines, so a failure tells you which span moved.
 
@@ -173,7 +167,7 @@ public Task ReportsAnEnumInDomain() =>
         """);
 ```
 
-## Add a Rule
+### Add a Rule
 
 Follow these steps in order. Each step names the file you change.
 
@@ -185,17 +179,17 @@ Follow these steps in order. Each step names the file you change.
 6. Add the rule row to the Rules table in `src/LiteSpec.Analyzers/README.md` with its ID, layer, short report text, and provision link.
 7. Document the rule with one reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md): the provision, the layers, where the diagnostic sits, what the rule ignores, and a breach example beside a compliant example taken from your tests.
 
-## Performance Rules
+### Performance Rules
 
 The analyzers run on every keystroke in an IDE, so you keep per-compilation work small and shared. Build the `FileScope` and the `CodeMap` once in the compilation-start action and close over them; never rebuild them per symbol. Resolve well-known types once with `GetTypeByMetadataName` inside `Register` and close over the results; never look them up per node. In compilation-end actions, walk `context.Compilation.Assembly.GlobalNamespace` only, which is the source assembly under analysis, and skip symbols with no `DeclaringSyntaxReferences`, so referenced packages cost nothing. Never call `GetSemanticModel` yourself: use the symbol, operation, and syntax-node contexts the compiler hands you, which already carry the right model. Pick the narrowest registration the rule allows, and keep `EnableConcurrentExecution` with `ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None)` from the base class. When you add a rule, check its registration against this list before you write the test.
 
-## End-To-End Check Against a Scratch Project
+### End-To-End Check Against a Scratch Project
 
 The unit tests prove each rule in isolation. This check proves the packed package reports in a real build. Pack the package, create a scratch project outside the repository, point it at a local feed, and build.
 
 1. Pack the release binary from the repository root with `dotnet pack apps/analyzers/src/LiteSpec.Analyzers -c Release -o artifacts`.
 2. Create a scratch folder outside the repository with a console project whose assembly name ends in `.Domain`, for example `Scratch.Domain`.
-3. Add the `artifacts` folder as a local package source and reference version `4.0.0` with `PrivateAssets="all"`, as the package README shows.
+3. Add the `artifacts` folder as a local package source and reference version `5.0.0` with `PrivateAssets="all"`, as the package README shows.
 4. Add a breaching file, such as an enum in Domain, and a compliant file, such as the matching record hierarchy from the analyzer tests.
 5. Build the scratch project. The build lists an `LS1002` error on the enum name and stays quiet on the record hierarchy. A rule that stays quiet everywhere, or that reports outside its layer, sends you back to `AppliesTo` and the test harness, not to the packaging.
 6. Delete the scratch folder when the check passes, so no stray project stays on disk.
@@ -203,3 +197,9 @@ The unit tests prove each rule in isolation. This check proves the packed packag
 ## Limits
 
 The analyzers check the files of the layers the rule table names, plus test files such as `Shop.Domain.Tests` for the test rules, and stay quiet everywhere else, including `Shop.DomainTests` and files no layer folder or role suffix places. They skip generated code. They report syntax and symbols the compiler sees: a rule recognizes handlers, repositories, aggregates, child entities, and controllers by the names and base types its code reads, so a type that hides behind an unfamiliar name or an indirect base can slip past, and the rule's reference page under the [Analyzer rules overview](../../docs/analyzers/rules/README.md) records what each rule ignores. Diagnostics are errors by default; a project changes severity per rule in `.editorconfig` with `dotnet_diagnostic.LS1011.severity`, and a project that departs from a Standard records a departure that cites the provision. The package supports the Roslyn version it pins and newer compilers only.
+
+### Why netstandard2.0 and Roslyn 4.14
+
+The analyzer project targets `netstandard2.0` because analyzers load into every compiler host that builds a consumer project, and `netstandard2.0` loads everywhere. The project sets `LangVersion` to `latest` and disables implicit usings, so the code compiles the same way on any SDK.
+
+The project references `Microsoft.CodeAnalysis.CSharp` at version `4.14.0` through `VersionOverride`, while `Directory.Packages.props` pins the central version at `5.9.0` for the repository tools. Version `4.14.0` is the oldest compiler the package supports: the .NET 9.0.300 SDK and Visual Studio 17.14. You write analyzer code against the `4.14.0` API surface only, so the package keeps working for consumers who have not moved to a newer SDK. The reference uses `PrivateAssets="all"`, so Roslyn never leaks into the package. The test project pins the same `4.14.0` version, so the tests prove the rules against the oldest supported compiler.

@@ -7,8 +7,8 @@ namespace LiteSpec.Authoring;
 ///     type, the entry types that live inside another file, and the shared
 ///     identifier checks of <c>litespec new</c> and <c>litespec rename</c>.
 /// </summary>
-/// <follows>litespec/core/authoring#scaffold-pages-and-reserve-identifiers</follows>
-/// <follows>litespec/core/authoring#rewrite-every-link-on-a-rename</follows>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/model#rewrite-every-link-on-a-rename</follows>
 static class RecordPages
 {
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
@@ -17,7 +17,7 @@ static class RecordPages
         "product", "goal", "problem", "feature", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
-        "runbook", "exception",
+        "runbook", "departure",
     };
 
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
@@ -27,24 +27,18 @@ static class RecordPages
         "configuration", "glossary", "example-cast",
     };
 
-    /// <summary>Container page styles: record files that hold entries without their own identifier.</summary>
-    public static readonly HashSet<string> ContainerStyles = new(StringComparer.Ordinal)
-    {
-        "permission-list", "entry-point-list", "setting-set", "rule-set", "retention-schedule",
-    };
-
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a feature file under .litespec/intent/features/",
+        ["requirement"] = "a feature file under .litespec/intent/modules/<m>/features/",
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
         ["event"] = "its aggregate file",
-        ["integration-event"] = "one file per event under .litespec/behavior/integration-events/",
-        ["setting"] = "its module file, or a setting-set file",
-        ["permission"] = ".litespec/behavior/access/permissions.yaml",
-        ["entry-point"] = ".litespec/behavior/access/entry-points.yaml",
+        ["integration-event"] = "one file per event under .litespec/behavior/modules/<m>/integration-events/",
+        ["setting"] = "a setting-set file under .litespec/behavior/modules/<m>/settings/",
+        ["permission"] = ".litespec/behavior/modules/<m>/permissions.yaml",
+        ["entry-point"] = ".litespec/behavior/entry-points/<entry-point>/entry-point.yaml",
         ["term"] = "the glossary",
     };
 
@@ -68,9 +62,9 @@ static class RecordPages
         config.RecordRoots.Count > 0 ? config.RecordRoots[0] : Path.Combine(config.Root, ".litespec");
 
     /// <summary>
-    ///     The absolute path of the file a record owns. A use-case file starts
-    ///     under <c>reads/</c> beside its module; the author moves the file beside
-    ///     its aggregate once the use case names one.
+    ///     The absolute path of the file a record owns, from the folder map. A use-case file starts
+    ///     under <c>use-cases/</c> beside its module; the author moves the file beside its aggregate
+    ///     once the use case names one.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
     /// <param name="type">The record type that owns the file.</param>
@@ -79,35 +73,11 @@ static class RecordPages
     /// <returns>The absolute path where a file of the type starts.</returns>
     public static string PagePath(ConsumerConfig config, string type, string? home, string name)
     {
-        var docs = DocsRoot(config);
-        var behavior = config.BehaviorDocs;
+        var segments = RecordFolders.ScaffoldPath(type, home, name).Split('/');
 
-        return type switch
-        {
-            "product" => Path.Combine(docs, "intent", "brief.yaml"),
-            "goal" => Path.Combine(docs, "intent", "goals", $"{name}.yaml"),
-            "problem" => Path.Combine(docs, "intent", "problems", $"{name}.yaml"),
-            "feature" => Path.Combine(docs, "intent", "features", $"{name}.yaml"),
-            "constraint" => Path.Combine(docs, "intent", "constraints", $"{name}.yaml"),
-            "research" => Path.Combine(docs, "intent", "research", $"{name}.yaml"),
-            "decision" => Path.Combine(docs, "intent", "decisions", $"{name}.yaml"),
-            "journey" => Path.Combine(docs, "intent", "journeys", $"{name}.yaml"),
-            "actor" => Path.Combine(docs, "intent", "actors", $"{name}.yaml"),
-            "module" => Path.Combine(behavior, "modules", name, "module.yaml"),
-            "aggregate" => Path.Combine(behavior, "modules", home!, name, "aggregate.yaml"),
-            "use-case" => Path.Combine(behavior, "modules", home!, "reads", $"{name}.yaml"),
-            "reaction" => Path.Combine(behavior, "modules", home!, "reactions", $"{name}.yaml"),
-            "job" => Path.Combine(behavior, "modules", home!, "jobs", $"{name}.yaml"),
-            "notification" => Path.Combine(behavior, "modules", home!, "notifications", $"{name}.yaml"),
-            "role" => Path.Combine(behavior, "access", "roles", $"{name}.yaml"),
-            "integration-event" => Path.Combine(behavior, "integration-events", $"{name}.yaml"),
-            "screen" => Path.Combine(behavior, "entry-points", home!, "screens", $"{home}.{name}.yaml"),
-            "external-system" => Path.Combine(behavior, "external-systems", $"{name}.yaml"),
-            "runbook" => Path.Combine(behavior, "runbooks", $"{name}.yaml"),
-            "exception" => Path.Combine(docs, "governance", "exceptions", $"{name}.yaml"),
-
-            _ => throw new ArgumentOutOfRangeException(nameof(type), $"Type '{type}' owns no file."),
-        };
+        return segments[0] == "behavior"
+            ? Path.Combine([config.BehaviorDocs, .. segments[1..]])
+            : Path.Combine([DocsRoot(config), .. segments]);
     }
 
     /// <summary>
@@ -133,7 +103,7 @@ static class RecordPages
             "command" => Path.Combine(docs, "tools", $"{name}.md"),
             "configuration" => Path.Combine(docs, "tools", $"{name}.md"),
             "glossary" => Path.Combine(behavior, $"{name}.md"),
-            "example-cast" => Path.Combine(behavior, $"{name}.md"),
+            "example-cast" => Path.Combine(docs, $"{name}.md"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(style), $"Style '{style}' owns no document."),
         };
@@ -155,6 +125,22 @@ static class RecordPages
     public static string? RenameTarget(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
+        // A type whose identifier carries no home, such as an integration event, which lives under a
+        // module folder its id does not name, stays in the folder it already sits in.
+        if (newHome is null && RecordFolders.NeedsHome(type))
+        {
+            var folder = Path.GetDirectoryName(oldFile);
+
+            if (string.IsNullOrEmpty(folder))
+            {
+                return null;
+            }
+
+            var renamed = Path.Combine(folder, newName + Path.GetExtension(oldFile));
+
+            return string.Equals(renamed, oldFile, StringComparison.Ordinal) ? null : renamed;
+        }
+
         var placed = PagePath(config, type, newHome, newName);
 
         // A technical decision lives under Implementation and stays there when renamed.

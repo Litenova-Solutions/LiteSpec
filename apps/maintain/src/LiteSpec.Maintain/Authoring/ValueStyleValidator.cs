@@ -49,13 +49,13 @@ internal sealed partial class ValueStyleValidator
         if (Directory.Exists(examples))
         {
             files.AddRange(Walk(examples, file => file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase)
-                && Slash(file).Contains("/docs/", StringComparison.Ordinal)));
+                && FileText.Slash(file).Contains("/docs/", StringComparison.Ordinal)));
         }
 
         foreach (var file in files)
         {
-            var relative = Slash(Path.GetRelativePath(root, file));
-            if (!RecordsValidator.TryParseRecordFile(ReadText(file), out var record, out _))
+            var relative = PathText.Relative(root, file);
+            if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var record, out _))
             {
                 continue;
             }
@@ -132,12 +132,12 @@ internal sealed partial class ValueStyleValidator
                 // reads as a capitalized word.
                 if (!char.IsUpper(text[0]))
                 {
-                    add(relative, 1, "VALUE_STYLE", "step `statement` must start with `The` or an actor title");
+                    add(relative, 1, Diagnostics.Codes.ValueStyle, "step `statement` must start with `The` or an actor title");
                 }
 
                 if (!text.EndsWith('.'))
                 {
-                    add(relative, 1, "VALUE_STYLE", "step `statement` must end in a period");
+                    add(relative, 1, Diagnostics.Codes.ValueStyle, "step `statement` must end in a period");
                 }
 
                 return;
@@ -145,12 +145,12 @@ internal sealed partial class ValueStyleValidator
 
             if (!text.EndsWith('.'))
             {
-                add(relative, 1, "VALUE_STYLE", "`statement` must end in a period");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, "`statement` must end in a period");
             }
 
             if (enclosingType is "requirement" or "rule" && LowerModalPattern().Match(BacktickSpanPattern().Replace(text, " ")) is { Success: true } modal)
             {
-                add(relative, 1, "VALUE_STYLE", $"`statement` must not hold the modal word `{modal.Groups[1].Value}`");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`statement` must not hold the modal word `{modal.Groups[1].Value}`");
             }
 
             return;
@@ -162,13 +162,13 @@ internal sealed partial class ValueStyleValidator
                 && !text.StartsWith("An ", StringComparison.Ordinal)
                 && !text.StartsWith("The ", StringComparison.Ordinal))
             {
-                add(relative, 1, "VALUE_STYLE", "`meaning` must start with A, An or The");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, "`meaning` must start with A, An or The");
             }
 
             var words = text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
             if (words.Length > 25)
             {
-                add(relative, 1, "VALUE_STYLE", $"`meaning` holds {words.Length} words; at most 25");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`meaning` holds {words.Length} words; at most 25");
             }
 
             return;
@@ -178,7 +178,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (StartsWithWord(text, "because"))
             {
-                add(relative, 1, "VALUE_STYLE", $"`{field}` must not start with `because`");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`{field}` must not start with `because`");
             }
 
             return;
@@ -188,7 +188,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (StartsWithWord(text, "when") || StartsWithWord(text, "if"))
             {
-                add(relative, 1, "VALUE_STYLE", $"`{field}` must not start with `when` or `if`");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`{field}` must not start with `when` or `if`");
             }
 
             return;
@@ -198,7 +198,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (RefusalCodePattern().IsMatch(text))
             {
-                add(relative, 1, "VALUE_STYLE", "`failure` must not hold a refusal code");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, "`failure` must not hold a refusal code");
             }
 
             return;
@@ -211,12 +211,12 @@ internal sealed partial class ValueStyleValidator
             // titles do.
             if (char.IsLower(text[0]))
             {
-                add(relative, 1, "VALUE_STYLE", "`title` must start with a capital letter");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, "`title` must start with a capital letter");
             }
 
             if (text.EndsWith('.'))
             {
-                add(relative, 1, "VALUE_STYLE", "`title` must carry no final period");
+                add(relative, 1, Diagnostics.Codes.ValueStyle, "`title` must carry no final period");
             }
 
             return;

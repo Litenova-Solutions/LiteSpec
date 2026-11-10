@@ -6,7 +6,7 @@
   import { Button } from "$lib/components/ui/button";
 
   // The page header: the breadcrumb from the parent chain, the title, the type
-  // line, the identifier and the qualified identifier with their copy buttons,
+  // line, the identifier, the folder and the module,
   // and the traversal row.
   let { id, r }: { id: string; r: BookRecord } = $props();
   const b = $derived(base(id));
@@ -97,17 +97,21 @@
   >
     <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{b}</code>
   </button>
-  {#if r.qualifiedId && r.qualifiedId !== b}
-    <span class="text-muted-foreground">Qualified</span>
+  {#if r.folder}
+    <span class="text-muted-foreground">Folder</span>
     <button
       type="button"
       class="cursor-pointer rounded-sm"
-      aria-label={"Copy qualified ID " + r.qualifiedId}
-      title="Copy qualified ID"
-      onclick={() => copyText(r.qualifiedId ?? "")}
+      aria-label={"Copy folder " + r.folder}
+      title="Copy folder"
+      onclick={() => copyText(r.folder ?? "")}
     >
-      <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{r.qualifiedId}</code>
+      <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{r.folder}</code>
     </button>
+  {/if}
+  {#if r.module}
+    <span class="text-muted-foreground">Module</span>
+    <code class="font-mono text-xs font-medium break-all text-foreground">{r.module}</code>
   {/if}
   {#if r.src}
     <SourceLink src={r.src} />

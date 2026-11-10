@@ -1,9 +1,9 @@
 using LiteSpec.Model;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Model.Frontend;
+namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the frontend builder records the style each route mark was written in.</summary>
 public sealed class FrontendRouteStyleTests
@@ -11,9 +11,9 @@ public sealed class FrontendRouteStyleTests
     /// <summary>TypeScript Route Marks Are Typed Whatever The Project Declares.</summary>
     /// <proves>litespec/core/model#declare-one-mark-style</proves>
     [Fact]
-    public void TypeScript_Route_Marks_Are_Typed_Whatever_The_Project_Declares()
+    public void TypeScriptRouteMarksAreTypedWhateverTheProjectDeclares()
     {
-        using var temp = Cli.Temp("route-style");
+        using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "svelte", "attribute");
         var config = ConsumerConfig.Load(temp.Path);
         var code = new CodeModel();
@@ -28,9 +28,9 @@ public sealed class FrontendRouteStyleTests
     /// <summary>Dotnet Route Marks Keep The Style The Reader Saw.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Dotnet_Route_Marks_Keep_The_Style_The_Reader_Saw()
+    public void DotnetRouteMarksKeepTheStyleTheReaderSaw()
     {
-        using var temp = Cli.Temp("route-style");
+        using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "blazor", "xml");
         var config = ConsumerConfig.Load(temp.Path);
         var code = new CodeModel();
@@ -46,9 +46,9 @@ public sealed class FrontendRouteStyleTests
     /// <summary>Dotnet Route Marks Without A Recorded Style Fall Back To The Declared Style.</summary>
     /// <proves>litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style</proves>
     [Fact]
-    public void Dotnet_Route_Marks_Without_A_Recorded_Style_Fall_Back_To_The_Declared_Style()
+    public void DotnetRouteMarksWithoutARecordedStyleFallBackToTheDeclaredStyle()
     {
-        using var temp = Cli.Temp("route-style");
+        using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "blazor", "attribute");
         var config = ConsumerConfig.Load(temp.Path);
         var code = new CodeModel();
@@ -80,15 +80,14 @@ public sealed class FrontendRouteStyleTests
     {
         Directory.CreateDirectory(Path.Combine(root, "apps", "web"));
         File.WriteAllText(
-            Path.Combine(root, ".litespec/project.json"),
+            Path.Combine(root, ".litespec/project.yaml"),
             $$"""
             {
               "owners": ["team"],
               "marks": "{{marks}}",
-              "paths": {
-                "frontends": [
+              "frontends": [
                   { "name": "web", "path": "apps/web", "platform": "{{platform}}" }
-                ]
+                ], "paths": {
               }
             }
             """);

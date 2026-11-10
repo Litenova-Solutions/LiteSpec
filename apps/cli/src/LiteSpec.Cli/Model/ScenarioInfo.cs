@@ -16,4 +16,11 @@ sealed record ScenarioInfo(
     bool HasAssertion,
     IReadOnlySet<string> CreatedTypes,
     IReadOnlySet<string> ResolvedServices,
-    IReadOnlySet<string> StaticCalls);
+    IReadOnlySet<string> StaticCalls)
+{
+    /// <summary>
+    ///     Gets the hash of the test method's own text, its attributes and body, with line endings normalised,
+    ///     so an edit elsewhere in its file leaves it unchanged. The proof ledger records it per scenario.
+    /// </summary>
+    public string MethodHash { get; init; } = "";
+}

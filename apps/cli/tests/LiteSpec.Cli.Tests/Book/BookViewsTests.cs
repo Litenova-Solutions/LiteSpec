@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Tests.Support;
+using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Tests.Book;
+namespace LiteSpec.Cli.Tests.Book;
 
 /// <summary>Proves the book shards carry the readable specification: bodies, lifecycles, sentences, traces and views.</summary>
 public sealed class BookViewsTests
@@ -10,9 +10,9 @@ public sealed class BookViewsTests
     /// <summary>Every record type renders: each type is counted, sharded, searchable and placed once in the outline.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Every_Record_Type_Renders_In_Shards_Search_And_Outline()
+    public void EveryRecordTypeRendersInShardsSearchAndOutline()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
 
         var data = Path.Combine(temp.Path, "data");
@@ -129,9 +129,9 @@ public sealed class BookViewsTests
     /// <summary>The outline nests code, test and finding leaves under their subjects, with no leaf under an unplaced record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Outline_Nests_Code_Test_And_Finding_Leaves_Under_Their_Subjects()
+    public void OutlineNestsCodeTestAndFindingLeavesUnderTheirSubjects()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
 
         var data = Path.Combine(temp.Path, "data");
@@ -160,9 +160,9 @@ public sealed class BookViewsTests
     /// <summary>A record detail renders its explanation as text: headings, spans, lists, tables, code and quotes.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Record_Explanation_Renders_As_Escaped_Html_With_Sections()
+    public void RecordExplanationRendersAsEscapedHtmlWithSections()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
         var html = Str(loan, "bodyHtml") ?? "";
@@ -193,9 +193,9 @@ public sealed class BookViewsTests
     /// <summary>An explanation can never inject markup: angle brackets escape inside code spans.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Record_Explanation_Escapes_Markup()
+    public void RecordExplanationEscapesMarkup()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var html = Str(ReadRecords(Path.Combine(temp.Path, "data"))["runbook/overdue-notice"], "bodyHtml") ?? "";
         Assert.Contains("<code>&lt;code&gt;LOAN-1&lt;/code&gt;</code>", html, StringComparison.Ordinal);
@@ -205,9 +205,9 @@ public sealed class BookViewsTests
     /// <summary>No shard falls back to raw JSON: no object dumps and no raw JSON blocks anywhere.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void No_Shard_Holds_Raw_Json_Or_Object_Dumps()
+    public void NoShardHoldsRawJsonOrObjectDumps()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         foreach (var shard in Directory.GetFiles(Path.Combine(temp.Path, "data"), "*.js"))
         {
@@ -220,9 +220,9 @@ public sealed class BookViewsTests
     /// <summary>An aggregate detail carries its lifecycle fields and its reachable states.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Aggregate_Detail_Carries_Lifecycle_Fields_And_Reachable_States()
+    public void AggregateDetailCarriesLifecycleFieldsAndReachableStates()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var loan = ReadRecords(Path.Combine(temp.Path, "data"))["aggregate/lending.loan"];
         var fields = Obj(loan, "fields");
@@ -237,9 +237,9 @@ public sealed class BookViewsTests
     /// <summary>A scenario detail carries its Given, When and Then sentences with examples and proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Scenario_Detail_Carries_Sentences_Examples_And_Proof()
+    public void ScenarioDetailCarriesSentencesExamplesAndProof()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var passing = details["scenario/borrow-copy.borrowing-an-available-copy-succeeds"];
@@ -266,9 +266,9 @@ public sealed class BookViewsTests
     /// <summary>A scenario traces to its goal through edges: result, use case, rules, requirement, feature and goal.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Scenario_Traces_To_Its_Goal_Through_Edges()
+    public void ScenarioTracesToItsGoalThroughEdges()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(
@@ -308,9 +308,9 @@ public sealed class BookViewsTests
     /// <summary>Every edge key resolves to a Links table phrase in the lexicon, in both directions.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
-    public void Connection_Sentences_Resolve_From_Lexicon_Phrases()
+    public void ConnectionSentencesResolveFromLexiconPhrases()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var details = ReadRecords(data);
@@ -366,9 +366,9 @@ public sealed class BookViewsTests
     /// <summary>A goal traces through features and requirements to the met state; a goal no feature serves has no incoming advances.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Goal_Trace_Reaches_Met_Requirements()
+    public void GoalTraceReachesMetRequirements()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(
@@ -390,12 +390,12 @@ public sealed class BookViewsTests
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
     }
 
-    /// <summary>Findings sit on their records, open and known apart, with the exception kind and expiry.</summary>
+    /// <summary>Findings sit on their records, open and known apart, with the departure covers and expiry.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Findings_Sit_On_Their_Records_With_Exception_Expiry()
+    public void FindingsSitOnTheirRecordsWithDepartureExpiry()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
 
@@ -403,23 +403,22 @@ public sealed class BookViewsTests
         var open = Arr(details["use-case/lending.return-copy"], "findings");
         Assert.Single(open);
         Assert.Equal("use-case-unimplemented", Str(open[0]!.AsObject(), "code"));
-        Assert.False(BoolOf(open[0]!.AsObject()["known"]));
+        Assert.False(BoolOf(open[0]!.AsObject()["covered"]));
         var known = Arr(details["journey/borrowing"], "findings");
         Assert.Single(known);
-        Assert.True(BoolOf(known[0]!.AsObject()["known"]));
+        Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
-        var exception = details.Values.First(detail => Str(detail, "type") == "exception");
-        var kind = Str(Obj(exception, "fields"), "kind");
-        Assert.True(kind is "departure" or "gap", $"Unexpected exception kind '{kind}'.");
-        Assert.True((Str(Obj(exception, "fields"), "expiresOn") ?? "").Length > 0);
+        var departure = details.Values.First(detail => Str(detail, "type") == "departure");
+        Assert.True(Arr(Obj(departure, "fields"), "covers").Count > 0);
+        Assert.True((Str(Obj(departure, "fields"), "expiresOn") ?? "").Length > 0);
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Rule_Detail_Carries_Kind_Governs_And_Refusal()
+    public void RuleDetailCarriesKindGovernsAndRefusal()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var invariant = details["rule/loan.one-loan-per-copy"];
@@ -444,9 +443,9 @@ public sealed class BookViewsTests
     /// <summary>A requirement detail states its fit criterion and whether it is met.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Requirement_Detail_Carries_Fit_Criterion_And_Verification()
+    public void RequirementDetailCarriesFitCriterionAndVerification()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var details = ReadRecords(data);
@@ -473,9 +472,9 @@ public sealed class BookViewsTests
     /// <summary>A reaction detail carries its triggers, what it sends and what it fulfills; a notification carries its addresses and channel.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Reaction_And_Notification_Details_Carry_Trigger_And_Audience()
+    public void ReactionAndNotificationDetailsCarryTriggerAndAudience()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var reactionId = details.Keys.First(id =>
@@ -496,9 +495,9 @@ public sealed class BookViewsTests
     /// <summary>A scheduled job detail carries its kind, schedule and run fields.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Scheduled_Job_Detail_Carries_Schedule_Fields()
+    public void ScheduledJobDetailCarriesScheduleFields()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var scheduled = details.Keys.First(id =>
@@ -514,9 +513,9 @@ public sealed class BookViewsTests
     /// <summary>A journey detail carries its chapter: steps, serving, promises and outcomes.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Journey_Detail_Carries_Its_Chapter()
+    public void JourneyDetailCarriesItsChapter()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var journey = details["journey/borrowing"];
@@ -543,9 +542,9 @@ public sealed class BookViewsTests
     /// <summary>A setting detail carries its meaning and default; a use-case detail carries its access grant and what it serves.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Setting_And_Use_Case_Details_Carry_Meaning_Access_And_Serves()
+    public void SettingAndUseCaseDetailsCarryMeaningAccessAndServes()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var setting = details["setting/lending.max-active-loans"];
@@ -570,9 +569,9 @@ public sealed class BookViewsTests
     /// <summary>The search shards cover statements, summaries and explanation heads for every record.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void Search_Shards_Cover_Statements_And_Explanation_Heads()
+    public void SearchShardsCoverStatementsAndExplanationHeads()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var data = Path.Combine(temp.Path, "data");
         var rows = ReadSearchRows(data);
@@ -599,9 +598,9 @@ public sealed class BookViewsTests
     /// <summary>Details carry no status, owner, decider, decide-by date, effective status or held-by list.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Details_Carry_No_Status_Owner_Decider_Or_HeldBy()
+    public void DetailsCarryNoStatusOwnerDeciderOrHeldBy()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         foreach (var pair in details)
@@ -619,9 +618,9 @@ public sealed class BookViewsTests
     /// <summary>Implementation and proof rail sections read from computed code, tests, expectations and lacks.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Implementation_And_Proof_Rail_Sections()
+    public void ImplementationAndProofRailSections()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var borrow = details["use-case/lending.borrow-copy"];
@@ -649,15 +648,15 @@ public sealed class BookViewsTests
         Assert.Empty(Arr(passing, "lacks"));
 
         Assert.Empty(Arr(details["scenario/borrow-copy.borrowing-a-loaned-copy-is-refused"], "tests"));
-        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not implemented"));
+        Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
     }
 
     /// <summary>The Why block inputs split from the explanation: the intro stays prose and Why sections list by heading.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void Why_Block_Placement()
+    public void WhyBlockPlacement()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         var goal = Obj(details["goal/faster-borrowing"], "sections");
@@ -677,9 +676,9 @@ public sealed class BookViewsTests
     /// <summary>Numbered reference lists read linked records with their statement, meaning or summary.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Numbered_Reference_Lists_Read_From_Fields_And_Edges()
+    public void NumberedReferenceListsReadFromFieldsAndEdges()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "problem/slow-desk-queues", "feature.solves"));
@@ -701,9 +700,9 @@ public sealed class BookViewsTests
     /// <summary>Trace bands walk goal to behavior through incoming advances, citing requirements, kept-by counts and fulfilling edges.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void Trace_Bands_Read_From_Edges_And_KeptBy()
+    public void TraceBandsReadFromEdgesAndKeptBy()
     {
-        using var temp = Cli.Temp("book-views");
+        using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(Arr(details["goal/faster-borrowing"], "in"), "feature/self-checkout", "feature.advances"));
@@ -736,7 +735,7 @@ public sealed class BookViewsTests
     /// <returns>True when the type starts its own outline layer.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "exception" or "term";
+            or "departure" or "term";
 
     /// <summary>The forward and inverse phrases of one link row for one carrier type.</summary>
     /// <param name="links">The lexicon link rows to search.</param>

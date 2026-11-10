@@ -1,9 +1,9 @@
 namespace LiteSpec.Authoring;
 
 /// <summary>
-///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>
-///     and <c>docs/reference/provisions.json</c> from the active standards, with each provision's
-///     inline verification mark, scope, conformance level, and strength, and the checked share
+///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>,
+///     <c>docs/reference/provisions.json</c> and the site's <c>docs/reference/pages.json</c> from the active standards, with each provision's
+///     inline verification mark, scope, record layer, trace, and strength, and the checked share
 ///     of rules for each page in the index.
 /// </summary>
 /// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
@@ -13,10 +13,12 @@ static class ProvisionsCommand
     public const string Usage = """
         Usage: litespec-maintain provisions [--root <path>] [--check] [--help]
 
-        Writes docs/reference/provisions.md and docs/reference/provisions.json from the active
-        standards in root, which defaults to the LiteSpec checkout this tool belongs to. Each
-        provision carries its conformance level, and the index states the checked share of
-        rules for each page.
+        Writes docs/reference/provisions.md, docs/reference/provisions.json and the site's page
+        index docs/reference/pages.json from the active standards in root, which defaults to the
+        LiteSpec checkout this tool belongs to. Each provision carries its record layer and trace,
+        and the index states the checked share of rules for each page. It also writes the finding
+        code table docs/reference/finding-codes.md, the record folder table docs/reference/folders.md,
+        and the pin table inside docs/reference/manifest.md.
 
           --root    The repository root. Defaults to the LiteSpec checkout.
           --check   Compare the tracked files with the generated ones and write nothing.
@@ -83,44 +85,52 @@ static class ProvisionsCommand
             return 2;
         }
 
-        var target = Path.Combine(root, Provisions.IndexPath.Replace('/', Path.DirectorySeparatorChar));
-        var jsonTarget = Path.Combine(root, Provisions.JsonPath.Replace('/', Path.DirectorySeparatorChar));
-        var expected = Provisions.BuildIndex(root) + "\n";
-        var expectedJson = Provisions.BuildJson(root) + "\n";
-        var actual = File.Exists(target) ? File.ReadAllText(target).Replace("\r\n", "\n", StringComparison.Ordinal) : null;
-        var actualJson = File.Exists(jsonTarget) ? File.ReadAllText(jsonTarget).Replace("\r\n", "\n", StringComparison.Ordinal) : null;
+        (string Path, string Text)[] files;
+        try
+        {
+            files =
+            [
+                (Provisions.IndexPath, Provisions.BuildIndex(root) + "\n"),
+                (Provisions.JsonPath, Provisions.BuildJson(root) + "\n"),
+                (Provisions.PagesPath, Provisions.BuildPages(root) + "\n"),
+                .. ReferenceTables.Outputs(root),
+            ];
+        }
+        catch (InvalidOperationException exception)
+        {
+            Console.Error.WriteLine(exception.Message);
+            return 2;
+        }
 
         if (parsed.Has("--check"))
         {
             var stale = false;
-            if (actual == expected)
+            foreach (var (path, text) in files)
             {
-                Console.WriteLine($"{Provisions.IndexPath} is current.");
-            }
-            else
-            {
-                Console.Error.WriteLine($"{Provisions.IndexPath} is stale. Run: litespec-maintain provisions");
-                stale = true;
-            }
-
-            if (actualJson == expectedJson)
-            {
-                Console.WriteLine($"{Provisions.JsonPath} is current.");
-            }
-            else
-            {
-                Console.Error.WriteLine($"{Provisions.JsonPath} is stale. Run: litespec-maintain provisions");
-                stale = true;
+                var file = Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar));
+                var actual = File.Exists(file) ? File.ReadAllText(file).Replace("\r\n", "\n", StringComparison.Ordinal) : null;
+                if (actual == text)
+                {
+                    Console.WriteLine($"{path} is current.");
+                }
+                else
+                {
+                    Console.Error.WriteLine($"{path} is stale. Run: litespec-maintain provisions");
+                    stale = true;
+                }
             }
 
             return stale ? 1 : 0;
         }
 
-        Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-        File.WriteAllText(target, expected);
-        Directory.CreateDirectory(Path.GetDirectoryName(jsonTarget)!);
-        File.WriteAllText(jsonTarget, expectedJson);
-        Console.WriteLine($"Wrote {Provisions.IndexPath} and {Provisions.JsonPath}.");
+        foreach (var (path, text) in files)
+        {
+            var file = Path.Combine(root, path.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            File.WriteAllText(file, text);
+        }
+
+        Console.WriteLine($"Wrote {string.Join(", ", files.Select(file => file.Path))}.");
         return 0;
     }
 }
