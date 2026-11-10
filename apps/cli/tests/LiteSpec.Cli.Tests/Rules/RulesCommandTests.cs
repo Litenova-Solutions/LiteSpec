@@ -88,8 +88,8 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Checked by a tool:", result.Output);
-        Assert.Contains("- litespec/backend/application#implement-one-outcome-path-per-command: checked by `LS2014` [path match (artifact command-handler)]", result.Output);
-        Assert.DoesNotContain("Each command MUST implement one use case with one success path", result.Output);
+        Assert.Contains("- litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage: checked by `LS2012`, `LS2013`, `LS2014`, `LS2015` [path match (artifact command-handler)]", result.Output);
+        Assert.DoesNotContain("A command handler MUST", result.Output);
     }
 
     /// <summary>A layer-wide provision prints by identifier only and without its statement.</summary>

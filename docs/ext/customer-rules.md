@@ -1,6 +1,7 @@
 # Customer Rules and Hooks
 
 **Stack:** any
+
 **Concern:** application
 
 ## Intent
@@ -35,7 +36,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** The action `invoice.send-reminder` is a record stating its rate cap and its suppression rule.
 
-**Reviewed for:** Each catalog trigger, condition, and action is present as a record.
+**Reviewed for:** Which catalog triggers, conditions, or actions have no record? Look at the catalog records.
 
 ### Treat Tenant Rules as Data
 
@@ -49,7 +50,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** A tenant's rule `remind overdue invoices every Monday` is stored data, while its trigger, condition, and action each point at catalog entries.
 
-**Reviewed for:** Tenant instances live in tenant storage with none as a record.
+**Reviewed for:** Which tenant rule instances are stored as records? Look at the catalog records and the tenant storage.
 
 ### Refuse Unknown Catalog Entries
 
@@ -63,7 +64,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** An instance naming the retired trigger `expense.submitted` is refused with the catalog's current trigger list.
 
-**Reviewed for:** The instance tests refuse entries outside the catalog with the current catalog in the refusal.
+**Reviewed for:** Which instance tests accept an entry outside the catalog, or refuse it without the current catalog? Look at the instance tests.
 
 ### Version Catalog Entries
 
@@ -77,7 +78,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** The condition `order.total-above` moves from version 3 to version 4, and existing instances keep running version 3 until the tenant re-saves.
 
-**Reviewed for:** Each catalog entry carries a version, and the stored instances cite the version they run.
+**Reviewed for:** Which catalog entries carry no version, or which stored instances cite none? Look at the catalog records and the stored instances.
 
 ### State What a Hook May Rely On
 
@@ -91,7 +92,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** The hook `invoice.paid` states three retries spaced a minute apart, a ten-second timeout, and an HMAC signature header.
 
-**Reviewed for:** Each hook record lists payload, retries, timeout, and signature for its customer endpoint.
+**Reviewed for:** Which hook records omit the payload, retries, timeout, or signature their customer endpoint relies on? Look at each hook record.
 
 ### State What a Hook May Not Assume
 
@@ -105,7 +106,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** The hook `invoice.paid` states that deliveries may repeat, may arrive out of order, and carry no line-item detail.
 
-**Reviewed for:** Each hook record lists the ordering, timing, and payload bounds its endpoint leaves unassumed.
+**Reviewed for:** Which hook records omit the ordering, timing, or payload bounds their endpoint leaves unassumed? Look at each hook record.
 
 ### Isolate Hook Failures from the Trigger
 
@@ -119,7 +120,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Example:** A hook call that times out is retried three times and then logged as failed, while the paid invoice stays paid.
 
-**Reviewed for:** The hook tests fail the endpoint while the trigger outcome stays unchanged.
+**Reviewed for:** Which hook tests show a trigger outcome change when the endpoint fails? Look at the hook tests.
 
 ## Conventions
 
@@ -135,7 +136,7 @@ Developers own the `catalog` of triggers, conditions, and actions as records, wh
 
 **Rationale:** One tenant's runaway rule can starve every other tenant's automation. A monthly cap from the catalog default bounds the damage, and the tenant raises it by asking instead of by accident.
 
-**Reviewed for:** Each stored instance carries a monthly run cap, or the customer rules documentation names the cap scheme.
+**Reviewed for:** Which stored instances carry no monthly run cap, with no cap scheme named in the customer rules documentation? Look at the stored instances and that documentation.
 
 ## Dependencies
 

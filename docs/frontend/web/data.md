@@ -1,7 +1,6 @@
 # Web Data and State
 
-**Stack:** any
-
+**Stack:** react, svelte
 **Concern:** frontend-data
 
 ## Intent

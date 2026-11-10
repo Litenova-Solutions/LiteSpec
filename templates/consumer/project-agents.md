@@ -47,7 +47,7 @@ Report every skipped check with its reason, and name the provisions `rules` retu
 
 Compose each route from one floorplan in the frontend `DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/frontend/ui#prove-every-result-a-route-calls)
+Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/core/edges#show-every-refusal-a-screen-can-reach)
 
 Run `__LITESPEC_COMMAND__ model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 

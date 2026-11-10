@@ -34,6 +34,22 @@ Marten is the baseline provider, supplying the session, the read session, and do
 
 **Checked by:** `dotnet build` reports `LS2004` for a command handler writing through a document session or database context.
 
+### Keep Pipeline-Owned Collaborators Out of Handlers
+
+**ID:** `litespec/backend/dotnet/persistence#keep-pipeline-owned-collaborators-out-of-handlers`
+
+**Strength:** required
+
+**Applies to:** artifact: command-handler, query-handler
+
+**Statement:** A command or query handler MUST NOT take a pipeline-owned collaborator, such as `IUnitOfWork`, `IIdempotencyStore`, or `ITransactionalOutbox`, through its constructor.
+
+**Rationale:** The pipeline owns the unit of work, the idempotency store, the outbox, and the uniqueness claim service, so a handler that takes one of them commits or reserves work outside the post-handler that owns the commit. The analyzer's default list names the LiteBus types, and a project adds its own claim service to the `litespec.LS2016.pipeline_owned_types` key. This provision binds `litespec/backend/persistence#keep-uniqueness-out-of-handlers` for .NET.
+
+**Example:** The submit-expense handler takes its Domain repository and no unit of work, so the commit stays in the one post-handler. A handler constructor that adds `IUnitOfWork` is reported at the parameter.
+
+**Checked by:** `dotnet build` reports `LS2016` for a command or query handler whose constructor takes a pipeline-owned type.
+
 ### Query Through IQuerySession
 
 **ID:** `litespec/backend/dotnet/persistence#query-through-iquerysession`

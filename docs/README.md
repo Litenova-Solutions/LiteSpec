@@ -58,7 +58,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 These principles hold for every backend. A backend stack folder states how its technology realizes them.
 
 - [Backend overview](backend/README.md): the principles every backend shares and the stacks that realize them.
-- [Write Code for a Use Case](backend/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
+- [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Backend Architecture](backend/architecture.md): the module layout as the default across four layers, the direction references point, and the modules, aggregates, and use cases inside each layer.
 - [Domain Layer](backend/domain.md): aggregates, lifecycles, closed value sets, and repositories, and what Domain never references.
 - [Application Layer](backend/application.md): use-case coordination, pipeline stages, ports, and reactions.
@@ -74,7 +74,6 @@ These principles hold for every backend. A backend stack folder states how its t
 - [.NET Application Layer](backend/dotnet/application.md): LiteBus dispatch and validity reporting.
 - [.NET Persistence](backend/dotnet/persistence.md): the Marten baseline provider rules.
 - [.NET HTTP API](backend/dotnet/api.md): endpoint classes and build-time OpenAPI generation.
-- [.NET Testing](backend/dotnet/testing.md): points at Backend Testing for the suites and their .NET form.
 - [.NET Workspace](backend/dotnet/workspace.md): solutions and project files in the workspace tree.
 - [.NET Naming and Code Style](backend/dotnet/naming.md): C# file and primary-type match, implementation style, and reasoned names.
 - [.NET Packages](backend/dotnet/packages.md): LiteBus module scope and the analyzer setup.
@@ -110,12 +109,10 @@ The TypeScript web pages the React and Svelte stacks share. This folder is a gro
 ### React Stack
 
 - [React Stack](frontend/web/react/stack.md): the React binding and its three rendering modes.
-- [React Components](frontend/web/react/components.md): function components with typed boundaries.
 
 ### Svelte Stack
 
 - [Svelte Stack](frontend/web/svelte/stack.md): the Svelte binding and its three rendering modes.
-- [Svelte Components](frontend/web/svelte/components.md): rune state with typed boundaries.
 
 ### Blazor Stack
 
@@ -137,7 +134,7 @@ The mobile pages state what every native mobile app does the same way, and each 
 
 ### Implementation
 
-Implementation holds code only, so the `.litespec/implementation/` folder with its technical decisions and guides exists only in consumers. A backend element goes where [Write Code for a Use Case](backend/write-code-for-a-use-case.md) states, carries the mark the [Project Model](core/model.md) states, and meets the checks the [Analyzers overview](analyzers/README.md) states.
+Implementation holds code only, so the `.litespec/implementation/` folder with its technical decisions and guides exists only in consumers. A backend element goes where [Write Code for a Use Case](guide/write-code-for-a-use-case.md) states, carries the mark the [Project Model](core/model.md) states, and meets the checks the [Analyzers overview](analyzers/README.md) states.
 
 ### Quality
 
@@ -145,6 +142,7 @@ Implementation holds code only, so the `.litespec/implementation/` folder with i
 - [Security](quality/security.md): identity, permissions, data classification, and trust transitions.
 - [Operations](quality/operations.md): observability, diagnostics, and support by one maintainer.
 - [Continuous Integration](quality/ci.md): the gates each pull request runs for its changed areas.
+- [Testing](quality/testing.md): the cross-stack rules that prove each scenario through the public boundary.
 
 ### Extensions
 

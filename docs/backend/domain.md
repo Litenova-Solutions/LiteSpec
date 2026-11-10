@@ -165,7 +165,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler's use case.
 
-**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
+**Rationale:** The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event's tense agree under `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`. This provision states the marked form of `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`. A command that changes only stores, or that only runs other commands and lists nothing in `changes`, performs no act on a root, so it needs no marked call.
 
 **Example:** The reimburse-expense handler calls `Reimburse` on the expense root, and `Reimburse` carries the mark `use-case/spending.reimburse-expense`.
 
@@ -185,7 +185,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Example:** In the Claimwick product, a manager approving an expense and a delegate approving it for an absent manager both record an approval. The expense root offers `Approve` marked `use-case/spending.approve-expense` and `ApproveOnBehalf` marked `use-case/spending.approve-expense-on-behalf`, each raising its own event, and both call a private `RecordApproval`.
 
-**Checked by:** `litespec model check` reports `mark-count-invalid` (level S), and `dotnet build` reports `LS5003`, for a root method carrying more than one use-case mark; `mark-unknown` and `LS5002` report a mark on a method that changes no state.
+**Checked by:** `litespec model check` reports `mark-count-invalid` (level S) for a root method carrying more than one use-case mark, and `mark-unknown` (level S) for a mark on a method that changes no state.
 
 ### Raise the Declared Events from the Marked Act
 
@@ -202,6 +202,22 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 **Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
 **Checked by:** `litespec model check` reports `act-event-undeclared` (level S) for a marked method raising an event its use case does not list, and `act-event-unimplemented` (level S) for a listed event no marked method raises.
+
+### Raise the Past Tense of a Method's Own Verb
+
+**ID:** `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`
+
+**Strength:** required
+
+**Applies to:** artifact: aggregate
+
+**Statement:** Each aggregate method that changes state MUST raise an event named for the past tense of its verb.
+
+**Rationale:** The command raises nothing; the aggregate root raises its domain event inside its own method. An event named for another verb tells the reader the act finished under a name the code never spoke, and reactions subscribe to a vocabulary the aggregate does not own. The event name takes the past tense of the act's verb, as `litespec/core/domain-model#name-every-event-in-the-past-tense` requires for every event. An event name may place the past tense as a whole word followed by a complement that opens with a preposition or particle. A method that sets a state names that state in its event, and a method may raise further events for the consequences of its act, as long as one of its events names the act itself.
+
+**Example:** In the Claimwick product, `Approve` on an expense raises `event/expense.approved` and passes. `Approve` raising `event/expense.signed-off` is reported, because that name belongs to another act.
+
+**Reviewed for:** Which state-changing aggregate methods raise an event named for another verb? Look at the events each changed aggregate method raises.
 
 ### Keep Child Entities Inside the Aggregate Boundary
 
@@ -303,7 +319,7 @@ The amount serializes as a string, so no reader parses it as binary floating poi
 
 **Example:** A tax rate multiplied into a `Money` amount uses an exact decimal type. A measured latency in a diagnostic log is not a Domain quantity and is outside this rule.
 
-**Checked by:** `dotnet build` reports `LS1008` for a `double` or `float` type in Domain.
+**Reviewed for:** Which Domain values hold a binary floating-point type for a monetary amount, a rate applied to one, or a quantity compared for exact equality? Look at the field, parameter and return types in Domain.
 
 ### Use Stateless Domain Services for Ownerless Rules
 
@@ -435,7 +451,7 @@ Application validators handle malformed caller input through validity findings. 
 
 **Rationale:** Domain behavior that read a clock or generated identifiers would return different results for the same call, which makes tests nondeterministic. Receiving time, randomness, and new identifiers as arguments keeps every Domain call a pure function of its inputs: a test supplies explicit values and stays deterministic. Application obtains each value through an owned port and passes it in. A method that needs more than one value receives a clock or a generator through its arguments, and version 7 identifiers come from the caller-supplied generator.
 
-**Checked by:** `dotnet build` reports `LS1009` for a clock, randomness, or identifier read in Domain.
+**Reviewed for:** Which Domain methods read a clock, a random source or a new identifier instead of receiving it? Look at the calls Domain code makes.
 
 ### Describe Every Public Domain Contract in Documentation
 

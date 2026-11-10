@@ -887,23 +887,10 @@
       "style": "stack",
       "area": "backend",
       "title": ".NET Stack",
-      "intent": "A backend built on .NET declares the \u0060dotnet\u0060 stack in \u0060.litespec/project.yaml\u0060. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.",
+      "intent": "A backend built on .NET declares the \u0060dotnet\u0060 stack in \u0060.litespec/project.yaml\u0060. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, the result formats the builder reads, and the test projects, packages, and runners.",
       "sections": [
         "Intent",
         "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/backend/dotnet/testing.md",
-      "path": "backend/dotnet/testing",
-      "style": "standard",
-      "area": "backend",
-      "title": ".NET Testing",
-      "intent": "A .NET backend proves its behavior through the test suites its size requires, as [Backend Testing](../testing.md) states. This page carries no separate .NET rule: the projects, the harness, and the runners live on that page, so each testing rule has one home.",
-      "sections": [
-        "Intent",
         "Standards",
         "Conventions"
       ]
@@ -943,27 +930,13 @@
       "style": "standard",
       "area": "backend",
       "title": "Backend Testing",
-      "intent": "Backend tests prove behavior at four separate boundaries: domain logic with no dependencies, use-case coordination with test stand-ins, real persistence and HTTP behavior through the production host, and structural rules that no analyzer or \u0060model check\u0060 finding covers with architecture tests. This page states which suites each project size keeps, what each suite runs with, and how tests prove the scenarios and rules the specification records. Separate boundaries keep fast tests fast and point each failure at the layer that broke.",
+      "intent": "Backend tests prove behavior at separate boundaries: domain logic with no dependencies, use-case coordination through the project\u0027s own handlers, real persistence and HTTP behavior through the production host, and structural rules with architecture tests. This page states which suites each project size keeps and what each suite runs with, while the [Testing](../quality/testing.md) quality page states the cross-stack proof rules. Separate boundaries keep fast tests fast and point each failure at the layer that broke.",
       "sections": [
         "Intent",
         "Concepts",
         "Standards",
         "Conventions",
         "Reference Example"
-      ]
-    },
-    {
-      "file": "docs/backend/write-code-for-a-use-case.md",
-      "path": "backend/write-code-for-a-use-case",
-      "style": "standard",
-      "area": "backend",
-      "title": "Write Code for a Use Case",
-      "intent": "A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This page maps each code element of a use case to its folder, its mark, and its check, so an author places new code without hunting six pages. The [marks table](../core/model.md#marks) owns which mark each element carries; the stack pages state each mark\u0027s written form.",
-      "sections": [
-        "Intent",
-        "Concepts",
-        "Standards",
-        "Conventions"
       ]
     },
     {
@@ -1607,7 +1580,7 @@
       "style": "extension",
       "area": "ext",
       "title": "Localization",
-      "intent": "Localization makes every screen, message, route, and formatted value answer to the reader\u0027s language. This page states what the team decides up front, the supported locales, the default locale, the fallback chain, and the route shape, and which behavior the code owns: catalogs for copy, locale-aware formatting, and business data that stays locale-neutral. A project selects it when it ships in more than one locale, so each language reads as a complete product instead of a partial translation.",
+      "intent": "Localization makes every screen, message, route, and formatted value answer to the user\u0027s language. This page states what the team decides up front, the supported locales, the default locale, the fallback chain, and the route shape, and which behavior the code owns: catalogs for copy, locale-aware formatting, and business data that stays locale-neutral. A project selects it when it ships in more than one locale, so each language reads as a complete product instead of a partial translation.",
       "sections": [
         "Intent",
         "Activation",
@@ -1719,7 +1692,7 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the React, Svelte, Blazor, and Android bindings that realize them. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.",
+      "intent": "The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the bindings each stack realizes. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
@@ -1735,7 +1708,7 @@
       "style": "stack",
       "area": "frontend",
       "title": "Blazor Stack",
-      "intent": "The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user\u0027s device, under the \u0060client-only\u0060 shape declared in [Supported Scope](../../core/scope.md). Exact framework and package versions live only in \u0060litespec.manifest.yaml\u0060.",
+      "intent": "The Blazor stack is the technology binding for a product that has no server of its own: a .NET domain model, browser-local persistence, and a Blazor WebAssembly application compiled to static files. A team chooses it when the product runs entirely on the user\u0027s device, under the \u0060client-only\u0060 shape declared in [Supported Scope](../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1764,7 +1737,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Data and State",
-      "intent": "A LiteSpec frontend owns no API contract: it calls the API through one generated client, reads answers through the client\u0027s cache, and sends each write as a command, one message that changes business state. This page states how the client is built and configured, where each piece of state lives, and how every failure reaches the reader as one problem, a project-owned failure shape carrying a stable code. Frontend developers and agents apply it for every read, write, and form, so a contract change breaks the build instead of the running page and every failure renders a sentence the team wrote for it.",
+      "intent": "A LiteSpec frontend owns no API contract: it calls the API through one generated client, reads answers through the client\u0027s cache, and sends each write as a command, one message that changes business state. This page states how the client is built and configured, where each piece of state lives, and how every failure reaches the user as one problem, a project-owned failure shape carrying a stable code. Frontend developers and agents apply it for every read, write, and form, so a contract change breaks the build instead of the running page and every failure renders a sentence the team wrote for it.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1793,7 +1766,7 @@
       "style": "stack",
       "area": "frontend",
       "title": "Android Stack",
-      "intent": "The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, \u0060client-only\u0060 or \u0060server\u0060, declared in [Supported Scope](../../../core/scope.md). Exact .NET and Android API versions live only in \u0060litespec.manifest.yaml\u0060.",
+      "intent": "The Android stack is the technology binding for a product that ships a native Android application built with .NET for Android in C# against plain Android views. A team chooses it with either shape, \u0060client-only\u0060 or \u0060server\u0060, declared in [Supported Scope](../../../core/scope.md). This frontend sits outside the controlled UI contract, which covers React and Svelte only, so its entry point record names the boundaries that replace that contract.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2102,7 +2075,7 @@
       "style": "index",
       "area": "frontend",
       "title": "Overview",
-      "intent": "The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, patterns, data, and testing. No project selects this folder directly; selecting the [React Stack](react/stack.md) or [Svelte Stack](svelte/stack.md) applies it through that stack\u0027s folder chain. A developer or agent adding a route, a component, or data code to a React or Svelte frontend finds the shared rule here and the stack-specific rule on the stack page.",
+      "intent": "The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, data, and testing. No project selects this folder directly; selecting the [React Stack](react/stack.md) or [Svelte Stack](svelte/stack.md) applies it through that stack\u0027s folder chain. A developer or agent adding a route, a component, or data code to a React or Svelte frontend finds the shared rule here and the stack-specific rule on the stack page.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
@@ -2144,23 +2117,10 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web UI Patterns",
-      "intent": "A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The pattern rules live in [UI Patterns](../patterns.md); this page holds the web mechanism behind them for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md): one implementation per platform at the source paths the catalog names, and the registries that draw each option for review. A team that applies it while building shared UI keeps every route on the same behavior for each pattern.",
+      "intent": "The web mechanism for UI patterns lives in [Web UI](ui.md), which states the pattern implementation for the [React Stack](react/stack.md) and [Svelte Stack](svelte/stack.md) together with the other shared UI rules. A reader looking for the web implementation of a chosen pattern finds it there.",
       "sections": [
         "Intent",
         "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
-      "file": "docs/frontend/web/react/components.md",
-      "path": "frontend/web/react/components",
-      "style": "standard",
-      "area": "frontend",
-      "title": "React Components",
-      "intent": "A React component is a function using hooks, with props and events typed under strict mode. React states no component rule of its own: function components follow [Your First Component](https://react.dev/learn/your-first-component) in the React documentation, typed component boundaries follow [TypeScript Web Components](../components.md), and the shared component principles live in [Frontend Components](../../components.md). A team that applies those pages while writing components keeps every boundary compile-checked, so a wrong call fails at build time instead of in the browser.",
-      "sections": [
-        "Intent",
         "Standards",
         "Conventions"
       ]
@@ -2171,7 +2131,7 @@
       "style": "stack",
       "area": "frontend",
       "title": "React Stack",
-      "intent": "A React frontend takes one of three rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a React frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
+      "intent": "A React frontend takes one of three rendering modes, chosen by who reads it: a static application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client. A team opening a React frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2208,25 +2168,12 @@
       ]
     },
     {
-      "file": "docs/frontend/web/svelte/components.md",
-      "path": "frontend/web/svelte/components",
-      "style": "standard",
-      "area": "frontend",
-      "title": "Svelte Components",
-      "intent": "A Svelte component holds its state in runes, with props from \u0060$props\u0060 and derived values from \u0060$derived\u0060. This page states what Svelte alone adds: runes-mode components; the shared component principles live in [Frontend Components](../../components.md), and typed component boundaries live in [TypeScript Web Components](../components.md). A team that applies it while writing components keeps state, derivation, and boundaries compile-checked under strict mode.",
-      "sections": [
-        "Intent",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
       "file": "docs/frontend/web/svelte/stack.md",
       "path": "frontend/web/svelte/stack",
       "style": "stack",
       "area": "frontend",
       "title": "Svelte Stack",
-      "intent": "A Svelte frontend takes one of three rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface readers reach by link or search, and one static page with no router for a device client. A team opening a Svelte frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
+      "intent": "A Svelte frontend takes one of three rendering modes, chosen by who reads it: a static SvelteKit application for an authenticated console, server rendering for a public surface a user reaches by link or search, and one static page with no router for a device client. A team opening a Svelte frontend chooses the mode under [Web Rendering](../rendering.md) before writing routes, and finds on this page the names, files, and libraries the shared web pages leave to this stack. The shared stack rules in [Technology Stacks](../../../core/stacks.md) apply to every stack.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2395,6 +2342,20 @@
       "area": "guide",
       "title": "Write a Feature Under a Module",
       "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E.yaml\u0060 carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file beside it. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-code-for-a-use-case.md",
+      "path": "guide/write-code-for-a-use-case",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write Code for a Use Case",
+      "intent": "A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without hunting six pages.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -3076,10 +3037,11 @@
       "style": "index",
       "area": "quality",
       "title": "Overview",
-      "intent": "The Quality pages state what every release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs, and which checks each pull request runs. Every project applies them, from the first pull request to production operation. A project that operates in production adds the [Delivery extension](../ext/delivery.md) for its release gate, deployment, recovery and alerting regime.",
+      "intent": "The Quality pages state what a release proves beyond its behavior: who may act and what happens to sensitive data, how the product runs, which checks each pull request runs, and how each scenario is proved. Each page applies to a project that claims the record layer its rules govern, as the layer table below states. A project that operates in production adds the [Delivery extension](../ext/delivery.md) for its release gate, deployment, recovery and alerting regime.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
+        "Layer Claims",
         "Pages"
       ]
     },
@@ -3126,6 +3088,20 @@
         "Standards",
         "Conventions",
         "Reference Example"
+      ]
+    },
+    {
+      "file": "docs/quality/testing.md",
+      "path": "quality/testing",
+      "style": "standard",
+      "area": "quality",
+      "title": "Testing",
+      "intent": "Every stack proves its records through the same cross-stack Proof rules: each scenario is proved through the public boundary, each rule through its scenarios, and expected values come from the scenario\u0027s Then. This page states those rules, the test projects each size requires, the one mock rule and the mutation gate, while each stack\u0027s testing page states how its stack runs them. A project that claims the \u0060proof\u0060 layer applies this page, and a team that claims it as its own keeps its own test practice.",
+      "sections": [
+        "Intent",
+        "Concepts",
+        "Standards",
+        "Conventions"
       ]
     },
     {
@@ -3634,7 +3610,8 @@
         "docs/workspace/structure.md",
         "docs/quality/ci.md",
         "docs/quality/operations.md",
-        "docs/quality/security.md"
+        "docs/quality/security.md",
+        "docs/quality/testing.md"
       ]
     },
     {
@@ -3646,8 +3623,7 @@
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
         "docs/backend/persistence.md",
-        "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md"
+        "docs/backend/testing.md"
       ]
     },
     {
@@ -3676,7 +3652,6 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md"
       ]
     },
@@ -3697,7 +3672,6 @@
       "key": "frontend/web/react",
       "title": "React Stack",
       "files": [
-        "docs/frontend/web/react/components.md",
         "docs/frontend/web/react/stack.md"
       ]
     },
@@ -3705,7 +3679,6 @@
       "key": "frontend/web/svelte",
       "title": "Svelte Stack",
       "files": [
-        "docs/frontend/web/svelte/components.md",
         "docs/frontend/web/svelte/stack.md"
       ]
     },
@@ -3966,11 +3939,9 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
@@ -3996,6 +3967,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4028,11 +4000,9 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
@@ -4075,7 +4045,6 @@
         "docs/frontend/web/components.md",
         "docs/frontend/web/data.md",
         "docs/frontend/web/patterns.md",
-        "docs/frontend/web/react/components.md",
         "docs/frontend/web/react/stack.md",
         "docs/frontend/web/rendering.md",
         "docs/frontend/web/structure.md",
@@ -4084,6 +4053,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4119,11 +4089,9 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
@@ -4168,13 +4136,13 @@
         "docs/frontend/web/patterns.md",
         "docs/frontend/web/rendering.md",
         "docs/frontend/web/structure.md",
-        "docs/frontend/web/svelte/components.md",
         "docs/frontend/web/svelte/stack.md",
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4210,11 +4178,9 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
@@ -4258,6 +4224,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4292,11 +4259,9 @@
         "docs/backend/dotnet/packages.md",
         "docs/backend/dotnet/persistence.md",
         "docs/backend/dotnet/stack.md",
-        "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
-        "docs/backend/write-code-for-a-use-case.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
@@ -4345,6 +4310,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4411,7 +4377,6 @@
         "docs/frontend/web/components.md",
         "docs/frontend/web/data.md",
         "docs/frontend/web/patterns.md",
-        "docs/frontend/web/react/components.md",
         "docs/frontend/web/react/stack.md",
         "docs/frontend/web/rendering.md",
         "docs/frontend/web/structure.md",
@@ -4420,6 +4385,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4487,13 +4453,13 @@
         "docs/frontend/web/patterns.md",
         "docs/frontend/web/rendering.md",
         "docs/frontend/web/structure.md",
-        "docs/frontend/web/svelte/components.md",
         "docs/frontend/web/svelte/stack.md",
         "docs/frontend/web/testing.md",
         "docs/frontend/web/ui.md",
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4560,6 +4526,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",
@@ -4630,6 +4597,7 @@
         "docs/quality/ci.md",
         "docs/quality/operations.md",
         "docs/quality/security.md",
+        "docs/quality/testing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
         "docs/workspace/naming.md",

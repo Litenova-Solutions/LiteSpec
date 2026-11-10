@@ -36,7 +36,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Rationale:** The external-system record bounds the dependency: its summary names the party behind it, `litespec/core/edges#describe-every-external-system-operation` names every operation the product may call, and `litespec/core/access#declare-erasure-for-every-external-system` names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.
 
-**Reviewed for:** Each provider has an external system page in the Behavior systems home naming operations and erasure.
+**Reviewed for:** Which providers lack an external system page in the Behavior systems home that names operations and erasure? Look at the external system pages beside the home.
 
 ### Call Only Declared Operations
 
@@ -52,7 +52,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** The payout effect cites `calls` on the payout bank `send-batch` operation with its timeout and retry count.
 
-**Reviewed for:** Each calls effect names an operation the cited external system declares.
+**Reviewed for:** Which calls effects name an operation the cited external system does not declare? Look at each effect beside its external system record.
 
 ### Run Provider Calls from Event Handlers or Jobs
 
@@ -64,13 +64,13 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
-**Deviation:** A project that keeps an inline provider call records an exception naming the compensation that undoes it.
+**Deviation:** A project that keeps an inline provider call records a departure naming the compensation that undoes it.
 
-**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records an exception naming the compensation that undoes it.
+**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a departure naming the compensation that undoes it.
 
 **Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 
-**Reviewed for:** Each provider call runs from an event handler or a job, and each inline call carries an exception naming its compensation.
+**Reviewed for:** Which provider calls run outside an event handler or a job without a departure naming their compensation? Look at the provider call sites beside the departure records.
 
 ### Define Business-Action Ports
 
@@ -86,7 +86,7 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Example:** `IPayoutSender` describes the business action without exposing a payout-bank client.
 
-**Reviewed for:** Each Application port names a business action with no provider in its name or signature.
+**Reviewed for:** Which Application ports name a provider in their name or signature instead of a business action? Look at each Application port.
 
 ### Isolate Provider Implementations
 
@@ -218,7 +218,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Rationale:** Readers place one of two trusts in an inbound fact: trigger-only wakes a read of the source, while payload is fit to act on. The trust states which one, and the correlation states how the event matches, so no handler guesses how far to follow a stranger's fields. `litespec/core/edges#describe-every-integration-event-for-its-direction` states the record, and `litespec/core/edges#reach-every-inbound-integration-event-through-a-webhook` gives each inbound fact one door.
 
-**Reviewed for:** Each inbound integration event declares trigger-only or payload trust with its correlation.
+**Reviewed for:** Which inbound integration events declare neither trigger-only nor payload trust, with their correlation? Look at each inbound integration event record.
 
 ### Verify Inbound Provider Messages
 
@@ -232,7 +232,7 @@ The project's own error catalog holds the stable codes. `litespec/backend/api#re
 
 **Rationale:** An inbound message arrives from the network, where anyone can send bytes. Signature, timestamp tolerance, replay protection, content type, size, schema, and event identity each guard a different part of that trust boundary. Skipping any one leaves its attack open.
 
-Order matters here. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is no longer the bytes that the signature covered.
+Order matters here. Verify the signature first, over the raw body, before parsing the body or running any other check. An unauthenticated caller can reach a parser that runs first. A deserialized body is not the bytes that the signature covered.
 
 **Example:** A failed signature returns `401` with no body. A message that names the failed check tells an unauthenticated caller how to pass it.
 
@@ -262,7 +262,7 @@ Order matters here. Verify the signature first, over the raw body, before parsin
 
 **Statement:** A CSV or spreadsheet import MUST reject or neutralize a value that begins with a formula-leading character.
 
-**Rationale:** The formula-leading characters are the equals sign, the plus sign, the minus sign, the at sign, the tab, and the carriage return. Escaping when you export protects the reader of that export. It does not protect the reader of the next export. A different report can re-export an unchanged imported value without escaping it. [CSV injection](https://owasp.org/www-community/attacks/CSV_Injection) travels through the store, so the boundary that admits the value is where it stops.
+**Rationale:** The formula-leading characters are the equals sign, the plus sign, the minus sign, the at sign, the tab, and the carriage return. Escaping when you export protects the user of that export. It does not protect the reader of the next export. A different report can re-export an unchanged imported value without escaping it. [CSV injection](https://owasp.org/www-community/attacks/CSV_Injection) travels through the store, so the boundary that admits the value is where it stops.
 
 **Example:** An import that rejects the value reports the row and the field. An import that neutralizes it records what it changed. A silently altered value is a data defect nobody can trace.
 
@@ -314,7 +314,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Rationale:** Each provider's transport code lives under `Infrastructure/Integrations/{Provider}/`. One folder per provider keeps provider code inside one Infrastructure boundary. A reader finds everything about a provider in one place.
 
-**Reviewed for:** Each provider's code sits under `Infrastructure/Integrations/{Provider}/`, or the project names another root in its documentation.
+**Reviewed for:** Which provider code sits outside `Infrastructure/Integrations/{Provider}/`, with no other root named in the project documentation? Look at the Infrastructure tree.
 
 ### Keep Provider Components Together
 
@@ -330,7 +330,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Rationale:** Options, client, transport models, mappings, and the registration module change together when the provider changes. Keeping them in the provider folder keeps each change in one place. A registration module stored elsewhere is the file every provider change forgets.
 
-**Reviewed for:** Each provider folder holds its options, client, models, mappings, and registration, or the project names another grouping in its documentation.
+**Reviewed for:** Which provider folders lack their options, client, models, mappings, or registration, with no other grouping named in the project documentation? Look at each provider folder.
 
 ### Keep Ports Near Use Cases
 
@@ -346,7 +346,7 @@ An unexpected response shape is the mode a provider produces without failing. A 
 
 **Rationale:** A business-action port exists because its use case needs that behavior. Keeping the port with its Application use cases states the need next to the needer. A ports folder far from the use cases hides which behavior each port serves.
 
-**Reviewed for:** Each business-action port sits with its Application use cases, or the project keeps its ports in one shared folder.
+**Reviewed for:** Which business-action ports sit apart from their Application use cases, with no shared port folder the project keeps? Look at the Application folders.
 
 ## Dependencies
 

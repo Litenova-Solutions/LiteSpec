@@ -67,7 +67,7 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 **Rationale:** Documentation breaks take many small forms: a record with a missing field, a rejected term, a misconfigured path, a page outside its [page contract](../core/authoring.md). Each one is trivial to fix at the pull request that introduced it and hard to trace once later pages build on it. Running the docs job on every pull request catches each break where it started.
 
-**Checked by:** `litespec model check` fails on a page that breaks the page contract, configuration, or prose rules.
+**Checked by:** `litespec model check` reports `page-section-missing`, `page-heading-invalid`, or `project-invalid` (level G) for a page or configuration that breaks its contract, and `prose-missing` (level A) for a record that lacks its prose field.
 
 ### Keep Generated Contracts Fresh
 

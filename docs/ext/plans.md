@@ -38,7 +38,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Example:** The team tier names the export use case and the row cap it unlocks.
 
-**Reviewed for:** The requirement pages under `.litespec/intent/` hold one record per plan with its entitlements.
+**Reviewed for:** Which plans lack a record with their entitlements, or share a record with another plan? Look at the requirement pages under `.litespec/intent/`.
 
 ### Gate Behavior Through Permissions
 
@@ -52,7 +52,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** The permission chain already joins actors to use cases: the actor holds a role, the role allows a permission, and the use case declares it in its grant, as the [access page](../core/access.md) states. A plan grants its permissions through that chain, so entitlement is a grant like any other instead of a second access system beside the first.
 
-**Reviewed for:** Each gated use case declares a permission in its grant that only an entitled plan grants.
+**Reviewed for:** Which gated use cases declare no permission in their grant, or one that a plan without the entitlement grants? Look at each gated use case's grant.
 
 ### Bound Plan Amounts in Settings
 
@@ -68,7 +68,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Example:** The export-row cap lives as `setting/spending.max-export-rows` with an operator-set value, and the export command cites it.
 
-**Reviewed for:** Each plan allowance lives as a setting the gated use case cites.
+**Reviewed for:** Which plan allowances live outside a setting the gated use case cites? Look at the gated use cases beside their settings.
 
 ### Refuse Runs Beyond Entitlement
 
@@ -82,7 +82,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** A run past its plan is a refusal like any other: it ends in the named refusal result with its stable code, as the [behavior page](../core/behavior.md) states, so callers branch on one code instead of guessing from an error page. The code stays stable while prices and allowances move.
 
-**Reviewed for:** A run past its plan ends in the named refusal result in the use case tests.
+**Reviewed for:** Which runs past their plan end outside the named refusal result? Look at the use case tests for plan limits.
 
 ### Resolve the Acting Plan from Trusted Context
 
@@ -96,7 +96,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** The plan decides what runs, so only verified subscription state resolves it: a plan the caller supplies itself is a choice, not a fact. The [multitenancy extension](tenancy.md) treats tenant identity the same way.
 
-**Reviewed for:** The acting plan resolves from verified subscription state, with no plan taken from caller input in code.
+**Reviewed for:** Which acting plans resolve from caller input instead of verified subscription state? Look at the plan resolution code.
 
 ### Hide Unentitled Actions on Screens
 
@@ -110,7 +110,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** The server refuses what the plan does not entitle, and the screen reflects that refusal before the call: a button for an unentitled action invites a failure the product already decided. Hiding or disabling the action shows each plan only what it may run.
 
-**Reviewed for:** Each screen shows only actions the acting plan entitles.
+**Reviewed for:** Which screens show an action the acting plan does not entitle? Look at each screen's actions.
 
 ## Conventions
 
@@ -128,7 +128,7 @@ It switches on no record type: plans live as policy requirements, gated behavior
 
 **Rationale:** Authorization already runs in the pipeline with the actor and the target in hand. Resolving the plan there gives every use case the same answer from the same verified state, instead of each handler querying subscriptions its own way.
 
-**Reviewed for:** The authorization pipeline resolves the acting plan, or the plan-resolution convention names where use cases find it.
+**Reviewed for:** Which use cases find the acting plan outside the authorization pipeline, with no plan-resolution convention naming where? Look at the authorization pipeline and that convention.
 
 ## Dependencies
 

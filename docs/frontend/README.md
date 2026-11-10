@@ -2,11 +2,13 @@
 
 ## Intent
 
-The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the React, Svelte, Blazor, and Android bindings that realize them. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.
+The frontend pages state how the browser and device side of a LiteSpec product is built: its frame, routes, and modules named for the backend use cases they call, the shared components and governed visual language, the interface pattern catalog, and how data, rendering, and testing work, with the bindings each stack realizes. Frontend teams and agents follow them when they add a route, build a screen, or change shared UI or data code, so every screen answers the same question the same way.
 
 ## How the Pages Fit Together
 
-The seven principle pages directly in this folder hold for every frontend, from a web application to a client-only Blazor product or a native Android app. They say what each part owns without naming a framework: structure, routes, components, UI governance, patterns, data, and testing. React and Svelte share the web folder, whose [Web overview](web/README.md) lists the pages that state the TypeScript bindings both apply, and native apps share the mobile folder, whose [Mobile overview](mobile/README.md) does the same for mobile stacks; each stack folder then states only what its own technology adds. Recurring interface questions are decided once in [UI Patterns](patterns.md) and its pattern pages, which apply with this folder.
+The seven principle pages directly in this folder hold for every frontend, from a web application to a client-only Blazor product or a native Android app. They say what each part owns without naming a framework: structure, routes, components, UI governance, patterns, data, and testing. [Controlled UI Governance](ui.md) states the controlled UI contract and its route suite, which apply to the React and Svelte web stacks. A frontend outside that controlled contract follows its stack page, which states its route entry, mark, and how it meets the principle pages.
+
+React and Svelte share the web folder, whose [Web overview](web/README.md) lists the pages that state the TypeScript bindings both apply, and native apps share the mobile folder, whose [Mobile overview](mobile/README.md) does the same for mobile stacks. Each stack folder then states only what its own technology adds. Recurring interface questions are decided once in [UI Patterns](patterns.md) and its pattern pages, which apply with this folder.
 
 ## Frontend Principles
 
@@ -15,7 +17,7 @@ The seven principle pages directly in this folder hold for every frontend, from 
 - [Frontend Components](components.md): the shared UI package and how page code composes its parts.
 - [Controlled UI Governance](ui.md): the visual authority, the design contract, the floorplans, and the route suite.
 - [UI Patterns](patterns.md): the catalog that decides each recurring interface question once.
-- [Frontend Data and State](data.md): the generated client, the query cache, command writes, and how failures reach the reader.
+- [Frontend Data and State](data.md): the generated client, the query cache, command writes, and how failures reach the user.
 - [Frontend Testing](testing.md): unit tests, browser suites, and the contract check for every address.
 
 ## Shared Web Pages

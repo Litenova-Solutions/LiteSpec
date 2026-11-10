@@ -135,7 +135,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A persistence change reaches production data, so the reviewer needs to see exactly what the database will do before it runs. The schema artifact shows that: the Marten schema plan and document transformation, or a generated relational migration with its SQL. Listing every destructive operation with its reason forces the author to name data loss where every reader sees it.
 
-**Reviewed for:** Each persistence change carries a schema artifact with every destructive operation and its reason.
+**Reviewed for:** Which persistence changes lack a schema artifact with every destructive operation and its reason? Look at the schema artifact beside each change.
 
 ### Enforce the Supply-Chain Gate
 
@@ -151,7 +151,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Example:** The build job that produces the artifact generates the inventory from the same frozen lockfile. It stores the inventory beside the artifact, under the release version.
 
-**Reviewed for:** The supply-chain report shows scan, pin, inventory, and license evidence with an exception for each unhandled high-severity advisory.
+**Reviewed for:** Which supply-chain reports lack scan, pin, inventory, or license evidence, or a departure covering each unhandled high-severity advisory? Look at the supply-chain report beside the artifact.
 
 ### Publish a Book Preview for Every Change
 
@@ -165,7 +165,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The intent diff names what moved, while the preview shows it rendered, with the changed records readable beside their neighbors. The reader clicks from the comment into the preview for full context.
 
-**Reviewed for:** The pull request links a book preview built from the change.
+**Reviewed for:** Which pull requests lack a link to a book preview built from the change? Look at the pull request description.
 
 ### Promote Verified Artifacts
 
@@ -179,7 +179,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Staging tests prove something about the artifact they ran against. When production deploys a fresh build from the same branch instead, it ships code the tests never saw, because the branch may have moved between the two builds. Promoting the one tested artifact through staging and production keeps the tested code and the shipped code identical.
 
-**Reviewed for:** The staging and production deployments reference the one artifact the release job passed.
+**Reviewed for:** Which staging or production deployments reference an artifact other than the one the release job passed? Look at the deployment references.
 
 ### Protect the Default Branch
 
@@ -193,7 +193,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The default branch is the source every environment deploys from, so an unreviewed or unchecked commit there reaches production with no further review. Requiring the jobs table entries, a reviewed pull request, and a clean merge state keeps every commit on the branch reviewed and verified. A direct push or a bypassed check is permitted only during a documented repository recovery action.
 
-**Reviewed for:** The default branch settings require the jobs-table entries, a reviewed pull request, and a clean merge state.
+**Reviewed for:** Which default branch settings omit the jobs-table entries, a reviewed pull request, or a clean merge state? Look at the branch protection settings.
 
 ### Record Every Branch Protection Bypass
 
@@ -209,7 +209,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Example:** The record is the recovery decision itself where one exists. A bypass smaller than a decision takes a dated entry in the operations log at `.litespec/behavior/operations/log/`.
 
-**Reviewed for:** Each bypass entry in the operations log or recovery decision names its actor, reason, and admitted change.
+**Reviewed for:** Which bypass entries in the operations log or recovery decision omit their actor, reason, or admitted change? Look at each bypass entry.
 
 ### Keep a Canonical Job Graph
 
@@ -223,7 +223,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The release job reruns the table's jobs by name, and the branch protection settings require them by name. When a consumer renames a job or moves its checks elsewhere, those references point at a job that no longer exists, and the gate stops checking without failing. Fixed names and responsibilities keep every reference resolving to the checks the table states.
 
-**Reviewed for:** The consumer workflows use the job names and responsibilities the jobs table states.
+**Reviewed for:** Which consumer workflows use job names or responsibilities the jobs table does not state? Look at the workflow files.
 
 ### Keep Each Alert Threshold to Its Requirement's Measure
 
@@ -281,13 +281,13 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a gap exception.
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a departure.
 
-**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap exception with a reason, an exit and an expiry date, instead of passing silently.
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a departure with a reason, an exit and an expiry date, instead of passing silently.
 
 **Example:** `requirement/expense-submission.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no gap exception covering `quality-alert-missing` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no departure covering `quality-alert-missing` lists in its `subject`.
 
 ### Point Each Operations File at Its Decision
 
@@ -297,13 +297,13 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: any
 
-**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, exception, or provision it carries out.
+**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, departure, or provision it carries out.
 
 **Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
 
 **Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, exception, or provision, and counts the file toward `decision-unimplemented`.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, departure, or provision, and counts the file toward `decision-unimplemented`.
 
 ### Name Every Runbook from an Alert, Job, Reaction or Failure Policy
 
@@ -333,7 +333,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A backup is only as good as its restore: without a named owner, a schedule, a retention bound, encryption, a location, a restore command, and recovery objectives, nobody knows what is kept, who restores it, or how much loss is accepted. Writing all seven down before production data arrives leaves nothing to decide during the incident.
 
-**Reviewed for:** The release documentation states backup owner, schedule, retention, encryption, location, restore command, and recovery objectives.
+**Reviewed for:** Which release documentation omits a backup owner, schedule, retention, encryption, location, restore command, or recovery objective? Look at the release documentation.
 
 ### Exercise a Restore Before the First Production Data
 
@@ -347,7 +347,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Backups fail in ways only a restore reveals: a missing key, a wrong permission, a dump the new version cannot read. Rehearsing on representative data before production data arrives finds those failures while they cost nothing. The first restore attempt is the wrong time to learn the backup cannot restore.
 
-**Reviewed for:** The operations log holds a restore rehearsal on representative data before the first production data.
+**Reviewed for:** Which operations logs lack a restore rehearsal on representative data before the first production data? Look at the operations log entries.
 
 ### Use a Repeatable Deployment
 
@@ -361,7 +361,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A repeatable deployment names everything it ships: a versioned artifact, declared configuration, a schema step, readiness checks, and a passing release job. Deploying from an uncommitted tree or a mutable branch reference makes the deployed content unknowable afterwards, because the same reference points at different code a week later. Named inputs let any deployment be repeated and any incident be traced to its exact content.
 
-**Reviewed for:** Each deployment names versioned artifacts, declared configuration, a schema step, readiness checks, and a passing release job.
+**Reviewed for:** Which deployments omit a versioned artifact, declared configuration, a schema step, readiness checks, or a passing release job? Look at the deployment definitions.
 
 ### Keep Rollback Executable
 
@@ -375,7 +375,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** Rollback is written during the incident if it is not written before it, and an incident is the worst time to work out which artifact was live, which command restores it, and whether the schema still fits. Stating the previous artifact reference, the command, the configuration and schema compatibility, the data recovery condition, and the expand-and-contract sequence keeps each answer ready. For a container release the runbook names the previous image digest, which names one immutable image where a tag alone could have moved since the release went out. Rollback is a required runbook, so `litespec/ext/delivery#exercise-every-runbook-before-release` rehearses it.
 
-**Reviewed for:** The rollback runbook states its artifact reference, command, compatibility, data condition, and expand-and-contract sequence, and the previous image digest for a container release.
+**Reviewed for:** Which rollback runbooks omit their artifact reference, command, compatibility, data condition, expand-and-contract sequence, or, for a container release, the previous image digest? Look at each rollback runbook.
 
 ### Report Liveness from Every Recurring Job
 
@@ -389,7 +389,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A recurring job with nothing to do is quiet, and a recurring job that stopped is quiet too. Without a liveness signal that pages a person on silence, the two stay indistinguishable until somebody notices the missing output. Liveness turns a quiet job from an observation into an alarm.
 
-**Reviewed for:** Each recurring job reports liveness that pages a person on silence.
+**Reviewed for:** Which recurring jobs lack liveness that pages a person on silence? Look at each job and its alert rules.
 
 ### Define Actionable Baseline Alerts
 
@@ -410,7 +410,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 Declaring all five before production makes each alert answerable the first time it fires.
 
-**Reviewed for:** Each baseline alert declares owner, threshold, window, severity, and runbook.
+**Reviewed for:** Which baseline alerts omit an owner, threshold, window, severity, or runbook? Look at each alert rule.
 
 ### Cover the Baseline Alert Set
 
@@ -424,7 +424,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Rationale:** Five failures end a release when nobody observes them: readiness that never recovers, HTTP errors the code did not expect, a slowing release flow, a lost database, and a deployment that failed partway. Naming them as the minimum coverage keeps a team from declaring alerts only for the failure it just survived.
 
-**Reviewed for:** The baseline alerts cover readiness failures, unexpected HTTP errors, release-flow latency, PostgreSQL outages, and failed deployments.
+**Reviewed for:** Which of the five baseline failures (readiness failures, unexpected HTTP errors, release-flow latency, PostgreSQL outages, and failed deployments) lack an alert? Look at the alert rules.
 
 ### Route Each Severity to a Declared Destination
 
@@ -440,7 +440,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Example:** A two-severity inventory routes `page` to the on-call destination with a stated response time, and `ticket` to the queue reviewed each working day.
 
-**Reviewed for:** Each severity states its destination and expected response time on the limits page.
+**Reviewed for:** Which severities lack a destination or an expected response time on the limits page? Look at the limits page.
 
 ### Exercise Every Runbook Before Release
 
@@ -454,7 +454,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Rationale:** A runbook is a claim until somebody runs it: steps go stale, commands change, permissions lapse. A dated rehearsal in the operations log proves each required runbook still works against the current system. The restore rehearsal is the one `litespec/ext/delivery#exercise-a-restore-before-the-first-production-data` requires.
 
-**Reviewed for:** Each required runbook carries a dated rehearsal in the operations log.
+**Reviewed for:** Which required runbooks lack a dated rehearsal in the operations log? Look at the operations log entries.
 
 ### State Availability Objectives as OpenSLO Files
 
@@ -468,7 +468,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Rationale:** OpenSLO files state objectives as code, and Sloth validates them in CI and compiles them into Prometheus recording rules and burn-rate alerts. OpenTelemetry supplies the signals the objectives read, as `litespec/quality/operations#emit-correlated-diagnostics` states. Sloth and OpenTelemetry are free and maintained under Apache-2.0, and availability stays evidenced in production only.
 
-**Reviewed for:** The OpenSLO files pass Sloth validation with their generated alerts loaded.
+**Reviewed for:** Which OpenSLO files fail Sloth validation with their generated alerts loaded? Look at the Sloth validation output.
 
 ### Attach Dashboard Links to Production Objectives
 
@@ -482,7 +482,7 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Rationale:** The book states intent while dashboards show production truth, and the link joins them: a reviewer clicks from the objective to the numbers behind it. Copying numbers into the page instead would freeze production truth at commit time.
 
-**Reviewed for:** Each production objective in the book links its dashboard.
+**Reviewed for:** Which production objectives in the book lack a link to their dashboard? Look at the objective pages in the book.
 
 ### Match Every Shipped Package to Its Pin
 
@@ -516,23 +516,23 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Checked by:** `litespec model check` reports `dependency-license-unknown` (level S) for a direct package whose license the project does not accept and no `admits` entry names.
 
-### Close Incident Exceptions Within Seven Days
+### Close Incident Departures Within Seven Days
 
-**ID:** `litespec/ext/delivery#close-incident-exceptions-within-seven-days`
+**ID:** `litespec/ext/delivery#close-incident-departures-within-seven-days`
 
 **Strength:** required
 
-**Applies to:** artifact: record:exception
+**Applies to:** artifact: record:departure
 
-**Statement:** A production incident fix that ships before its records are updated MUST carry an incident exception expiring within seven days.
+**Statement:** A production incident fix that ships before its records are updated MUST carry an incident departure expiring within seven days.
 
-**Rationale:** A production incident ships its fix at once. The incident exception records what shipped and why, and the records are updated before it expires. An expired exception is a blocking finding, so the gap stays visible until the records close it.
+**Rationale:** A production incident ships its fix at once. The incident departure records what shipped and why, and the records are updated before it expires. An expired departure is a blocking finding, so the gap stays visible until the records close it.
 
-**Reviewed for:** Which incident fixes lack an exception, or carry an expired one? Look at the exception records beside each fix.
+**Reviewed for:** Which incident fixes lack a departure, or carry an expired one? Look at the departure records beside each fix.
 
-### Write a Brief Before Delegating
+### Write a Brief Before Handing Off
 
-**ID:** `litespec/ext/delivery#write-a-brief-before-delegating`
+**ID:** `litespec/ext/delivery#write-a-brief-before-handing-off`
 
 **Strength:** required
 
@@ -551,7 +551,7 @@ Sources: the records and pages to read first.
 Output: the files to change and the report to write.
 ```
 
-**Reviewed for:** Which briefs lack goal, context, sources, or output? Look at the briefs the delegating agent wrote.
+**Reviewed for:** Which briefs lack goal, context, sources, or output? Look at the briefs the agent starting the handoff wrote.
 
 ### Restrict a Worker to Its Paths
 
@@ -561,7 +561,7 @@ Output: the files to change and the report to write.
 
 **Applies to:** artifact: any
 
-**Statement:** A delegated worker MUST stay inside the paths its brief names and commit nothing.
+**Statement:** A worker MUST stay inside the paths its brief names and commit nothing.
 
 **Rationale:** The brief names the paths the worker may change. A worker that stays inside them cannot rewrite what another worker owns. One that roams the whole tree overwrites parallel work and commits what nobody asked for.
 
@@ -575,9 +575,9 @@ Output: the files to change and the report to write.
 
 **Applies to:** artifact: any
 
-**Statement:** A delegated worker MUST ask no question its brief answers.
+**Statement:** A worker MUST ask no question its brief answers.
 
-**Rationale:** The brief answers the questions the delegating agent already settled. A worker that re-asks them spends a round trip on a reading failure. Questions stay for what the brief leaves genuinely unanswered.
+**Rationale:** The brief answers the questions the agent handing off the work already settled. A worker that re-asks them spends a round trip on a reading failure. Questions stay for what the brief leaves genuinely unanswered.
 
 **Reviewed for:** Which worker questions repeat answers the brief gives? Look at the worker questions beside the brief.
 
@@ -589,11 +589,11 @@ Output: the files to change and the report to write.
 
 **Applies to:** artifact: any
 
-**Statement:** A delegating agent MUST re-run the verification its brief names before accepting worker output.
+**Statement:** An agent handing off work MUST re-run the verification its brief names before accepting worker output.
 
-**Rationale:** The delegating agent owns the result, so it re-runs the verification the brief named and watches it pass. A done claim without that run is a claim, not evidence. Accepting on trust moves the worker's defect into the delegating agent's change.
+**Rationale:** The agent handing off the work owns the result, so it re-runs the verification the brief named and watches it pass. A done claim without that run is a claim, not evidence. Accepting on trust moves the worker's defect into the handing-off agent's change.
 
-**Reviewed for:** Which accepted outputs lack a watched verification run? Look at the verification runs the delegating agent reports.
+**Reviewed for:** Which accepted outputs lack a watched verification run? Look at the verification runs the agent handing off the work reports.
 
 ### Hold Back Example Rows from the Implementing Worker
 
@@ -603,11 +603,11 @@ Output: the files to change and the report to write.
 
 **Applies to:** artifact: any
 
-**Statement:** A delegating agent MUST check a delegated refusal or calculation implementation against example rows held back from the worker that wrote it.
+**Statement:** An agent handing off work MUST check a refusal or calculation implementation against example rows held back from the worker that wrote it.
 
-**Rationale:** Example rows given to the implementing worker become the values the implementation is tuned to pass, so the check proves nothing. Rows held back stay an independent verdict: the delegating agent runs them after the worker finishes, and the implementation passes or fails on unseen cases.
+**Rationale:** Example rows given to the implementing worker become the values the implementation is tuned to pass, so the check proves nothing. Rows held back stay an independent verdict: the agent handing off the work runs them after the worker finishes, and the implementation passes or fails on unseen cases.
 
-**Reviewed for:** Which delegated refusal or calculation implementations were checked only against rows the worker saw? Look at the held-back rows and the check runs.
+**Reviewed for:** Which refusal or calculation implementations were checked only against rows the worker saw? Look at the held-back rows and the check runs.
 
 ### Build Release Images in Stages
 
@@ -692,34 +692,6 @@ Output: the files to change and the report to write.
 **Rationale:** One immutable image deploys unchanged into staging and production. Environment values baked into the image break that promise: the tested bytes and the deployed bytes differ. External values keep the image identical everywhere it runs.
 
 **Reviewed for:** Which release images contain environment-specific configuration? Look at the release image contents.
-
-### Apply Schema Work Before Traffic
-
-**ID:** `litespec/ext/delivery#apply-schema-work-before-traffic`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A release job MUST apply reviewed schema changes before traffic shifts to new application replicas, under `litespec/backend/persistence#control-production-schema-changes`.
-
-**Rationale:** New application replicas expect the schema their release reviewed. The release job applies those schema changes before traffic shifts, under `litespec/backend/persistence#control-production-schema-changes`. Traffic first would send new code against an old schema.
-
-**Reviewed for:** Which releases shift traffic before the reviewed schema job runs? Look at the release job order.
-
-### Keep Schema Work Out of Startup
-
-**ID:** `litespec/ext/delivery#keep-schema-work-out-of-startup`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** An application replica MUST NOT alter the production schema during startup, under `litespec/backend/persistence#control-production-schema-changes`.
-
-**Rationale:** Several replicas can start at once, each running its own startup. Schema work in startup then runs concurrently, without the release job's review and ordering. Startup reads the schema the release job prepared and changes nothing.
-
-**Reviewed for:** Which application replicas alter the production schema during startup? Look at the replica startup paths.
 
 ### Wait for Replica Readiness
 
@@ -949,7 +921,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** One workflow per job keeps each gate readable, runnable, and skippable on its own. When containerized integration tests or browser tests join CI, they join as jobs the table names rather than as hidden steps inside another job, so the selection rules and the branch protection keep working unchanged.
 
-**Reviewed for:** Each consumer workflow file matches one jobs-table job and name, or the workflow-layout convention names another arrangement.
+**Reviewed for:** Which consumer workflow files match no jobs-table job and name, with no workflow-layout convention naming another arrangement? Look at the workflow files beside the jobs table.
 
 ### Use Stable Service Names
 
@@ -965,7 +937,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** Dashboards and alerts reference services by name. When a name changes with each deployment, every reference breaks and must be rebuilt before the new deployment can be watched. Identical names across environments keep one dashboard and one alert set working everywhere.
 
-**Reviewed for:** Service, resource, meter, and trace-source names match across environments, or the service-naming convention names another arrangement.
+**Reviewed for:** Which service, resource, meter, or trace-source names differ across environments, with no service-naming convention naming another arrangement? Look at the environment configurations.
 
 ### Keep Deployment Descriptors Together
 
@@ -981,7 +953,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** Deployment spreads across compose files, proxy configuration, environment examples, database setup, observability, DNS records, alert definitions, service definitions, and bootstrap scripts. Scattered across the workspace, one of them is always the file nobody finds during an incident. One `deploy/` tree keeps every descriptor where the operator looks first.
 
-**Reviewed for:** The deployment descriptors sit under one `deploy/` tree, or the deployment-layout convention names another arrangement.
+**Reviewed for:** Which deployment descriptors sit outside one `deploy/` tree, with no deployment-layout convention naming another arrangement? Look at the repository layout.
 
 ### Keep Scripts at the Root
 
@@ -997,7 +969,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** Bootstrap, release, and CI helper scripts serve the whole workspace, so the root `scripts/` folder keeps them where every caller looks. An application-specific script may stay inside its application when no other workspace calls it.
 
-**Reviewed for:** Bootstrap, release, and CI helper scripts sit under root `scripts/`; where replaced, the project documentation names the project's own script layout.
+**Reviewed for:** Which bootstrap, release, or CI helper scripts sit outside root `scripts/`, with no project documentation naming its own script layout? Look at the repository layout.
 
 ### Place Dockerfiles Beside Deployables
 
@@ -1013,7 +985,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** One Dockerfile beside each deployable application keeps the image definition with the project that defines its runtime output. A reader finds the build next to the code it ships. A shared folder of Dockerfiles separates each build from its owner.
 
-**Reviewed for:** Each deployable application keeps its Dockerfile beside it, or the recorded dockerfile-layout convention names where its Dockerfiles live.
+**Reviewed for:** Which deployable applications keep no Dockerfile beside them, with no dockerfile-layout convention naming where Dockerfiles live? Look at each application folder.
 
 ### Build from the Workspace Root
 
@@ -1029,7 +1001,7 @@ Output: the files to change and the report to write.
 
 **Rationale:** Shared project and package files sit above any one application, so the build starts from the workspace root to reach them. The Dockerfile excludes what the build does not need, including unrelated secrets. A narrower context would copy shared inputs into each build or miss them.
 
-**Reviewed for:** Image builds needing shared inputs start from the workspace root, or the recorded build-context convention names the context its image builds use.
+**Reviewed for:** Which image builds that need shared inputs do not start from the workspace root, with no build-context convention naming another context? Look at the image build commands.
 
 ## Dependencies
 

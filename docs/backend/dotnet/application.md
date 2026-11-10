@@ -1,7 +1,6 @@
 # .NET Application Layer
 
 **Stack:** dotnet
-
 **Concern:** application
 
 ## Intent
@@ -22,9 +21,9 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 ## Standards
 
-### Keep Command Handlers to Load, Call and Stage
+### Bind Command Handlers to Load, Call and Stage
 
-**ID:** `litespec/backend/dotnet/application#keep-command-handlers-to-load-call-and-stage`
+**ID:** `litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage`
 
 **Strength:** required
 
@@ -32,7 +31,7 @@ A validator checks structural input, such as an empty title or a malformed ident
 
 **Statement:** A command handler MUST load or create one aggregate through its repository, call one domain method on it, stage it, and return the result.
 
-**Rationale:** The handler body has three steps: the load or creation, the one domain call, and the stage. A required load uses the throwing `GetByIdAsync` and an optional lookup uses the nullable `FindBy...Async` under `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`. The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages; messages, provider calls, and writes to other aggregates run in event handlers after the commit under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `changes` names, one method each. This provision binds `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` for .NET.
+**Rationale:** The handler body has three steps: the load or creation, the one domain call, and the stage. A required load uses the throwing `GetByIdAsync` and an optional lookup uses the nullable `FindBy...Async` under `litespec/backend/dotnet/domain#keep-repository-interfaces-in-domain`. The message carries the pipeline-stamped timestamp as `HandledAt` under `litespec/backend/application#take-one-timestamp-per-message` (see `litespec/backend/dotnet/application#bind-the-pipeline-to-the-pinned-litebus-apis`), so the handler stamps decisions without reading a clock. Validation, authorization, idempotency, audit, holds, and the commit are pipeline stages; messages, provider calls, and writes to other aggregates run in event handlers after the commit under `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`. A use case whose record declares `consistency: atomic` over several aggregates is the one exception: the handler loads, calls, and stages each aggregate its `changes` names, one method each. This provision binds `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` and `litespec/backend/application#load-a-required-record-or-refuse-it` for .NET, where `GetByIdAsync` and `FindBy...Async` are the forms.
 
 **Example:**
 
@@ -50,7 +49,7 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 }
 ```
 
-**Reviewed for:** Which command handlers do more than load or create one aggregate, call one domain method, stage it, and return? Look at each command handler body; `dotnet build` reports find-or-create as LS2014 and looped stores as LS2015.
+**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal or takes the authorization guard, `LS2013` for an audit call that reads the message, `LS2014` for a find followed by a create, and `LS2015` for a store inside a loop.
 
 ### Report Input Problems as Validity
 
@@ -66,9 +65,9 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Reviewed for:** Which validators report outside `Validity`, or skip member, code, or message, or leak HTTP status? Look at each validator.
 
-### Keep Query Handlers Free of Writes
+### Keep Query Handlers Free of Repositories
 
-**ID:** `litespec/backend/dotnet/application#keep-query-handlers-free-of-writes`
+**ID:** `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories`
 
 **Strength:** required
 
@@ -76,11 +75,11 @@ internal sealed class ApproveExpenseCommandHandler(IExpenseRepository expenseRep
 
 **Statement:** A query handler MUST take no repository and stage, store, delete or dispatch nothing.
 
-**Rationale:** A read path acts on no invariant, so a repository in a query handler loads an aggregate the query has no write to justify. The handler projects through the read session under `litespec/backend/dotnet/persistence#query-through-iquerysession`. A read that writes makes retries and caching unsafe; an audited read is the pipeline's work, not the handler's. `dotnet build` reports a repository in a query handler as `LS2011`. This provision binds `litespec/backend/application#keep-query-handlers-free-of-writes` and the repository rule in `litespec/backend/application#project-queries-directly` for .NET.
+**Rationale:** A read path acts on no invariant, so a repository in a query handler loads an aggregate the query has no write to justify. The handler projects through the read session under `litespec/backend/dotnet/persistence#query-through-iquerysession`. A read that writes makes retries and caching unsafe; an audited read is the pipeline's work, not the handler's. `dotnet build` reports a repository in a query handler as `LS2011`. This provision binds `litespec/backend/application#project-queries-directly` and `litespec/backend/application#keep-query-handlers-free-of-writes` for .NET.
 
 **Example:** The list-expenses query projects its rows through `IQuerySession`, taking no repository and staging nothing.
 
-**Reviewed for:** Which query handlers take a repository, skip `IQuerySession`, or stage, store, delete, or dispatch? Look at each query handler; `dotnet build` reports a repository in a query handler as LS2011.
+**Reviewed for:** Which query handlers take a repository, skip `IQuerySession`, or stage, store, delete, or dispatch? Look at each query handler; `dotnet build` reports LS2011 for a repository in a query handler and LS2012 for a forbidden refusal or the authorization guard.
 
 ### Dispatch Declared Effects Through Their Entry Points
 

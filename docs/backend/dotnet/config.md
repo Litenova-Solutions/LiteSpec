@@ -59,7 +59,7 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **Statement:** The root `.config/dotnet-tools.json` MUST pin every local .NET tool that a documented command invokes.
 
-**Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines` names.
+**Rationale:** A tool installed by version range resolves differently on two machines, and a build that passes locally fails in CI. Pinning every tool a documented command invokes means local and CI runs use one version; when a tool ships in the manifest's .NET release, its pin matches that release. The manifest pins the Stryker.NET runner that `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines` names.
 
 **Reviewed for:** Which local tools that a documented command invokes escape the root `.config/dotnet-tools.json` pin, including the Stryker.NET runner? Look at the tool manifest.
 

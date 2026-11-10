@@ -61,7 +61,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A fact pinning the message type with typeof confirms its scenario claim.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Scenario_Fact_Pinning_The_Message_Type_Confirms()
     {
@@ -75,7 +75,7 @@ public sealed class IntegrationFactProofTests
     }
 
     /// <summary>A nested value sharing an aggregate's name does not read as constructing it.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Scenario_Fact_Building_A_Nested_Value_Confirms()
     {

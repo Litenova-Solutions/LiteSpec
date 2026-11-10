@@ -47,7 +47,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** A stack that needs several terminals and a wiki page starts differently for every developer, and the differences become bug reports nobody can reproduce. One named command brings WebApi, PostgreSQL, the frontends, and the background Worker up together, so every developer and every agent starts from the same running system. The baseline command is Aspire's `AppHost`, with `ServiceDefaults` supplying the shared discovery, health, resilience, and telemetry defaults its resources rely on. A workspace that orchestrates the same set another way satisfies this rule with its own command: the obligation is that one command brings the stack up, not that one tool does.
 
-**Reviewed for:** One command named in the consumer `AGENTS.md` starts WebApi, PostgreSQL, the frontends, and the Worker.
+**Reviewed for:** Does one command named in the consumer `AGENTS.md` start WebApi, PostgreSQL, the frontends, and the Worker? Look at `AGENTS.md` and the AppHost project.
 
 ### Emit Correlated Diagnostics
 
@@ -61,7 +61,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** Each running service is a host, and one request often crosses several. Logs and traces carry timestamp, level, service, environment, trace identifier, and span identifier, and metrics carry service and environment labels. The correlation identifiers let one request be followed across every host it touched, which is the only trail a cross-host failure leaves. Stable event names keep dashboards working across releases instead of breaking each time a message is reworded.
 
-**Reviewed for:** Logs and traces carry correlation identifiers, and metrics carry service labels.
+**Reviewed for:** Do logs and traces carry correlation identifiers, and do metrics carry service labels? Look at one request's logs, traces, and metrics in the telemetry backend.
 
 ### Point Every Runtime Record at Its Use Case
 
@@ -77,7 +77,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** A Claimwick request to submit an expense opens a span and a log scope carrying `litespec.use_case = use-case/spending.submit-expense`, and an unhandled failure inside it reaches the error tracker with the same tag.
 
-**Reviewed for:** Which pipeline stage reads the registry and stamps `litespec.use_case` on the span, the log scope, and the error report of each mediated message? Look at the mediator pipeline and one error report per host.
+**Reviewed for:** Does a pipeline stage stamp `litespec.use_case` on the span, log scope, and error report of each mediated message? Look at the mediator pipeline and one error report per host.
 
 ### Pass Trace Context in the W3C Format
 
@@ -93,7 +93,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Example:** The trace identifier in a Problem Details response is the `trace-id` field of the current `traceparent`, which is what `litespec/backend/api#return-stable-problem-details` returns.
 
-**Reviewed for:** One propagator reads and writes W3C trace context on every host.
+**Reviewed for:** Does one configured propagator read and write W3C trace context on every host? Look at the telemetry setup of each host.
 
 ### Separate Liveness and Readiness
 
@@ -107,21 +107,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** Liveness answers whether the process is alive; readiness answers whether it can safely serve traffic. When a dependency fails, readiness fails so the orchestrator stops sending traffic, while liveness stays true so the orchestrator does not restart a healthy process. One endpoint for both forces a choice between serving traffic the application cannot handle and restarting a process that only needs its dependency back.
 
-**Reviewed for:** Liveness answers without dependency checks while readiness includes the critical ones.
-
-### Apply Schema Changes Outside Request Startup
-
-**ID:** `litespec/quality/operations#apply-schema-changes-outside-request-startup`
-
-**Strength:** required
-
-**Applies to:** artifact: migration
-
-**Statement:** A hosted schema change MUST run as a dedicated release step before traffic shifts, reviewed against both application versions, under `litespec/backend/persistence#control-production-schema-changes`.
-
-**Rationale:** Schema work is a release step, not a startup step, as `litespec/backend/persistence#control-production-schema-changes` states. A replica that applies schema at startup races its siblings, and each one serves traffic against a half-applied schema until the race settles. Running the change as one dedicated step before traffic shifts, reviewed against both the old and the new application version, keeps every replica on the same schema from its first request.
-
-**Reviewed for:** The schema step runs before traffic shifts, with no schema work at replica startup.
+**Reviewed for:** Does `/health/live` answer without dependency checks, while `/health/ready` includes the critical dependencies? Look at the health check registrations of each host.
 
 ### Operate Background Work Independently
 
@@ -135,7 +121,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** A Worker fails on its own schedule: its queue grows, its retries climb, its oldest item ages, while WebApi keeps answering health checks. Without its own liveness, readiness, processing rate, failure count, retry count, oldest pending age, and shutdown behavior, the failure stays invisible until the backlog is the incident. WebApi readiness otherwise hides a failed Worker while the queue grows unobserved.
 
-**Reviewed for:** The Worker publishes its own health, rates, counts, oldest pending age, and shutdown behavior.
+**Reviewed for:** Does the Worker publish its own health, processing rate, failure count, retry count, oldest pending age, and shutdown behavior? Look at the Worker's health endpoints and metrics.
 
 ### Bound External Calls
 
@@ -149,7 +135,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** Every network call waits on a system the product does not control. Without an explicit timeout and cancellation path, one slow provider holds a request thread until that unrelated system recovers, and each held thread is one less thread for healthy requests. Retries stay bounded and idempotent-only, because retrying a call that already acted repeats the act.
 
-**Reviewed for:** Each network call declares a timeout, a cancellation path, and bounded retries for idempotent operations only.
+**Reviewed for:** Does each network call declare a timeout, a cancellation path, and bounded retries for idempotent operations only? Look at each HTTP client registration and its resilience policy.
 
 ### List Every Sub-Processor
 
@@ -163,7 +149,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** Customers ask which providers touch their data, and the sub-processor list is the answer. The model builder renders it from the provider actor records, so a provider added in code but missing from the list answers that question wrong. Generating the list from records keeps the answer and the code in step.
 
-**Reviewed for:** Each provider the release calls appears on the generated sub-processor list.
+**Reviewed for:** Does each provider the release calls appear on the generated sub-processor list? Compare the release's provider clients with `.litespec/implementation/operations/sub-processors.md`.
 
 ### Keep Production Secrets Out of the Repository
 
@@ -177,7 +163,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** A secret committed once lives in history after deletion, readable to everyone the repository ever reaches, as `litespec/quality/security#keep-secrets-out-of-tracked-and-observable-data` states. Keeping production values on the host and only placeholders in a repository example file keeps the values with the deployment that needs them and out of every clone.
 
-**Reviewed for:** Production values live on the host, with only placeholders in the repository example file.
+**Reviewed for:** Do production values live on the host, with only placeholders in the repository example file? Search the tree for production values and read the example file.
 
 ## Conventions
 
@@ -195,7 +181,7 @@ The sub-processor list names every provider that processes personal data for the
 
 **Rationale:** An alert names its runbook, and the reader follows the pointer under pressure. A runbook sits at product level when it answers product-wide failures and under its module when every caller sits in one module, so each pointer resolves to a procedure with the same fields: trigger, impact, prerequisites, procedure, verification, recovery, and escalation. A runbook kept anywhere else breaks the pointer the alert gave.
 
-**Reviewed for:** Each runbook sits under `.litespec/implementation/runbooks/` or its module's runbooks folder with its fields, or the runbook-layout convention names another arrangement.
+**Reviewed for:** Does each runbook sit under `.litespec/implementation/runbooks/` or its module's runbooks folder, with its fields, or does the convention name another arrangement? Look at the runbook folders and their headings.
 
 ## Reference Example
 

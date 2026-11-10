@@ -1,7 +1,6 @@
 # Web Structure
 
-**Stack:** any
-
+**Stack:** react, svelte
 **Concern:** frontend-ui
 
 ## Intent

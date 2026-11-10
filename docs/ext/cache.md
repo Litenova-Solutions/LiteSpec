@@ -48,7 +48,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cached query MUST state its accepted staleness as a `freshness` object with `mode` of `bounded` and its duration in `within`.
 
-**Rationale:** Accepted staleness is the contract each reader relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "bounded", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
+**Rationale:** Accepted staleness is the contract each caller relies on: it states how stale a read may be before it counts as a defect. The served query states it as `{"mode": "bounded", "within": "PT5M"}` on its output, so the cache and the query share one bound that is reviewed with the use case.
 
 **Reviewed for:** Which cached queries lack a bounded freshness object with its duration on their output? Look at the served query beside each cache.
 
@@ -62,9 +62,9 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cache owner MUST remove a cache when measurements do not justify its operating cost.
 
-**Rationale:** Traffic shifts and sources get faster, so a cache that paid for itself last year can cost more than it saves today. The owner re-checks the measurements and removes the cache when they no longer justify its operating cost. A cache nobody owns stays forever, and its invalidation bugs stay with it.
+**Rationale:** Traffic shifts and sources get faster, so a cache that paid for itself last year can cost more than it saves today. The owner re-checks the measurements and removes the cache when they do not justify its operating cost. A cache nobody owns stays forever, and its invalidation bugs stay with it.
 
-**Reviewed for:** Which caches stay past measurements that no longer justify their cost? Look at the owner reviews beside the operating cost.
+**Reviewed for:** Which caches stay past measurements that do not justify their operating cost? Look at the owner reviews beside the operating cost.
 
 ### Compose Cache Keys from Result Inputs
 
@@ -76,7 +76,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cache key MUST include its data-shape version, every result-affecting input, and applicable tenant or actor partition.
 
-**Rationale:** A key missing the data-shape version serves old shapes to new readers after a deploy. A key missing a result-affecting input serves one caller's answer to a different request. Tenant or actor partition keeps one party's results away from another's.
+**Rationale:** A key missing the data-shape version serves old shapes to new callers after a deploy. A key missing a result-affecting input serves one caller's answer to a different request. Tenant or actor partition keeps one party's results away from another's.
 
 **Example:** `post-summary:v2:tenant-42:post-17` identifies a versioned, tenant-scoped result.
 
@@ -122,7 +122,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A manual invalidation MUST produce a record naming actor, invalidation scope, and reason, as an audit record in its category when the audit extension is selected.
 
-**Rationale:** A manual clear changes what every later reader sees and leaves no trace in the data itself. Investigating a stale-read report afterward means knowing whether someone already cleared the entry. [Article 30 of the GDPR](https://gdpr-info.eu/art-30-gdpr/) treats an administrative action over personal data as processing that has a record.
+**Rationale:** A manual clear changes what every later caller sees and leaves no trace in the data itself. Investigating a stale-read report afterward means knowing whether someone already cleared the entry. [Article 30 of the GDPR](https://gdpr-info.eu/art-30-gdpr/) treats an administrative action over personal data as processing that has a record.
 
 **Example:** A command that clears one tenant's cached price list records the tenant, the operator, and the incident it was run for.
 

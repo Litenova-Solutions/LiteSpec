@@ -1,7 +1,6 @@
 # Web UI
 
-**Stack:** any
-
+**Stack:** react, svelte
 **Concern:** frontend-ui
 
 ## Intent
@@ -31,6 +30,10 @@ The browser suite discovers its routes from the generated route tree rather than
 | Target size | Every pointer target meets the minimum size or spacing |
 | Announcements | Asynchronous status changes announce through a live region |
 
+### Pattern Implementation
+
+A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints, and product-added options are drawn in a product registry at the catalog breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`. The catalog `registry` field holds the product registry command or path.
+
 ### Rules Kept on the Base Page
 
 The UI rules for the baseline, floorplans, layout, page references, tones, tokens, the base color, styling, route checks, result proof, and change evidence live on [Controlled UI Governance](../ui.md). The web stacks add the registry, suite marks, CSS decisions, and source rules this page states.
@@ -44,7 +47,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 - Base color: `litespec/frontend/ui#hold-the-declared-base-color`
 - Styling gate: `litespec/frontend/ui#restrict-styling-to-semantic-tokens`
 - Route checks: `litespec/frontend/ui#check-every-route`
-- Result proof: `litespec/frontend/ui#prove-every-result-a-route-calls`
+- Result proof: `litespec/core/edges#show-every-refusal-a-screen-can-reach`
 - Change evidence: `litespec/frontend/ui#prove-ui-behavior-and-appearance`
 
 ## Standards

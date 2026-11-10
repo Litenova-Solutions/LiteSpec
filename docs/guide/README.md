@@ -20,6 +20,7 @@ When LiteSpec is new, follow [Start a Consumer Repository](../tutorial/getting-s
 - [Add a Svelte Frontend](add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](add-an-android-frontend.md): declare a native Android app built with .NET for Android.
+- [Write Code for a Use Case](write-code-for-a-use-case.md): where each code element of a use case goes, the mark it carries, and the check that watches it.
 - [Write a Feature Under a Module](write-a-feature-under-a-module.md): write one feature with its requirement entries under its module.
 - [Folder Reference](folder-reference.md): where each record file lives, with its parent and its identifiers.
 - [Build an Audit Trail](audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.

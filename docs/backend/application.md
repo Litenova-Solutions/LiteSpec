@@ -134,7 +134,7 @@ A collection query has no single target record, so a scope owner lookup has noth
 
 WebApi enforces coarse authenticated, role, or scope policies first under `litespec/backend/api#apply-only-coarse-policies-at-the-endpoint`, which replaces no decision that depends on business data.
 
-**Checked by:** `dotnet build` reports `LS2012` for a handler that throws a forbidden refusal or that takes the authorization guard; the guard authorizes every message from its record's `access`.
+**Reviewed for:** Which command or query handlers throw a forbidden refusal or take the authorization guard, and which messages reach the guard without the `access` their record declares? Look at each handler body and the `access` on each message.
 
 ### Keep Command Handlers to Load, Call and Stage
 
@@ -186,7 +186,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Example:** Signing in to the library with an unknown reader card runs as a query and then one of two commands: the endpoint queries `query/loans.find-reader-by-card`, then sends either `use-case/loans.register-reader` or `use-case/loans.record-reader-sign-in`.
 
-**Checked by:** `dotnet build` reports `LS2014` for a command handler that calls a `Find` repository method and then creates the found type in the same method.
+**Reviewed for:** Which command handlers look up a record and then create one in the same method? Look at each command handler body for a lookup followed by a create.
 
 ### Return Only Declared Results and Refusals
 
@@ -216,7 +216,7 @@ The handler loads or creates, calls once, stages, and returns. Validation, autho
 
 **Rationale:** A read path acts on no invariant, so loading an aggregate for presentation pays for enforcement no read needs and couples the read shape to the write model. Projecting directly to the result keeps reads on the read boundary the persistence standards state. A query handler takes no domain repository. The result type carries the `include` groups the record's `output` declares, under `litespec/backend/application#shape-query-results-from-declared-output`. The command and query split lives in `litespec/backend/architecture#separate-command-and-query-behavior`.
 
-**Checked by:** `dotnet build` reports `LS2011` for a query handler taking a repository; each query handler projects directly without loading an aggregate.
+**Reviewed for:** Which query handlers take a domain repository or load an aggregate? Look at each query handler's constructor and body.
 
 ### Keep Query Handlers Free of Writes
 
@@ -450,7 +450,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The erase-expired-data job runs one erase command per expense, each in its own unit of work, instead of a command looping over expenses.
 
-**Checked by:** `dotnet build` reports `LS2015` for a command handler with a repository `Store`, `Add`, `Update` or `Delete` call inside a loop body.
+**Reviewed for:** Which command handlers change records inside a loop body? Look at each loop in the command handlers.
 
 ### Dispatch Only Declared Effect Edges
 
@@ -482,7 +482,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Example:** The approve-expense command declares its expense id as the audit target with the reason the message carries, and the handler adds only the approval reference it learns while running.
 
-**Checked by:** `dotnet build` reports `LS2013` for a `WithTarget` or `WithReason` call on `IAuditScope` inside a command handler whose argument reads only the message.
+**Reviewed for:** Which command handlers add an audit target or reason that the message already carries? Look at each audit call in the command handlers.
 
 ### Take One Timestamp per Message
 
@@ -540,13 +540,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Applies to:** artifact: command-handler, query-handler
 
-**Statement:** Each handler needing a record MUST load it through the getter that throws the aggregate not-found refusal, and use the finder only for optional records.
+**Statement:** Each handler needing a record MUST load it through the required load that throws the aggregate not-found refusal, and use the optional lookup only for optional records.
 
-**Rationale:** A find followed by a thrown not-found repeats the aggregate decision in every handler, and each copy names its own failure. The required getter throws the aggregate own not-found refusal, so the handler states that the record is required by the call it makes.
+**Rationale:** A lookup followed by a thrown not-found repeats the aggregate decision in every handler, and each copy names its own failure. The required load throws the aggregate's own not-found refusal, so the handler states that the record is required by the call it makes.
 
-**Example:** The approve handler loads its expense with `GetByIdAsync`, while the optional coupon lookup uses `FindByIdAsync`.
+**Example:** The approve handler loads its expense as a required record, while the optional coupon lookup returns nothing when the coupon is absent.
 
-**Reviewed for:** Which required records load through the finder, or which optional lookups throw? Look at each load call in the handlers.
+**Reviewed for:** Which required records load through an optional lookup, or which optional lookups throw? Look at each load call in the handlers.
 
 ### Parse Input in the Validator
 
@@ -560,7 +560,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Rationale:** A validator that checks presence only leaves parsing to the handler, so one input is judged in two layers and the handler throws on caller data. Parsing in the validator keeps business refusals in the domain and input failures in validation, where each belongs.
 
-**Example:** The invite validator parses the email address with `TryCreate`, and the handler creates it without a check.
+**Example:** The invite validator parses the email address into its value object, and the handler takes that value without a second check.
 
 **Reviewed for:** Which validators leave a value object unparsed for the handler? Look at each validator beside its input.
 
@@ -604,13 +604,13 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Applies to:** artifact: command-handler, job, query-handler, reaction
 
-**Statement:** Each handler needing a collaborator MUST take it through the constructor from the container, never build it with `new`.
+**Statement:** Each handler needing a collaborator MUST take it through the constructor from the container, never create it inside its own body.
 
-**Rationale:** A step class built with `new` hides its dependencies, and a handler that looks small is really hundreds of lines behind its helpers. Injected collaborators keep their dependencies visible in the constructor.
+**Rationale:** A step class created inside a handler hides its dependencies, and a handler that looks small is really hundreds of lines behind its helpers. Injected collaborators keep their dependencies visible in the constructor.
 
-**Example:** The reimburse handler takes its expense repository through its constructor, while a step built with `new` that takes a repository is reported.
+**Example:** The reimburse handler takes its expense repository through its constructor, while a step created inside the handler that takes a repository is reported.
 
-**Reviewed for:** Which handlers, jobs, or step classes hide collaborators behind `new` or take more than ten constructor dependencies? Look at each constructor the change adds.
+**Reviewed for:** Which handlers, jobs, or step classes create collaborators inside their bodies or take more than ten constructor dependencies? Look at each constructor the change adds.
 
 ### Read No Repository Inside a Loop
 

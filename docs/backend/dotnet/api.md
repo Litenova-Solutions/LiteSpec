@@ -1,7 +1,6 @@
 # .NET HTTP API
 
 **Stack:** dotnet
-
 **Concern:** web-api
 
 ## Intent
@@ -106,19 +105,17 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Applies to:** artifact: endpoint
 
-**Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, published as `oneOf` with a string discriminator.
+**Statement:** A data-bearing set MUST map to an abstract base record with one sealed record per case, carrying the discriminator that `litespec/backend/api#mark-polymorphic-models-with-discriminators` requires.
 
-**Rationale:** A concrete base record cannot mark the discriminator as required, so a client could send a payload that names no case. String discriminators carry the Domain union's stable case codes, so the wire value survives renames of code identifiers. Without the discriminator, deserialization picks a case by shape, and two cases with similar fields become ambiguous. This provision binds `litespec/backend/api#mark-polymorphic-models-with-discriminators` for .NET.
+**Rationale:** A concrete base record cannot mark the discriminator as required, so a client could send a payload that names no case. This provision binds `litespec/backend/api#mark-polymorphic-models-with-discriminators` for .NET and adds no discriminator rule of its own.
 
 **Example:**
 
-- Declare an abstract base record carrying `JsonPolymorphic` and one `JsonDerivedType` per case.
-- Carry the metadata on the type, not only in host options.
+- Declare an abstract base record carrying `JsonPolymorphic` and one `JsonDerivedType` per case, on the type itself rather than in host options.
 - Name the discriminator through `TypeDiscriminatorPropertyName`, using a name such as `type` or `outcome`.
-- Opt derived types in explicitly, so an unregistered runtime subtype fails serialization.
 - Complete discriminator metadata that the generator omits with a document or schema transformer.
 
-**Reviewed for:** Which data-bearing sets escape the abstract base record with one sealed record per case and the `oneOf` string discriminator? Look at each data-bearing set.
+**Reviewed for:** Which data-bearing sets escape the abstract base record with one sealed record per case, or carry no discriminator under the generic provision? Look at each data-bearing set.
 
 ## Conventions
 

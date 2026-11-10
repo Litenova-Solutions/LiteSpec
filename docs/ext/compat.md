@@ -91,7 +91,7 @@ This extension switches on no optional record type.
 
 **Statement:** An API change reviewer MUST require consumer review for an added enum value or polymorphic subtype.
 
-**Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server now sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
+**Rationale:** Generated clients often switch exhaustively over enum values and discriminator cases. A new value that the server sends reaches a client with no branch for it, which rejects a valid response. Consumer review checks that each client handles the new case before it ships.
 
 **Reviewed for:** Which added enum values or discriminator cases shipped without consumer review? Look at the consumer reviews.
 

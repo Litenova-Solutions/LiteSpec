@@ -1,7 +1,6 @@
 # TypeScript Web Components
 
-**Stack:** any
-
+**Stack:** react, svelte
 **Concern:** frontend-ui
 
 ## Intent
@@ -44,7 +43,7 @@ A visible card, panel, or section title renders as a heading at its correct leve
 
 **Rationale:** A lint gate that only refuses leaves the author searching the shared package for the replacement; a refusal that names the composite answers with the error. The refusal-to-composite map is approved once per stack, and each stack page names the mechanism that enforces it. Visual files stay allowlisted, because a drawing no composite makes has no composite to name. This gates litespec/frontend/components#use-composites-for-layout-and-interaction-in-page-code, litespec/frontend/components#write-no-class-name-in-page-code, and litespec/frontend/ui#keep-layout-inside-floorplans.
 
-**Checked by:** `pnpm eslint` reports no refused element, binding, or layout utility outside visual files in route and module code.
+**Reviewed for:** Which refused element, binding, or layout utility does the consumer's lint command report outside visual files in route and module code? Look at the lint output the consumer's configuration produces in CI.
 
 ### Keep Component Boundaries Typed
 
@@ -78,7 +77,7 @@ function OrderTotal({ orderId }: { orderId: string }) {
 }
 ```
 
-**Checked by:** `svelte-check` fails on an untyped Svelte prop, event, or snippet, and `pnpm type-check` fails on an untyped React prop or event.
+**Checked by:** `svelte-check` fails on an untyped Svelte prop, event, or snippet, and the consumer-supplied type-check command fails on an untyped React prop or event. The consumer's configuration provides the type-check command.
 
 ## Conventions
 

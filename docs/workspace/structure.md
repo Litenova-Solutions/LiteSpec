@@ -1,7 +1,7 @@
 # Workspace Structure
 
-**Stack:** `any`
-**Concern:** `workspace`
+**Stack:** any
+**Concern:** workspace
 
 ## Intent
 

@@ -1,8 +1,11 @@
 # Overview
 
+**Stack:** react, svelte
+**Concern:** frontend-ui
+
 ## Intent
 
-The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, patterns, data, and testing. No project selects this folder directly; selecting the [React Stack](react/stack.md) or [Svelte Stack](svelte/stack.md) applies it through that stack's folder chain. A developer or agent adding a route, a component, or data code to a React or Svelte frontend finds the shared rule here and the stack-specific rule on the stack page.
+The web pages state what the React and Svelte frontends do the same way: one TypeScript toolchain, one generated API client, and one shared UI package across structure, rendering, components, UI, data, and testing. No project selects this folder directly; selecting the [React Stack](react/stack.md) or [Svelte Stack](svelte/stack.md) applies it through that stack's folder chain. A developer or agent adding a route, a component, or data code to a React or Svelte frontend finds the shared rule here and the stack-specific rule on the stack page.
 
 ## How the Pages Fit Together
 
@@ -13,8 +16,7 @@ Each page here follows one frontend principle page and states what the two web s
 - [Web Structure](structure.md): the application tree, the frame, use-case marks, and the generated records file.
 - [Web Rendering and Routes](rendering.md): the route metadata rule both stacks share.
 - [TypeScript Web Components](components.md): the registry source, the closed element list, and the shared route checks.
-- [Web UI](ui.md): the registry build, suite marks, CSS decisions, and source rules for shared UI.
-- [Web UI Patterns](patterns.md): one implementation per platform for each chosen pattern.
+- [Web UI](ui.md): the registry build, suite marks, CSS decisions, source rules, and pattern implementation for shared UI.
 - [Web Data and State](data.md): the generated client, failure mapping, cache updates, and state ownership.
 - [Web Testing](testing.md): Vitest beside the module and Playwright against a running stack.
 

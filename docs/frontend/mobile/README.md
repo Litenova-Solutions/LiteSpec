@@ -8,6 +8,8 @@ The shared mobile pages state what every native mobile app does the same way: on
 
 Each page here follows one frontend principle page and states what every mobile stack does the same way: one solution tree, one navigation model, one data path. Where platforms differ, the shared page states the rule once and each stack page names the binding for its platform. A team that adds a mobile screen reads the principle page, then the shared page here, then the stack page where the platforms differ.
 
+A native app builds each UI pattern it uses from the pattern's Default, with the platform's own views and the project's own components, and records the option it chose in the pattern catalog. The [Mobile Screens and Navigation](screens.md) page decides how those views render, navigate and respond to the system back gesture.
+
 ## Shared Mobile Pages
 
 - [Mobile Structure](structure.md): the solution tree, core projects, screen folders, and import direction every mobile stack shares.

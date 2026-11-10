@@ -5,13 +5,13 @@
 
 ## Intent
 
-A backend built on .NET declares the `dotnet` stack in `.litespec/project.yaml`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, and the result formats the builder reads.
+A backend built on .NET declares the `dotnet` stack in `.litespec/project.yaml`. The declaration applies every page in this folder, and it tells the model builder to read C# code and test results in TRX or JUnit XML. This page states the declaration, the form each mark takes in C#, the runtime values generated from the records, what the stack reader reads from C# code, the result formats the builder reads, and the test projects, packages, and runners.
 
 ## Concepts
 
 ### Marks and Their Lookup
 
-The [marks table](../../core/model.md#marks) owns which mark each code element carries. [Write Code for a Use Case](../write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
+The [marks table](../../core/model.md#marks) owns which mark each code element carries. [Write Code for a Use Case](../../guide/write-code-for-a-use-case.md) maps each backend element to its folder, its mark, and its check.
 
 ## Standards
 
@@ -39,7 +39,7 @@ The [marks table](../../core/model.md#marks) owns which mark each code element c
 
 **Example:** The reimburse-expense handler carries `/// <implements>use-case/spending.reimburse-expense</implements>`, and the event handler class carries `/// <implements>reaction/spending.send-approver-reminder-on-expense-submitted</implements>`.
 
-**Checked by:** `litespec model check` reports its level beside each level S finding read from C# code and test results.
+**Reviewed for:** Does the .NET reader read each shape the statement names? Look at the stack reader source for marks, injected repositories, returned codes, dispatch calls, aggregate method calls, raised events, and test results.
 
 ### Read Every Declared Web and Worker Host
 
@@ -175,6 +175,62 @@ The generated part holds `public const string Classification = "event/expense.su
 
 **Reviewed for:** Which test runs write a result outside TRX or JUnit XML, or outside `paths.testResults`? Look at the test run output beside `paths.testResults` in `.litespec/project.yaml`.
 
+### Test with xUnit v3 on Microsoft.Testing.Platform
+
+**ID:** `litespec/backend/dotnet/stack#test-with-xunit-v3-on-microsoft-testing-platform`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** A .NET test project MUST reference xUnit v3 and run on Microsoft.Testing.Platform, with `global.json` naming that runner.
+
+**Rationale:** The .NET 10 `dotnet test` command refuses the VSTest mode for xUnit v3 projects, so each test project runs on the platform runner, and the root `global.json` states that choice once for every project beneath it. A project that runs on another runner reports its results in a shape the model builder does not read.
+
+**Reviewed for:** Which test project references no xUnit v3 package, or runs on a runner other than Microsoft.Testing.Platform? Look at each test project file and at `global.json`.
+
+### Pin the Test Packages in the Manifest
+
+**ID:** `litespec/backend/dotnet/stack#pin-the-test-packages-in-the-manifest`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** A .NET test project MUST reference each test package at the version `litespec.manifest.yaml` pins.
+
+**Rationale:** A test package that moves to a newer version changes what the tests prove without any change to the code under test. The manifest is the one place the release names its pins, so the test SDK, the Microsoft.Testing.Platform extensions, the xUnit runner, the property-test and mock libraries, and the PostgreSQL container each resolve to the version the release reviewed.
+
+**Reviewed for:** Which test project references a test package at a version the manifest does not pin? Look at each test project file beside the package pins in `litespec.manifest.yaml`.
+
+### Start the Integration Database in a Container
+
+**ID:** `litespec/backend/dotnet/stack#start-the-integration-database-in-a-container`
+
+**Strength:** required
+
+**Applies to:** layer: proof
+
+**Statement:** The .NET integration test project MUST start the pinned PostgreSQL in a Testcontainers container.
+
+**Rationale:** A container from the pinned image gives every test run the database version the release runs, and it starts and stops with the test run, so no shared server carries state from one run to the next. The fixture that owns the container is the one `litespec/backend/testing#share-one-production-faithful-integration-harness` names.
+
+**Reviewed for:** Which integration test reaches a database that no container started for the run? Look at the integration fixture and the Testcontainers package reference in the integration test project.
+
 ## Conventions
 
-None.
+### Run Mutation Testing with Stryker.NET
+
+**ID:** `litespec/backend/dotnet/stack#run-mutation-testing-with-stryker-net`
+
+**Strength:** default
+
+**Applies to:** layer: proof
+
+**Default:** Run the mutation gate with the Stryker.NET runner that the root tool manifest pins.
+
+**Replacement:** A consumer can replace this default with an explicit local convention.
+
+**Rationale:** Stryker.NET is the .NET runner for the mutation gate that `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines` names, and the root tool manifest pins its version, so a developer and CI run the same mutants against the same tool.
+
+**Reviewed for:** Does the mutation gate run Stryker.NET at the version the root tool manifest pins? Look at `.config/dotnet-tools.json` and the mutation job's command.

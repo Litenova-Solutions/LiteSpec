@@ -253,7 +253,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
 
-**Reviewed for:** The change keeps each proving test and its expected values unchanged unless its scenario changed in the same change, and the completion report names each test the agent stopped on and reported as wrong.
+**Checked by:** `litespec model check --since <ref>` reports `proof-hash-drift` as advisory for each scenario whose proving test method changed since the base while the scenario did not.
 
 ### Write Pages Below Decided Intent
 

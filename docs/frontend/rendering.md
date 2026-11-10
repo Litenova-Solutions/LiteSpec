@@ -19,7 +19,7 @@ A route declares its address parameters, including filters and page, in a valida
 
 ### Route States
 
-A route can reach six states: loading, empty, error, forbidden, not-found, and ready. Defining each one up front gives the reader a designed answer wherever a request is pending or failed, instead of a blank region.
+A route can reach six states: loading, empty, error, forbidden, not-found, and ready. Defining each one up front gives the user a designed answer wherever a request is pending or failed, instead of a blank region.
 
 ## Standards
 
@@ -63,7 +63,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A route MUST declare its address parameters in a validated schema, including its filters and its page.
 
-**Rationale:** A validated schema makes the address the whole input: a filtered list is a link somebody can share, bookmark, and reopen, and opening it restores the same filters and page. Validation also refuses a malformed address at the boundary instead of rendering a page from nonsense values. A filter kept in component state reaches nobody and is lost on the first navigation away.
+**Rationale:** A validated schema makes the address the whole input: a shareable address restores the same filters and page, and validation refuses a malformed address at the boundary instead of rendering a page from nonsense values.
 
 **Example:** The list schema declares its own text field and spreads the shared paging fields.
 
@@ -79,7 +79,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A frontend MUST load each route and each language as its own download, with no icon set or language loaded whole.
 
-**Rationale:** A reader opens one address and reads one language, so downloading every route and every language up front wastes the reader's time on code and copy outside what they read. Each route and each language ships as its own download: a reader in Dutch who stays on the dashboard downloads neither English nor the routes outside their path. No icon set or language loads whole for the same reason.
+**Rationale:** A user opens one address and reads one language, so downloading every route and every language up front wastes time on code and copy outside that path. Each route and each language ships as its own download: a user in Dutch who stays on the dashboard downloads neither English nor the routes outside that path. No icon set or language loads whole for the same reason.
 
 **Example:** A dictionary loader returns one language. Each route file or folder ships as its own download.
 
@@ -93,9 +93,9 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Applies to:** artifact: route
 
-**Statement:** A frontend MUST prefetch the route the reader signals intent toward, without treating that prefetch as a cache beyond the shared cache.
+**Statement:** A frontend MUST prefetch the route the user signals intent toward, without treating that prefetch as a cache beyond the shared cache.
 
-**Rationale:** When the reader signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route's data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only: a router that kept its own second cache would serve a stale answer beside the fresh one.
+**Rationale:** When the user signals intent toward a route, by hovering a link or focusing a menu item, prefetching loads that route's data into the shared cache before the navigation starts, so most navigations render from data already in place. The prefetch fills the shared cache only: a router that kept its own second cache would serve a stale answer beside the fresh one.
 
 **Reviewed for:** Which route prefetches land outside the shared cache, or feed a second router cache? Look in the router prefetch wiring.
 
@@ -109,7 +109,7 @@ A route can reach six states: loading, empty, error, forbidden, not-found, and r
 
 **Statement:** A data-driven route MUST define its loading, empty, error, forbidden, not-found, and ready behavior.
 
-**Rationale:** A blank region while a request is pending or failed gives the reader no signal: they read no difference between loading and broken. Defining loading, empty, error, forbidden, not-found, and ready behavior gives each state a designed drawing, and the root not-found handling draws the shared outcome page for an absent address.
+**Rationale:** A blank region while a request is pending or failed gives the user no signal: the page reads no different when loading than when broken. Defining loading, empty, error, forbidden, not-found, and ready behavior gives each state a designed drawing, and the root not-found handling draws the shared outcome page for an absent address.
 
 These six are the states a route has. A control adds `disabled` and `pending` under `litespec/frontend/components#render-control-states`, because both describe a control rather than a route. A route adds `not-found`, which a control does not, because a missing target resolves at the route.
 
@@ -125,7 +125,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Statement:** Actor-specific data MUST declare its cache key, partition, invalidation owner, and security review before caching, beside the read definition setting the key.
 
-**Rationale:** A cache entry that ignores whose data it holds serves one actor's answer to another reader: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.
+**Rationale:** A cache entry that ignores whose data it holds serves one actor's answer to another user: the classic leak behind a shared cache. Declaring the cache key, the partition, the invalidation owner, and the security review beside the read definition forces each cached actor-specific read to name its boundary before it caches. An uncached read is the safe default, and a cache partitioned per request is the safe server shape.
 
 **Reviewed for:** Which cached actor-specific reads lack a declared cache key, partition, invalidation owner, or security review beside the read definition? Look in the read definitions setting cache keys.
 
@@ -155,7 +155,7 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Statement:** A server-rendered frontend MUST construct its data cache inside each request.
 
-**Rationale:** A server renders for many readers at once. A data cache shared across requests serves the next reader the previous reader's answer, leaking one actor's data to another with no error to report it. Constructing the cache inside each request gives every reader a fresh cache that dies with the response.
+**Rationale:** A server renders for many users at once. A data cache shared across requests serves the next user the previous user's answer, leaking one actor's data to another with no error to report it. Constructing the cache inside each request gives every user a fresh cache that dies with the response.
 
 **Reviewed for:** Which server rendering reuses a data cache across requests instead of constructing it inside each request? Look in the server request setup.
 

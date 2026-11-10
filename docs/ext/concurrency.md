@@ -421,7 +421,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** The `Idempotency-Key` header makes client-key behavior recognizable at the HTTP boundary. [The IETF draft](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) leaves the value opaque, so a server stores whatever a client sends. The 255-character visible-ASCII bound stops an unbounded key from becoming an unbounded store entry and keeps control characters out of log lines.
 
-**Reviewed for:** Applicable operations accept `Idempotency-Key` within its bounds, or the recorded client-key convention names the header and value bounds its commands accept.
+**Reviewed for:** Which applicable operations accept no `Idempotency-Key` within its bounds, with no recorded client-key convention naming the header and value bounds? Look at the operations beside that convention.
 
 ### Keep Idempotency Persistence in Infrastructure
 
@@ -437,7 +437,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Idempotency state lives in provider transactions guarded by store constraints. That machinery belongs in Infrastructure, where provider details live. Application and Domain stay free of the store mechanics behind their operations.
 
-**Reviewed for:** Idempotency persistence and transaction handling live in Infrastructure, or the recorded idempotency-store convention names where its idempotency state lives.
+**Reviewed for:** Which idempotency persistence or transaction handling sits outside Infrastructure, with no recorded idempotency-store convention naming where its state lives? Look at the idempotency store code beside that convention.
 
 ### Map Replay Responses at the API Boundary
 
@@ -453,7 +453,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Replaying a stored result means rebuilding its statuses and headers. Those are transport concerns, so the mapping lives at the API boundary. Application code then deals in operation results, never in wire shapes.
 
-**Reviewed for:** Replay response mapping lives at the API boundary, or the recorded replay-mapping convention names where its replay mapping lives.
+**Reviewed for:** Which replay response mappings sit outside the API boundary, with no recorded replay-mapping convention naming where they live? Look at the replay mapping code beside that convention.
 
 ### Declare Applicable Headers
 
@@ -469,7 +469,7 @@ Its client-key standards apply to operations whose `idempotency.mode` is `key`. 
 
 **Rationale:** Each HTTP operation that accepts a client key declares the header as required. Generated API contracts then expose the requirement to every client author under `litespec/backend/api#publish-precise-complete-schemas`. An undeclared header reaches only the callers who read the implementation.
 
-**Reviewed for:** Generated OpenAPI declares the idempotency header for every applicable operation, or the recorded header-declaration convention names how its contracts expose the header.
+**Reviewed for:** Which applicable operations lack the idempotency header in the generated OpenAPI, with no recorded header-declaration convention naming how contracts expose it? Look at the generated OpenAPI document beside that convention.
 
 ## Dependencies
 

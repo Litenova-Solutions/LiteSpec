@@ -610,6 +610,7 @@ static class CompletionCalculator
                 scenario.Id,
                 Checker.SemanticHash(scenario),
                 ProofLedger.TestHashOf(model, scenario.Id),
+                ProofLedger.MethodHashOf(model, scenario.Id),
                 run))
             {
                 stale.Add(scenario.Id);

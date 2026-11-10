@@ -36,7 +36,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. An `emits` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
 
-**Reviewed for:** Each after-commit emits and runs effect stages in the outbox in the same transaction as its changes, with each domain event staged in the same commit as its aggregate.
+**Reviewed for:** Which after-commit `emits` or `runs` effects, or domain events, stage outside the transaction of their aggregate changes? Look at each command handler's effects and the outbox writes beside them.
 
 ### Declare Published Facts as Integration Events
 
@@ -50,7 +50,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
 
-**Reviewed for:** Each emits effect names an integration-event record carrying direction, payload, and trust.
+**Reviewed for:** Which `emits` effects name no integration-event record, or one without direction, payload, and trust? Look at each `emits` effect and the integration-event record it names.
 
 ### Record Durable Delivery Behavior
 
@@ -64,7 +64,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Delivery crosses a system boundary, so the team agrees up front on the guarantee, the boundary, the duplicate behavior, the retry horizon, and the runbook that recovers when delivery fails. Without that agreement, the writer assumes once-only delivery while the target assumes retries, and both discover the mismatch in production. The agreement lands before the first message does.
 
-**Reviewed for:** Each delivery specification documents guarantee, downstream boundary, duplicate behavior, retry horizon, and recovery runbook.
+**Reviewed for:** Which delivery specifications leave out the guarantee, downstream boundary, duplicate behavior, retry horizon, or recovery runbook? Look at each durable-delivery specification.
 
 ### Exclude Manually Repeatable Reactions and Jobs
 
@@ -76,9 +76,9 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** A project MUST NOT activate outbox for a reaction or job whose loss the operators accept and which they can repeat manually.
 
-**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; a reaction or job whose loss the operators accept and can repeat by hand needs none of that machinery. The reaction's or job's `onFailure` states its handling, and the use case page records the accepted gap.
+**Rationale:** Outbox storage, dispatch, retries, and replay exist to prevent loss; a reaction or job whose loss the operators accept and can repeat by hand needs none of that machinery. The reaction's or job's `onFailure` states its handling, and the use case page records the accepted loss.
 
-**Reviewed for:** Reactions and jobs whose loss the operators accept and can repeat manually carry no outbox records.
+**Reviewed for:** Which reactions or jobs whose loss the operators accept still carry outbox records? Look at the outbox records and the reactions and jobs they name.
 
 ### Emit Excluded Reactions and Jobs After Commit
 
@@ -90,9 +90,9 @@ This extension switches on no optional record type: integration events, settings
 
 **Statement:** A reaction or job the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
 
-**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the reaction or job emits immediately after its commit succeeds and accepts the gap. Emitting before the commit risks worse: it fires for a change the database then rolls back.
+**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the reaction or job emits immediately after its commit succeeds and accepts the loss. Emitting before the commit risks worse: it fires for a change the database then rolls back.
 
-**Reviewed for:** Excluded reactions and jobs emit after commit success with no staged outbox record.
+**Reviewed for:** Which excluded reactions or jobs emit before their commit succeeds, or stage an outbox record? Look at each excluded reaction's and job's emit call.
 
 ### Stage Messages with Business Work
 
@@ -106,7 +106,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** The business change and its message share one fate: both persist or neither does. Staging the message in the same scoped business session as the aggregate changes puts both under one commit, so a crash can never leave an accepted change without its message or a message without its change.
 
-**Reviewed for:** Pending durable messages stage in the same scoped session as their aggregate changes.
+**Reviewed for:** Which pending durable messages stage outside the scoped session of their aggregate changes? Look at each command post-handler and its session.
 
 ### Serialize Durable Messages
 
@@ -120,7 +120,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** The command scope ends when the request ends, while dispatch happens later in a Worker that never saw the request. Serializing the message into an outbox record gives that Worker everything it needs after the scope is gone.
 
-**Reviewed for:** Each pending durable message lands serialized in an outbox record.
+**Reviewed for:** Which pending durable messages reach no serialized outbox record? Look at the outbox writer and its record type.
 
 ### Store Required Message Fields
 
@@ -134,7 +134,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** The dispatcher, the retry logic, and the operator each read the record: identity and type route it, the schema version selects its reader, time and tenant scope it, and state, attempt, and next-attempt data drive the retry. A field stored nowhere forces one of those readers to guess.
 
-**Reviewed for:** Each outbox record carries identity, kind, type, schema version, time, payload, tenant, state, attempt, and next-attempt data.
+**Reviewed for:** Which outbox records lack identity, kind, type, schema version, time, payload, tenant, state, attempt, or next-attempt data? Look at the outbox record type.
 
 ### Store Failure and Completion Evidence
 
@@ -148,7 +148,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** When delivery stalls, the operator opens the record first: the last error summary says why the previous attempt failed, and the completion time says which records finished. Without that evidence on the record, each investigation starts from scattered logs instead.
 
-**Reviewed for:** Each outbox record retains its last error summary and completion time.
+**Reviewed for:** Which outbox records drop their last error summary or completion time? Look at the outbox record type and its update code.
 
 ### Classify Message Kinds
 
@@ -162,7 +162,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** An integration event, a journey-step command, and a provider side effect dispatch through different owners and transports, so the record names which one it holds. The integration event cites its integration-event record, so the staged message traces to the published fact it carries.
 
-**Reviewed for:** Each outbox record names integration event, journey-step command, or provider side effect, with integration events citing their integration-event record.
+**Reviewed for:** Which outbox records name no message kind, or an integration event that does not cite its integration-event record? Look at the outbox record type and the messages staged.
 
 ### Reject Independent Outbox Commits
 
@@ -176,7 +176,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Two commits on two connections can split around a crash: the business change persists while the message rolls back, or the message persists for a change that never happened. Sharing one PostgreSQL database does not make separate transactions atomic, so the message joins the business transaction instead.
 
-**Reviewed for:** Writer sources stage through the business session with no separate connection or commit.
+**Reviewed for:** Which outbox writers use a separate connection or commit? Look at each writer source and its path into the business session.
 
 ### Dispatch Claimed Records in Worker
 
@@ -190,7 +190,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Dispatch needs time, retries, and network calls that no request transaction can hold. The Worker claims pending records, dispatches a bounded batch, and records each outcome, so the request commits fast while delivery proceeds on its own schedule.
 
-**Reviewed for:** The Worker claims pending records, dispatches bounded batches, and records each outcome.
+**Reviewed for:** Which Worker loops dispatch unbounded batches or skip recording an outcome? Look at the dispatcher's claim and batch code.
 
 ### Exclude Request-Transaction Dispatch
 
@@ -204,7 +204,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A network call inside the request transaction holds database locks while the outside world answers, and a slow target slows every request behind it. The request commits only to make the message eligible; the Worker performs the delivery later.
 
-**Reviewed for:** Request paths commit eligibility only, with dispatch living in the Worker.
+**Reviewed for:** Which request paths dispatch a durable message inside the request transaction? Look at the endpoint and command handler paths.
 
 ### Define Claim Ownership
 
@@ -218,7 +218,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Several Workers poll the same store, so each dispatch attempt needs one owner: the lease owner, the lease expiry, and the fencing value name it. The short transaction takes the claim without holding locks into the delivery itself.
 
-**Reviewed for:** Each claim takes owner, expiry, and fencing value in a short transaction.
+**Reviewed for:** Which claims take no owner, expiry, or fencing value, or hold them outside a short transaction? Look at the claim code in the outbox store.
 
 ### Release Claim Transactions Before Calls
 
@@ -232,7 +232,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A network call to a slow target can last seconds or minutes. Holding the claim transaction open across that call pins database locks and connection slots, starving the Workers behind it; releasing the claim first lets the database serve other work while the call runs.
 
-**Reviewed for:** Claim transactions close before the Worker makes network calls.
+**Reviewed for:** Which claim transactions stay open across a network call? Look at the Worker's dispatch path.
 
 ### Restrict Completion to Current Lease Owners
 
@@ -246,7 +246,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A Worker that lost its lease, through a crash, a pause, or an expiry, can wake up after another Worker claimed the same record. Checking the lease and fencing value before each update stops the stale Worker from overwriting the current owner's result.
 
-**Reviewed for:** Record updates succeed only under the current lease and fencing value.
+**Reviewed for:** Which record updates run without checking the current lease and fencing value? Look at each update statement in the outbox store.
 
 ### Requeue Expired Claims
 
@@ -260,7 +260,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A Worker can die between claiming a record and dispatching it. Returning expired claims to eligible work lets a live Worker pick them up, so one crash delays a message instead of losing it.
 
-**Reviewed for:** Expired claims return to eligible work for a live Worker.
+**Reviewed for:** Which expired claims stay out of eligible work? Look at the requeue query in the outbox store and its tests.
 
 ### Accept Repeated Delivery
 
@@ -274,7 +274,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** The target can accept a message while the Worker crashes before recording completion, and the requeued claim then dispatches it again. Delivery promises at-least-once, so every event handler handles the same message more than once without corrupting its state.
 
-**Reviewed for:** Each event handler keeps correct state when the same message arrives twice.
+**Reviewed for:** Which event handlers keep wrong state when the same message arrives twice? Look at the handler tests that deliver a message twice.
 
 ### Identify Repeated Delivery
 
@@ -288,7 +288,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Handling a repeat means recognizing it: the message ID or a business idempotency key gives the event handler a stable identity to check at its command or side-effect boundary. Without that key, the handler processes the repeat as new work and pays, notifies, or ships twice.
 
-**Reviewed for:** Each event handler checks message ID or business key at its Command or side-effect boundary.
+**Reviewed for:** Which event handlers process a repeated message as new work? Look at each handler's Command or side-effect boundary.
 
 ### Deliver Each Event to Each Handler Separately
 
@@ -304,7 +304,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Example:** A loan-borrowed event feeds a due-notice handler and a statistics handler. The notice delivery retries on its own schedule while the statistics delivery stays complete.
 
-**Reviewed for:** Each event reaches each of its handlers as a separate delivery with its own retries and dead letter.
+**Reviewed for:** Which events reach several handlers as one delivery? Look at the outbox delivery records for each handler.
 
 ### Await Target Acceptance
 
@@ -318,7 +318,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Marking a record complete before the target accepts it declares a delivery that never happened, and no retry follows because the record looks done. The Worker waits for the target boundary's acceptance before recording completion.
 
-**Reviewed for:** Completion records follow target acceptance, with no early completion.
+**Reviewed for:** Which outbox records mark completion before the target accepts the message? Look at the Worker's completion code and the target's acceptance response.
 
 ### Bound Delivery Retries
 
@@ -332,7 +332,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A failing target with ten thousand pending messages meets a retry storm when every message retries at once on a fixed interval. Bounded exponential backoff with jitter spreads the retries over time and caps the total, so the target recovers instead of drowning.
 
-**Reviewed for:** Retries run bounded exponential backoff with jitter.
+**Reviewed for:** Which retry schedules lack a bound, backoff, or jitter? Look at the dispatcher's retry code.
 
 ### Classify Permanent Delivery Failure
 
@@ -346,7 +346,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Some failures never clear on retry: a deleted destination, a rejected payload, a revoked credential. Retrying those forever burns resources and buries the real backlog, so the dispatcher classifies them, stops at its retry bound, and keeps the evidence an operator needs to investigate and replay safely.
 
-**Reviewed for:** Permanent failures stop at the retry bound with safe investigation and replay data retained.
+**Reviewed for:** Which permanent failures retry past their bound, or lose their investigation and replay data? Look at the dispatcher's failure classification and its tests.
 
 ### Distinguish Dependency Outage
 
@@ -360,7 +360,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A dead outbox store and a failed delivery ask for different recoveries: the first needs a database restored, the second needs one destination investigated. Each carries its own signal. The store's availability is a gauge the readiness endpoint reads, while a claimed message's outcome is a counter carrying the result, following [the OpenTelemetry metrics specification](https://opentelemetry.io/docs/specs/otel/metrics/). A single error counter cannot tell an operator whether to restore a database or investigate one destination.
 
-**Reviewed for:** Store availability reads as a gauge while claimed-message outcomes read as a counter.
+**Reviewed for:** Which outbox metrics use the wrong instrument type for store availability or claimed-message outcomes? Look at the metrics the outbox publishes.
 
 ### Back off Unavailable-Store Polling
 
@@ -374,7 +374,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A Worker that polls a dead store on a tight loop writes an exception per iteration and fills disks and log quotas before anyone reads the first one. Bounded backoff with rate-limited logging keeps the Worker alive and quiet until the store returns.
 
-**Reviewed for:** Polling during a store outage backs off with rate-limited logging.
+**Reviewed for:** Which Worker loops poll an unavailable store without backoff or rate-limited logging? Look at the Worker's poll loop and its outage tests.
 
 ### Restrict Message Retry to Claimed Records
 
@@ -388,7 +388,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** Retry and poison handling act on a claimed message; when the store itself is down, no claim exists and no message waits for delivery. Running retry logic against the outage double-counts attempts and can dead-letter messages whose only fault was an unreachable store.
 
-**Reviewed for:** Retry and poison handling touch claimed records only.
+**Reviewed for:** Which retry or poison-handling paths act on records that hold no claim? Look at the dispatcher's retry and poison code.
 
 ### Gate Dispatch on Readiness
 
@@ -402,7 +402,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** A host that reports unready still serves traffic it cannot finish when its Workers keep polling dead stores. Gating dispatch on readiness stops the polling, so the host fails fast and recovers instead of churning against storage that cannot answer.
 
-**Reviewed for:** Unready hosts stop dispatch and dead-store polling.
+**Reviewed for:** Which unready hosts keep dispatching or polling a store that cannot serve requests? Look at the readiness check and the Worker's dispatch loop.
 
 ### Version Message Types
 
@@ -416,7 +416,7 @@ This extension switches on no optional record type: integration events, settings
 
 **Rationale:** An outbox record outlives the deployment that wrote it, so the dispatcher meets records written by several versions at once. A stable type name with an explicit schema version tells the dispatcher which reader parses each record; without the pair, one shape change breaks every record written before it.
 
-**Reviewed for:** Each message carries a stable type name with an explicit schema version.
+**Reviewed for:** Which outbox messages lack a stable type name or an explicit schema version? Look at each outbox message type.
 
 ### Support Coexisting Message Producers
 
@@ -432,7 +432,7 @@ This extension switches on no optional record type: integration events, settings
 
 Each message record therefore carries its own shape version, and the dispatcher selects a reader from that value. Adding an optional member with a defined absent-value behavior needs no new version. Removing a member, renaming one, narrowing a type, or changing a discriminator needs a new version, and the reader for each version stays until no record carries that version.
 
-**Reviewed for:** The dispatcher reads records from every coexisting application version.
+**Reviewed for:** Which application versions that can coexist have no reader in the dispatcher? Look at the dispatcher's version selection and its tests.
 
 ### Publish Backlog Indicators
 
@@ -446,7 +446,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** Pending count, failed count, oldest pending age, attempts, dispatch duration, and success rate together show whether delivery keeps up: growth in the backlog or age reveals a stall, while duration and success rate reveal a struggling target. Without these indicators, the first sign of failure is a customer asking where their message went.
 
-**Reviewed for:** The deployment publishes pending count, failed count, oldest pending age, attempts, dispatch duration, and success rate.
+**Reviewed for:** Which of the six backlog indicators does the deployment leave unpublished? Look at the metrics the Worker exports.
 
 ### Set Delivery Alerts
 
@@ -460,7 +460,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** A shipment notice delayed an hour and a receipt delayed a week carry different business consequences, so each use case sets alert thresholds from its own delivery target. Setting records hold those thresholds, so the alert fires when delay passes what the business accepted.
 
-**Reviewed for:** Alert thresholds sit in setting records derived from each use-case delivery target.
+**Reviewed for:** Which alert thresholds sit outside a setting record derived from a use-case delivery target? Look at the setting records beside each use case.
 
 ### Model Outbox Lifecycle States
 
@@ -476,7 +476,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Example:** `OutboxState.Processing` carries one unexpired lease before a dispatcher records `OutboxState.Dispatched` or a retry state.
 
-**Reviewed for:** Outbox lifecycle states form sealed records over an abstract base with documented transitions.
+**Reviewed for:** Which outbox states lack a sealed record under the abstract base, or a documented transition? Look at the outbox state types and their transitions.
 
 ### Preserve Message Identity During Retry
 
@@ -490,7 +490,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** The target suppresses a repeat by recognizing its identity, which works only when every retry and replay carries the same message ID. A dispatcher that mints a new ID per attempt turns each retry into a new message the target processes again.
 
-**Reviewed for:** Message ID stays identical across retry and replay.
+**Reviewed for:** Which retry or replay paths mint a new message ID? Look at the dispatcher's retry and replay code.
 
 ### Audit Outbox Replay
 
@@ -504,7 +504,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** A replay dispatches a message the system already handled or dead-lettered, so the team records who replayed it, why, when, and which failure it answers. Without that record, a duplicate delivery looks like a dispatcher bug instead of an operator's decision, and nobody can reconstruct the choice.
 
-**Reviewed for:** Each replay records actor, reason, time, and failure without editing the payload.
+**Reviewed for:** Which replays omit the actor, reason, time, or failure, or edit the payload? Look at the replay code and its audit records.
 
 ### Protect Active Worker Compatibility
 
@@ -518,7 +518,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** WebApi writers and Worker dispatchers deploy independently, so a writer can run ahead of the oldest active Worker. When the writer emits a shape that Worker cannot read, those messages dead-letter on arrival through no fault of their own.
 
-**Reviewed for:** Every active Worker reads the type and schema version of new messages.
+**Reviewed for:** Which new messages carry a type or schema version that an active Worker cannot read? Look at the Worker's readers and the messages the WebApi emits.
 
 ### Deploy Readers Before Writers
 
@@ -532,7 +532,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** In a mixed-version rollout, old and new records sit in one store. Deploying compatible readers before the writers that emit new shapes keeps every record dispatchable at every step; the reverse order strands new records until the readers catch up.
 
-**Reviewed for:** Releases deploy compatible readers before additive writers.
+**Reviewed for:** Which release plans deploy an additive writer before its readers? Look at the deployment order in the release runbook.
 
 ### Plan Undispatched Rollback Records
 
@@ -546,7 +546,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** Rolling back the deployment does not roll back the store: records the new writer staged but nobody dispatched stay behind. The rollback Runbook names how the previous version handles them, or they sit undispatched with no owner and no reader.
 
-**Reviewed for:** The rollback Runbook covers records the new writer staged but nobody dispatched.
+**Reviewed for:** Which rollback runbooks omit records the new writer staged but nobody dispatched? Look at each rollback runbook record.
 
 ## Conventions
 
@@ -564,7 +564,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** The outbox record, storage, claim, and dispatch code form one mechanism with one owner. Keeping it under `Infrastructure/Messaging/Outbox/` puts every persistent dispatch question in one folder instead of scattered across the project.
 
-**Reviewed for:** Outbox infrastructure sits under `Infrastructure/Messaging/Outbox/`, or the project names another home in its documentation.
+**Reviewed for:** Which outbox infrastructure sits outside `Infrastructure/Messaging/Outbox/` with no other home named in the documentation? Look at the outbox code folders and the project's documentation.
 
 ### Isolate the Worker Host
 
@@ -580,7 +580,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** The Worker runs as its own process with its own lifetime, scaling, and configuration, apart from the request host. Its own project keeps that independence visible and stops request concerns leaking into dispatch configuration.
 
-**Reviewed for:** The outbox Worker host lives in its own project, or the project hosts dispatch inside its request host.
+**Reviewed for:** Which outbox Worker hosts share a project with the request host, with no documented choice? Look at the solution's projects.
 
 ### Keep Provider Mapping with Integration
 
@@ -596,7 +596,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** Each provider speaks its own transport with its own mapping, retries, and quirks. The integration that owns the side effect owns that mapping, so a provider change touches one integration instead of the shared dispatch path.
 
-**Reviewed for:** Provider mapping sits in the owning integration, or the project keeps it in the shared dispatch path.
+**Reviewed for:** Which provider mappings sit in the shared dispatch path with no documented choice? Look at the dispatch code and the integration projects.
 
 ### Dispatch Journey-Step Commands in a New Scope
 
@@ -612,7 +612,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** A journey-step command is a full command with validation, authorization, and its own transaction, not a subroutine of the dispatcher. Sending it through `ICommandMediator` in a fresh Worker scope runs the whole application pipeline for it.
 
-**Reviewed for:** Journey-step commands run through `ICommandMediator` in a fresh Worker scope, or the project runs them inline in the dispatcher scope.
+**Reviewed for:** Which journey-step commands run inline in the dispatcher scope with no documented choice? Look at the dispatcher's journey-step code.
 
 ### Avoid Automatic Durable-Bus Adoption
 
@@ -628,7 +628,7 @@ Each message record therefore carries its own shape version, and the dispatcher 
 
 **Rationale:** A durable bus package earns its place only when an integration test proves it commits the message in the same transaction as the business work. Until that evidence exists, project-owned Marten records with Worker dispatch carry delivery without depending on behavior nobody verified.
 
-**Reviewed for:** Dispatch runs on project-owned Marten records, or the project names a pinned durable bus package as its transport in its documentation.
+**Reviewed for:** Which dispatchers run on a durable bus package with no pinned manifest entry or documented choice? Look at the manifest and the dispatch transport.
 
 ## Dependencies
 

@@ -103,6 +103,7 @@ static class ModelCommand
                 var sinceRef = parsed.Value("--since");
                 StagedScope.Scope? since = null;
                 IReadOnlyList<Finding> breaks = [];
+                IReadOnlyList<Finding> proofDrift = [];
 
                 if (sinceRef is not null)
                 {
@@ -119,6 +120,7 @@ static class ModelCommand
                     {
                         using var checkout = DiffBase.Load(config, sinceRef);
                         breaks = ContractBreaks.Find(checkout.Model, model);
+                        proofDrift = ProofChanges.Find(checkout.Model, model);
                     }
                     catch (InvalidOperationException exception)
                     {
@@ -141,6 +143,12 @@ static class ModelCommand
                 foreach (var breaking in breaks.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
                 {
                     shown.Add((breaking, Decide(model, config, breaking, release), false));
+                }
+
+                // A proving test changed without its scenario is advisory: it reports and never blocks.
+                foreach (var drift in proofDrift.Where(finding => config.Layers.Covers(finding.Code, config.Extensions)))
+                {
+                    shown.Add((drift, Decide(model, config, drift, release), false));
                 }
 
                 if (json)

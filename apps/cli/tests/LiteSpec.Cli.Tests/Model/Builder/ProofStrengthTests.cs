@@ -9,7 +9,7 @@ namespace LiteSpec.Tests.Model.Builder;
 public sealed class ProofStrengthTests
 {
     /// <summary>A steps test without a then step proves nothing.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Steps_Test_Without_Then_Step_Does_Not_Confirm()
     {
@@ -23,7 +23,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code in setup, outside any assertion, proves no refusal.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Refusal_Code_Outside_An_Assertion_Does_Not_Confirm()
     {
@@ -37,7 +37,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A refusal code inside an assertion, sent through the message, confirms.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Refusal_Code_Inside_An_Assertion_Confirms()
     {
@@ -51,7 +51,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A test constructing the handler directly proves nothing.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Test_Constructing_A_Handler_Does_Not_Confirm()
     {
@@ -65,7 +65,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim without a scenario claim never confirms.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Rule_Claim_Without_A_Scenario_Does_Not_Confirm()
     {
@@ -78,7 +78,7 @@ public sealed class ProofStrengthTests
     }
 
     /// <summary>A rule claim confirms when the test also proves a governed scenario.</summary>
-    /// <proves>litespec/backend/testing#mark-the-test-that-proves-each-scenario</proves>
+    /// <proves>litespec/quality/testing#prove-each-scenario-through-the-public-boundary</proves>
     [Fact]
     public void Rule_Claim_With_A_Proving_Scenario_Confirms()
     {

@@ -399,8 +399,26 @@ sealed class DotnetScenarioReader : IScenarioReader
                 HasAssertion(reached),
                 created,
                 ResolvedServices(reached),
-                StaticCalls(reached)));
+                StaticCalls(reached))
+            {
+                MethodHash = MethodHashOf(method),
+            });
         }
+    }
+
+    /// <summary>
+    ///     The hash of a test method's own text: its attributes, signature and body, with line endings
+    ///     normalised to <c>\n</c>. Its doc comment and the rest of its file stay out of the hash.
+    /// </summary>
+    /// <param name="method">The test method declaration to hash.</param>
+    /// <returns>The sixteen-hex-character hash of the method text.</returns>
+    private static string MethodHashOf(MethodDeclarationSyntax method)
+    {
+        var text = method.ToString()
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace("\r", "\n", StringComparison.Ordinal);
+
+        return Convert.ToHexString(Sha256.Hash(System.Text.Encoding.UTF8.GetBytes(text)))[..16].ToLowerInvariant();
     }
 
     /// <summary>

@@ -32,7 +32,7 @@ The catalog is one file valid against `schemas/ui-pattern-catalog.schema.yaml`. 
 | `options` | At least two options, each with rationale and cost |
 | `decision` | The chosen option, its source, an optional note, and an optional record |
 | `compact` | The breakpoint and the behavior below it |
-| `extensions` | Further options a reader may switch to |
+| `extensions` | Further options a user may switch to |
 | `implementations` | The status and source paths per platform |
 | `library` | The LiteSpec pattern ID the entry starts from, if any |
 
@@ -132,7 +132,7 @@ The diagram shows the flow from a LiteSpec pattern through the catalog entry tha
 
 A choice starts as a recommendation and settles when an owner chooses. A later change names the record that made it.
 
-| Stage | Meaning |
+| State | Meaning |
 |:---|:---|
 | `recommended` | The reviewer recommendation, standing until an owner chooses |
 | `owner` | The owner choice, with an optional note |
@@ -220,7 +220,7 @@ paths: {}
 
 **Statement:** Each pattern decision MUST record its source as `owner` or `recommended`.
 
-**Rationale:** The source tells the reader whether the choice is settled. A recommended choice stands until an owner confirms or changes it; an agent leaves its own choice marked as recommended, so no automated choice poses as a human decision. The catalog then shows at a glance which choices are settled and which still await review.
+**Rationale:** The source tells the user whether the choice is settled. A recommended choice stands until an owner confirms or changes it; an agent leaves its own choice marked as recommended, so no automated choice poses as a human decision. The catalog then shows at a glance which choices are settled and which still await review.
 
 **Example:** For example, the Claimwick catalog starts its expense header entry from `litespec/frontend/patterns/record-detail#record-header`, keeps the pattern option IDs, and records the owner choice.
 
@@ -297,7 +297,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Statement:** Each platform entry MUST state one status and the gap when that status is `partial` or `pending`.
 
-**Rationale:** The status tells a reader what is built and what is missing on each platform, so a team adopting the catalog knows which options exist in code and which are still drawings. A partial or pending entry states its gap, so the missing work is named rather than discovered. The Concepts section defines the four values.
+**Rationale:** The status tells a user what is built and what is missing on each platform, so a team adopting the catalog knows which options exist in code and which are still drawings. A partial or pending entry states its gap, so the missing work is named rather than discovered. The Concepts section defines the four values.
 
 **Example:** A `pending` entry for one platform states in `gap` what is missing there.
 

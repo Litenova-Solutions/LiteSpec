@@ -55,7 +55,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** The selection states what each run selects, the batch size bounds how many items one batch takes, and `runs` names the command run per item. Each item runs as one command in its own unit of work, as `litespec/backend/application#issue-per-record-work-from-a-job` requires: a failed item replays without replaying its batch.
 
-**Reviewed for:** Each job run runs one command per item in its selection within its batch size, each in its own unit of work.
+**Reviewed for:** Which job handlers run more than one item in one unit of work, or ignore the batch size in their selection? Look at the job record selection and the handler code.
 
 ### Resume Driven Work Through the Cursor
 
@@ -69,7 +69,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** A batch that fails halfway resumes instead of restarting: the cursor holds where the run stopped. Without it, the next run replays finished items or skips unfinished ones, and a scenario covering the remainder resumes has no stated position to assert.
 
-**Reviewed for:** Each batch job names its resume position in its cursor, with a scenario covering the remainder after a halfway failure.
+**Reviewed for:** Which batch jobs name no resume position in their cursor, or have no scenario for the remainder after a halfway failure? Look at the job records and the scenario tests.
 
 ### Run Manual Jobs Under Their Guard
 
@@ -97,7 +97,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Scheduled work runs in a Worker, outside WebApi request handling. The Worker owns the schedule's lifetime and shuts its replicas down in a controlled order. Request handling has neither a scheduler nor a shutdown order for background work.
 
-**Reviewed for:** Worker sources hold every scheduled job, and WebApi request handling holds none.
+**Reviewed for:** Which scheduled jobs sit outside the Worker sources, or in WebApi request handling? Look at the Worker project and the WebApi endpoints.
 
 ### Observe Job Cancellation
 
@@ -111,7 +111,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Each job observes cancellation, so an occurrence ends its current step instead of running past the moment an operator asked it to stop.
 
-**Reviewed for:** Each job handler threads cancellation into its waits and stops its current step when cancellation fires.
+**Reviewed for:** Which job handlers leave a wait without cancellation, or keep running their current step after cancellation fires? Look at the handler code and its cancellation tests.
 
 ### Bound Job Duration
 
@@ -125,7 +125,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Each job bounds its duration, so a Worker stops without stranding work it can no longer watch.
 
-**Reviewed for:** Each job handler carries a duration bound, and the occurrence store shows completions inside it.
+**Reviewed for:** Which job handlers carry no duration bound, or record completions outside it? Look at the handler code and the occurrence store.
 
 ### Stop Jobs During Graceful Shutdown
 
@@ -139,7 +139,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Each job stops accepting new work during graceful shutdown. An unbounded job turns every deploy into a wait for work that never ends.
 
-**Reviewed for:** The Worker shutdown path stops schedule polling before it drains running occurrences.
+**Reviewed for:** Which Worker shutdown paths drain running occurrences before they stop schedule polling? Look at the shutdown code in the Worker.
 
 ### Store Execution Leases
 
@@ -153,7 +153,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Each planned occurrence carries a lease with its owner, expiry, and fencing value in PostgreSQL. The lease names the one replica that may complete that occurrence. The `lease` field on the job record names the lock each run claims. The outbox extension cites this definition for its own claims.
 
-**Reviewed for:** The lease rows in PostgreSQL carry owner, expiry, and fencing value for each occurrence.
+**Reviewed for:** Which lease rows in PostgreSQL lack an owner, an expiry, or a fencing value? Look at the lease table schema.
 
 ### Renew Only Owned Leases
 
@@ -167,7 +167,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** A replica renews only the lease it holds and only while it stays active. A failed renewal means another replica owns the occurrence now. The loser stops instead of completing work it no longer owns.
 
-**Reviewed for:** Replica logs show no renewal after a failed renewal, and the loser stops its occurrence.
+**Reviewed for:** Which replicas renew a lease after a failed renewal, or keep running an occurrence they lost? Look at the replica logs and the renewal tests.
 
 ### Prevent Duplicate Completion
 
@@ -181,7 +181,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Overlapping replicas must not complete the same occurrence twice. The lease admits one completion per occurrence. Two completions would bill, notify, or reconcile the same planned work twice.
 
-**Reviewed for:** The lease admits one completion per occurrence across overlapping replicas.
+**Reviewed for:** Which lease paths admit more than one completion per occurrence across overlapping replicas? Look at the lease claim code and its concurrency tests.
 
 ### Generate Monotonic Fencing Values
 
@@ -195,7 +195,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Each fencing value rises monotonically per occurrence, so a later claim always presents a higher value than an earlier one. A Worker that lost its lease presents a stale value, and `litespec/ext/jobs#restrict-completion-by-fencing-value` refuses completion on a stale value.
 
-**Reviewed for:** Fencing values in the store rise per occurrence, and a stale value refuses completion.
+**Reviewed for:** Which fencing values in the store fail to rise per occurrence, or let a stale value complete? Look at the store write path and its fencing tests.
 
 ### Scope Occurrences and Leases by Tenant
 
@@ -209,7 +209,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Products that isolate tenants scope each occurrence and its lease to one tenant. One tenant's schedules then never trigger, block, or expose another tenant's work. Unscoped leases would let a replica mix tenants inside one occurrence.
 
-**Reviewed for:** Occurrence and lease rows carry tenant scope in products that isolate tenants.
+**Reviewed for:** Which occurrence or lease rows lack tenant scope in a product that isolates tenants? Look at the occurrence and lease table schemas.
 
 ### Dispatch Application Behavior
 
@@ -223,7 +223,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** The job record names the use cases it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or a declared Application port. The schedule stays a trigger while the behavior stays owned.
 
-**Reviewed for:** Each job handler calls an Application Command or a declared Application port.
+**Reviewed for:** Which job handlers call something other than an Application Command or a declared Application port? Look at the handler calls.
 
 ### Exclude Direct Storage and HTTP Execution
 
@@ -237,7 +237,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** A job that mutates a Marten session or DbContext directly, bypasses Domain behavior, or calls WebApi endpoints skips the command boundary. That boundary carries authorization, transaction, and validation the job would then lack. Jobs enter through Commands like every other caller.
 
-**Reviewed for:** Job sources mutate no Marten session or DbContext and call no WebApi endpoint.
+**Reviewed for:** Which job sources mutate a Marten session or DbContext, or call a WebApi endpoint? Look at the job sources and their imports.
 
 ### Bound Job Retries
 
@@ -251,7 +251,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Bounded attempts with cancellation-aware backoff cap what one failed occurrence consumes. A poison state parks the permanently failing occurrence instead of retrying it forever. Without the bound, one poison occurrence eats the Worker's whole capacity.
 
-**Reviewed for:** Each schedule declares bounded attempts with cancellation-aware backoff and a poison state.
+**Reviewed for:** Which schedules declare no bounded attempts, no cancellation-aware backoff, or no poison state? Look at the schedule records and the retry code.
 
 ### Tolerate Duplicate Execution
 
@@ -265,7 +265,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** A lease or process failure can replay a job whose completion stayed uncertain. The job Command and its side effects tolerate that duplicate execution. Work that assumes exactly-once breaks on the first uncertain failure.
 
-**Reviewed for:** Job Commands and side effects show one accepted effect after a replayed occurrence.
+**Reviewed for:** Which job Commands or side effects record more than one accepted effect after a replayed occurrence? Look at the replay tests.
 
 ### Treat Unavailable Schedule Stores as Outages
 
@@ -279,7 +279,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** An unavailable scheduler store is an outage of the dependency, not a failed occurrence. The Worker treats it as the store outage `litespec/ext/outbox#distinguish-dependency-outage` defines, with backed-off, rate-limited logging. Retry and poison outcomes belong to claimed occurrences, not to a store nobody can reach.
 
-**Reviewed for:** Worker logs during a store outage show backed-off, rate-limited entries and no poisoned occurrences.
+**Reviewed for:** Which Worker log entries during a store outage are not backed off or rate-limited, or which occurrences are poisoned? Look at the Worker logs and the outage tests.
 
 ### Persist Occurrence Recovery Points
 
@@ -293,7 +293,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Last scheduled, started, and completed times persist per occurrence. After a restart, those points separate missed work from completed work. Memory alone cannot make that split, because the restart wipes it.
 
-**Reviewed for:** Each occurrence row carries last scheduled, started, and completed times.
+**Reviewed for:** Which occurrence rows lack a last scheduled, started, or completed time? Look at the occurrence table schema.
 
 ### Define Misfire Recovery
 
@@ -307,7 +307,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Rationale:** Downtime and delay leave occurrences past their time. The specification states whether each missed occurrence is skipped, replayed once, or replayed per interval. The choice controls the business effect: a skipped reminder stays silent while a replayed one arrives late.
 
-**Reviewed for:** Each schedule states skipped, once-replayed, or interval-replayed behavior for missed occurrences.
+**Reviewed for:** Which schedules state no skipped, once-replayed, or interval-replayed behavior for missed occurrences? Look at each schedule record.
 
 ### Provide Operational Recovery Procedures
 
@@ -325,7 +325,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **Example:** A disable procedure names the configuration value or the administrative endpoint that stops the schedule. It states what happens to an occurrence already claimed.
 
-**Reviewed for:** Runbook records cover inspection, manual replay, and disable for each schedule.
+**Reviewed for:** Which schedules lack a runbook record for inspection, manual replay, or disable? Look at the runbook records beside the schedules.
 
 ### Derive Stable Occurrence Identity
 
@@ -339,7 +339,7 @@ Each procedure names the interface that performs it. A procedure that says "disa
 
 **Rationale:** Schedule ID plus scheduled instant gives each planned time one stable identity across retries and replicas. Retries of one occurrence then share their idempotency scope, and two replicas recognize the same occurrence.
 
-**Reviewed for:** Occurrence identities in the store combine schedule ID with scheduled instant.
+**Reviewed for:** Which occurrence identities in the store lack the schedule ID or the scheduled instant? Look at the occurrence identity column.
 
 ### Remove Occurrences Past Retention
 
@@ -357,7 +357,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** A daily schedule that retains occurrences for 90 days holds 90 rows. A minute schedule with the same retention holds more than 100,000 rows. That is a different storage decision.
 
-**Reviewed for:** The store holds no occurrence older than its schedule's retention setting record.
+**Reviewed for:** Which stored occurrences are older than their schedule's retention setting record? Look at the store rows beside the setting records.
 
 ### Persist Occurrence State
 
@@ -371,7 +371,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Scheduled, processing, completed, and dead-letter states persist with attempt, lease, start, completion, and safe error data. The persisted state tells operators and recovery code where each occurrence stands. A store without states cannot separate work in flight from work never started.
 
-**Reviewed for:** Each occurrence row carries scheduled, processing, completed, or dead-letter state with safe execution details.
+**Reviewed for:** Which occurrence rows lack a scheduled, processing, completed, or dead-letter state, or hold unsafe execution details? Look at the occurrence rows.
 
 ### Scope Command Idempotency by Occurrence
 
@@ -385,7 +385,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** The occurrence identity scopes the command idempotency key. Every retry of one occurrence then replays the same scheduled business action. A key scoped any wider would merge separate occurrences into one.
 
-**Reviewed for:** Retries of one occurrence share the idempotency scope of its occurrence identity.
+**Reviewed for:** Which retries of one occurrence use an idempotency scope other than its occurrence identity? Look at the command idempotency keys.
 
 ### Restrict Completion by Fencing Value
 
@@ -399,7 +399,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** The Worker marks completion only while its fencing value stays current. A stale value means another replica owns the occurrence now. Completing past that point would write one replica's result over another's ownership.
 
-**Reviewed for:** Completion writes fail on a stale fencing value in the store.
+**Reviewed for:** Which completion writes succeed on a stale fencing value? Look at the store write path and its fencing tests.
 
 ### Audit Manual Replay
 
@@ -413,7 +413,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** A manual replay creates a new attempt under the same occurrence identity: an audit record where audit is selected, a standalone record otherwise. The replay keeps the original scheduled instant and its history. A replay recorded as a new occurrence would rewrite when the work was due.
 
-**Reviewed for:** Each manual replay adds an audited attempt under its original occurrence identity.
+**Reviewed for:** Which manual replays add no audited attempt, or add it under a new occurrence identity? Look at the replay command and the audit rows.
 
 ### Prefer UTC Schedules
 
@@ -425,9 +425,9 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** A scheduled job MUST use a UTC schedule unless its specification names a business-local time requirement and its IANA time zone.
 
-**Rationale:** A local schedule runs twice on one date each year and skips an hour on another. A daylight-saving transition does that to a wall clock. That behavior is correct for a job whose meaning is local, such as a nightly statement at 9 AM for a reader. It is a defect for every other job. Naming the time zone in the specification states the transition behavior for a later reader.
+**Rationale:** A local schedule runs twice on one date each year and skips an hour on another. A daylight-saving transition does that to a wall clock. That behavior is correct for a job whose meaning is local, such as a nightly statement at 9 AM for a user. It is a defect for every other job. Naming the time zone in the specification states the transition behavior for a later reader.
 
-**Reviewed for:** Each schedule states UTC or names a business-local time requirement with its IANA time zone.
+**Reviewed for:** Which schedules state neither UTC nor a business-local time requirement with its IANA time zone? Look at each schedule record.
 
 ### Define Business-Local Clock Behavior
 
@@ -441,7 +441,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Daylight-saving transitions omit one local hour and repeat another. A business-local schedule records its IANA time-zone identifier and defines what happens to occurrences in the skipped and repeated hours. Without that definition, each transition silently drops or doubles the local work.
 
-**Reviewed for:** Each business-local schedule records its IANA zone with skipped and repeated local-time behavior.
+**Reviewed for:** Which business-local schedules lack their IANA zone or the skipped and repeated local-time behavior? Look at each schedule record.
 
 ### Test Time Transitions
 
@@ -455,7 +455,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** An injected clock lets tests move time to any transition on demand. Representative time-zone transitions then run deterministically instead of once a year in production. Tests on the real clock can only wait for the transition to arrive.
 
-**Reviewed for:** Job tests inject the clock and cover representative time-zone transitions.
+**Reviewed for:** Which job tests use the real clock or skip representative time-zone transitions? Look at the job test sources.
 
 ### Exclude Machine-Local Time
 
@@ -469,7 +469,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Machine-local time follows each host's configuration. Production code that reads it schedules differently on a developer machine, in staging, and in production. Schedules read their time from the injected clock and the declared zone instead.
 
-**Reviewed for:** Production job sources read no machine-local clock.
+**Reviewed for:** Which production job sources read a machine-local clock? Look at the job sources for local time calls.
 
 ### State the Claim Mode
 
@@ -485,7 +485,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** The payout queue requires a claim before release, while the review queue leaves claiming optional.
 
-**Reviewed for:** The queue use cases state disabled, optional, or required on their claim field.
+**Reviewed for:** Which queue use cases leave their claim field without disabled, optional, or required? Look at the use case pages.
 
 ### Order Queue Items by Score
 
@@ -501,7 +501,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** The dispute queue orders by `rule/dispute.urgency-score`, which weighs amount, age, and evidence gaps.
 
-**Reviewed for:** The queue listings sort by a score citing the calculation rule behind it.
+**Reviewed for:** Which queue listings sort without a score that cites its calculation rule? Look at the listing queries.
 
 ### Show the Score Beside Each Item
 
@@ -517,7 +517,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** Each dispute row shows `urgency 82: EUR 1,900, 6 days old, evidence missing`.
 
-**Reviewed for:** The queue rows display each score with the inputs that set it.
+**Reviewed for:** Which queue rows show a score without the inputs that set it? Look at the queue rows in the interface.
 
 ### Release Claims Past Their Lease
 
@@ -533,7 +533,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** A payout claimed Friday and untouched returns to the queue when its one-hour lease expires.
 
-**Reviewed for:** The claim tests show untouched items returning after their lease expires.
+**Reviewed for:** Which claim tests show no untouched item returning to the queue after its lease expires? Look at the claim tests.
 
 ### Show a Preview Before Bulk Money Actions
 
@@ -549,7 +549,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** The bulk release previews forty-two payouts totaling EUR 18,400 before asking for confirmation.
 
-**Reviewed for:** The bulk money commands render every affected item with its amount before acting.
+**Reviewed for:** Which bulk money commands act without rendering every affected item with its amount? Look at the preview step of each command.
 
 ### Confirm Bulk Money Actions Out of Band
 
@@ -565,7 +565,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Example:** The bulk release asks for the six-digit code sent to the finance phone before moving any money.
 
-**Reviewed for:** The bulk money commands ask for the out-of-band code before moving money.
+**Reviewed for:** Which bulk money commands move money without asking for the out-of-band code? Look at the command handlers.
 
 ### Record Reporting Need
 
@@ -579,7 +579,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Reporting infrastructure costs a Worker, storage, and operating attention, so the team writes down the report, a representative data volume, the plan or limitation, the latency target, the maximum result, and the operator before building any of it. The use case page carries that record, and it shows why a normal request projection cannot meet the boundary.
 
-**Reviewed for:** The use case page holds the report, volume, plan, target, maximum, and operator.
+**Reviewed for:** Which report use case pages lack the report, volume, plan, target, maximum, or operator? Look at each use case page.
 
 ### Avoid Speculative Reporting Systems
 
@@ -593,7 +593,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** A reporting system built for analytics the product may never need charges its full operating cost from day one while serving no accepted query. Each report or export earns its infrastructure with a current cost boundary, not a guess about future analysis.
 
-**Reviewed for:** Each reporting system traces to an accepted current query or export.
+**Reviewed for:** Which reporting systems trace to no accepted current query or export? Look at the reporting code and the use case pages.
 
 ### Parameterize Report SQL
 
@@ -607,7 +607,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** A report concatenates actor, tenant, filters, ranges, sorting, and pagination into SQL that reads across the database. Binding every one of those values as a parameter keeps tenant and actor isolation intact and closes the injection hole string concatenation opens.
 
-**Reviewed for:** Each report query binds actor, tenant, filter, range, sort, and pagination values as parameters in code.
+**Reviewed for:** Which report queries put actor, tenant, filter, range, sort, or pagination values into SQL text instead of parameters? Look at the query code.
 
 ### Keep Raw SQL in Infrastructure
 
@@ -621,7 +621,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Raw SQL names tables, dialects, and connection handling that belong to one provider. Keeping it in Infrastructure lets Application and Domain state what the report means without depending on how one database phrases it.
 
-**Reviewed for:** Raw report SQL and connection handling sit in Infrastructure code.
+**Reviewed for:** Which raw report SQL or connection handling sits outside Infrastructure code? Look at the report query sources.
 
 ### Review Report Plans
 
@@ -637,7 +637,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** A query that flies over a hundred local rows can scan millions in production. The team reviews query plans and indexes against representative data, so the true cost shows before the report ships rather than after it slows the database.
 
-**Reviewed for:** The review record shows query plans and indexes checked against representative data.
+**Reviewed for:** Which reports lack a review record showing query plans and indexes checked against representative data? Look at the review records.
 
 ### Apply Item-Read Authorization
 
@@ -649,9 +649,9 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** A report or export MUST enforce actor, role, ownership, tenant, and sensitive-field rules that apply to item reads.
 
-**Rationale:** A report that reads ten thousand rows at once crosses the same actor, role, ownership, tenant, and sensitive-field boundaries as ten thousand single reads. Enforcing the item-read rules on the bulk path stops the report from exposing rows its reader may not open one by one.
+**Rationale:** A report that reads ten thousand rows at once crosses the same actor, role, ownership, tenant, and sensitive-field boundaries as ten thousand single reads. Enforcing the item-read rules on the bulk path stops the report from exposing rows its user may not open one by one.
 
-**Reviewed for:** Each report and export enforces the item-read rules in the authorization tests.
+**Reviewed for:** Which reports or exports lack an authorization test for the item-read rules? Look at the authorization tests.
 
 ### Run Budget-Exceeding Exports in Worker
 
@@ -663,9 +663,9 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** An export exceeding its request budget MUST run through Worker, with the budget a setting record the export's use case names.
 
-**Rationale:** An export that outlasts its request budget holds an HTTP connection open while the reader waits and the server counts threads. Running it in a Worker returns the request immediately, and the budget in its setting record tells the team exactly when an export outgrows the request path.
+**Rationale:** An export that outlasts its request budget holds an HTTP connection open while the user waits and the server counts threads. Running it in a Worker returns the request immediately, and the budget in its setting record tells the team exactly when an export outgrows the request path.
 
-**Reviewed for:** Each export past its request budget runs through a Worker, with the budget in its setting record.
+**Reviewed for:** Which exports past their request budget run outside a Worker, or lack the budget in a setting record? Look at the export use cases and their setting records.
 
 ### Protect Export Output
 
@@ -679,7 +679,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** An export file concentrates sensitive rows into one downloadable object that outlives the request that built it. Approved object storage with a named contact, an expiry, and a short-lived authorized download gives that object controlled access and a defined end instead of a permanent public link.
 
-**Reviewed for:** Export output sits in approved object storage with a named contact, an expiry, and a short-lived authorized download.
+**Reviewed for:** Which export outputs sit outside approved object storage, or lack a named contact, an expiry, or a short-lived authorized download? Look at the export storage configuration.
 
 ### Scope Export Output to the Tenant
 
@@ -693,7 +693,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Export addresses are predictable, and a shared folder lets one tenant guess another tenant's file name. A tenant-scoped storage path puts each tenant's exports under its own prefix, so a guessed address stays inside the guesser's own data.
 
-**Reviewed for:** Each export stores its output under a tenant-scoped path in object storage.
+**Reviewed for:** Which exports store output outside a tenant-scoped path in object storage? Look at the export storage paths.
 
 ### Define Report Limits
 
@@ -707,7 +707,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Date range, rows, execution time, concurrent jobs, output size, and storage lifetime each cap one dimension of report cost. Setting records hold all six, so a runaway report hits a documented bound instead of an exhausted database, a full disk, or a surprise invoice.
 
-**Reviewed for:** Each report bound lives as a setting record beside the report.
+**Reviewed for:** Which report bounds lack a setting record beside the report? Look at each report's setting records.
 
 ### Declare Export Paging
 
@@ -747,9 +747,9 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** A report implementation MUST support cancellation and remove expired outputs.
 
-**Rationale:** A reader who closes the tab leaves the report running, and an export nobody downloads still occupies storage. Cancellation stops the abandoned work, and expiry removes the abandoned file, so neither consumes resources indefinitely.
+**Rationale:** A user who closes the tab leaves the report running, and an export nobody downloads still occupies storage. Cancellation stops the abandoned work, and expiry removes the abandoned file, so neither consumes resources indefinitely.
 
-**Reviewed for:** Report work cancels on request and expired output clears in the cancellation tests.
+**Reviewed for:** Which report work ignores a cancel request, or keeps expired output? Look at the cancellation tests.
 
 ### Escape Formula-Leading Export Values
 
@@ -763,7 +763,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** A value starting with `=`, `+`, `-`, or `@` becomes a live formula when the export opens in a spreadsheet, running in the opener's application with the opener's data. Escaping those values keeps data as data, except in a field the team intentionally fills with a formula.
 
-**Reviewed for:** Exported values starting a formula are escaped, except in formula fields the team fills intentionally.
+**Reviewed for:** Which exported values that start with a formula character go out unescaped, outside the formula fields the team fills on purpose? Look at the CSV and spreadsheet writers.
 
 ### Define Export Encoding and Columns
 
@@ -777,7 +777,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** An export without a stated encoding arrives garbled on the first machine that guesses differently, and columns that shift per release break every parser built on them. Explicit encoding with a stable column contract lets consumers parse the file without guessing either.
 
-**Reviewed for:** Each export states its character encoding and stable columns in its format record.
+**Reviewed for:** Which export formats lack a character encoding or stable columns in their format record? Look at each format record.
 
 ## Conventions
 
@@ -795,7 +795,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** One job handler lives under the module that owns its behavior. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
 
-**Reviewed for:** Each job handler sits under the module that owns its behavior, or the project keeps its handlers in one shared jobs folder.
+**Reviewed for:** Which job handlers sit outside the module that owns their behavior, when the project keeps no shared jobs folder? Look at the handler folders.
 
 ### Use Execution Scopes
 
@@ -811,7 +811,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Each occurrence resolves its scoped dependencies inside one execution scope and disposes it after the Command completes. The scope isolates one occurrence's dependencies from the next. A shared scope would leak one occurrence's state into another.
 
-**Reviewed for:** Each occurrence resolves scoped dependencies in one disposed execution scope, or the project names another scope boundary in its documentation.
+**Reviewed for:** Which occurrences resolve scoped dependencies outside a disposed execution scope, when the project names no other scope boundary? Look at the job execution code and the project documentation.
 
 ### Separate Schedule Definitions
 
@@ -827,7 +827,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Timing policy changes when operations needs a new rhythm, and Command behavior changes when the business needs a new outcome. Keeping schedule definitions separate from Command behavior lets each change alone. A schedule buried in the handler makes every timing change a code change.
 
-**Reviewed for:** Schedule definitions sit apart from Command behavior, or the project keeps them beside it.
+**Reviewed for:** Which schedule definitions sit inside Command behavior, when the project keeps them apart from it? Look at the handler code and the schedule records.
 
 ### Order Unscored Queues by Age
 
@@ -843,7 +843,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Age is the honest fallback: the item waiting longest goes first. Any other fallback works when the queue states it.
 
-**Reviewed for:** Queues without a score list oldest first, or the queue documentation names another fallback order.
+**Reviewed for:** Which queues without a score list anything other than oldest first, with no fallback order named in the queue documentation? Look at the queue listings and the queue documentation.
 
 ### Keep Report Definitions in Application
 
@@ -859,7 +859,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** What a report means and who may run it are business choices. Keeping the definition in Application under its module puts those choices beside the module's other rules instead of buried in query code.
 
-**Reviewed for:** Report definitions sit in their module, or the report-definition convention names where they live.
+**Reviewed for:** Which report definitions sit outside their module, when the report-definition convention names no other place? Look at the report definition sources.
 
 ### Keep Report Providers in Infrastructure
 
@@ -875,7 +875,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** SQL text, row mappings, and storage calls change per provider while the report's meaning stays fixed. Keeping them in Infrastructure swaps the provider without touching the report's business rules.
 
-**Reviewed for:** SQL and storage code sit in Infrastructure, or the report-provider convention names where they live.
+**Reviewed for:** Which SQL and storage code sits outside Infrastructure, when the report-provider convention names no other place? Look at the report provider sources.
 
 ### Separate Worker Orchestration
 
@@ -891,7 +891,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Rationale:** Scheduling, chunking, and progress tracking run the report without defining it. Keeping Worker orchestration apart from the report's rules lets either change without dragging the other along.
 
-**Reviewed for:** Worker orchestration sits apart from report rules, or the report-orchestration convention names where it lives.
+**Reviewed for:** Which Worker orchestration code sits inside report rules, when the report-orchestration convention names no other place? Look at the report rule sources.
 
 ## Dependencies
 

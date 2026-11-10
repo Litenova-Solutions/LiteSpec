@@ -34,12 +34,15 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.yaml`.
 
-**Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own exception record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
+**Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own departure record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
 
 **Example:** A consumer with no customer data in any deployment declares the early stage.
 
-```json
-{"id": "stage", "criterion": "no deployment holds customer data", "releaseStage": "pre-production"}
+```yaml
+selectedExtensions:
+  - id: stage
+    criterion: no deployment holds customer data
+    releaseStage: pre-production
 ```
 
 **Checked by:** `litespec model check` reports `project-invalid` for a `stage` selection with a missing or unknown `releaseStage`.
@@ -50,19 +53,28 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Strength:** required
 
-**Applies to:** artifact: record:exception
+**Applies to:** artifact: record:departure
 
-**Statement:** A `pre-production` consumer MUST record each deferred provision as a departure exception expiring at promotion, with a `production` consumer carrying no deferred provision.
+**Statement:** A `pre-production` consumer MUST record each deferred provision as a departure expiring at promotion, with a `production` consumer carrying no deferred provision.
 
-**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each exception names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
+**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each departure names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
 
-**Example:** Each deferral is a departure exception covering its provision until promotion.
+**Example:** Each deferral is a departure covering its provision until promotion.
 
-```json
-{"type": "exception", "id": "exception/compat-classification-until-promotion", "title": "Compat Classification Until Promotion", "kind": "departure", "covers": "litespec/ext/compat#classify-breaking-contract-changes", "paths": ["apps/api/**"], "reason": "No consumer reads the contract before the first deployment.", "expiresOn": "2026-12-01"}
+```yaml
+type: departure
+id: departure/compat-classification-until-promotion
+title: Compat Classification Until Promotion
+covers:
+  - litespec/ext/compat#classify-breaking-contract-changes
+paths:
+  - apps/api/**
+reason: No consumer reads the contract before the first deployment.
+exit: Promotion to production ends the deferral and the classification applies.
+expiresOn: 2026-12-01
 ```
 
-**Checked by:** `litespec model check` refuses a deferral exception naming an unknown provision, and any deferral in `production`; `litespec model check` reports `departure-expired` for a departure past its `expiresOn`.
+**Checked by:** `litespec model check` refuses a deferral departure naming an unknown provision, and any deferral in `production`; `litespec model check` reports `departure-expired` for a departure past its `expiresOn`.
 
 ### Promote Through a Recorded Decision
 
@@ -76,7 +88,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Rationale:** Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives: the relaxed provisions last until somebody notices they never ended. The decision stands in git before the first deployment holds customer data, so the data sits under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.
 
-**Reviewed for:** The promotion decision under `.litespec/intent/decisions/` stands before the first deployment holds customer data and ends every deferred provision.
+**Reviewed for:** Which promotion decisions under `.litespec/intent/decisions/` come after the first deployment holds customer data, or leave a deferred provision open? Look at the decision records beside the deferrals they end.
 
 ## Conventions
 

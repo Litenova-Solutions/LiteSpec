@@ -1,7 +1,6 @@
 # Web Rendering and Routes
 
-**Stack:** any
-
+**Stack:** react, svelte
 **Concern:** frontend-ui
 
 ## Intent

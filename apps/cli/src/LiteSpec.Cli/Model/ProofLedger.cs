@@ -85,8 +85,11 @@ sealed class ProofLedger
                 var run = property.Value.TryGetProperty("run", out var runId)
                     ? runId.GetString() ?? ""
                     : "";
+                var method = property.Value.TryGetProperty("method", out var methodHash)
+                    ? methodHash.GetString() ?? ""
+                    : "";
 
-                entries[property.Name] = new ProofEntry(scenario, test, run);
+                entries[property.Name] = new ProofEntry(scenario, test, run, method);
             }
         }
         catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -188,6 +191,41 @@ sealed class ProofLedger
     }
 
     /// <summary>
+    ///     The hash of the proving test methods: each method's hash from its scenario read, in test name order,
+    ///     so an edit to a proving method moves it and an edit elsewhere in its file does not. A scenario with
+    ///     no proving .NET test method hashes as empty.
+    /// </summary>
+    /// <param name="model">The built project model holding the proves links and tests.</param>
+    /// <param name="scenario">The scenario id whose proving test methods are hashed.</param>
+    /// <returns>The sixteen-hex-character hash of the proving test methods.</returns>
+    public static string MethodHashOf(ProjectModel model, string scenario)
+    {
+        var methods = new SortedDictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var link in model.Proves)
+        {
+            if (link.Claim != scenario || !link.Confirmed)
+            {
+                continue;
+            }
+
+            foreach (var test in model.Tests.Where(test => test.Name == link.Scenario))
+            {
+                methods[test.Name] = test.MethodHash;
+            }
+        }
+
+        var hasher = new Sha256();
+
+        foreach (var (name, hash) in methods)
+        {
+            hasher.Append(Encoding.UTF8.GetBytes(name + "\n" + hash + "\n"));
+        }
+
+        return Convert.ToHexString(hasher.Finish()).ToLowerInvariant()[..16];
+    }
+
+    /// <summary>
     ///     Whether the scenario's passing proof in this run is stale: the first time a run
     ///     passes the proof, both hashes are recorded and the proof is current. On every
     ///     later build against the same run, the proof is stale when either hash moved.
@@ -196,16 +234,17 @@ sealed class ProofLedger
     /// <param name="scenario">The scenario id to test.</param>
     /// <param name="scenarioHash">The scenario semantic hash in this build.</param>
     /// <param name="testHash">The proving test files hash in this build.</param>
+    /// <param name="methodHash">The proving test methods hash in this build.</param>
     /// <param name="run">The identity of the passing run in this build.</param>
     /// <returns>True when the recorded proof for the same run carries a moved hash.</returns>
-    public bool Stale(string scenario, string scenarioHash, string testHash, string run)
+    public bool Stale(string scenario, string scenarioHash, string testHash, string methodHash, string run)
     {
         if (entries.TryGetValue(scenario, out var entry) && entry.Run == run)
         {
             return entry.Scenario != scenarioHash || entry.Test != testHash;
         }
 
-        entries[scenario] = new ProofEntry(scenarioHash, testHash, run);
+        entries[scenario] = new ProofEntry(scenarioHash, testHash, run, methodHash);
         Changed = true;
 
         return false;
@@ -236,6 +275,7 @@ sealed class ProofLedger
                 writer.WriteString("scenario", entry.Value.Scenario);
                 writer.WriteString("test", entry.Value.Test);
                 writer.WriteString("run", entry.Value.Run);
+                writer.WriteString("method", entry.Value.Method);
                 writer.WriteEndObject();
             }
 

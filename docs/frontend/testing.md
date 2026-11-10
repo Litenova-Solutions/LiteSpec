@@ -34,11 +34,12 @@ Element queries follow the Testing Library guiding principles: query by role, la
 
 ### Related Rules
 
-Three related rules live on other pages:
+Four related rules live on other pages:
 
 - `litespec/core/release#run-frontend-release-checks` owns the gates a changed frontend runs.
 - `litespec/frontend/structure#place-tests-at-their-ownership-boundary` owns the test layout.
 - `litespec/frontend/ui#prove-ui-behavior-and-appearance` owns the evidence a UI change runs.
+- `litespec/quality/testing#use-one-mock-rule-for-every-stack` owns the one mock rule every stack follows.
 
 ## Standards
 
@@ -149,18 +150,6 @@ Three related rules live on other pages:
 **Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success, ties the test to the reader's view. The scenario states which states its situation reaches, so a logic test asserts only states its level reaches. The project records each state as a term with labels per language.
 
 **Reviewed for:** Which tests assert internal state instead of observable behavior in the states their situation reaches? Look in the test assertions.
-
-### Keep Mocks at Owned Boundaries
-
-**ID:** `litespec/frontend/testing#keep-mocks-at-owned-boundaries`
-
-**Strength:** required
-
-**Statement:** A frontend test MUST NOT mock the generated contract types or an implementation-private function, nor a library its stack names.
-
-**Rationale:** A mock is a claim about code the test no longer exercises. Mocking the generated contract types, an implementation-private function, or a library the stack names replaces the project's own contract or someone else's internals with the test author's guess of how they behave. The generated client boundary stays replaceable because it is an owned contract: the project wrote it, so the project can stand in for it.
-
-**Reviewed for:** Which mocks replace generated contract types, private functions, or stack-named libraries? Look in the test doubles.
 
 ### Use Network Mocks for Component Tests
 

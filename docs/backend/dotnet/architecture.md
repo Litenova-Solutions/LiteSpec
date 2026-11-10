@@ -144,20 +144,11 @@ This provision binds `litespec/backend/architecture#keep-implementation-types-hi
 
 **Applies to:** artifact: any
 
-**Statement:** A type MUST reference only the layers its own layer allows under the layer table in this section.
+**Statement:** A type MUST reference only the layers its own layer allows under the layer table of [Backend Architecture](../architecture.md#the-four-layers).
 
 **Rationale:** Layers are roles played by folders and use case files, whatever project holds them. A file takes its layer from its folder and, inside a use case folder, from its role suffix. Global usings import namespaces for every file, so the rule reads them too and they hide coupling from nothing. This provision binds `litespec/backend/architecture#point-dependencies-inward` for .NET.
 
-**Example:**
-
-| Layer | Holds | May reference |
-|:---|:---|:---|
-| Domain | Aggregates, state records, value objects, domain events, domain exceptions, repository contracts | Domain |
-| Application | Commands, queries, results, handlers, validators, ports, pipeline positions | Domain, Application |
-| Infrastructure | Repositories, adapters, mappings, module registration | Domain, Application, Infrastructure |
-| WebApi | Endpoints, request and response models, transport mappings | Application, WebApi, and from Domain only typed identifiers and shared-kernel values |
-
-Domain touches no Application Infrastructure or WebApi type and none of the persistence web mediator logging and injection namespaces. Application touches no Infrastructure or WebApi type and no ASP.NET Core type. WebApi touches no Domain type outside typed identifiers and shared-kernel values and no repository.
+**Example:** Domain touches no Application Infrastructure or WebApi type and none of the persistence web mediator logging and injection namespaces. Application touches no Infrastructure or WebApi type and no ASP.NET Core type. WebApi touches no Domain type outside typed identifiers and shared-kernel values and no repository.
 
 **Checked by:** `dotnet build` reports `LS1001` for a Domain type naming an outer-layer type and `LS2018` for an Application or WebApi type naming a type outside its layer.
 
