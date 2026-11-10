@@ -84,7 +84,7 @@ public sealed class CitationCheckTests
     }
 
     /// <summary>A page citing a removed record reports it.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
     public void Page_Citing_A_Removed_Record_Reports_It()
     {

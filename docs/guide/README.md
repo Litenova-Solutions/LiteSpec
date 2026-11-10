@@ -15,9 +15,12 @@ When LiteSpec is new, follow [Start a Consumer Repository](../tutorial/getting-s
 
 ## How-To Guides
 
+- [Install the CLI](install-the-cli.md): install the command line for a consumer repository or a machine, by every method a release ships.
+- [Start with Records Only](start-with-records-only.md): claim the Intent and Behavior records alone, and check them with the model check and the book.
 - [Add a Svelte Frontend](add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write a Feature Under a Module](write-a-feature-under-a-module.md): write one feature with its requirement entries under its module.
 - [Folder Reference](folder-reference.md): where each record file lives, with its parent and its identifiers.
 - [Build an Audit Trail](audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
+- [Add a Stack or an Extension](add-a-stack-or-extension.md): for LiteSpec maintainers, add a stack folder or an extension page to the release manifest.

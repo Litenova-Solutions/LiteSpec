@@ -8,7 +8,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments.</summary>
-/// <follows>litespec/backend/identifiers#resolve-every-identifier-citation</follows>
+/// <follows>litespec/core/language#resolve-every-identifier-citation</follows>
 internal static class CitationChecks
 {
     /// <summary>Reports a citation resolving to no record.</summary>

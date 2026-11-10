@@ -9,7 +9,7 @@ namespace LiteSpec.Model.Checks;
 
 /// <summary>The proof checks: every use case has a success result and, at the large size, a scenario, every written refusal is thrown, and every claimed proof is reached and steady.</summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
-/// <follows>litespec/core/model#give-every-use-case-its-results</follows>
+/// <follows>litespec/core/use-cases#end-every-use-case-in-named-results</follows>
 /// <follows>litespec/core/model#report-unverified-use-cases</follows>
 internal static class ProofChecks
 {

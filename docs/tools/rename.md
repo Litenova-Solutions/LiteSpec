@@ -29,7 +29,7 @@ Run it for every identifier rename, as `litespec/core/authoring#rewrite-every-li
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--root <path>` | the working directory | Selects the consumer repository to change. |
+| `--root <path>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--help` | off | Prints the synopsis, the options, and the exit codes, then exits zero. |
 
 ## Exit Codes
@@ -37,8 +37,8 @@ Run it for every identifier rename, as `litespec/core/authoring#rewrite-every-li
 | Code | Meaning |
 |:---|:---|
 | `0` | The identifier was renamed and every link rewritten. |
-| `1` | The run failed after the checks passed. |
-| `2` | The old identifier names no record, the new identifier is taken, or an option is unknown. |
+| `1` | The records cannot be read, or the run failed after the checks passed. |
+| `2` | The root or the project file is missing or invalid, the old identifier names no record, the new identifier is taken, or an option is unknown. |
 
 ## Examples
 

@@ -175,22 +175,6 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Reviewed for:** Which record titles fall outside Title Case, end in a period, or run past eight words? Look at the titles the change adds.
 
-### Name Each Title in Its Record Type Form
-
-**ID:** `litespec/core/writing#name-each-title-in-its-record-type-form`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Every record title MUST name its subject literally in the one title form the title-form table gives its record type.
-
-**Rationale:** One form per type makes a list of mixed records scannable: the form tells the reader what kind of thing the record is before the title is weighed, and a literal subject tells them what it is about. A feature titled with one word, a goal titled with a milestone code, or a problem titled with a metaphor gives the reader neither, and a problem title that names no person leaves the reader guessing who has the pain. The number and date of a goal stay in its fields, where a check reads them; the title names the outcome alone.
-
-**Example:** A Claimwick feature is titled "Approval Reminders for Waiting Expenses". The noun phrase names the capability; no date, milestone or promise sits in the title.
-
-**Reviewed for:** Which titles miss the form of their type, name no subject, or carry a code, date or metaphor? Look at the titles the change adds, beside the title-form table.
-
 ### State Each Statement Without Modal Words
 
 **ID:** `litespec/core/writing#state-each-statement-without-modal-words`
@@ -222,22 +206,6 @@ A code comment states why the code is as it is, or what the code cannot express 
 **Example:** A Claimwick problem `summary` opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." Who waits and what it costs stand in the first sentence, and any link follows after it.
 
 **Reviewed for:** Which summaries open with a pointer, a field name or background instead of who and what is at stake? Look at the first sentence of each one the change adds.
-
-### Keep Company Facts Out of Intent Prose
-
-**ID:** `litespec/core/writing#keep-company-facts-out-of-intent-prose`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** Intent prose MUST state only behavior the application performs, data it holds, or a limit it enforces, with no schedule, effort, headcount, price as a company offer, market fact or launch date.
-
-**Rationale:** Intent records state what the product promises, and a promise mixed with how the company runs buries the product fact a builder came for. A launch date in a problem, a headcount in a goal, or a price list in a feature reads as part of the promise and changes with every company change, even when the product behavior stands still. Company facts enter only as a constraint the application enforces or as dated research, where their form states what they are. The scope boundary itself lives on the [Scope](scope.md) and [Intent](intent.md) pages; this provision states the prose consequence.
-
-**Example:** A Claimwick goal states the reimbursement target in its `target` field. Its prose names no sprint, no headcount and no launch calendar.
-
-**Reviewed for:** Which Intent records carry a schedule, an effort estimate, a headcount, an offered price, a market fact or a launch date in prose? Look at the Intent records the change adds.
 
 ### Give Each Explanation File Its Fixed Sections
 

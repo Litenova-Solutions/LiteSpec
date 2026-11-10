@@ -71,7 +71,7 @@ Every record uses the same structural words: the record types, the links between
 | external system | One outside system the product talks to, with its operations and erasure. |
 | retention schedule | When each data class is erased and what enforces it. |
 | runbook | What to do when a trigger fires. |
-| exception | One departure from a provision, or one check staying red, with a reason and an expiry date. |
+| departure | One set-aside for a provision, page, or finding code, with a reason and an exit. |
 
 ### Links
 
@@ -99,7 +99,7 @@ Every record uses the same structural words: the record types, the links between
 
 | Word | What It Tells the Reader |
 |:---|:---|
-| implemented | The builder found code for it. |
+| coded | The builder found code for it. |
 | verified | A use case whose every scenario has a passing proof. |
 | reachable | A transition leads into the state. |
 | command, query | The two use case kinds: change, ask. |
@@ -109,6 +109,7 @@ Every record uses the same structural words: the record types, the links between
 | scheduled, one-off, manual | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |
 | atomic, per-record, compensated | The three consistency modes. |
+| unfulfilled, specified, coded, verified | The four completion stages, from no fulfiller to every scenario proven. |
 
 ## Which Track to Take
 

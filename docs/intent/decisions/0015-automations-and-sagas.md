@@ -10,4 +10,4 @@ Reaction and job are two record types. A reaction carries `reaction/<module>.<na
 
 ## Evidence with Confidence
 
-`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind D28 to D30, high confidence.
+`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind `decision/0015-automations-and-sagas`, high confidence.

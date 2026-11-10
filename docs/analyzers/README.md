@@ -2,7 +2,7 @@
 
 ## Intent
 
-The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 44 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
+The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule in test projects. It reports one error per rule, with a link from each error to the standard it enforces; the [Analyzer rules overview](rules/README.md) lists every rule. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.
 
 ## How the Pages Fit Together
 
@@ -52,7 +52,7 @@ dotnet_diagnostic.LS3004.severity = none
 
 When a project departs from the enforced Standard, it records an exception that covers the provision, rather than suppressing the diagnostic silently.
 
-The package targets `netstandard2.0` and needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. Older compilers cannot load the analyzers.
+The package targets `netstandard2.0` and needs the .NET 10 SDK, which the manifest names as the .NET stack release. Older compilers cannot load the analyzers.
 
 ## Detection Limits
 
@@ -107,4 +107,4 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 ## Pages in This Section
 
 - [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where an exception allows it.
-- [Analyzer rules overview](rules/README.md): find the reference page for each of the 44 rules, grouped by layer.
+- [Analyzer rules overview](rules/README.md): find the reference page for each rule, grouped by layer.

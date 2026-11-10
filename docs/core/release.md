@@ -20,13 +20,13 @@ Completion is computed from proof: has code, has tests, scenarios pass. The buil
 
 ### The Release Gate
 
-The gate admits a release when its G checks are green, its scenarios are verified, its S checks are green where the reader is qualified, and every exception it relies on is live. An exception is live while it is present and unexpired. G checks read records only and always block; every missing required link is G. S checks read code through a stack reader: they block where that reader is qualified and report otherwise. A checks report without blocking, except the release-readiness findings `--release` names. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
+The gate admits a release when its G checks are green, its scenarios are verified, its S checks are green where the reader is qualified, and every departure it relies on is in effect. A departure is in effect while it is present and, when it sets `expiresOn`, before that date. G checks read records only and always block; every missing required link is G. S checks read code through a stack reader: they block where that reader is qualified and report otherwise. A checks report without blocking, except the release-readiness findings `--release` names. `litespec model check --release` makes the release-readiness findings block, so the gate is a command. A project that selects the [Delivery extension](../ext/delivery.md) adds its formal readiness gate, deployment and rollback rules on top of this gate.
 
 ### The Verification Report
 
-Each change ships with a verification report beside it: the exact commands run, their outcomes, the evidence scope, skipped checks with reasons, generated differences, scope limits, and covered use cases. The report tells a reader precisely what the evidence covers and what it does not.
+Each change ships with a verification report beside it: the exact commands run, their outcomes, the evidence scope, skipped checks with reasons, generated differences, scope limits, and covered use cases. The report tells a reader of the report precisely what the evidence covers and what it does not.
 
-### Checker Qualification
+### Reader Qualification
 
 A stack reader is qualified by fixtures: a known good tree it passes and a known bad tree where it reports each planted defect. Only a qualified reader gates its scope with S checks; elsewhere the same checks report without blocking.
 
@@ -52,7 +52,7 @@ Each changed boundary adds the checks written for it. A change that touches seve
 
 ### Debt, Gaps, and the First Release
 
-Accepted debt never sits as an untracked compromise: it lives as an exception of kind `gap` with an expiry date, whose findings report until the date and whose `exception-expired` reports after it. The [model page](model.md) states the exception shape. Governance is a group of records beside the four record layers, not a fifth layer.
+Accepted debt never sits as an untracked compromise: it lives as a departure record with an expiry date, whose findings are covered until the date and whose `departure-expired` reports after it. The [model page](model.md) states the departure shape. Governance is a group of records beside the four record layers, not a fifth layer.
 
 A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. Before its first production release, the consumer keeps a readiness record instead, with dated rehearsals, green gates, and a backup and restore rehearsal.
 
@@ -188,9 +188,9 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which contract diffs hold timestamps, machine paths, or unstable order? Look at the generated diff beside each contract.
 
-### Qualify the Checker with Known Good and Known Bad Fixtures
+### Qualify the Reader with Known Good and Known Bad Fixtures
 
-**ID:** `litespec/core/release#qualify-the-checker-with-known-good-and-known-bad-fixtures`
+**ID:** `litespec/core/release#qualify-the-reader-with-known-good-and-known-bad-fixtures`
 
 **Strength:** required
 
@@ -240,11 +240,11 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Applies to:** artifact: any
 
-**Statement:** A release MUST settle every expired exception and every external claim it depends on, or exclude the affected behavior from every owning record.
+**Statement:** A release MUST settle every expired departure and every external claim it depends on, or exclude the affected behavior from every owning record.
 
-**Rationale:** An expired exception is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. `exception-expired` reports every expired exception.
+**Rationale:** An expired departure is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. `departure-expired` reports every expired departure.
 
-**Reviewed for:** Which releases depend on an expired exception or an external claim without excluding the behavior? Look at the exceptions and claims beside the owning records.
+**Reviewed for:** Which releases depend on an expired departure or an external claim without excluding the behavior? Look at the departures and claims beside the owning records.
 
 ### Report Verification Exactly
 
@@ -302,21 +302,21 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Reviewed for:** Which release records restate a specification or copy a scenario? Look at the record beside the linked specifications.
 
-### Record Accepted Debt as an Exception
+### Record Accepted Debt as a Departure
 
-**ID:** `litespec/core/release#record-accepted-debt-as-an-exception`
+**ID:** `litespec/core/release#record-accepted-debt-as-a-departure`
 
 **Strength:** required
 
-**Applies to:** artifact: record:exception
+**Applies to:** artifact: record:departure
 
-**Statement:** Accepted debt MUST live as an exception of kind `gap` with an expiry date.
+**Statement:** Accepted debt MUST live as a departure record with an expiry date.
 
-**Rationale:** Accepted debt with no expiry date is forgotten work. An exception of kind `gap` with one turns it into a dated promise whose findings report until the date and whose `exception-expired` reports after it. The [model page](model.md) states the exception shape.
+**Rationale:** Accepted debt with no expiry date is forgotten work. A departure with an `expiresOn` and `exit` turns it into a dated promise whose findings are covered until the date and whose `departure-expired` reports after it. The [model page](model.md) states the departure shape.
 
-**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as an exception of kind `gap` with an `expiresOn` of 2027-03-01; `exception-expired` reports it after that date.
+**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as a departure with an `expiresOn` of 2027-03-01 and an `exit`; `departure-expired` reports it after that date.
 
-**Reviewed for:** Which accepted debts lack an exception of kind `gap` with an expiry date? Look at the exceptions beside each debt.
+**Reviewed for:** Which accepted debts lack a departure with an expiry date? Look at the departures beside each debt.
 
 ### State Each Release as a Complete Record
 

@@ -6,8 +6,8 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
 
 ## Research and Decisions
 
-- Research (`research/`): the fifteen research records behind this release.
-  - [Intent Hierarchy Evidence](research/intent-hierarchy-evidence.md): which Intent links LiteSpec requires and checks.
+- Research (`research/`): the fourteen research records behind this release.
+  - [Intent Hierarchy Evidence](research/intent-hierarchy-evidence.md): which Intent links LiteSpec requires and checks, and the outside comparison and measured consumer counts behind decisions 0001 to 0008.
   - [Behavior Containment Evidence](research/behavior-containment-evidence.md): how Behavior records find their parent.
   - [Cross-Layer Trace Evidence](research/cross-layer-trace-evidence.md): where the trace from a goal to a test breaks.
   - [Field Naming Evidence](research/field-naming-evidence.md): where one field name carries two concepts.
@@ -16,9 +16,8 @@ The Intent records hold the research and decisions behind LiteSpec's provisions,
   - [Check Coverage Evidence](research/check-coverage-evidence.md): which links the checker enforces and which none reads.
   - [Research Conclusion Evidence](research/research-conclusion-evidence.md): where a research conclusion lives today.
   - [Comparable Rationale Practice](research/comparable-rationale-practice.md): how comparable projects keep rationale beside rules.
-  - [Intent Hierarchy Practice](research/intent-hierarchy-practice.md): the outside comparison and the measured consumer counts behind D1 to D8.
-  - [Naming Grammar Evidence](research/naming-grammar-evidence.md): the 248-field inventory, the collisions and the word classes behind D9 to D18.
-  - [Lower Layers Practice](research/lower-layers-practice.md): the outside review and the measured consumer counts behind D25 to D46.
+  - [Naming Grammar Evidence](research/naming-grammar-evidence.md): the 248-field inventory, the collisions and the word classes behind `decision/0011-one-grammar-for-names-and-values`, `decision/0012-use-cases-read-their-settings` and `decision/0018-one-record-language`.
+  - [Lower Layers Practice](research/lower-layers-practice.md): the outside review and the measured consumer counts behind `decision/0014-one-exception-record`, `decision/0015-automations-and-sagas`, `decision/0016-typed-contracts-and-privacy` and `decision/0017-proof-that-holds`.
   - [Record Format Evidence](research/record-format-evidence.md): the format comparison and the measured consumer counts behind records in YAML.
   - [Native Command Line Evidence](research/native-command-line-evidence.md): the trial build, the distribution runs and the timings behind the native command line.
   - [Schema Evaluator Evidence](research/schema-evaluator-evidence.md): the licence terms, the library survey and the message comparison behind LiteSpec's own schema evaluator.

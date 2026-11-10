@@ -36,7 +36,7 @@ Only provisions on pages the consumer's stacks, shape, and selected extensions a
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--root <consumer>` | the working directory | Selects the consumer repository to read. |
+| `--root <consumer>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--full` | off | Prints every returned provision as a statement, with the rationale and the example under each item, instead of the checked and concern-wide shortening. |
 | `--help` | off | Prints the usage text and exits 0. |
 
@@ -45,8 +45,8 @@ Only provisions on pages the consumer's stacks, shape, and selected extensions a
 | Code | Meaning |
 |:---|:---|
 | `0` | The provisions are listed. |
-| `1` | The target names no file or record. |
-| `2` | The arguments are wrong, the root holds no project record, or the carried release cannot be read. |
+| `1` | The target names no file or record, or the records cannot be read. |
+| `2` | The arguments are wrong, the root or the project file is missing or invalid, or the carried release cannot be read. |
 
 ## Examples
 

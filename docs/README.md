@@ -28,6 +28,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, checks, and the book and diffs.
+- [Departures](core/departures.md): the one record that sets a provision, a page or a finding code aside, with its reason and its expiry.
 - [Record Layers](core/layers.md): the four record layers and the translation rules between them.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
@@ -64,7 +65,6 @@ These principles hold for every backend. A backend stack folder states how its t
 - [Persistence](backend/persistence.md): repositories, the read session, the one commit per command, and the obligations on stored data.
 - [HTTP API](backend/api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
 - [Backend Testing](backend/testing.md): the test suites each project size keeps and what each suite may use.
-- [Record Identifiers](backend/identifiers.md): the identifier form for each record type and how citations resolve.
 
 ### .NET Stack
 
@@ -246,6 +246,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Guides overview](guide/README.md): which to read when: tutorials for a first result, how-to guides for one goal.
 - [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one implemented use case.
 - [Model a Behavior Module](tutorial/model-domain.md): specify one spending module the builder reads.
+- [Start with Records Only](guide/start-with-records-only.md): claim the Intent and Behavior records alone, and check them with the model check and the book.
 - [Add a Svelte Frontend](guide/add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.

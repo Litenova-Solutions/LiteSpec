@@ -10,7 +10,7 @@ namespace LiteSpec.Model.Checks;
 /// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its departure, idempotency and failure-policy shapes.</summary>
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
-/// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
+/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 internal static class SchemaChecks
 {
     /// <summary>Runs the schema checks on every record.</summary>

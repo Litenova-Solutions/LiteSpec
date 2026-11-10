@@ -6,7 +6,7 @@ namespace LiteSpec.Model.Checks;
 /// <summary>
 ///     The analyzer suppression check, kept in one class so the partial checker holds only the entry point.
 /// </summary>
-/// <follows>litespec/core/model#record-a-project-wide-lowering-as-an-exception</follows>
+/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
 internal static class AnalyzerSuppressionChecks
 {
     /// <summary>

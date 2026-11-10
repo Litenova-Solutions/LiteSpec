@@ -10,4 +10,4 @@ One `exception` record replaces deviation, known gap, `deferredProvisions` and `
 
 ## Evidence with Confidence
 
-`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind D26, high confidence.
+`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind `decision/0014-one-exception-record`, high confidence.

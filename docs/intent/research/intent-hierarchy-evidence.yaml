@@ -2,17 +2,47 @@ type: research
 id: research/intent-hierarchy-evidence
 title: Intent Hierarchy Evidence
 sources:
-  - path: docs/core/intent.md
+  - url: https://www.mintlify.com/github/spec-kit/advanced/templates
     readOn: 2026-10-30
+    key: mintlify-github-spec-kit-advanced
+  - url: https://openspec.dev/docs/core-concepts
+    readOn: 2026-10-30
+    key: openspec-docs-core-concepts
+  - url: https://kiro.dev/docs/specs/concepts
+    readOn: 2026-10-30
+    key: kiro-docs-specs-concepts
+  - url: https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/
+    readOn: 2026-10-30
+    key: producttalk-glossary-discovery-opportunity
+  - url: https://www.techtarget.com/searchsoftwarequality/definition/impact-mapping
+    readOn: 2026-10-30
+    key: techtarget-searchsoftwarequality-definition
+  - url: https://www.incose.org/wp-content/uploads/legacy/presentation/IS2013-pdf/3-3-1.pdf
+    readOn: 2026-10-30
+    key: incose-wp-content-uploads-legacy
+  - url: https://reqview-homepage.netlify.app/doc/iso-iec-ieee-29148-templates
+    readOn: 2026-10-30
+    key: reqview-homepage-netlify-doc-iso-iec-ieee-29148
+  - url: https://www.inf.ed.ac.uk/teaching/courses/seoc/2004_2005/resources/volere-template.pdf
+    readOn: 2026-10-30
+    key: inf-ed-ac-teaching-courses-seoc
+  - url: https://www.aha.io/roadmapping/guide/release-management/what-is-user-story-mapping
+    readOn: 2026-10-30
+    key: aha-roadmapping-guide-release-management
+  - url: https://link.springer.com/10.1007/s00766-023-00408-9
+    readOn: 2026-10-30
+    key: link-springer-s00766-023-00408-9
+  - path: docs/core/intent.md
+    readOn: 2026-10-31
     key: intent
   - path: docs/core/model.md
-    readOn: 2026-10-30
+    readOn: 2026-10-31
     key: model
   - path: docs/tools/model.md
     readOn: 2026-10-30
     key: model-2
   - path: schemas/record.schema.yaml
-    readOn: 2026-10-30
+    readOn: 2026-10-31
     key: record-schema
-question: Which Intent links does LiteSpec require and check, and what does the largest consumer show while they stay optional?
-conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in the largest consumer 719 of 928 requirements name no origin while every enforced Intent check passes.
+question: Which Intent links does LiteSpec require and check, how should Intent group its requirements and name their reasons, and what do outside tools and the largest consumer show?
+conclusion: Above the requirements, LiteSpec's hierarchy is rationale prose rather than required or checked links, and in the largest consumer 719 of 928 requirements name no origin while every enforced Intent check passes. Outside tools group each promise with the unit its author writes, while authors follow the page rather than the parent, so each feature holds its requirements as entries and reasons become one cites list.

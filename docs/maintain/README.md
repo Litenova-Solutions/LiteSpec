@@ -15,3 +15,4 @@ Every command accepts `--help`, and `validate` accepts `--format json` for a cal
 - [Validate Standards](validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
 - [Generate Provisions](provisions.md): rebuilds the provision index from the active standards.
 - [Generate Provision Changelog](changelog.md): writes the provision changes since a git ref into the changelog.
+- [Add a Stack or an Extension](../guide/add-a-stack-or-extension.md): adds a stack folder or an extension page to the release manifest.

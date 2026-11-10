@@ -186,11 +186,11 @@ Every provision ID is `litespec/<page>#<slug>`:
 
 The `**ID:**` line under each provision heading is the provision's identity. A heading may change without changing the ID, so fixing a heading's wording breaks no citation. Headings keep a stable verb-noun head so readers find the provision, not to protect the ID.
 
-The heading carries no identifier text. No two provisions share an ID. Consumer record identifiers follow the [identifier page](../backend/identifiers.md).
+The heading carries no identifier text. No two provisions share an ID. Consumer record identifiers follow [Identifier Forms](language.md#identifier-forms).
 
 ### Record Identifiers
 
-A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The qualified identifier is computed from the identifier segments plus placement, never written, shown in the book and the CLI, and accepted by `model query`. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
+A consumer record identifier is `type/home.name` in kebab-case: the type names the record kind, and `home.name` names the module or set that owns it. The [model page](model.md) states the form each type uses, and the [identifier page](language.md#identifier-forms) states the name rules, the checks, and how citations resolve. The [Record Language](language.md) page states the name form each record type uses. Prose cites a record by its identifier, as Record Citations in Prose states.
 
 ### Provision Layout
 
@@ -681,7 +681,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A consumer record identifier MUST be `type/home.name` in kebab-case, using the form the Project Model states for its type.
 
-**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.
+**Rationale:** The type names the record kind and `home.name` names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](language.md#identifier-forms) states the name rules and checks.
 
 **Example:** `reaction/spending.send-receipt-reminder-on-expense-submitted` is a reaction owned by the spending module, and `journey/submit-and-reimburse#s2` is the second step of a journey.
 

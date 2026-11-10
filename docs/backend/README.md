@@ -16,7 +16,6 @@ The eight principle pages directly in this folder hold for every backend. They s
 - [Persistence](persistence.md): domain repositories, the read session, the one commit per command, and the obligations on stored data.
 - [HTTP API](api.md): endpoints, routes, errors, collection paging, and the generated OpenAPI contract.
 - [Backend Testing](testing.md): the test suites each project size keeps and what each suite may use.
-- [Record Identifiers](identifiers.md): the identifier form for each record type and how citations resolve.
 - [Write Code for a Use Case](write-code-for-a-use-case.md): where each code element of a use case goes, the mark it carries, and the check that watches it.
 
 ## Backend Stack

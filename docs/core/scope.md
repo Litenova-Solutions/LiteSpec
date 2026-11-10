@@ -10,9 +10,9 @@ LiteSpec is a standard for specification-driven development of one bounded-conte
 
 ## Concepts
 
-### The Three Project Choices
+### The Four Project Choices
 
-Three choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it. The layer claims declared beside them decide which part of the contract the project takes, as Layer Claims below states.
+Four choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it: size, shape, stacks and layers. The layer claims decide which part of the contract the project takes, as Layer Claims below states.
 
 Size decides the record set and the test projects. A small project carries the core record types with Architecture and Integration test projects. A large project adds goals, problems, features, journeys, and scenarios with the Acceptance project. A project with one web frontend and no journeys fits small; the running Claimwick example, which needs journeys, selects large.
 
@@ -20,9 +20,17 @@ Shape decides the deployment boundary: `server` for a project with its own backe
 
 Each stack decides which technology pages and checks apply. A project names one stack per frontend, choosing react, svelte, blazor, or android for each, and the stack applies its folder and every folder above it, as the [stacks page](stacks.md) states. A preset only fills in a common combination of these choices; the project record holds the result.
 
+Layers decide which record layers the project claims and whose practice it follows in each, as Layer Claims below states. A project that claims Implementation or Proof names its stacks.
+
 ### Layer Claims
 
-A project claims the record layers it uses in `layers` in `.litespec/project.yaml`, and the practice each claimed layer follows. Each layer is written from the one above it and points up to it, so a project leaves layers out from the bottom: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Implementation and Proof both point at Behavior, not at each other, so either can be left out on its own.
+A project claims the record layers it uses in `layers` in `.litespec/project.yaml`, and the practice each claimed layer follows. Each layer is written from the one above it and points up to it, so a project leaves layers out from the bottom: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. Implementation and Proof both point at Behavior, not at each other, so either can be left out on its own. A project claims one of five combinations of layers:
+
+1. `intent` alone.
+2. `intent` and `behavior`.
+3. `intent`, `behavior` and `implementation`.
+4. `intent`, `behavior` and `proof`.
+5. All four layers.
 
 | Layer | Values | With `litespec` | With `own` |
 |:---|:---|:---|:---|
@@ -31,7 +39,7 @@ A project claims the record layers it uses in `layers` in `.litespec/project.yam
 | `implementation` | `litespec` or `own` | Code marks its records, and the stack, workspace and code layout pages and the analyzers' architecture rules apply | Code marks its records; the team keeps its own architecture |
 | `proof` | `litespec` or `own` | Tests prove scenarios, and the testing pages and LiteSpec's test projects apply | Tests prove scenarios; the team keeps its own test practice |
 
-Every provision and every finding code governs one record layer, or `any`, and either ties the layer to the records (`trace`) or states LiteSpec's practice for it. A provision or code applies when its layer is `any` or claimed and, for Implementation and Proof, when it ties the layer to the records or the layer follows `litespec`. `model check`, the book, `rules` and the analyzers report only what applies, and the book shows a layer the project does not claim as not claimed, never as missing. Stacks are required when Implementation or Proof is claimed, because the stack selects the code reader. The operations checks belong to the `delivery` extension, so no claim bundles them, and a departure record covers a single provision a project does not follow.
+Every provision and every finding code governs one record layer, or `any`, and either ties the layer to the records (`trace`) or states LiteSpec's practice for it. A provision or code applies when its layer is `any` or claimed and, for Implementation and Proof, when it ties the layer to the records or the layer follows `litespec`. `model check`, the book, `rules` and the analyzers report only what applies, and the book shows a layer the project does not claim as not claimed, never as missing. Stacks are required when Implementation or Proof is claimed, because the stack selects the code reader. A [departure](departures.md) covers one provision, a whole page or finding codes that the project does not follow.
 
 ### One Folder for Every LiteSpec File
 
@@ -39,7 +47,7 @@ Every file LiteSpec creates, reads, or governs in a consumer sits under one fold
 
 ### Extensions, Constraints, and the Boundary
 
-An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.yaml` whether any constraint applies, and an empty answer records that none does.
+An extension is a conditional standards bundle that stays inactive until a documented condition holds. A project that operates the product in production with a formal release, deployment, rollback or alerting regime selects the `delivery` extension. The `delivery` extension owns the operations checks, the alert and runbook checks, so no layer claim bundles them. A project selects an extension only when its activation criterion holds, and the [extension catalog](../ext/README.md) lists each extension with its criteria. Outside constraints work the same way: the project states in `.litespec/project.yaml` whether any constraint applies, and an empty answer records that none does.
 
 LiteSpec specifies the product, not the company that builds it. An Intent or Behavior record states only behavior the application performs, data it holds, or a limit it enforces; company operation enters only as a constraint or as dated research.
 
@@ -61,7 +69,7 @@ Some architectures fall outside what LiteSpec supports: microservices, multiple 
 
 ### What Claiming Conformance Means
 
-A consumer claims conformance to the layers it names in `layers` in `.litespec/project.yaml`. It meets every provision that applies to those layers, selects every extension whose criteria hold, records each departure it relies on with its reason, and passes the checks that run for those layers. A claim covers only the layers it names: a claim of `intent` and `behavior` covers the record model, a claim of `implementation` adds the code marks and, with `litespec`, the stack, workspace and code layout pages, and a claim of `proof` adds the test pages and scenario proof. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips a provision or a check that applies to a layer it claims, makes no conformance claim for that layer.
+A consumer claims conformance to the layers it names in `layers` in `.litespec/project.yaml`. It meets every provision that applies to those layers, selects every extension whose criteria hold, records each [departure](departures.md) it relies on with its reason, and passes the checks that run for those layers. A claim covers only the layers it names: a claim of `intent` and `behavior` covers the record model, a claim of `implementation` adds the code marks and, with `litespec`, the stack, workspace and code layout pages, and a claim of `proof` adds the test pages and scenario proof. Governance is a group of records beside the four record layers, not a fifth layer. A project outside the supported boundary, or one that skips a provision or a check that applies to a layer it claims, makes no conformance claim for that layer.
 
 ## Standards
 
@@ -73,7 +81,7 @@ A consumer claims conformance to the layers it names in `layers` in `.litespec/p
 
 **Statement:** A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the project claims neither `implementation` nor `proof` in `layers`.
 
-**Rationale:** One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. At `records` a project may leave the stacks empty or absent, or name them for information alone, since no code reader runs at that level; at `traced` and `full` the stacks name the code the reader and the checks govern.
+**Rationale:** One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. A project that claims neither Implementation nor Proof may leave the stacks empty or absent, or name them for information alone, since no code reader runs for it; a project that claims either names the stacks the code reader and the checks govern.
 
 **Example:** A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.
 
@@ -127,20 +135,6 @@ The diagram shows the three project choices and what each decides.
 **Example:** Posts, Authors, and Comments can be modules in one publishing context.
 
 **Reviewed for:** Module pages and `.litespec/project.yaml` name one business language and one deployment boundary, with no second of either.
-
-### Keep Every Record About the Software
-
-**ID:** `litespec/core/scope#keep-every-record-about-the-software`
-
-**Strength:** required
-
-**Statement:** Every record MUST state something the software does, holds, refuses at runtime, or runs on, and translate into code, results, tests, or infrastructure.
-
-**Rationale:** A record about running the company states no behavior the checks confirm: retention, revenue, market sizing, sales tactics, and launch plans pass no software check. The software test in the Concepts section tells what belongs for each type, so a goal about nights without oversell stays while a goal about revenue leaves. A record that reaches no Behavior gets a blocking finding: it is either unfinished work for the backlog or not software.
-
-**Example:** Claimwick keeps its expense areas under product names; a market fact that binds the product enters as dated research or as a constraint citing it, and a folder under `intent/modules/` naming no declared module is reported.
-
-**Checked by:** `litespec model check` reports a blocking finding for a folder under `intent/modules/` naming no declared module and for a record reaching no Behavior.
 
 ### Select Conditional Extensions Explicitly
 
@@ -222,7 +216,7 @@ The diagram shows the three project choices and what each decides.
 
 **Statement:** A consumer MUST meet every provision that applies to each layer it claims in `layers` before claiming conformance to LiteSpec for those layers.
 
-**Rationale:** A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of `intent` and `behavior` takes in the provisions about the record model; a claim of `implementation` or `proof` also takes in the provisions that tie each layer to the records. A recorded departure whose expiry date has not passed outranks the provision or findings it covers, so a project that records its departures still meets this provision; an unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.
+**Rationale:** A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of `intent` and `behavior` takes in the provisions about the record model; a claim of `implementation` or `proof` also takes in the provisions that tie each layer to the records. A [departure](departures.md) outranks the provision or findings it covers while it stands, so a project that records each departure still meets this provision; a departure past its expiry date reports `departure-expired` and no longer outranks them. An unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.
 
 **Example:** A consumer that claims all four layers with `litespec`, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each departure recorded. A consumer that claims `intent` and `behavior` claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim.
 

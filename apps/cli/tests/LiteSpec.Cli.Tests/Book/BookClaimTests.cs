@@ -213,7 +213,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>The Intent coverage computation reads the fulfilling and serving links of a built model.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Intent_Coverage_Compute_Reads_Fulfills_And_Serves()
     {
@@ -261,7 +261,7 @@ public sealed class BookClaimTests
     }
 
     /// <summary>An empty model covers no Intent item and the share holds no division by zero.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Intent_Coverage_Of_No_Intent_Is_Empty()
     {

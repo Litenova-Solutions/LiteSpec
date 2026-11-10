@@ -23,7 +23,7 @@
       "style": "index",
       "area": "analyzers",
       "title": "Overview",
-      "intent": "The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule in test projects, reporting 44 errors, one per rule, with a link from each error to the standard it enforces. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.",
+      "intent": "The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET server code against the LiteSpec standard while the compiler runs and reports each break as an error in the editor and the build. The package checks layer boundaries, modeling in Domain, the layer that holds the business rules, naming across the shared kernel and modules projects, and traceability from code to records in every layer, with one assertion rule in test projects. It reports one error per rule, with a link from each error to the standard it enforces; the [Analyzer rules overview](rules/README.md) lists every rule. A backend developer uses these pages to install the package once and to clear each finding by fixing the code it names.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
@@ -923,21 +923,6 @@
       ]
     },
     {
-      "file": "docs/backend/identifiers.md",
-      "path": "backend/identifiers",
-      "style": "standard",
-      "area": "backend",
-      "title": "Record Identifiers",
-      "intent": "Every record carries one identifier naming its type, its home, and its own name. This page states the identifier grammar for each record type, the rules for choosing names, and how citations resolve, with wire codes kept stable for deployed clients. The [Project Model](../core/model.md) states each type and its home; the checks here enforce the grammar.",
-      "sections": [
-        "Intent",
-        "Concepts",
-        "Standards",
-        "Conventions",
-        "Reference Example"
-      ]
-    },
-    {
       "file": "docs/backend/persistence.md",
       "path": "backend/persistence",
       "style": "standard",
@@ -1066,12 +1051,26 @@
       ]
     },
     {
+      "file": "docs/core/departures.md",
+      "path": "core/departures",
+      "style": "standard",
+      "area": "core",
+      "title": "Departures",
+      "intent": "A departure is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a departure holds, when to record one, how it covers a finding, what no departure covers, and when it expires. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
+      "sections": [
+        "Intent",
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/core/domain-model.md",
       "path": "core/domain-model",
       "style": "standard",
       "area": "core",
       "title": "Domain Model",
-      "intent": "Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1114,7 +1113,7 @@
       "style": "standard",
       "area": "core",
       "title": "Record Language",
-      "intent": "Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values and codes of project records.",
+      "intent": "Record Language states one grammar and one tone for every name, every identifier and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values, identifiers and codes of project records.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1398,11 +1397,11 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model is the computed join between a project\u0027s written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from \u0060litespec model check\u0060 and \u0060litespec model query\u0060: how an exception (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what \u0060model check --since\u0060 reports for a breaking contract change, and which continuous integration jobs run these checks.",
+      "intent": "The project model is the computed join between a project\u0027s written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from \u0060litespec model check\u0060 and \u0060litespec model query\u0060: how a departure (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what \u0060model check --since\u0060 reports for a breaking contract change, and which continuous integration jobs run these checks.",
       "sections": [
         "Intent",
         "Checking the Model",
-        "The Exception for Export Expenses",
+        "The Departure for Export Expenses",
         "The Run with the Approve Expense Handler Removed",
         "Querying One Record",
         "The Consumer Check",
@@ -2283,7 +2282,21 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add a Blazor Frontend",
-      "intent": "A product that serves its interface from Blazor declares a client solution tree instead of the web application tree, with features organized by module and use case. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack entry, the client tree, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "A product that serves its interface from Blazor runs as a client with no server of its own, with the domain model, handlers, and pages in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend for a \u0060client-only\u0060 project: the stack, the project shape, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/add-a-stack-or-extension.md",
+      "path": "guide/add-a-stack-or-extension",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Add a Stack or an Extension",
+      "intent": "A LiteSpec maintainer adds a stack or an extension so the release can name it in \u0060litespec.manifest.yaml\u0060 and apply its pages. This guide moves the add-a-stack and add-an-extension procedures into the Maintain section. It adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2297,7 +2310,7 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add a Svelte Frontend",
-      "intent": "A product that serves its web interface from Svelte declares the same application tree as the React frontend in the tutorial, against the same backend use cases. This guide declares that frontend: the stack entry, the application tree with mirrored use case paths, and routes composed from one floorplan each. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "A product that serves its web interface from Svelte declares the same web application tree as the React frontend in the tutorial, against the same backend use cases. This guide declares that frontend: the stack, the application tree with mirrored use case paths, routes composed from one floorplan, and the pinned baseline. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2311,7 +2324,7 @@
       "style": "how-to",
       "area": "guide",
       "title": "Add an Android Frontend",
-      "intent": "A product that serves its interface from Android declares a mobile solution tree instead of the web application tree, with screens organized by module and hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack entry, the mobile tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "A product that serves its interface from Android declares a mobile solution with screens organized by module and hosted in one activity. Android stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack, the mobile solution tree, and the screen layout. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2340,6 +2353,34 @@
       "area": "guide",
       "title": "Folder Reference",
       "intent": "Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the qualified identifier the tool computes from the placement. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/install-the-cli.md",
+      "path": "guide/install-the-cli",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Install the CLI",
+      "intent": "Each LiteSpec release ships the \u0060litespec\u0060 command line in two forms: the \u0060LiteSpec.Cli\u0060 .NET tool on nuget.org, and a standalone archive per platform on the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases). Both hold the same native executable, compiled ahead of time for the platform, and both carry the LiteSpec release beside it, so the executable needs no .NET runtime and no network. This guide installs the command line for a consumer repository or a machine, checks the download, and runs it in continuous integration. It adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/start-with-records-only.md",
+      "path": "guide/start-with-records-only",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Start with Records Only",
+      "intent": "A team that wants LiteSpec\u0027s records, book and checks before it changes any code follows this guide. It claims \u0060intent\u0060 and \u0060behavior\u0060 in the project file, writes the first Intent and Behavior records, and runs the model check and the book, while its code and tests keep their own layout and practice. The [adoption page](../learn/adopting-litespec.md) states the claims that come next, \u0060implementation\u0060 and \u0060proof\u0060.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2694,17 +2735,6 @@
       "title": "Intent Hierarchy Evidence",
       "intent": "",
       "sections": [
-        "Answer"
-      ]
-    },
-    {
-      "file": "docs/intent/research/intent-hierarchy-practice.md",
-      "path": "intent/research/intent-hierarchy-practice",
-      "style": "research",
-      "area": "intent",
-      "title": "Intent Hierarchy Practice",
-      "intent": "",
-      "sections": [
         "Answer",
         "Notes on Sources"
       ]
@@ -2832,7 +2862,7 @@
       "style": "explanation",
       "area": "learn",
       "title": "Read the Standard",
-      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.",
+      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the departures the standard provides for rules a project cannot follow.",
       "sections": [
         "Intent",
         "A Project\u0027s Selection",
@@ -2961,16 +2991,15 @@
       "style": "explanation",
       "area": "learn",
       "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, describing the project, writing the first records, and building to the standard with the checks in place. A team adopts it in steps by record layer: it claims the layers it can meet today and adds the next layer when it is ready for the next part of the contract. Technical leads read this page when they plan the rollout, so the team starts small and every departure stays visible instead of silent.",
+      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
       "sections": [
         "Intent",
         "Fit Check",
         "Choose the Layers to Start",
-        "Step 1: Claim the Record Model",
-        "Step 2: Trace Code to Records",
-        "Step 3: Take LiteSpec\u0027s Layers",
-        "The Records Path Through the Tutorial",
-        "Departures at Any Layer",
+        "Step 1: Claim Intent and Behavior",
+        "Step 2: Add Implementation",
+        "Step 3: Add Proof",
+        "Departures for a Single Provision",
         "Next Steps"
       ]
     },
@@ -3172,7 +3201,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Release Manifest",
-      "intent": "\u0060litespec.manifest.yaml\u0060 is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release\u0027s real values, states what each field drives, and shows how to add a stack or an extension.",
+      "intent": "\u0060litespec.manifest.yaml\u0060 is the inventory of one LiteSpec release (one published version of the standard): the technology stacks, project shapes, extensions, and pinned versions it ships. A LiteSpec maintainer edits it when the release gains a stack or an extension, while a consumer (an application repository built against one pinned release) never edits it and instead pins the whole release and records the version it reviewed. This page lists every field with the current release\u0027s real values and states what each field drives.",
       "sections": [
         "Intent",
         "Reference",
@@ -3259,7 +3288,7 @@
       "style": "command",
       "area": "tools",
       "title": "Initialize Consumer",
-      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset, a ready-made selection of shape, stacks, and frontends, or the records preset, which claims the record model with no stacks.",
+      "intent": "\u0060litespec init\u0060 starts a consumer repository from a preset, a ready-made selection of shape, stacks, frontends, and layer claims, or the records preset, which claims the record model with no stacks.",
       "sections": [
         "Name",
         "Synopsis",
@@ -3349,7 +3378,7 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Start a Consumer Repository",
-      "intent": "A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the \u0060dotnet\u0060 backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own. A project that claims the records claims only the record model follows the records path at the end of the Lesson instead: it writes the same Intent and Behavior records, runs the same model check, and stops before any code exists.",
+      "intent": "A LiteSpec consumer is a project built against the LiteSpec standard, and this tutorial turns an empty folder into one: its configuration, its first Intent records, the Behavior specified from them, one working use case, and a passing model check. A use case names what the product does for an actor, a person or system using it, and the model check confirms the records, code, and tests agree. This tutorial follows one backend stack and one frontend stack, the \u0060dotnet\u0060 backend with a React frontend, so every step runs the same way for every reader. A developer follows these steps once, when creating the consumer. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -3582,6 +3611,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -3615,7 +3645,6 @@
         "docs/backend/application.md",
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md"
@@ -3939,7 +3968,6 @@
         "docs/backend/dotnet/stack.md",
         "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md",
@@ -3948,6 +3976,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4001,7 +4030,6 @@
         "docs/backend/dotnet/stack.md",
         "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md",
@@ -4010,6 +4038,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4092,7 +4121,6 @@
         "docs/backend/dotnet/stack.md",
         "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md",
@@ -4101,6 +4129,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4183,7 +4212,6 @@
         "docs/backend/dotnet/stack.md",
         "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md",
@@ -4192,6 +4220,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4265,7 +4294,6 @@
         "docs/backend/dotnet/stack.md",
         "docs/backend/dotnet/testing.md",
         "docs/backend/dotnet/workspace.md",
-        "docs/backend/identifiers.md",
         "docs/backend/persistence.md",
         "docs/backend/testing.md",
         "docs/backend/write-code-for-a-use-case.md",
@@ -4274,6 +4302,7 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4340,12 +4369,12 @@
         "docs/backend/application.md",
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
-        "docs/backend/identifiers.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4414,12 +4443,12 @@
         "docs/backend/application.md",
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
-        "docs/backend/identifiers.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4488,12 +4517,12 @@
         "docs/backend/application.md",
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
-        "docs/backend/identifiers.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4553,12 +4582,12 @@
         "docs/backend/application.md",
         "docs/backend/architecture.md",
         "docs/backend/domain.md",
-        "docs/backend/identifiers.md",
         "docs/core/access.md",
         "docs/core/agent.md",
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
+        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",

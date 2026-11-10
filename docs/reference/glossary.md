@@ -170,7 +170,7 @@ Source: RBAC.
 
 ### Aggregate
 
-One unit of business state that stays consistent and changes in one step. Its kind is entity, saga, or store.
+One unit of business state that stays consistent and changes in one step. Its kind is entity or store.
 
 Layer: Behavior.
 
@@ -238,16 +238,6 @@ Layer: Behavior.
 
 Source: CQRS.
 
-### Compensation
-
-The per-step undo of a saga: the use case that reverses one step, or none with its reason.
-
-Layer: Behavior.
-
-Aliases: undo.
-
-Source: LiteSpec.
-
 ### Conclusion
 
 The one sentence a research record concludes, stated as data so a decision can cite it.
@@ -295,6 +285,14 @@ One dated choice with options weighed and evidence cited.
 Layer: Intent.
 
 Source: decision records.
+
+### Departure
+
+One recorded departure from a provision or a check, with its reason, the provisions, pages or finding codes it covers, the records or paths it covers, and an expiry date with an exit when the team means to close it.
+
+Layer: Intent or Behavior.
+
+Source: LiteSpec.
 
 ### Domain
 
@@ -351,16 +349,6 @@ Source: plain English.
 One table of rows a scenario walks through, holding the values the parts argue about.
 
 Source: BDD.
-
-### Exception
-
-One recorded departure from a provision or one check held red, with its reason and expiry date.
-
-Layer: Intent or Behavior.
-
-Source: LiteSpec.
-
-Rejected: deviation and known gap, which named two records where one holds both.
 
 ### External System
 
@@ -584,12 +572,6 @@ Layer: Behavior.
 
 Source: the GDPR.
 
-### Qualified Identifier
-
-The display form of a record identifier with its placement, built from the identifier's segments plus placement. Links never use it.
-
-Source: LiteSpec.
-
 ### Quality Requirement
 
 One requirement stating how well the product performs, with a measure and a target.
@@ -640,7 +622,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. An exception names its fallback requirement; a tenant-set value is not an exception. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows or one guarantee it keeps. A departure names its fallback requirement; a tenant-set value is not a departure. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 
@@ -697,16 +679,6 @@ The steps to run or recover the product.
 Layer: Implementation.
 
 Source: the SRE book.
-
-### Saga
-
-One coordinating aggregate whose steps run use cases on other aggregates, each with its compensation.
-
-Layer: Behavior.
-
-Aliases: process manager.
-
-Source: LiteSpec.
 
 ### Scenario
 
@@ -810,6 +782,14 @@ Layer: Behavior.
 
 Source: Cockburn.
 
+### User
+
+The person the product serves, reached through a browser or device entry point.
+
+Layer: Behavior.
+
+Source: LiteSpec.
+
 ## Standard Terms
 
 These terms name the parts of the LiteSpec standard itself.
@@ -886,6 +866,12 @@ One page that documents one shipped command: its arguments, options, exit codes,
 
 Source: LiteSpec.
 
+### Completion Stage
+
+One of the four stages of a record's completion: unfulfilled, specified, coded, or verified.
+
+Source: LiteSpec.
+
 ### Component Inventory
 
 The list of shipped components published with each release artifact.
@@ -899,12 +885,6 @@ Rejected: SBOM, which names one format where the inventory names the content.
 One page holding every setting a reader can change.
 
 Source: LiteSpec.
-
-### Conformance
-
-The claim that a project meets the LiteSpec contract it pins.
-
-Source: the W3C QA Framework.
 
 ### Consumer
 
@@ -1022,7 +1002,7 @@ Source: LiteSpec.
 
 ### Governance
 
-The group of records beside the four record layers, holding exceptions.
+The group of records beside the four record layers, holding departures.
 
 Source: LiteSpec.
 
@@ -1066,7 +1046,7 @@ Source: LiteSpec.
 
 ### Mark
 
-One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or exception shaping it, holding the identifier in the project mark style.
+One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or departure shaping it, holding the identifier in the project mark style.
 
 Source: LiteSpec.
 
@@ -1137,6 +1117,12 @@ Source: web API practice.
 ### Reachable
 
 The computed state of an aggregate state a transition leads into.
+
+Source: LiteSpec.
+
+### Reader
+
+The stack reader that reads code for the model and the checks. The reader of a documentation page is not a reader in this sense.
 
 Source: LiteSpec.
 
@@ -1214,6 +1200,12 @@ Research kept outside the documentation, which carries no authority on its own.
 
 Source: LiteSpec.
 
+### Specified
+
+The completion stage of a record that is named in the specification but has no code and no passing proof.
+
+Source: LiteSpec.
+
 ### Stack
 
 One technology binding of the specification, held in one folder.
@@ -1271,6 +1263,12 @@ Source: Diataxis.
 ### Underneath
 
 The command page section stating what the command runs.
+
+Source: LiteSpec.
+
+### Unfulfilled
+
+The completion stage of a record the specification names but nothing yet specifies, codes or verifies.
 
 Source: LiteSpec.
 

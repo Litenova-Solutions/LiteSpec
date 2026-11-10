@@ -28,7 +28,7 @@ None.
 
 | Option | Meaning |
 |:--|:--|
-| `--root <folder>` | The consumer root to read. Defaults to the consumer root found from the working directory. |
+| `--root <folder>` | The folder to start from. Defaults to the working directory. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--out <folder>` | The folder to write the static site to. Defaults to `.litespec/book` under the consumer root. |
 | `--editor <template>` | The editor link template with `{root}`, `{path}` and `{line}`, or `none` to suppress links. Defaults to `vscode://file/{root}/{path}:{line}`. |
 | `--help` | Print the usage text and exit. |
@@ -38,8 +38,8 @@ None.
 | Code | Meaning |
 |:--|:--|
 | 0 | The book is written. |
-| 1 | The input is unreadable or the output is unwritable. |
-| 2 | A usage error, a missing carried release, or a missing or broken lexicon page. |
+| 1 | The records cannot be read, or the output cannot be written. |
+| 2 | A usage error, the root or the project file is missing or invalid, or the carried release or a lexicon page cannot be read. |
 
 ## Examples
 

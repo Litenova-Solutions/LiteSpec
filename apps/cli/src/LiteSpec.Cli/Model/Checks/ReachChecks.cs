@@ -10,7 +10,6 @@ namespace LiteSpec.Model.Checks;
 /// <summary>The reach checks: every use case sits in a journey, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, every permission is allowed, and no two decisions decide one record.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
-/// <follows>litespec/core/model#reach-behavior-from-every-intent-record</follows>
 /// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
 /// <follows>litespec/core/access#record-every-role-hold-with-its-scope</follows>
 /// <follows>litespec/core/access#grant-permissions-through-roles</follows>

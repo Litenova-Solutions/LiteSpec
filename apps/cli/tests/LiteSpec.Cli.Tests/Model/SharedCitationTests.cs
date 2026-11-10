@@ -10,7 +10,7 @@ public sealed class SharedCitationTests
     const string PinnedVersion = "9.9.9";
 
     /// <summary>A new-form citation that the carried release holds exits 0.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
     public void Shared_Citation_That_Resolves_Passes()
     {
@@ -25,7 +25,7 @@ public sealed class SharedCitationTests
     }
 
     /// <summary>A new-form citation that the carried release lacks exits 1 with reference-unknown.</summary>
-    /// <proves>litespec/backend/identifiers#resolve-every-identifier-citation</proves>
+    /// <proves>litespec/core/language#resolve-every-identifier-citation</proves>
     [Fact]
     public void Shared_Citation_Without_A_Provision_Reports_Reference_Unresolved()
     {

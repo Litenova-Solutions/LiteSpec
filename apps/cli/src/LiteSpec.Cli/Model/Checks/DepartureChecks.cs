@@ -8,7 +8,7 @@ namespace LiteSpec.Model.Checks;
 ///     provision or a shared page, and never a code the model needs in order to load; a departure
 ///     with an expiry date stops holding once the date passes.
 /// </summary>
-/// <follows>litespec/core/model#record-accepted-gaps-as-exceptions</follows>
+/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 internal static class DepartureChecks
 {
     /// <summary>Reports departure-invalid for each covers item that cannot hold findings, and departure-expired for each departure past its expiry date.</summary>

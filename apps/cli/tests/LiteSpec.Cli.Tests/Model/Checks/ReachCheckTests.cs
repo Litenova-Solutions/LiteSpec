@@ -7,7 +7,7 @@ namespace LiteSpec.Tests.Model.Checks;
 public sealed class ReachCheckTests
 {
     /// <summary>Problem Without Solver Reports Intent Unreached.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Problem_Without_Solver_Reports_Intent_Unreached()
     {
@@ -20,7 +20,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Problem Solved By Reaching Feature Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Problem_Solved_By_Reaching_Feature_Passes()
     {
@@ -36,7 +36,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Problem Cited By Reaching Requirement Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Problem_Cited_By_Reaching_Requirement_Passes()
     {
@@ -51,7 +51,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Feature Without Reaching Requirement Reports Intent Unreached.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Feature_Without_Reaching_Requirement_Reports_Intent_Unreached()
     {
@@ -65,7 +65,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Feature With Reaching Requirement Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Feature_With_Reaching_Requirement_Passes()
     {
@@ -80,7 +80,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Requirement Without Fulfiller Reports Intent Unreached.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Requirement_Without_Fulfiller_Reports_Intent_Unreached()
     {
@@ -93,7 +93,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Requirement Fulfilled Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Requirement_Fulfilled_Passes()
     {
@@ -107,7 +107,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Requirement Cited By Journey Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Requirement_Cited_By_Journey_Passes()
     {
@@ -121,7 +121,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Research Without Citer Reports Intent Unreached.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Research_Without_Citer_Reports_Intent_Unreached()
     {
@@ -134,7 +134,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Research Cited By Reaching Requirement Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Research_Cited_By_Reaching_Requirement_Passes()
     {
@@ -149,7 +149,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Research Cited By Served Journey Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Research_Cited_By_Served_Journey_Passes()
     {
@@ -164,7 +164,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Decision Deciding Unreached Record Reports Intent Unreached.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Decision_Deciding_Unreached_Record_Reports_Intent_Unreached()
     {
@@ -196,7 +196,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>A technical decision under a module skips the Intent reach rule.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Module_Technical_Decision_Skips_Intent_Unreached()
     {
@@ -211,7 +211,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Decision Deciding Reaching Record Passes.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Decision_Deciding_Reaching_Record_Passes()
     {
@@ -328,7 +328,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Intent Unreached Message Names Record.</summary>
-    /// <proves>litespec/core/model#reach-behavior-from-every-intent-record</proves>
+    /// <proves>litespec/core/intent#reach-every-intent-record-with-behavior</proves>
     [Fact]
     public void Intent_Unreached_Message_Names_Record()
     {

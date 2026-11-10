@@ -23,7 +23,6 @@ shapes:
     - docs/backend/architecture.md
     - docs/backend/domain.md
     - docs/backend/application.md
-    - docs/backend/identifiers.md
 extensions:
   bdd:
     path: docs/backend/dotnet/ext/bdd.md

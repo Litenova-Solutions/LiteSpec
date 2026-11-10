@@ -15,7 +15,7 @@ options:
     pros: No waiver, no waiver abuse.
     cons: One-person teams stall on advisory findings.
 choice: One exception record with scope and expiry
-consequences: "`litespec/core/model#record-accepted-gaps-as-exceptions`, `litespec/core/model#record-a-project-wide-lowering-as-an-exception` and `litespec/core/release#record-accepted-debt-as-an-exception` state the mechanisms this decision unifies; the Governance pages replace them with the one exception record."
+consequences: "`litespec/core/departures#record-accepted-gaps-as-departures`, `litespec/core/departures#record-a-project-wide-lowering-as-a-departure` and `litespec/core/release#record-accepted-debt-as-a-departure` state the mechanisms this decision unifies; the Governance pages replace them with the one exception record."
 reopenedWhen: A waiver appears that covers neither a provision nor named finding codes.
 basedOn:
   - research/lower-layers-practice

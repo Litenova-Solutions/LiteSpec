@@ -2,39 +2,39 @@
 
 ## Intent
 
-The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model check` and `litespec model query`: how an exception (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what `model check --since` reports for a breaking contract change, and which continuous integration jobs run these checks.
+The project model is the computed join between a project's written records and its code, screens, and tests: it proves they agree, and its checks report every gap as a finding with a level. This page shows that model at work on the Claimwick product, the example product these pages follow, with real output from `litespec model check` and `litespec model query`: how a departure (a missing piece the team accepts until an expiry date) covers the still-missing handler for Export expenses, what the check reports when the Approve expense handler is removed, how the book shows journey detail, what `model check --since` reports for a breaking contract change, and which continuous integration jobs run these checks.
 
 ## Checking the Model
 
-`litespec model check` builds the model in memory and reports every finding with its level, code, message, path, and line. Against the unchanged example it reports no open finding and exits zero. Its 26 known findings include the one this page follows:
+`litespec model check` builds the model in memory and reports every finding with its level, code, message, path, and line. Against the unchanged example it reports no open finding and exits zero. Its 26 covered findings include the one this page follows:
 
 ```text
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [known S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
 ...
-0 findings, 0 blocking, 26 known.
+0 findings, 0 blocking, 26 covered.
 ```
 
-The Export expenses use case has no handler, so the `use-case-unimplemented` check fires at level S, through the stack reader. A finding that an open exception covers is reported as known and exits zero, so the line carries the `known` marker and the summary counts it among the 26 known findings.
+The Export expenses use case has no handler, so the `use-case-unimplemented` check fires at level S, through the stack reader. A finding that a live departure covers is reported as covered and exits zero, so the line carries the `covered` marker and the summary counts it among the 26 covered findings.
 
-## The Exception for Export Expenses
+## The Departure for Export Expenses
 
-The team accepts that exporting expenses has no handler yet, so the gap lives as an exception of kind gap with an expiry date. The record file sits at `.litespec/governance/modules/spending/exceptions/export-expenses-unimplemented.yaml`, since every record it sets aside is in the spending module, and the use case it covers waits for its handler at `.litespec/behavior/modules/spending/expenses/export-expenses.yaml`. The exception record file reads:
+The team accepts that exporting expenses has no handler yet, so the gap lives as a departure with an expiry date. The record file sits at `.litespec/governance/departures/export-expenses-unimplemented.yaml`, and the use case it covers waits for its handler at `.litespec/behavior/modules/spending/expenses/export-expenses.yaml`. The departure record file reads:
 
 ```yaml
-type: exception
-id: exception/export-expenses-unimplemented
+type: departure
+id: departure/export-expenses-unimplemented
 title: Export Expenses Unimplemented
-kind: gap
+summary: Export waits for the finance file format.
 covers:
   - use-case-unimplemented
 subject:
   - use-case/spending.export-expenses
 reason: Export waits for the finance file format.
-exit: The gap closes when the finance file format lands and the export use case gains its handler.
+exit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.
 expiresOn: 2027-06-01
 ```
 
-The exception covers the finding because its `covers` lists the finding code and its `subject` lists the finding record. The `exit` field states how the gap closes: when the finance file format lands and the export use case gains its handler. The check reports without failing until 2027-06-01. An expired exception fails the check, so the date keeps the missing work visible instead of letting it sit unnoticed.
+The departure covers the finding because its `covers` lists the finding code and its `subject` lists the finding record. The `exit` field states how the gap closes: when the finance file format lands and the export use case gains its handler. The finding is covered, and the run passes, until 2027-06-01. An expired departure fails the check, so the date keeps the missing work visible instead of letting it sit unnoticed.
 
 ## The Run with the Approve Expense Handler Removed
 
@@ -42,22 +42,21 @@ Removing `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpen
 
 ```text
 .litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [S] [use-case-unimplemented] Use case 'use-case/spending.approve-expense' has no handler, reaction or job.
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [known S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
 ...
-1 findings, 1 blocking, 26 known.
+1 findings, 1 blocking, 26 covered.
 ```
 
-The finding says no code implements the Approve expense use case. The fix is to restore the marked handler at its path under `Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/`, which the computed `implemented` state then picks up on the next run. The Export expenses line stays known, because its exception still covers it. The run exits 1, because one open finding remains.
+The finding says no code implements the Approve expense use case. The fix is to restore the marked handler at its path under `Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/`, which the computed `coded` state then picks up on the next run. The Export expenses line stays covered, because its departure still covers it. The run exits 1, because one open finding remains.
 
 ## Querying One Record
 
-`litespec model query` prints one record with its links in both directions, and agents use it to load a record's context. The book and the CLI show both the identifier and the qualified identifier, and `model query` accepts either. Querying the Expense aggregate by either `aggregate/spending.expense` or `spending/expenses` returns its states, transitions, data, rules, and events:
+`litespec model query` prints one record with its links in both directions, and agents use it to load a record's context. The book and the CLI show each record's identifier with its folder path. Querying the Expense aggregate by `aggregate/spending.expense` returns its states, transitions, data, rules, and events:
 
 ```json
 {
   "type": "aggregate",
   "id": "aggregate/spending.expense",
-  "qualifiedId": "spending/expenses",
   "title": "Expense",
   "file": ".litespec/behavior/modules/spending/expenses/aggregate.yaml",
   "line": 1,
@@ -78,18 +77,19 @@ The finding says no code implements the Approve expense use case. The fix is to 
 }
 ```
 
-Querying the Submit expense use case by either `use-case/spending.submit-expense` or `spending/expenses/use-case/submit-expense` adds the computed links the builder derived:
+Querying the Submit expense use case by `use-case/spending.submit-expense` adds the computed links the builder derived:
 
 ```json
 {
   "type": "use-case",
   "id": "use-case/spending.submit-expense",
-  "qualifiedId": "spending/expenses/use-case/submit-expense",
   "title": "Submit Expense",
   ...
   "computed": {
-    "implemented": true,
-    "verified": false,
+    "completion": {
+      "stage": "coded",
+      ...
+    },
     "implements": [
       "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs"
     ],
@@ -107,19 +107,19 @@ Querying the Submit expense use case by either `use-case/spending.submit-expense
 }
 ```
 
-The record reads `implemented` because its handler exists, and `proves` names the scenario test that confirms its scenario. The excerpts above shorten the full output with `...`; the run files carry the complete text.
+The record reads `coded` because its handler exists, and `proves` names the scenario test that confirms its scenario. The excerpts above shorten the full output with `...`; the run files carry the complete text.
 
 ## The Consumer Check
 
 `litespec model check` runs the consumer pass over the project file, the record pages, the glossary, and the controlled UI, per [Model Builder](../tools/model.md), and reports its findings in the same shape. The pass itself adds no finding against the Claimwick example:
 
 ```text
-0 findings, 0 blocking, 0 known.
+0 findings, 0 blocking, 0 covered.
 ```
 
 ## The Journey Detail
 
-`litespec book` shows each journey as record detail for product readers: the description first, then the observable end, the steps as sentences with server badges for the serving use cases and screens, and the requirements with their exceptions and fallbacks inline. Field names never render literally. The submit-and-reimburse detail reads:
+`litespec book` shows each journey as record detail for product readers: the description first, then the observable end, the steps as sentences with server badges for the serving use cases and screens, and the requirements with their `except` clauses and fallbacks inline. Field names never render literally. The submit-and-reimburse detail reads:
 
 ```text
 Submit and Reimburse

@@ -10,4 +10,4 @@ Proof state lives in `.litespec/proof/proofs.json`, committed, holding each scen
 
 ## Evidence with Confidence
 
-`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind D35 to D39, high confidence.
+`research/lower-layers-practice` holds the outside review and the measured counts over the largest consumer behind `decision/0017-proof-that-holds`, high confidence.

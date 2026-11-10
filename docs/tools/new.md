@@ -44,7 +44,7 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 
 | Option | Default | Effect |
 |:---|:---|:---|
-| `--root <path>` | the working directory | Selects the consumer repository to write into. |
+| `--root <path>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
 | `--outcome success` or `refusal` | none | For `result`: whether the entry ends in success or refusal. |
 | `--code <code>` | none | For `result`: the refusal code as `<module>.<reason>`; required for a refusal, the first of `codes` on a success. |
 | `--result <result-id>` | none | For `scenario`: the written or derived result the scenario ends in. |
@@ -55,8 +55,8 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 | Code | Meaning |
 |:---|:---|
 | `0` | The file was written and the identifier reserved, or the entry was appended. |
-| `1` | The release holds no readable template for the type, or the repository could not be read or written. |
-| `2` | The identifier is taken, the use case or file is unknown, the type is unknown or does not belong on the file, or an option is invalid. |
+| `1` | The records cannot be read, or the release holds no readable template for the type. |
+| `2` | The root or the project file is missing or invalid, the identifier is taken, the use case or file is unknown, the type is unknown or does not belong on the file, or an option is invalid. |
 
 ## Examples
 

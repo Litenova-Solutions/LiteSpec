@@ -466,7 +466,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:result
+**Applies to:** artifact: record:use-case, record:result
 
 **Statement:** Each use case MUST declare its success result and every refusal with its code.
 

@@ -151,7 +151,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>An open departure turns its findings into exit 0.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Open_Departure_Turns_Its_Findings_Into_Exit_0()
     {
@@ -168,7 +168,7 @@ public sealed class ModelCheckTests
     }
 
     /// <summary>An expired departure exits 1.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Expired_Departure_Exits_1()
     {

@@ -1,6 +1,7 @@
 # Principles
 
 **Stack:** any
+
 **Concern:** records
 
 ## Intent
@@ -11,11 +12,11 @@ These principles settle a design choice when no narrower provision prefers one d
 
 ### Top-Down Writing
 
-Each record layer is written from the record layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through a mark naming that record. Nothing above Implementation is computed from code.
+Each record layer is written from the record layer above it: Intent states the promises, Behavior states how the system keeps them, Implementation builds what Behavior states, and Proof shows that it holds. Code and tests point up to the record they serve, through a mark naming that record. Nothing above Implementation is computed from code. The [layers page](layers.md) states the translation rules at each boundary.
 
 ### Commitments Flow Down and Facts Flow Up
 
-A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated. What a lower record layer needs, and the upper record layer does not say, goes to the owner as a question or to the backlog board outside the repository, never quietly into the lower record layer. Nothing travels up from code.
+A commitment made in Intent travels down: Behavior fulfills it, Implementation builds it, and Proof checks it. A fact learned from the world, such as a provider behavior, a regulation, or an incident, enters Intent as research or a constraint, cited and dated, as the [layers page](layers.md#enter-world-facts-as-cited-research-or-constraints) states. What a lower record layer needs, and the upper record layer does not say, goes to the owner as a question or to the backlog board outside the repository, never quietly into the lower record layer, as the [layers page](layers.md#raise-open-needs-as-owner-questions-or-backlog-items) states. Nothing travels up from code.
 
 ### The Spec Wins Where Intent Has Spoken
 
@@ -27,7 +28,7 @@ One record derives from another: generic refusals derive from access and input, 
 
 ### Declared Edges, Not Mechanism Bans
 
-Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect. The effect graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. A workflow engine carries a saga only through the workflow-engine extension, where each engine step maps to exactly one use case with its compensation. A project that wants stricter rules keeps them as a cited convention.
+Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect, as the [system page](system.md#declare-every-edge-between-records) states. The effect graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. A project that wants stricter rules keeps them as a cited convention.
 
 ### Honest Opinion
 
@@ -55,11 +56,11 @@ A record in the repository is decided, and the pull request that changes it is i
 
 ### The Specification Is Closed
 
-An agent builds what the specification states and nothing more. Something that seems missing becomes a question to the owner or a backlog item, never code. Ideas live on the backlog board outside the repository until they are specified.
+An agent builds what the specification states and nothing more, as the [layers page](layers.md) states. Something that seems missing becomes a question to the owner or a backlog item, never code. Ideas live on the backlog board outside the repository until they are specified.
 
 ### Every Record Is About the Software
 
-Every record states what the application does, holds, refuses at runtime, or runs on. Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure, and none qualifies when it is about running the company. A goal is a software goal that translates into code, results, and infrastructure, never a business goal.
+Every record states what the application does, holds, refuses at runtime, or runs on, as [Write Every Record About the Software](#write-every-record-about-the-software) states. Goals, problems, features, research, and constraints all qualify when they translate into code, results, tests, or infrastructure, and none qualifies when it is about running the company. A goal is a software goal that translates into code, results, and infrastructure, never a business goal.
 
 ### Completion Is Computed
 
@@ -75,25 +76,9 @@ A command, check, generated file, or package exists because the owner approved i
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
 
 ## Standards
-
-### Write Each Layer from the Layer Above
-
-**ID:** `litespec/core/principles#write-each-layer-from-the-layer-above`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer MUST write each record layer from the record layer above it, from Intent down to Proof.
-
-**Rationale:** A record layer written from the record layer above inherits decided promises instead of inventing its own: Behavior fulfills Intent, Implementation builds Behavior, and Proof checks Implementation. A record layer written from below restates guesses as rules, and the next upper record-layer change leaves two versions of one promise.
-
-**Example:** A use case names the requirement it fulfills before its handler exists.
-
-**Checked by:** `litespec model check` reports no `record-link-missing` finding on the changed records.
 
 ### Take Every Name from the Intent Above It
 
@@ -139,38 +124,6 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Reviewed for:** Which derived values lack an authored source record? Trace each derived value to the record it cites.
 
-### Enter Facts from the World as Research or Constraints
-
-**ID:** `litespec/core/principles#enter-facts-from-the-world-as-research-or-constraints`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer MUST enter each fact learned from the world as research or a constraint, cited and dated.
-
-**Rationale:** A provider behavior, a regulation, or an incident is evidence from outside the project, and entering it as research or a constraint keeps the citation and the date beside the fact. A fact typed straight into Behavior or code loses its source, and later readers treat an observation as a decision.
-
-**Example:** An agent records a slower payout settlement as research, then writes the constraint that cites it.
-
-**Reviewed for:** Which outside facts lack a cited and dated source? Look at the research and constraint records beside the change.
-
-### Raise What a Lower Layer Needs to the Owner
-
-**ID:** `litespec/core/principles#raise-what-a-lower-layer-needs-to-the-owner`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, to the owner as a question or to the backlog board, never quietly in the lower record layer.
-
-**Rationale:** A need that goes to the owner reaches the person who decides it, and a need placed on the backlog board stays visible outside the repository. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust.
-
-**Example:** A use case that needs a price its requirements do not state raises an owner question naming the missing price.
-
-**Reviewed for:** Which needs from a lower record layer lack an owner question or a backlog item? Look at the owner questions and the backlog board beside the records that need them.
-
 ### Follow Intent Where It Has Spoken
 
 **ID:** `litespec/core/principles#follow-intent-where-it-has-spoken`
@@ -200,22 +153,6 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **Example:** A positivity guard in code that no rule states becomes an owner question citing the guard, and the code stays until the answer lands in Intent.
 
 **Reviewed for:** Which working code outside Intent lacks an owner question carrying it? Look at the owner questions beside the uncovered code.
-
-### Declare Every Edge
-
-**ID:** `litespec/core/principles#declare-every-edge`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer MUST declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems on the record that holds it.
-
-**Rationale:** An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.
-
-**Example:** A use case that reminds a manager declares a sends edge to the notification with its timing and failure handling.
-
-**Reviewed for:** Which edges lack a declaration on their record? Look at the `effects` entries with `runs`, `sends`, `emits`, or `calls` beside the changed records.
 
 ### End Every Effect Cycle in a Domain Event
 
@@ -260,22 +197,6 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **Rationale:** An async edge crosses a commit boundary, so work past it can fail after the caller succeeded. Atomic consistency promises one shared outcome, which holds only while every edge stays synchronous.
 
 **Reviewed for:** Which atomic use cases span an async edge? Look at the consistency and effects fields beside the changed use cases.
-
-### Map Each Engine Step to One Use Case
-
-**ID:** `litespec/core/principles#map-each-engine-step-to-one-use-case`
-
-**Strength:** required
-
-**Applies to:** artifact: record:use-case
-
-**Statement:** A saga carried by a workflow engine MUST map each engine step to exactly one use case with its compensation.
-
-**Rationale:** The engine carries the saga while the records state it: one use case per step keeps the promise, the refusal codes, and the undo in the records the checks read. An engine step without its use case runs behavior no record names, and a step without its compensation leaves a failure with no stated undo.
-
-**Example:** An engine step that reimburses an expense maps to the reimburse-expense use case, whose compensation voids the payout.
-
-**Reviewed for:** Which engine steps map to no use case, or to a use case with no compensation? Look at the engine step definitions beside the use case records.
 
 ### Record Stricter Edge Rules as Conventions
 
@@ -333,20 +254,6 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Checked by:** `litespec model check` fails a project whose stack versions do not resolve from the manifest.
 
-### Prove Scenarios with Tests
-
-**ID:** `litespec/core/principles#prove-scenarios-with-tests`
-
-**Strength:** required
-
-**Applies to:** artifact: test
-
-**Statement:** A test MUST prove a scenario only by calling its use case and asserting its result.
-
-**Rationale:** A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test carries a gap exception with an expiry date, not silent coverage. The [model page](model.md) defines the `proves` link.
-
-**Reviewed for:** Each scenario in the model links a passing test that calls its use case and asserts its result.
-
 ### Keep Git as the Decision Record
 
 **ID:** `litespec/core/principles#keep-git-as-the-decision-record`
@@ -362,22 +269,6 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 **Example:** A feature nobody wants is deleted from the repository; its history stays in git.
 
 **Reviewed for:** Which changed records bypass their pull request? Look at the pull request behind the change.
-
-### Build Only What the Specification States
-
-**ID:** `litespec/core/principles#build-only-what-the-specification-states`
-
-**Strength:** required
-
-**Applies to:** artifact: any
-
-**Statement:** A consumer MUST build what the specification states and nothing more.
-
-**Rationale:** The specification is closed: something that seems missing becomes a question to the owner or a backlog item, never code. Code without a record behind it is a promise nobody stated.
-
-**Example:** An agent that finds no payout rule asks the owner instead of coding a guessed guard.
-
-**Reviewed for:** Which code has no specification record behind it? Compare the changed code with the records it serves.
 
 ### Write Every Record About the Software
 
@@ -451,9 +342,9 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** What merges MUST be complete.
 
-**Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+**Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
 
-**Example:** A use case with no endpoint stays on its branch until the endpoint lands or an exception with `expiresOn` parks it.
+**Example:** A use case with no endpoint stays on its branch until the endpoint lands or a departure with `expiresOn` parks it.
 
 **Checked by:** `litespec model check` reports unreached records locally and blocks on them in the pull-request check.
 

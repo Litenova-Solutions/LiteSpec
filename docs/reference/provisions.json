@@ -933,7 +933,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A command handler MUST change only its aggregate, leaving every declared \u0060runs\u0060, \u0060sends\u0060, \u0060calls\u0060, and \u0060emits\u0060 edge to an event handler or job after the commit.",
-      "rationale": "An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails \u0060effect-undeclared\u0060 on any dispatch the record does not declare. An \u0060emits\u0060 effect is a domain event the aggregate raises, staged in the outbox in the same commit under \u0060litespec/backend/application#emit-declared-integration-events-after-commit\u0060; \u0060sends\u0060, \u0060calls\u0060, and \u0060runs\u0060 effects run in an event handler or job after the commit. A \u0060sends\u0060 or \u0060calls\u0060 effect is \u0060after-commit\u0060 or \u0060async\u0060, never \u0060inline\u0060. An \u0060inline\u0060 \u0060runs\u0060 entry states whether it shares the caller\u0027s transaction, and \u0060consistency: atomic\u0060 never spans an \u0060async\u0060 edge. The effect graph holds no cycles except through domain events with a stated end condition. A saga carried by a workflow engine maps each engine step to exactly one use case with its compensation through the \u0060workflow-engine\u0060 extension.",
+      "rationale": "An undeclared edge is the defect: an event handler or job reaches a use case, notification, integration event, or external system the records never named, so review sees behavior the specification hides. Each declared entry names exactly one verb, its timing, and its failure handling, and the stack reader fails \u0060effect-undeclared\u0060 on any dispatch the record does not declare. An \u0060emits\u0060 effect is a domain event the aggregate raises, staged in the outbox in the same commit under \u0060litespec/backend/application#emit-declared-integration-events-after-commit\u0060; \u0060sends\u0060, \u0060calls\u0060, and \u0060runs\u0060 effects run in an event handler or job after the commit. A \u0060sends\u0060 or \u0060calls\u0060 effect is \u0060after-commit\u0060 or \u0060async\u0060, never \u0060inline\u0060. An \u0060inline\u0060 \u0060runs\u0060 entry states whether it shares the caller\u0027s transaction, and \u0060consistency: atomic\u0060 never spans an \u0060async\u0060 edge. The effect graph holds no cycles except through domain events with a stated end condition.",
       "example": "The \u0060reimburse-expense\u0060 aggregate raises its reimbursed fact, and persistence stages \u0060integration-event/expense.reimbursed\u0060 in the outbox because its record declares that \u0060emits\u0060 entry; a second emit the record does not declare fails the check."
     },
     {
@@ -1825,14 +1825,14 @@
       "anchor": "call-the-marked-act-from-each-command-handler",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-act-missing\u0060 (level S) for a command handler changing an entity or saga aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-act-missing\u0060 (level S) for a command handler changing an entity aggregate that calls no root method marked with its use case. The check runs in the CLI only, with no analyzer rule: the handler and the root method sit in different projects, and one compilation sees one project.",
       "stack": "any",
       "concern": "domain",
       "artifact": "command-handler",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A command handler changing an entity or saga aggregate MUST change it by calling a root method marked with the handler\u0027s use case.",
+      "statement": "A command handler changing an entity aggregate MUST change it by calling a root method marked with the handler\u0027s use case.",
       "rationale": "The use case names an act, and the aggregate performs it: the mark on the root method says which act the method is. A handler that changes its aggregate only through methods marked for other use cases performs an act its record never named, and a reader cannot tell from the use case which method to open. The use-case verb, the method name, and the raised event\u0027s tense agree under \u0060litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb\u0060. This provision states the marked form of \u0060litespec/backend/application#keep-command-handlers-to-load-call-and-stage\u0060. A command that changes only stores, or that only runs other commands and lists nothing in \u0060changes\u0060, performs no act on a root, so it needs no marked call.",
       "example": "The reimburse-expense handler calls \u0060Reimburse\u0060 on the expense root, and \u0060Reimburse\u0060 carries the mark \u0060use-case/spending.reimburse-expense\u0060."
     },
@@ -4267,114 +4267,6 @@
       "example": "A workspace with an API and three frontends carries:\n\n\u0060\u0060\u0060text\napps/\n  api/\n    src/\n      {Product}.WebApi/\n    tests/\n      {Product}.Architecture.Tests/   references the AppHost for its model tests\n  apphost/\n    {Product}.AppHost/\n      {Product}.AppHost.csproj\n      Program.cs\n  {frontend}/\n\u0060\u0060\u0060\n\nThe workspace solution of \u0060litespec/backend/dotnet/workspace#keep-one-workspace-solution-beside-the-api-solution\u0060 lists the AppHost, and the API solution lists it too when a test project references it."
     },
     {
-      "id": "litespec/backend/identifiers#cite-shared-provisions-in-their-published-form",
-      "heading": "Cite Shared Provisions in Their Published Form",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "cite-shared-provisions-in-their-published-form",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060ID_UNKNOWN_REFERENCE\u0060 diagnostic.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "A shared provision citation MUST use its published identifier.",
-      "rationale": "A shared provision is cited across projects, so its identifier looks the same everywhere. The published \u0060litespec/\u003Cpage\u003E#\u003Cslug\u003E\u0060 form stays fixed, while project records use the type forms above.",
-      "example": ""
-    },
-    {
-      "id": "litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type",
-      "heading": "Follow the Identifier Form of Each Record Type",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "follow-the-identifier-form-of-each-record-type",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for an identifier outside the form its type uses.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "A record identifier MUST follow the form the model states for its record type.",
-      "rationale": "A reader who meets \u0060use-case/spending.submit-expense\u0060 knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.",
-      "example": "\u0060event/expense.submitted\u0060 names an event of the expense aggregate."
-    },
-    {
-      "id": "litespec/backend/identifiers#keep-wire-codes-stable",
-      "heading": "Keep Wire Codes Stable",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "keep-wire-codes-stable",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "A wire code MUST stay unchanged once clients read it.",
-      "rationale": "Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.",
-      "example": ""
-    },
-    {
-      "id": "litespec/backend/identifiers#name-records-with-one-to-six-words",
-      "heading": "Name Records with One to Six Words",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "name-records-with-one-to-six-words",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for a name outside one to six lowercase hyphenated words.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "A name MUST carry one to six lowercase hyphenated words.",
-      "rationale": "A short hyphenated name reads aloud in review and stays stable when the record\u0027s wording changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.",
-      "example": "\u0060decision/0001-receipt-threshold\u0060 counts its number as one word."
-    },
-    {
-      "id": "litespec/backend/identifiers#resolve-every-identifier-citation",
-      "heading": "Resolve Every Identifier Citation",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "resolve-every-identifier-citation",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060reference-unknown\u0060 for a citation naming no written record.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "Every identifier citation MUST resolve to a written record.",
-      "rationale": "A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.",
-      "example": ""
-    },
-    {
-      "id": "litespec/backend/identifiers#use-every-identifier-once",
-      "heading": "Use Every Identifier Once",
-      "page": "docs/backend/identifiers.md",
-      "anchor": "use-every-identifier-once",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-duplicate\u0060 for an identifier used twice.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "A record identifier MUST name exactly one record.",
-      "rationale": "An identifier used twice names two records at once, so every citation of it points both ways. One use per identifier keeps each citation single-valued.",
-      "example": "Two records named \u0060use-case/spending.submit-expense\u0060 leave the model check reporting the duplicate on the second record."
-    },
-    {
       "id": "litespec/backend/persistence#add-read-documents-for-query-shaped-data",
       "heading": "Add Read Documents for Query-Shaped Data",
       "page": "docs/backend/persistence.md",
@@ -5221,24 +5113,6 @@
       "example": "A payout archive declares \u0060{\u0022mode\u0022: \u0022impossible\u0022, \u0022reason\u0022: \u0022settled payouts belong to the bank\u0022}\u0060 with the decision that accepts the limit, plus the sentence employees see."
     },
     {
-      "id": "litespec/core/access#declare-every-operation-on-every-external-system",
-      "heading": "Declare Every Operation on Every External System",
-      "page": "docs/core/access.md",
-      "anchor": "declare-every-operation-on-every-external-system",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an external system without \u0060operations\u0060 and \u0060reference-unknown\u0060 for a \u0060calls\u0060 edge naming no declared operation.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:external-system",
-      "layer": "behavior",
-      "trace": false,
-      "strength": "required",
-      "statement": "An external system MUST declare every operation the product may call in \u0060operations\u0060.",
-      "rationale": "Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency with no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.",
-      "example": "A payout bank declares a \u0060settle-batch\u0060 operation with its timeout, timeout handling, and response shape, which the payout effect cites as \u0060calls\u0060."
-    },
-    {
       "id": "litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields",
       "heading": "Describe Every Served Content Entry Point with Its Serving Fields",
       "page": "docs/core/access.md",
@@ -5363,24 +5237,6 @@
       "statement": "An actor MUST name its kind in \u0060kind\u0060.",
       "rationale": "The kind tells a reviewer whether a human or an organization stands behind the actor, which decides who answers for what it does. Without the kind, a reviewer assigns responsibility without knowing who stands behind the actor. Software stands behind no actor.",
       "example": "An employee actor carries \u0060person\u0060, and the library as a lending party carries \u0060organization\u0060."
-    },
-    {
-      "id": "litespec/core/access#name-every-entry-point-with-its-kind",
-      "heading": "Name Every Entry Point with Its Kind",
-      "page": "docs/core/access.md",
-      "anchor": "name-every-entry-point-with-its-kind",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an entry point without \u0060kind\u0060 and \u0060field-invalid\u0060 for a kind outside browser, api, webhook, device, cli, mcp, and served-content.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:entry-point",
-      "layer": "behavior",
-      "trace": false,
-      "strength": "required",
-      "statement": "An entry point MUST name its kind in \u0060kind\u0060.",
-      "rationale": "The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, and served content serves a static file. Without the kind, a webhook and a page look alike.",
-      "example": "The library app carries \u0060browser\u0060, and a kiosk handshake carries \u0060device\u0060."
     },
     {
       "id": "litespec/core/access#prove-hierarchies-derived-trust-and-delegation-with-scenarios",
@@ -5777,6 +5633,24 @@
       "statement": "A completion report MUST name each provision the agent judged and how it judged it.",
       "rationale": "The report shows which rules, defaults, and advice the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.",
       "example": "The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by an exception."
+    },
+    {
+      "id": "litespec/core/agent#protect-proofs-from-implementation-edits",
+      "heading": "Protect Proofs from Implementation Edits",
+      "page": "docs/core/agent.md",
+      "anchor": "protect-proofs-from-implementation-edits",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "The change keeps each proving test and its expected values unchanged unless its scenario changed in the same change, and the completion report names each test the agent stopped on and reported as wrong.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "test",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "An agent MUST NOT delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; it reports a test it believes is wrong instead of editing it.",
+      "rationale": "A proof that changes with the implementation stops proving the decided behavior and starts restating the code. The proof ledger records each scenario\u0027s hash and the hash of each test that proves it, so \u0060model check --since\u0060 can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change.",
+      "example": "A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result."
     },
     {
       "id": "litespec/core/agent#raise-open-figures-to-the-owner",
@@ -6927,7 +6801,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer record identifier MUST be \u0060type/home.name\u0060 in kebab-case, using the form the Project Model states for its type.",
-      "rationale": "The type names the record kind and \u0060home.name\u0060 names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](../backend/identifiers.md) states the name rules and checks.",
+      "rationale": "The type names the record kind and \u0060home.name\u0060 names the owning module or set, so an identifier resolves with no lookup table. One grammar for every record kind keeps identifiers writable by hand and checkable by tool. The [model page](model.md) states the form each type uses, and the [identifier page](language.md#identifier-forms) states the name rules and checks.",
       "example": "\u0060reaction/spending.send-receipt-reminder-on-expense-submitted\u0060 is a reaction owned by the spending module, and \u0060journey/submit-and-reimburse#s2\u0060 is the second step of a journey."
     },
     {
@@ -7197,7 +7071,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each runbook MUST state its \u0060impact\u0060, \u0060prerequisites\u0060, \u0060procedure\u0060, \u0060verification\u0060, \u0060recovery\u0060, and \u0060escalation\u0060.",
-      "rationale": "A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: \u0060impact\u0060 says what breaks, \u0060prerequisites\u0060 say what to hold, \u0060procedure\u0060 says each step, \u0060verification\u0060 says how to confirm, \u0060recovery\u0060 says how to undo, and \u0060escalation\u0060 says who to call. A runbook missing one leaves the reader guessing at the worst moment.",
+      "rationale": "A runbook named by a job, a failure policy, or an alert is the answer a person opens under pressure: \u0060impact\u0060 says what breaks, \u0060prerequisites\u0060 say what to hold, \u0060procedure\u0060 says each step, \u0060verification\u0060 says how to confirm, \u0060recovery\u0060 says how to undo, and \u0060escalation\u0060 says who to call. A runbook missing one leaves the reader guessing at the worst moment.",
       "example": "The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending team."
     },
     {
@@ -7273,6 +7147,60 @@
       "example": "Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record."
     },
     {
+      "id": "litespec/core/departures#depart-from-advice-without-a-record",
+      "heading": "Depart from Advice Without a Record",
+      "page": "docs/core/departures.md",
+      "anchor": "depart-from-advice-without-a-record",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which departures name a provision of Strength advisory in their \u0060covers\u0060? Look at \u0060covers\u0060 in each file under \u0060.litespec/governance/departures/\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:departure",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "A project MAY depart from a provision of Strength advisory without recording a departure, since advice binds no project.",
+      "rationale": "A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A departure from it would name a rule the provision never made. A provision whose Statement says should takes this strength for the same reason.",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/departures#record-a-project-wide-lowering-as-a-departure",
+      "heading": "Record a Project-Wide Lowering as a Departure",
+      "page": "docs/core/departures.md",
+      "anchor": "record-a-project-wide-lowering-as-a-departure",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060 or \u0060[SuppressMessage]\u0060 that no live departure covers.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:departure",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A project MUST record a departure for every analyzer rule it lowers or switches off in an \u0060.editorconfig\u0060 that applies beyond one file.",
+      "rationale": "A project-wide lowering in \u0060.editorconfig\u0060 is a departure from the standard rather than a setting. A departure names the provision, the reason and the expiry date, so the lowering is dated and ends instead of staying silent.",
+      "example": "A project that lowers LS5001 to a suggestion in its root \u0060.editorconfig\u0060 records a departure whose \u0060covers\u0060 names \u0060litespec/core/system#point-code-and-tests-up-to-records\u0060, the provision the rule enforces."
+    },
+    {
+      "id": "litespec/core/departures#record-accepted-gaps-as-departures",
+      "heading": "Record Accepted Gaps as Departures",
+      "page": "docs/core/departures.md",
+      "anchor": "record-accepted-gaps-as-departures",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060departure-expired\u0060 (level G) for a departure past its \u0060expiresOn\u0060 date, and \u0060departure-invalid\u0060 (level G) for a departure whose \u0060covers\u0060 names a finding code no check emits, a code the model needs in order to load, or a provision or page the installed release does not ship.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:departure",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "An accepted gap MUST live as a departure with an \u0060expiresOn\u0060 date and an \u0060exit\u0060.",
+      "rationale": "Missing work with no date is invisible: nothing reports it. A departure with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, and \u0060departure-expired\u0060 reports the departure after the date. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure in \u0060.litespec/governance/departures/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: departure\nid: departure/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
+    },
+    {
       "id": "litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule",
       "heading": "Bind Every Atomic Write Group in Its Rule",
       "page": "docs/core/domain-model.md",
@@ -7287,7 +7215,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each atomicity rule MUST name the aggregates it binds in \u0060binds\u0060.",
-      "rationale": "An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a saga candidate, reported at level A.",
+      "rationale": "An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, reported at level A.",
       "example": "The hold rule binds the hold and the copy aggregates, so a hold without its copy never stands."
     },
     {
@@ -7322,7 +7250,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each entity and each saga MUST list every allowed state change with its use case in \u0060transitions\u0060, including the creation that enters its first state.",
+      "statement": "Each entity MUST list every allowed state change with its use case in \u0060transitions\u0060, including the creation that enters its first state.",
       "rationale": "States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The \u0060state-unreached\u0060 and \u0060transition-unknown\u0060 checks report a state no transition reaches and a transition naming a missing state or use case.",
       "example": ""
     },
@@ -7340,9 +7268,9 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each aggregate MUST declare its kind: entity, saga, or store.",
-      "rationale": "The kind decides what the page carries: an entity carries a lifecycle, a saga carries steps with compensations, exits, and drivenBy, and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.",
-      "example": "The refund saga declares \u0060kind: saga\u0060, and the suppression list declares \u0060kind: store\u0060."
+      "statement": "Each aggregate MUST declare its kind: entity or store.",
+      "rationale": "The kind decides what the page carries: an entity carries a lifecycle and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.",
+      "example": "The expense declares \u0060kind: entity\u0060, and the suppression list declares \u0060kind: store\u0060."
     },
     {
       "id": "litespec/core/domain-model#define-every-behavior-term-in-the-glossary",
@@ -7468,7 +7396,7 @@
       "strength": "required",
       "statement": "Each glossary term MUST carry its record layer, intent, behavior, or implementation, with the established synonyms its readers know in \u0060aliases\u0060.",
       "rationale": "Business words, design words, and implementation words age on different clocks: a business term moves when the market moves, a design term moves when the model moves, and an implementation term moves when the code moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.",
-      "example": "The term \u0060saga\u0060 carries \u0060layer: behavior\u0060 with \u0060aliases: [\u0022process manager\u0022]\u0060."
+      "example": "The term \u0060refusal\u0060 carries \u0060layer: behavior\u0060 with \u0060aliases: [\u0022rejection\u0022, \u0022error\u0022]\u0060."
     },
     {
       "id": "litespec/core/domain-model#model-each-aggregate-lifecycle-with-states",
@@ -7477,15 +7405,15 @@
       "anchor": "model-each-aggregate-lifecycle-with-states",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 fails an entity or saga page without \u0060states\u0060 entries carrying a name and a meaning.",
+      "evidence": "\u0060litespec model check\u0060 fails an entity page without \u0060states\u0060 entries carrying a name and a meaning.",
       "stack": "any",
       "concern": "domain",
       "artifact": "aggregate",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Each entity and each saga MUST declare its lifecycle as \u0060states\u0060 entries with a name and a meaning.",
-      "rationale": "A bare state name tells a reviewer nothing: \u0060rejected\u0060 without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives \u0060transitions\u0060 states worth connecting. An entity tracks what the thing is, and a saga tracks where its coordination stands. A store carries no lifecycle, so it carries no states.",
+      "statement": "Each entity MUST declare its lifecycle as \u0060states\u0060 entries with a name and a meaning.",
+      "rationale": "A bare state name tells a reviewer nothing: \u0060rejected\u0060 without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives \u0060transitions\u0060 states worth connecting. An entity tracks what the thing is. A store carries no lifecycle, so it carries no states.",
       "example": "The hold queue entity declares \u0060Requested\u0060, \u0060Ready\u0060, \u0060Collected\u0060, \u0060Cancelled\u0060, and \u0060Lapsed\u0060, each with one sentence saying what the hold awaits or has received."
     },
     {
@@ -8731,6 +8659,42 @@
       "example": "Step \u0060s4\u0060 states \u0060Finance reimburses the approved expense.\u0060 in \u0060statement\u0060 and names no use case; \u0060use-case/spending.reimburse-expense\u0060 names \u0060journey/submit-and-reimburse#s4\u0060 in \u0060serves\u0060."
     },
     {
+      "id": "litespec/core/language#cite-shared-provisions-in-their-published-form",
+      "heading": "Cite Shared Provisions in Their Published Form",
+      "page": "docs/core/language.md",
+      "anchor": "cite-shared-provisions-in-their-published-form",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060ID_UNKNOWN_REFERENCE\u0060 diagnostic.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A shared provision citation MUST use its published identifier.",
+      "rationale": "A shared provision is cited across projects, so its identifier looks the same everywhere. The published \u0060litespec/\u003Cpage\u003E#\u003Cslug\u003E\u0060 form stays fixed, while project records use the type forms above.",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/language#follow-the-identifier-form-of-each-record-type",
+      "heading": "Follow the Identifier Form of Each Record Type",
+      "page": "docs/core/language.md",
+      "anchor": "follow-the-identifier-form-of-each-record-type",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for an identifier outside the form its type uses.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A record identifier MUST follow the form the model states for its record type.",
+      "rationale": "A reader who meets \u0060use-case/spending.submit-expense\u0060 knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.",
+      "example": "\u0060event/expense.submitted\u0060 names an event of the expense aggregate."
+    },
+    {
       "id": "litespec/core/language#keep-names-an-outside-standard-fixes",
       "heading": "Keep Names an Outside Standard Fixes",
       "page": "docs/core/language.md",
@@ -8747,6 +8711,24 @@
       "statement": "Every name an outside standard fixes MUST stay exactly as that standard spells it.",
       "rationale": "A name an outside standard fixes belongs to that standard: renaming \u0060given\u0060 to fit the word classes breaks every Gherkin reader. The grammar stays complete by exempting exactly these names instead of growing an exceptions list. Gherkin and CloudEvents names are the only exemptions.",
       "example": "A Claimwick scenario keeps \u0060given\u0060, \u0060when\u0060, and \u0060then\u0060, which the word-class table gives no class."
+    },
+    {
+      "id": "litespec/core/language#keep-wire-codes-stable",
+      "heading": "Keep Wire Codes Stable",
+      "page": "docs/core/language.md",
+      "anchor": "keep-wire-codes-stable",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A wire code MUST stay unchanged once clients read it.",
+      "rationale": "Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.",
+      "example": ""
     },
     {
       "id": "litespec/core/language#name-a-boolean-as-a-predicate",
@@ -8855,6 +8837,60 @@
       "statement": "Every record name MUST use the name form the record-name table gives its type.",
       "rationale": "A name in the word class of what the record is tells a reader the type before the identifier is opened: a verb opens a use case, a noun phrase opens a goal, and a past participle opens an event. One name form per type keeps listings scannable and citations writable by hand. The record-name table holds the Intent forms beside the Behavior and governance forms.",
       "example": "Claimwick names the journey \u0060submit-an-expense\u0060, the use case \u0060submit-expense\u0060, and the setting \u0060receipt-threshold\u0060."
+    },
+    {
+      "id": "litespec/core/language#name-records-with-one-to-six-words",
+      "heading": "Name Records with One to Six Words",
+      "page": "docs/core/language.md",
+      "anchor": "name-records-with-one-to-six-words",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for a name outside one to six lowercase hyphenated words.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A name MUST carry one to six lowercase hyphenated words.",
+      "rationale": "A short hyphenated name reads aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.",
+      "example": "\u0060decision/0001-receipt-threshold\u0060 counts its number as one word."
+    },
+    {
+      "id": "litespec/core/language#resolve-every-identifier-citation",
+      "heading": "Resolve Every Identifier Citation",
+      "page": "docs/core/language.md",
+      "anchor": "resolve-every-identifier-citation",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060reference-unknown\u0060 for a citation naming no written record.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every identifier citation MUST resolve to a written record.",
+      "rationale": "A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/language#use-every-identifier-once",
+      "heading": "Use Every Identifier Once",
+      "page": "docs/core/language.md",
+      "anchor": "use-every-identifier-once",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-duplicate\u0060 for an identifier used twice.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A record identifier MUST name exactly one record.",
+      "rationale": "An identifier used twice names two records at once, so every citation of it points both ways. One use per identifier keeps each citation single-valued.",
+      "example": "Two records named \u0060use-case/spending.submit-expense\u0060 leave the model check reporting the duplicate on the second record."
     },
     {
       "id": "litespec/core/language#write-each-finding-message-as-a-fact",
@@ -8980,25 +9016,7 @@
       "strength": "required",
       "statement": "Behavior that anticipates a regulation with a deadline MUST follow that regulation\u0027s constraint.",
       "rationale": "A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.",
-      "example": ""
-    },
-    {
-      "id": "litespec/core/layers#close-incident-exceptions-within-seven-days",
-      "heading": "Close Incident Exceptions Within Seven Days",
-      "page": "docs/core/layers.md",
-      "anchor": "close-incident-exceptions-within-seven-days",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which incident fixes lack an exception, or carry an expired one? Look at the exception records beside each fix.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:exception",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A production incident fix that ships before its records are updated MUST carry an incident exception expiring within seven days.",
-      "rationale": "A production incident ships its fix at once, at 02:00 if that is when the page fires. The incident exception records what shipped and why, and the records are updated before it expires. An expired exception is a blocking finding, so the gap stays visible until the records close it.",
-      "example": ""
+      "example": "A privacy regulation that takes effect next year enters as a constraint with its statutory date, and the anticipatory behavior follows that constraint until the requirement exists."
     },
     {
       "id": "litespec/core/layers#enter-world-facts-as-cited-research-or-constraints",
@@ -9010,7 +9028,7 @@
       "evidence": "Which world facts entered without a cited and dated research or constraint record? Look at the provider, regulation, and incident facts the change relies on.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:research, record:constraint",
+      "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
@@ -9047,12 +9065,12 @@
       "stack": "any",
       "concern": "records",
       "artifact": "record:scenario",
-      "layer": "any",
-      "trace": false,
+      "layer": "proof",
+      "trace": true,
       "strength": "required",
       "statement": "At large size, or with the \u0060bdd\u0060 extension, each scenario MUST be proved by one test through the public boundary.",
       "rationale": "Small projects carry no scenarios unless the \u0060bdd\u0060 extension switches them on, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks \u0060use-case-scenario-missing\u0060 and \u0060proves-unreached\u0060 report the missing proof.",
-      "example": ""
+      "example": "A large project carries a scenario for each refusal, and one test proves it through the public boundary."
     },
     {
       "id": "litespec/core/layers#raise-open-needs-as-owner-questions-or-backlog-items",
@@ -9088,7 +9106,7 @@
       "strength": "required",
       "statement": "A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.",
       "rationale": "The provider\u0027s behavior is a fact from the world, and research is where such facts enter. The constraint that follows cites the research, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.",
-      "example": ""
+      "example": "A payout provider that starts settling every two days instead of daily enters as research with the observed dates, and a settlement-window constraint cites that research."
     },
     {
       "id": "litespec/core/layers#send-commercial-and-observable-figures-to-the-owner",
@@ -9295,7 +9313,7 @@
       "anchor": "compute-completion-in-the-builder",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which features read below \u0060proven\u0060, and which children hold each one back? Look at \u0060completion\u0060 on each feature in the model.",
+      "evidence": "Which features read below \u0060verified\u0060, and which children hold each one back? Look at \u0060completion\u0060 on each feature in the model.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case, record:requirement, record:journey, record:feature, record:goal",
@@ -9303,8 +9321,8 @@
       "trace": true,
       "strength": "required",
       "statement": "The builder MUST compute one completion stage for every requirement, use case, journey, feature and goal, and write it as \u0060completion\u0060 with \u0060stage\u0060, \u0060proof\u0060, \u0060heldBy\u0060 and \u0060counts\u0060, with a parent only as far as its weakest in-scope child and \u0060heldBy\u0060 naming at most ten children at that stage.",
-      "rationale": "Completion is a fact the builder can count from fulfilment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060implemented\u0060 when code is found for every in-scope child, and \u0060proven\u0060 when every in-scope child is verified or met with fresh proof. When the model holds no test run, an implemented record stays \u0060implemented\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement an exception parks stays out of the stage and the counts and names itself in \u0060heldBy\u0060, so deferred work stays visible.",
-      "example": "In Claimwick, \u0060feature/expense-submission\u0060 shows \u0060implemented\u0060 with proof \u0060unknown\u0060 before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows \u0060proven\u0060 with no held-by entries."
+      "rationale": "Completion is a fact the builder can count from fulfilment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060coded\u0060 when code is found for every in-scope child, and \u0060verified\u0060 when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays \u0060coded\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement a departure parks stays out of the stage and the counts and names itself in \u0060heldBy\u0060, so deferred work stays visible.",
+      "example": "In Claimwick, \u0060feature/expense-submission\u0060 shows \u0060coded\u0060 with proof \u0060unknown\u0060 before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows \u0060verified\u0060 with no held-by entries."
     },
     {
       "id": "litespec/core/model#compute-proof-statuses-in-the-builder",
@@ -9320,9 +9338,9 @@
       "layer": "implementation",
       "trace": true,
       "strength": "required",
-      "statement": "Implemented, verified, met, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.",
-      "rationale": "Handwritten state drifts: a record marked implemented stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads implemented when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from \u0060.litespec/proof/proofs.json\u0060. A requirement reads met when everything fulfilling it is verified and its measure\u0027s check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "A use case reads implemented when its handler exists."
+      "statement": "Coded, verified, tested, exercised, stale, flaky, and reachable MUST come from the builder, never from handwriting.",
+      "rationale": "Handwritten state drifts: a record marked coded stays marked after its handler is deleted. Computed state cannot drift, because the builder re-derives it from handlers, routes, scenarios, and test runs on every run. A use case reads coded when a handler, reaction, job, or endpoint marked with it carries it out, verified when every scenario has a passing proof through the public boundary that is not stale, and stale when the scenario hash or the test-body hash differs from \u0060.litespec/proof/proofs.json\u0060. A requirement reads verified when everything fulfilling it is verified and its measure\u0027s check passes. A record reads tested when a passing test that asserts something links to it. A journey step reads exercised when a passing proof of a use case serves it. A proof reads flaky when its test both passed and failed within the runs read. Nothing above Implementation is computed from code: derivation from code into any other record is forbidden, and code-computed facts live in the book and the model output. Settled by [decision/0017-proof-that-holds](decision/0017-proof-that-holds) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "A use case reads coded when its handler exists."
     },
     {
       "id": "litespec/core/model#connect-across-modules-only-through-declared-dependencies",
@@ -9430,7 +9448,7 @@
       "strength": "required",
       "statement": "Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.",
       "rationale": "The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).",
-      "example": "The book explains an exception with the glossary definition of Exception."
+      "example": "The book explains a departure with the glossary definition of Departure."
     },
     {
       "id": "litespec/core/model#follow-the-authority-order",
@@ -9467,24 +9485,6 @@
       "statement": "Every record except the product MUST have exactly one parent from the Placement Table on this page.",
       "rationale": "A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).",
       "example": "In the Claimwick product, \u0060requirement/approval-reminders.receipt-over-threshold\u0060 sits on the \u0060feature/approval-reminders\u0060 page under \u0060intent/modules/spending/features/\u0060; \u0060use-case/spending.submit-expense\u0060 sits beside its aggregate; and \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060 sits under \u0060result/submit-expense.submitted\u0060."
-    },
-    {
-      "id": "litespec/core/model#give-every-use-case-its-results",
-      "heading": "Give Every Use Case Its Results",
-      "page": "docs/core/model.md",
-      "anchor": "give-every-use-case-its-results",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-success-missing\u0060 and \u0060scenario-result-unknown\u0060 for a use case missing its success or a scenario naming no result.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:use-case",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A use case MUST end in a success result and name its refusals.",
-      "rationale": "Callers branch on named endings: success or a specific refusal with its code. Refusals stand in precedence order, so the first match wins. A refusal that stores its attempt carries recorded, and a success with recorded outcomes inside it carries codes. Generic refusals are derived, never written, so they need no entry. A use case with no named success leaves callers guessing what good looks like, and scenarios prove one ending each, so unnamed endings stay unproven.",
-      "example": "A submit use case names \u0060submitted\u0060 and \u0060receipt-missing\u0060.\n\nThe running Claimwick example carries this in \u0060use-case/spending.submit-expense\u0060, which names \u0060result/submit-expense.submitted\u0060 and \u0060result/submit-expense.receipt-missing\u0060 with \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060:\n\n\u0060\u0060\u0060yaml\nrecords:\n  - type: result\n    id: result/submit-expense.submitted\n    title: Submitted\n    outcome: success\n    meaning: The expense is submitted.\n  - type: result\n    id: result/submit-expense.receipt-missing\n    title: Receipt missing\n    outcome: refusal\n    code: spending.receipt-missing\n    meaning: The expense is above the receipt threshold and carries no receipt.\n  - type: scenario\n    id: scenario/submit-expense.submitting-with-a-receipt-succeeds\n    title: Submitting with a receipt succeeds\n    given: An employee paid for a train ticket and kept the receipt.\n    when: The employee submits the expense with the receipt.\n    then: The expense is submitted.\n    result: result/submit-expense.submitted\n\u0060\u0060\u0060\n\nSuccess names the submitted ending, the refusal carries the code \u0060spending.receipt-missing\u0060, and the scenario pairs one given and when with the success result, which satisfies this provision."
     },
     {
       "id": "litespec/core/model#hold-module-rules-in-rule-sets",
@@ -9739,60 +9739,6 @@
       "example": "\u0060integration-event/expense-submitted\u0060 is published from the spending module; a second publisher in the finance module is reported."
     },
     {
-      "id": "litespec/core/model#reach-behavior-from-every-intent-record",
-      "heading": "Reach Behavior from Every Intent Record",
-      "page": "docs/core/model.md",
-      "anchor": "reach-behavior-from-every-intent-record",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060intent-unreached\u0060 for a record that reaches no Behavior; a local run reports it and the pull-request check blocks on it. The planned-Intent findings \u0060requirement-fulfillment-missing\u0060, \u0060step-use-case-missing\u0060, \u0060goal-mover-missing\u0060 and \u0060constraint-unreached\u0060 take the same outcome.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:goal, record:problem, record:feature, record:requirement, record:constraint, record:research, record:decision",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Every goal, problem, feature, requirement, constraint, research, and decision MUST reach Behavior through the links the Reachability section states.",
-      "rationale": "The folder fixes where a record sits, and reachability fixes that it leads to software. A record that reaches no Behavior is either unfinished work, which belongs on the backlog, or not software. A branch may be incomplete, so a local run reports unreached records while the pull-request check blocks on them. The same planned-Intent rule covers \u0060requirement-fulfillment-missing\u0060, \u0060step-use-case-missing\u0060, \u0060goal-mover-missing\u0060 and \u0060constraint-unreached\u0060: each reports locally and blocks only in the pull-request check. A record that must stay unreached past a merge carries an exception with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
-      "example": "In Claimwick, \u0060problem/expenses-wait-weeks\u0060 reaches Behavior through \u0060feature/approval-reminders\u0060 and its requirements; a problem no feature or requirement addresses is reported."
-    },
-    {
-      "id": "litespec/core/model#record-a-project-wide-lowering-as-an-exception",
-      "heading": "Record a Project-Wide Lowering as an Exception",
-      "page": "docs/core/model.md",
-      "anchor": "record-a-project-wide-lowering-as-an-exception",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060 or \u0060[SuppressMessage]\u0060 that no live exception covers.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:exception",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A project MUST record an exception for every analyzer rule it lowers or switches off in an \u0060.editorconfig\u0060 that applies beyond one file.",
-      "rationale": "A project-wide lowering in \u0060.editorconfig\u0060 is a departure from the standard rather than a setting. An exception of kind \u0060departure\u0060 names the provision, the reason and the expiry date, so the lowering is dated and ends instead of staying silent.",
-      "example": "A project that lowers LS5001 to a suggestion in its root \u0060.editorconfig\u0060 records an exception of kind \u0060departure\u0060 citing \u0060litespec/core/system#point-code-and-tests-up-to-records\u0060."
-    },
-    {
-      "id": "litespec/core/model#record-accepted-gaps-as-exceptions",
-      "heading": "Record Accepted Gaps as Exceptions",
-      "page": "docs/core/model.md",
-      "anchor": "record-accepted-gaps-as-exceptions",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060departure-expired\u0060 (level G) for a departure past its \u0060expiresOn\u0060 date, and \u0060departure-invalid\u0060 (level G) for a departure naming a finding code no check uses or a code the model needs in order to load.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:exception",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "An accepted gap MUST live as an exception of kind \u0060gap\u0060 with an expiry date.",
-      "rationale": "Missing work with no date is invisible: nothing reports it. An exception of kind \u0060gap\u0060 with an \u0060expiresOn\u0060 date turns the same missing work into a visible promise: the findings its \u0060covers\u0060 names report until the date, and \u0060exception-expired\u0060 reports the exception after it. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure with an expiry date in \u0060.litespec/governance/departures/export-expenses-unimplemented.yaml\u0060.\n\n\u0060\u0060\u0060yaml\ntype: exception\nid: exception/export-expenses-unimplemented\ntitle: Export expenses unimplemented\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexpiresOn: 2027-06-01\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding reports without failing until 2027-06-01, which satisfies this provision."
-    },
-    {
       "id": "litespec/core/model#record-each-screens-captures-from-the-gallery",
       "heading": "Record Each Screen\u0027s Captures from the Gallery",
       "page": "docs/core/model.md",
@@ -9843,7 +9789,7 @@
       "trace": false,
       "strength": "default",
       "statement": "A generated region renders only facts derived from records.",
-      "rationale": "A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as implemented and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed.",
+      "rationale": "A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed.",
       "example": ""
     },
     {
@@ -10081,24 +10027,6 @@
       "example": "A notifier named for post publication names its action; one named only \u0060service\u0060 does not."
     },
     {
-      "id": "litespec/core/principles#build-only-what-the-specification-states",
-      "heading": "Build Only What the Specification States",
-      "page": "docs/core/principles.md",
-      "anchor": "build-only-what-the-specification-states",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which code has no specification record behind it? Compare the changed code with the records it serves.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A consumer MUST build what the specification states and nothing more.",
-      "rationale": "The specification is closed: something that seems missing becomes a question to the owner or a backlog item, never code. Code without a record behind it is a promise nobody stated.",
-      "example": "An agent that finds no payout rule asks the owner instead of coding a guessed guard."
-    },
-    {
       "id": "litespec/core/principles#complete-work-before-merging",
       "heading": "Complete Work Before Merging",
       "page": "docs/core/principles.md",
@@ -10113,8 +10041,8 @@
       "trace": false,
       "strength": "required",
       "statement": "What merges MUST be complete.",
-      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries an exception with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
-      "example": "A use case with no endpoint stays on its branch until the endpoint lands or an exception with \u0060expiresOn\u0060 parks it."
+      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a departure with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
+      "example": "A use case with no endpoint stays on its branch until the endpoint lands or a departure with \u0060expiresOn\u0060 parks it."
     },
     {
       "id": "litespec/core/principles#compute-completion-from-code-and-tests",
@@ -10189,24 +10117,6 @@
       "example": ""
     },
     {
-      "id": "litespec/core/principles#declare-every-edge",
-      "heading": "Declare Every Edge",
-      "page": "docs/core/principles.md",
-      "anchor": "declare-every-edge",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which edges lack a declaration on their record? Look at the \u0060effects\u0060 entries with \u0060runs\u0060, \u0060sends\u0060, \u0060emits\u0060, or \u0060calls\u0060 beside the changed records.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A consumer MUST declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems on the record that holds it.",
-      "rationale": "An edge declared on its record is checked: the builder verifies its target, its timing, and its failure handling. An undeclared edge is the defect, because it runs behavior no record names and no review saw.",
-      "example": "A use case that reminds a manager declares a sends edge to the notification with its timing and failure handling."
-    },
-    {
       "id": "litespec/core/principles#derive-records-only-from-records",
       "heading": "Derive Records Only from Records",
       "page": "docs/core/principles.md",
@@ -10241,24 +10151,6 @@
       "statement": "An effect graph MUST NOT hold a cycle except through a domain event with a stated end condition.",
       "rationale": "A cycle without an end condition runs until something outside the records stops it, so no reader can state when the work finishes. Routing each cycle through a domain event with a stated end condition names the loop and its exit in the records the graph checks.",
       "example": ""
-    },
-    {
-      "id": "litespec/core/principles#enter-facts-from-the-world-as-research-or-constraints",
-      "heading": "Enter Facts from the World as Research or Constraints",
-      "page": "docs/core/principles.md",
-      "anchor": "enter-facts-from-the-world-as-research-or-constraints",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which outside facts lack a cited and dated source? Look at the research and constraint records beside the change.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A consumer MUST enter each fact learned from the world as research or a constraint, cited and dated.",
-      "rationale": "A provider behavior, a regulation, or an incident is evidence from outside the project, and entering it as research or a constraint keeps the citation and the date beside the fact. A fact typed straight into Behavior or code loses its source, and later readers treat an observation as a decision.",
-      "example": "An agent records a slower payout settlement as research, then writes the constraint that cites it."
     },
     {
       "id": "litespec/core/principles#follow-intent-where-it-has-spoken",
@@ -10351,24 +10243,6 @@
       "example": ""
     },
     {
-      "id": "litespec/core/principles#map-each-engine-step-to-one-use-case",
-      "heading": "Map Each Engine Step to One Use Case",
-      "page": "docs/core/principles.md",
-      "anchor": "map-each-engine-step-to-one-use-case",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which engine steps map to no use case, or to a use case with no compensation? Look at the engine step definitions beside the use case records.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:use-case",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A saga carried by a workflow engine MUST map each engine step to exactly one use case with its compensation.",
-      "rationale": "The engine carries the saga while the records state it: one use case per step keeps the promise, the refusal codes, and the undo in the records the checks read. An engine step without its use case runs behavior no record names, and a step without its compensation leaves a failure with no stated undo.",
-      "example": "An engine step that reimburses an expense maps to the reimburse-expense use case, whose compensation voids the payout."
-    },
-    {
       "id": "litespec/core/principles#name-boundary-intent",
       "heading": "Name Boundary Intent",
       "page": "docs/core/principles.md",
@@ -10439,42 +10313,6 @@
       "statement": "A consumer MUST prove each enforceable boundary mechanically: a reference, visibility, an architecture test, a behavior test, or a lint rule.",
       "rationale": "A boundary stated only in prose holds until the first commit that ignores it. Mechanical proof, such as a reference, a visibility rule, an architecture test, a behavior test, or a lint rule, fails the build or the check the day the boundary breaks. Specifications then explain the decisions that need judgment, while tools guard the constraints that do not. Enforceable boundaries include project and package references, compiler visibility, permission guards, store constraints, and lint rules.",
       "example": "A project-reference test proves Domain has no Infrastructure reference."
-    },
-    {
-      "id": "litespec/core/principles#prove-scenarios-with-tests",
-      "heading": "Prove Scenarios with Tests",
-      "page": "docs/core/principles.md",
-      "anchor": "prove-scenarios-with-tests",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Each scenario in the model links a passing test that calls its use case and asserts its result.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "test",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A test MUST prove a scenario only by calling its use case and asserting its result.",
-      "rationale": "A passing test that skips the use case proves nothing about the behavior it claims. Calling the use case and asserting its result ties the proof to the shipped path. A scenario without such a test carries a gap exception with an expiry date, not silent coverage. The [model page](model.md) defines the \u0060proves\u0060 link.",
-      "example": ""
-    },
-    {
-      "id": "litespec/core/principles#raise-what-a-lower-layer-needs-to-the-owner",
-      "heading": "Raise What a Lower Layer Needs to the Owner",
-      "page": "docs/core/principles.md",
-      "anchor": "raise-what-a-lower-layer-needs-to-the-owner",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which needs from a lower record layer lack an owner question or a backlog item? Look at the owner questions and the backlog board beside the records that need them.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A consumer MUST raise what a lower record layer needs, and the upper record layer does not state, to the owner as a question or to the backlog board, never quietly in the lower record layer.",
-      "rationale": "A need that goes to the owner reaches the person who decides it, and a need placed on the backlog board stays visible outside the repository. A need filled in quietly at the lower record layer becomes an undecided promise that later readers trust.",
-      "example": "A use case that needs a price its requirements do not state raises an owner question naming the missing price."
     },
     {
       "id": "litespec/core/principles#record-stricter-edge-rules-as-conventions",
@@ -10583,24 +10421,6 @@
       "statement": "A consumer MUST treat working code that Intent does not cover as evidence for a question to the owner, not as a defect to delete and not as a source to copy into Intent.",
       "rationale": "Silent Intent plus working code means a decision nobody recorded: deleting the code destroys behavior users rely on, and copying it quietly into Intent turns code into a promise nobody stated. A question carries the behavior to the owner with the code as evidence, and the answer lands in Intent first.",
       "example": "A positivity guard in code that no rule states becomes an owner question citing the guard, and the code stays until the answer lands in Intent."
-    },
-    {
-      "id": "litespec/core/principles#write-each-layer-from-the-layer-above",
-      "heading": "Write Each Layer from the Layer Above",
-      "page": "docs/core/principles.md",
-      "anchor": "write-each-layer-from-the-layer-above",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports no \u0060record-link-missing\u0060 finding on the changed records.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A consumer MUST write each record layer from the record layer above it, from Intent down to Proof.",
-      "rationale": "A record layer written from the record layer above inherits decided promises instead of inventing its own: Behavior fulfills Intent, Implementation builds Behavior, and Proof checks Implementation. A record layer written from below restates guesses as rules, and the next upper record-layer change leaves two versions of one promise.",
-      "example": "A use case names the requirement it fulfills before its handler exists."
     },
     {
       "id": "litespec/core/principles#write-every-record-about-the-software",
@@ -11017,10 +10837,10 @@
       "example": ""
     },
     {
-      "id": "litespec/core/release#qualify-the-checker-with-known-good-and-known-bad-fixtures",
-      "heading": "Qualify the Checker with Known Good and Known Bad Fixtures",
+      "id": "litespec/core/release#qualify-the-reader-with-known-good-and-known-bad-fixtures",
+      "heading": "Qualify the Reader with Known Good and Known Bad Fixtures",
       "page": "docs/core/release.md",
-      "anchor": "qualify-the-checker-with-known-good-and-known-bad-fixtures",
+      "anchor": "qualify-the-reader-with-known-good-and-known-bad-fixtures",
       "kind": "rule",
       "mark": "guidance",
       "evidence": "Which gating S readers lack passing fixture runs? Look at the fixture results beside the stack reader.",
@@ -11035,22 +10855,22 @@
       "example": "The .NET reader passes the clean tree and reports the planted undeclared write before its S findings block."
     },
     {
-      "id": "litespec/core/release#record-accepted-debt-as-an-exception",
-      "heading": "Record Accepted Debt as an Exception",
+      "id": "litespec/core/release#record-accepted-debt-as-a-departure",
+      "heading": "Record Accepted Debt as a Departure",
       "page": "docs/core/release.md",
-      "anchor": "record-accepted-debt-as-an-exception",
+      "anchor": "record-accepted-debt-as-a-departure",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which accepted debts lack an exception of kind \u0060gap\u0060 with an expiry date? Look at the exceptions beside each debt.",
+      "evidence": "Which accepted debts lack a departure with an expiry date? Look at the departures beside each debt.",
       "stack": "any",
       "concern": "operations",
-      "artifact": "record:exception",
+      "artifact": "record:departure",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Accepted debt MUST live as an exception of kind \u0060gap\u0060 with an expiry date.",
-      "rationale": "Accepted debt with no expiry date is forgotten work. An exception of kind \u0060gap\u0060 with one turns it into a dated promise whose findings report until the date and whose \u0060exception-expired\u0060 reports after it. The [model page](model.md) states the exception shape.",
-      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as an exception of kind \u0060gap\u0060 with an \u0060expiresOn\u0060 of 2027-03-01; \u0060exception-expired\u0060 reports it after that date."
+      "statement": "Accepted debt MUST live as a departure record with an expiry date.",
+      "rationale": "Accepted debt with no expiry date is forgotten work. A departure with an \u0060expiresOn\u0060 and \u0060exit\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060departure-expired\u0060 reports after it. The [model page](model.md) states the departure shape.",
+      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a departure with an \u0060expiresOn\u0060 of 2027-03-01 and an \u0060exit\u0060; \u0060departure-expired\u0060 reports it after that date."
     },
     {
       "id": "litespec/core/release#record-the-release-artifact",
@@ -11113,15 +10933,15 @@
       "anchor": "resolve-release-blockers",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which releases depend on an expired exception or an external claim without excluding the behavior? Look at the exceptions and claims beside the owning records.",
+      "evidence": "Which releases depend on an expired departure or an external claim without excluding the behavior? Look at the departures and claims beside the owning records.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A release MUST settle every expired exception and every external claim it depends on, or exclude the affected behavior from every owning record.",
-      "rationale": "An expired exception is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. \u0060exception-expired\u0060 reports every expired exception.",
+      "statement": "A release MUST settle every expired departure and every external claim it depends on, or exclude the affected behavior from every owning record.",
+      "rationale": "An expired departure is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. \u0060departure-expired\u0060 reports every expired departure.",
       "example": ""
     },
     {
@@ -11319,7 +11139,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer MUST meet every provision that applies to each layer it claims in \u0060layers\u0060 before claiming conformance to LiteSpec for those layers.",
-      "rationale": "A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of \u0060intent\u0060 and \u0060behavior\u0060 takes in the provisions about the record model; a claim of \u0060implementation\u0060 or \u0060proof\u0060 also takes in the provisions that tie each layer to the records. A recorded departure whose expiry date has not passed outranks the provision or findings it covers, so a project that records its departures still meets this provision; an unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.",
+      "rationale": "A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of \u0060intent\u0060 and \u0060behavior\u0060 takes in the provisions about the record model; a claim of \u0060implementation\u0060 or \u0060proof\u0060 also takes in the provisions that tie each layer to the records. A [departure](departures.md) outranks the provision or findings it covers while it stands, so a project that records each departure still meets this provision; a departure past its expiry date reports \u0060departure-expired\u0060 and no longer outranks them. An unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.",
       "example": "A consumer that claims all four layers with \u0060litespec\u0060, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each departure recorded. A consumer that claims \u0060intent\u0060 and \u0060behavior\u0060 claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim."
     },
     {
@@ -11375,24 +11195,6 @@
       "statement": "A consumer MUST hold every file LiteSpec creates, reads, or governs under one folder, \u0060.litespec/\u0060, at the repository root.",
       "rationale": "One folder with one name in every consumer makes the LiteSpec material identifiable at a glance: a reader, a tool, or an agent finds the whole contract in one place, moves or deletes it without hunting the tree, and keeps it apart from the application\u0027s code, tests, and infrastructure. Generated output inside it stays covered by its \u0060.gitignore\u0060, so a checkout never mixes committed records with built files. Every path in \u0060.litespec/project.yaml\u0060 stays relative to the repository root, so moving the folder never rewrites the paths inside it, and a command finds the consumer by walking up from the working folder to the first folder that holds \u0060.litespec/project.yaml\u0060.",
       "example": "Claimwick holds its project file, glossary, example cast, and the Intent, Behavior, Implementation, Proof, and Governance folders under \u0060examples/claimwick/.litespec/\u0060 (in a real consumer, at its repository root), beside its application code and tests, which keep their own places. An agent asked to read the contract opens that one folder instead of collecting a root project file, a documentation tree, a model folder, and a book folder from four places."
-    },
-    {
-      "id": "litespec/core/scope#keep-every-record-about-the-software",
-      "heading": "Keep Every Record About the Software",
-      "page": "docs/core/scope.md",
-      "anchor": "keep-every-record-about-the-software",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports a blocking finding for a folder under \u0060intent/modules/\u0060 naming no declared module and for a record reaching no Behavior.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Every record MUST state something the software does, holds, refuses at runtime, or runs on, and translate into code, results, tests, or infrastructure.",
-      "rationale": "A record about running the company states no behavior the checks confirm: retention, revenue, market sizing, sales tactics, and launch plans pass no software check. The software test in the Concepts section tells what belongs for each type, so a goal about nights without oversell stays while a goal about revenue leaves. A record that reaches no Behavior gets a blocking finding: it is either unfinished work for the backlog or not software.",
-      "example": "Claimwick keeps its expense areas under product names; a market fact that binds the product enters as dated research or as a constraint citing it, and a folder under \u0060intent/modules/\u0060 naming no declared module is reported."
     },
     {
       "id": "litespec/core/scope#keep-one-bounded-context",
@@ -11499,7 +11301,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer MUST select a size, a shape, one stack per frontend, and one backend stack unless the shape is client-only or the project claims neither \u0060implementation\u0060 nor \u0060proof\u0060 in \u0060layers\u0060.",
-      "rationale": "One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. At \u0060records\u0060 a project may leave the stacks empty or absent, or name them for information alone, since no code reader runs at that level; at \u0060traced\u0060 and \u0060full\u0060 the stacks name the code the reader and the checks govern.",
+      "rationale": "One size and explicit stacks tell every check which records and pages apply. The size decides which record types the project carries and which test projects prove them; each stack decides which technology pages and checks apply. Without the declaration, each agent infers the architecture from the directory tree, and two agents infer two architectures. A project that claims neither Implementation nor Proof may leave the stacks empty or absent, or name them for information alone, since no code reader runs for it; a project that claims either names the stacks the code reader and the checks govern.",
       "example": "A project with one web frontend and no journeys selects small with the svelte stack; the running Claimwick example, with journeys, selects large.\n\nThe running Claimwick example declares large with a server shape and two stacks in \u0060.litespec/project.yaml\u0060:\n\n\u0060\u0060\u0060yaml\nsize: large\nshape: server\nstacks:\n- dotnet\n- svelte\nlayers:\n  intent: litespec\n  behavior: litespec\n  implementation: litespec\n  proof: litespec\n\u0060\u0060\u0060\n\nThe size selects the large record set, the shape selects a backend stack, and each stack selects its technology pages, which satisfies this provision.\n\nThe diagram shows the three project choices and what each decides.\n\n![Three project choices and what each decides: size, small or large, decides the record types and the test projects, with large adding goals, problems, features, journeys, and scenarios; shape, server or client-only, decides whether the project names a backend stack; stacks, one backend stack and one stack per frontend, decide the technology pages and the checks that apply.](../assets/diagrams/core-scope-selection.svg)"
     },
     {
@@ -11575,22 +11377,22 @@
       "example": ""
     },
     {
-      "id": "litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-exception",
-      "heading": "Depart from a Rule Only Through a Recorded Exception",
+      "id": "litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure",
+      "heading": "Depart from a Rule Only Through a Recorded Departure",
       "page": "docs/core/scopes.md",
-      "anchor": "depart-from-a-rule-only-through-a-recorded-exception",
+      "anchor": "depart-from-a-rule-only-through-a-recorded-departure",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Each departure from a provision of Strength rule resolves to an exception record under \u0060.litespec/governance/exceptions/\u0060 with the provision, a reason, and an expiry date.",
+      "evidence": "Which departures from a provision of Strength \u0060required\u0060 name no provision, page or finding code, or give no reason? Look at the files under \u0060.litespec/governance/departures/\u0060.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A project that departs from a provision of Strength rule MUST record an exception of kind \u0060departure\u0060 whose \u0060covers\u0060 names the provision, with a reason.",
-      "rationale": "A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The exception record names the provision, the reason, and the expiry date, so the departure stays visible, dated, and ends instead of lingering. The [model page](model.md) states how a live exception outranks its provision.",
-      "example": "Claimwick ships its weekend export without the review step, so it records an exception of kind \u0060departure\u0060 whose \u0060covers\u0060 names the authorization provision, with the reason and an expiry date."
+      "statement": "A project that departs from a provision of Strength \u0060required\u0060 MUST record a departure whose \u0060covers\u0060 names the provision, with a reason.",
+      "rationale": "A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The [departure record](departures.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the departure stays visible and ends instead of lingering.",
+      "example": "Claimwick ships its weekend export without the review step, so it records a departure whose \u0060covers\u0060 names the authorization provision and whose reason states the choice."
     },
     {
       "id": "litespec/core/scopes#give-every-provision-its-layer-and-trace",
@@ -12124,7 +11926,7 @@
       "evidence": "\u0060litespec model check\u0060 reports \u0060use-case-success-missing\u0060 for a use case with no success result; each refusal entry on the use-case page carries its code.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:result",
+      "artifact": "record:use-case, record:result",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
@@ -12781,24 +12583,6 @@
       "example": "The Claimwick decision explanation gives What Would Reopen It its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it."
     },
     {
-      "id": "litespec/core/writing#keep-company-facts-out-of-intent-prose",
-      "heading": "Keep Company Facts Out of Intent Prose",
-      "page": "docs/core/writing.md",
-      "anchor": "keep-company-facts-out-of-intent-prose",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which Intent records carry a schedule, an effort estimate, a headcount, an offered price, a market fact or a launch date in prose? Look at the Intent records the change adds.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Intent prose MUST state only behavior the application performs, data it holds, or a limit it enforces, with no schedule, effort, headcount, price as a company offer, market fact or launch date.",
-      "rationale": "Intent records state what the product promises, and a promise mixed with how the company runs buries the product fact a builder came for. A launch date in a problem, a headcount in a goal, or a price list in a feature reads as part of the promise and changes with every company change, even when the product behavior stands still. Company facts enter only as a constraint the application enforces or as dated research, where their form states what they are. The scope boundary itself lives on the [Scope](scope.md) and [Intent](intent.md) pages; this provision states the prose consequence.",
-      "example": "A Claimwick goal states the reimbursement target in its \u0060target\u0060 field. Its prose names no sprint, no headcount and no launch calendar."
-    },
-    {
       "id": "litespec/core/writing#keep-each-record-sentence-within-twenty-five-words",
       "heading": "Keep Each Record Sentence Within Twenty-Five Words",
       "page": "docs/core/writing.md",
@@ -12815,24 +12599,6 @@
       "statement": "Every sentence in a record \u0060statement\u0060 or \u0060summary\u0060 MUST hold at most 25 words.",
       "rationale": "A record sentence carries one fact a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.",
       "example": "\u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 The sentence holds 11 words and one fact."
-    },
-    {
-      "id": "litespec/core/writing#name-each-title-in-its-record-type-form",
-      "heading": "Name Each Title in Its Record Type Form",
-      "page": "docs/core/writing.md",
-      "anchor": "name-each-title-in-its-record-type-form",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which titles miss the form of their type, name no subject, or carry a code, date or metaphor? Look at the titles the change adds, beside the title-form table.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "Every record title MUST name its subject literally in the one title form the title-form table gives its record type.",
-      "rationale": "One form per type makes a list of mixed records scannable: the form tells the reader what kind of thing the record is before the title is weighed, and a literal subject tells them what it is about. A feature titled with one word, a goal titled with a milestone code, or a problem titled with a metaphor gives the reader neither, and a problem title that names no person leaves the reader guessing who has the pain. The number and date of a goal stay in its fields, where a check reads them; the title names the outcome alone.",
-      "example": "A Claimwick feature is titled \u0022Approval Reminders for Waiting Expenses\u0022. The noun phrase names the capability; no date, milestone or promise sits in the title."
     },
     {
       "id": "litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake",
@@ -17007,7 +16773,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An integration MUST record its provider as an external system naming its operations and erasure.",
-      "rationale": "The external-system record bounds the dependency: its summary names the party behind it, \u0060litespec/core/access#declare-every-operation-on-every-external-system\u0060 names every operation the product may call, and \u0060litespec/core/access#declare-erasure-for-every-external-system\u0060 names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.",
+      "rationale": "The external-system record bounds the dependency: its summary names the party behind it, \u0060litespec/core/edges#describe-every-external-system-operation\u0060 names every operation the product may call, and \u0060litespec/core/access#declare-erasure-for-every-external-system\u0060 names how personal data leaves it. A provider with no record gains new messages and fallbacks without review.",
       "example": ""
     },
     {
@@ -19005,7 +18771,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A project shipping an MCP server MUST record it as an entry point of kind \u0060mcp\u0060 whose title names the MCP server.",
-      "rationale": "The entry point record names how callers arrive: \u0060litespec/core/access#name-every-entry-point-with-its-kind\u0060 keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind \u0060mcp\u0060 and its title says which protocol it speaks. Without the record, the server\u0027s reach stays invisible to reviewers of the access records.",
+      "rationale": "The entry point record names how callers arrive: \u0060litespec/core/edges#give-each-entry-point-a-kind\u0060 keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind \u0060mcp\u0060 and its title says which protocol it speaks. Without the record, the server\u0027s reach stays invisible to reviewers of the access records.",
       "example": ""
     },
     {

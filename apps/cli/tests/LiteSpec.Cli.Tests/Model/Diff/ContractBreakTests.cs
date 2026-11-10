@@ -11,7 +11,7 @@ namespace LiteSpec.Tests.Model.Diff;
 public sealed class ContractBreakTests
 {
     /// <summary>A result the head removed reports contract-break on its use case.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Removed_Result_Reports_Contract_Break()
     {
@@ -35,7 +35,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A refusal code the head removed reports contract-break naming the code.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Removed_Refusal_Code_Reports_Contract_Break()
     {
@@ -61,7 +61,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A refusal code the head changed reports contract-break naming both codes.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Changed_Refusal_Code_Reports_Contract_Break()
     {
@@ -86,7 +86,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A refusal code the head added reports nothing: only removals break clients.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Added_Refusal_Code_Reports_Nothing()
     {
@@ -108,7 +108,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>An integration event whose payload changed reports contract-break.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Changed_Integration_Event_Reports_Contract_Break()
     {
@@ -133,7 +133,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>An integration event with only its title changed reports nothing.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Retitled_Integration_Event_Reports_Nothing()
     {
@@ -155,7 +155,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>An integration event the head removed reports contract-break.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Removed_Integration_Event_Reports_Contract_Break()
     {
@@ -177,7 +177,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>Identical models report nothing.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Unchanged_Models_Report_Nothing()
     {
@@ -197,7 +197,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>An added result reports nothing: only removals break clients.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Added_Result_Reports_Nothing()
     {
@@ -217,7 +217,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A removed record outside the client contract reports nothing.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Removed_Requirement_Reports_Nothing()
     {
@@ -236,7 +236,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A result whose use case is gone too anchors on the project file.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Removed_Use_Case_Anchors_On_The_Project_File()
     {
@@ -259,7 +259,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A derived result the head removed reports nothing: it follows its use case.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Derived_Result_Reports_Nothing()
     {
@@ -277,7 +277,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A removed result blocks <c>model check --since</c> with a level S finding.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Check_Since_Reports_A_Removed_Result_As_Blocking()
     {
@@ -304,7 +304,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>A changed integration event blocks <c>model check --since</c> with a level S finding.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Check_Since_Reports_A_Changed_Integration_Event_As_Blocking()
     {
@@ -324,7 +324,7 @@ public sealed class ContractBreakTests
     }
 
     /// <summary>An unchanged tree reports no contract-break finding.</summary>
-    /// <proves>litespec/backend/identifiers#keep-wire-codes-stable</proves>
+    /// <proves>litespec/core/language#keep-wire-codes-stable</proves>
     [Fact]
     public void Check_Since_Without_Contract_Changes_Reports_None()
     {

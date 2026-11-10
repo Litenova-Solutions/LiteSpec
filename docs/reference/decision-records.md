@@ -39,7 +39,7 @@ The record file carries the fields tools read: `options` with one entry per weig
 
 ### Changed in Place
 
-A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record are a blocking finding, not a tie to resolve. A departure from a shared standard is an exception of kind `departure` rather than a decision.
+A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record are a blocking finding, not a tie to resolve. A departure from a shared standard is a departure record rather than a decision.
 
 ## Notes
 

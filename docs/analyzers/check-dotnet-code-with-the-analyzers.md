@@ -8,7 +8,7 @@ The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler e
 
 Start with:
 
-- The .NET 9.0.300 SDK, or Visual Studio 17.14 or later, whose compiler the analyzer package targets.
+- The .NET 10 SDK, which the manifest names as the .NET stack release.
 - A solution with the business projects and hosts that [the .NET architecture page](../backend/dotnet/architecture.md) requires: the shared kernel and modules projects holding every module, and a WebApi host for composition and HTTP plumbing.
 - One shared build file that every project imports, such as `apps/api/Directory.Build.props`, with central package management enabled as [the .NET configuration page](../backend/dotnet/config.md#centralize-nuget-versions) describes.
 

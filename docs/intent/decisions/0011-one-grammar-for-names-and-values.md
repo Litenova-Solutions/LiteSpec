@@ -10,4 +10,4 @@ One naming grammar of eight word classes names every field: fixed identity words
 
 ## Evidence with Confidence
 
-`research/naming-grammar-evidence` holds the 248-field inventory, the collisions and the word classes behind D9 to D18, read from the schemas and measured over the largest consumer, high confidence.
+`research/naming-grammar-evidence` holds the 248-field inventory, the collisions and the word classes behind `decision/0011-one-grammar-for-names-and-values`, `decision/0012-use-cases-read-their-settings` and `decision/0018-one-record-language`, read from the schemas and measured over the largest consumer, high confidence.

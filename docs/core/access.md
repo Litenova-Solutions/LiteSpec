@@ -331,22 +331,6 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Reviewed for:** Which cross tenant delegation grants lack a declared grant on both sides? Look at the delegation grants the tenancy extension declares.
 
-### Name Every Entry Point with Its Kind
-
-**ID:** `litespec/core/access#name-every-entry-point-with-its-kind`
-
-**Strength:** required
-
-**Applies to:** artifact: record:entry-point
-
-**Statement:** An entry point MUST name its kind in `kind`.
-
-**Rationale:** The kind tells a reviewer how callers arrive: a browser serves people, an api serves callers over a boundary, a webhook receives inbound events, a device serves a managed scanner, a cli serves operators, an mcp channel serves a model, and served content serves a static file. Without the kind, a webhook and a page look alike.
-
-**Example:** The library app carries `browser`, and a kiosk handshake carries `device`.
-
-**Checked by:** `litespec model check` reports `record-invalid` for an entry point without `kind` and `field-invalid` for a kind outside browser, api, webhook, device, cli, mcp, and served-content.
-
 ### Describe Every Served Content Entry Point with Its Serving Fields
 
 **ID:** `litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields`
@@ -362,22 +346,6 @@ An actor, role, or external system page carries a `summary` field stating what t
 **Example:** A terms text carries its path, `text/html`, its cache window, its version rule, and the requirement it fulfills.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a served content entry point without path, contentType, cacheControl, versioning, or fulfills.
-
-### Declare Every Operation on Every External System
-
-**ID:** `litespec/core/access#declare-every-operation-on-every-external-system`
-
-**Strength:** required
-
-**Applies to:** artifact: record:external-system
-
-**Statement:** An external system MUST declare every operation the product may call in `operations`.
-
-**Rationale:** Each operation is one edge to outside behavior the product does not control. Without the declared list, a new outside call ships as an unreviewed dependency with no stated edge to review. Each operation carries its direction, timeout, response, and cache, as [Describe Every External System Operation](edges.md#describe-every-external-system-operation) states.
-
-**Example:** A payout bank declares a `settle-batch` operation with its timeout, timeout handling, and response shape, which the payout effect cites as `calls`.
-
-**Checked by:** `litespec model check` reports `record-invalid` for an external system without `operations` and `reference-unknown` for a `calls` edge naming no declared operation.
 
 ### Declare Erasure for Every External System
 

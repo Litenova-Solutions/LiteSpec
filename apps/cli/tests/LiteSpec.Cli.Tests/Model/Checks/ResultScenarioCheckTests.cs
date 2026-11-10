@@ -9,7 +9,7 @@ namespace LiteSpec.Tests.Model.Checks;
 public sealed class ResultScenarioCheckTests
 {
     /// <summary>Success Result Named By A Scenario Passes.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Success_Result_Named_By_A_Scenario_Passes()
     {
@@ -24,7 +24,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Success Result With No Scenario Reports At Tier G.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Success_Result_With_No_Scenario_Reports_At_Tier_G()
     {
@@ -43,7 +43,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Refusal Result With No Scenario Reports At Tier A.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Refusal_Result_With_No_Scenario_Reports_At_Tier_A()
     {
@@ -62,7 +62,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Derived Result With No Scenario Passes.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Derived_Result_With_No_Scenario_Passes()
     {
@@ -76,7 +76,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Reaction Scenario Naming The Runs Use Case Result Passes.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Reaction_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
     {
@@ -92,7 +92,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Job Scenario Naming The Runs Use Case Result Passes.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Job_Scenario_Naming_The_Runs_Use_Case_Result_Passes()
     {
@@ -108,7 +108,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>UseCaseOf Resolves Derived Shaped Id Holder.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void UseCaseOf_Resolves_Derived_Shaped_Id_Holder()
     {
@@ -124,7 +124,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Scenario Ending In Other Use Case Result Reports.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Scenario_Ending_In_Other_Use_Case_Result_Reports()
     {
@@ -140,7 +140,7 @@ public sealed class ResultScenarioCheckTests
     }
 
     /// <summary>Scenario Ending In Own Use Case Derived Forbidden Passes.</summary>
-    /// <proves>litespec/core/model#give-every-use-case-its-results</proves>
+    /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
     public void Scenario_Ending_In_Own_Use_Case_Derived_Forbidden_Passes()
     {

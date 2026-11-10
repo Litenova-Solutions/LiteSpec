@@ -48,7 +48,7 @@ public sealed class IdentifiersTests
     /// <param name="name">The identifier kind name that selects the pattern.</param>
     /// <param name="decision">Whether the name belongs to a decision.</param>
     /// <param name="expected">The expected result for the case.</param>
-    /// <proves>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</proves>
+    /// <proves>litespec/core/language#follow-the-identifier-form-of-each-record-type</proves>
     [Theory]
     [InlineData("0001-loan-period", true, true)]
     [InlineData("01-loan-period", true, false)]

@@ -6,7 +6,7 @@
 
 ## Intent
 
-Record Language states one grammar and one tone for every name and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes, and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values and codes of project records.
+Record Language states one grammar and one tone for every name, every identifier and every value a project writes or a tool prints. Agents and authors apply it to record fields, values, identifiers, finding codes and tool names. The [Authoring Standard](authoring.md) states the prose of LiteSpec pages, and the [Writing Standard](writing.md) states the prose of project records, explanation files and documents; this page states the names, values, identifiers and codes of project records.
 
 ## Concepts
 
@@ -105,6 +105,29 @@ A record name is not its title. Every record title takes the title form of its t
 American spelling is the project spelling for field names and enum values: `license` rather than `licence`, and `pseudonymize` rather than `pseudonymise`. Each British form reads as a rejected word beside its American spelling. Prose spelling follows the [Writing Standard](writing.md).
 
 Names an outside standard fixes stay exactly as that standard spells them. Gherkin fixes `given`, `when`, and `then`, and CloudEvents fixes its attribute names; these are the only names outside the word classes.
+
+### Identifier Forms
+
+An identifier names its record type first, then the record name, with the owning home in between when the type has one. The [Project Model](model.md) states the form each type uses, with one row per type and one example per row. A rule home is an aggregate name or a module name. A result or scenario home is a use-case name, and an event home is an aggregate name. A use-case name is unique across the project, so a result cites only that name; an aggregate name is unique across the project, so a rule cites only that name. A reaction, job, notification and setting home is the module that owns it. An integration event has no module home. A rule name keeps the negation its statement makes. A journey step identifier is `journey/<name>#<step-id>`, and a derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`; scenarios may point at derived results, which are never written as records.
+
+### Name Rules
+
+The name is the last segment of the identifier. Every name follows these rules:
+
+- Write one to six lowercase words joined by hyphens.
+- Place digits inside a word; a name of digits alone breaks the rules.
+- Count the decision number as a word.
+- Let a person choose the name; no tool builds one by stripping words from a sentence.
+
+Use case and aggregate names stay unique across the project.
+
+### Wire Codes
+
+A wire code is a value a client reads and branches on, such as a refusal code or an audit action code. Wire codes are not identifiers: they name no record, they keep one shape and they stay unchanged once clients read them.
+
+### Resolution
+
+Resolution means every identifier citation names a record that exists. The model check fails an unresolved citation, so a citation points only at a record someone wrote. Shared provisions keep their published `litespec/<page>#<slug>` form.
 
 ### Finding Codes and Tool Names
 
@@ -302,12 +325,90 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Reviewed for:** Which subcommands read as nouns, or which flags name something other than their mode or value? Look at the commands and flags the change adds.
 
+### Follow the Identifier Form of Each Record Type
+
+**ID:** `litespec/core/language#follow-the-identifier-form-of-each-record-type`
+
+**Strength:** required
+
+**Statement:** A record identifier MUST follow the form the model states for its record type.
+
+**Rationale:** A reader who meets `use-case/spending.submit-expense` knows it is a use case in the spending module without opening it. If two types shared one form, a citation needs its surrounding page to make sense, and search returns the wrong records.
+
+**Example:** `event/expense.submitted` names an event of the expense aggregate.
+
+**Checked by:** `litespec model check` reports `identifier-invalid` for an identifier outside the form its type uses.
+
+### Name Records with One to Six Words
+
+**ID:** `litespec/core/language#name-records-with-one-to-six-words`
+
+**Strength:** required
+
+**Statement:** A name MUST carry one to six lowercase hyphenated words.
+
+**Rationale:** A short hyphenated name reads aloud in review and stays stable when the wording of the record changes. A long name gets shortened differently at each citation, and the shortcuts drift into competing names for one record.
+
+**Example:** `decision/0001-receipt-threshold` counts its number as one word.
+
+**Checked by:** `litespec model check` reports `identifier-invalid` for a name outside one to six lowercase hyphenated words.
+
+### Use Every Identifier Once
+
+**ID:** `litespec/core/language#use-every-identifier-once`
+
+**Strength:** required
+
+**Statement:** A record identifier MUST name exactly one record.
+
+**Rationale:** An identifier used twice names two records at once, so every citation of it points both ways. One use per identifier keeps each citation single-valued.
+
+**Example:** Two records named `use-case/spending.submit-expense` leave the model check reporting the duplicate on the second record.
+
+**Checked by:** `litespec model check` reports `identifier-duplicate` for an identifier used twice.
+
+### Keep Wire Codes Stable
+
+**ID:** `litespec/core/language#keep-wire-codes-stable`
+
+**Strength:** required
+
+**Statement:** A wire code MUST stay unchanged once clients read it.
+
+**Rationale:** Wire codes travel to deployed clients, which branch on their exact values. Renaming a code that clients already read breaks every deployed reader that compares the old value, with no record the reader opens to learn the new one.
+
+**Reviewed for:** Which wire codes in the contract break the values deployed clients branch on? Look at the wire codes beside the deployed clients.
+
+### Resolve Every Identifier Citation
+
+**ID:** `litespec/core/language#resolve-every-identifier-citation`
+
+**Strength:** required
+
+**Statement:** Every identifier citation MUST resolve to a written record.
+
+**Rationale:** A citation is a promise that a record exists at the other end. A citation that names nothing sends the reader searching for a record nobody wrote, so the model check fails it.
+
+**Checked by:** `litespec model check` reports `reference-unknown` for a citation naming no written record.
+
+### Cite Shared Provisions in Their Published Form
+
+**ID:** `litespec/core/language#cite-shared-provisions-in-their-published-form`
+
+**Strength:** required
+
+**Statement:** A shared provision citation MUST use its published identifier.
+
+**Rationale:** A shared provision is cited across projects, so its identifier looks the same everywhere. The published `litespec/<page>#<slug>` form stays fixed, while project records use the type forms above.
+
+**Checked by:** `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic.
+
 ## Conventions
 
 None.
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, and `litespec/core/language#write-each-finding-message-as-a-fact`.
+This informative example demonstrates `litespec/core/language#name-each-field-by-its-word-class`, `litespec/core/language#write-each-value-in-the-value-style`, `litespec/core/language#name-each-record-by-its-types-name-form`, `litespec/core/language#write-each-finding-message-as-a-fact` and `litespec/core/language#follow-the-identifier-form-of-each-record-type`.
 
-Claimwick holds booked rooms with the use case `hold-room`, which reads the setting `checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."
+Claimwick holds booked rooms with the use case `use-case/booking.hold-room`, which reads the setting `setting/booking.checkout-hold-window`. The requirement `requirement/room-hold.room-held-during-checkout` states "A room the traveller starts to book is held for them for 10 minutes." When the hold lapses with no use case behind the step, the check reports "Requirement 'room-hold.room-held-during-checkout' is fulfilled by no Behavior record."

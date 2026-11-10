@@ -10,5 +10,5 @@ namespace LiteSpec.Model.Readers.Suppressions;
 /// <param name="Detail">The lowered severity the place states, or empty when it states none.</param>
 /// <param name="File">The absolute path of the file that states the lowering or suppression.</param>
 /// <param name="Line">The 1-based line that states the lowering or suppression.</param>
-/// <follows>litespec/core/model#record-a-project-wide-lowering-as-an-exception</follows>
+/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
 sealed record AnalyzerSuppression(string Rule, string Kind, string Detail, string File, int Line);

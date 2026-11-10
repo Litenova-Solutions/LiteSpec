@@ -2,33 +2,34 @@
 
 ## Purpose
 
-A product that serves its interface from Blazor declares a client solution tree instead of the web application tree, with features organized by module and use case. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend: the stack entry, the client tree, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
+A product that serves its interface from Blazor runs as a client with no server of its own, with the domain model, handlers, and pages in one Blazor WebAssembly application. Blazor stays outside the controlled UI contract, so no floorplan or baseline step applies. This guide declares that frontend for a `client-only` project: the stack, the project shape, and the feature layout. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
 Start with:
 
-- A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases implemented.
-- The `blazor` stack beside the tutorial pair in the consumer's `.litespec/project.yaml`.
-- The .NET SDK release pinned in `litespec.manifest.yaml` at the LiteSpec root.
+- A consumer project with the `client-only` shape, or an empty folder where you run `litespec init --preset blazor-client --size small` as the [initialize command](../tools/init.md) describes.
+- The .NET SDK release pinned under `stack.dotnet` in `litespec.manifest.yaml`.
 
-Read the [Blazor Stack page](../frontend/blazor/stack.md) and the [Frontend Structure page](../frontend/structure.md) before this guide: they state the obligations, and this guide shows one compliant way to meet them.
+Read the [Blazor stack](../frontend/blazor/stack.md), the [supported scope](../core/scope.md), and the [frontend structure](../frontend/structure.md) pages before this guide: they state the obligations, and this guide shows one compliant way to meet them.
 
 ## Procedure
 
 ### Declare the Blazor Stack
 
-Add the `blazor` stack to `.litespec/project.yaml`, following the stack entries of the `blazor-client` preset on the [initialize command page](../tools/init.md); the consumer keeps its server shape. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks`.
+Set `shape` to `client-only` and list `blazor` as the only stack in `.litespec/project.yaml`, matching the `blazor-client` preset on the [initialize command](../tools/init.md) page. A `client-only` project names no backend stack. This satisfies `litespec/core/scope#select-a-size-a-shape-and-stacks` and `litespec/core/scope#declare-a-consumer-that-has-no-backend`.
 
-### Declare the Client Solution Tree
+### Declare the Client Application
 
-Declare the client solution tree with its frame, routes, and use-case modules. This satisfies `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`.
+Keep the domain model, the application handlers, the browser adapters, and the pages in the one Blazor WebAssembly application that the [Blazor stack](../frontend/blazor/stack.md) describes. Organize the application into a frame, routes, and use-case modules. This satisfies `litespec/frontend/structure#organize-a-frontend-into-frame-routes-and-modules`.
 
 ### Organize Features by Module and Use Case
 
-Organize features by module and use case. This satisfies `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`.
+Place each feature in the module and use case it serves, mirroring the backend use case path in kebab case where the product keeps that path. This satisfies `litespec/frontend/structure#mirror-the-backend-use-case-path-in-kebab-case`.
 
 ## Check
 
-- The client solution builds with no error and no analyzer finding outside a recorded exception.
-- `litespec model check` links each new screen to its use case with no finding.
+Confirm the result by build and by model check:
+
+- The client application builds with no error and no analyzer finding outside a recorded departure.
+- `dotnet litespec model check` links each screen to its use case with no finding.

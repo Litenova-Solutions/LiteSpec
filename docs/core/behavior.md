@@ -30,7 +30,6 @@ The specification names only what carries business meaning. Child entities and v
 |:---|:---|
 | module | one module in the bounded context |
 | aggregate, entity | one aggregate, changed through its root |
-| aggregate, saga | one coordinator whose steps run use cases on other aggregates, each with its compensation |
 | aggregate, store | one state holder with a named owner and no guarded invariant |
 | aggregate `states` | the lifecycle of the aggregate |
 | (none) | child entity, changed only through the root |

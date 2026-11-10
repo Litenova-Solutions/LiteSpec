@@ -12,6 +12,7 @@ The Core pages state what every LiteSpec project shares: the principles, the rec
 - [Provision Scopes](scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Principles](principles.md): the founding rules that settle choices no narrower page covers.
 - [Model](model.md): the record types, their links, and what the builder computes.
+- [Departures](departures.md): the one record that sets a provision, a page or a finding code aside, with its reason and its expiry.
 - [Layers](layers.md): the four record layers and the translation rules between them.
 - [Intent](intent.md): where a project states its business intent and in what form.
 - [Behavior](behavior.md): the overview of the five Behavior pages and the mapping from records to design.

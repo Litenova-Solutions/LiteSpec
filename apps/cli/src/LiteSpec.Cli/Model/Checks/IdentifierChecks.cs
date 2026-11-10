@@ -8,9 +8,9 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>The identifier checks: every identifier is unique, follows the type and home grammar, sits in the folder its home names, carries a name used once in the product, and takes a decision number used once.</summary>
-/// <follows>litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type</follows>
-/// <follows>litespec/backend/identifiers#name-records-with-one-to-six-words</follows>
-/// <follows>litespec/backend/identifiers#use-every-identifier-once</follows>
+/// <follows>litespec/core/language#follow-the-identifier-form-of-each-record-type</follows>
+/// <follows>litespec/core/language#name-records-with-one-to-six-words</follows>
+/// <follows>litespec/core/language#use-every-identifier-once</follows>
 /// <follows>litespec/core/model#move-each-identifier-with-its-module</follows>
 /// <follows>litespec/core/model#keep-each-name-unique-in-the-product</follows>
 /// <follows>litespec/core/model#take-decision-numbers-from-one-sequence</follows>

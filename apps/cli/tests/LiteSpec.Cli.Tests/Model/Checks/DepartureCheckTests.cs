@@ -33,7 +33,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A lasting departure with no expiry date holds the finding its path names, and reports no expiry.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Lasting_Departure_Without_Expiry_Holds_Its_Path_Findings()
     {
@@ -48,7 +48,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming a page holds the findings of the codes that page's provisions check.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Page_Coverage_Holds_The_Codes_Of_Its_Provisions()
     {
@@ -62,7 +62,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming a provision holds the findings of the codes its Checked by line names.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Provision_Coverage_Holds_The_Codes_Its_Checked_By_Line_Names()
     {
@@ -76,7 +76,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure holds findings only on the paths it names, so a file it does not name keeps its finding.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Holds_Nothing_On_Other_Paths()
     {
@@ -98,7 +98,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming a model-load code reports departure-invalid and holds no finding.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Naming_A_Model_Load_Code_Reports_Invalid()
     {
@@ -112,7 +112,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming a code no check emits reports departure-invalid.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Naming_An_Unknown_Code_Reports_Invalid()
     {
@@ -125,7 +125,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming a provision the installed release does not ship reports departure-invalid.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Naming_An_Unshipped_Provision_Reports_Invalid()
     {
@@ -138,7 +138,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure past its expiry date reports departure-expired and holds nothing.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Past_Its_Expires_On_Reports_Expired_And_Holds_Nothing()
     {
@@ -153,7 +153,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure before its expiry date reports no expiry.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Before_Its_Expires_On_Reports_No_Expiry()
     {
@@ -164,7 +164,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure that sets an expiry date and names no exit reports record-invalid.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_With_Expiry_And_No_Exit_Reports_Record_Invalid()
     {
@@ -177,7 +177,7 @@ public sealed class DepartureCheckTests
     }
 
     /// <summary>A departure naming neither subject nor paths reports record-invalid.</summary>
-    /// <proves>litespec/core/model#record-accepted-gaps-as-exceptions</proves>
+    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
     [Fact]
     public void Departure_Naming_Neither_Subject_Nor_Paths_Reports()
     {

@@ -2,11 +2,11 @@
 
 ## Intent
 
-A LiteSpec project chooses a selection (its size, shape, technology stacks, and extensions, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those 4 choices, the folder arrangement they select from, the anatomy of a rules page, and the departures (exceptions and replaced defaults) the standard provides for rules a project cannot follow yet.
+A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the departures the standard provides for rules a project cannot follow.
 
 ## A Project's Selection
 
-Your project does not adopt all of LiteSpec. It makes four choices in `.litespec/project.yaml`, and those choices decide which pages apply:
+Your project does not adopt all of LiteSpec. It makes five choices in `.litespec/project.yaml`, and those choices decide which pages apply:
 
 | Choice | Options | What it changes |
 |:---|:---|:---|
@@ -14,8 +14,9 @@ Your project does not adopt all of LiteSpec. It makes four choices in `.litespec
 | Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project has no API and applies only the backend principles about modeling the domain. |
 | Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
+| Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims and, for implementation and proof, whether it follows LiteSpec practice (`litespec`) or only traces to the records (`own`). |
 
-`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/4.1.0/select/) on the site does the same in a form and shows which pages apply.
+`litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site does the same in a form and shows which pages apply.
 
 The Claimwick example in `examples/claimwick/` declares its own selection in `.litespec/project.yaml`:
 
@@ -23,14 +24,19 @@ The Claimwick example in `examples/claimwick/` declares its own selection in `.l
 size: large
 shape: server
 stacks:
-- dotnet
-- svelte
+  - dotnet
+  - svelte
 selectedExtensions: []
+layers:
+  intent: litespec
+  behavior: litespec
+  implementation: litespec
+  proof: litespec
 ```
 
-Read it as four answers: size large, shape server, the dotnet and svelte stacks, and no extensions. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`.
+Read it as five answers: size large, shape server, the dotnet and svelte stacks, no extensions, and every record layer claimed under LiteSpec practice. That selection applies `backend/dotnet/` and `frontend/web/svelte/`, and it does not apply `frontend/web/react/` or `frontend/blazor/`. Behavior needs intent, and implementation and proof each need behavior, so a project claims the layers in that order.
 
-The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team pinned, `4.1.0`. The [project file page](../reference/project-file.md) lists every field.
+The project file holds more than the selection: `paths` points at the documentation roots, `refusals` names the codes the two derived generic results carry, and `reviewedLiteSpecVersion` records the release the team adopted. The [project file page](../reference/project-file.md) lists every field.
 
 ## The Page Arrangement
 
@@ -84,7 +90,7 @@ Each rule is a heading followed by its ID line. Here is one from the [domain pag
 **Reviewed for:** Domain code references the language standard library and project-owned Domain types, with no outer-layer reference.
 ```
 
-Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `required` binds every project it applies to, `default` binds unless the project records its own choice, and `advisory` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation.
+Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer-layers`: the page path, then the heading. Its **Strength** line states how binding it is: `required` binds every project it applies to, `default` binds unless the project records its own choice, and `advisory` is experience to apply with judgement. The **Statement** is the rule itself, one sentence with one capitalized word that sets its strength, as in internet standards: `MUST`, `MUST NOT`, `SHOULD`, `SHOULD NOT` or `MAY`. Everything under **Rationale** and **Example** explains it and adds no obligation. A page scope names its concern, and a provision states its own layer or trace only when it differs from its page.
 
 Each page also states the scope its provisions apply to: the technology, the part of the system, and the kind of thing made. A provision narrower than its page names its scope, so an agent editing one file can ask which provisions govern it. The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
 
@@ -92,29 +98,29 @@ Each page also states the scope its provisions apply to: the technology, the par
 
 The standard expects departures and gives each one a home:
 
-- **An exception record** of kind `departure` replaces one provision for your project, naming the records it sets aside with its reason and an expiry date. An agent follows your exception over the standard.
+- **A departure record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the departure over the standard, and a covered finding reports as covered instead of blocking.
 - **A project convention** is a default you replace by stating your own in the provision shape, under `.litespec/governance/conventions/`.
-- **An exception record** of kind `gap` records a check that stays red until you fix it, with its reason and an expiry date, so the check does not fail on it forever.
 - **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
-When guidance overlaps, the most specific source wins: your exception or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the replacement in place of the original.
+When guidance overlaps, the most specific source wins: your departure or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the departure in place of the original.
 
-The Claimwick example carries one exception, at `examples/claimwick/.litespec/governance/exceptions/export-review-bypass.yaml`:
+The Claimwick example carries six departures under `.litespec/governance/departures/`. One of them, `examples/claimwick/.litespec/governance/departures/export-review-bypass.yaml`, reads:
 
 ```yaml
-type: exception
-id: exception/export-review-bypass
+type: departure
+id: departure/export-review-bypass
 title: Export Review Bypass
-kind: departure
-covers: litespec/backend/application#enforce-target-authorization-in-the-pipeline
+covers:
+  - litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
   - use-case/spending.export-expenses
 reason: The weekend export runs with no reviewer on shift.
 consequences: Weekend exports run without a second pair of eyes until a reviewer returns.
 expiresOn: 2027-01-01
+exit: A reviewer approves weekend exports before they run.
 ```
 
-Read it as one departure: it names the provision it replaces in `covers`, the records it sets aside, the reason, the consequences, and the expiry date. An agent follows the exception over the standard until that date.
+Read it as one departure: it names the provision it covers, the records it sets aside, the reason, the consequences, and the date and exit by which the gap closes. An agent follows the departure over the standard until that date.
 
 ## UI Patterns
 

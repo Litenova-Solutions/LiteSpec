@@ -34,7 +34,7 @@ This extension switches on no record type. Authentication, authorization, and pe
 
 **Statement:** A project shipping an MCP server MUST record it as an entry point of kind `mcp` whose title names the MCP server.
 
-**Rationale:** The entry point record names how callers arrive: `litespec/core/access#name-every-entry-point-with-its-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
+**Rationale:** The entry point record names how callers arrive: `litespec/core/edges#give-each-entry-point-a-kind` keeps one closed set of kinds, and an MCP server is a channel a local model client calls, so it takes the kind `mcp` and its title says which protocol it speaks. Without the record, the server's reach stays invisible to reviewers of the access records.
 
 **Reviewed for:** The entry point list names an `mcp` entry titled for the shipped MCP server.
 

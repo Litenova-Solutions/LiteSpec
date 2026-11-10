@@ -923,7 +923,7 @@ public sealed class BookOutlineTests
         {
             if (lines[index].Contains("| Type |", StringComparison.Ordinal)
                 && lines[index].Contains("| Parent |", StringComparison.Ordinal)
-                && lines[index].Contains("Qualified Form", StringComparison.Ordinal))
+                && lines[index].Contains("| Folder |", StringComparison.Ordinal))
             {
                 header = index;
                 break;

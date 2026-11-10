@@ -5,7 +5,7 @@
 
 ## Intent
 
-Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the sagas coordinating them, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Domain Model states the words and things inside the bounded context: the modules, the glossary, the aggregates with their lifecycles, the rules that hold, and the domain events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -20,7 +20,7 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, a saga is a process manager, a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
 
 | Field | Meaning |
 |:---|:---|
@@ -38,7 +38,6 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 | Kind | Meaning |
 |:---|:---|
 | `entity` | One thing kept consistent through its root, with states, transitions, and data. |
-| `saga` | A coordinator whose steps run use cases on other aggregates, each with its compensation. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
 An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Example, Known Limits, and Notes live in the explanation file beside the record file.
@@ -56,18 +55,6 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 | `reach` | `own-tenant`, `subject-wide`, or `platform-wide`. |
 | `exceptions` | Per-field erasure positions differing from the class. |
 | `reason`, `basedOn` | The reason of an exemption, and the Intent records accepting retained or exempt personal data. |
-
-### Sagas
-
-A saga is an aggregate that coordinates work across aggregates: a refund, a resale, a hiring pipeline. Its steps run in order, each running one use case on another aggregate; each step carries an `id`, the use case in `runs`, its compensation, and an optional `guard` clause completing "when ...". Its exits name the ways out, each a past participle or adjective; its `finishedWhen` names the observable end; its `drivenBy` names what moves it; and its `cursor` names where resume state lives.
-
-| Field | Meaning |
-|:---|:---|
-| `steps` | Ordered `{ id, runs, compensation, guard }` entries; `runs` names `use-case/...`; `compensation` is `{ "mode": "use-case", "useCase": "use-case/..." }` or `{ "mode": "none", "reason": "..." }`; `guard` is optional. |
-| `exits` | `{ name, trigger, then }` entries; the name is a past participle or adjective; a trigger is a condition, a `decision by <actor>`, or a `due <duration>`. |
-| `finishedWhen` | The observable end, in one sentence. |
-| `drivenBy` | `{ "job": "job/<...>" }`, `{ "reaction": "reaction/<...>" }`, or `{ "person": "<actor or role id>", "runbook": "runbook/<...>", "dueWithin": "<ISO duration>" }` entries. |
-| `cursor` | Where resume state lives. |
 
 ### Rules
 
@@ -125,7 +112,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Rationale:** Business words, design words, and implementation words age on different clocks: a business term moves when the market moves, a design term moves when the model moves, and an implementation term moves when the code moves. The record layer tells each reader which clock the word follows, and the aliases let industry readers find LiteSpec own words without learning a second vocabulary first.
 
-**Example:** The term `saga` carries `layer: behavior` with `aliases: ["process manager"]`.
+**Example:** The term `refusal` carries `layer: behavior` with `aliases: ["rejection", "error"]`.
 
 **Checked by:** `litespec model check` fails a glossary term without `layer`, and each behavior term lists the synonyms its readers know in `aliases`.
 
@@ -151,11 +138,11 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each aggregate MUST declare its kind: entity, saga, or store.
+**Statement:** Each aggregate MUST declare its kind: entity or store.
 
-**Rationale:** The kind decides what the page carries: an entity carries a lifecycle, a saga carries steps with compensations, exits, and drivenBy, and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.
+**Rationale:** The kind decides what the page carries: an entity carries a lifecycle and a store carries an owner with no guarded invariant. Without the kind, a thing kept consistent reads the same as a table the product only holds.
 
-**Example:** The refund saga declares `kind: saga`, and the suppression list declares `kind: store`.
+**Example:** The expense declares `kind: entity`, and the suppression list declares `kind: store`.
 
 **Checked by:** `litespec model check` fails an aggregate page without `kind` or with an unknown kind.
 
@@ -181,13 +168,13 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each entity and each saga MUST declare its lifecycle as `states` entries with a name and a meaning.
+**Statement:** Each entity MUST declare its lifecycle as `states` entries with a name and a meaning.
 
-**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives `transitions` states worth connecting. An entity tracks what the thing is, and a saga tracks where its coordination stands. A store carries no lifecycle, so it carries no states.
+**Rationale:** A bare state name tells a reviewer nothing: `rejected` without its meaning hides what rejection costs and allows. A name with a meaning makes each lifecycle step reviewable on the page, and gives `transitions` states worth connecting. An entity tracks what the thing is. A store carries no lifecycle, so it carries no states.
 
 **Example:** The hold queue entity declares `Requested`, `Ready`, `Collected`, `Cancelled`, and `Lapsed`, each with one sentence saying what the hold awaits or has received.
 
-**Checked by:** `litespec model check` fails an entity or saga page without `states` entries carrying a name and a meaning.
+**Checked by:** `litespec model check` fails an entity page without `states` entries carrying a name and a meaning.
 
 ### Leave States off Every Store
 
@@ -213,7 +200,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Applies to:** artifact: aggregate
 
-**Statement:** Each entity and each saga MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
+**Statement:** Each entity MUST list every allowed state change with its use case in `transitions`, including the creation that enters its first state.
 
 **Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case that moves it shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state or use case.
 
@@ -245,7 +232,7 @@ A domain event is an immutable statement that a business fact completed, named i
 
 **Statement:** Each atomicity rule MUST name the aggregates it binds in `binds`.
 
-**Rationale:** An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a saga candidate, reported at level A.
+**Rationale:** An atomic write across aggregates stays allowed only through its rule: the rule states the group and why, such as an order without its hold overselling, and the use case commits exactly that group, as the [use-cases page](use-cases.md) states. A group above 4 aggregates is a coordination candidate, reported at level A.
 
 **Example:** The hold rule binds the hold and the copy aggregates, so a hold without its copy never stands.
 

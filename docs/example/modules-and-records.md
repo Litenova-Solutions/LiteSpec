@@ -270,7 +270,7 @@ The reimburse permission carries the `money` risk and the erase permission carri
 
 ## Entry Points
 
-An entry point is one way people or systems reach the product. Claimwick keeps 1 at product level, with its record file at `.litespec/behavior/entry-points/claimwick-app/entry-point.yaml`, with its kind and auth, which applies `litespec/core/access#name-every-entry-point-with-its-kind`:
+An entry point is one way people or systems reach the product. Claimwick keeps 1 at product level, with its record file at `.litespec/behavior/entry-points/claimwick-app/entry-point.yaml`, with its kind and auth, which applies `litespec/core/edges#give-each-entry-point-a-kind`:
 
 | Entry point | Kind | Auth |
 |:--|:--|:--|
@@ -280,7 +280,7 @@ Employees reach spending through the expenses app, and every spending use case b
 
 ## The External System
 
-An external system is one outside system the product exchanges data with. Claimwick keeps one: the payout bank moves reimbursed money to employees. Its record file lives at `.litespec/behavior/modules/spending/external-systems/payout-bank.yaml`, states its summary, declares its operations with their timeouts and responses, and routes erasure through an operation, which applies `litespec/core/access#declare-every-operation-on-every-external-system` and `litespec/core/access#declare-erasure-for-every-external-system`.
+An external system is one outside system the product exchanges data with. Claimwick keeps one: the payout bank moves reimbursed money to employees. Its record file lives at `.litespec/behavior/modules/spending/external-systems/payout-bank.yaml`, states its summary, declares its operations with their timeouts and responses, and routes erasure through an operation, which applies `litespec/core/edges#describe-every-external-system-operation` and `litespec/core/access#declare-erasure-for-every-external-system`.
 
 ```yaml
 type: external-system
@@ -444,7 +444,7 @@ Back at the office she submits the 48.90 EUR fare with the receipt attached.
 The expense waits for Ben to decide.
 ```
 
-The record ends in named results, which applies `litespec/core/model#give-every-use-case-its-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/use-cases#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its `summary` field states what it is in one paragraph, its What Happens section walks the behavior in order, and its Example follows Ava submitting her train fare.
+The record ends in named results, which applies `litespec/core/use-cases#end-every-use-case-in-named-results`: one success and one refusal, and the refusal carries the stable code `spending.receipt-missing`. The generic forbidden and invalid-input results are derived from the access grant and the input rules and never written. The scenarios prove the success and the refusal in given, when, then, which applies `litespec/core/use-cases#write-every-scenario-in-given-when-then`. The receipt rule governs this use case, the employee role allows its permission, and the journey's first step is served by it. Its `summary` field states what it is in one paragraph, its What Happens section walks the behavior in order, and its Example follows Ava submitting her train fare.
 
 ## Reactions and Jobs
 

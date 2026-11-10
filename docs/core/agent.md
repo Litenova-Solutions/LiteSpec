@@ -25,7 +25,7 @@ Guidance overlaps by design: a project exception narrows a shared provision, an 
 
 ### Agents Write Below Decided Intent
 
-The specification is closed: the owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
+The [layers page](layers.md) states the closed specification. The owner decides Intent, and agents write the records below those decisions, through Behavior down to code and tests. The Specify rule forbids agents from deciding the figures the owner sets on their own; the [Intent page](intent.md) states the Specify boundary. Something that seems missing becomes a question to the owner or a backlog item, never code.
 
 ### Side Effects That Need the Task Authorizer
 
@@ -37,7 +37,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 ### Git Is the Decision Record
 
-A record in the repository is decided, and the pull request that changes it is its review. A record nobody wants is deleted; git keeps its history. An agent reads who changed what and when from git, never from record fields.
+The [principles page](principles.md) states git as the decision record. An agent reads who changed what and when from git, never from record fields.
 
 ### Work in Progress
 
@@ -238,6 +238,22 @@ A running project takes new intent through this one sequence. Other pages link t
 **Example:** The implementing agent writes a discount calculation from its rule and scenario; a later check runs the withheld example rows against the result.
 
 **Reviewed for:** The check log shows refusal and calculation example rows withheld during implementation and run after.
+
+### Protect Proofs from Implementation Edits
+
+**ID:** `litespec/core/agent#protect-proofs-from-implementation-edits`
+
+**Strength:** required
+
+**Applies to:** artifact: test
+
+**Statement:** An agent MUST NOT delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; it reports a test it believes is wrong instead of editing it.
+
+**Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code. The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change.
+
+**Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
+
+**Reviewed for:** The change keeps each proving test and its expected values unchanged unless its scenario changed in the same change, and the completion report names each test the agent stopped on and reported as wrong.
 
 ### Write Pages Below Decided Intent
 

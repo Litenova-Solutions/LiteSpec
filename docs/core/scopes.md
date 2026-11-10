@@ -100,13 +100,13 @@ A page gives every provision on it one record layer by default, from the page pa
 | Any other page whose concern is `tests` | `proof` |
 | Every other standards page | `implementation` |
 
-Every page's provisions take their trace from the page, which is `no`. A provision states its own layer on its Applies to line only when that layer differs from its page layer, and states `trace: yes` only where it ties its layer to the records. The stack folders sit under `docs/backend/` and `docs/frontend/`, so a stack page takes `implementation` from its folder.
+Every page's provisions take their trace from the page, which is `no`. A provision states its own layer on its Applies to line only when that layer differs from its page layer, and states `trace: yes` only where it ties its layer to the records. A stack page takes its layer from this table like any other page: `implementation`, or `proof` when its concern is `tests`.
 
 ### Strength Values
 
 | Value | Meaning |
 |:---|:---|
-| `required` | Follow it; depart from it only through a departure record whose `covers` names the provision, with a reason. |
+| `required` | Follow it; depart from it only through a [departure](departures.md) whose `covers` names the provision, with a reason. |
 | `default` | Follow it unless the project chooses otherwise, and record the choice. |
 | `advisory` | Experience; apply it with judgement and record nothing. |
 
@@ -213,19 +213,19 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_VALUE` diagnostic for a `layer` or `trace` value.
 
-### Depart from a Rule Only Through a Recorded Exception
+### Depart from a Rule Only Through a Recorded Departure
 
-**ID:** `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-exception`
+**ID:** `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`
 
 **Strength:** required
 
-**Statement:** A project that departs from a provision of Strength rule MUST record an exception of kind `departure` whose `covers` names the provision, with a reason.
+**Statement:** A project that departs from a provision of Strength `required` MUST record a departure whose `covers` names the provision, with a reason.
 
-**Rationale:** A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The exception record names the provision, the reason, and the expiry date, so the departure stays visible, dated, and ends instead of lingering. The [model page](model.md) states how a live exception outranks its provision.
+**Rationale:** A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The [departure record](departures.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the departure stays visible and ends instead of lingering.
 
-**Example:** Claimwick ships its weekend export without the review step, so it records an exception of kind `departure` whose `covers` names the authorization provision, with the reason and an expiry date.
+**Example:** Claimwick ships its weekend export without the review step, so it records a departure whose `covers` names the authorization provision and whose reason states the choice.
 
-**Reviewed for:** Each departure from a provision of Strength rule resolves to an exception record under `.litespec/governance/exceptions/` with the provision, a reason, and an expiry date.
+**Reviewed for:** Which departures from a provision of Strength `required` name no provision, page or finding code, or give no reason? Look at the files under `.litespec/governance/departures/`.
 
 ### Record Each Replaced Default
 

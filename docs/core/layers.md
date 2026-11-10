@@ -21,7 +21,7 @@ LiteSpec work moves through four record layers. Each record layer answers one qu
 | Implementation | How is it built? | Agents | S checks, where the reader is qualified |
 | Proof | How do we know it holds? | The builder | G and S checks |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, and Proof holds tests, check results, computed completion, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the `exception` record attaches to any record layer.
+The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, and Proof holds tests, check results, computed completion, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the departure record covers any record layer.
 
 ### Translation Rules
 
@@ -107,11 +107,13 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** required
 
-**Applies to:** artifact: record:scenario
+**Applies to:** artifact: record:scenario; layer: proof; trace: yes
 
 **Statement:** At large size, or with the `bdd` extension, each scenario MUST be proved by one test through the public boundary.
 
 **Rationale:** Small projects carry no scenarios unless the `bdd` extension switches them on, so the rule binds large projects and small projects with the extension. A scenario is the leaf of the record tree, so one test through the public boundary ties each leaf to running behavior. The checks `use-case-scenario-missing` and `proves-unreached` report the missing proof.
+
+**Example:** A large project carries a scenario for each refusal, and one test proves it through the public boundary.
 
 **Checked by:** `litespec model check` emits no `use-case-scenario-missing` or `proves-unreached` finding across scenarios and tests.
 
@@ -137,7 +139,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** required
 
-**Applies to:** artifact: record:research, record:constraint
+**Applies to:** artifact: any
 
 **Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
 
@@ -146,20 +148,6 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **Example:** An observed two-day payout settlement window enters as research, then as a constraint citing that research.
 
 **Reviewed for:** Which world facts entered without a cited and dated research or constraint record? Look at the provider, regulation, and incident facts the change relies on.
-
-### Close Incident Exceptions Within Seven Days
-
-**ID:** `litespec/core/layers#close-incident-exceptions-within-seven-days`
-
-**Strength:** required
-
-**Applies to:** artifact: record:exception
-
-**Statement:** A production incident fix that ships before its records are updated MUST carry an incident exception expiring within seven days.
-
-**Rationale:** A production incident ships its fix at once, at 02:00 if that is when the page fires. The incident exception records what shipped and why, and the records are updated before it expires. An expired exception is a blocking finding, so the gap stays visible until the records close it.
-
-**Reviewed for:** Which incident fixes lack an exception, or carry an expired one? Look at the exception records beside each fix.
 
 ### Record Changed Provider Behavior as Observed Research
 
@@ -172,6 +160,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.
 
 **Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint that follows cites the research, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
+
+**Example:** A payout provider that starts settling every two days instead of daily enters as research with the observed dates, and a settlement-window constraint cites that research.
 
 **Reviewed for:** Which provider changes lack observed research and a citing constraint? Look at the provider facts the change relies on, beside the research records.
 
@@ -187,6 +177,8 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Rationale:** A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.
 
+**Example:** A privacy regulation that takes effect next year enters as a constraint with its statutory date, and the anticipatory behavior follows that constraint until the requirement exists.
+
 **Reviewed for:** Which anticipatory behavior lacks a citing constraint, or blocks a release before the statutory date? Look at the regulation-driven Behavior records beside the constraint and its date.
 
 ## Conventions
@@ -199,4 +191,4 @@ This informative example demonstrates `litespec/core/layers#raise-open-needs-as-
 
 Top-down: the owner sets EUR 50 instead of EUR 25 for the receipt threshold. The requirement's statement changes, and an agent updates the policy setting default and the scenario where an expense without a receipt is refused in the same change. The test changes, Proof goes green, and the book chapter shows the new promise.
 
-Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then changes the settlement-window constraint citing it. The per-batch deadline rule and its scenarios follow in the same change.
+Bottom-up: a late reimbursement in production shows the payout bank settles batches every two days instead of daily. An agent records the observed behavior as research, then changes the settlement-window constraint citing it. The per-batch deadline rule and its scenarios follow in the same change. The test changes, Proof goes green, and the book chapter shows the cited source and date.

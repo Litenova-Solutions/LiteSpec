@@ -6,7 +6,7 @@ namespace LiteSpec.Model.Diff;
 ///     One loaded comparison base: its model and its label. Disposing removes the
 ///     temporary folder of a git base; a folder base needs no cleanup.
 /// </summary>
-/// <follows>litespec/backend/identifiers#keep-wire-codes-stable</follows>
+/// <follows>litespec/core/language#keep-wire-codes-stable</follows>
 sealed class DiffBase : IDisposable
 {
     /// <summary>

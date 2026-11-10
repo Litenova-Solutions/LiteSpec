@@ -16,7 +16,7 @@ Two pages resolve what other pages cite: [Glossary](glossary.md) defines each Li
 ## Files and Contracts
 
 - [Project File](project-file.md): every field of `.litespec/project.yaml` and what reads it.
-- [Release Manifest](manifest.md): every field of `litespec.manifest.yaml` and how to add a stack or extension.
+- [Release Manifest](manifest.md): every field of `litespec.manifest.yaml`.
 - [Formats](formats.md): every file format, who writes it, its envelope, and the schema and command that check it.
 - [Published URLs](published-urls.md): every URL the site serves for agents and people.
 

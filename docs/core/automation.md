@@ -42,7 +42,7 @@ A job may hold scenario child records ending in a result of a use case its effec
 
 ### Runbook
 
-A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, a saga driven by a person names its runbook in `drivenBy`, and any record or effect names its recovery in `onFailure.runbook`. It keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
+A runbook is the steps to run or recover the product. It carries the identifier `runbook/<name>` and lives in Implementation, at product or module level, named verb-first for what the reader does, as the [record language page](language.md) states. Its `trigger` names when to open it. A job names its runbook in `runbook`, and any record or effect names its recovery in `onFailure.runbook`. It keeps its `answers` link to the job and the alert label. Its fields are `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
 ## Standards
 
@@ -222,7 +222,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each runbook MUST state its `impact`, `prerequisites`, `procedure`, `verification`, `recovery`, and `escalation`.
 
-**Rationale:** A runbook named by a job, a saga, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
+**Rationale:** A runbook named by a job, a failure policy, or an alert is the answer a person opens under pressure: `impact` says what breaks, `prerequisites` say what to hold, `procedure` says each step, `verification` says how to confirm, `recovery` says how to undo, and `escalation` says who to call. A runbook missing one leaves the reader guessing at the worst moment.
 
 **Example:** The clear-stuck-reimbursements runbook states its impact on waiting expenses, its prerequisites, its procedure, its verification query, its recovery, and its escalation to the spending team.
 

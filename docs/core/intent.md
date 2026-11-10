@@ -86,11 +86,11 @@ Product level holds only the product, actors, roles and journeys; journeys cross
 
 A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
 
-### Two Identifiers
+### Identifiers and Placement
 
 The identifier stays as it is: `problem/organizers-wait-for-ticket-money`, unique in the product, and what every link and citation uses. Moving a record between product and module level does not change it, so no citation changes.
 
-The qualified identifier is computed from the identifier segments plus placement and never written, like a fully qualified type name: `finance/problem/organizers-wait-for-ticket-money`, or `problem/...` with no prefix at product level, and `finance/payout/use-case/request-payout` in Behavior. The book and the CLI show both, and `litespec model query` accepts either.
+A record's placement shows as its folder path and its `module`. The book and the CLI show the identifier with that placement, so a reader can tell where the record sits without a second identifier.
 
 ### How Intent Reaches Behavior
 
