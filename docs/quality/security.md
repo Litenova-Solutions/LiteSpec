@@ -243,9 +243,9 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Applies to:** artifact: any
 
-**Statement:** Live data at rest MUST carry encryption or a departure exception covering this provision.
+**Statement:** Live data at rest MUST carry encryption or a departure covering this provision.
 
-**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the exception covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.
+**Rationale:** Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application's control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the departure covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.
 
 **Reviewed for:** Does each live store carry encryption, or does a departure cover this provision? Look at each store's encryption setting and the departure records.
 
@@ -357,7 +357,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Statement:** CI MUST scan every pull request for security findings with a free static analyzer.
 
-**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap exception covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.
+**Rationale:** CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a departure covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.
 
 **Reviewed for:** Does the static analysis report for the pull request show a departure for each accepted finding? Look at the analyzer report and the departure records.
 

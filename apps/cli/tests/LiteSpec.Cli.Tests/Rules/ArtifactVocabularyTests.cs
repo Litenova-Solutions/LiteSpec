@@ -7,6 +7,7 @@ namespace LiteSpec.Cli.Tests.Rules;
 public sealed class ArtifactVocabularyTests
 {
     /// <summary>The scope page names every code kind the path rules classify.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact]
     public void ArtifactVocabularyNamesEveryCodeKind()
     {
@@ -24,6 +25,7 @@ public sealed class ArtifactVocabularyTests
     }
 
     /// <summary>The value any is the layer-wide artifact and stands alone.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
     public void LayerWideArtifactIsTheValueAny()
     {
@@ -34,6 +36,7 @@ public sealed class ArtifactVocabularyTests
     }
 
     /// <summary>Several artifact values split on the comma that separates them.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
     [Fact]
     public void ArtifactValuesSplitOnComma()
     {

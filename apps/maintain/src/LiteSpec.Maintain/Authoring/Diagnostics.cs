@@ -111,6 +111,7 @@ internal static class Diagnostics
         Codes.ScopeValue,
         Codes.StrengthLine,
         Codes.CheckedByFindingMissing,
+        Codes.CommandOptionUnknown,
         Codes.ExampleRecordUnknown,
         Codes.FindingCodeUnknown,
         Codes.IndexPageMissing,
@@ -426,6 +427,9 @@ internal static class Diagnostics
 
         /// <summary>A Checked by line for the model check that names no finding code.</summary>
         public const string CheckedByFindingMissing = "CHECKED_BY_FINDING_MISSING";
+
+        /// <summary>A command page that shows an option its command does not parse, or names a LiteSpec command the source does not declare.</summary>
+        public const string CommandOptionUnknown = "COMMAND_OPTION_UNKNOWN";
 
         /// <summary>A docs page that cites an example record ID the example lacks.</summary>
         public const string ExampleRecordUnknown = "EXAMPLE_RECORD_UNKNOWN";

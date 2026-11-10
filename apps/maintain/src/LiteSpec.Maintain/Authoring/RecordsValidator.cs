@@ -34,7 +34,8 @@ internal sealed partial class RecordsValidator
     // (litespec/core/maintaining#record-the-reasoning-behind-each-release)
     /// <summary>Checks the records among the parsed pages.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
-    internal void CheckRecords(List<ParsedPage> parsedPages)
+    /// <param name="activeIds">The active provision identifiers.</param>
+    internal void CheckRecords(List<ParsedPage> parsedPages, HashSet<string> activeIds)
     {
         var records = CollectRecords(parsedPages);
         CheckRecordText(records);
@@ -44,6 +45,29 @@ internal sealed partial class RecordsValidator
         CheckRecordSources(records);
         CheckRecordReferences(records, parsedPages);
         CheckRecordDecisionCitations(records, parsedPages);
+        CheckRecordProvisionCitations(records, activeIds);
+    }
+
+    // A decision record states its reasoning in its fields, so a provision it cites
+    // lives in the record file, not in a page the page scan reads. Research records
+    // are dated evidence and may cite what was weighed, so they are not checked.
+    // (litespec/core/authoring#run-repeatable-authoring-checks)
+    /// <summary>Checks that every provision a decision record cites names an active provision.</summary>
+    /// <param name="records">The collected records.</param>
+    /// <param name="activeIds">The active provision identifiers.</param>
+    private void CheckRecordProvisionCitations(List<ParsedRecord> records, HashSet<string> activeIds)
+    {
+        var add = Context.Add;
+        foreach (var record in records.Where(record => record.Kind == "decision"))
+        {
+            foreach (Match match in CitationPattern.Matches(record.Raw))
+            {
+                if (!activeIds.Contains(match.Value))
+                {
+                    add(record.Relative, LineNumber(record.Raw, match.Index), Diagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
+                }
+            }
+        }
     }
 
     /// <summary>Parses a record file's strict YAML text.</summary>

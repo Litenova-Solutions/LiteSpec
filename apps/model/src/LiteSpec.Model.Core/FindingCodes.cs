@@ -235,7 +235,7 @@ public static class FindingCodes
             "A handler, endpoint, event handler, job host or aggregate root marks a use case, reaction, job or aggregate outside the module folder it sits in, or a handler or endpoint marks a use case outside the use-case folder it sits in.",
             "Move the element to the folder its mark names, or point the mark at the record its folder holds."),
         new("code-placement-drift", "S", RecordLayer.Implementation, trace: false,
-            "A code element, test, or folder sits outside its record's qualified path, or a folder names no declared record.",
+            "A code element, test, or folder sits outside the code folder its record's placement names, or a folder names no declared record.",
             "Move the element to the folder its mark names, or point the mark at the record its folder holds."),
         new("runtime-value-drift", "S", RecordLayer.Implementation, trace: true,
             "A hand-written event `Classification` or exception `Code` differs from what its record states.",

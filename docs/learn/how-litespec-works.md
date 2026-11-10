@@ -34,7 +34,7 @@ A project claims the layers it uses in `layers` in `.litespec/project.yaml`. Thr
 
 Records state only software. Company matters such as prices as an offer, markets and launch dates enter only as a constraint or as dated research. A record that reaches no Behavior is unfinished work or not software, and the check reports it.
 
-A departure is the one record that sets a rule or a finding aside. It lives in `.litespec/governance/departures/`, names what it covers and why, and carries an `expiresOn` date when the gap is meant to close.
+A departure is the one record that sets a provision, a page, or a finding code aside. It lives in `.litespec/governance/departures/`, names what it covers and why, and carries an `expiresOn` date when the gap is meant to close.
 
 ## Record Types and Their Homes
 
@@ -165,7 +165,7 @@ The stage reads `coded`, because the handler exists. It does not read `verified`
 
 ### The Reported Gaps
 
-Each finding has a level. A level G finding reads records only and always blocks. A level S finding reads code through a stack reader and blocks where that reader is qualified. A level A finding advises and does not block by default. The check runs in CI, so a gap shows up in the pull request that introduced it.
+Each finding has a level. A level G finding reads records only and always blocks. A level S finding reads code through a stack reader and blocks where that reader is qualified. A level A finding is advisory and does not block by default. The check runs in CI, so a gap shows up in the pull request that introduced it.
 
 In the Claimwick example, the export use case has no handler yet, and the check reports it as covered by a departure:
 
@@ -206,7 +206,7 @@ The main records around one use case, and the three links the builder computes, 
 
 ## Completion Is Computed
 
-Nobody writes whether a record is implemented or verified. The builder computes one completion stage for each requirement, use case, journey, feature and goal. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`.
+Nobody writes whether a record is coded or verified. The builder computes one completion stage for each requirement, use case, journey, feature and goal. The stages run from least to most complete: `unfulfilled`, `specified`, `coded` and `verified`.
 
 A use case is `unfulfilled` when no scenario specifies it, `specified` when a scenario specifies it and no code implements it, `coded` when code implements it and not every scenario is verified, and `verified` when every scenario has a passing proof that is not stale. A parent takes the stage of its weakest child. With no test run in the model, a coded record stays `coded` with proof `unknown`, and an unknown proof never reads as a failure.
 
@@ -229,7 +229,7 @@ LiteSpec ships two command lines, one set of .NET analyzers and one published si
 
 A new project starts once with `dotnet litespec init`. A change to intent runs `new`, the rules and the model commands, the code and the analyzers, then the CI gates that the [CI page](../quality/ci.md) selects for the changed areas. A gap shows up in the change that introduced it.
 
-For an agent, the starting point is the provisions for one file and the selection index for the project, `https://litespec.dev/4.1.0/select/server.dotnet.svelte/llms.txt`. [Work with agents](working-with-agents.md) describes how an agent reads the standard.
+For an agent, the starting point is the provisions for one file and the selection index for the project, `https://litespec.dev/5.0.0/select/server.dotnet.svelte/llms.txt`. [Work with agents](working-with-agents.md) describes how an agent reads the standard.
 
 ## Next
 

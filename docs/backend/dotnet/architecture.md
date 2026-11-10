@@ -44,7 +44,7 @@ A type stays visible only to the assemblies that need it: implementations stay i
 
 **Statement:** Every type in the shared kernel and modules projects MUST live in the namespace tree that starts with the product name and follows the folders below the project root.
 
-**Rationale:** The namespace reads like the qualified identifier, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
+**Rationale:** The namespace reads like the folder path, so `Claimwick.Spending.Expenses.UseCases.SubmitExpense` names the product module aggregate and use case without a map. Namespaces follow folders under `litespec/workspace/naming#keep-namespaces-aligned-with-folders`, so a reader moves from a Domain aggregate to its handler its repository and its endpoint by name alone. This provision binds `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case` for .NET.
 
 **Example:** The Expenses aggregate of the Spending module fills one branch:
 

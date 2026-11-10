@@ -1,8 +1,8 @@
 # Claimwick Agent Context
 
 ## LiteSpec
-This project follows LiteSpec 4.1.0: size large, shape server, stacks dotnet and svelte, extensions none.
-Before a task, read https://litespec.dev/4.1.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 5.0.0: size large, shape server, stacks dotnet and svelte, extensions none.
+Before a task, read https://litespec.dev/5.0.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 
@@ -20,6 +20,8 @@ Write each layer from the layer above it: Intent states the promises, Behavior s
 
 Build only what the specification states, and take anything missing to the owner.
 
+Never delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; report a test you believe is wrong instead of editing it. (litespec/core/agent#protect-proofs-from-implementation-edits)
+
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
 
 A project departure record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)
@@ -34,7 +36,7 @@ Record a product decision for any changed product choice. Research outside `.lit
 
 This example holds no solution file, C# project file or package manifest, so its build and test gates have no command here. A consumer names its own in this section. The commands below run against the records and the code in this folder.
 
-Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/authoring#declare-structured-specification-metadata)
+Run metadata and model checks for each changed record, source, or test. Run `dotnet litespec model check` and query the model again after the change, and report what stays red. (litespec/core/system#update-records-with-behavior, litespec/core/model#declare-structured-specification-metadata)
 
 Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
 

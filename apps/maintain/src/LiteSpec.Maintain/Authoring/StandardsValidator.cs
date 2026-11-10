@@ -105,11 +105,12 @@ internal static class StandardsValidator
         context.Repository.CheckFindingCitations(parsedPages);
         context.Repository.CheckTemplateCitations(parsedPages);
         context.Repository.CheckExampleCitations(parsedPages);
+        context.Repository.CheckCommandOptions(parsedPages);
         context.Repository.CheckIndexCoverage(current);
         var provisionsByPage = parsedPages.ToDictionary(page => page.Relative, page => page.Parsed.Provisions, StringComparer.Ordinal);
         context.Manifest.CheckManifest(activeIds, provisionsByPage);
         context.Manifest.CheckAnalyzerRelease(parsedPages);
-        context.Records.CheckRecords(parsedPages);
+        context.Records.CheckRecords(parsedPages, activeIds);
 
         // The provision index and its data file are derived. A stale page would send a
         // reader to the wrong heading, so the gate compares both with the active standards.

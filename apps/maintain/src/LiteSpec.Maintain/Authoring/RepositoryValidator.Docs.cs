@@ -32,6 +32,9 @@ internal sealed partial class RepositoryValidator
         ReferenceTables.FoldersPath,
     };
 
+    /// <summary>The source folders whose usage texts declare the commands the command pages describe.</summary>
+    private static readonly string[] CommandSourceFolders = ["apps/cli/src/LiteSpec.Cli", "apps/maintain/src/LiteSpec.Maintain"];
+
     /// <summary>The research records, which are dated evidence and may name finding codes that were weighed and never adopted.</summary>
     private const string ResearchPages = "docs/intent/research/";
 
@@ -116,6 +119,99 @@ internal sealed partial class RepositoryValidator
 
                     add(page.Relative, number, Diagnostics.Codes.ExampleRecordUnknown, $"'{id}' names no record in examples/claimwick/.litespec");
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Checks that every option a command page shows in its Synopsis or Options section is an option its command parses.
+    ///     A parsed option is an option token of the command's usage text, the raw string literal named <c>Usage</c> in a source
+    ///     file of the CLI or the maintainer. A page names its command by the LiteSpec command its Synopsis starts with, so a page
+    ///     whose synopsis names another program is not checked, and a LiteSpec command no usage text declares is reported.
+    /// </summary>
+    /// <param name="parsedPages">The parsed pages.</param>
+    internal void CheckCommandOptions(List<ParsedPage> parsedPages)
+    {
+        var add = Context.Add;
+        var usages = CommandUsages(Context.Root);
+        foreach (var page in parsedPages.Where(page => page.Parsed.Kind == "command"))
+        {
+            (int Number, string Command)? head = null;
+            foreach (var (number, line) in ShownLines(page.Reader, "Synopsis"))
+            {
+                if (CommandHeadPattern().Match(line) is { Success: true } match)
+                {
+                    head = (number, $"{match.Groups[1].Value} {match.Groups[2].Value}");
+                    break;
+                }
+            }
+
+            if (head is not { } named)
+            {
+                continue;
+            }
+
+            var declared = usages.Where(usage => usage.Commands.Contains(named.Command)).ToList();
+            if (declared.Count == 0)
+            {
+                add(page.Relative, named.Number, Diagnostics.Codes.CommandOptionUnknown, $"'{named.Command}' names no command with a usage text in source");
+                continue;
+            }
+
+            var parsed = declared.SelectMany(usage => usage.Options).ToHashSet(StringComparer.Ordinal);
+            foreach (var (number, line) in ShownLines(page.Reader, "Synopsis", "Options"))
+            {
+                foreach (var option in OptionPattern().Matches(line).Select(match => match.Value).Distinct(StringComparer.Ordinal))
+                {
+                    if (!parsed.Contains(option))
+                    {
+                        add(page.Relative, number, Diagnostics.Codes.CommandOptionUnknown, $"'{option}' is not an option '{named.Command}' parses");
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>Reads the usage text of each command the CLI and the maintainer declare.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Each usage text with the commands it names and the option tokens it contains.</returns>
+    private static List<(HashSet<string> Commands, HashSet<string> Options)> CommandUsages(string root)
+    {
+        var usages = new List<(HashSet<string> Commands, HashSet<string> Options)>();
+        foreach (var folder in CommandSourceFolders)
+        {
+            foreach (var file in Walk(JoinRoot(root, folder), candidate => candidate.EndsWith(".cs", StringComparison.Ordinal)))
+            {
+                foreach (Match usage in UsageConstantPattern().Matches(FileText.ReadText(file)))
+                {
+                    var text = usage.Groups[1].Value;
+                    var commands = CommandHeadPattern().Matches(text).Select(match => $"{match.Groups[1].Value} {match.Groups[2].Value}").ToHashSet(StringComparer.Ordinal);
+                    var options = OptionPattern().Matches(text).Select(match => match.Value).ToHashSet(StringComparer.Ordinal);
+                    usages.Add((commands, options));
+                }
+            }
+        }
+
+        return usages;
+    }
+
+    /// <summary>The lines under the named H2 sections of a page, each with its 1-based number.</summary>
+    /// <param name="reader">The page reader.</param>
+    /// <param name="sections">The H2 section names to include.</param>
+    /// <returns>Each included line's 1-based number and text.</returns>
+    private static IEnumerable<(int Number, string Line)> ShownLines(PageReader reader, params string[] sections)
+    {
+        var inside = false;
+        for (var index = 0; index < reader.Lines.Length; index++)
+        {
+            var line = reader.Lines[index];
+            if (line.StartsWith("## ", StringComparison.Ordinal))
+            {
+                inside = sections.Contains(line[3..].Trim(), StringComparer.Ordinal);
+            }
+            else if (inside)
+            {
+                yield return (index + 1, line);
             }
         }
     }
@@ -209,4 +305,19 @@ internal sealed partial class RepositoryValidator
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"^templates/[A-Za-z0-9_./-]+$")]
     private static partial Regex TemplatePathPattern();
+
+    /// <summary>Gets the pattern that matches the usage text of a command source file, which the raw string literal named <c>Usage</c> holds.</summary>
+    /// <returns>The compiled pattern; its first group is the text.</returns>
+    [GeneratedRegex(@"const string Usage = \x22\x22\x22\s*\r?\n(.*?)^\s*\x22\x22\x22", RegexOptions.Singleline | RegexOptions.Multiline)]
+    private static partial Regex UsageConstantPattern();
+
+    /// <summary>Gets the pattern that matches the LiteSpec program and the command word a usage line or a synopsis starts with.</summary>
+    /// <returns>The compiled pattern; its groups are the program and the command word.</returns>
+    [GeneratedRegex(@"^\s*(?:Usage:\s*)?(litespec(?:-maintain)?)\s+([a-z][a-z-]*)", RegexOptions.Multiline)]
+    private static partial Regex CommandHeadPattern();
+
+    /// <summary>Gets the pattern that matches one long option token.</summary>
+    /// <returns>The compiled pattern.</returns>
+    [GeneratedRegex(@"(?<![A-Za-z0-9-])--[a-z][a-z0-9-]*")]
+    private static partial Regex OptionPattern();
 }

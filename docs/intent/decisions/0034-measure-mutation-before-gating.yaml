@@ -1,0 +1,18 @@
+type: decision
+id: decision/0034-measure-mutation-before-gating
+title: Measure Mutation Testing, Add No Gate
+options:
+  - name: "Measure once with a scratch tool, and add no gate or tool in this release"
+    pros: "The measured score shows where the tests stand, and the repository gains no tool and no gate that fails for the wrong reason."
+    cons: "No mutation result reaches CI in this release, so the changed lines carry no mutation check."
+  - name: "Add a changed-lines mutation gate now"
+    pros: "Each change meets a mutation threshold from the start."
+    cons: "The measured score of 13.0 percent would fail every change, because the CLI suite that covers those files cannot run in the same mutation run."
+  - name: "Decide without measuring"
+    pros: "No setup work."
+    cons: "The decision rests on opinion, and no run shows which tests catch faults."
+choice: "Measure once with a scratch tool, and add no gate or tool in this release"
+consequences: "The repository gains no mutation tool, and the scratch install leaves the repository. The consumer default `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines` stays as it is, because it governs consumers, and the Delivery extension keeps its mutation job for projects that select it."
+reopenedWhen: "A CI job runs the CLI suite and the model suite under one mutation run on Linux, and the measured score reflects the tests that cover the changed lines."
+basedOn:
+  - research/agent-testing-evidence

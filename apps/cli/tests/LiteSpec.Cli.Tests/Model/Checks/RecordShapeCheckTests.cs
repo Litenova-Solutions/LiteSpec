@@ -354,6 +354,8 @@ public sealed class RecordShapeCheckTests
         Assert.False(Reports(model, "record-invalid", "onFailure"));
     }
 
+    /// <summary>Reservation Without Released By Reports.</summary>
+    /// <proves>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</proves>
     [Fact]
     public void ReservationWithoutReleasedByReports()
     {
@@ -365,6 +367,8 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "reservation-release-missing", "reserves with no releasedBy"));
     }
 
+    /// <summary>Reservation With Never Object And Reason Passes.</summary>
+    /// <proves>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</proves>
     [Fact]
     public void ReservationWithNeverObjectAndReasonPasses()
     {
@@ -376,6 +380,8 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("reservation-release-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reservation With Never Object And No Reason Reports.</summary>
+    /// <proves>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</proves>
     [Fact]
     public void ReservationWithNeverObjectAndNoReasonReports()
     {
@@ -387,6 +393,8 @@ public sealed class RecordShapeCheckTests
         Assert.True(Reports(model, "reservation-release-missing", "names never with no reason"));
     }
 
+    /// <summary>Reservation With Use Case Id Passes.</summary>
+    /// <proves>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</proves>
     [Fact]
     public void ReservationWithUseCaseIdPasses()
     {
@@ -398,6 +406,8 @@ public sealed class RecordShapeCheckTests
         Assert.DoesNotContain("reservation-release-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reservation With Legacy Never String Reports.</summary>
+    /// <proves>litespec/core/domain-model#release-every-reservation-by-a-named-use-case</proves>
     [Fact]
     public void ReservationWithLegacyNeverStringReports()
     {

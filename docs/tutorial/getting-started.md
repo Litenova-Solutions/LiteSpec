@@ -44,5 +44,5 @@ This lesson creates a new project. The `litespec new` commands below write each 
 ## What You Built
 
 - A consumer repository at small size that the model check accepts.
-- One implemented use case with Intent, Behavior, code, tests, and generated contracts.
+- One coded use case with Intent, Behavior, code, tests, and generated contracts.
 - When the product ships another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md); all commands are listed on the [command index](../tools/README.md).

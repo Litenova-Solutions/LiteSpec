@@ -21,7 +21,7 @@ An extension is a conditional standards bundle a project selects when its criter
 
 ### Guidance Precedence
 
-Guidance overlaps by design: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project exception first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
+Guidance overlaps by design: a project departure narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project departure first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
 
 ### Agents Write Below Decided Intent
 
@@ -41,7 +41,7 @@ The [principles page](principles.md) states git as the decision record. An agent
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries an exception with `expiresOn`, which parks reachability for that record until it expires.
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
 
 ### New Intent in a Running Project
 
@@ -54,8 +54,8 @@ A running project takes new intent through this one sequence. Other pages link t
 5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that layer order, with `dotnet build` for the backend code. Authorizer gate: the task authorizer approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations also run against the example rows held back from the agent that wrote the code, and the suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries an exception with `expiresOn`.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and an exception with `expiresOn` for each check held red.
+8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries a departure with `expiresOn`.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and a departure with `expiresOn` for each check held red.
 
 ## Standards
 
@@ -131,11 +131,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** An agent MUST apply the project exception, the extension, the deeper page, and the shallower page in that order.
+**Statement:** An agent MUST apply the project departure, the extension, the deeper page, and the shallower page in that order.
 
-**Rationale:** Overlapping guidance is normal: a project exception narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
+**Rationale:** Overlapping guidance is normal: a project departure narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
 
-**Reviewed for:** The design applies the project exception, the extension, the deeper page, and the shallower page in that order.
+**Reviewed for:** The design applies the project departure, the extension, the deeper page, and the shallower page in that order.
 
 ### Replace Only Declared Conventions
 
@@ -249,7 +249,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST NOT delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; it reports a test it believes is wrong instead of editing it.
 
-**Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code. The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change.
+**Rationale:** A proof that changes with the implementation stops proving the decided behavior and starts restating the code. The proof ledger records each scenario's hash and the hash of each test that proves it, so `model check --since` can report, as an advisory finding, each scenario whose proving test changed while the scenario did not. Hashing the proving test method rather than its file keeps an unrelated edit in the same file from reporting a change. Settled by [decision/0033-agents-never-weaken-proving-tests](decision/0033-agents-never-weaken-proving-tests).
 
 **Example:** A handler change makes a proving test fail; the agent reports the failing test and the mismatch instead of changing the expected value to fit the new result.
 
@@ -313,9 +313,9 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** A completion report MUST name each provision the agent judged and how it judged it.
 
-**Rationale:** The report shows which rules, defaults, and advice the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
+**Rationale:** The report shows which required provisions, defaults, and advisory provisions the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
 
-**Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by an exception.
+**Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a departure.
 
 **Reviewed for:** Which judged provisions lack a how in the completion report? Look at the provisions beside the report.
 

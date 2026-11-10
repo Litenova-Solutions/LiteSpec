@@ -32,7 +32,7 @@ A stack reader is qualified by fixtures: a known good tree it passes and a known
 
 ### Verified Behavior and Journey Evidence
 
-A use case is implemented when its handler exists, and verified when every one of its scenarios has a passing proof through the public boundary, as the [model page](model.md) states. A journey test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
+A use case is coded when its handler exists, and verified when every one of its scenarios has a passing proof through the public boundary, as the [model page](model.md) states. A journey test proves that connected use cases produce one observable product outcome through the deployed public boundary, catching the wiring, permission, and data defects that narrower suites miss.
 
 ### The Release Record
 

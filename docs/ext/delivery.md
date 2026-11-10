@@ -207,7 +207,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The bypass permission exists so a recovery can proceed when the gates cannot run. A recovery nobody wrote down is indistinguishable from a habit, so the next reviewer cannot tell which commits on the branch were reviewed. The record names the actor, the reason, and the admitted change, which is the attribution [NIST SP 800-218](https://csrc.nist.gov/publications/detail/sp/800-218/final) states for the same event.
 
-**Example:** The record is the recovery decision itself where one exists. A bypass smaller than a decision takes a dated entry in the operations log at `.litespec/behavior/operations/log/`.
+**Example:** The record is the recovery decision itself where one exists. A bypass smaller than a decision takes a dated entry in the operations log at `.litespec/implementation/operations/log/`.
 
 **Reviewed for:** Which bypass entries in the operations log or recovery decision omit their actor, reason, or admitted change? Look at each bypass entry.
 

@@ -50,6 +50,15 @@ public sealed class ReleaseVersionTests
     public void TheToolPackageNamesTheManifestRelease() =>
         Assert.Equal(Manifest(), PackageVersion("apps", "cli", "src", "LiteSpec.Cli", "LiteSpec.Cli.csproj"));
 
+    /// <summary>The security policy supports the release line the manifest prepares.</summary>
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
+    [Fact]
+    public void TheSecurityPolicySupportsTheManifestReleaseLine()
+    {
+        var parts = Manifest().Split('.');
+        Assert.Contains($"| {parts[0]}.{parts[1]}.x | Yes |", Read("SECURITY.md"), StringComparison.Ordinal);
+    }
+
     /// <summary>The Analyzer Package Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
     [Fact]

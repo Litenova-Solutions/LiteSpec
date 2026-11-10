@@ -26,7 +26,7 @@ A stack is added in three steps:
 
 An extension is added in three steps:
 
-1. Write the extension page at `docs/ext/<id>.md`, or at `<stack folder>/ext/<id>.md` when it supports one stack only. The page uses the extension style with `Activation`, `Baseline relationship`, and `Dependencies` sections, and the Activation states the scope and the criterion.
+1. Write the extension page at `docs/ext/<id>.md`, or at `<stack folder>/ext/<id>.md` when it supports one stack only. The page uses the extension style with `Activation`, `Baseline Relationship`, and `Dependencies` sections, and the Activation states the scope and the criterion.
 2. Add the manifest entry with the extension id and its `path`, `activationScope`, `applicableKinds` where the extension applies to specific record kinds, `replaces` where it replaces baseline provisions, and `switchesOn` where selecting it requires record types.
 3. Run `litespec-maintain validate` and fix what it reports: a path that does not exist, a path outside the two allowed shapes, a scope the page does not state, kinds the page does not match, a missing criterion, and a replacement id that names no active provision.
 

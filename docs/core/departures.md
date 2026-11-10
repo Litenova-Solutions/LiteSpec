@@ -113,7 +113,7 @@ The `use-case-unimplemented` finding is covered, and the run passes, until 2027-
 
 **Applies to:** artifact: record:departure
 
-**Statement:** A project MAY depart from a provision of Strength advisory without recording a departure, since advice binds no project.
+**Statement:** A project MAY depart from a provision of Strength advisory without recording a departure, since an advisory provision binds no project.
 
 **Rationale:** A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A departure from it would name a rule the provision never made. A provision whose Statement says should takes this strength for the same reason.
 

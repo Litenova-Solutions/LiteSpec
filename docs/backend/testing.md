@@ -94,7 +94,7 @@ The default strategy is one database per test class, cloned from a migrated temp
 
 **Rationale:** A result file names each test with its namespace, its containing types joined with dots, and its method, without data-row arguments. A renamed test then matches nothing instead of matching another test's same-named method, so the rename fails loudly instead of lingering as an awaited run. Short-name matching hides the rename behind a passing name it no longer owns.
 
-**Example:** Renaming a submit-expense test leaves the old qualified name with no matching result, and the scenario shows unproven until the new name runs and passes.
+**Example:** Renaming a submit-expense test leaves the old qualified name with no matching result, and the use case stays coded until the new name runs and passes.
 
 **Reviewed for:** Which test results match outside fully qualified names, or carry data-row arguments? Look at the test result files.
 

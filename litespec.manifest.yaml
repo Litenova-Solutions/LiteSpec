@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 4.1.0
+version: 5.0.0
 name: litespec
 agentsEntry: AGENTS.md
 stacks:
@@ -194,6 +194,7 @@ packages:
     Aspire.Hosting.JavaScript: 13.6.1
     Aspire.Hosting.PostgreSQL: 13.6.1
     AwesomeAssertions: 9.6.0
+    dotnet-stryker: 5.0.0
     EFCore.NamingConventions: 10.0.1
     FsCheck: 3.6.0
     LightBDD.XUnit3: 3.12.1
@@ -214,7 +215,7 @@ packages:
     LiteBus.Queries.Abstractions: 7.0.0
     LiteBus.Storage.PostgreSql: 7.0.0
     LiteBus.Testing.Mediation: 7.0.0
-    LiteSpec.Analyzers: 4.1.0
+    LiteSpec.Analyzers: 5.0.0
     Marten: 9.50.1
     Microsoft.AspNetCore.Authentication.JwtBearer: 10.0.13
     Microsoft.AspNetCore.DataProtection: 10.0.13
@@ -262,6 +263,8 @@ packages:
     "@lucide/svelte": 1.67.0
     "@modelcontextprotocol/server": 2.3.1
     "@playwright/test": 1.64.1
+    "@stryker-mutator/core": 10.1.1
+    "@stryker-mutator/vitest-runner": 10.1.1
     "@sveltejs/adapter-node": 6.0.0
     "@sveltejs/adapter-static": 4.1.0
     "@sveltejs/kit": 3.0.1

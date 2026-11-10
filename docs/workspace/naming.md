@@ -219,7 +219,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Replacement:** A project whose module carries different names per layer records its own per-layer names in its project documentation.
 
-**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/domain/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
+**Rationale:** One business name per module keeps every layer pointing at the same word. The Posts module maps to `Shop/Posts`, `features/posts`, and `.litespec/behavior/modules/posts` without translation. A second name in any layer reads as a second concept that does not exist.
 
 **Reviewed for:** One business name for each module spans Domain, Application, endpoints, features, and documentation; where replaced, the project documentation names the project's own per-layer names.
 

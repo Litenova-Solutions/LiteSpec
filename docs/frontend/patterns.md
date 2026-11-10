@@ -30,13 +30,13 @@ The catalog is one file valid against `schemas/ui-pattern-catalog.schema.yaml`. 
 | `title` | The pattern name |
 | `question` | The recurring question the pattern answers |
 | `options` | At least two options, each with rationale and cost |
-| `decision` | The chosen option, its source, an optional note, and an optional record |
+| `decision` | The chosen option, its source, and an optional note |
 | `compact` | The breakpoint and the behavior below it |
 | `extensions` | Further options a user may switch to |
 | `implementations` | The status and source paths per platform |
 | `library` | The LiteSpec pattern ID the entry starts from, if any |
 
-The `breakpoints` map names viewport widths, and `groups` collect related patterns. The optional `registry` field names the command or path rendering every product-added option for review.
+The `breakpoints` map names viewport widths, and `groups` collect related patterns.
 
 ### Pattern Pages
 
@@ -130,13 +130,12 @@ The diagram shows the flow from a LiteSpec pattern through the catalog entry tha
 
 ### The Decision Lifecycle
 
-A choice starts as a recommendation and settles when an owner chooses. A later change names the record that made it.
+A choice starts as a recommendation and settles when an owner chooses. A later change updates the entry in the same change as its implementation.
 
 | State | Meaning |
 |:---|:---|
 | `recommended` | The reviewer recommendation, standing until an owner chooses |
 | `owner` | The owner choice, with an optional note |
-| `owner` or `recommended`, plus `record` | A later choice, naming the decision record that made it |
 
 ### The Compact Variant
 
@@ -204,7 +203,7 @@ paths: {}
 
 **Statement:** Each pattern MUST record at least two options with rationale and cost, and name the chosen option.
 
-**Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of repeating the research from nothing. An option recorded without its cost gives them no basis to compare.
+**Rationale:** Recording at least two options with their rationale and cost turns a preference into a decision the next team can revisit. When the chosen option stops fitting, the team reads the recorded cost of the alternative instead of repeating the research from nothing. An option recorded without its cost gives them no basis to compare. Settled by [decision/0028-one-default-and-two-pattern-options](decision/0028-one-default-and-two-pattern-options), which caps each pattern at its Default and two options.
 
 **Example:** An expense list considers two sort options: clickable headers and a menu listing sort fields. The entry records the rationale and cost of each, then names the chosen one.
 
@@ -224,20 +223,24 @@ paths: {}
 
 **Example:** For example, the Claimwick catalog starts its expense header entry from `litespec/frontend/patterns/record-detail#record-header`, keeps the pattern option IDs, and records the owner choice.
 
-```json
-{
-  "id": "expense-header",
-  "group": "record-detail",
-  "library": "litespec/frontend/patterns/record-detail#record-header",
-  "decision": { "option": "title-state-breadcrumb-one-primary-action", "source": "owner" },
-  "compact": { "breakpoint": "compact", "behavior": "The header stacks under the title." },
-  "implementations": { "svelte": { "status": "adopted" } }
-}
+```yaml
+id: expense-header
+group: record-detail
+library: litespec/frontend/patterns/record-detail#record-header
+decision:
+  option: title-state-breadcrumb-one-primary-action
+  source: owner
+compact:
+  breakpoint: compact
+  behavior: The header stacks under the title.
+implementations:
+  svelte:
+    status: adopted
 ```
 
 The entry names the pattern's default option and records `owner` as the source, so the choice stands as settled and the platform team builds it in its own components.
 
-**Reviewed for:** Which decisions lack `owner` or `recommended`, pose an agent proposal as an owner choice, or change the choice without naming their record? Look in the catalog decisions.
+**Reviewed for:** Which decisions lack `owner` or `recommended`, or pose an agent proposal as an owner choice? Look in the catalog decisions.
 
 ### Declare the Compact Behavior
 
@@ -283,7 +286,7 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.
 
-**Example:** A route departing from the chosen option names `decision.record`, such as `.litespec/intent/decisions/0014-expense-sort-menu.yaml`.
+**Example:** A route departing from the chosen option names a decision record, such as `.litespec/intent/decisions/0014-expense-sort-menu.yaml`.
 
 **Reviewed for:** Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.
 
@@ -333,9 +336,9 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** An option seen beside its rivals is judged on appearance rather than on its description, which is how owners actually choose. The pattern's page on the LiteSpec site already draws every LiteSpec option at desktop and phone widths, so a product registry only needs to draw the patterns and options the product added, at compact and full widths. The catalog `registry` field names the command or path that renders them.
+**Rationale:** An option seen beside its rivals is judged on appearance rather than on its description, which is how owners actually choose. The pattern's page on the LiteSpec site already draws every LiteSpec option at desktop and phone widths, so a product registry only needs to draw the patterns and options the product added, at compact and full widths.
 
-**Reviewed for:** Which product-added options miss the registry at compact or full widths? Look at the registry command or path the catalog names.
+**Reviewed for:** Which product-added options miss the registry at compact or full widths? Look in the product registry.
 
 ### Report Pattern Feedback After the Work
 

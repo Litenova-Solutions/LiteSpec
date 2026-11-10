@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records an exception for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
+The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -20,14 +20,14 @@ Add one `PackageReference` in `apps/api/Directory.Build.props` so every project 
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="4.1.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="5.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 `PrivateAssets="all"` keeps the analyzer out of any package you publish. Keep the version in one central place to satisfy `litespec/workspace/dependencies#pin-every-dependency-version-centrally`: with central package management, put the version in `apps/api/Directory.Packages.props` instead:
 
 ```xml
-<PackageVersion Include="LiteSpec.Analyzers" Version="4.1.0" />
+<PackageVersion Include="LiteSpec.Analyzers" Version="5.0.0" />
 ```
 
 and omit `Version` from the `PackageReference`. Never add a second copy in a project file.
@@ -67,7 +67,7 @@ dotnet build apps/api/Shop.slnx
 Each finding is an error by default, fails the build, and names the provision it enforces. A typical first line reads:
 
 ```text
-error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/4.1.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
+error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/5.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
 ```
 
 The trailing address is the help link: it opens the provision the rule enforces, here `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. In Visual Studio the same error appears in the Error List with its ID, file, and line, and the tooltip carries the help link. In the terminal, `dotnet build` prints the line above.
@@ -147,14 +147,14 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where an exception allows it, as the next step describes.
+Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where a departure allows it, as the next step describes.
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record an exception of kind `departure` that covers the provision, with its reason and expiry date, as [the model page](../core/model.md) describes. Keep the record at `.litespec/governance/exceptions/<name>.yaml`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // exception: .litespec/governance/exceptions/domain-docs-deferred.yaml
+#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```
@@ -166,13 +166,13 @@ Or scope an `.editorconfig` entry to the one file:
 dotnet_diagnostic.LS1011.severity = suggestion
 ```
 
-The example above quiets `litespec/backend/dotnet/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record: the record carries the departure, and the suppression only quiets the compiler where the record allows.
+The example above quiets `litespec/backend/dotnet/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record: the departure carries the reason, and the suppression only quiets the compiler where the record allows.
 
 ## Check
 
 Confirm the setup with these checks:
 
-- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones an exception covers.
+- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones a departure covers.
 - Add a temporary enum to a Domain folder and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.
 - Claim only `intent` and `behavior` in `layers` in `.litespec/project.yaml` and rebuild: the build lists no `LS` diagnostics. Claim `implementation: own` and rebuild with the enum in place: the build still lists no `LS1002`. Set `implementation: litespec` and rebuild: `LS1002` returns.

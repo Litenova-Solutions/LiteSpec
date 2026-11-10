@@ -118,6 +118,31 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.WriteResearch(root, explanation: StandardsFixture.ReplaceFirst(StandardsFixture.ResearchExplanation, "## Notes on Sources", "## Conclusion\n\nAn invented section.\n\n## Notes on Sources")),
         [Diagnostics.Codes.PageUnknownSection]);
 
+    /// <summary>Decision record citing a provision the standards lack.</summary>
+    /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
+    [Fact(DisplayName = "decision record citing a provision the standards lack")]
+    public void DecisionCitesUnknownProvision() => Check(
+        root =>
+        {
+            StandardsFixture.WriteResearch(root);
+            StandardsFixture.WriteDecision(root, "docs/intent/decisions/0001-sample-choice", StandardsFixture.ReplaceFirst(StandardsFixture.DecisionJson, "keep-the-topic-bounded", "keep-the-sample-bounded"));
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "The boundary gives reviewers one testable result.", "The boundary gives reviewers one testable result. Settled by `decision/0001-sample-choice`."));
+            StandardsFixture.RebuildIndex(root);
+        },
+        [Diagnostics.Codes.IdUnknownReference]);
+
+    /// <summary>Research record naming a provision the standards lack, which is dated evidence and stays unchecked.</summary>
+    /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
+    [Fact(DisplayName = "research record may cite a provision the standards lack")]
+    public void ResearchMayCiteUnknownProvision()
+    {
+        using var temp = Cli.Temp("standards");
+        StandardsFixture.Base(temp.Path);
+        StandardsFixture.WriteResearch(temp.Path, StandardsFixture.ReplaceFirst(StandardsFixture.ResearchJson, "The sample shows one finding.", "The sample shows one finding, weighed against `litespec/core/topic#keep-the-sample-bounded`."));
+        var result = StandardsValidator.Validate(temp.Path);
+        Assert.DoesNotContain(result.Diagnostics, item => item.Relative == "docs/intent/research/sample-study.yaml" && item.Code == Diagnostics.Codes.IdUnknownReference);
+    }
+
     /// <summary>Decision carrying an invented section.</summary>
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "decision carrying an invented section")]

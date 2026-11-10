@@ -64,7 +64,7 @@ Every record states what the application does, holds, refuses at runtime, or run
 
 ### Completion Is Computed
 
-What a reader asks first is how much of a thing exists and is proven. The model computes it from code, tests, and passing scenarios, and nobody types it. The book shows completion first, derived from the runs.
+What a reader asks first is how much of a thing is coded and verified. The model computes it from code, tests, and passing scenarios, and nobody types it. The book shows completion first, derived from the runs.
 
 ### Guidance States Its Strength
 
@@ -90,7 +90,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** Every layer below a record MUST carry the name that record gives an act, a name chosen for what the act does in the business.
 
-**Rationale:** A name is a claim about what happens. The right name comes from asking what the act really does, including how it can end, and the record that states the act decides it; the use case, the aggregate method, the event, the permission, the route and the screen label then repeat it. A check that reports two names for one act reports drift, not the answer: the fix brings every layer to the name the intent states, and the intent changes first when its own word is wrong. A rename made only to quiet a check, or a name kept in one layer while the others move, leaves one act with two names.
+**Rationale:** A name is a claim about what happens. The right name comes from asking what the act really does, including how it can end, and the record that states the act decides it; the use case, the aggregate method, the event, the permission, the route and the screen label then repeat it. A check that reports two names for one act reports drift, not the answer: the fix brings every layer to the name the intent states, and the intent changes first when its own word is wrong. A rename made only to quiet a check, or a name kept in one layer while the others move, leaves one act with two names. Settled by [decision/0026-one-name-for-each-concept](decision/0026-one-name-for-each-concept).
 
 **Example:** In the Claimwick product, finance staff send an approved expense's payout to the bank, and the bank can refuse it when the company account cannot cover it. The act is a submission, not a payment: the use case is `submit-payout`, the method `SubmitPayout`, the event `PayoutSubmitted`, the permission `submit-payout`, and the screen's button reads "Submit payout". A later command records whether the bank paid or refused.
 
@@ -296,7 +296,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** A consumer MUST NOT write completion by hand, because the model computes it from code, tests, and passing scenarios.
 
-**Rationale:** What a reader asks first is how much of a thing exists and is proven. Completion typed by hand turns the plan into a completion report that the next commit falsifies. The [model page](model.md) defines what the model computes.
+**Rationale:** What a reader asks first is how much of a thing is coded and verified. Completion typed by hand turns the plan into a completion report that the next commit falsifies. The [model page](model.md) defines what the model computes.
 
 **Example:** The book shows a use case complete when its handler exists and its scenarios pass, with the model deriving that from the runs.
 
@@ -326,7 +326,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** A command, check, generated file, or package MUST exist only while the owner approves it and something uses it.
 
-**Rationale:** Each command, check, generated file, or package adds maintenance, failure modes, and concepts every later reader learns. A tool nothing uses is removed instead of kept beside its replacement.
+**Rationale:** Each command, check, generated file, or package adds maintenance, failure modes, and concepts every later reader learns. A tool nothing uses is removed instead of kept beside its replacement. Settled by [decision/0029-delete-the-unwired-language-checker](decision/0029-delete-the-unwired-language-checker), [decision/0031-remove-only-the-timing-variable](decision/0031-remove-only-the-timing-variable) and [decision/0034-measure-mutation-before-gating](decision/0034-measure-mutation-before-gating), and the same rule removes project fields in [decision/0025-remove-fields-nothing-reads](decision/0025-remove-fields-nothing-reads).
 
 **Example:** A check nobody runs is removed with its command.
 

@@ -6,6 +6,7 @@ namespace LiteSpec.Cli.Tests.Rules;
 public sealed class RulesCommandTests
 {
     /// <summary>Help prints the usage text and exits zero.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void RulesHelpPrintsUsage()
     {
@@ -16,6 +17,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>No target prints the usage text and exits 2.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void RulesNoTargetPrintsUsage()
     {
@@ -26,6 +28,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>An unknown option is a usage error and exits 2.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void RulesUnknownOptionExits2()
     {
@@ -36,6 +39,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A root without a project file exits 2.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void RulesMissingProjectFileExits2()
     {
@@ -47,6 +51,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A target naming no file or record exits 1.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void RulesUnknownTargetExits1()
     {
@@ -57,6 +62,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A handler path lists grouped one-line provisions with their reasons.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesHandlerListsGroupedProvisions()
     {
@@ -78,6 +84,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A checked provision prints as one line with its analyzer ID and without its statement.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesCheckedProvisionsPrintOneLineWithCodes()
     {
@@ -93,6 +100,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A layer-wide provision prints by identifier only and without its statement.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesLayerWideProvisionsPrintByIdOnly()
     {
@@ -108,6 +116,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>Full output prints the checked and layer-wide statements that the compact output shortens.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesFullPrintsCheckedAndLayerWideStatements()
     {
@@ -123,6 +132,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A code path in a project that claims no code returns no provisions and says why.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesIntentAndBehaviorCodePathReturnsNoProvisionsAndSaysWhy()
     {
@@ -139,6 +149,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A record identifier in a project that claims intent and behavior returns the provisions about records and no code provisions.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesIntentAndBehaviorRecordIdReturnsRecordsProvisions()
     {
@@ -152,6 +163,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A code path in a project that claims its own code and proof returns no provisions about LiteSpec's code.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesOwnCodePathExcludesLiteSpecCodeProvisions()
     {
@@ -167,6 +179,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A record identifier lists the provisions that govern the record.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesRecordIdListsProvisions()
     {
@@ -180,6 +193,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>Full output adds the rationale and example under each item.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesFullPrintsRationaleAndExample()
     {
@@ -196,6 +210,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A convention whose scope matches the path prints beside the LiteSpec provisions.</summary>
+    /// <proves>litespec/core/scopes#record-each-replaced-default</proves>
     [Fact]
     public void RulesConventionAppearsForMatchingPath()
     {
@@ -210,6 +225,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A live departure replaces the provision its covers names; an expired one does not.</summary>
+    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
     [Fact]
     public void RulesDepartureReplacesCoveredProvision()
     {
@@ -227,6 +243,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>Full output prints the departure consequences instead of the provision example.</summary>
+    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
     [Fact]
     public void RulesFullPrintsDepartureConsequences()
     {
@@ -241,6 +258,7 @@ public sealed class RulesCommandTests
     }
 
     /// <summary>A layer-projects endpoint derives its layer from the project name.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void RulesLayeredEndpointUsesProjectName()
     {

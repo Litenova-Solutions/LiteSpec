@@ -116,7 +116,7 @@ The diagram shows the three project choices and what each decides.
 
 **Statement:** A consumer MUST name in `layers` in `.litespec/project.yaml` each record layer it claims, with `litespec` or `own` for Implementation and Proof, leaving layers out only from the bottom.
 
-**Rationale:** Teams adopt LiteSpec in parts: the record model alone, records with marked code, records with acceptance tests, or all of it, and with their own architecture or test practice where they have one. Naming each layer lets every tool check exactly the part the team uses, so a missing test project is not a finding for a team that claims no Proof, and a team that keeps its own code layout still gets its marks checked. Leaving layers out from the bottom keeps every remaining link whole, because each layer points up to the one above it.
+**Rationale:** Teams adopt LiteSpec in parts: the record model alone, records with marked code, records with acceptance tests, or all of it, and with their own architecture or test practice where they have one. Naming each layer lets every tool check exactly the part the team uses, so a missing test project is not a finding for a team that claims no Proof, and a team that keeps its own code layout still gets its marks checked. Leaving layers out from the bottom keeps every remaining link whole, because each layer points up to the one above it. Settled by [decision/0027-projects-claim-record-layers](decision/0027-projects-claim-record-layers).
 
 **Example:** The running Claimwick example claims all four layers with `litespec`. A product that marks its code in its own layout and proves no scenarios yet claims `intent`, `behavior` and `implementation: own`, and `model check` reports no `use-case-unverified` finding for it.
 
@@ -144,7 +144,7 @@ The diagram shows the three project choices and what each decides.
 
 **Statement:** A consumer MUST select every extension whose activation criteria apply, and no extension whose criteria do not.
 
-**Rationale:** Conditional capabilities stay inactive until a documented product or engineering condition applies, so no project carries caching, messaging, or tenancy machinery it never justified. Selecting exactly the extensions whose criteria hold keeps the active rule set minimal and reviewable. The manifest's extension list is the closed set a project selects from, so there is no informal extension.
+**Rationale:** Conditional capabilities stay inactive until a documented product or engineering condition applies, so no project carries caching, messaging, or tenancy machinery it never justified. Selecting exactly the extensions whose criteria hold keeps the active rule set minimal and reviewable. The manifest's extension list is the closed set a project selects from, so there is no informal extension. Settled by [decision/0030-limit-the-jobs-extension](decision/0030-limit-the-jobs-extension) for the jobs extension, which keeps the subjects a small team follows.
 
 **Example:** Caching, durable messaging, and multitenancy are extensions; the extension index lists each with its activation criteria.
 
@@ -263,7 +263,7 @@ paths:
 
 **Statement:** A consumer MUST write every LiteSpec file a person edits, the project file, the records, the glossary and the pattern catalog, in YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment, while files that programs exchange, such as check results, the model and `--format json` output, stay JSON.
 
-**Rationale:** People write these files and review them in pull requests, so one syntax with comments and no brace noise keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own.
+**Rationale:** People write these files and review them in pull requests, so one syntax with comments and no brace noise keeps every edit readable, and one syntax across the folder means a reader learns it once. The schema comment gives an editor completion and validation without a key in the data, and `schemaVersion` tells a tool which shape the file holds. Programs gain nothing from YAML, so their output stays JSON, which every tool reads without a parser of its own. Settled by [decision/0023-every-handwritten-file-in-yaml](decision/0023-every-handwritten-file-in-yaml).
 
 **Example:** Claimwick's `.litespec/project.yaml` starts with the comment naming `https://litespec.dev/<version>/schemas/litespec-project.schema.yaml`, then `schemaVersion: 1`, and lists its layers, size, shape and stacks as YAML keys; its check results under `.litespec/proof/checks/` stay JSON files written by its harness.
 

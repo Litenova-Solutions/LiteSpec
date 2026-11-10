@@ -127,7 +127,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `result/submit-expense.receipt-missing` | `refusal` | `spending.receipt-missing` | The expense is above the threshold and carries no receipt. |
 
     Never write the generic forbidden or invalid-input refusals: the use case derives them from its access and input. This satisfies `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`. A refusal that stores the attempt carries `recorded: true`; a success with recorded outcomes inside it carries `codes`. Each refusal explains what the caller sees. The code is stable across releases. The backend stack derives the HTTP status from the outcome. This satisfies `litespec/backend/api#use-consistent-status-codes`.
-12. Write the scenarios. A scenario is one working example in `given`, `when`, `then`: the situation, the action, and the expected ending. Each scenario names the result it ends in. A scenario with no proving test yet becomes a gap exception record with an expiry date. This satisfies `litespec/core/use-cases#write-every-scenario-in-given-when-then` and `litespec/core/use-cases#name-the-result-each-scenario-ends-in`.
+12. Write the scenarios. A scenario is one working example in `given`, `when`, `then`: the situation, the action, and the expected ending. Each scenario names the result it ends in. A scenario with no proving test yet becomes a departure with an `expiresOn` date and an `exit`. This satisfies `litespec/core/use-cases#write-every-scenario-in-given-when-then` and `litespec/core/use-cases#name-the-result-each-scenario-ends-in`.
 
     | Scenario | Given | When | Then | Result |
     |:---|:---|:---|:---|:---|
@@ -181,4 +181,4 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
 - One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, events, reactions, jobs, notifications, settings, and permissions.
 - Every identifier is person-chosen, every citation resolves, and every edge between records is declared.
-- Every scenario is proved by a passing test or covered by a gap exception.
+- Every scenario is proved by a passing test or covered by a departure with an expiry date.

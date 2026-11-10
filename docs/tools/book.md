@@ -74,4 +74,4 @@ The shards are:
 - `search-<n>.js`: the search rows: id, title, type and excerpt each.
 - `security.js`: the security items: cross-tenant access, outside calls and personal or sensitive data.
 
-Records that no parent rule places are unplaced: the manifest lists them, and the console line names them with the failed `record-parent-missing` rule.
+Records that no parent rule places are unplaced: the manifest lists them, and the console line names them with the failed `record-parent-missing` finding.

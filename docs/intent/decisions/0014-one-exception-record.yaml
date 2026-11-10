@@ -1,9 +1,9 @@
 type: decision
 id: decision/0014-one-exception-record
-title: One Exception Record
+title: One Departure Record
 options:
-  - name: One exception record with scope and expiry
-    pros: One shape carries every waiver with its reason, scope and end date, and covers only what it names.
+  - name: One departure record with scope and expiry
+    pros: One shape carries every departure with its reason, scope and, for a gap, its end date, and covers only what it names.
     cons: Deviations, known gaps, deferrals and the frozen phase all migrate to the one record in one change.
   - name: Keep four mechanisms and tighten each
     pros: Each mechanism keeps its readers.
@@ -14,8 +14,8 @@ options:
   - name: Every finding blocks
     pros: No waiver, no waiver abuse.
     cons: One-person teams stall on advisory findings.
-choice: One exception record with scope and expiry
-consequences: "`litespec/core/departures#record-accepted-gaps-as-departures`, `litespec/core/departures#record-a-project-wide-lowering-as-a-departure` and `litespec/core/release#record-accepted-debt-as-a-departure` state the mechanisms this decision unifies; the Governance pages replace them with the one exception record."
-reopenedWhen: A waiver appears that covers neither a provision nor named finding codes.
+choice: One departure record with scope and expiry
+consequences: "The departure record is the one shape for every departure. `kind` is gone, `covers` names a provision, a page or finding codes, and `expiresOn` is set only for a gap the team means to close; a lasting choice carries no date and never expires. `litespec/core/departures#record-accepted-gaps-as-departures`, `litespec/core/departures#record-a-project-wide-lowering-as-a-departure` and `litespec/core/release#record-accepted-debt-as-a-departure` state the uses this decision unifies. The decision also fixes the analyzer rule: an analyzer matches a departure by its `covers` against its own LS rule ID."
+reopenedWhen: A departure appears that covers neither a provision, a page nor named finding codes.
 basedOn:
   - research/lower-layers-practice

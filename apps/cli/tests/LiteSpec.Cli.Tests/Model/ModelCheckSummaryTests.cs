@@ -110,6 +110,7 @@ public sealed partial class ModelCheckSummaryTests
     /// <summary>A dead check option is rejected as an unknown option.</summary>
     /// <param name="option">The dead option to pass.</param>
     /// <param name="value">The value to pass with the option.</param>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Theory]
     [InlineData("--level", "G")]
     [InlineData("--out", "model.json")]
@@ -124,6 +125,7 @@ public sealed partial class ModelCheckSummaryTests
 
     /// <summary>A format other than json or text is a usage error, not human text.</summary>
     /// <param name="format">The unsupported format value to pass.</param>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Theory]
     [InlineData("xml")]
     [InlineData("yaml")]

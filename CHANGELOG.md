@@ -1,36 +1,378 @@
 # Changelog
 
-## v4.1.0
+## v5.0.0
 
-LiteSpec 4.1.0 ships the `litespec` command line as a native executable for Windows, Linux and macOS, so a project runs it with or without .NET. The records, provisions and schemas are those of 4.0.0 at the new release address. A consumer upgrades by changing the tool version and `reviewedLiteSpecVersion` together.
+LiteSpec 5.0.0 lets a project claim only the record layers it uses, writes every file a person edits in YAML, replaces exceptions with departures, and ships the `litespec` command line as a native executable for Windows, Linux and macOS. It is a major release: a consumer upgrades by following the steps in Part H, then running `litespec model check` until it is clean.
 
-### Part A: A Native Command Line on Every Platform
+### Part A: Claim the Record Layers the Project Uses
 
-- The CLI compiles ahead of time with .NET Native AOT for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` and `osx-arm64`. The binary needs no .NET runtime, and a full `model check` of the Claimwick example takes about half the time it took on the .NET runtime.
-- `LiteSpec.Cli` on NuGet is a per-platform tool package: `dotnet tool install`, `dotnet tool restore` and `dotnet litespec` work unchanged and pick the native package for the machine. Every other platform gets a framework-dependent package that runs on the .NET 10 runtime.
-- Each GitHub release carries a standalone archive per platform, a `SHA256SUMS` file, and `install.sh` and `install.ps1`, which install an archive without .NET. Every archive and package carries a build provenance attestation that `gh attestation verify` checks. The packages publish to nuget.org alone, so the release no longer attaches them.
-- The Linux glibc binaries run on glibc 2.28 and later, such as RHEL 8, Debian 10 and Ubuntu 20.04, and the musl binaries on Alpine 3.21 and later. A Linux binary needs only the C library: the CLI computes SHA-256 itself rather than through OpenSSL, so it also runs where .NET finds no OpenSSL it loads, such as Fedora 45 with OpenSSL 4 alone or a bare container image.
+- `layers` in the project file replaces the conformance level. A project names each record layer it claims, `intent`, `behavior`, `implementation` and `proof`, leaving layers out only from the bottom; `implementation` and `proof` each take `litespec`, LiteSpec's practice for the layer, or `own`, which keeps the team's practice and checks only that code and tests mark their records.
+- Every provision and every finding code carries the record layer it governs and whether it ties that layer to the records (`trace`). `model check`, `rules`, the book and the analyzers report only what the claim covers, and the book shows an unclaimed layer as not claimed.
+- A page's Scope block names its `Concern`; a provision's Applies to line may name its `layer` and `trace`.
+- The operations alert and runbook checks belong to the `delivery` extension.
+- The analyzers read the claim: the traceability rules run when Implementation is claimed, the architecture rules when it follows `litespec`, and LS4001 when Proof is claimed.
 
-### Part B: Running the CLI Without .NET
+### Part B: People Write YAML, Programs Exchange JSON
 
-- `litespec init --install standalone` writes a project that runs the CLI as `litespec`: no `.config/dotnet-tools.json`, and an agent context that names `litespec <command>`. The default, `--install tool`, writes the .NET tool manifest and names `dotnet litespec <command>` as before.
-- Run in a consumer root, the install scripts install the release that `.litespec/project.json` reviews, so `reviewedLiteSpecVersion` pins a standalone install the way the tool manifest pins a .NET tool.
-- The `release-mismatch` finding names both ways to install the reviewed release.
-- The CLI overview documents every way to install and run the CLI: the local .NET tool, the global tool, `dnx`, the install scripts, a manual download, a source checkout, and CI.
+- `.litespec/project.yaml`, `litespec.manifest.yaml`, the schemas (`schemas/<name>.schema.yaml`), the pattern catalog (`.litespec/implementation/patterns/catalog.yaml`), the UI source lock (`ui-source-lock.yaml`) and the presets are YAML that states its `schemaVersion` and names its schema in a first-line `# yaml-language-server: $schema=<url>` comment. Check results, `--format json` output, the book data and the provision index stay JSON.
+- The project file holds `frontends` and `ui.package` at the top level, `stackConfig.dotnet.webapi` and `worker` as lists, and no `conformance`, `$schema`, `unstructuredDocs`, `paths.records`, `surfaces`, `sites`, `apiSolution` or `refusals.prefixes`.
+- The schemas publish at `https://litespec.dev/5.0.0/schemas/<name>.schema.yaml`, including the new `check-result.schema.yaml`; a harness result that fails it reports `proof-invalid`.
+- `litespec model render` writes the UI source lock: each component's digest, the preset and the CLI pin.
 
-### Part C: Proof on Every Platform
+### Part C: One Departure Record
 
-- CI builds the native binary on each platform, runs the CLI test suite against it on Windows, Linux and macOS on x64 and arm64, and runs the standalone binary on a set of Linux distributions.
-- The CLI builds every JSON document it writes as a JSON node tree, and `dotnet build` fails on reflection-based serialization in the CLI and its shared library.
-- `model check --since` and the contract diff against a git revision read the changed files in the form of the root they were given, so a root reached through a symbolic link or a junction, such as a macOS temporary folder, or one in a subfolder of its repository, scopes the right files.
-- `global.json` sets SDK 10.0.114, the lowest SDK whose bundled runtime has no published advisory, because the native build restores the ILCompiler package at that runtime version.
+- The departure record replaces the exception record. It covers provisions, pages or finding codes on its `subject` or `paths`, with a reason; a gap the team means to close carries `expiresOn` and `exit`, and a lasting choice carries neither. It lives in `.litespec/governance/departures/`.
+- `departure-expired` and `departure-invalid` replace the exception codes. No departure covers the findings the model needs to load.
 
-### Part D: One Schema Evaluator With No Fee
+### Part D: One Name per Concept
 
-- The CLI and the maintainer tool check every schema with LiteSpec's own JSON Schema evaluator. JsonSchema.Net, whose binaries charge a maintenance fee to revenue-generating users from version 9.0.0, leaves the repository and every shipped binary.
-- The evaluator implements JSON Schema draft 2020-12 without dynamic references, anchors, `unevaluatedProperties`, `unevaluatedItems` and `contentSchema`; `litespec-maintain validate` fails a schema that uses one of those with `SCHEMA_UNSUPPORTED_KEYWORD`.
-- A passing `oneOf` or `anyOf` no longer reports the shapes it rejected, such as a missing `url` on a research source that names its `path`. A `false` subschema reports the value as not allowed, a property-name failure names the property, and a percent-encoded reference resolves.
-- A plain build restores no Native AOT compiler, so the lock files stay the same on every SDK feature band and operating system.
+- A finding's `outcome` is `blocking`, `reported` or `covered`; `severity` leaves the JSON, and `model check` ends with `N findings, M blocking, K covered.`
+- Completion stages read `unfulfilled`, `specified`, `coded` and `verified`.
+- The qualified identifier is gone; a record shows its folder path and its module.
+- Provision strengths read `required`, `default` and `advisory`.
+
+### Part E: A Smaller, Bound Standard
+
+- Near-duplicate provisions keep one home, and every citation follows it. Departures, testing and formats each have one page; how-to guides live under `docs/guide/`.
+- Each UI pattern offers its Default and at most two other options.
+- The `jobs` extension is cut to what a small team follows; `realtime` and `customer-rules` are extensions; tenant delegation is part of `tenancy`; sagas and workflow engines leave the standard.
+- `litespec-maintain validate` reports a cited finding code, template or example record that does not exist, a `Checked by` line for the model check that names no code, a page the index does not reach, and a pattern with more than three options. The finding-code, folder and pin tables are generated.
+- `quality/testing.md` holds one mock rule for every stack: a test substitutes only what the code under test does not own and what is not deterministic.
+- An agent never weakens a test that proves a scenario, and `model check --since` reports `proof-hash-drift` for a proving test that changed while its scenario did not.
+
+### Part F: A Native Command Line on Every Platform
+
+- The CLI compiles ahead of time with .NET Native AOT for `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` and `osx-arm64`, and needs no .NET runtime.
+- `LiteSpec.Cli` on NuGet is a per-platform tool package, so `dotnet tool install`, `dotnet tool restore` and `dotnet litespec` work unchanged; every GitHub release carries a standalone archive per platform, `SHA256SUMS`, `install.sh` and `install.ps1`, each with a build provenance attestation.
+- `litespec init --install standalone` writes a project that runs the CLI as `litespec`; in a consumer root, the install scripts install the release that `.litespec/project.yaml` reviews.
+- The Linux glibc binaries run on glibc 2.28 and later and the musl binaries on Alpine 3.21 and later; the CLI computes SHA-256 itself.
+- The CLI and the maintainer tool check every schema with LiteSpec's own JSON Schema evaluator, draft 2020-12 without dynamic references, anchors, `unevaluatedProperties`, `unevaluatedItems` and `contentSchema`.
+- Every archive and package ships `THIRD-PARTY-NOTICES.md`.
+
+### Part G: Provision Changes Since v4.0.0
+
+<!-- generated:provision-diff -->
+### Provision Changes Since v4.0.0
+
+Added (162):
+
+- `litespec/backend/domain#raise-the-past-tense-of-a-methods-own-verb`
+- `litespec/backend/dotnet/domain#keep-clock-reads-and-random-values-out-of-domain`
+- `litespec/backend/dotnet/domain#keep-double-and-float-out-of-exact-quantities`
+- `litespec/backend/dotnet/domain#mark-each-changing-root-method-with-one-use-case`
+- `litespec/backend/dotnet/naming#check-architectural-role-suffixes`
+- `litespec/backend/dotnet/naming#check-repository-variable-names`
+- `litespec/backend/dotnet/naming#check-result-part-names`
+- `litespec/backend/dotnet/persistence#keep-pipeline-owned-collaborators-out-of-handlers`
+- `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record`
+- `litespec/backend/dotnet/stack#pin-the-test-packages-in-the-manifest`
+- `litespec/backend/dotnet/stack#run-mutation-testing-with-stryker-net`
+- `litespec/backend/dotnet/stack#start-the-integration-database-in-a-container`
+- `litespec/backend/dotnet/stack#test-with-xunit-v3-on-microsoft-testing-platform`
+- `litespec/backend/persistence#test-persistence-against-the-pinned-database`
+- `litespec/core/agent#protect-proofs-from-implementation-edits`
+- `litespec/core/departures#depart-from-advice-without-a-record`
+- `litespec/core/departures#record-a-project-wide-lowering-as-a-departure`
+- `litespec/core/departures#record-accepted-gaps-as-departures`
+- `litespec/core/language#cite-shared-provisions-in-their-published-form`
+- `litespec/core/language#exclude-declared-content-paths-from-the-ascii-check`
+- `litespec/core/language#exclude-the-compound-that-names-another-concept`
+- `litespec/core/language#follow-the-identifier-form-of-each-record-type`
+- `litespec/core/language#keep-wire-codes-stable`
+- `litespec/core/language#name-records-with-one-to-six-words`
+- `litespec/core/language#record-the-project-vocabulary-as-data`
+- `litespec/core/language#reject-a-recorded-synonym-inside-its-scope`
+- `litespec/core/language#resolve-every-identifier-citation`
+- `litespec/core/language#review-each-term-for-its-lookalikes`
+- `litespec/core/language#state-mannered-terms-literally`
+- `litespec/core/language#use-every-identifier-once`
+- `litespec/core/language#use-the-declared-record-identifier-grammar`
+- `litespec/core/model#classify-every-specification-file`
+- `litespec/core/model#declare-structured-specification-metadata`
+- `litespec/core/model#derive-a-computed-fact-instead-of-restating-it`
+- `litespec/core/model#keep-code-out-of-intent-and-behavior-fields`
+- `litespec/core/model#rewrite-every-link-on-a-rename`
+- `litespec/core/model#scaffold-pages-and-reserve-identifiers`
+- `litespec/core/model#start-each-explanation-file-with-its-title`
+- `litespec/core/model#state-what-happens-in-every-behavior-statement`
+- `litespec/core/model#use-one-metadata-carrier`
+- `litespec/core/model#validate-a-single-page-before-committing`
+- `litespec/core/release#record-accepted-debt-as-a-departure`
+- `litespec/core/scope#claim-the-record-layers-the-project-uses`
+- `litespec/core/scope#write-every-hand-written-litespec-file-in-yaml`
+- `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`
+- `litespec/core/scopes#give-every-provision-its-layer-and-trace`
+- `litespec/ext/customer-rules#bound-tenant-rule-runs-per-period`
+- `litespec/ext/customer-rules#isolate-hook-failures-from-the-trigger`
+- `litespec/ext/customer-rules#record-the-customer-rules-catalog`
+- `litespec/ext/customer-rules#refuse-unknown-catalog-entries`
+- `litespec/ext/customer-rules#state-what-a-hook-may-not-assume`
+- `litespec/ext/customer-rules#state-what-a-hook-may-rely-on`
+- `litespec/ext/customer-rules#treat-tenant-rules-as-data`
+- `litespec/ext/customer-rules#version-catalog-entries`
+- `litespec/ext/delivery#ask-only-unanswered-questions`
+- `litespec/ext/delivery#close-incident-departures-within-seven-days`
+- `litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check`
+- `litespec/ext/delivery#hold-back-example-rows-from-the-implementing-worker`
+- `litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
+- `litespec/ext/delivery#name-the-requirement-and-runbook-on-every-alert`
+- `litespec/ext/delivery#point-each-operations-file-at-its-decision`
+- `litespec/ext/delivery#restrict-a-worker-to-its-paths`
+- `litespec/ext/delivery#verify-before-accepting-worker-output`
+- `litespec/ext/delivery#write-a-brief-before-handing-off`
+- `litespec/ext/realtime#authenticate-and-authorize-subscriptions`
+- `litespec/ext/realtime#bound-realtime-resources`
+- `litespec/ext/realtime#declare-realtime-freshness`
+- `litespec/ext/realtime#place-realtime-code-at-outer-boundaries`
+- `litespec/ext/realtime#reconnect-and-refresh-authoritative-state`
+- `litespec/ext/realtime#record-realtime-need`
+- `litespec/ext/realtime#record-transport-support`
+- `litespec/ext/realtime#reject-cosmetic-realtime-adoption`
+- `litespec/ext/realtime#reject-unbounded-slow-client-buffering`
+- `litespec/ext/realtime#revalidate-long-lived-access`
+- `litespec/ext/realtime#subscribe-through-narrow-functions`
+- `litespec/ext/realtime#tolerate-notification-ordering-differences`
+- `litespec/ext/realtime#use-server-sent-events-for-notifications`
+- `litespec/ext/realtime#use-signalr-for-interactive-messaging`
+- `litespec/frontend/blazor/stack#bind-blazor-routes-to-their-address`
+- `litespec/frontend/blazor/stack#build-blazor-forms-on-the-shared-form-entry-point`
+- `litespec/frontend/blazor/stack#declare-blazor-outside-the-controlled-ui-contract`
+- `litespec/frontend/blazor/stack#keep-blazor-test-mocks-to-the-owned-boundaries`
+- `litespec/frontend/blazor/stack#keep-class-and-style-bindings-out-of-blazor-page-code`
+- `litespec/frontend/blazor/stack#keep-layouts-and-error-components-unmarked`
+- `litespec/frontend/blazor/stack#keep-the-blazor-frame-routes-and-modules`
+- `litespec/frontend/blazor/stack#load-blazor-route-data-before-its-view-renders`
+- `litespec/frontend/blazor/stack#localize-blazor-copy-through-a-pinned-dictionary-library`
+- `litespec/frontend/blazor/stack#mark-each-blazor-route-entry-with-its-screen`
+- `litespec/frontend/blazor/stack#name-blazor-drawings-with-the-visual-suffix`
+- `litespec/frontend/blazor/stack#render-raw-html-only-through-markupstring`
+- `litespec/frontend/blazor/stack#run-blazor-logic-tests-on-xunitv3`
+- `litespec/frontend/blazor/stack#show-route-failure-in-the-frames-route-error-component`
+- `litespec/frontend/blazor/stack#use-a-layout-for-the-blazor-shell`
+- `litespec/frontend/blazor/stack#validate-blazor-route-parameters-before-loading`
+- `litespec/frontend/mobile/android/stack#accept-app-links-in-the-host-activity`
+- `litespec/frontend/mobile/android/stack#apply-system-insets-to-each-screen`
+- `litespec/frontend/mobile/android/stack#declare-android-outside-the-controlled-ui-contract`
+- `litespec/frontend/mobile/android/stack#hold-one-navigation-controller-in-the-platform-project`
+- `litespec/frontend/mobile/android/stack#keep-android-core-test-mocks-to-the-owned-boundaries`
+- `litespec/frontend/mobile/android/stack#keep-hosts-and-failure-views-unmarked`
+- `litespec/frontend/mobile/android/stack#keep-screen-styles-in-resources`
+- `litespec/frontend/mobile/android/stack#keep-the-android-frame-routes-and-modules`
+- `litespec/frontend/mobile/android/stack#mark-each-android-screen-with-its-screen-record`
+- `litespec/frontend/mobile/android/stack#read-android-copy-through-the-generated-resource-class`
+- `litespec/frontend/mobile/android/stack#request-audio-focus-before-playing-sound`
+- `litespec/frontend/mobile/android/stack#request-permissions-at-the-point-of-use`
+- `litespec/frontend/mobile/android/stack#route-the-back-gesture-through-the-activity-dispatcher`
+- `litespec/frontend/mobile/android/stack#run-android-core-tests-on-xunitv3`
+- `litespec/frontend/mobile/android/stack#store-navigation-state-in-the-activity-bundle`
+- `litespec/frontend/mobile/android/stack#store-persisted-state-in-app-private-storage`
+- `litespec/frontend/mobile/android/stack#use-the-system-pickers-for-media`
+- `litespec/frontend/web/react/stack#add-the-tanstack-query-plugin-to-the-client-generator`
+- `litespec/frontend/web/react/stack#apply-the-page-code-lint-to-route-and-module-code`
+- `litespec/frontend/web/react/stack#declare-route-search-parameters-in-validatesearch`
+- `litespec/frontend/web/react/stack#hold-a-routes-parts-in-its-route-file`
+- `litespec/frontend/web/react/stack#keep-layouts-error-components-and-route-groups-unmarked`
+- `litespec/frontend/web/react/stack#keep-react-test-mocks-to-the-owned-libraries`
+- `litespec/frontend/web/react/stack#keep-the-react-frame-routes-and-modules`
+- `litespec/frontend/web/react/stack#keep-the-tone-table-in-one-states-file`
+- `litespec/frontend/web/react/stack#load-intent-targets-before-navigation`
+- `litespec/frontend/web/react/stack#mark-each-react-route-entry-with-its-screen`
+- `litespec/frontend/web/react/stack#meet-the-locale-dictionary-contract-with-the-dictionary-library`
+- `litespec/frontend/web/react/stack#name-drawings-with-the-visual-suffix`
+- `litespec/frontend/web/react/stack#prefetch-route-reads-in-the-loader`
+- `litespec/frontend/web/react/stack#read-route-data-with-usesuspensequery`
+- `litespec/frontend/web/react/stack#render-raw-html-only-through-dangerouslysetinnerhtml`
+- `litespec/frontend/web/react/stack#run-the-registry-build-command`
+- `litespec/frontend/web/react/stack#show-route-failure-in-the-route-error-component`
+- `litespec/frontend/web/react/stack#use-named-props-for-class-and-style-bindings`
+- `litespec/frontend/web/react/stack#use-the-shared-package-form-hook`
+- `litespec/frontend/web/react/stack#use-the-tsx-extension-on-shared-files`
+- `litespec/frontend/web/svelte/stack#add-the-tanstack-query-plugin-to-the-client-generator`
+- `litespec/frontend/web/svelte/stack#apply-the-page-code-lint-to-route-and-module-code`
+- `litespec/frontend/web/svelte/stack#declare-route-parameters-in-a-schema`
+- `litespec/frontend/web/svelte/stack#hold-a-routes-parts-in-its-folder`
+- `litespec/frontend/web/svelte/stack#keep-layout-files-error-pages-and-route-groups-unmarked`
+- `litespec/frontend/web/svelte/stack#keep-route-group-names-in-router-syntax`
+- `litespec/frontend/web/svelte/stack#keep-svelte-test-mocks-to-the-owned-libraries`
+- `litespec/frontend/web/svelte/stack#keep-the-svelte-frame-routes-and-modules`
+- `litespec/frontend/web/svelte/stack#keep-the-tone-table-in-one-states-file`
+- `litespec/frontend/web/svelte/stack#load-intent-targets-before-navigation`
+- `litespec/frontend/web/svelte/stack#mark-svelte-route-entries`
+- `litespec/frontend/web/svelte/stack#meet-the-locale-dictionary-contract-with-the-dictionary-library`
+- `litespec/frontend/web/svelte/stack#name-drawings-with-the-visual-suffix`
+- `litespec/frontend/web/svelte/stack#name-the-module-extension-on-each-import`
+- `litespec/frontend/web/svelte/stack#prefetch-route-reads-in-the-load`
+- `litespec/frontend/web/svelte/stack#read-route-data-with-a-query-creator`
+- `litespec/frontend/web/svelte/stack#render-raw-html-only-through-one-template-tag`
+- `litespec/frontend/web/svelte/stack#resolve-imports-through-the-lib-alias`
+- `litespec/frontend/web/svelte/stack#run-the-registry-build-command`
+- `litespec/frontend/web/svelte/stack#show-route-failure-in-the-route-error-page`
+- `litespec/frontend/web/svelte/stack#use-named-attributes-for-class-and-style-bindings`
+- `litespec/frontend/web/svelte/stack#use-the-shared-package-form-creator`
+- `litespec/frontend/web/svelte/stack#use-the-svelte-extension-on-shared-files`
+- `litespec/frontend/web/svelte/stack#write-components-in-runes-mode`
+- `litespec/quality/testing#derive-expected-values-from-the-scenario`
+- `litespec/quality/testing#keep-the-test-projects-the-size-requires`
+- `litespec/quality/testing#prove-each-rule-through-its-scenarios`
+- `litespec/quality/testing#prove-each-scenario-through-the-public-boundary`
+- `litespec/quality/testing#refuse-surviving-mutants-on-changed-lines`
+- `litespec/quality/testing#use-evidence-rather-than-one-coverage-target`
+- `litespec/quality/testing#use-one-mock-rule-for-every-stack`
+
+Removed (114):
+
+- `litespec/backend/dotnet/domain#expose-cross-record-keys-from-the-aggregate`
+- `litespec/backend/dotnet/domain#raise-the-past-tense-of-a-methods-own-verb`
+- `litespec/backend/dotnet/stack#identify-an-aggregate-root-by-its-mark-and-state-record-at-traced`
+- `litespec/backend/identifiers#cite-shared-provisions-in-their-published-form`
+- `litespec/backend/identifiers#follow-the-identifier-form-of-each-record-type`
+- `litespec/backend/identifiers#keep-wire-codes-stable`
+- `litespec/backend/identifiers#name-records-with-one-to-six-words`
+- `litespec/backend/identifiers#resolve-every-identifier-citation`
+- `litespec/backend/identifiers#use-every-identifier-once`
+- `litespec/backend/persistence#test-persistence-against-postgresql`
+- `litespec/backend/testing#derive-expected-values-from-the-scenario`
+- `litespec/backend/testing#mark-the-test-that-proves-each-scenario`
+- `litespec/backend/testing#prove-each-rule-through-its-scenarios`
+- `litespec/backend/testing#refuse-surviving-mutants-on-changed-lines`
+- `litespec/backend/testing#test-application-coordination`
+- `litespec/backend/testing#use-evidence-rather-than-one-coverage-target`
+- `litespec/core/access#declare-every-operation-on-every-external-system`
+- `litespec/core/access#name-every-entry-point-with-its-kind`
+- `litespec/core/authoring#classify-every-specification-file`
+- `litespec/core/authoring#declare-structured-specification-metadata`
+- `litespec/core/authoring#derive-a-computed-fact-instead-of-restating-it`
+- `litespec/core/authoring#exclude-declared-content-paths-from-the-ascii-check`
+- `litespec/core/authoring#exclude-the-compound-that-names-another-concept`
+- `litespec/core/authoring#keep-code-out-of-intent-and-behavior-fields`
+- `litespec/core/authoring#record-the-project-vocabulary-as-data`
+- `litespec/core/authoring#reject-a-recorded-synonym-inside-its-scope`
+- `litespec/core/authoring#review-each-term-for-its-lookalikes`
+- `litespec/core/authoring#rewrite-every-link-on-a-rename`
+- `litespec/core/authoring#scaffold-pages-and-reserve-identifiers`
+- `litespec/core/authoring#start-each-explanation-file-with-its-title`
+- `litespec/core/authoring#state-mannered-terms-literally`
+- `litespec/core/authoring#state-what-happens-in-every-behavior-statement`
+- `litespec/core/authoring#use-one-metadata-carrier`
+- `litespec/core/authoring#use-the-declared-record-identifier-grammar`
+- `litespec/core/authoring#validate-a-single-page-before-committing`
+- `litespec/core/layers#close-incident-exceptions-within-seven-days`
+- `litespec/core/model#give-every-use-case-its-results`
+- `litespec/core/model#reach-behavior-from-every-intent-record`
+- `litespec/core/model#record-a-project-wide-lowering-as-an-exception`
+- `litespec/core/model#record-accepted-gaps-as-exceptions`
+- `litespec/core/principles#build-only-what-the-specification-states`
+- `litespec/core/principles#declare-every-edge`
+- `litespec/core/principles#enter-facts-from-the-world-as-research-or-constraints`
+- `litespec/core/principles#map-each-engine-step-to-one-use-case`
+- `litespec/core/principles#prove-scenarios-with-tests`
+- `litespec/core/principles#raise-what-a-lower-layer-needs-to-the-owner`
+- `litespec/core/principles#write-each-layer-from-the-layer-above`
+- `litespec/core/release#record-accepted-debt-as-an-exception`
+- `litespec/core/scope#declare-the-conformance-level`
+- `litespec/core/scope#keep-every-record-about-the-software`
+- `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-exception`
+- `litespec/core/scopes#give-every-provision-a-conformance-level`
+- `litespec/core/writing#keep-company-facts-out-of-intent-prose`
+- `litespec/core/writing#name-each-title-in-its-record-type-form`
+- `litespec/ext/automation#bound-tenant-rule-runs-per-period`
+- `litespec/ext/automation#isolate-hook-failures-from-the-trigger`
+- `litespec/ext/automation#record-the-automation-catalog`
+- `litespec/ext/automation#refuse-unknown-catalog-entries`
+- `litespec/ext/automation#state-what-a-hook-may-not-assume`
+- `litespec/ext/automation#state-what-a-hook-may-rely-on`
+- `litespec/ext/automation#treat-tenant-rules-as-data`
+- `litespec/ext/automation#version-catalog-entries`
+- `litespec/ext/compat#declare-published-facts-as-integration-events`
+- `litespec/ext/delegation#ask-only-unanswered-questions`
+- `litespec/ext/delegation#hold-back-example-rows-from-the-implementing-worker`
+- `litespec/ext/delegation#restrict-a-worker-to-its-paths`
+- `litespec/ext/delegation#verify-before-accepting-worker-output`
+- `litespec/ext/delegation#write-a-brief-before-delegating`
+- `litespec/ext/delivery#apply-schema-work-before-traffic`
+- `litespec/ext/delivery#keep-schema-work-out-of-startup`
+- `litespec/ext/jobs#bound-the-ingest-buffer`
+- `litespec/ext/jobs#declare-ingest-steps-in-order`
+- `litespec/ext/jobs#declare-the-engine-carrier`
+- `litespec/ext/jobs#define-the-closed-drop-reason-set`
+- `litespec/ext/jobs#discard-poison-records-after-three-attempts`
+- `litespec/ext/jobs#expose-drop-counts-per-reason`
+- `litespec/ext/jobs#keep-engine-retry-configuration-in-implementation`
+- `litespec/ext/jobs#map-each-engine-step-to-one-use-case`
+- `litespec/ext/jobs#name-engine-steps-after-use-cases`
+- `litespec/ext/jobs#read-enrichment-data-from-declared-sources`
+- `litespec/ext/jobs#record-one-drop-reason-per-dropped-record`
+- `litespec/ext/jobs#reject-unmapped-engine-steps`
+- `litespec/ext/jobs#state-each-step-compensation`
+- `litespec/ext/jobs#state-the-freshness-consequence`
+- `litespec/ext/outbox#authenticate-and-authorize-subscriptions`
+- `litespec/ext/outbox#bound-realtime-resources`
+- `litespec/ext/outbox#declare-realtime-freshness`
+- `litespec/ext/outbox#place-realtime-code-at-outer-boundaries`
+- `litespec/ext/outbox#reconnect-and-refresh-authoritative-state`
+- `litespec/ext/outbox#record-realtime-need`
+- `litespec/ext/outbox#record-transport-support`
+- `litespec/ext/outbox#reject-cosmetic-realtime-adoption`
+- `litespec/ext/outbox#reject-unbounded-slow-client-buffering`
+- `litespec/ext/outbox#revalidate-long-lived-access`
+- `litespec/ext/outbox#subscribe-through-narrow-functions`
+- `litespec/ext/outbox#tolerate-notification-ordering-differences`
+- `litespec/ext/outbox#use-server-sent-events-for-notifications`
+- `litespec/ext/outbox#use-signalr-for-interactive-messaging`
+- `litespec/frontend/patterns/dialogs-and-overlays#bottom-sheet-on-a-phone`
+- `litespec/frontend/patterns/forms-and-fields#keep-entered-values-after-a-refused-submit`
+- `litespec/frontend/patterns/lists-and-tables#list-on-a-phone`
+- `litespec/frontend/patterns/navigation#phone-navigation`
+- `litespec/frontend/patterns/page-frames#record-drawer`
+- `litespec/frontend/patterns/page-frames#show-one-primary-action-in-a-page-frame`
+- `litespec/frontend/patterns/record-detail#hold-built-record-headers-to-one-primary-action`
+- `litespec/frontend/patterns/record-detail#record-header-on-a-phone`
+- `litespec/frontend/testing#keep-mocks-at-owned-boundaries`
+- `litespec/frontend/ui#prove-every-result-a-route-calls`
+- `litespec/frontend/web/svelte/components#write-components-in-runes-mode`
+- `litespec/quality/operations#apply-schema-changes-outside-request-startup`
+- `litespec/quality/operations#cover-every-quality-requirement-with-an-alert-or-a-check`
+- `litespec/quality/operations#name-every-runbook-from-an-alert-job-reaction-or-failure-policy`
+- `litespec/quality/operations#name-the-requirement-and-runbook-on-every-alert`
+- `litespec/quality/operations#point-each-operations-file-at-its-decision`
+
+Renamed (13):
+
+- `litespec/backend/dotnet/application#keep-command-handlers-to-load-call-and-stage` to `litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage`
+- `litespec/backend/dotnet/application#keep-query-handlers-free-of-writes` to `litespec/backend/dotnet/application#keep-query-handlers-free-of-repositories`
+- `litespec/core/authoring#state-one-layer-per-page` to `litespec/core/authoring#state-one-tier-per-page`
+- `litespec/core/release#qualify-the-checker-with-known-good-and-known-bad-fixtures` to `litespec/core/release#qualify-the-reader-with-known-good-and-known-bad-fixtures`
+- `litespec/frontend/mobile/screens#restore-the-visitors-place` to `litespec/frontend/mobile/screens#restore-the-users-place`
+- `litespec/frontend/patterns/admin-screens#bringing-data-from-spreadsheets` to `litespec/frontend/patterns/admin-screens#importing-data-from-a-file`
+- `litespec/frontend/patterns/admin-screens#budget-codes-and-advances` to `litespec/frontend/patterns/admin-screens#budget-limits-and-advances`
+- `litespec/frontend/patterns/admin-screens#supplier-invoice` to `litespec/frontend/patterns/admin-screens#subscription-invoices`
+- `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-policy` to `litespec/frontend/patterns/create-edit-remove#publishing-and-unpublishing-a-draft`
+- `litespec/frontend/patterns/forms-and-fields#color-field-for-the-mail-accent` to `litespec/frontend/patterns/forms-and-fields#color-field`
+- `litespec/frontend/patterns/forms-and-fields#repeatable-group-for-budget-codes` to `litespec/frontend/patterns/forms-and-fields#repeatable-group`
+- `litespec/frontend/patterns/lists-and-tables#trips-as-a-grid` to `litespec/frontend/patterns/lists-and-tables#the-layout-of-a-short-list`
+- `litespec/frontend/patterns/record-detail#expense-record` to `litespec/frontend/patterns/record-detail#whole-record-screen`
+
+Extensions added (2):
+
+- `customer-rules`
+- `realtime`
+
+Extensions removed (2):
+
+- `automation`
+- `delegation`
+
+<!-- /generated:provision-diff -->
+
+### Part H: Upgrading a Consumer
+
+1. Install `LiteSpec.Cli` 5.0.0 (`dotnet tool update LiteSpec.Cli --version 5.0.0`) or rerun the install script.
+2. Rename `.litespec/project.json` to `.litespec/project.yaml` and write it as YAML: add the schema comment and `schemaVersion: 1`, set `reviewedLiteSpecVersion: 5.0.0`, and replace `conformance` with `layers`: `records` becomes `intent` and `behavior`; `traced` becomes all four with `implementation: own` and `proof: own`; `full` becomes all four with `litespec`, plus the `delivery` extension when the project runs alerts and runbooks.
+3. Move `paths.frontends` to `frontends` and `paths.uiPackage` to `ui.package`, make `webapi` and `worker` lists, and delete the removed fields Part B names.
+4. Convert the pattern catalog and the UI source lock to YAML at their 5.0.0 paths, drop `kind` and `shell` from the `DESIGN.md` metadata, and run `litespec model render` to rewrite the lock.
+5. Rewrite each exception record as a departure under `.litespec/governance/departures/`: `kind: gap` keeps `expiresOn` and `exit`; `kind: departure` drops `expiresOn` when the choice is lasting; `covers` becomes a list.
+6. Rename the code citations and marks of every provision the Part G list renames, and read `--format json` output for `outcome` instead of `severity` and `known`.
+7. Run `litespec model check` and fix each finding.
 
 ## v4.0.0
 

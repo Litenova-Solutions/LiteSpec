@@ -14,17 +14,17 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 |:---|:---|
 | Path | `litespec.manifest.yaml` at the repository root |
 | Schema | `schemas/litespec-manifest.schema.yaml` |
-| Current version | `4.1.0` |
-| Schema version | `5` |
+| Current version | `5.0.0` |
+| Schema version | `6` |
 
-The current release is `4.1.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
+The current release is `5.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
 
 ### Top-Level Fields
 
 | Field | Type | Required | Default |
 |:---|:---|:---|:---|
 | `$schema` | string | no | none |
-| `schemaVersion` | constant `5` | yes | none |
+| `schemaVersion` | constant `6` | yes | none |
 | `version` | string | yes | none |
 | `name` | string | yes | none |
 | `agentsEntry` | string | yes | none |
@@ -39,8 +39,8 @@ The current release is `4.1.0`. Each release is a complete contract that states 
 What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
-- `schemaVersion` is the constant `5`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"4.1.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
+- `schemaVersion` is the constant `6`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
+- `version` is the release version, currently `"5.0.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -129,6 +129,7 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `Aspire.Hosting.JavaScript` | `13.6.1` |
 | nuget | `Aspire.Hosting.PostgreSQL` | `13.6.1` |
 | nuget | `AwesomeAssertions` | `9.6.0` |
+| nuget | `dotnet-stryker` | `5.0.0` |
 | nuget | `EFCore.NamingConventions` | `10.0.1` |
 | nuget | `FsCheck` | `3.6.0` |
 | nuget | `LightBDD.XUnit3` | `3.12.1` |
@@ -149,7 +150,7 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `LiteBus.Queries.Abstractions` | `7.0.0` |
 | nuget | `LiteBus.Storage.PostgreSql` | `7.0.0` |
 | nuget | `LiteBus.Testing.Mediation` | `7.0.0` |
-| nuget | `LiteSpec.Analyzers` | `4.1.0` |
+| nuget | `LiteSpec.Analyzers` | `5.0.0` |
 | nuget | `Marten` | `9.50.1` |
 | nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.0.13` |
 | nuget | `Microsoft.AspNetCore.DataProtection` | `10.0.13` |
@@ -196,6 +197,8 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | npm | `@lucide/svelte` | `1.67.0` |
 | npm | `@modelcontextprotocol/server` | `2.3.1` |
 | npm | `@playwright/test` | `1.64.1` |
+| npm | `@stryker-mutator/core` | `10.1.1` |
+| npm | `@stryker-mutator/vitest-runner` | `10.1.1` |
 | npm | `@sveltejs/adapter-node` | `6.0.0` |
 | npm | `@sveltejs/adapter-static` | `4.1.0` |
 | npm | `@sveltejs/kit` | `3.0.1` |
@@ -303,4 +306,4 @@ The `registry` block names the component source:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `4.1.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.
+The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `5.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.

@@ -181,7 +181,7 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 
 ### Maintain
 
-- [Maintain overview](maintain/README.md): the two commands that keep the standard itself consistent.
+- [Maintain overview](maintain/README.md): the three commands that keep the standard itself consistent.
 - [Validate Standards](maintain/validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
 - [Generate Provisions](maintain/provisions.md): rebuilds the provision index from the active standards.
 
@@ -240,7 +240,7 @@ One product worked end to end, from its first record to a passing check.
 Tutorials take a reader to a first working result; how-to guides solve one stated problem in a running project.
 
 - [Guides overview](guide/README.md): which to read when: tutorials for a first result, how-to guides for one goal.
-- [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one implemented use case.
+- [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one coded use case.
 - [Model a Behavior Module](tutorial/model-domain.md): specify one spending module the builder reads.
 - [Start with Records Only](guide/start-with-records-only.md): claim the Intent and Behavior records alone, and check them with the model check and the book.
 - [Add a Svelte Frontend](guide/add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.

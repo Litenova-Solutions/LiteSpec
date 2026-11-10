@@ -15,7 +15,7 @@ options:
     pros: A feature carries one list instead of two.
     cons: A goal states an outcome and a problem states a pain, so one list hides which the feature moves.
 choice: Advances for goals, solves for problems
-consequences: "`litespec/core/intent#state-each-feature-with-its-lifecycle` states the renamed fields. Serves keeps one meaning per carrier: a use case, reaction, job, or screen serves journey steps, and a journey serves one goal."
+consequences: "`litespec/core/intent#state-each-feature-with-its-offering` states the renamed fields. Serves keeps one meaning per carrier: a use case, reaction, job, or screen serves journey steps, and a journey serves one goal."
 reopenedWhen: A feature kind appears that moves no goal and declines no problem.
 basedOn:
   - research/intent-hierarchy-evidence

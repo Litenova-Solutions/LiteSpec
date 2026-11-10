@@ -83,4 +83,4 @@ litespec init --preset records --size small --root ./shop
 
 ## Underneath
 
-This command merges `templates/consumer/project.yaml` with `templates/presets/<name>.json` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `.litespec/glossary.yaml`, the example cast as `.litespec/example-cast.md`, and `.litespec/.gitignore`, and writes `.config/dotnet-tools.json` for a tool install. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.
+This command merges `templates/consumer/project.yaml` with `templates/presets/<name>.yaml` from the release the tool carries and writes the result. It copies the scaffold files from `templates/consumer/`, including the glossary as `.litespec/glossary.yaml`, the example cast as `.litespec/example-cast.md`, and `.litespec/.gitignore`, and writes `.config/dotnet-tools.json` for a tool install. Nothing beneath this command is separately runnable. Validate the written file with `litespec model check`.

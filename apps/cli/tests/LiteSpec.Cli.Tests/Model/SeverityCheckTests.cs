@@ -62,9 +62,10 @@ public sealed class SeverityCheckTests
         Assert.Equal("blocking", pullOutcome);
     }
 
-    /// <summary>An unknown marks value exits 2 with the file error.</summary>
+    /// <summary>An unknown marks value fails the project schema and reports project-invalid.</summary>
+    /// <proves>litespec/core/scope#write-every-hand-written-litespec-file-in-yaml</proves>
     [Fact]
-    public void UnknownMarksExits2()
+    public void UnknownMarksReportsProjectInvalid()
     {
         using var fixture = ModelFixture.Prepare("small");
         BreakMarks(fixture.Path, "yaml");

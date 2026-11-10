@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
@@ -45,12 +44,6 @@ sealed class UiSession
 
     /// <summary>An ISO calendar date.</summary>
     static readonly Regex ExpiryDate = new("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", RegexOptions.Compiled);
-
-    /// <summary>A line ending.</summary>
-    static readonly Regex Newline = new("\\r\\n?", RegexOptions.Compiled);
-
-    /// <summary>Spaces at a line end.</summary>
-    static readonly Regex TrailingSpaces = new("[ \\t]+$", RegexOptions.Compiled | RegexOptions.Multiline);
 
     /// <summary>
     ///     The platform a frontend declares, or null when it declares none.
@@ -632,12 +625,8 @@ sealed class UiSession
             return cached;
         }
 
-        string value;
-        try
-        {
-            value = "sha256:" + Convert.ToHexStringLower(Sha256.Hash(Encoding.UTF8.GetBytes(NormalizeSource(File.ReadAllText(key)))));
-        }
-        catch (Exception cause) when (cause is IOException or UnauthorizedAccessException)
+        var value = SourceDigest.Of(key);
+        if (value is null)
         {
             return null;
         }
@@ -645,14 +634,6 @@ sealed class UiSession
         Digests[key] = value;
         return value;
     }
-
-    /// <summary>
-    ///     Source text with uniform line endings and no trailing spaces.
-    /// </summary>
-    /// <param name="contents">The source text.</param>
-    /// <returns>The normalized source.</returns>
-    static string NormalizeSource(string contents) =>
-        TrailingSpaces.Replace(Newline.Replace(contents, "\n"), "").TrimEnd() + "\n";
 
     // A value read against one of the shipped schemas. The keyword gate runs first,
     // so a schema carrying a keyword outside the draft 2020-12 vocabulary fails

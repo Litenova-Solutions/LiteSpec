@@ -260,9 +260,13 @@ static class ModelCommand
                 var model = ModelBuilder.Build(config);
 
                 // Render writes every generated output: the fenced regions in
-                // explanation files and documents, and the records file each
-                // web frontend imports from its frame.
-                var changed = Renderer.Render(model).Concat(FrontendRecords.Write(model)).ToList();
+                // explanation files and documents, the records file each
+                // web frontend imports from its frame, and the UI source lock
+                // beside the shared package.
+                var changed = Renderer.Render(model)
+                    .Concat(FrontendRecords.Write(model))
+                    .Concat(UiSourceLock.Write(model))
+                    .ToList();
 
                 foreach (var file in changed)
                 {

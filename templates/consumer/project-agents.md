@@ -20,6 +20,8 @@ Write each layer from the layer above it: Intent states the promises, Behavior s
 
 Build only what the specification states, and take anything missing to the owner.
 
+Never delete, skip, or weaken a test that proves a scenario, or change its expected values, unless the scenario changed in the same change; report a test you believe is wrong instead of editing it. (litespec/core/agent#protect-proofs-from-implementation-edits)
+
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect.
 
 A project departure record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)

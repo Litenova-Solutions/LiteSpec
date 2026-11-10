@@ -112,6 +112,7 @@ public sealed class ModelCheckSinceTests
     }
 
     /// <summary>A staged check is rejected as an unknown option.</summary>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]
     public void CheckStagedIsRejected()
     {

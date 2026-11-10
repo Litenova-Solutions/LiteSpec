@@ -109,7 +109,7 @@ Every record uses the same structural words: the record types, the links between
 | scheduled, one-off, manual | The three job kinds. |
 | inline, after-commit, async | The three effect timings. |
 | atomic, per-record, compensated | The three consistency modes. |
-| unfulfilled, specified, coded, verified | The four completion stages, from no fulfiller to every scenario proven. |
+| unfulfilled, specified, coded, verified | The four completion stages, from no fulfiller to every scenario verified. |
 
 ## Which Track to Take
 

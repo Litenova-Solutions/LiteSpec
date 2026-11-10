@@ -113,7 +113,7 @@ Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.yaml` once, into its shared UI package.
 
-**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under an exception recorded against this provision.
+**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a departure recorded against this provision.
 
 **Reviewed for:** Which pinned manifest baselines install outside the shared UI package, or install more than once? Look in the shared package manifest and lock, and the application manifests.
 
@@ -132,11 +132,9 @@ Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen
 **Example:** The metadata block names the package and the floorplans it provides.
 
 ```yaml
-kind: design-contract
-schemaVersion: 1
+schemaVersion: 2
 package: "@claimwick/ui"
 profile: application-balanced
-shell: app-shell
 patterns:
   - work-page
   - list-page
@@ -265,11 +263,11 @@ patterns:
 
 **Applies to:** artifact: any
 
-**Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded exception.
+**Statement:** A token definition MUST carry only the values the declared baseline publishes, except under a recorded departure.
 
-**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks intentional. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded exception keeps a deliberate departure visible in the design contract instead of hidden in the tokens.
+**Rationale:** A token value outside the published ramp is a second palette beside the declared one, and the next author copies the value because it looks intentional. Carrying only the values the declared baseline publishes keeps the palette to what the design baseline designed. A recorded departure keeps the deliberate choice visible in the design contract instead of hidden in the tokens.
 
-**Reviewed for:** Which token values sit outside the declared baseline without a recorded exception? Look in the token definitions and the exception records.
+**Reviewed for:** Which token values sit outside the declared baseline without a recorded departure? Look in the token definitions and the departure records.
 
 ### Keep Separators at the Subtle Step
 

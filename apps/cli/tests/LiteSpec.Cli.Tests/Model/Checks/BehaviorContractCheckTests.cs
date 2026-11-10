@@ -6,6 +6,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the contract checks: typed inputs and payloads, scenario exercises, and door auth.</summary>
 public sealed class BehaviorContractCheckTests
 {
+    /// <summary>Use Case Input Without A Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void UseCaseInputWithoutATypeReports()
     {
@@ -17,6 +19,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "holds input field 'nights' with no type"));
     }
 
+    /// <summary>Use Case Input With An Unknown Type Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void UseCaseInputWithAnUnknownTypeReports()
     {
@@ -28,6 +32,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "with type 'count' outside"));
     }
 
+    /// <summary>Use Case Id Input Without An Of Record Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void UseCaseIdInputWithoutAnOfRecordReports()
     {
@@ -39,6 +45,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "of type id with no of record"));
     }
 
+    /// <summary>Use Case Id Input Naming No Record Reports.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void UseCaseIdInputNamingNoRecordReports()
     {
@@ -50,6 +58,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "reference-unknown", "of 'aggregate/inventory.no-such-room', which no record holds"));
     }
 
+    /// <summary>Use Case Choice Input Without Choices Reports.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void UseCaseChoiceInputWithoutChoicesReports()
     {
@@ -61,6 +71,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "of type choice with no of choices"));
     }
 
+    /// <summary>Typed Inputs With Type Required And Of Pass.</summary>
+    /// <proves>litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification</proves>
     [Fact]
     public void TypedInputsWithTypeRequiredAndOfPass()
     {
@@ -73,6 +85,8 @@ public sealed class BehaviorContractCheckTests
         Assert.False(Reports(model, "field-invalid", "holds input field"));
     }
 
+    /// <summary>Integration Event With A Bad Dataschema Reports.</summary>
+    /// <proves>litespec/core/edges#describe-every-integration-event-for-its-direction</proves>
     [Fact]
     public void IntegrationEventWithABadDataschemaReports()
     {
@@ -84,6 +98,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "holds dataschema 'not a url', which is no URL"));
     }
 
+    /// <summary>Scenario Exercising No Rule Reports.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void ScenarioExercisingNoRuleReports()
     {
@@ -96,6 +112,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "reference-unknown", "exercises 'rule/hold.no-such-rule'"));
     }
 
+    /// <summary>Scenario Exercising A Rule Passes.</summary>
+    /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
     [Fact]
     public void ScenarioExercisingARulePasses()
     {
@@ -110,6 +128,8 @@ public sealed class BehaviorContractCheckTests
         Assert.False(Reports(model, "field-invalid", "exercises"));
     }
 
+    /// <summary>Entry Point With Anonymous Auth Reports.</summary>
+    /// <proves>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</proves>
     [Fact]
     public void EntryPointWithAnonymousAuthReports()
     {
@@ -121,6 +141,8 @@ public sealed class BehaviorContractCheckTests
         Assert.True(Reports(model, "field-invalid", "holds auth 'anonymous' outside"));
     }
 
+    /// <summary>Entry Point With Door Auth Passes.</summary>
+    /// <proves>litespec/core/access#authenticate-every-caller-through-a-declared-auth-kind</proves>
     [Fact]
     public void EntryPointWithDoorAuthPasses()
     {

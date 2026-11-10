@@ -6,6 +6,7 @@ namespace LiteSpec.Cli.Tests.Rules;
 public sealed class PathContextTests
 {
     /// <summary>A command validator file derives the validator artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
     public void RulesValidatorFileDerivesValidatorArtifact()
     {
@@ -21,6 +22,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A repository file derives the repository artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
     public void RulesRepositoryFileDerivesRepositoryArtifact()
     {
@@ -36,6 +38,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A port file under a Ports folder derives the port artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
     public void RulesPortFileDerivesPortArtifact()
     {
@@ -51,6 +54,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A command message file keeps the use-case artifact.</summary>
+    /// <proves>litespec/core/scopes#name-the-artifact-of-every-provision-on-a-page-that-names-one</proves>
     [Fact]
     public void RulesMessageFileKeepsUseCaseArtifact()
     {

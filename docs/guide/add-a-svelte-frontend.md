@@ -8,7 +8,7 @@ A product that serves its web interface from Svelte declares the same web applic
 
 Start with:
 
-- A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases implemented.
+- A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases coded.
 - The `svelte` stack added to the consumer's `.litespec/project.yaml`.
 - The Svelte toolchain release pinned in `litespec.manifest.yaml`.
 

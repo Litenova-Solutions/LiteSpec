@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml'
+$id: 'https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml'
 title: LiteSpec Consumer Project
 type: object
 additionalProperties: false

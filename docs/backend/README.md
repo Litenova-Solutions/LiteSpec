@@ -2,11 +2,11 @@
 
 ## Intent
 
-The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, application, and identifier pages, so every reader finds the rules for the layers their product has and no others.
+The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, and application pages, so every reader finds the rules for the layers their product has and no others.
 
 ## How the Pages Fit Together
 
-The eight principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
+The six principle pages directly in this folder hold for every backend. They say what each layer owns and which direction references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. A team that adds a use case reads the principle page for the layer it touches, then the matching .NET page for the binding.
 
 ## Backend Principles
 

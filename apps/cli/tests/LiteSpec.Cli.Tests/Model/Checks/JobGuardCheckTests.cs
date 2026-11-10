@@ -6,6 +6,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the job guard and schedule checks against hand-built models.</summary>
 public sealed class JobGuardCheckTests
 {
+    /// <summary>Manual Job Without Guard Reports.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
     public void ManualJobWithoutGuardReports()
     {
@@ -17,6 +19,8 @@ public sealed class JobGuardCheckTests
         Assert.Contains("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Manual Job With Guard Passes.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
     public void ManualJobWithGuardPasses()
     {
@@ -28,6 +32,8 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job Without Guard Passes.</summary>
+    /// <proves>litespec/core/automation#guard-every-manual-job</proves>
     [Fact]
     public void ScheduledJobWithoutGuardPasses()
     {
@@ -39,6 +45,8 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("job-guard-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job Without A Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
     public void ScheduledJobWithoutAScheduleReports()
     {
@@ -50,6 +58,8 @@ public sealed class JobGuardCheckTests
         Assert.True(Reports(model, "schedule-invalid", "runs on time with no structured schedule"));
     }
 
+    /// <summary>Scheduled Job Without A Readable Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
     public void ScheduledJobWithoutAReadableScheduleReports()
     {
@@ -61,6 +71,8 @@ public sealed class JobGuardCheckTests
         Assert.Contains("schedule-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Scheduled Job With Cron Passes.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
     public void ScheduledJobWithCronPasses()
     {
@@ -72,6 +84,8 @@ public sealed class JobGuardCheckTests
         Assert.DoesNotContain("schedule-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Manual Job With An Unreadable Schedule Reports.</summary>
+    /// <proves>litespec/core/automation#run-every-job-from-its-declared-kind</proves>
     [Fact]
     public void ManualJobWithAnUnreadableScheduleReports()
     {

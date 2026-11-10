@@ -32,7 +32,7 @@ The browser suite discovers its routes from the generated route tree rather than
 
 ### Pattern Implementation
 
-A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints, and product-added options are drawn in a product registry at the catalog breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`. The catalog `registry` field holds the product registry command or path.
+A product records its UI pattern choices in one catalog, and each chosen pattern needs one implementation per web platform. The catalog names the source path for each platform, for example `packages/ui/src/table/sort-header.tsx` under `react` and `packages/ui/src/table/sort-header.svelte` under `svelte`, so every route composes that implementation, per `litespec/frontend/patterns#implement-a-chosen-pattern-once`. LiteSpec options are reviewed on the pattern's page on the LiteSpec site at the catalog breakpoints, and product-added options are drawn in a product registry at the catalog breakpoints, per `litespec/frontend/patterns#keep-a-visual-registry`.
 
 ### Rules Kept on the Base Page
 
@@ -106,7 +106,7 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 
 **Statement:** The shared package's source lock MUST record the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive.
 
-**Rationale:** The source lock records the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive. Normalizing source before hashing lets two workspaces compute the same digest for identical source. One lock beside one copy is what makes a changed primitive report a fork instead of passing unreported.
+**Rationale:** The source lock records the pinned CLI, the registry address, the paths, the normalized digest, and the dependencies for each primitive. Normalizing source before hashing lets two workspaces compute the same digest for identical source. One lock beside one copy is what makes a changed primitive report a fork instead of passing unreported. `litespec model render` writes the digests, the preset and the CLI pin, so a person reviews a changed digest in the pull request diff and never computes one. Settled by [decision/0024-keep-the-ui-source-lock](decision/0024-keep-the-ui-source-lock).
 
 **Checked by:** `litespec model check` recomputes each digest and reports `ui-sourcelock-invalid` for changed primitive source.
 

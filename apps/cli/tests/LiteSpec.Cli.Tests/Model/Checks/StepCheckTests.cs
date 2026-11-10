@@ -7,6 +7,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the step check counts use cases, reactions and jobs.</summary>
 public sealed class StepCheckTests
 {
+    /// <summary>Use Case Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
     public void UseCaseServingAStepPasses()
     {
@@ -19,6 +21,8 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Reaction Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
     public void ReactionServingAStepPasses()
     {
@@ -31,6 +35,8 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Job Serving A Step Passes.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
     public void JobServingAStepPasses()
     {
@@ -43,6 +49,8 @@ public sealed class StepCheckTests
         Assert.DoesNotContain("step-use-case-missing", TestModel.Codes(model));
     }
 
+    /// <summary>Step With No Server Reports.</summary>
+    /// <proves>litespec/core/model#serve-every-journey-step</proves>
     [Fact]
     public void StepWithNoServerReports()
     {

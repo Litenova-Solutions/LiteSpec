@@ -7,6 +7,7 @@ public sealed class ModelCheckUsageTests
 {
     /// <summary>Cut model subcommand '<paramref name="command"/>' exits 2 as an unknown command.</summary>
     /// <param name="command">The cut subcommand to run.</param>
+    /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Theory]
     [InlineData("approve")]
     [InlineData("review")]

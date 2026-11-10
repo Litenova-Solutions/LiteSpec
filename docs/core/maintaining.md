@@ -42,6 +42,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 |:---|:---|:---|
 | `MANIFEST_*` | The manifest is not valid YAML, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_YAML`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
 | Documentation bindings | A page cites a finding code, template, or example record that does not exist, a `Checked by` line for `litespec model check` names no finding code, the documentation index reaches no path to a page, or a pattern offers more than three options. | `FINDING_CODE_UNKNOWN`, `CHECKED_BY_FINDING_MISSING`, `TEMPLATE_CITED_UNKNOWN`, `EXAMPLE_RECORD_UNKNOWN`, `INDEX_PAGE_MISSING`, `PATTERN_OPTION_COUNT` |
+| Command pages | A command page shows in its Synopsis or Options section an option its command does not parse, or names a LiteSpec command that no usage text in source declares. | `COMMAND_OPTION_UNKNOWN` |
 | `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid YAML, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_YAML`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
 ## Standards
@@ -82,9 +83,9 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Statement:** A minor LiteSpec release MUST keep every provision identifier of its major version, adding provisions and rewording provision text without removing or renaming an identifier.
 
-**Rationale:** Consumers cite provision identifiers in code marks, records, and exceptions, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
+**Rationale:** Consumers cite provision identifiers in code marks, records, and departures, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.
 
-**Example:** A release in the 4.x line adds `litespec/core/scope#claim-the-record-layers-the-project-uses` and rewords a neighboring provision; both keep their identifiers, so every mark and exception written against the 4.x line still resolves.
+**Example:** A release in the 5.x line adds `litespec/core/scope#claim-the-record-layers-the-project-uses` and rewords a neighboring provision; both keep their identifiers, so every mark and departure written against the 5.x line still resolves.
 
 **Reviewed for:** Which provision identifiers did a minor release remove or rename? Compare the provision index at the previous tag with the provision index of the release, beside the changelog entry that lists the generated diff.
 

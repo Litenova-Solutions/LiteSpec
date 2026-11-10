@@ -17,6 +17,7 @@ public sealed class RulesRetrievalTests
 
     /// <summary>The agreed provisions are all returned and precision meets 0.8.</summary>
     /// <param name="name">The evaluation case name.</param>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Theory]
     [MemberData(nameof(CaseNames))]
     public void RulesRetrievalMeetsPrecisionTarget(string name)

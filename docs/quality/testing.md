@@ -41,7 +41,7 @@ An agent that changes code leaves each proving test unchanged unless its scenari
 
 **Statement:** A test MUST substitute only what the code under test does not own and what is not deterministic, and never the code's own repositories, handlers, or modules.
 
-**Rationale:** A substitute stands in for code the test does not run, so each one replaces the project's own behavior with the author's guess of it. A test that stubs its own repositories, handlers, or modules proves the guess instead of the code. A substitute earns its place only where the code under test cannot reach the real thing: an outside provider it does not control, another deployable it calls over the network, such as the API a frontend calls, or a value that changes between runs, such as the clock or randomness.
+**Rationale:** A substitute stands in for code the test does not run, so each one replaces the project's own behavior with the author's guess of it. A test that stubs its own repositories, handlers, or modules proves the guess instead of the code. A substitute earns its place only where the code under test cannot reach the real thing: an outside provider it does not control, another deployable it calls over the network, such as the API a frontend calls, or a value that changes between runs, such as the clock or randomness. Settled by [decision/0032-one-mock-rule-for-every-stack](decision/0032-one-mock-rule-for-every-stack).
 
 **Example:** A payment test substitutes the card provider and a fixed clock, and runs the expense handler against the real expense repository; a Claimwick web component test answers its API calls with network mocks generated from the published API document.
 
@@ -115,6 +115,6 @@ An agent that changes code leaves each proving test unchanged unless its scenari
 
 **Rationale:** Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the departure records that judgement with its reason and expiry instead of blocking the change forever.
 
-**Example:** A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into an exception when the mutant is equivalent.
+**Example:** A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a departure when the mutant is equivalent.
 
-**Reviewed for:** Which changes landed with survivors above the recorded threshold and no covering exception? Look at the mutation report beside the departure records.
+**Reviewed for:** Which changes landed with survivors above the recorded threshold and no covering departure? Look at the mutation report beside the departure records.

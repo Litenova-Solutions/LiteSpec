@@ -6,7 +6,7 @@ using static LiteSpec.Model.Checks.FindingHelpers;
 namespace LiteSpec.Model.Checks;
 
 /// <summary>
-///     The placement checks: every backend mark sits under its record's qualified path with its namespace,
+///     The placement checks: every backend mark sits under the code folder its record's placement names with its namespace,
 ///     every test mirrors the code it proves, every frontend module names a declared module, and every
 ///     module folder names a declared record under a closed folder set.
 /// </summary>
@@ -73,7 +73,7 @@ internal static class PlacementChecks
     }
 
     /// <summary>
-    ///     Reports every backend mark whose namespace or aggregate folder misses its record's qualified path:
+    ///     Reports every backend mark whose namespace or aggregate folder misses the code folder its record's placement names:
     ///     a use case mark outside its aggregate folder, an event or rule mark outside its module or aggregate,
     ///     an external-system mark outside its module, and any of those with a namespace that names another path.
     ///     A mark naming no record, a record of another type, or a record its kind does not take is
@@ -543,7 +543,7 @@ internal static class PlacementChecks
     }
 
     /// <summary>
-    ///     Reports every test whose folder or namespace misses the qualified path of the use case its scenario
+    ///     Reports every test whose folder or namespace misses the code folder of the use case its scenario
     ///     proves. A test proving another record carries no folder rule, and an adapter test under its adapter's
     ///     Infrastructure path is exempt by kind. A mark naming no scenario is <c>mark-unknown</c>, not drift.
     /// </summary>
@@ -595,7 +595,7 @@ internal static class PlacementChecks
         }
     }
 
-    /// <summary>Reports the test folder that misses the qualified path of the scenario's use case.</summary>
+    /// <summary>Reports the test folder that misses the code folder of the scenario's use case.</summary>
     /// <param name="config">The project configuration that holds each test root.</param>
     /// <param name="element">The marked test whose folder is checked.</param>
     /// <param name="mark">The proves mark naming the scenario.</param>
@@ -1122,7 +1122,7 @@ internal static class PlacementChecks
             : next;
     }
 
-    /// <summary>The expected namespace segments after the product for the qualified path of the marked record type.</summary>
+    /// <summary>The expected namespace segments after the product for the code folder of the marked record type.</summary>
     /// <param name="path">The module, aggregate and name the qualified identifier states.</param>
     /// <returns>The expected segments in placement order, or an empty list when the path states no placement.</returns>
     private static List<string> ExpectedSegments((string? Module, string? Aggregate, string? Name, bool IsUseCase) path)

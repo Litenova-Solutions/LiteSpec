@@ -1,0 +1,16 @@
+type: decision
+id: decision/0024-keep-the-ui-source-lock
+title: Keep the UI Source Lock
+options:
+  - name: "Keep the lock, written by `litespec model render`"
+    pros: "A person acknowledges a digest change in the pull request diff, and the tool computes every digest the same way the check does."
+    cons: "`litespec model render` writes one more file, and it reads the manifest baseline and the CLI pin to do so."
+  - name: "Keep the lock, copied by hand"
+    pros: "No command changes, and the lock keeps its shape."
+    cons: "A person computes each digest, and a copy error passes until the check runs against it."
+  - name: "Remove the lock"
+    pros: "No file to keep in step with the source."
+    cons: "A changed primitive passes unreported, so a fork reads as unchanged."
+choice: "Keep the lock, written by `litespec model render`"
+consequences: "`litespec model render` writes each component's digest from its paths, the preset from the manifest baseline and the CLI version from the manifest pin. It keeps the names, addresses, statuses and dependencies the team chose. `litespec model check` remains the guard, and a changed digest shows in the pull request diff. The lock is `ui-source-lock.yaml`, in the folder it held before."
+reopenedWhen: "Source changes arrive that a render cannot digest from the declared paths, or the team stops copying primitives into one shared package."

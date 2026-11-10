@@ -1,5 +1,5 @@
 {
-  "version": "4.1.0",
+  "version": "5.0.0",
   "pages": [
     {
       "file": "docs/README.md",
@@ -40,7 +40,7 @@
       "style": "how-to",
       "area": "analyzers",
       "title": "Check .NET Code with the Analyzers",
-      "intent": "The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records an exception for a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -655,7 +655,7 @@
       "style": "index",
       "area": "backend",
       "title": "Overview",
-      "intent": "The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, application, and identifier pages, so every reader finds the rules for the layers their product has and no others.",
+      "intent": "The backend pages state how a LiteSpec server application is built: its layers, business model, coordination of use cases, storage, HTTP boundary, testing, and record identifiers, with the stack binding that realizes each one. A use case is one command or query with its access, results, and scenarios; a reaction answers an event without a request, and a job runs work on a schedule or by hand. A server project applies these pages through its stack, while a product without a server applies only the architecture, domain, and application pages, so every reader finds the rules for the layers their product has and no others.",
       "sections": [
         "Intent",
         "How the Pages Fit Together",
@@ -2290,7 +2290,7 @@
       "style": "how-to",
       "area": "guide",
       "title": "Folder Reference",
-      "intent": "Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the qualified identifier the tool computes from the placement. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the placement the tool reads from the folder path and the \u0060module\u0060 field. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2501,7 +2501,7 @@
       "path": "intent/decisions/0014-one-exception-record",
       "style": "decision",
       "area": "intent",
-      "title": "One Exception Record",
+      "title": "One Departure Record",
       "intent": "",
       "sections": [
         "Context",
@@ -2601,6 +2601,179 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0023-every-handwritten-file-in-yaml.md",
+      "path": "intent/decisions/0023-every-handwritten-file-in-yaml",
+      "style": "decision",
+      "area": "intent",
+      "title": "Every Hand-Written File in YAML",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision",
+        "Evidence with Confidence"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0024-keep-the-ui-source-lock.md",
+      "path": "intent/decisions/0024-keep-the-ui-source-lock",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep the UI Source Lock",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0025-remove-fields-nothing-reads.md",
+      "path": "intent/decisions/0025-remove-fields-nothing-reads",
+      "style": "decision",
+      "area": "intent",
+      "title": "Remove Fields Nothing Reads",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0026-one-name-for-each-concept.md",
+      "path": "intent/decisions/0026-one-name-for-each-concept",
+      "style": "decision",
+      "area": "intent",
+      "title": "One Name for Each Concept",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0027-projects-claim-record-layers.md",
+      "path": "intent/decisions/0027-projects-claim-record-layers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Projects Claim the Record Layers They Use",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision",
+        "Evidence with Confidence"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0028-one-default-and-two-pattern-options.md",
+      "path": "intent/decisions/0028-one-default-and-two-pattern-options",
+      "style": "decision",
+      "area": "intent",
+      "title": "One Default and Two Options per Pattern",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0029-delete-the-unwired-language-checker.md",
+      "path": "intent/decisions/0029-delete-the-unwired-language-checker",
+      "style": "decision",
+      "area": "intent",
+      "title": "Delete the Unwired Language Checker",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0030-limit-the-jobs-extension.md",
+      "path": "intent/decisions/0030-limit-the-jobs-extension",
+      "style": "decision",
+      "area": "intent",
+      "title": "Jobs Extension Limited to Scheduled and Manual Work",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0031-remove-only-the-timing-variable.md",
+      "path": "intent/decisions/0031-remove-only-the-timing-variable",
+      "style": "decision",
+      "area": "intent",
+      "title": "Remove Only the Timing Variable",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0032-one-mock-rule-for-every-stack.md",
+      "path": "intent/decisions/0032-one-mock-rule-for-every-stack",
+      "style": "decision",
+      "area": "intent",
+      "title": "One Mock Rule for Every Stack",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision",
+        "Evidence with Confidence"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0033-agents-never-weaken-proving-tests.md",
+      "path": "intent/decisions/0033-agents-never-weaken-proving-tests",
+      "style": "decision",
+      "area": "intent",
+      "title": "Agents Never Weaken Proving Tests",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision",
+        "Evidence with Confidence"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0034-measure-mutation-before-gating.md",
+      "path": "intent/decisions/0034-measure-mutation-before-gating",
+      "style": "decision",
+      "area": "intent",
+      "title": "Measure Mutation Testing, Add No Gate",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision",
+        "Evidence with Confidence"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0035-bind-docs-to-tools-and-example.md",
+      "path": "intent/decisions/0035-bind-docs-to-tools-and-example",
+      "style": "decision",
+      "area": "intent",
+      "title": "Bind the Docs to the Tools and the Example",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/research/agent-testing-evidence.md",
+      "path": "intent/research/agent-testing-evidence",
+      "style": "research",
+      "area": "intent",
+      "title": "How Agent-Written Tests Fail and What Guards Them",
+      "intent": "",
+      "sections": [
+        "Answer",
+        "Notes on Sources"
+      ]
+    },
+    {
       "file": "docs/intent/research/behavior-containment-evidence.md",
       "path": "intent/research/behavior-containment-evidence",
       "style": "research",
@@ -2692,6 +2865,18 @@
       ]
     },
     {
+      "file": "docs/intent/research/layer-claim-evidence.md",
+      "path": "intent/research/layer-claim-evidence",
+      "style": "research",
+      "area": "intent",
+      "title": "Which Record Layers a Project Can Leave Out",
+      "intent": "",
+      "sections": [
+        "Answer",
+        "Notes on Sources"
+      ]
+    },
+    {
       "file": "docs/intent/research/lower-layers-practice.md",
       "path": "intent/research/lower-layers-practice",
       "style": "research",
@@ -2756,6 +2941,18 @@
       "style": "research",
       "area": "intent",
       "title": "Schema Evaluator Evidence",
+      "intent": "",
+      "sections": [
+        "Answer",
+        "Notes on Sources"
+      ]
+    },
+    {
+      "file": "docs/intent/research/yaml-format-evidence.md",
+      "path": "intent/research/yaml-format-evidence",
+      "style": "research",
+      "area": "intent",
+      "title": "Can Editors Check YAML Against LiteSpec Schemas",
       "intent": "",
       "sections": [
         "Answer",

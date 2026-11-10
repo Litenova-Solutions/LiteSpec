@@ -8,7 +8,7 @@
         <ToolCommandName>litespec</ToolCommandName>
         <PackageId>LiteSpec.Cli</PackageId>
         <!-- The package version is the release version: keep it equal to version in litespec.manifest.yaml. -->
-        <Version>4.1.0</Version>
+        <Version>5.0.0</Version>
         <Description>The LiteSpec command line: consumer and UI validation, the project model, and the project book. The package carries the LiteSpec release it checks against.</Description>
         <Authors>Litenova Solutions</Authors>
         <PackageTags>litespec;specification;architecture;dotnet-tool;ddd</PackageTags>
@@ -63,6 +63,8 @@
         <!-- The NuGet listing shows this page; it is written for a consumer installing the tool. -->
         <None Include="README.md" Pack="true" PackagePath="README.md" />
         <None Include="../../../../assets/litespec-icon.png" Pack="true" PackagePath="icon.png" Visible="false" />
+        <!-- Every third-party component the package carries, with its license. -->
+        <None Include="../../../../THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="THIRD-PARTY-NOTICES.md" />
     </ItemGroup>
 
     <ItemGroup>

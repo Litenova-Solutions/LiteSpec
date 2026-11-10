@@ -50,6 +50,76 @@ public sealed partial class StandardsValidatorTests
         },
         []);
 
+    /// <summary>The source of a sample command, whose usage text parses the --root, --check and --help options.</summary>
+    const string SampleCommandSource = """"
+        namespace LiteSpec.Authoring;
+
+        internal static class SampleCommand
+        {
+            public const string Usage = """
+                Usage: litespec-maintain sample [--root <path>] [--check] [--help]
+
+                Checks one sample.
+                """;
+        }
+        """";
+
+    /// <summary>The command page of a sample command, which shows the named option in its Synopsis and Options.</summary>
+    /// <param name="command">The command words after <c>litespec-maintain</c>.</param>
+    /// <param name="shown">The option the page shows.</param>
+    /// <returns>The page text.</returns>
+    static string SampleCommandPage(string command, string shown)
+    {
+        var page = StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "`node tools/sample.mjs` runs one sample check.", $"`litespec-maintain {command}` runs one sample check.");
+        page = StandardsFixture.ReplaceFirst(page, "node tools/sample.mjs [root]", $"litespec-maintain {command} [--root <path>] [{shown}]");
+        page = StandardsFixture.ReplaceFirst(page, "node tools/sample.mjs", $"litespec-maintain {command}");
+        return StandardsFixture.ReplaceFirst(page, "## Options\n\nNone.", $"## Options\n\n| Option | Default | Effect |\n|:---|:---|:---|\n| `{shown}` | off | Shows one sample option. |");
+    }
+
+    /// <summary>Writes the sample command page, links it from the index, and regenerates the provision index.</summary>
+    /// <param name="root">The temporary repository root folder.</param>
+    /// <param name="command">The command words after <c>litespec-maintain</c>.</param>
+    /// <param name="shown">The option the page shows.</param>
+    static void WriteSamplePage(string root, string command, string shown)
+    {
+        StandardsFixture.Write(root, "docs/maintain/sample.md", SampleCommandPage(command, shown));
+        StandardsFixture.Write(root, "docs/README.md", StandardsFixture.Readme(extra: "- [Sample Command](maintain/sample.md)\n"));
+        StandardsFixture.RebuildIndex(root);
+    }
+
+    /// <summary>A command page shows an option its command does not parse.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a command page shows an option its command does not parse")]
+    public void CommandPageShowsUnparsedOption() => Check(
+        root =>
+        {
+            StandardsFixture.WriteSource(root, "apps/maintain/src/LiteSpec.Maintain", "SampleCommand.cs", SampleCommandSource);
+            WriteSamplePage(root, "sample", "--bogus");
+        },
+        [Diagnostics.Codes.CommandOptionUnknown]);
+
+    /// <summary>A command page shows only options its command parses.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a command page shows only options its command parses")]
+    public void CommandPageShowsParsedOption() => Check(
+        root =>
+        {
+            StandardsFixture.WriteSource(root, "apps/maintain/src/LiteSpec.Maintain", "SampleCommand.cs", SampleCommandSource);
+            WriteSamplePage(root, "sample", "--check");
+        },
+        [],
+        [Diagnostics.Codes.CommandOptionUnknown]);
+
+    /// <summary>A command page names a LiteSpec command that no usage text in source declares.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a command page names a LiteSpec command no usage text declares")]
+    public void CommandPageNamesUndeclaredCommand() => Check(
+        root =>
+        {
+            WriteSamplePage(root, "missing", "--root");
+        },
+        [Diagnostics.Codes.CommandOptionUnknown]);
+
     /// <summary>A page cites a template the templates folder lacks.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
     [Fact(DisplayName = "a page cites a template the templates folder lacks")]

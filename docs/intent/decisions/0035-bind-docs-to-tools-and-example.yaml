@@ -1,0 +1,16 @@
+type: decision
+id: decision/0035-bind-docs-to-tools-and-example
+title: Bind the Docs to the Tools and the Example
+options:
+  - name: "Validate each tool fact the docs cite, and generate the reference tables"
+    pros: "Each check is a lookup in data the tools hold, so a citation that drifts fails validate."
+    cons: "A page that cites a code, a template, an ID or a pattern option needs that entry to exist, and the generated pages change with their data."
+  - name: "Review the docs by hand"
+    pros: "No checks to maintain."
+    cons: "Thirteen statements about tool behavior drifted, and five of six sampled record IDs in the example did not exist."
+  - name: "Generate every docs page"
+    pros: "No page can drift from the data."
+    cons: "Explanatory prose cannot come from data, and the pages would lose their explanation."
+choice: "Validate each tool fact the docs cite, and generate the reference tables"
+consequences: "`validate` reports a cited finding code that the finding table lacks, a `Checked by` line that names no finding code, a cited template that does not exist, an example record ID that the example lacks, a page that the index omits, and a pattern with more options than its budget allows. The finding table, the folder reference and the manifest pin table are generated from the data the tools hold, and the provision tables are written by `provisions`."
+reopenedWhen: "A documented claim about a tool has no lookup that the tools can make, or a generated page grows past what a reader can review."

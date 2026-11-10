@@ -10,7 +10,7 @@ The pages follow one thread from the product's intent down to its checks:
 
 ```trail
 product        Claimwick: submit, approve, reimburse
-  module       Spending, holding one feature and its requirements
+  module       Spending, holding two features and their requirements
   goal         Decided in days
   problem      Expenses wait weeks
     feature    Approval, with five functional requirements

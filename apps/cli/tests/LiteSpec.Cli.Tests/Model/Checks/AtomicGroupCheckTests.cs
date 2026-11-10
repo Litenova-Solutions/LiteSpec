@@ -6,6 +6,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the atomic group checks: changes equal to the bound group, and groups above four aggregates.</summary>
 public sealed class AtomicGroupCheckTests
 {
+    /// <summary>Atomic Changes Differing From Binds Reports Drift.</summary>
+    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void AtomicChangesDifferingFromBindsReportsDrift()
     {
@@ -18,6 +20,8 @@ public sealed class AtomicGroupCheckTests
         Assert.Contains("atomic-group-drift", TestModel.Codes(model));
     }
 
+    /// <summary>Atomic Changes Equal To Binds Passes.</summary>
+    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void AtomicChangesEqualToBindsPasses()
     {
@@ -30,6 +34,8 @@ public sealed class AtomicGroupCheckTests
         Assert.DoesNotContain("atomic-group-drift", TestModel.Codes(model));
     }
 
+    /// <summary>Rule Binding Five Aggregates Reports Invalid.</summary>
+    /// <proves>litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule</proves>
     [Fact]
     public void RuleBindingFiveAggregatesReportsInvalid()
     {
@@ -43,6 +49,8 @@ public sealed class AtomicGroupCheckTests
         Assert.Equal("A", finding.Tier);
     }
 
+    /// <summary>Rule Binding Four Aggregates Passes.</summary>
+    /// <proves>litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule</proves>
     [Fact]
     public void RuleBindingFourAggregatesPasses()
     {
@@ -54,6 +62,8 @@ public sealed class AtomicGroupCheckTests
         Assert.DoesNotContain("atomic-group-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>Atomic Use Case Changing Five Aggregates Without A Rule Reports Invalid.</summary>
+    /// <proves>litespec/core/use-cases#state-the-consistency-of-every-use-case</proves>
     [Fact]
     public void AtomicUseCaseChangingFiveAggregatesWithoutARuleReportsInvalid()
     {

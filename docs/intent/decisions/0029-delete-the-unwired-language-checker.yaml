@@ -1,0 +1,16 @@
+type: decision
+id: decision/0029-delete-the-unwired-language-checker
+title: Delete the Unwired Language Checker
+options:
+  - name: "Delete the glossary language checker"
+    pros: "No code runs that no command reaches, and each check the release keeps is one that a command runs."
+    cons: "Glossary wording rules rest on review until a later release wires a checker."
+  - name: "Wire the checker into validate now"
+    pros: "Glossary wording is checked on every run."
+    cons: "The checker's findings were never reviewed against the pages, and wiring it adds a feature this release does not plan."
+  - name: "Keep the checker unwired"
+    pros: "No change to the code."
+    cons: "Unwired code drifts from the rules it was written for, and a reader takes it for a check the tools run."
+choice: "Delete the glossary language checker"
+consequences: "The checker leaves the code, and the `refusals.prefixes` setting leaves the project file, since no check reads it once the checker is gone. Fourteen documented finding codes that no check emitted, most of them the checker's output, leave the finding table and the docs, and the four pages that cited them state the rule as a review question."
+reopenedWhen: "The owner funds a glossary checker with its own tests, or a glossary rule appears that review cannot hold."

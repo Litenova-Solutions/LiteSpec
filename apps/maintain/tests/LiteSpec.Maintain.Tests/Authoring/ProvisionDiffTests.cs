@@ -167,22 +167,29 @@ public sealed class ProvisionDiffTests
         Assert.Contains("holds invalid provision data", exception.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Read extensions reads the extension names in order.</summary>
+    /// <summary>The extensions are the ext pages the provision rows name, in order, without the index.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void ReadExtensionsReadsTheExtensionNamesInOrder()
+    public void ExtensionsOfReadsTheExtPagesInOrder()
     {
-        var extensions = ProvisionDiff.ReadExtensions(ManifestYaml("delivery", "alpha"), "litespec.manifest.yaml");
+        var rows = new[]
+        {
+            new ProvisionDiff.Row("litespec/ext/delivery#a", "docs/ext/delivery.md", "A."),
+            new ProvisionDiff.Row("litespec/backend/dotnet/ext/bdd#b", "docs/backend/dotnet/ext/bdd.md", "B."),
+            new ProvisionDiff.Row("litespec/ext/delivery#c", "docs/ext/delivery.md", "C."),
+            new ProvisionDiff.Row("litespec/ext/README#d", "docs/ext/README.md", "D."),
+            new ProvisionDiff.Row("litespec/core/scope#e", "docs/core/scope.md", "E."),
+        };
 
-        Assert.Equal(["alpha", "delivery"], extensions);
+        Assert.Equal(["bdd", "delivery"], ProvisionDiff.ExtensionsOf(rows));
     }
 
-    /// <summary>Read extensions reads no extensions as empty.</summary>
+    /// <summary>Rows with no ext page name no extension.</summary>
     /// <proves>litespec/core/authoring#generate-the-provision-diff-for-each-release</proves>
     [Fact]
-    public void ReadExtensionsReadsNoExtensionsAsEmpty()
+    public void ExtensionsOfReadsNoExtPagesAsEmpty()
     {
-        Assert.Empty(ProvisionDiff.ReadExtensions("version: 0.2.0\n", "litespec.manifest.yaml"));
+        Assert.Empty(ProvisionDiff.ExtensionsOf([new ProvisionDiff.Row("litespec/core/scope#e", "docs/core/scope.md", "E.")]));
     }
 
     /// <summary>Render writes every group with its count.</summary>
@@ -377,25 +384,26 @@ public sealed class ProvisionDiffTests
         using var folder = Cli.Temp("changelog");
         Git(folder.Path, "-c", "init.defaultBranch=main", "init");
         StandardsFixture.Write(folder.Path, "CHANGELOG.md", "# Changelog\n\n## v0.2.0\n\nProse.\n");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
             IndexJson(
                 new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary."),
                 new ProvisionDiff.Row("litespec/core/topic#old-name", "docs/core/topic.md", "Consumers MUST record the topic owner."),
-                new ProvisionDiff.Row("litespec/core/topic#retired-rule", "docs/core/topic.md", "Consumers MUST file the topic weekly.")));
+                new ProvisionDiff.Row("litespec/core/topic#retired-rule", "docs/core/topic.md", "Consumers MUST file the topic weekly."),
+                new ProvisionDiff.Row("litespec/ext/alpha#keep-alpha", "docs/ext/alpha.md", "Consumers MUST keep alpha.")));
         Git(folder.Path, "add", "-A");
         Git(folder.Path, "-c", "user.email=test@example.com", "-c", "user.name=Test", "-c", "commit.gpgsign=false", "commit", "-m", "seed");
         Git(folder.Path, "tag", "v0.1.0");
-        StandardsFixture.Write(folder.Path, "litespec.manifest.yaml", ManifestYaml("alpha", "beta"));
         StandardsFixture.Write(
             folder.Path,
             "docs/reference/provisions.json",
             IndexJson(
                 new ProvisionDiff.Row("litespec/core/topic#keep-the-topic-bounded", "docs/core/topic.md", "Consumers MUST keep the topic inside its declared boundary."),
                 new ProvisionDiff.Row("litespec/core/topic#new-name", "docs/core/topic.md", "Consumers MUST record the topic owner."),
-                new ProvisionDiff.Row("litespec/core/topic#added-rule", "docs/core/topic.md", "Consumers MUST date the topic.")));
+                new ProvisionDiff.Row("litespec/core/topic#added-rule", "docs/core/topic.md", "Consumers MUST date the topic."),
+                new ProvisionDiff.Row("litespec/ext/alpha#keep-alpha", "docs/ext/alpha.md", "Consumers MUST keep alpha."),
+                new ProvisionDiff.Row("litespec/ext/beta#keep-beta", "docs/ext/beta.md", "Consumers MUST keep beta.")));
 
         var stale = Cli.Run("changelog", "--from", "v0.1.0", "--check", "--root", folder.Path);
         Assert.Equal(1, stale.Status);
@@ -411,7 +419,8 @@ public sealed class ProvisionDiffTests
         Assert.Contains("- `litespec/core/topic#added-rule`", changelog, StringComparison.Ordinal);
         Assert.Contains("- `litespec/core/topic#retired-rule`", changelog, StringComparison.Ordinal);
         Assert.Contains("- `litespec/core/topic#old-name` to `litespec/core/topic#new-name`", changelog, StringComparison.Ordinal);
-        Assert.Contains("Added (1):", changelog, StringComparison.Ordinal);
+        Assert.Contains("Added (2):", changelog, StringComparison.Ordinal);
+        Assert.Contains("- `litespec/ext/beta#keep-beta`", changelog, StringComparison.Ordinal);
         Assert.Contains("Removed (1):", changelog, StringComparison.Ordinal);
         Assert.Contains("Renamed (1):", changelog, StringComparison.Ordinal);
         Assert.Contains("Extensions added (1):", changelog, StringComparison.Ordinal);

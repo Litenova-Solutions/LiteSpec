@@ -17,7 +17,7 @@ People write YAML; programs exchange JSON. A file a person edits is YAML that st
 | `.litespec/glossary.yaml` | a person | YAML | `schemaVersion: 2` | `glossary.schema.yaml` |
 | `.litespec/implementation/patterns/catalog.yaml` | a person | YAML | `schemaVersion: 2` | `ui-pattern-catalog.schema.yaml` |
 | The `DESIGN.md` metadata block of the shared UI package | a person | YAML | `schemaVersion: 2` | `design-contract.schema.yaml` |
-| `<ui package>/ui-source-lock.yaml` | a person, when a registry component is installed or changed | YAML | `schemaVersion: 2` | `ui-source-lock.schema.yaml` |
+| `<ui package>/ui-source-lock.yaml` | a person records each registry component; `litespec model render` writes its digests, `preset` and `cli` | YAML | `schemaVersion: 2` | `ui-source-lock.schema.yaml` |
 | `litespec.manifest.yaml` in the LiteSpec repository | a LiteSpec maintainer | YAML | `schemaVersion: 6` | `litespec-manifest.schema.yaml` |
 | `.litespec/proof/checks/*.json` | a drill or harness | JSON | one check result | `check-result.schema.yaml` |
 | `--format json` output, the book data, `docs/reference/provisions.json` and `docs/reference/pages.json` | the tools | JSON | the command's own shape | none |
@@ -38,7 +38,7 @@ The release manifest opens with these fields:
 ```yaml
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 4.1.0
+version: 5.0.0
 name: litespec
 agentsEntry: AGENTS.md
 ```
@@ -57,7 +57,7 @@ The top-level properties describe the project. `schemaVersion` is the constant `
 The consumer template opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: __PROJECT__
@@ -155,7 +155,7 @@ The top-level properties hold one decision per recurring UI question. `schemaVer
 The consumer template catalog opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/ui-pattern-catalog.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/ui-pattern-catalog.schema.yaml
 schemaVersion: 2
 breakpoints:
   compact: 768
@@ -170,12 +170,12 @@ breakpoints:
 | Checked by | `litespec model check` (`litespec/frontend/web/ui#track-source-changes`) |
 | Published URL | `https://litespec.dev/<version>/schemas/ui-source-lock.schema.yaml` |
 
-The team updates the lock whenever it installs or changes a registry component. `schemaVersion` is the constant `2`. `generator` is `shadcn/ui` or `shadcn-svelte`. `cli` is the pinned CLI version. `preset` repeats the manifest baseline the package installs. `registry` names where the source came from. `formatter` names the code formatter. `components` lists every installed primitive with its `name`, `address`, `status`, `paths`, `digest`, and `dependencies`.
+The team records each primitive it installs or changes in `components`, with its `name`, `address`, `status`, `paths`, and `dependencies`. `litespec model render` writes each `digest` from the primitive's source, and writes `cli` and `preset` from the manifest, so no person computes a digest or copies a preset. `schemaVersion` is the constant `2`. `generator` is `shadcn/ui` or `shadcn-svelte`, the CLI that installed the package. `registry` names where the source came from. `formatter` names the code formatter.
 
 The consumer template lock opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/4.1.0/schemas/ui-source-lock.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/ui-source-lock.schema.yaml
 schemaVersion: 2
 generator: shadcn/ui
 ```

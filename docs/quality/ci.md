@@ -27,7 +27,7 @@ A project that selects the [Delivery extension](../ext/delivery.md) adds the mut
 
 ### Measured Checks by Kind
 
-Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows met when its check passes. Availability and latency objectives are evidenced in production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there.
+Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows verified when its check passes. Availability and latency objectives are evidenced in production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there.
 
 | Kind | Tool | Evidence |
 |:---|:---|:---|

@@ -32,17 +32,17 @@ The command lists the provisions grouped by strength, as one-line statements, wi
 
 ### The Published Site
 
-An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/4.1.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
+An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/5.0.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
 
 ```markdown
 ## LiteSpec
-This project follows LiteSpec 4.1.0: size small, shape server, stacks dotnet and react, extensions none.
-Before a task, read https://litespec.dev/4.1.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 5.0.0: size small, shape server, stacks dotnet and react, extensions none.
+Before a task, read https://litespec.dev/5.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 ```
 
-That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/4.1.0/backend/domain.md`.
+That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/5.0.0/backend/domain.md`.
 
 ## The Agent Task Sequence
 

@@ -1104,7 +1104,7 @@ Source: LiteSpec.
 
 ### Provision
 
-One rule, default, or piece of advice on a standards page, carrying an identifier, a strength, and a verification line.
+One rule, convention, or pattern on a standards page, carrying an identifier, a strength, and a verification line.
 
 Source: LiteSpec.
 

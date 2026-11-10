@@ -235,7 +235,7 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **Statement:** A project that chooses otherwise than a provision of Strength default MUST record its choice where the provision names.
 
-**Rationale:** A default holds until the project says otherwise in writing: without the record, a reader cannot tell a deliberate choice from a provision nobody read. The provision names the recording place in its Replacement, so each choice sits where its provision points. Advice asks for no record, which is what sets the two strengths apart.
+**Rationale:** A default holds until the project says otherwise in writing: without the record, a reader cannot tell a deliberate choice from a provision nobody read. The provision names the recording place in its Replacement, so each choice sits where its provision points. An advisory provision asks for no record, which is what sets the two strengths apart.
 
 **Example:** A project that keeps its pattern catalog outside the default path records the path in `paths.uiPatterns`, as the provision's Replacement names.
 

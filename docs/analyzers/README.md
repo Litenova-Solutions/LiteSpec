@@ -6,7 +6,7 @@ The Analyzers section explains the LiteSpec.Analyzers package, which checks .NET
 
 ## How the Pages Fit Together
 
-Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm the layout, read the first findings, and record an exception for a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
+Start with [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md) to install the package once for every project, confirm the layout, read the first findings, and record a deliberate departure. When a build reports a diagnostic, open its rule page from the [Analyzer rules overview](rules/README.md): the page states the provision the rule enforces, where the diagnostic sits, what the rule ignores, and how to fix the code, with a failing example beside a passing one. Every diagnostic also carries a help link that opens the provision it enforces, so an error in the editor leads straight to the rule it broke.
 
 ## How a Rule Decides to Run
 
@@ -32,13 +32,13 @@ Third, a rule runs only on the files whose layer its provision covers. Domain ru
 
 Fourth, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` decide at the end of compilation, after every type is known.
 
-Each diagnostic carries a help link of the form `https://litespec.dev/4.1.0/<page>/#<slug>`, which opens the provision the rule enforces.
+Each diagnostic carries a help link of the form `https://litespec.dev/5.0.0/<page>/#<slug>`, which opens the provision the rule enforces.
 
 ## How a Rule Reads Records
 
 A traceability rule reads the records the code marks name. The package adds `.litespec/project.yaml` and the record pages as additional files, and each rule indexes the records under the docs roots the project file names. With no project file in reach, or a docs root it cannot resolve, every traceability rule and the generator stay silent; the CLI owns that configuration error.
 
-Severity follows the finding tier: a blocking finding is an error and an advisory finding is a warning. A finding that a live exception covers stays silent: an exception is live when it is present and unexpired. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering carries an exception record.
+Severity follows the check level: a blocking finding is an error and an advisory finding is a warning. A finding that a live departure covers stays silent: a departure is live when it has no `expiresOn` date or its date has not passed. An `.editorconfig` entry for the rule id overrides the computed severity, and a project-wide lowering needs a departure record.
 
 ## Severity and Compiler Support
 
@@ -50,7 +50,7 @@ dotnet_diagnostic.LS1011.severity = warning
 dotnet_diagnostic.LS3004.severity = none
 ```
 
-When a project departs from the enforced Standard, it records an exception that covers the provision, rather than suppressing the diagnostic silently.
+When a project departs from the enforced Standard, it records a departure that covers the provision, rather than suppressing the diagnostic silently.
 
 The package targets `netstandard2.0` and needs the .NET 10 SDK, which the manifest names as the .NET stack release. Older compilers cannot load the analyzers.
 
@@ -106,5 +106,5 @@ The analyzer does not check that a `Guid` inside an identifier is a version 7 va
 
 ## Pages in This Section
 
-- [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where an exception allows it.
+- [Check .NET Code with the Analyzers](check-dotnet-code-with-the-analyzers.md): install the package once, read the first findings, keep them as build errors, and lower one only where a departure allows it.
 - [Analyzer rules overview](rules/README.md): find the reference page for each rule, grouped by layer.

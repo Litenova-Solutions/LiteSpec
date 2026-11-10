@@ -20,7 +20,7 @@ Selecting a stack applies its folder and every folder above it, so a stack never
 
 Every SDK, framework, and package version resolves from `litespec.manifest.yaml`, which owns the pins. A version copied from prose, an example, a package search, or agent memory drifts from that pin.
 
-When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure is recorded as an exception whose `covers` names the provision it replaces; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
+When an extension or a departure replaces baseline behavior, it names every baseline provision ID it replaces. The departure names the provision it replaces in `covers`; there is no separate type or folder. `rules <path>` shows the departure in place of the provision. Unrelated stack provisions stay active, so a replacement stays inside the boundary it named. Each extension states how it composes with the Behavior fields its boundary touches, such as the audit field, the tenant scope, or the job record.
 
 ### Selection Diagnostics
 
@@ -67,7 +67,7 @@ These checks report a manifest selection no page can apply, so they are listed h
 
 **Statement:** An extension or a departure MUST name every baseline provision ID it replaces.
 
-**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure is recorded as an exception whose `covers` names the provision, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
+**Rationale:** Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure names the provision in `covers`, and `rules <path>` shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.
 
 **Reviewed for:** Each extension or departure names every baseline provision ID it replaces, with the rest staying active.
 

@@ -40,7 +40,7 @@ public sealed class ScreenCaptureTests
               "packs": ["lite"],
               "stacks": ["dotnet"],
               "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-              "reviewedLiteSpecVersion": "4.1.0",
+              "reviewedLiteSpecVersion": "5.0.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }
             """);

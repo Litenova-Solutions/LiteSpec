@@ -6,7 +6,7 @@
 #   archives/litespec-<version>-<rid>.tar.gz      the standalone release archive, .zip on Windows
 #
 # The archive holds one folder, litespec-<version>-<rid>/, with the executable, the release it
-# carries and the licence. Build the frontend reader and the book client first: the tool
+# carries, the licence and the third-party notices. Build the frontend reader and the book client first: the tool
 # carries them, and packing fails without them.
 #
 #   .github/scripts/build-native.sh <rid> <output-folder>
@@ -28,6 +28,7 @@ stage="$(mktemp -d)"
 trap 'rm -rf "$stage"' EXIT
 cp -R "$project/bin/Release/net10.0/$rid/publish" "$stage/$name"
 cp "$repository/LICENSE" "$stage/$name/LICENSE"
+cp "$repository/THIRD-PARTY-NOTICES.md" "$stage/$name/THIRD-PARTY-NOTICES.md"
 mkdir -p "$out/archives"
 
 case "$rid" in

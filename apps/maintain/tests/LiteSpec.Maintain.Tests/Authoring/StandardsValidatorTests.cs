@@ -380,6 +380,7 @@ public sealed partial class StandardsValidatorTests
             Diagnostics.Codes.IndexContainsProcedure,
             Diagnostics.Codes.IndexIntent,
             Diagnostics.Codes.CheckedByFindingMissing,
+            Diagnostics.Codes.CommandOptionUnknown,
             Diagnostics.Codes.ExampleRecordUnknown,
             Diagnostics.Codes.FindingCodeUnknown,
             Diagnostics.Codes.IndexMissingRouting,

@@ -28,7 +28,7 @@ The local tool pins the release in the repository, so every machine and every CI
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 4.1.0
+dotnet tool install LiteSpec.Cli --version 5.0.0
 dotnet litespec --version
 ```
 
@@ -39,7 +39,7 @@ Commit `.config/dotnet-tools.json`. A teammate or a CI job then runs `dotnet too
 A global tool puts `litespec` on the PATH for every folder on the machine, at one release:
 
 ```bash
-dotnet tool install --global LiteSpec.Cli --version 4.1.0
+dotnet tool install --global LiteSpec.Cli --version 5.0.0
 litespec --version
 ```
 
@@ -50,7 +50,7 @@ litespec --version
 `dnx` runs a release without installing it, which suits a quick look at a repository:
 
 ```bash
-dnx LiteSpec.Cli@4.1.0 model check
+dnx LiteSpec.Cli@5.0.0 model check
 ```
 
 It asks before the first download; `dnx --yes` answers for it.
@@ -67,7 +67,7 @@ export PATH="$HOME/.litespec/bin:$PATH"
 litespec --version
 ```
 
-Add the `export` line to `~/.profile` or `~/.zshrc`. `sh -s -- --version 4.1.0` installs a named release, and `--install-dir <dir>` another folder; `LITESPEC_VERSION` and `LITESPEC_INSTALL_DIR` set the same from the environment.
+Add the `export` line to `~/.profile` or `~/.zshrc`. `sh -s -- --version 5.0.0` installs a named release, and `--install-dir <dir>` another folder; `LITESPEC_VERSION` and `LITESPEC_INSTALL_DIR` set the same from the environment.
 
 On Windows, `install.ps1` keeps each release in `%LOCALAPPDATA%\Programs\LiteSpec\<version>` and puts the active one on the user PATH:
 
@@ -79,13 +79,13 @@ Set `$env:LITESPEC_VERSION` before the command to install a named release, and o
 
 ### 5. Download and Install an Archive
 
-Each [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) holds `litespec-<version>-<rid>.tar.gz` for Linux and macOS, `litespec-<version>-<rid>.zip` for Windows, and `SHA256SUMS`. An archive holds one folder with the executable, the release it carries, and the licence. Keep the folder whole, because the executable reads the release beside it, and put the folder on the PATH.
+Each [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) holds `litespec-<version>-<rid>.tar.gz` for Linux and macOS, `litespec-<version>-<rid>.zip` for Windows, and `SHA256SUMS`. An archive holds one folder with the executable, the release it carries, and the license. Keep the folder whole, because the executable reads the release beside it, and put the folder on the PATH.
 
 Check a download against its checksum and its build provenance attestation, which ties it to the release workflow that built it:
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS
-gh attestation verify litespec-4.1.0-linux-x64.tar.gz --repo Litenova-Solutions/LiteSpec
+gh attestation verify litespec-5.0.0-linux-x64.tar.gz --repo Litenova-Solutions/LiteSpec
 ```
 
 A browser marks a download as coming from the internet. On macOS, the archive is not notarized, so clear the mark before the first run with `xattr -dr com.apple.quarantine <folder>`. On Windows, SmartScreen asks before the first run of an unsigned executable; `Unblock-File` on the archive before extracting it clears the mark. The install scripts and the .NET tool download without the mark, so neither prompt appears.
