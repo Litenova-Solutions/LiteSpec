@@ -366,10 +366,10 @@ public sealed class PlacementCheckTests
         File.WriteAllText(file, "namespace " + @namespace + ";\n\npublic sealed class " + @class + "\n{\n}\n");
     }
 
-    /// <summary>One record with its qualified identifier.</summary>
+    /// <summary>One record with its placement path.</summary>
     /// <param name="type">The record type.</param>
     /// <param name="id">The record id.</param>
-    /// <param name="qualified">The qualified identifier.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <returns>The record.</returns>
     static LiteSpec.Model.Record Rec(string type, string id, string qualified, string root)
@@ -389,9 +389,9 @@ public sealed class PlacementCheckTests
         };
     }
 
-    /// <summary>The module a record with the qualified identifier sits under: its first segment, when the identifier names one.</summary>
+    /// <summary>The module a record with the placement path sits under: its first segment, when the path names one.</summary>
     /// <param name="type">The record type.</param>
-    /// <param name="qualified">The qualified identifier.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
     /// <returns>The module name, or null when the identifier names no module.</returns>
     static string? ModuleOf(string type, string qualified)
     {
@@ -400,9 +400,9 @@ public sealed class PlacementCheckTests
         return segments.Length >= 2 && segments[0] != type ? segments[0] : null;
     }
 
-    /// <summary>The folder a record with the qualified identifier sits in, under the behavior modules folder.</summary>
+    /// <summary>The folder a record with the placement path sits in, under the behavior modules folder.</summary>
     /// <param name="type">The record type.</param>
-    /// <param name="qualified">The qualified identifier.</param>
+    /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
     /// <returns>The folder path, or empty when the identifier names no module.</returns>
     static string FolderOf(string type, string qualified)
     {

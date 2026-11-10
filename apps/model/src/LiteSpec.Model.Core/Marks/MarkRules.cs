@@ -71,7 +71,7 @@ public static class MarkRules
 
     /// <summary>
     ///     Gets the record types a <c>follows</c> mark may name, as bare type names:
-    ///     the provision namespace and the decision and exception records.
+    ///     the provision namespace and the decision and departure records.
     /// </summary>
     public static IReadOnlyList<string> FollowsRecordTypes => FollowsTypes;
 

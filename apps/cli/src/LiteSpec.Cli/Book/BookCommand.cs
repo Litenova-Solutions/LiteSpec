@@ -287,7 +287,7 @@ static class BookCommand
         return totals;
     }
 
-    /// <summary>The search rows in identifier order: id, title, type and excerpt each, with the qualified identifier appended when it differs.</summary>
+    /// <summary>The search rows in identifier order: id, title, type and excerpt each, with the folder path and module appended when present.</summary>
     /// <param name="index">The model index that holds the raw record objects.</param>
     /// <param name="details">The enriched record details keyed by record identifier.</param>
     /// <returns>The search rows in identifier order, each holding identifier, title, type and excerpt.</returns>

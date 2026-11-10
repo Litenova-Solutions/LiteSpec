@@ -210,11 +210,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Skipped when", lexicon.Fields["skippedWhen"]);
         Assert.Equal("Runs", lexicon.Fields["runs"]);
         Assert.Equal("Emits", lexicon.Fields["emits"]);
-        Assert.Equal("Driven by", lexicon.Fields["drivenBy"]);
-        Assert.Equal("Reaction", lexicon.Fields["reaction"]);
-        Assert.Equal("Job", lexicon.Fields["job"]);
-        Assert.Equal("Person", lexicon.Fields["person"]);
-        Assert.Equal("Due within", lexicon.Fields["dueWithin"]);
         Assert.Equal("Binds", lexicon.Fields["binds"]);
         Assert.Equal("Exercises", lexicon.Fields["exercises"]);
         Assert.Equal("Background", lexicon.Fields["background"]);
@@ -260,7 +255,6 @@ public sealed class BookLexiconTests
         Assert.Equal("Label", lexicon.Fields["label"]);
         Assert.Equal("Classification", lexicon.Fields["classification"]);
         Assert.Equal("Effective from", lexicon.Fields["effectiveFrom"]);
-        Assert.Equal("Compensation", lexicon.Fields["compensation"]);
         Assert.Equal("Restart", lexicon.Fields["restart"]);
 
         Assert.False(lexicon.Fields.ContainsKey("by"));

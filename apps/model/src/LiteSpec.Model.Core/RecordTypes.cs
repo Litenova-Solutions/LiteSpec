@@ -238,7 +238,6 @@ public static class RecordTypes
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
             ["dataClasses"] = new HashSet<string> { "reaction", "job", "decision", "requirement" },
-            ["compensation"] = new HashSet<string> { "use-case" },
             ["freshness"] = new HashSet<string>(),
             ["erasure"] = new HashSet<string> { "external-system", "integration-event" },
             ["allows"] = new HashSet<string> { "permission" },

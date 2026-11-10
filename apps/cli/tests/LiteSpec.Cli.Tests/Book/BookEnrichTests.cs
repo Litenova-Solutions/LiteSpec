@@ -503,21 +503,16 @@ public sealed class BookEnrichTests
     [Fact]
     public void Wave5LinkObjectsFormRecordEdges()
     {
-        var saga = Record("aggregate", "aggregate/lending.hold-queue", "Hold Queue", "approved", "approved", """{"kind": "saga", "steps": [{"id": "hold-place", "runs": "use-case/lending.return-copy", "compensation": {"mode": "use-case", "useCase": "use-case/lending.borrow-copy"}, "guard": "the hold exists"}]}""");
         var useCase = Record("use-case", "use-case/lending.borrow-copy", "Borrow Copy", "approved", "approved");
-        var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
         var rule = Record("rule", "rule/loan.hold-release", "Hold Release", "approved", "approved", """{"releasedBy": "use-case/lending.borrow-copy"}""");
         var kept = Record("rule", "rule/loan.ever-held", "Ever Held", "approved", "approved", """{"releasedBy": {"mode": "never", "reason": "the hold lasts"}}""");
-        var details = DetailsOf(NewModel(saga, useCase, runner, rule, kept));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.borrow-copy", "aggregate.steps.compensation.useCase"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.hold-queue"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "in"), "aggregate/lending.hold-queue", "aggregate.steps.compensation.useCase"));
+        var details = DetailsOf(NewModel(useCase, rule, kept));
         Assert.True(HasEdge(Arr(details["rule/loan.hold-release"], "out"), "use-case/lending.borrow-copy", "rule.releasedBy"));
         Assert.Empty(Arr(details["rule/loan.ever-held"], "out"));
         Assert.Equal("never", Str(Obj(Obj(details["rule/loan.ever-held"], "fields"), "releasedBy"), "mode"));
     }
 
-    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, saga runs and drivers, binds, exercises and typed references.</summary>
+    /// <summary>Wave-6 link shapes resolve to dotted edges: reaction triggers and effects, job schedules, binds, exercises and typed references.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void Wave6LinkShapesFormRecordEdges()
@@ -555,20 +550,6 @@ public sealed class BookEnrichTests
             "approved",
             "approved",
             """{"dataschema": "https://example.com/schemas/loan-borrowed.json", "payload": [{"name": "loanId", "type": "id", "of": "aggregate/lending.loan", "required": true}]}""");
-        var saga = Record(
-            "aggregate",
-            "aggregate/lending.refund-stay",
-            "Refund Stay",
-            "approved",
-            "approved",
-            """{"kind": "saga", "steps": [{"id": "release-room", "runs": "use-case/lending.return-copy", "compensation": {"mode": "none", "reason": "the room returns"}, "guard": "the stay is cancelled"}], "exits": ["refunded"], "drivenBy": {"reaction": "reaction/lending.send-due-reminder-on-loan-due"}}""");
-        var sweep = Record(
-            "aggregate",
-            "aggregate/lending.nightly-sweep",
-            "Nightly Sweep",
-            "approved",
-            "approved",
-            """{"kind": "saga", "steps": [{"id": "send-notices", "runs": "use-case/lending.return-copy", "compensation": {"mode": "none", "reason": "notices resend"}, "guard": "notices wait"}], "exits": ["swept"], "drivenBy": {"job": "job/lending.send-overdue-notices"}}""");
         var rule = Record("rule", "rule/loan.one-loan-per-copy", "One Loan Per Copy", "approved", "approved", """{"binds": ["aggregate/lending.loan", "aggregate/inventory.room"]}""");
         var result = Record("result", "result/borrow-copy.borrowed", "Borrowed", "approved", "approved");
         var scenario = Record(
@@ -580,7 +561,7 @@ public sealed class BookEnrichTests
             """{"result": "result/borrow-copy.borrowed", "exercises": ["rule/loan.one-loan-per-copy"], "given": "A copy sits available.", "when": "The member borrows.", "then": "The loan is active."}""");
         var door = Record("entry-point", "entry-point/library-app", "Library App", "approved", "approved");
         var runbook = Record("runbook", "runbook/overdue-notice", "Overdue Notice", "approved", "approved");
-        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, saga, sweep, rule, result, scenario, door, runbook));
+        var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, rule, result, scenario, door, runbook));
 
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "use-case/lending.return-copy", "use-case.effects.runs"));
@@ -590,9 +571,6 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "runbook/overdue-notice", "reaction.onFailure.runbook"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "notification/lending.due-reminder", "job.effects.sends"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "runbook/overdue-notice", "job.runbook"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "use-case/lending.return-copy", "aggregate.steps.runs"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.refund-stay"], "out"), "reaction/lending.send-due-reminder-on-loan-due", "aggregate.drivenBy.reaction"));
-        Assert.True(HasEdge(Arr(details["aggregate/lending.nightly-sweep"], "out"), "job/lending.send-overdue-notices", "aggregate.drivenBy.job"));
         Assert.True(HasEdge(Arr(details["rule/loan.one-loan-per-copy"], "out"), "aggregate/lending.loan", "rule.binds"));
         Assert.True(HasEdge(Arr(details["scenario/borrow-copy.borrowing-succeeds"], "out"), "rule/loan.one-loan-per-copy", "scenario.exercises"));
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.input.of"));
@@ -625,7 +603,7 @@ public sealed class BookEnrichTests
         Assert.Equal("observed", Str(details["problem/slow-desk"], "evidenceStrength"));
     }
 
-    /// <summary>Each detail carries the qualified identifier the model states beside the record, or the identifier itself when the model states none.</summary>
+    /// <summary>Each detail carries the folder path and module the model states beside the record.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void DetailsCarryTheFolderAndTheModule()

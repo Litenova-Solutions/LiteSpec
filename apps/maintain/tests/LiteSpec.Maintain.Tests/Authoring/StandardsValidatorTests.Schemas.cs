@@ -458,7 +458,6 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"reactionPage\":{\"type\":\"object\",\"properties\":{\"triggeredBy\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"skippedWhen\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"jobPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"enum\":[\"scheduled\",\"one-off\",\"manual\"]},\"guard\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
-                "\"aggregatePage\":{\"type\":\"object\",\"properties\":{\"drivenBy\":{\"type\":\"array\",\"items\":{\"type\":\"object\"}}}}," +
                 "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/aggregateId\"}}}}," +
                 "\"scenarioEntry\":{\"type\":\"object\",\"properties\":{\"exercises\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/ruleId\"}}}}," +
                 "\"aggregateId\":{\"type\":\"string\"}," +

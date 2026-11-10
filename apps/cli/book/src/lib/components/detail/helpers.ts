@@ -242,12 +242,6 @@ export function pagingRows(f: Fields): { label: string; html: string }[] | null 
   ];
 }
 
-export function compensationHtml(c: Fields | undefined) {
-  if (!c) return "";
-  if (c.mode === "use-case") return inlineRefHtml(String(c.useCase ?? ""));
-  return "None" + (c.reason ? ", because " + esc(c.reason) : "");
-}
-
 export function periodSuffixHtml(p: unknown) {
   if (!p) return "";
   if (typeof p === "string") return " after " + duration(p);

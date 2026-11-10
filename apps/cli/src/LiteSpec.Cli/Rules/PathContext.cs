@@ -223,7 +223,7 @@ internal sealed record PathContext(
 
     /// <summary>Derives the context of a record identifier.</summary>
     /// <param name="config">The consumer configuration.</param>
-    /// <param name="target">The record identifier or qualified identifier.</param>
+    /// <param name="target">The record identifier or record folder path.</param>
     /// <returns>The derived context, or null when the target names no record type.</returns>
     static PathContext? FromRecord(ConsumerConfig config, string target)
     {

@@ -41,21 +41,6 @@ updates:
           - "minor"
           - "patch"
 
-  # The docker ecosystem watches Dockerfiles and compose files. The images the workflows run are named
-  # in ci.yml, which this ecosystem does not read; that choice is recorded where the images are used.
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      docker-minor-and-patch:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-
   # The SDK in global.json sets the ILCompiler and runtime packs the native CLI builds with,
   # and NuGet audit fails a build on an SDK with a published advisory, so the SDK stays patched.
   - package-ecosystem: "dotnet-sdk"

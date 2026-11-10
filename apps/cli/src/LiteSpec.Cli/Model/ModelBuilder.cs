@@ -292,7 +292,7 @@ static partial class ModelBuilder
                 break;
 
             case JsonValueKind.Object:
-                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "compensation", "authority", "operation", "event" })
+                foreach (var name in new[] { "role", "useCase", "requires", "events", "actor", "grant", "runs", "sends", "emits", "calls", "fallback", "enforcedBy", "basedOn", "authority", "operation", "event" })
                 {
                     if (value.TryGetProperty(name, out var nested))
                     {

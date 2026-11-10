@@ -93,7 +93,6 @@ public sealed class RecordTypesTests
     [Fact]
     public void ObjectLinksResolveThroughTheirContainers()
     {
-        Assert.True(RecordTypes.LinkTargets["compensation"].SetEquals(["use-case"]));
         Assert.Empty(RecordTypes.LinkTargets["freshness"]);
         Assert.True(RecordTypes.LinkTargets["erasure"].SetEquals(
             ["external-system", "integration-event"]));

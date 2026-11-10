@@ -120,7 +120,7 @@ public sealed class LinkExportTests
             ModelBuilder.TargetsOf(Element("""{"mode": "use-case", "useCase": "use-case/lending.release-hold"}""")));
         Assert.Equal(
             ["use-case/lending.release-hold"],
-            ModelBuilder.TargetsOf(Element("""{"name": "place", "compensation": {"mode": "use-case", "useCase": "use-case/lending.release-hold"}}""")));
+            ModelBuilder.TargetsOf(Element("""{"name": "place", "enforcedBy": {"mode": "use-case", "useCase": "use-case/lending.release-hold"}}""")));
         Assert.Equal(
             ["aggregate/lending.loan"],
             ModelBuilder.TargetsOf(Element("""{"mode": "advisory", "authority": "aggregate/lending.loan"}""")));

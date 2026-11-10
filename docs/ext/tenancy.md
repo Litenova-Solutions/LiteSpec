@@ -134,7 +134,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role at platform scope, writing an audit record.
 
-**Rationale:** Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role at platform scope, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer's data. Grants that let one tenant act for another follow the delegation extension instead.
+**Rationale:** Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role at platform scope, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer's data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
 
 **Reviewed for:** Which administrative cross-tenant use cases name no platform-scope permission, or have a run with no audit record? Look at the use case permissions beside the audit trail.
 
