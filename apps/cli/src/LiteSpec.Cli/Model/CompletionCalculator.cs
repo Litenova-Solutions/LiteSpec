@@ -18,44 +18,35 @@ static class CompletionCalculator
     {
         model.Completion.Clear();
 
+        var facts = new Facts(model);
         var coded = CodedUseCases(model);
         var stale = StaleScenarios(model);
 
-        foreach (var requirement in OfType(model, RecordTypes.Requirement))
+        foreach (var requirement in facts.OfType(RecordTypes.Requirement))
         {
-            model.Completion[requirement.Id] = RequirementCompletion(model, requirement, coded, stale);
+            model.Completion[requirement.Id] = RequirementCompletion(facts, requirement, coded, stale);
         }
 
-        foreach (var useCase in OfType(model, RecordTypes.UseCase))
+        foreach (var useCase in facts.OfType(RecordTypes.UseCase))
         {
-            model.Completion[useCase.Id] = UseCaseCompletion(model, useCase, coded, stale);
+            model.Completion[useCase.Id] = UseCaseCompletion(facts, useCase, coded, stale);
         }
 
-        foreach (var journey in OfType(model, RecordTypes.Journey))
+        foreach (var journey in facts.OfType(RecordTypes.Journey))
         {
-            model.Completion[journey.Id] = JourneyCompletion(model, journey, coded, stale);
+            model.Completion[journey.Id] = JourneyCompletion(facts, journey, coded, stale);
         }
 
-        foreach (var feature in OfType(model, RecordTypes.Feature))
+        foreach (var feature in facts.OfType(RecordTypes.Feature))
         {
-            model.Completion[feature.Id] = FeatureCompletion(model, feature, coded, stale);
+            model.Completion[feature.Id] = FeatureCompletion(facts, feature, coded, stale);
         }
 
-        foreach (var goal in OfType(model, RecordTypes.Goal))
+        foreach (var goal in facts.OfType(RecordTypes.Goal))
         {
-            model.Completion[goal.Id] = GoalCompletion(model, goal);
+            model.Completion[goal.Id] = GoalCompletion(facts, goal);
         }
     }
-
-    /// <summary>The records of one type, in id order.</summary>
-    /// <param name="model">The built project model.</param>
-    /// <param name="type">The record type to list.</param>
-    /// <returns>The records of the type, in id order.</returns>
-    static List<Record> OfType(ProjectModel model, string type) =>
-        model.Records
-            .Where(record => record.Type == type)
-            .OrderBy(record => record.Id, StringComparer.Ordinal)
-            .ToList();
 
     /// <summary>Whether the model holds a test run, so proof is known.</summary>
     /// <param name="model">The built project model.</param>
@@ -75,18 +66,19 @@ static class CompletionCalculator
     ///     every child with code and not every child verified is coded, and
     ///     every child verified with its measure passing is verified.
     /// </summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="requirement">The requirement whose completion is wanted.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>The requirement completion.</returns>
     static Completion RequirementCompletion(
-        ProjectModel model, Record requirement,
+        Facts facts, Record requirement,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
-        var fulfillers = FulfillersOf(model, requirement);
-        var done = fulfillers.Count(child => FulfillerCoded(model, child, coded, stale));
-        var verified = fulfillers.Count(child => FulfillerVerified(model, child, stale));
+        var model = facts.Model;
+        var fulfillers = facts.FulfillersOf(requirement);
+        var done = fulfillers.Count(child => FulfillerCoded(facts, child, coded, stale));
+        var verified = fulfillers.Count(child => FulfillerVerified(facts, child, stale));
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
             ["fulfillers coded"] = new CompletionCount(done, fulfillers.Count),
@@ -107,13 +99,13 @@ static class CompletionCalculator
         {
             return new Completion(
                 "coded", ProofOf(model),
-                Cap(fulfillers.Where(child => !FulfillerVerified(model, child, stale)).Select(child => child.Id), counts),
+                Cap(fulfillers.Where(child => !FulfillerVerified(facts, child, stale)).Select(child => child.Id), counts),
                 counts);
         }
 
         return new Completion(
             "specified", ProofOf(model),
-            Cap(fulfillers.Where(child => !FulfillerCoded(model, child, coded, stale)).Select(child => child.Id), counts),
+            Cap(fulfillers.Where(child => !FulfillerCoded(facts, child, coded, stale)).Select(child => child.Id), counts),
             counts);
     }
 
@@ -123,25 +115,26 @@ static class CompletionCalculator
     ///     specified, code with not every scenario verified is coded, and
     ///     every scenario verified fresh is verified.
     /// </summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="useCase">The use case whose completion is wanted.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>The use case completion.</returns>
     static Completion UseCaseCompletion(
-        ProjectModel model, Record useCase,
+        Facts facts, Record useCase,
         HashSet<string> coded, IReadOnlySet<string> stale)
     {
-        var scenarios = ScenariosOf(model, useCase);
+        var model = facts.Model;
+        var scenarios = facts.ScenariosOf(useCase);
         var hasCode = coded.Contains(useCase.Id);
-        var verifiedScenarios = scenarios.Count(scenario => ScenarioVerified(model, scenario, stale));
+        var verifiedScenarios = scenarios.Count(scenario => ScenarioVerified(facts, scenario, stale));
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
             ["code found"] = new CompletionCount(hasCode ? 1 : 0, 1),
             ["scenarios verified"] = new CompletionCount(verifiedScenarios, scenarios.Count),
         };
 
-        if (UseCaseVerified(model, useCase, stale))
+        if (UseCaseVerified(facts, useCase, stale))
         {
             return new Completion("verified", ProofOf(model), [], counts);
         }
@@ -150,7 +143,7 @@ static class CompletionCalculator
         {
             return new Completion(
                 "coded", ProofOf(model),
-                Cap(scenarios.Where(scenario => !ScenarioVerified(model, scenario, stale)).Select(scenario => scenario.Id), counts),
+                Cap(scenarios.Where(scenario => !ScenarioVerified(facts, scenario, stale)).Select(scenario => scenario.Id), counts),
                 counts);
         }
 
@@ -168,15 +161,16 @@ static class CompletionCalculator
     ///     serving code is found and that no passing proof exercises is
     ///     coded, and an exercised step is verified.
     /// </summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="journey">The journey whose completion is wanted.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>The journey completion.</returns>
     static Completion JourneyCompletion(
-        ProjectModel model, Record journey,
+        Facts facts, Record journey,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
+        var model = facts.Model;
         var steps = journey.StepIds();
         var served = 0;
         var done = 0;
@@ -185,7 +179,7 @@ static class CompletionCalculator
 
         foreach (var step in steps)
         {
-            var stage = StepStage(model, step, coded, stale);
+            var stage = StepStage(facts, step, coded, stale);
 
             stepStages.Add((step, stage));
 
@@ -230,27 +224,28 @@ static class CompletionCalculator
     ///     journeys citing those requirements. The feature is only as far as
     ///     its weakest child.
     /// </summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="feature">The feature whose completion is wanted.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>The feature completion.</returns>
     static Completion FeatureCompletion(
-        ProjectModel model, Record feature,
+        Facts facts, Record feature,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
-        var citing = OfType(model, RecordTypes.Requirement)
+        var model = facts.Model;
+        var citing = facts.OfType(RecordTypes.Requirement)
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(feature.Id, StringComparer.Ordinal))
             .ToList();
-        var journeys = JourneysCiting(model, citing);
+        var journeys = JourneysCiting(facts, citing);
         var steps = journeys.SelectMany(journey => journey.StepIds()).Distinct(StringComparer.Ordinal).ToList();
 
-        var fulfilled = citing.Count(requirement => FulfillersOf(model, requirement).Count > 0);
+        var fulfilled = citing.Count(requirement => facts.FulfillersOf(requirement).Count > 0);
         var verified = citing.Count(requirement =>
             model.Completion.TryGetValue(requirement.Id, out var child) && child.Stage == "verified");
-        var servedSteps = steps.Count(step => Rank(StepStage(model, step, coded, stale)) >= Rank("specified"));
-        var doneSteps = steps.Count(step => Rank(StepStage(model, step, coded, stale)) >= Rank("coded"));
-        var exercisedSteps = steps.Count(step => StepStage(model, step, coded, stale) == "verified");
+        var servedSteps = steps.Count(step => Rank(StepStage(facts, step, coded, stale)) >= Rank("specified"));
+        var doneSteps = steps.Count(step => Rank(StepStage(facts, step, coded, stale)) >= Rank("coded"));
+        var exercisedSteps = steps.Count(step => StepStage(facts, step, coded, stale) == "verified");
 
         var counts = new Dictionary<string, CompletionCount>(StringComparer.Ordinal)
         {
@@ -299,18 +294,19 @@ static class CompletionCalculator
     ///     serving it and the requirements citing it. The goal is only as far
     ///     as its weakest child.
     /// </summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="goal">The goal whose completion is wanted.</param>
     /// <returns>The goal completion.</returns>
-    static Completion GoalCompletion(ProjectModel model, Record goal)
+    static Completion GoalCompletion(Facts facts, Record goal)
     {
-        var features = OfType(model, RecordTypes.Feature)
+        var model = facts.Model;
+        var features = facts.OfType(RecordTypes.Feature)
             .Where(feature => feature.Ids(RecordFields.Advances).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
-        var journeys = OfType(model, RecordTypes.Journey)
+        var journeys = facts.OfType(RecordTypes.Journey)
             .Where(journey => journey.Ids(RecordFields.Serves).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
-        var requirements = OfType(model, RecordTypes.Requirement)
+        var requirements = facts.OfType(RecordTypes.Requirement)
             .Where(requirement => requirement.Ids(RecordFields.Cites).Contains(goal.Id, StringComparer.Ordinal))
             .ToList();
 
@@ -360,51 +356,29 @@ static class CompletionCalculator
     }
 
     /// <summary>The journeys citing any of the requirements, in id order.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="requirements">The requirements whose citing journeys are wanted.</param>
     /// <returns>The journeys citing one of the requirements.</returns>
-    static List<Record> JourneysCiting(ProjectModel model, IReadOnlyList<Record> requirements)
+    static List<Record> JourneysCiting(Facts facts, IReadOnlyList<Record> requirements)
     {
         var ids = requirements.Select(requirement => requirement.Id).ToHashSet(StringComparer.Ordinal);
 
-        return OfType(model, RecordTypes.Journey)
+        return facts.OfType(RecordTypes.Journey)
             .Where(journey => journey.Ids(RecordFields.Cites).Any(ids.Contains))
             .ToList();
     }
 
-    /// <summary>The Behavior records fulfilling a requirement, with a technical decision serving a quality requirement.</summary>
-    /// <param name="model">The built project model.</param>
-    /// <param name="requirement">The requirement whose fulfillers are wanted.</param>
-    /// <returns>The fulfilling records in id order.</returns>
-    static List<Record> FulfillersOf(ProjectModel model, Record requirement)
-    {
-        var fulfillers = model.Records
-            .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal)
-                && record.Ids(RecordFields.Fulfills).Contains(requirement.Id, StringComparer.Ordinal))
-            .ToList();
-
-        if (requirement.Field(RecordFields.Kind) == "quality")
-        {
-            fulfillers.AddRange(model.Records.Where(record =>
-                record.Type == RecordTypes.Decision
-                && Checker.UnderImplementationDecisions(model.Config, record.File)
-                && record.Ids(RecordFields.BasedOn).Contains(requirement.Id, StringComparer.Ordinal)));
-        }
-
-        return fulfillers.OrderBy(record => record.Id, StringComparer.Ordinal).ToList();
-    }
-
     /// <summary>Whether a fulfiller has code: a use case with a handler, a record a mark implements, or a verified fulfiller.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="fulfiller">The fulfilling record to test.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>True when code for the fulfiller was found or its proof passes.</returns>
     static bool FulfillerCoded(
-        ProjectModel model, Record fulfiller,
+        Facts facts, Record fulfiller,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
-        if (FulfillerVerified(model, fulfiller, stale))
+        if (FulfillerVerified(facts, fulfiller, stale))
         {
             return true;
         }
@@ -412,31 +386,31 @@ static class CompletionCalculator
         return fulfiller.Type switch
         {
             RecordTypes.UseCase => coded.Contains(fulfiller.Id),
-            RecordTypes.Decision => model.Follows.Any(link => link.To == fulfiller.Id),
-            _ => model.Implements.Any(link => link.To == fulfiller.Id),
+            RecordTypes.Decision => facts.Followed.Contains(fulfiller.Id),
+            _ => facts.Implemented.Contains(fulfiller.Id),
         };
     }
 
     /// <summary>Whether a fulfiller is verified: a verified use case, a tested implementation decision, or a passing proof naming it.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="fulfiller">The fulfilling record to test.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>True when the fulfiller is verified or tested with a passing proof that is not stale.</returns>
-    static bool FulfillerVerified(ProjectModel model, Record fulfiller, IReadOnlySet<string> stale) => fulfiller.Type switch
+    static bool FulfillerVerified(Facts facts, Record fulfiller, IReadOnlySet<string> stale) => fulfiller.Type switch
     {
-        RecordTypes.UseCase => UseCaseVerified(model, fulfiller, stale),
-        RecordTypes.Decision => TestedDecision(model, fulfiller),
-        _ => model.Proves.Any(link => link.Claim == fulfiller.Id && link.Confirmed && link.Passing == true),
+        RecordTypes.UseCase => UseCaseVerified(facts, fulfiller, stale),
+        RecordTypes.Decision => TestedDecision(facts, fulfiller),
+        _ => facts.ProvenPassing.Contains(fulfiller.Id),
     };
 
     /// <summary>Whether a use case is verified: it holds a scenario, and every scenario has a passing proof that is not stale.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="useCase">The use case to test.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>True when every scenario of the use case has a confirmed passing proof that is not stale.</returns>
-    static bool UseCaseVerified(ProjectModel model, Record useCase, IReadOnlySet<string> stale)
+    static bool UseCaseVerified(Facts facts, Record useCase, IReadOnlySet<string> stale)
     {
-        var scenarios = ScenariosOf(model, useCase);
+        var scenarios = facts.ScenariosOf(useCase);
 
         if (scenarios.Count == 0)
         {
@@ -445,7 +419,7 @@ static class CompletionCalculator
 
         foreach (var scenario in scenarios)
         {
-            var links = model.Proves.Where(link => link.Claim == scenario.Id).ToList();
+            var links = facts.ProvesOf(scenario.Id);
 
             if (links.Count == 0
                 || links.Any(link => !link.Confirmed || link.Passing != true)
@@ -459,45 +433,15 @@ static class CompletionCalculator
     }
 
     /// <summary>Whether an implementation decision is tested: a passing test that asserts something proves it.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="decision">The decision to test.</param>
     /// <returns>True when a passing asserting test proves the decision.</returns>
-    static bool TestedDecision(ProjectModel model, Record decision) =>
-        Checker.UnderImplementationDecisions(model.Config, decision.File)
-        && model.Proves.Any(link =>
-            link.Claim == decision.Id
-            && link.Confirmed
+    static bool TestedDecision(Facts facts, Record decision) =>
+        Checker.UnderImplementationDecisions(facts.Model.Config, decision.File)
+        && facts.ProvesOf(decision.Id).Any(link =>
+            link.Confirmed
             && link.Passing == true
-            && TestAsserts(model, link.Scenario));
-
-    /// <summary>
-    ///     Whether the proving test asserts something: a backend test with an assertion
-    ///     call, or a steps test with a then step asserting through its steps class, and
-    ///     a browser test with an asserted text or code.
-    /// </summary>
-    /// <param name="model">The built project model.</param>
-    /// <param name="scenario">The proving test's name or title.</param>
-    /// <returns>True when the proving test asserts something.</returns>
-    static bool TestAsserts(ProjectModel model, string scenario)
-    {
-        foreach (var test in model.Tests)
-        {
-            if (test.Name == scenario)
-            {
-                return test.HasAssertion || test.Steps.Any(step => step.Phase == "then");
-            }
-        }
-
-        foreach (var browser in model.BrowserTests)
-        {
-            if (browser.Title == scenario)
-            {
-                return browser.Texts.Count > 0 || browser.Codes.Count > 0;
-            }
-        }
-
-        return false;
-    }
+            && facts.TestAsserts(link.Scenario));
 
     /// <summary>Whether a measure result answers the requirement's check.</summary>
     /// <param name="check">The requirement's check.</param>
@@ -524,33 +468,13 @@ static class CompletionCalculator
     }
 
     /// <summary>Whether a scenario is verified: a confirmed passing proof that is not stale.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="scenario">The scenario record to test.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>True when a passing proof confirms the scenario and the proof is not stale.</returns>
-    static bool ScenarioVerified(ProjectModel model, Record scenario, IReadOnlySet<string> stale) =>
+    static bool ScenarioVerified(Facts facts, Record scenario, IReadOnlySet<string> stale) =>
         !stale.Contains(scenario.Id)
-        && model.Proves.Any(link => link.Claim == scenario.Id && link.Confirmed && link.Passing == true);
-
-    /// <summary>The scenarios of a use case, by identifier home.</summary>
-    /// <param name="model">The built project model.</param>
-    /// <param name="useCase">The use case whose scenarios are wanted.</param>
-    /// <returns>The scenario records the use case holds, in id order.</returns>
-    static List<Record> ScenariosOf(ProjectModel model, Record useCase)
-    {
-        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
-        {
-            return [];
-        }
-
-        return model.Records
-            .Where(record => record.Type == RecordTypes.Scenario
-                && !record.Derived
-                && Identifiers.TrySplit(record.Id, out _, out var home, out _)
-                && home == name)
-            .OrderBy(record => record.Id, StringComparer.Ordinal)
-            .ToList();
-    }
+        && facts.ProvenPassing.Contains(scenario.Id);
 
     /// <summary>
     ///     The use cases with code behind them: one a handler, reaction or job
@@ -620,34 +544,41 @@ static class CompletionCalculator
         return stale;
     }
 
-    /// <summary>One journey step's stage from the records serving it.</summary>
-    /// <param name="model">The built project model.</param>
+    /// <summary>One journey step's stage from the records serving it, worked out once per step.</summary>
+    /// <param name="facts">The model's records and links, indexed for this computation.</param>
     /// <param name="step">The journey step id, as <c>journey/&lt;name&gt;#&lt;step&gt;</c>.</param>
     /// <param name="coded">The use cases with code behind them.</param>
     /// <param name="stale">The scenarios whose passing proof went stale.</param>
     /// <returns>Unfulfilled when nothing serves the step, specified when its serving record has no code, coded when code is found and no passing proof exercises it, and verified when a passing proof exercises it.</returns>
     static string StepStage(
-        ProjectModel model, string step,
+        Facts facts, string step,
         IReadOnlySet<string> coded, IReadOnlySet<string> stale)
     {
-        if (model.ExercisedSteps.Contains(step))
+        if (facts.StepStages.TryGetValue(step, out var known))
         {
-            return "verified";
+            return known;
         }
 
-        var servers = model.Records
-            .Where(record => RecordTypes.StepServingTypes.Contains(record.Type, StringComparer.Ordinal)
-                && record.Ids(RecordFields.Serves).Contains(step, StringComparer.Ordinal))
-            .ToList();
+        string stage;
 
-        if (servers.Count == 0)
+        if (facts.Model.ExercisedSteps.Contains(step))
         {
-            return "unfulfilled";
+            stage = "verified";
+        }
+        else
+        {
+            var servers = facts.ServersOf(step);
+
+            stage = servers.Count == 0
+                ? "unfulfilled"
+                : servers.Any(server => FulfillerCoded(facts, server, coded, stale))
+                    ? "coded"
+                    : "specified";
         }
 
-        return servers.Any(server => FulfillerCoded(model, server, coded, stale))
-            ? "coded"
-            : "specified";
+        facts.StepStages[step] = stage;
+
+        return stage;
     }
 
     /// <summary>Caps held-by ids at ten, in the order given, and counts the full set when it is capped.</summary>
@@ -664,5 +595,220 @@ static class CompletionCalculator
         }
 
         return all.Take(10).ToList();
+    }
+
+    /// <summary>
+    ///     The model's records and links indexed once for one computation, so each
+    ///     completion reads a lookup instead of scanning every record or link. Every
+    ///     list keeps the order a scan of the model gives.
+    /// </summary>
+    /// <param name="model">The built project model, with its links, tests and ledger read.</param>
+    sealed class Facts(ProjectModel model)
+    {
+        /// <summary>The empty record list a lookup returns for a key with no records.</summary>
+        static readonly List<Record> NoRecords = [];
+
+        /// <summary>The empty link list a lookup returns for a claim with no proof.</summary>
+        static readonly List<ProvesLink> NoLinks = [];
+
+        /// <summary>The records of each type, in id order.</summary>
+        readonly Dictionary<string, List<Record>> byType = RecordsByType(model);
+
+        /// <summary>The written scenarios by the use-case name their identifier is homed at, in id order.</summary>
+        readonly Dictionary<string, List<Record>> scenariosByHome = ScenariosByHome(model);
+
+        /// <summary>The Behavior records fulfilling each requirement, in model order.</summary>
+        readonly Dictionary<string, List<Record>> fulfilling = Citing(model, RecordTypes.FulfillingTypes, RecordFields.Fulfills);
+
+        /// <summary>The implementation decisions based on each record, in model order.</summary>
+        readonly Dictionary<string, List<Record>> decisionsBasedOn = Citing(
+            model,
+            [RecordTypes.Decision],
+            RecordFields.BasedOn,
+            record => Checker.UnderImplementationDecisions(model.Config, record.File));
+
+        /// <summary>The records serving each journey step, in model order.</summary>
+        readonly Dictionary<string, List<Record>> servers = Citing(model, RecordTypes.StepServingTypes, RecordFields.Serves);
+
+        /// <summary>The proves links by the record they claim, in model order.</summary>
+        readonly Dictionary<string, List<ProvesLink>> provesByClaim = model.Proves
+            .GroupBy(link => link.Claim, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToList(), StringComparer.Ordinal);
+
+        /// <summary>For each proving test name or title, whether the test asserts something; the first test with a name wins.</summary>
+        readonly Dictionary<string, bool> asserting = AssertingTests(model);
+
+        /// <summary>Gets the built project model.</summary>
+        public ProjectModel Model => model;
+
+        /// <summary>Gets the ids that a confirmed, passing proof claims.</summary>
+        public HashSet<string> ProvenPassing { get; } = model.Proves
+            .Where(link => link.Confirmed && link.Passing == true)
+            .Select(link => link.Claim)
+            .ToHashSet(StringComparer.Ordinal);
+
+        /// <summary>Gets the ids an implements link reaches.</summary>
+        public HashSet<string> Implemented { get; } = model.Implements.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+
+        /// <summary>Gets the ids a follows link reaches.</summary>
+        public HashSet<string> Followed { get; } = model.Follows.Select(link => link.To).ToHashSet(StringComparer.Ordinal);
+
+        /// <summary>Gets the stage of each journey step worked out so far.</summary>
+        public Dictionary<string, string> StepStages { get; } = new(StringComparer.Ordinal);
+
+        /// <summary>The records of one type, in id order.</summary>
+        /// <param name="type">The record type to list.</param>
+        /// <returns>The records of the type, in id order.</returns>
+        public List<Record> OfType(string type) =>
+            byType.TryGetValue(type, out var records) ? records : NoRecords;
+
+        /// <summary>The written scenarios of a use case, by identifier home, in id order.</summary>
+        /// <param name="useCase">The use case whose scenarios are wanted.</param>
+        /// <returns>The scenario records the use case holds, in id order.</returns>
+        public List<Record> ScenariosOf(Record useCase) =>
+            Identifiers.TrySplit(useCase.Id, out _, out _, out var name)
+            && scenariosByHome.TryGetValue(name, out var scenarios)
+                ? scenarios
+                : NoRecords;
+
+        /// <summary>The Behavior records fulfilling a requirement, with a technical decision serving a quality requirement.</summary>
+        /// <param name="requirement">The requirement whose fulfillers are wanted.</param>
+        /// <returns>The fulfilling records in id order.</returns>
+        public List<Record> FulfillersOf(Record requirement)
+        {
+            var fulfillers = new List<Record>(fulfilling.TryGetValue(requirement.Id, out var found) ? found : NoRecords);
+
+            if (requirement.Field(RecordFields.Kind) == "quality"
+                && decisionsBasedOn.TryGetValue(requirement.Id, out var decisions))
+            {
+                fulfillers.AddRange(decisions);
+            }
+
+            return fulfillers.OrderBy(record => record.Id, StringComparer.Ordinal).ToList();
+        }
+
+        /// <summary>The records serving a journey step.</summary>
+        /// <param name="step">The journey step id.</param>
+        /// <returns>The records serving the step, in model order.</returns>
+        public List<Record> ServersOf(string step) =>
+            servers.TryGetValue(step, out var found) ? found : NoRecords;
+
+        /// <summary>The proves links that claim a record.</summary>
+        /// <param name="claim">The claimed record id.</param>
+        /// <returns>The links claiming the record, in model order.</returns>
+        public List<ProvesLink> ProvesOf(string claim) =>
+            provesByClaim.TryGetValue(claim, out var links) ? links : NoLinks;
+
+        /// <summary>
+        ///     Whether the proving test asserts something: a backend test with an assertion
+        ///     call, or a steps test with a then step asserting through its steps class, and
+        ///     a browser test with an asserted text or code.
+        /// </summary>
+        /// <param name="scenario">The proving test's name or title.</param>
+        /// <returns>True when the proving test asserts something.</returns>
+        public bool TestAsserts(string scenario) =>
+            asserting.TryGetValue(scenario, out var asserts) && asserts;
+
+        /// <summary>The records of each type, in id order.</summary>
+        /// <param name="model">The built project model.</param>
+        /// <returns>The records by type.</returns>
+        static Dictionary<string, List<Record>> RecordsByType(ProjectModel model) =>
+            model.Records
+                .GroupBy(record => record.Type, StringComparer.Ordinal)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.OrderBy(record => record.Id, StringComparer.Ordinal).ToList(),
+                    StringComparer.Ordinal);
+
+        /// <summary>The written scenarios by the use-case name their identifier is homed at, in id order.</summary>
+        /// <param name="model">The built project model.</param>
+        /// <returns>The scenarios by home.</returns>
+        static Dictionary<string, List<Record>> ScenariosByHome(ProjectModel model)
+        {
+            var byHome = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+
+            foreach (var record in model.Records)
+            {
+                if (record.Type == RecordTypes.Scenario
+                    && !record.Derived
+                    && Identifiers.TrySplit(record.Id, out _, out var home, out _)
+                    && home is not null)
+                {
+                    Add(byHome, home, record);
+                }
+            }
+
+            foreach (var scenarios in byHome.Values)
+            {
+                var ordered = scenarios.OrderBy(record => record.Id, StringComparer.Ordinal).ToList();
+
+                scenarios.Clear();
+                scenarios.AddRange(ordered);
+            }
+
+            return byHome;
+        }
+
+        /// <summary>The records of the given types by each id one of their fields names, each record once per id, in model order.</summary>
+        /// <param name="model">The built project model.</param>
+        /// <param name="types">The record types that cite.</param>
+        /// <param name="field">The field holding the cited ids.</param>
+        /// <param name="include">An extra condition a citing record meets, or null for none.</param>
+        /// <returns>The citing records by cited id.</returns>
+        static Dictionary<string, List<Record>> Citing(
+            ProjectModel model, IReadOnlyList<string> types, string field, Func<Record, bool>? include = null)
+        {
+            var byTarget = new Dictionary<string, List<Record>>(StringComparer.Ordinal);
+
+            foreach (var record in model.Records)
+            {
+                if (!types.Contains(record.Type, StringComparer.Ordinal) || (include is not null && !include(record)))
+                {
+                    continue;
+                }
+
+                foreach (var target in record.Ids(field).Distinct(StringComparer.Ordinal))
+                {
+                    Add(byTarget, target, record);
+                }
+            }
+
+            return byTarget;
+        }
+
+        /// <summary>For each proving test name or title, whether the test asserts something; backend tests first, then browser tests.</summary>
+        /// <param name="model">The built project model.</param>
+        /// <returns>Whether each named test asserts something.</returns>
+        static Dictionary<string, bool> AssertingTests(ProjectModel model)
+        {
+            var asserting = new Dictionary<string, bool>(StringComparer.Ordinal);
+
+            foreach (var test in model.Tests)
+            {
+                asserting.TryAdd(test.Name, test.HasAssertion || test.Steps.Any(step => step.Phase == "then"));
+            }
+
+            foreach (var browser in model.BrowserTests)
+            {
+                asserting.TryAdd(browser.Title, browser.Texts.Count > 0 || browser.Codes.Count > 0);
+            }
+
+            return asserting;
+        }
+
+        /// <summary>Adds a record to the list a key holds, starting the list when the key is new.</summary>
+        /// <param name="index">The index to add to.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="record">The record to add.</param>
+        static void Add(Dictionary<string, List<Record>> index, string key, Record record)
+        {
+            if (!index.TryGetValue(key, out var list))
+            {
+                list = [];
+                index[key] = list;
+            }
+
+            list.Add(record);
+        }
     }
 }

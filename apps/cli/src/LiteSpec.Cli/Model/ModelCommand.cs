@@ -313,11 +313,14 @@ static class ModelCommand
     /// <exception cref="FailFast">The consumer pass stopped the run with its own exit code.</exception>
     internal static (List<Finding> Findings, IReadOnlyList<Finding> Covered) Collect(ProjectModel model, string root)
     {
+        // The consumer pass reads the project from disk and not the model, so it runs beside the checks.
+        var consumerRun = new ConsumerRun(root);
+        var consumerPass = Task.Run(consumerRun.Execute);
+
         var (modelFindings, covered) = Checker.Check(model);
         var findings = modelFindings.ToList();
 
-        var consumerRun = new ConsumerRun(root);
-        consumerRun.Execute();
+        consumerPass.GetAwaiter().GetResult();
         findings.AddRange(consumerRun.Errors);
 
         // Consumer findings take the same claim filter as the model findings, so a project

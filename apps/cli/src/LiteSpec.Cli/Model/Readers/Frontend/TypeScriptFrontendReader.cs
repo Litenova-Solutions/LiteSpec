@@ -10,7 +10,7 @@ namespace LiteSpec.Model.Readers.Frontend;
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
 sealed class TypeScriptFrontendReader(
     FrontendConfig frontend,
-    Lazy<IReadOnlyList<FrontendFacts>> run) : IFrontendReader
+    Task<IReadOnlyList<FrontendFacts>> run) : IFrontendReader
 {
     /// <summary>Reads this frontend's screens, module marks and browser tests.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
@@ -18,7 +18,7 @@ sealed class TypeScriptFrontendReader(
     /// <returns>The screen read built from this frontend's facts.</returns>
     public ScreenRead Read(ConsumerConfig config, CodeModel code)
     {
-        var facts = run.Value.FirstOrDefault(entry => entry.Name == frontend.Name)
+        var facts = run.GetAwaiter().GetResult().FirstOrDefault(entry => entry.Name == frontend.Name)
             ?? FrontendFacts.Failed(
                 frontend.Name, Finding.TypeScriptReader,
                 $"the TypeScript reader returned no facts for frontend '{frontend.Name}'.");

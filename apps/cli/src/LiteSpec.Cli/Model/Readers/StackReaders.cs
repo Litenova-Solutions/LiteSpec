@@ -27,7 +27,10 @@ static class StackReaders
         IScenarioReader scenarios = dotnet ? new DotnetScenarioReader() : new EmptyScenarioReader();
 
         var frontends = new List<IFrontendReader>();
-        var webRun = new Lazy<IReadOnlyList<FrontendFacts>>(() => NodeFrontendReader.Read(config));
+        // The Node reader needs no code model, so it starts now and runs beside the .NET reads.
+        var webRun = config.Frontends.Any(frontend => frontend.Platform is "svelte" or "react")
+            ? Task.Run(() => NodeFrontendReader.Read(config))
+            : Task.FromResult<IReadOnlyList<FrontendFacts>>([]);
 
         foreach (var frontend in config.Frontends)
         {

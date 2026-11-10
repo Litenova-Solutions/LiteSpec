@@ -349,6 +349,17 @@ internal static class ScreenChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckResultUnshown(ProjectModel model, List<Finding> findings)
     {
+        // A frontend's dictionary and asserted codes are read once, however many routes it serves.
+        var dictionaries = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var assertedBy = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var refusalsByHome = model.Records
+            .Where(record => record.Type == RecordTypes.Result
+                && !record.Derived
+                && record.Field(RecordFields.Outcome) == "refusal")
+            .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
+            .Where(entry => entry.Home is not null)
+            .ToLookup(entry => entry.Home!, entry => entry.Record, StringComparer.Ordinal);
+
         foreach (var screen in ScreenRecords(model))
         {
             foreach (var route in ReadScreensFor(model, screen.Id))
@@ -360,12 +371,21 @@ internal static class ScreenChecks
                     continue;
                 }
 
-                var dictionary = RefusalDictionaryKeys(frontend);
-                var asserted = new HashSet<string>(
-                    model.BrowserTests
-                        .Where(test => test.Frontend == frontend.Name)
-                        .SelectMany(test => test.Codes),
-                    StringComparer.Ordinal);
+                if (!dictionaries.TryGetValue(frontend.Name, out var dictionary))
+                {
+                    dictionary = RefusalDictionaryKeys(frontend);
+                    dictionaries[frontend.Name] = dictionary;
+                }
+
+                if (!assertedBy.TryGetValue(frontend.Name, out var asserted))
+                {
+                    asserted = new HashSet<string>(
+                        model.BrowserTests
+                            .Where(test => test.Frontend == frontend.Name)
+                            .SelectMany(test => test.Codes),
+                        StringComparer.Ordinal);
+                    assertedBy[frontend.Name] = asserted;
+                }
 
                 foreach (var useCaseId in screen.Ids(RecordFields.Offers))
                 {
@@ -374,12 +394,7 @@ internal static class ScreenChecks
                         continue;
                     }
 
-                    foreach (var result in model.Records.Where(record =>
-                        record.Type == RecordTypes.Result
-                        && !record.Derived
-                        && record.Field(RecordFields.Outcome) == "refusal"
-                        && Identifiers.TrySplit(record.Id, out _, out var resultHome, out _)
-                        && resultHome == useCaseName))
+                    foreach (var result in refusalsByHome[useCaseName])
                     {
                         var code = result.Field(RecordFields.Code);
 

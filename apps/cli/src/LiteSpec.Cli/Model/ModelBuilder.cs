@@ -20,6 +20,13 @@ static partial class ModelBuilder
     {
         var model = new ProjectModel { Config = config };
 
+        // The code and test readers need only the configuration, so they start
+        // first and run beside the record read; their results join the model in
+        // the same order as before.
+        var stacks = config.ReadsCode ? StackReaders.For(config) : null;
+        var backendRun = stacks is null ? null : Task.Run(() => stacks.Backend.Read(config));
+        var scenarioRun = stacks is null ? null : Task.Run(() => stacks.Scenarios.Read(config));
+
         var read = RecordReader.Read(config);
 
         model.Problems.AddRange(read.Problems);
@@ -36,7 +43,7 @@ static partial class ModelBuilder
         // runs, coverage and measure results stay unread and every finding
         // about them stays silent through the claim filter in the checker. The
         // proof ledger still loads, because it states hashes the next build compares.
-        if (!config.ReadsCode)
+        if (stacks is null || backendRun is null || scenarioRun is null)
         {
             model.Code = new CodeModel();
             model.Ledger = ProofLedger.Load(config);
@@ -44,9 +51,8 @@ static partial class ModelBuilder
         }
         else
         {
-            var stacks = StackReaders.For(config);
             model.Problems.AddRange(stacks.Problems);
-            var backendRead = stacks.Backend.Read(config);
+            var backendRead = backendRun.GetAwaiter().GetResult();
 
             model.Code = backendRead.Code;
             model.Problems.AddRange(backendRead.Problems);
@@ -59,7 +65,7 @@ static partial class ModelBuilder
             model.Problems.AddRange(screens.Findings);
             model.TypeScriptQualified = screens.TypeScriptQualified;
 
-            var scenarioRead = stacks.Scenarios.Read(config);
+            var scenarioRead = scenarioRun.GetAwaiter().GetResult();
             var tests = scenarioRead.Tests;
 
             model.Problems.AddRange(scenarioRead.Problems);

@@ -145,6 +145,77 @@ sealed class ProjectModel
     /// <summary>The cached use cases by name index, built on first use.</summary>
     private IReadOnlyDictionary<string, Record>? _useCasesByName;
 
+    /// <summary>Gets aggregate records by the folder their file sits in, the first by id when a folder holds several.</summary>
+    public IReadOnlyDictionary<string, Record> AggregatesByFolder
+    {
+        get
+        {
+            if (_aggregatesByFolder is null)
+            {
+                var index = new Dictionary<string, Record>(StringComparer.Ordinal);
+
+                foreach (var record in Records)
+                {
+                    if (record.Type != RecordTypes.Aggregate)
+                    {
+                        continue;
+                    }
+
+                    var folder = Path.GetDirectoryName(record.File) ?? "";
+
+                    if (!index.TryGetValue(folder, out var held) || string.CompareOrdinal(record.Id, held.Id) < 0)
+                    {
+                        index[folder] = record;
+                    }
+                }
+
+                _aggregatesByFolder = index;
+            }
+
+            return _aggregatesByFolder;
+        }
+    }
+
+    /// <summary>Gets the ids of the use cases a reaction or job runs.</summary>
+    public IReadOnlySet<string> BackgroundRunIds
+    {
+        get
+        {
+            if (_backgroundRunIds is null)
+            {
+                var index = new HashSet<string>(StringComparer.Ordinal);
+
+                foreach (var record in Records)
+                {
+                    if (record.Type is RecordTypes.Reaction or RecordTypes.Job)
+                    {
+                        index.UnionWith(record.EdgeIds(RecordFields.Runs));
+                    }
+                }
+
+                _backgroundRunIds = index;
+            }
+
+            return _backgroundRunIds;
+        }
+    }
+
+    /// <summary>The cached background run ids, built on first use.</summary>
+    private HashSet<string>? _backgroundRunIds;
+
+    /// <summary>Gets, by use case id, the use cases that run it in a runs effect.</summary>
+    public ILookup<string, Record> UseCaseRunners =>
+        _useCaseRunners ??= Records
+            .Where(record => record.Type == RecordTypes.UseCase)
+            .SelectMany(record => record.EdgeIds(RecordFields.Runs).Distinct(StringComparer.Ordinal), (record, id) => (Id: id, Runner: record))
+            .ToLookup(entry => entry.Id, entry => entry.Runner, StringComparer.Ordinal);
+
+    /// <summary>The cached use case runners, built on first use.</summary>
+    private ILookup<string, Record>? _useCaseRunners;
+
+    /// <summary>The cached aggregates by folder index, built on first use.</summary>
+    private IReadOnlyDictionary<string, Record>? _aggregatesByFolder;
+
     /// <summary>Writes the model as JSON.</summary>
     /// <returns>The model serialized as indented JSON.</returns>
     public string ToJson()

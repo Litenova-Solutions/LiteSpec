@@ -72,17 +72,14 @@ static class UseCaseFacts
     /// <param name="useCase">The use case under test.</param>
     /// <returns>True when a use case names it in a runs effect; otherwise false.</returns>
     public static bool RunByUseCase(ProjectModel model, Record useCase) =>
-        model.Records.Any(record => record.Type == RecordTypes.UseCase
-            && !ReferenceEquals(record, useCase)
-            && record.EdgeIds(RecordFields.Runs).Contains(useCase.Id, StringComparer.Ordinal));
+        model.UseCaseRunners[useCase.Id].Any(record => !ReferenceEquals(record, useCase));
 
     /// <summary>Whether the use case runs in the background: a reaction or job runs it.</summary>
     /// <param name="model">The project model.</param>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when a reaction or job runs the use case.</returns>
     public static bool BackgroundOnly(ProjectModel model, Record useCase) =>
-        model.Records.Any(record => record.Type is RecordTypes.Reaction or RecordTypes.Job
-            && record.EdgeIds(RecordFields.Runs).Contains(useCase.Id, StringComparer.Ordinal));
+        model.BackgroundRunIds.Contains(useCase.Id);
 
     /// <summary>The aggregate whose folder holds the use case's page.</summary>
     /// <param name="model">The project model.</param>
@@ -95,13 +92,9 @@ static class UseCaseFacts
             return null;
         }
 
-        var folder = Path.GetDirectoryName(useCase.File);
-
-        return model.Records
-            .Where(record => record.Type == RecordTypes.Aggregate
-                && string.Equals(Path.GetDirectoryName(record.File), folder, StringComparison.Ordinal))
-            .OrderBy(record => record.Id, StringComparer.Ordinal)
-            .FirstOrDefault();
+        return model.AggregatesByFolder.TryGetValue(Path.GetDirectoryName(useCase.File) ?? "", out var aggregate)
+            ? aggregate
+            : null;
     }
 
     /// <summary>The use case's access grant as written.</summary>

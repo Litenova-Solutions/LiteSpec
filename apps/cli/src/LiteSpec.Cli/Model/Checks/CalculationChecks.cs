@@ -16,10 +16,21 @@ internal static class CalculationChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
+        var useCasesByAggregate = model.Records
+            .Where(record => record.Type == RecordTypes.UseCase)
+            .Select(record => (Record: record, Aggregate: ModelBuilder.AggregateOf(model, record)))
+            .Where(entry => entry.Aggregate is not null)
+            .ToLookup(entry => entry.Aggregate!.Id, entry => entry.Record, StringComparer.Ordinal);
+        var scenariosByHome = model.Records
+            .Where(record => record.Type == RecordTypes.Scenario)
+            .Select(record => (Record: record, Home: Identifiers.TrySplit(record.Id, out _, out var home, out _) ? home : null))
+            .Where(entry => entry.Home is not null)
+            .ToLookup(entry => entry.Home!, entry => entry.Record, StringComparer.Ordinal);
+
         foreach (var rule in model.Records.Where(record => record.Type == RecordTypes.Rule && record.Field(RecordFields.Kind) == "calculation"))
         {
-            var covered = GovernedUseCases(model, rule)
-                .SelectMany(useCase => ScenariosOf(model, useCase))
+            var covered = GovernedUseCases(model, rule, useCasesByAggregate)
+                .SelectMany(useCase => ScenariosOf(useCase, scenariosByHome))
                 .Any(HasExamples);
 
             if (!covered)
@@ -30,10 +41,11 @@ internal static class CalculationChecks
     }
 
     /// <summary>The use cases a rule governs: directly, or through the aggregate that holds them.</summary>
-        /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="rule">The calculation rule whose governed use cases are collected.</param>
+    /// <param name="useCasesByAggregate">The use cases by the id of the aggregate whose folder holds them, in model order.</param>
     /// <returns>The governed use cases in the order the rule lists them.</returns>
-    private static List<Record> GovernedUseCases(ProjectModel model, Record rule)
+    private static List<Record> GovernedUseCases(ProjectModel model, Record rule, ILookup<string, Record> useCasesByAggregate)
     {
         var found = new List<Record>();
 
@@ -50,8 +62,7 @@ internal static class CalculationChecks
             }
             else if (governed.Type == RecordTypes.Aggregate)
             {
-                found.AddRange(model.Records.Where(record =>
-                    record.Type == RecordTypes.UseCase && ModelBuilder.AggregateOf(model, record)?.Id == governed.Id));
+                found.AddRange(useCasesByAggregate[governed.Id]);
             }
         }
 
@@ -59,22 +70,13 @@ internal static class CalculationChecks
     }
 
     /// <summary>The scenarios on a use case page.</summary>
-    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="useCase">The use case record whose scenario records are collected.</param>
+    /// <param name="scenariosByHome">The scenarios by the use-case name their identifier is homed at, in model order.</param>
     /// <returns>The scenario records held on the use case page, or an empty list when the use case identifier does not split.</returns>
-    private static List<Record> ScenariosOf(ProjectModel model, Record useCase)
-    {
-        if (!Identifiers.TrySplit(useCase.Id, out _, out _, out var name))
-        {
-            return [];
-        }
-
-        return model.Records
-            .Where(record => record.Type == RecordTypes.Scenario
-                && Identifiers.TrySplit(record.Id, out _, out var home, out _)
-                && home == name)
-            .ToList();
-    }
+    private static IEnumerable<Record> ScenariosOf(Record useCase, ILookup<string, Record> scenariosByHome) =>
+        Identifiers.TrySplit(useCase.Id, out _, out _, out var name)
+            ? scenariosByHome[name]
+            : [];
 
     /// <summary>Whether the scenario carries a non-empty examples table.</summary>
     /// <param name="scenario">The scenario record whose examples table is inspected.</param>

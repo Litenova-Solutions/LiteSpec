@@ -86,7 +86,10 @@ internal static class SchemaEvaluator
         }
     }
 
-    /// <summary>Evaluates one schema against one value, adding its messages when a list is given, and returns whether the value passes.</summary>
+    /// <summary>
+    ///     Evaluates one schema against one value, adding its messages when a list is given, and returns whether
+    ///     the value passes. Without a list it only judges, so it stops at the first failure.
+    /// </summary>
     /// <param name="schema">The schema: an object, or a boolean schema.</param>
     /// <param name="value">The value at this point of the instance.</param>
     /// <param name="pointer">The JSON Pointer of the value inside the instance.</param>
@@ -132,6 +135,12 @@ internal static class SchemaEvaluator
         var valid = true;
 
         valid &= Assertions(keywords, value, prefix, context, own, depth);
+
+        if (!valid && errors is null)
+        {
+            return false;
+        }
+
         valid &= Applicators(keywords, value, pointer, context, nested, depth);
 
         if (errors is not null && !valid)
@@ -186,6 +195,11 @@ internal static class SchemaEvaluator
             };
 
             valid &= passed;
+
+            if (!valid && errors is null)
+            {
+                return false;
+            }
         }
 
         return valid;
@@ -209,12 +223,23 @@ internal static class SchemaEvaluator
             {
                 case "$ref":
                     valid &= Evaluate(Reference(argument, context), value, pointer, null, context, errors, depth + 1);
+
+                    if (!valid && errors is null)
+                    {
+                        return false;
+                    }
+
                     break;
 
                 case "allOf" when argument is JsonArray all:
                     foreach (var branch in all)
                     {
                         valid &= Evaluate(branch, value, pointer, null, context, errors, depth + 1);
+
+                        if (!valid && errors is null)
+                        {
+                            return false;
+                        }
                     }
 
                     break;
@@ -226,6 +251,11 @@ internal static class SchemaEvaluator
                     if (keywords.TryGetPropertyValue(branchKey, out var consequence))
                     {
                         valid &= Evaluate(consequence, value, pointer, null, context, errors, depth + 1);
+
+                        if (!valid && errors is null)
+                        {
+                            return false;
+                        }
                     }
 
                     break;
@@ -236,6 +266,11 @@ internal static class SchemaEvaluator
                         if (fields.TryGetPropertyValue(name, out var field))
                         {
                             valid &= Evaluate(subschema, field, $"{pointer}/{Escape(name)}", "properties", context, errors, depth + 1);
+
+                            if (!valid && errors is null)
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -249,6 +284,11 @@ internal static class SchemaEvaluator
                             if (PatternFor(pattern).IsMatch(name))
                             {
                                 valid &= Evaluate(subschema, field, $"{pointer}/{Escape(name)}", "patternProperties", context, errors, depth + 1);
+
+                                if (!valid && errors is null)
+                                {
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -261,6 +301,11 @@ internal static class SchemaEvaluator
                         if (!Declared(keywords, name))
                         {
                             valid &= Evaluate(argument, field, $"{pointer}/{Escape(name)}", "additionalProperties", context, errors, depth + 1);
+
+                            if (!valid && errors is null)
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -270,6 +315,11 @@ internal static class SchemaEvaluator
                     foreach (var (name, _) in fields)
                     {
                         valid &= Evaluate(argument, JsonValue.Create(name), $"{pointer}/{Escape(name)}", "propertyNames", context, errors, depth + 1);
+
+                        if (!valid && errors is null)
+                        {
+                            return false;
+                        }
                     }
 
                     break;
@@ -280,6 +330,11 @@ internal static class SchemaEvaluator
                         if (fields.ContainsKey(name))
                         {
                             valid &= Evaluate(subschema, value, pointer, "dependentSchemas", context, errors, depth + 1);
+
+                            if (!valid && errors is null)
+                            {
+                                return false;
+                            }
                         }
                     }
 
@@ -289,6 +344,11 @@ internal static class SchemaEvaluator
                     for (var index = 0; index < Math.Min(prefix.Count, items.Count); index++)
                     {
                         valid &= Evaluate(prefix[index], items[index], $"{pointer}/{index}", "prefixItems", context, errors, depth + 1);
+
+                        if (!valid && errors is null)
+                        {
+                            return false;
+                        }
                     }
 
                     break;
@@ -299,6 +359,11 @@ internal static class SchemaEvaluator
                     for (var index = first; index < items.Count; index++)
                     {
                         valid &= Evaluate(argument, items[index], $"{pointer}/{index}", "items", context, errors, depth + 1);
+
+                        if (!valid && errors is null)
+                        {
+                            return false;
+                        }
                     }
 
                     break;
@@ -421,7 +486,10 @@ internal static class SchemaEvaluator
         return true;
     }
 
-    /// <summary>Evaluates <c>oneOf</c>, adding one message that counts the matching shapes and, when none match, names each shape's first failure.</summary>
+    /// <summary>
+    ///     Evaluates <c>oneOf</c>, adding one message that counts the matching shapes and, when none match, names each
+    ///     shape's first failure. The shapes are judged without messages first, so a value that passes builds none.
+    /// </summary>
     /// <param name="argument">The list of shapes.</param>
     /// <param name="value">The value.</param>
     /// <param name="prefix">The message prefix.</param>
@@ -436,19 +504,28 @@ internal static class SchemaEvaluator
             return true;
         }
 
-        var outcomes = Shapes(shapes, value, prefix, context, depth);
-        var matched = outcomes.Count(outcome => outcome.Valid);
+        var matched = Matches(shapes, value, prefix, context, depth, stopAt: 2);
 
         if (matched == 1)
         {
             return true;
         }
 
+        if (errors is null)
+        {
+            return false;
+        }
+
+        if (matched > 1)
+        {
+            matched = Matches(shapes, value, prefix, context, depth, stopAt: int.MaxValue);
+        }
+
         var message = $"value matches {matched} of {shapes.Count} allowed shapes, expected exactly 1";
 
         if (matched == 0)
         {
-            var reasons = Reasons(outcomes, context);
+            var reasons = Reasons(Shapes(shapes, value, prefix, context, depth), context);
 
             if (reasons.Count > 0)
             {
@@ -459,7 +536,10 @@ internal static class SchemaEvaluator
         return Fail(errors, prefix, message);
     }
 
-    /// <summary>Evaluates <c>anyOf</c>, adding one message that names each shape's first failure when none matches.</summary>
+    /// <summary>
+    ///     Evaluates <c>anyOf</c>, adding one message that names each shape's first failure when none matches. The
+    ///     shapes are judged without messages first, so a value that passes builds none.
+    /// </summary>
     /// <param name="argument">The list of shapes.</param>
     /// <param name="value">The value.</param>
     /// <param name="prefix">The message prefix.</param>
@@ -474,14 +554,41 @@ internal static class SchemaEvaluator
             return true;
         }
 
-        var outcomes = Shapes(shapes, value, prefix, context, depth);
-
-        if (outcomes.Any(outcome => outcome.Valid))
+        if (Matches(shapes, value, prefix, context, depth, stopAt: 1) > 0)
         {
             return true;
         }
 
-        return Fail(errors, prefix, $"value matches none of the {shapes.Count} allowed shapes ({string.Join("; ", Reasons(outcomes, context))})");
+        if (errors is null)
+        {
+            return false;
+        }
+
+        return Fail(errors, prefix, $"value matches none of the {shapes.Count} allowed shapes ({string.Join("; ", Reasons(Shapes(shapes, value, prefix, context, depth), context))})");
+    }
+
+    /// <summary>Counts the shapes the value matches, evaluated without messages, stopping once the count reaches a bound.</summary>
+    /// <param name="shapes">The shapes.</param>
+    /// <param name="value">The value.</param>
+    /// <param name="prefix">The message prefix.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <param name="depth">How deep the evaluation is nested.</param>
+    /// <param name="stopAt">The count at which counting stops.</param>
+    /// <returns>The number of matching shapes, at most the bound.</returns>
+    private static int Matches(JsonArray shapes, JsonNode? value, string prefix, Context context, int depth, int stopAt)
+    {
+        var pointer = prefix[context.Location.Length..];
+        var matched = 0;
+
+        foreach (var shape in shapes)
+        {
+            if (Evaluate(shape, value, pointer, null, context, null, depth + 1) && ++matched >= stopAt)
+            {
+                break;
+            }
+        }
+
+        return matched;
     }
 
     /// <summary>Evaluates each shape of a composite against the value, keeping each shape's own messages.</summary>
