@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -173,10 +174,67 @@ public static class Provisions
         return "";
     }
 
-    /// <summary>Collects every provision row from the standards pages, sorted by identifier.</summary>
+    /// <summary>The collected rows per release root, with the stamp of the pages they were read from.</summary>
+    static readonly ConcurrentDictionary<string, Lazy<(string Stamp, ProvisionRow[] Rows)>> Collected = new(StringComparer.Ordinal);
+
+    /// <summary>
+    ///     Collects every provision row from the standards pages, sorted by identifier. One
+    ///     command asks several times (the record reader, the checker, the departure check), so
+    ///     the rows are read once per process and read again only when a page under
+    ///     <c>docs/</c> is added, removed or written. Each caller gets its own list.
+    /// </summary>
     /// <param name="root">The repository root.</param>
     /// <returns>Every provision row, sorted by identifier.</returns>
     public static List<ProvisionRow> Collect(string root)
+    {
+        var full = Path.GetFullPath(root);
+        var stamp = PagesStamp(full);
+
+        while (true)
+        {
+            var lazy = Collected.GetOrAdd(full, key => new Lazy<(string Stamp, ProvisionRow[] Rows)>(() => (stamp, [.. CollectPages(key)])));
+            var entry = lazy.Value;
+
+            if (entry.Stamp == stamp)
+            {
+                return [.. entry.Rows];
+            }
+
+            Collected.TryRemove(new KeyValuePair<string, Lazy<(string Stamp, ProvisionRow[] Rows)>>(full, lazy));
+        }
+    }
+
+    /// <summary>A stamp of the pages under <c>docs/</c>: each file's path, size and write time.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>The stamp, which changes when any page is added, removed or written.</returns>
+    static string PagesStamp(string root)
+    {
+        var docs = Path.Combine(root, "docs");
+
+        if (!Directory.Exists(docs))
+        {
+            return "";
+        }
+
+        var hash = default(HashCode);
+        var count = 0;
+
+        foreach (var file in Walk(docs))
+        {
+            var info = new FileInfo(file);
+            hash.Add(file, StringComparer.Ordinal);
+            hash.Add(info.Length);
+            hash.Add(info.LastWriteTimeUtc.Ticks);
+            count++;
+        }
+
+        return string.Create(CultureInfo.InvariantCulture, $"{count}:{hash.ToHashCode()}");
+    }
+
+    /// <summary>Reads every provision row from the standards pages, sorted by identifier.</summary>
+    /// <param name="root">The repository root.</param>
+    /// <returns>Every provision row, sorted by identifier.</returns>
+    static List<ProvisionRow> CollectPages(string root)
     {
         var rows = new List<ProvisionRow>();
 

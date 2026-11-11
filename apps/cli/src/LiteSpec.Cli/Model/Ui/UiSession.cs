@@ -505,6 +505,24 @@ sealed class UiSession
         return found;
     }
 
+    /// <summary>Reads a shipped release file, such as a schema, from the shared parse, reporting a parse failure as a finding.</summary>
+    /// <param name="file">The release file to read.</param>
+    /// <param name="code">The finding code a parse failure reports.</param>
+    /// <returns>The parsed file, or null when it does not parse.</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "A release file that does not parse is reported as a finding, as ReadData reports a consumer file.")]
+    public JsonNode? ReadRelease(string file, string code)
+    {
+        try
+        {
+            return ReleaseText.Read(file);
+        }
+        catch (Exception cause)
+        {
+            Add(code, $"cannot parse YAML or JSON ({cause.Message})", file);
+            return null;
+        }
+    }
+
     /// <summary>
     ///     Reads and parses a YAML or JSON data file, recording a finding when it cannot be parsed.
     /// </summary>
@@ -659,7 +677,7 @@ sealed class UiSession
             return false;
         }
 
-        var schema = ReadData(file, code);
+        var schema = ReadRelease(file, code);
         if (schema is null)
         {
             return false;

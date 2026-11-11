@@ -34,16 +34,10 @@ sealed class ConsumerRun
     /// <summary>Gets the file texts read so far, by file.</summary>
     public Dictionary<string, string> TextCache { get; } = new(StringComparer.Ordinal);
 
-    /// <summary>Gets the schemas read so far, by file.</summary>
-    public Dictionary<string, JsonNode?> SchemaCache { get; } = new(StringComparer.Ordinal);
-
-    // The per-file checks run in parallel, so both caches guard with a lock.
-    // The file read and parse stay outside the lock; a race re-reads one file.
+    // The per-file checks run in parallel, so the text cache guards with a lock.
+    // The file read stays outside the lock; a race re-reads one file.
     /// <summary>The lock guarding <see cref="TextCache"/>.</summary>
     readonly object TextLock = new();
-
-    /// <summary>The lock guarding <see cref="SchemaCache"/>.</summary>
-    readonly object SchemaLock = new();
 
     /// <summary>Gets or sets the LiteSpec release root.</summary>
     public string StandardsRoot { get; set; } = "";
@@ -299,37 +293,6 @@ sealed class ConsumerRun
         }
 
         return null;
-    }
-
-    /// <summary>
-    ///     Reads a schema once and reuses the parsed shape: every page validates
-    ///     against the same record schema, so parsing it per page re-reads one
-    ///     file thousands of times. The evaluator never writes to a schema.
-    /// </summary>
-    /// <param name="file">The schema file to read.</param>
-    /// <returns>The parsed schema.</returns>
-    public JsonNode? ReadSchema(string file)
-    {
-        lock (SchemaLock)
-        {
-            if (SchemaCache.TryGetValue(file, out var cached))
-            {
-                return cached;
-            }
-        }
-
-        var schema = RecordText.Read(file);
-
-        lock (SchemaLock)
-        {
-            if (SchemaCache.TryGetValue(file, out var raced))
-            {
-                return raced;
-            }
-
-            SchemaCache[file] = schema;
-            return schema;
-        }
     }
 
     /// <summary>

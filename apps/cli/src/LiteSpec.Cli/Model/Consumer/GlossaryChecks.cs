@@ -48,7 +48,7 @@ static class GlossaryChecks
                 "glossary-invalid",
                 glossaryFile,
                 glossaryRelative,
-                JsonSchema.Problems(run.GlossarySchemaFile, record, glossaryRelative, run.ReadSchema));
+                JsonSchema.Problems(run.GlossarySchemaFile, record, glossaryRelative, ReleaseText.Read));
         }
 
         var terms = (record as JsonObject)?["terms"] is JsonArray array ? array.Count : 0;

@@ -143,7 +143,7 @@ static class PageChecks
 
         // The record is validated through the shared schema module against the
         // record schema, so the schema is the one statement of every record shape.
-        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
@@ -237,7 +237,7 @@ static class PageChecks
         var meta = JsonNode.Parse(parsed.Root.GetRawText());
         var subject = JsonValues.PropString(meta as JsonObject, "id");
 
-        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, run.ReadSchema))
+        foreach (var problem in JsonSchema.Problems(run.RecordSchemaFile, meta, relative, ReleaseText.Read))
         {
             add(ConsumerRun.SchemaFinding("record-invalid", file, relative, problem, subject));
         }
