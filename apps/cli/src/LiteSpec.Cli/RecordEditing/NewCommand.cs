@@ -38,9 +38,12 @@ static class NewCommand
         is modules/<module>/module.yaml; an aggregate file is
         modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
         under reads/ beside its module; move the file beside its aggregate once
-        the use case names one. For an article type (research or decision)
-        the command also writes the explanation file from its explanation
-        template. The command refuses an identifier a record already carries.
+        the use case names one. For an article type (research or decision) or
+        for a type on a layer listed in explanations.layers, the command also
+        writes the explanation file from its explanation template, or from the
+        generic templates/consumer/explanation.md when the type carries no
+        fixed sections. The command refuses an identifier a record already
+        carries.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -172,7 +175,23 @@ static class NewCommand
                 return CommandFailure.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
             }
 
-            if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)
+            // A feature lives in its module's folder, but its identifier carries no home:
+            // the module picks the folder and the identifier is feature/<name>.
+            var identifierHome = homeName;
+
+            if (type == "feature")
+            {
+                if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
+                {
+                    Console.Error.WriteLine($"'{homeName}' is not a valid module name.");
+                    return 2;
+                }
+
+                full = $"feature/{name}";
+                identifierHome = null;
+            }
+
+            if (RecordPages.GrammarError(type, identifierHome, name, full) is { } grammar)
             {
                 Console.Error.WriteLine(grammar);
                 return 2;
@@ -278,6 +297,18 @@ static class NewCommand
 
             explanation = explanationTemplate;
         }
+        else if (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+            && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))
+        {
+            var explanationFile = TemplateExists($"{type}.md") ? $"{type}.md" : "explanation.md";
+
+            if (ReadTemplate(explanationFile) is not { } explanationTemplate)
+            {
+                return 1;
+            }
+
+            explanation = explanationTemplate;
+        }
 
         var target = RecordPages.PagePath(config, type, homeName, name);
 
@@ -371,6 +402,21 @@ static class NewCommand
 
         Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)}.");
         return 0;
+    }
+
+    /// <summary>Whether the release the tool carries holds the template file.</summary>
+    /// <param name="file">The template file name under <c>templates/consumer/</c>.</param>
+    /// <returns>True when the template file exists in the release; otherwise false.</returns>
+    static bool TemplateExists(string file)
+    {
+        try
+        {
+            return File.Exists(LiteSpecHome.PathTo($"templates/consumer/{file}"));
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
     }
 
     /// <summary>Reads one template from the release the tool carries, reporting an unreadable one.</summary>
