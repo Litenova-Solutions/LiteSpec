@@ -92,7 +92,7 @@ const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: strin
         <Breadcrumbs items={trail} icon={group.icon} current={page.title} />
         <h1 data-pagefind-meta={`title:${pageName(page)}`}>{page.title}</h1>
         {meta.length > 0 && (
-          <p class="page-meta">
+          <p class="page-meta" data-pagefind-ignore>
             {meta.map((pair) => (
               <span><span class="meta-label">{pair.label}:</span> <span set:html={pair.value} /></span>
             ))}
