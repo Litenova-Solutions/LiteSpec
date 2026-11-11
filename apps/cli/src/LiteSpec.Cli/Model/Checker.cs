@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Checks.Behavior;
 using LiteSpec.Cli.Model.Checks.Governance;
 using LiteSpec.Cli.Model.Checks.Implementation;
+using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Checks.Intent;
 using LiteSpec.Cli.Model.Checks.Proof;
@@ -83,7 +84,12 @@ static class Checker
         ClosedFolderChecks.Run,
         MarkChecks.Run,
         ScreenChecks.Run,
-        CodeChecks.Run,
+        WriteChecks.Run,
+        ResultChecks.Run,
+        EffectChecks.Run,
+        ApiOperationChecks.Run,
+        ReasonlessNameChecks.Run,
+        RepositoryUseChecks.Run,
         ConstituentChecks.Run,
         OperationsChecks.Run,
         SettingChecks.Run,

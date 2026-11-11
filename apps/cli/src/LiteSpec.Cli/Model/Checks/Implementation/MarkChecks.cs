@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
@@ -747,7 +748,7 @@ internal static class MarkChecks
                 continue;
             }
 
-            var edges = (record.Type == RecordTypes.UseCase ? CodeChecks.UseCaseEdges(record) : CodeChecks.HolderEdges(record))
+            var edges = (record.Type == RecordTypes.UseCase ? EffectEdges.UseCaseEdges(record) : EffectEdges.HolderEdges(record))
                 .Distinct()
                 .ToList();
 
@@ -763,13 +764,13 @@ internal static class MarkChecks
                 dispatches.AddRange(model.Code.Handlers
                     .Where(handler => handler.UseCaseId == record.Id)
                     .SelectMany(handler => handler.Dispatches ?? []));
-                dispatches.AddRange(CodeChecks.Hosts(model)
+                dispatches.AddRange(HostRow.All(model)
                     .Where(host => host.UseCaseId == record.Id)
                     .SelectMany(host => host.Dispatches ?? []));
             }
             else
             {
-                dispatches.AddRange(CodeChecks.Hosts(model)
+                dispatches.AddRange(HostRow.All(model)
                     .Where(host => host.RecordId == record.Id)
                     .SelectMany(host => host.Dispatches ?? []));
             }
@@ -783,7 +784,7 @@ internal static class MarkChecks
 
             foreach (var edge in edges)
             {
-                if (!dispatches.Any(dispatch => CodeChecks.EdgeDeclared(model, [edge], dispatch)))
+                if (!dispatches.Any(dispatch => EffectEdges.EdgeDeclared(model, [edge], dispatch)))
                 {
                     findings.Add(new Finding("effect-unimplemented", $"{label} '{record.Id}' declares '{edge.Verb} {edge.Target}', which no code takes.", record.File, record.Line, SubjectOf(record)));
                 }
