@@ -4,7 +4,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Checks;
 
-/// <summary>Reads the values the checks judge out of records: string fields, exception and effect entries, aggregate transitions and data, and the screens and claims they reach.</summary>
+/// <summary>Reads the values the checks judge out of records: string fields, id links, exception and effect entries, reaction triggers, aggregate transitions and data, and the screens and claims they reach.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class RecordEntries
 {
@@ -142,4 +142,39 @@ internal static class RecordEntries
     /// <returns>Each screen record in model order.</returns>
     internal static IReadOnlyList<Record> ScreenRecords(ProjectModel model) =>
         [.. model.Records.Where(record => record.Type == RecordTypes.Screen)];
+
+    /// <summary>The reaction event triggers: the events its triggeredBy names, one id or a list.</summary>
+    /// <param name="record">The reaction record whose triggeredBy field is read.</param>
+    /// <returns>The triggering event identifiers the reaction names.</returns>
+    internal static List<string> ReactionEventTriggers(Record record) =>
+        record.Ids(RecordFields.TriggeredBy).Where(id => id.Length > 0).ToList();
+
+    /// <summary>One field holding one id or an array of ids, read from any element.</summary>
+    /// <param name="element">The JSON object that holds the field.</param>
+    /// <param name="name">The field name whose identifiers are read.</param>
+    /// <returns>The single identifier or the array identifiers, or an empty list when the field is absent or misshaped.</returns>
+    internal static IReadOnlyList<string> LinkStrings(JsonElement element, string name)
+    {
+        if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
+        {
+            return [];
+        }
+
+        if (value.ValueKind == JsonValueKind.String && value.GetString() is { } single)
+        {
+            return [single];
+        }
+
+        if (value.ValueKind == JsonValueKind.Array)
+        {
+            return
+            [
+                .. value.EnumerateArray()
+                          .Where(entry => entry.ValueKind == JsonValueKind.String)
+                          .Select(entry => entry.GetString()!),
+            ];
+        }
+
+        return [];
+    }
 }

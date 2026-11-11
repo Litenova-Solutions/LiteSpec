@@ -1,6 +1,7 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Checks.Implementation;
+using LiteSpec.Cli.Model.Checks.Implementation.Placement;
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
@@ -372,7 +373,10 @@ public sealed class PlacementDriftModuleLayoutTests
     static List<Finding> Run(ProjectModel model)
     {
         var findings = new List<Finding>();
-        PlacementChecks.Run(model, findings);
+        BackendPlacementChecks.Run(model, findings);
+        TestPlacementChecks.Run(model, findings);
+        FrontendPlacementChecks.Run(model, findings);
+        ClosedFolderChecks.Run(model, findings);
 
         return findings.Where(finding => finding.Code == "code-placement-drift").ToList();
     }
