@@ -113,7 +113,7 @@ internal sealed class MarksValidator
                 {
                     if (node.Members.OfType<MethodDeclarationSyntax>().Any()
                         && !followed.Contains(ClassKey(node))
-                        && !KindReader.HasGeneratedCodeAttribute(node))
+                        && !GeneratedCode.HasGeneratedCodeAttribute(node))
                     {
                         var line = node.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
                         add(relative, line, MaintainerDiagnostics.Codes.MarkMissing, $"class '{node.Identifier.Text}' declares a method and carries no follows mark");

@@ -1,5 +1,4 @@
 using System;
-using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Model.Roslyn;

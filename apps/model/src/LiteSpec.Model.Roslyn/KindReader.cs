@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using static LiteSpec.Model.Roslyn.BaseTypeNames;
+using static LiteSpec.Model.Roslyn.GeneratedCode;
+using static LiteSpec.Model.Roslyn.MarkReader;
 
 namespace LiteSpec.Model.Roslyn;
 
@@ -315,25 +318,6 @@ public static class KindReader
         return false;
     }
 
-    /// <summary>Whether a base type is the generic aggregate root base.</summary>
-    /// <param name="type">The base type as written.</param>
-    /// <returns>True when the base is the aggregate root base.</returns>
-    private static bool IsAggregateRootBase(TypeSyntax type)
-    {
-        switch (type)
-        {
-            case GenericNameSyntax generic:
-                return generic.Identifier.ValueText == "AggregateRoot"
-                    && generic.TypeArgumentList.Arguments.Count == 1;
-            case QualifiedNameSyntax qualified:
-                return IsAggregateRootBase(qualified.Right);
-            case AliasQualifiedNameSyntax alias:
-                return IsAggregateRootBase(alias.Name);
-            default:
-                return false;
-        }
-    }
-
     // A symbol sees its whole base chain across every partial part, so it is known by its bases
     // only; its own name would mistake a nested type sharing a root's simple name for the root.
     /// <summary>Whether the symbol is an aggregate root, from its base chain.</summary>
@@ -357,6 +341,25 @@ public static class KindReader
         }
 
         return false;
+    }
+
+    /// <summary>Whether a base type is the generic aggregate root base.</summary>
+    /// <param name="type">The base type as written.</param>
+    /// <returns>True when the base is the aggregate root base.</returns>
+    private static bool IsAggregateRootBase(TypeSyntax type)
+    {
+        switch (type)
+        {
+            case GenericNameSyntax generic:
+                return generic.Identifier.ValueText == "AggregateRoot"
+                    && generic.TypeArgumentList.Arguments.Count == 1;
+            case QualifiedNameSyntax qualified:
+                return IsAggregateRootBase(qualified.Right);
+            case AliasQualifiedNameSyntax alias:
+                return IsAggregateRootBase(alias.Name);
+            default:
+                return false;
+        }
     }
 
     /// <summary>Whether the declaration is a domain event.</summary>
@@ -544,96 +547,6 @@ public static class KindReader
     /// <returns>True when the type carries an external-system mark.</returns>
     private static bool HasExternalSystemMark(INamedTypeSymbol type) => HasMark(type, ExternalSystemPrefix);
 
-    /// <summary>Whether the declaration carries a mark with the record id prefix.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <param name="prefix">The record id prefix.</param>
-    /// <returns>True when the type carries such a mark.</returns>
-    private static bool HasMark(TypeDeclarationSyntax type, string prefix)
-    {
-        foreach (var mark in MarkReader.Read(type))
-        {
-            if (mark.RecordId.StartsWith(prefix, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Whether the symbol carries a mark with the record id prefix.</summary>
-    /// <param name="type">The type symbol.</param>
-    /// <param name="prefix">The record id prefix.</param>
-    /// <returns>True when the type carries such a mark.</returns>
-    private static bool HasMark(INamedTypeSymbol type, string prefix)
-    {
-        foreach (var attribute in type.GetAttributes())
-        {
-            if (MarkAttributeValue(attribute) is string value
-                && value.StartsWith(prefix, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        foreach (var reference in type.DeclaringSyntaxReferences)
-        {
-            if (reference.GetSyntax() is MemberDeclarationSyntax member)
-            {
-                foreach (var mark in MarkReader.Read(member))
-                {
-                    if (mark.RecordId.StartsWith(prefix, StringComparison.Ordinal))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Reads the record id a mark attribute carries.</summary>
-    /// <param name="attribute">The attribute to read.</param>
-    /// <returns>The record id, or null when the attribute is no mark attribute.</returns>
-    private static string? MarkAttributeValue(AttributeData attribute)
-    {
-        if (!MarkVerbNames.TryParseAttributeName(attribute.AttributeClass?.Name, out _))
-        {
-            return null;
-        }
-
-        if (!IsGeneratedMarkAttribute(attribute.AttributeClass))
-        {
-            return null;
-        }
-
-        if (attribute.ConstructorArguments.Length > 0
-            && attribute.ConstructorArguments[0].Value is string positional)
-        {
-            return positional.Trim();
-        }
-
-        foreach (var named in attribute.NamedArguments)
-        {
-            if (named.Value.Value is string namedValue)
-            {
-                return namedValue.Trim();
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>Whether the attribute type is a generated mark attribute in the <c>LiteSpec</c> namespace.</summary>
-    /// <param name="attribute">The attribute type, or null.</param>
-    /// <returns>True when the attribute type is a generated mark attribute.</returns>
-    private static bool IsGeneratedMarkAttribute(INamedTypeSymbol? attribute) =>
-        attribute is not null
-        && attribute.ContainingNamespace is { } space
-        && space.ContainingNamespace is { IsGlobalNamespace: true }
-        && space.Name == "LiteSpec";
-
     /// <summary>Whether the declaration is an adapter: a class implementing a marked port.</summary>
     /// <param name="type">The type declaration.</param>
     /// <param name="context">The cross-file names the host collected.</param>
@@ -815,92 +728,6 @@ public static class KindReader
         return false;
     }
 
-    /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute, however its name is written. Every reader of code asks here.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <returns>True when the declaration carries a GeneratedCode attribute.</returns>
-    public static bool HasGeneratedCodeAttribute(TypeDeclarationSyntax type)
-    {
-        foreach (var list in type.AttributeLists)
-        {
-            foreach (var attribute in list.Attributes)
-            {
-                var simple = SyntaxNames.SimpleName(attribute.Name);
-
-                if (simple is not null && SyntaxNames.StripAttributeSuffix(simple) == "GeneratedCode")
-                {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <returns>True when the declaration derives from Migration or ModelSnapshot.</returns>
-    private static bool IsMigration(TypeDeclarationSyntax type)
-    {
-        foreach (var baseType in BaseTypes(type))
-        {
-            if (SyntaxNames.SimpleName(baseType) is "Migration" or "ModelSnapshot")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    ///     Whether the file name marks generated code: a <c>TemporaryGeneratedFile_</c> prefix, or a
-    ///     <c>.g.cs</c>, <c>.g.i.cs</c>, <c>.designer.cs</c> or <c>.generated.cs</c> ending. Every reader of
-    ///     code asks here.
-    /// </summary>
-    /// <param name="path">The file path, with either separator.</param>
-    /// <returns>True when the file name marks generated code; otherwise false.</returns>
-    public static bool IsGeneratedFileName(string path)
-    {
-        var normalized = path.Replace('\\', '/');
-        var slash = normalized.LastIndexOf('/');
-        var file = slash < 0 ? normalized : normalized.Substring(slash + 1);
-
-        return file.StartsWith("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    ///     Whether the compiler treats the file as generated: a generated file name
-    ///     or an <c>auto-generated</c> marker on one of the first two lines.
-    /// </summary>
-    /// <param name="tree">The syntax tree.</param>
-    /// <returns>True when the compiler treats the file as generated.</returns>
-    private static bool IsGeneratedFile(SyntaxTree tree)
-    {
-        if (IsGeneratedFileName(tree.FilePath))
-        {
-            return true;
-        }
-
-        var text = tree.GetText();
-
-        if (text.Lines.Count == 0)
-        {
-            return false;
-        }
-
-        if (text.Lines[0].ToString().Contains("<auto-generated", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        return text.Lines.Count > 1
-            && text.Lines[1].ToString().Contains("<auto-generated", StringComparison.Ordinal);
-    }
-
     /// <summary>Whether the method carries a test attribute.</summary>
     /// <param name="method">The method declaration.</param>
     /// <returns>True when the method is a test method.</returns>
@@ -1036,94 +863,6 @@ public static class KindReader
         }
 
         return null;
-    }
-
-    /// <summary>Whether a base of the type is one of the known names.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <param name="known">The known base names.</param>
-    /// <returns>True when a base carries a known name.</returns>
-    private static bool BaseCarries(TypeDeclarationSyntax type, IReadOnlyCollection<string> known)
-    {
-        if (type.BaseList is null || known.Count == 0)
-        {
-            return false;
-        }
-
-        foreach (var baseType in type.BaseList.Types)
-        {
-            if (known.Contains(SyntaxNames.SimpleName(baseType.Type)))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Whether the declaration is a class or a class record.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <returns>True when the declaration is class-like.</returns>
-    private static bool IsClassLike(TypeDeclarationSyntax type)
-    {
-        switch (type)
-        {
-            case ClassDeclarationSyntax:
-                return true;
-            case RecordDeclarationSyntax record:
-                return !record.ClassOrStructKeyword.IsKind(SyntaxKind.StructKeyword);
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>Lists the base types a declaration names.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <returns>The base types in declaration order.</returns>
-    private static IEnumerable<TypeSyntax> BaseTypes(TypeDeclarationSyntax type)
-    {
-        if (type.BaseList is null)
-        {
-            yield break;
-        }
-
-        foreach (var item in type.BaseList.Types)
-        {
-            yield return item.Type;
-        }
-    }
-
-    /// <summary>Whether a base of the type has the simple name.</summary>
-    /// <param name="type">The type declaration.</param>
-    /// <param name="name">The simple base name.</param>
-    /// <returns>True when a base carries the name.</returns>
-    private static bool HasBaseName(TypeDeclarationSyntax type, string name)
-    {
-        foreach (var baseType in BaseTypes(type))
-        {
-            if (SyntaxNames.SimpleName(baseType) == name)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>Whether the type implements an interface with the name.</summary>
-    /// <param name="type">The type symbol.</param>
-    /// <param name="name">The interface name.</param>
-    /// <returns>True when the type implements the interface.</returns>
-    private static bool Implements(INamedTypeSymbol type, string name)
-    {
-        foreach (var contract in type.AllInterfaces)
-        {
-            if (contract.Name == name)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>Whether the containing project or layer is one of the named projects.</summary>

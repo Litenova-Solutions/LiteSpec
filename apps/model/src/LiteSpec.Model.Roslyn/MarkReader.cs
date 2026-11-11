@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -561,4 +560,94 @@ public static class MarkReader
     /// <returns>The 1-based line where the span starts.</returns>
     private static int LineOf(MemberDeclarationSyntax member, TextSpan span) =>
         member.SyntaxTree.GetLineSpan(span).StartLinePosition.Line + 1;
+
+    /// <summary>Whether the declaration carries a mark with the record id prefix.</summary>
+    /// <param name="type">The type declaration.</param>
+    /// <param name="prefix">The record id prefix.</param>
+    /// <returns>True when the type carries such a mark.</returns>
+    internal static bool HasMark(TypeDeclarationSyntax type, string prefix)
+    {
+        foreach (var mark in MarkReader.Read(type))
+        {
+            if (mark.RecordId.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether the symbol carries a mark with the record id prefix.</summary>
+    /// <param name="type">The type symbol.</param>
+    /// <param name="prefix">The record id prefix.</param>
+    /// <returns>True when the type carries such a mark.</returns>
+    internal static bool HasMark(INamedTypeSymbol type, string prefix)
+    {
+        foreach (var attribute in type.GetAttributes())
+        {
+            if (MarkAttributeValue(attribute) is string value
+                && value.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        foreach (var reference in type.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is MemberDeclarationSyntax member)
+            {
+                foreach (var mark in MarkReader.Read(member))
+                {
+                    if (mark.RecordId.StartsWith(prefix, StringComparison.Ordinal))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Reads the record id a mark attribute carries.</summary>
+    /// <param name="attribute">The attribute to read.</param>
+    /// <returns>The record id, or null when the attribute is no mark attribute.</returns>
+    private static string? MarkAttributeValue(AttributeData attribute)
+    {
+        if (!MarkVerbNames.TryParseAttributeName(attribute.AttributeClass?.Name, out _))
+        {
+            return null;
+        }
+
+        if (!IsGeneratedMarkAttribute(attribute.AttributeClass))
+        {
+            return null;
+        }
+
+        if (attribute.ConstructorArguments.Length > 0
+            && attribute.ConstructorArguments[0].Value is string positional)
+        {
+            return positional.Trim();
+        }
+
+        foreach (var named in attribute.NamedArguments)
+        {
+            if (named.Value.Value is string namedValue)
+            {
+                return namedValue.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Whether the attribute type is a generated mark attribute in the <c>LiteSpec</c> namespace.</summary>
+    /// <param name="attribute">The attribute type, or null.</param>
+    /// <returns>True when the attribute type is a generated mark attribute.</returns>
+    private static bool IsGeneratedMarkAttribute(INamedTypeSymbol? attribute) =>
+        attribute is not null
+        && attribute.ContainingNamespace is { } space
+        && space.ContainingNamespace is { IsGlobalNamespace: true }
+        && space.Name == "LiteSpec";
 }

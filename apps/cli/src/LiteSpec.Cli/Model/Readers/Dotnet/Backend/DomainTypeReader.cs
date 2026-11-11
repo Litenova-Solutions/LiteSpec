@@ -36,7 +36,7 @@ static class DomainTypeReader
                 continue;
             }
 
-            if (KindReader.IsGeneratedFileName(file) || KindReader.HasGeneratedCodeAttribute(declared))
+            if (GeneratedCode.IsGeneratedFileName(file) || GeneratedCode.HasGeneratedCodeAttribute(declared))
             {
                 continue;
             }

@@ -195,27 +195,6 @@ static class KindClosure
             return false;
         }
 
-        return !KindReader.IsGeneratedFileName(file) && !KindReader.HasGeneratedCodeAttribute(declared) && !IsMigrationBase(declared);
-    }
-
-    /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>
-    /// <param name="declared">The type declaration.</param>
-    /// <returns>True when the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</returns>
-    public static bool IsMigrationBase(TypeDeclarationSyntax declared)
-    {
-        if (declared.BaseList is null)
-        {
-            return false;
-        }
-
-        foreach (var baseType in declared.BaseList.Types)
-        {
-            if (DotnetNames.SimpleName(DotnetNames.KindOf(DotnetNames.BaseName(baseType.Type))) is "Migration" or "ModelSnapshot")
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return !GeneratedCode.IsGeneratedFileName(file) && !GeneratedCode.HasGeneratedCodeAttribute(declared) && !GeneratedCode.IsMigration(declared);
     }
 }
