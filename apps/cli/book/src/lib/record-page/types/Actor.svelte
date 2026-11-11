@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { capitalize } from "$lib/frame";
+  import { book, capitalize } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import DataTable from "../blocks/DataTable.svelte";
@@ -16,7 +16,7 @@
   <PageSection blockKey="holds" heading="holds" count={holds.length}>
     <DataTable
       head={["Role", "Scope"]}
-      rows={holds.map((x) => [tdHtml(inlineRefHtml(stringField(x, "role") ?? "")), tdHtml(badgeHtml(capitalize(stringField(x, "scope") ?? "")))])}
+      rows={holds.map((x) => [tdHtml(inlineRefHtml(book, stringField(x, "role") ?? "")), tdHtml(badgeHtml(capitalize(stringField(x, "scope") ?? "")))])}
     />
   </PageSection>
 {/if}

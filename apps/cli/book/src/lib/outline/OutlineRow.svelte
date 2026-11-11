@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, cn, esc, formatCount, inline } from "$lib/frame";
+  import { book, cn, esc, formatCount, inline, layerStats } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
   import RecordTreeRow from "./RecordTreeRow.svelte";
   import { indentClass, layerIconOf, type OutlineRow } from "./outline-rows";
@@ -12,7 +12,7 @@
   const stats = $derived.by(() => {
     void book.rev;
     if (row.kind !== "layer") return null;
-    const ids = book.order.filter((id) => book.layerOf[id] === row.layer && book.isReal(id));
+    const { ids } = layerStats(book, row.layer);
     return {
       total: ids.length,
       shown: book.anyFilter() ? ids.filter((id) => book.isDirectMatch(id)).length : 0,

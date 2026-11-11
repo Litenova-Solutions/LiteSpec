@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { book } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
@@ -16,7 +17,7 @@
   const f = $derived(r.fields ?? {});
   const rf = $derived(reactionFields(f));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const trig = $derived(triggeredByHtml(rf.triggeredBy));
+  const trig = $derived(triggeredByHtml(book, rf.triggeredBy));
   const idem = $derived(idemTileOf(f));
 </script>
 

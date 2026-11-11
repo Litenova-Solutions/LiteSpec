@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { book } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { glossaryLinks } from "$lib/record";
   import { whyPartsOf } from "./page-prose";
@@ -6,7 +7,7 @@
   // The Why sections: the reason fields and the Why explanation sections.
   type Props = { r: BookRecord };
   let { r }: Props = $props();
-  const parts = $derived(whyPartsOf(r));
+  const parts = $derived(whyPartsOf(book, r));
 </script>
 
 {#if parts.length}

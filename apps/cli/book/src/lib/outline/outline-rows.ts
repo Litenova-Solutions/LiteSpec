@@ -2,7 +2,7 @@
 // record field, and the security groups. Rows carry everything a row renders,
 // so the components never walk the store twice.
 
-import { capitalize, formatLabel, stripStep } from "$lib/frame";
+import { MODULE_MEMBER_TYPES, capitalize, formatLabel, stripStep } from "$lib/frame";
 import type { Book, RecordFields, SecurityItem } from "$lib/frame";
 
 /** One virtual row in the outline. */
@@ -73,7 +73,7 @@ function groupFieldOf(book: Book, id: string): [string, string] | null {
     const feature = parentTitleOf(book, id);
     return feature ? [feature, ""] : null;
   }
-  if (["use-case", "rule", "reaction", "job", "notification", "setting"].includes(t)) {
+  if (MODULE_MEMBER_TYPES.includes(t)) {
     const agg = parentTitleOf(book, id);
     const mod = homeOf(id);
     return [agg || mod, agg && mod ? mod : ""];

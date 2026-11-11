@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fixtureBook } from "./fixture";
-import { duration, editorHref, inline, provisionHref, safeHref, srcHref } from "./html";
+import { duration, editorHref, inline, provisionHref, recordRefHtml, safeHref, srcHref } from "./html";
 
 describe("links and inline text", () => {
   it("opens sources through the configured editor template", async () => {
@@ -27,9 +27,24 @@ describe("links and inline text", () => {
 
   it("links a record named in code and leaves an unknown one as code", async () => {
     const book = await fixtureBook();
-    expect(inline(book, "See `feature/checkout`.")).toBe('See <button type="button" class="book-ref" data-go="feature/checkout">Checkout</button>.');
+    expect(inline(book, "See `feature/checkout`.")).toBe(
+      'See <button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</button>.',
+    );
     expect(inline(book, "See `feature/missing`.")).toBe("See <code>feature/missing</code>.");
     expect(inline(book, "<b>x</b>")).toBe("&lt;b&gt;x&lt;/b&gt;");
+  });
+
+  it("builds one record link with its title or a given label", async () => {
+    const book = await fixtureBook();
+    expect(recordRefHtml(book, "feature/checkout")).toBe(
+      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">Checkout</button>',
+    );
+    expect(recordRefHtml(book, "feature/checkout", "the checkout")).toBe(
+      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</button>',
+    );
+    expect(inline(book, "[the checkout](feature/checkout)")).toBe(
+      '<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="feature/checkout">the checkout</button>',
+    );
   });
 
   it("resolves a relative link against the record's own file", async () => {

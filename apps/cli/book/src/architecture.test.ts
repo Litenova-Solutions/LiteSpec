@@ -45,6 +45,26 @@ describe("the book's structure", () => {
     expect(found).toEqual([]);
   });
 
+  it("points imports downward: features reach record and frame, record reaches frame, frame reaches nothing", () => {
+    const allowed: Record<string, string[]> = {
+      frame: [],
+      record: ["frame", "ui"],
+      "record-page": ["frame", "record", "ui"],
+      outline: ["frame", "record", "ui"],
+      trace: ["frame", "record", "ui"],
+      shell: ["frame", "record", "ui"],
+    };
+    const found = violations((file, text) => {
+      const own = moduleOf(file);
+      if (!own) return [];
+      return [...text.matchAll(/from\s+["']\$lib\/([a-z-]+)/g)]
+        .map((match) => match[1] ?? "")
+        .filter((target) => target !== own && !(allowed[own] ?? []).includes(target))
+        .map((target) => `${own} imports ${target}`);
+    });
+    expect(found).toEqual([]);
+  });
+
   it("reaches no other module by a relative path", () => {
     const found = violations((file, text) => {
       const own = moduleOf(file);
@@ -75,6 +95,9 @@ describe("the book's structure", () => {
         const target = (match[1] ?? "").trim();
         if (target === "const" || /^(HTML\w*Element|Element|Node|KeyboardEvent|MouseEvent)( \| null)?$/.test(target)) continue;
         out.push(`cast to ${target}`);
+      }
+      for (const match of text.matchAll(/\bas\s+(string|number|boolean|unknown|object|never)\b/g)) {
+        out.push(`cast to ${match[1] ?? ""}`);
       }
       return out;
     });

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { esc } from "$lib/frame";
+  import { book, esc } from "$lib/frame";
   import { RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
@@ -27,7 +27,7 @@
     {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
     {#if trust}<DefinitionRow label="Trust">{trust}</DefinitionRow>{/if}
     {#if correlation}<DefinitionRow label="Correlation">{correlation}</DefinitionRow>{/if}
-    {#if dataschema}<DefinitionRow label="Dataschema" html={linkOrTextHtml(dataschema)} />{/if}
+    {#if dataschema}<DefinitionRow label="Dataschema" html={linkOrTextHtml(book, dataschema)} />{/if}
   </DefinitionList>
 </PageSection>
 {#if payload.length}
@@ -36,7 +36,7 @@
       head={["Name", "Type", "Meaning", "Classification"]}
       rows={payload.map((p) => [
         tdHtml(esc(stringField(p, "name") ?? ""), "nm"),
-        tdHtml(typedFieldHtml(p)),
+        tdHtml(typedFieldHtml(book, p)),
         tdHtml(esc(stringField(p, "meaning") ?? "")),
         tdHtml(clsBadgeHtml(p.classification)),
       ])}

@@ -3,7 +3,7 @@
 // match book.js.
 
 import { capitalize, esc, formatLabel, pluralize, proofLabel, stripStep } from "$lib/frame";
-import type { BookRecord, ProofState, RecordFields } from "$lib/frame";
+import type { Book, BookRecord, ProofState, RecordFields } from "$lib/frame";
 import { codeCls, inlineRefHtml } from "./page-html";
 import { aggregateFields, journeyFields, routeFileOf, stringField, stringList, teamValue } from "./page-values";
 
@@ -28,7 +28,7 @@ function testedFact(r: BookRecord): Fact | null {
 
 function proofFact(state: ProofState | null | undefined): Fact | null {
   if (!state) return null;
-  return { key: "Proof", text: capitalize(proofLabel(state)) };
+  return { key: "Proof", text: proofLabel(state) };
 }
 
 function kindFact(f: RecordFields): Fact | null {
@@ -189,20 +189,22 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "address", "host", "entryPoint", "floorplan",
   "questions", "evidence", "lifecycle", "plannedFor", "refusedBecause", "provenance",
   "decider", "decideBy", "owner", "approvedBy", "approvedOn", "approvedHash", "reviewBy",
+  // A scenario shows these in its own Given, When, Then and Result sections.
+  "given", "when", "then", "result",
 ]);
 
 /** The field table's rows: the type's relations and facts, then the plain fields. */
-export function fieldRowsFor(r: BookRecord, env: FieldTableEnv): FieldRow[] {
+export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): FieldRow[] {
   const out: FieldRow[] = [];
   const add = (label: string, value: string) => {
     if (value !== "") out.push({ label, html: value });
   };
-  const linkList = (list: unknown[]) => list.map((x) => inlineRefHtml(stripStep(String(x)))).join(", ");
+  const linkList = (list: unknown[]) => list.map((x) => inlineRefHtml(book, stripStep(String(x)))).join(", ");
   const f: RecordFields = r.fields ?? {};
   const flat = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
   if (f.affects) add("Affects", linkList(flat(f.affects)));
   if (f.affectsSegment) add("Affects segment", esc(f.affectsSegment));
-  if (f.actor) add("Actor", inlineRefHtml(stripStep(String(f.actor))));
+  if (f.actor) add("Actor", inlineRefHtml(book, stripStep(String(f.actor))));
   if (r.type === "actor") {
     const kind = stringField(f, "kind");
     if (kind) add("Kind", esc(capitalize(kind)));
@@ -212,7 +214,7 @@ export function fieldRowsFor(r: BookRecord, env: FieldTableEnv): FieldRow[] {
   if (f.solves) add("Solves", linkList(flat(f.solves)));
   if (f.advances) add("Advances", linkList(flat(f.advances)));
   if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
-  if (env.parent) add("Parent", inlineRefHtml(env.parent));
+  if (env.parent) add("Parent", inlineRefHtml(book, env.parent));
   if (r.type === "permission") {
     const risk = stringList(f, "risk");
     if (risk.length) add("Risk", risk.map((x) => esc(capitalize(formatLabel(x)))).join("; "));
@@ -230,7 +232,7 @@ export function fieldRowsFor(r: BookRecord, env: FieldTableEnv): FieldRow[] {
     const address = stringField(f, "address") || stringField(f, "host");
     if (address) add("Address", `<span class="${codeCls}">${esc(address)}</span>`);
     const entryPoint = stringField(f, "entryPoint");
-    if (entryPoint) add("Entry point", inlineRefHtml(stripStep(entryPoint)));
+    if (entryPoint) add("Entry point", inlineRefHtml(book, stripStep(entryPoint)));
     const floorplan = stringField(f, "floorplan");
     if (floorplan) add("Floorplan", esc(capitalize(formatLabel(floorplan))));
     if (r.route) {

@@ -2,16 +2,22 @@
 // implementation kinds, and the kept-by sentences. Every band word comes from
 // the lexicon's layer labels; the store supplies records and relations.
 import { capitalize, isFlowType, pluralize, stripStep } from "$lib/frame";
-import type { Book, ImplKind } from "$lib/frame";
+import type { Book, BookRecord, BookTest, ImplKind } from "$lib/frame";
 
-/** A goal or feature with nothing below it reads as a gap in the trace. */
-const GAP: Record<string, string> = {
-  goal: "No feature serves this goal",
-  feature: "No requirement cites this feature",
-};
+/** A goal nothing serves reads as a gap in the trace and the Intent tree. */
+export const GOAL_GAP_TEXT = "No feature serves this goal";
+
+/** A feature nothing cites reads as a gap in the trace and the Intent tree. */
+export const FEATURE_GAP_TEXT = "No requirement cites this feature";
 
 /** A requirement nothing keeps reads as a gap in the trace and the Intent tree. */
 export const GAP_TEXT = "Nothing keeps this requirement";
+
+/** A goal or feature with nothing below it reads as a gap in the trace. */
+const GAP: Record<string, string> = {
+  goal: GOAL_GAP_TEXT,
+  feature: FEATURE_GAP_TEXT,
+};
 
 const KIND_WORD: Record<string, string> = {
   handler: "Handler",
@@ -60,6 +66,16 @@ export function breaksIntentChain(book: Book, id: string, childCount: number): b
   return false;
 }
 
+/** The stable key for an implementation entry: its path, kind and line. */
+export function implKey(entry: NonNullable<BookRecord["impl"]>[number]): string {
+  return (entry.path ?? "") + "|" + (entry.kind ?? "") + "|" + (entry.line ?? "");
+}
+
+/** The stable key for a proof test: its name and path. */
+export function proofTestKey(test: BookTest): string {
+  return (test.name ?? "") + "|" + (test.path ?? test.file ?? "");
+}
+
 export interface DownEntry {
   id: string;
   phrase: string;
@@ -97,6 +113,14 @@ export type TraceRow =
   | { kind: "note"; note: string; depth: number; band: string }
   | { kind: "gap"; gap: string; depth: number; band: string }
   | { kind: "more"; more: number; depth: number; t: string };
+
+/** The stable key for a trace row: the record id, or the band text it shows. */
+export function traceRowKey(row: TraceRow): string {
+  if (row.kind === "rec") return "rec:" + row.id;
+  if (row.kind === "note") return "note:" + row.note;
+  if (row.kind === "gap") return "gap:" + row.gap;
+  return "more:" + row.t + ":" + row.more;
+}
 
 export interface TraceBand {
   name: string;

@@ -2,7 +2,7 @@
   import { book } from "$lib/frame";
   import { RecordIcon, TypeTag } from "$lib/record";
   import { Separator } from "$lib/ui/separator";
-  import { buildTrace } from "./trace-model";
+  import { buildTrace, traceRowKey } from "./trace-model";
 
   // The "From goal to behavior" trace: the chain above the record and what it
   // leads to below, grouped into the Intent and Behavior bands.
@@ -27,7 +27,7 @@
             data-explain="g:layer"
             class="mb-1 inline-block text-[0.65625rem] font-semibold tracking-[0.08em] text-highlight-foreground uppercase"
           >{band.name}</button>
-          {#each band.rows as row}
+          {#each band.rows as row (traceRowKey(row))}
             {#if row.kind === "rec"}
               <div class="{pad(row.depth)} py-0.5">
                 {#if row.showPh}

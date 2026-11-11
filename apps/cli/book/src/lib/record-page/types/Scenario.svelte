@@ -1,8 +1,7 @@
 <script lang="ts">
   import { book, esc, pluralize, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { ProofMark } from "$lib/record";
-  import { EditorFileLink } from "$lib/trace";
+  import { EditorFileLink, ProofMark } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
@@ -29,7 +28,7 @@
   const proofText = $derived(proofTests ? pluralize(proofTests, "test") + " claim this example" : "No test claims it");
 </script>
 
-<PageSection blockKey="gwt" heading="given, when, then">
+<PageSection blockKey="gwt" heading="Given, When, Then">
   <div class="border-l-[3px] border-border py-0.5 pl-3.5">
     <GivenWhenThen given={sf.given ?? ""} when={sf.when ?? ""} then={sf.then ?? ""} />
   </div>
@@ -38,7 +37,7 @@
   <PageSection blockKey="exer" heading="exercises" count={sf.exercises.length}><RecordList ids={sf.exercises} /></PageSection>
 {/if}
 {#if ri}
-  <PageSection blockKey="res" heading="result">
+  <PageSection blockKey="res" heading="Result">
     <ResultCards items={[{ title: ri.title, outcome: ri.outcome, code: ri.code, meaning: ri.meaning }]} />
   </PageSection>
 {/if}

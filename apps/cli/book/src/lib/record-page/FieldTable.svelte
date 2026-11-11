@@ -11,7 +11,7 @@
 
   const routePath = $derived(r.type === "screen" ? routeFileOf(r.route) : null);
   const rows = $derived(
-    fieldRowsFor(r, {
+    fieldRowsFor(book, r, {
       parent: book.parent(id),
       proof: book.proofState(id),
       days: (d) => book.days(d),

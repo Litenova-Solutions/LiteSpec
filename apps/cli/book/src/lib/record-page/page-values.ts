@@ -2,7 +2,7 @@
 // behavior records, as pure functions over values the components resolve.
 
 import { capitalize, duration, esc, formatLabel, pluralize, stripStep } from "$lib/frame";
-import type { BookRecord, CheckLevel, ProofState, RecordFields } from "$lib/frame";
+import type { Book, BookRecord, CheckLevel, ProofState, RecordFields } from "$lib/frame";
 import { badgeHtml, codeCls, inlineRefHtml, opRefHtml } from "./page-html";
 
 /** Whether a value is a plain field map. */
@@ -275,12 +275,12 @@ export function modeWord(m: unknown) {
   return formatLabel(m);
 }
 
-export function freshnessNoteHtml(g: RecordFields) {
+export function freshnessNoteHtml(book: Book, g: RecordFields) {
   const f = objectField(g, "freshness");
   if (!f) return "";
   const mode = stringField(f, "mode");
   if (mode === "bounded") return "fresh within " + duration(stringField(f, "within") ?? "");
-  if (mode === "advisory") return "advisory, authoritative value in " + inlineRefHtml(stringField(f, "authority") ?? "");
+  if (mode === "advisory") return "advisory, authoritative value in " + inlineRefHtml(book, stringField(f, "authority") ?? "");
   return esc(capitalize(modeWord(f.mode)));
 }
 
@@ -305,17 +305,17 @@ export function periodSuffixHtml(p: unknown) {
   return ", None" + (reason ? ", because " + esc(reason) : "");
 }
 
-export function releasedByHtml(r: unknown) {
+export function releasedByHtml(book: Book, r: unknown) {
   if (!r) return "";
-  if (typeof r === "string") return inlineRefHtml(r);
+  if (typeof r === "string") return inlineRefHtml(book, r);
   const reason = isRecord(r) ? stringField(r, "reason") : undefined;
   return "Never" + (reason ? ", because " + esc(reason) : "");
 }
 
-export function erasureHtml(e: RecordFields | undefined) {
+export function erasureHtml(book: Book, e: RecordFields | undefined) {
   if (!e) return "";
-  if (stringField(e, "mode") === "call") return "Calls " + opRefHtml(e.operation);
-  if (stringField(e, "mode") === "event") return "Forwards through " + inlineRefHtml(stringField(e, "event") ?? "");
+  if (stringField(e, "mode") === "call") return "Calls " + opRefHtml(book, e.operation);
+  if (stringField(e, "mode") === "event") return "Forwards through " + inlineRefHtml(book, stringField(e, "event") ?? "");
   const reason = stringField(e, "reason");
   return "Impossible" + (reason ? ", because " + esc(reason) : "");
 }
@@ -365,19 +365,19 @@ export function idemTileOf(f: RecordFields): { value: string; hint: string } | n
   };
 }
 
-export function triggeredByHtml(t: unknown) {
+export function triggeredByHtml(book: Book, t: unknown) {
   if (!t) return "";
   if (Array.isArray(t))
-    return t.length ? `<div class="flex flex-wrap items-center gap-1.5 text-sm">${t.map((x) => inlineRefHtml(String(x))).join(" ")}</div>` : "";
-  if (typeof t === "string") return `<div class="flex flex-wrap items-center gap-1.5 text-sm">${inlineRefHtml(t)}</div>`;
+    return t.length ? `<div class="flex flex-wrap items-center gap-1.5 text-sm">${t.map((x) => inlineRefHtml(book, String(x))).join(" ")}</div>` : "";
+  if (typeof t === "string") return `<div class="flex flex-wrap items-center gap-1.5 text-sm">${inlineRefHtml(book, t)}</div>`;
   return "";
 }
 
-export function typedFieldHtml(x: RecordFields) {
+export function typedFieldHtml(book: Book, x: RecordFields) {
   const bits: string[] = [];
   if (x.type) bits.push(`<span class="${codeCls}">${esc(x.type)}</span>`);
   if (x.required) bits.push(badgeHtml("Required"));
-  if (x.of) bits.push(Array.isArray(x.of) ? esc(x.of.join(", ")) : inlineRefHtml(String(x.of)));
+  if (x.of) bits.push(Array.isArray(x.of) ? esc(x.of.join(", ")) : inlineRefHtml(book, String(x.of)));
   return bits.join(" ");
 }
 

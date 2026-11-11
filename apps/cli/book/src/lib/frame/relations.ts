@@ -1,6 +1,7 @@
 // Pure relation readers: edges, trace, connections and breadcrumbs from records.
 
 import type { BookRecord, LinkEdge, RecordFields } from "./shard-types";
+import { MODULE_MEMBER_TYPES } from "./shard-types";
 import { stripStep } from "./text";
 
 /** One placed relation: its label, the linked record and how the link reads. */
@@ -95,7 +96,7 @@ export function upOneFor(
     return parent && readers.get(parent) && readers.isReal(parent) ? parent : null;
   }
   if (type === "screen") return known(outsFor(readers, id, "serves")) ?? known(outsFor(readers, id, "offers"));
-  if (type === "use-case" || type === "rule" || type === "reaction" || type === "job" || type === "notification" || type === "setting") {
+  if (MODULE_MEMBER_TYPES.includes(type)) {
     return known(outsFor(readers, id, "fulfills")) ?? known(outsFor(readers, id, "serves"));
   }
   if (type === "journey") return known(outsFor(readers, id, "cites")) ?? known(outsFor(readers, id, "serves"));
@@ -160,6 +161,16 @@ export function linkSentenceFor(
   if (inbound === false) return "This " + me + " " + readers.phraseFor(field, readers.typeOf(id), "forward");
   const first = items.length > 0 ? items[0] : undefined;
   return "This " + me + " " + readers.phraseFor(field, first ? readers.typeOf(first.id) : null, "inverse");
+}
+
+/** The real records and record types in a layer, for the layer header and page. */
+export function layerStats(
+  readers: Pick<RelationReaders, "isReal" | "typeOf"> & { order: string[]; layerOf: Record<string, string> },
+  layer: string,
+): { ids: string[]; types: string[] } {
+  const ids = readers.order.filter((id) => readers.layerOf[id] === layer && readers.isReal(id));
+  const types = [...new Set(ids.map((id) => readers.typeOf(id)))];
+  return { ids, types };
 }
 
 /** A record's breadcrumb: the ids from the root down to its parent, excluding itself. */

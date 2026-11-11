@@ -3,7 +3,7 @@
   import { book, capitalize, pluralize, stripStep } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
   import { Button } from "$lib/ui/button";
-  import { breaksIntentChain, GAP_TEXT, keptBySentence } from "./trace-model";
+  import { breaksIntentChain, FEATURE_GAP_TEXT, GAP_TEXT, GOAL_GAP_TEXT, keptBySentence } from "./trace-model";
 
   // The Intent tree: the product down through goals, features, requirements and
   // journeys, one level per click. A box opens the level below it; the ext icon
@@ -60,12 +60,12 @@
     if (t === "goal") {
       return kids.length
         ? { text: pluralize(kids.length, "feature") + (kids.length === 1 ? " serves it" : " serve it"), gap: false }
-        : { text: "No feature serves it", gap: true };
+        : { text: GOAL_GAP_TEXT, gap: true };
     }
     if (t === "feature") {
       return kids.length
         ? { text: pluralize(kids.length, "requirement"), gap: false }
-        : { text: "No requirement cites it", gap: true };
+        : { text: FEATURE_GAP_TEXT, gap: true };
     }
     if (t === "product") return { text: pluralize(Math.max(0, kids.length - 1), "goal"), gap: false };
     return { text: "", gap: false };
@@ -125,7 +125,7 @@
           data-go={id}
           title="Open the page"
           aria-label="Open the page"
-          class="grid size-5 place-items-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+          class="grid size-6 place-items-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <RecordIcon name="ext" class="size-3.5" />
         </button>

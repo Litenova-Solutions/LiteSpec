@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, proofLabel, proofRank, stripStep } from "$lib/frame";
+  import { book, proofRank, proofWord, stripStep } from "$lib/frame";
   import type { ProofState } from "$lib/frame";
   import { Button } from "$lib/ui/button";
   import PageSection from "../blocks/PageSection.svelte";
@@ -25,7 +25,7 @@
       const p = book.get(stripStep(s))?.proof?.state ?? "unproved";
       counts.set(p, (counts.get(p) ?? 0) + 1);
     }
-    return [...counts].map(([state, n]) => n + " " + proofLabel(state).toLowerCase()).join(", ");
+    return [...counts].map(([state, n]) => n + " " + proofWord(state)).join(", ");
   });
 </script>
 

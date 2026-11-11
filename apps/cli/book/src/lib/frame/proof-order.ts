@@ -1,6 +1,7 @@
 // One proof-state order and label: failing first, passing last, unknown last.
 
 import type { ProofState } from "./shard-types";
+import { capitalize } from "./text";
 
 /** The sort rank of a proof state: failing first, passing last, no proof last. */
 export function proofRank(state: ProofState | null): number {
@@ -21,10 +22,30 @@ export function proofRank(state: ProofState | null): number {
       return 6;
     case null:
       return 7;
+    default: {
+      const exhaustive: never = state;
+      return exhaustive;
+    }
   }
 }
 
-/** The words the book prints for a proof state. */
+/** The words the book prints for each proof state, in lower case. */
+const PROOF_WORDS = {
+  passing: "passing",
+  failing: "failing",
+  awaiting: "awaiting",
+  unconfirmed: "unconfirmed",
+  unproved: "unproved",
+  indirect: "indirect",
+  norun: "not run",
+} satisfies Record<ProofState, string>;
+
+/** The display label the book prints for a proof state, capitalized. */
 export function proofLabel(state: ProofState): string {
-  return state;
+  return capitalize(PROOF_WORDS[state]);
+}
+
+/** The proof state words in lower case, for a sentence that needs them. */
+export function proofWord(state: ProofState): string {
+  return PROOF_WORDS[state];
 }

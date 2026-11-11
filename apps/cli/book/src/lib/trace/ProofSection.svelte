@@ -1,9 +1,9 @@
 <script lang="ts">
   import { book, isFlowType, pluralize, stripStep } from "$lib/frame";
   import type { BookTest } from "$lib/frame";
-  import { RecordIcon, RecordLink } from "$lib/record";
+  import { EditorFileLink, RecordIcon, RecordLink } from "$lib/record";
   import { Separator } from "$lib/ui/separator";
-  import EditorFileLink from "./EditorFileLink.svelte";
+  import { proofTestKey } from "./trace-model";
 
   // The proof section: the tests that prove the record's scenarios, or the
   // tests that prove the record itself.
@@ -71,7 +71,7 @@
         <span>No test proves this {typeWord}.</span>
       </p>
     {:else}
-      {#each tests as t}
+      {#each tests as t (proofTestKey(t))}
         <div class="border-b border-border py-1.5 last:border-b-0">
           <span class="mb-px block text-[0.71875rem] text-muted-foreground">{t.browser ? "Browser test" : "Test"}{t.confirmed ? "" : ", not confirmed"}</span>
           <EditorFileLink path={String(t.path ?? t.file ?? "")} line={typeof t.line === "number" ? t.line : null} label={String(t.name ?? "")} />

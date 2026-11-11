@@ -65,6 +65,9 @@ export function isFlowType(type: string): boolean {
   return FLOW_TYPES.some((flow) => flow === type);
 }
 
+/** The record types that live under a module member: use cases, rules, reactions, jobs, notifications and settings. */
+export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting"];
+
 /** A record the Records packs carry, with every computed detail the book adds. */
 export interface BookRecord {
   type: string;
@@ -295,8 +298,3 @@ export interface SourceRef {
   litespec?: boolean;
 }
 
-/** One component heading: its label and the popover it opens, if any. */
-export interface TableHead {
-  label: string;
-  explain?: string;
-}

@@ -1,6 +1,5 @@
 // The trace: the rail beside the record page and the Intent tree.
 
-export { default as EditorFileLink } from "./EditorFileLink.svelte";
 export { default as GoalTrace } from "./GoalTrace.svelte";
 export { default as ImplementationSection } from "./ImplementationSection.svelte";
 export { default as IntentTree } from "./IntentTree.svelte";

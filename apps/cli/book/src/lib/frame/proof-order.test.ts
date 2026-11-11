@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { proofLabel, proofRank } from "./proof-order";
+import { proofLabel, proofRank, proofWord } from "./proof-order";
 
 describe("proof-order", () => {
   it("ranks failing first, passing last, and no proof last of all", () => {
@@ -19,13 +19,16 @@ describe("proof-order", () => {
     expect(sorted).toEqual(["failing", "awaiting", "norun", "unproved", "passing"]);
   });
 
-  it("labels each proof state with its word", () => {
-    expect(proofLabel("passing")).toBe("passing");
-    expect(proofLabel("failing")).toBe("failing");
-    expect(proofLabel("awaiting")).toBe("awaiting");
-    expect(proofLabel("unconfirmed")).toBe("unconfirmed");
-    expect(proofLabel("unproved")).toBe("unproved");
-    expect(proofLabel("indirect")).toBe("indirect");
-    expect(proofLabel("norun")).toBe("norun");
+  it("labels each proof state capitalized, and words it lower case", () => {
+    expect(proofLabel("passing")).toBe("Passing");
+    expect(proofLabel("failing")).toBe("Failing");
+    expect(proofLabel("awaiting")).toBe("Awaiting");
+    expect(proofLabel("unconfirmed")).toBe("Unconfirmed");
+    expect(proofLabel("unproved")).toBe("Unproved");
+    expect(proofLabel("indirect")).toBe("Indirect");
+    expect(proofLabel("norun")).toBe("Not run");
+    expect(proofWord("norun")).toBe("not run");
+    expect(proofWord("passing")).toBe("passing");
+    expect(proofWord("failing")).toBe("failing");
   });
 });

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { book, coveragePercent, dedupe, esc, inline } from "$lib/frame";
-  import type { BookRecord } from "$lib/frame";
+  import { book, coveragePercent, esc, inline, layerStats } from "$lib/frame";
+  import type { BookRecord, LayerKey } from "$lib/frame";
   import { glossaryLinks, RecordIcon, RecordLine } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
@@ -15,11 +15,21 @@
   const f = $derived(r.fields ?? {});
   const key = $derived(id.slice(6));
   const unclaimed = $derived(["intent", "behavior", "implementation", "proof"].includes(key) && !book.claimed(key));
-  const ids = $derived(book.order.filter((x) => book.layerOf[x] === key && book.isReal(x)));
-  const types = $derived(dedupe(ids.map((x) => book.typeOf(x))));
+  // The layer keys the book knows, read from a layer page id.
+  const LAYER_OF: Record<string, LayerKey> = {
+    intent: "intent",
+    behavior: "behavior",
+    implementation: "implementation",
+    proof: "proof",
+  };
+  const stats = $derived.by((): { ids: string[]; types: string[] } => {
+    const layer = LAYER_OF[key];
+    if (layer === undefined) return { ids: [], types: [] };
+    return layerStats(book, layer);
+  });
   const typeRows = $derived(
-    types.map((t) => {
-      const first = ids.filter((x) => book.typeOf(x) === t);
+    stats.types.map((t) => {
+      const first = stats.ids.filter((x) => book.typeOf(x) === t);
       return { type: t, first: first[0] ?? "", count: first.length };
     }),
   );

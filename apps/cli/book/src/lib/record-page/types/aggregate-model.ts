@@ -3,7 +3,7 @@
 // resolves the linked rules; the model reads only values.
 
 import { capitalize, dedupe, esc, formatLabel } from "$lib/frame";
-import type { BookRecord, RecordFields } from "$lib/frame";
+import type { Book, BookRecord, RecordFields } from "$lib/frame";
 import { codeCls, inlineRefHtml, tdHtml } from "../page-html";
 import { aggregateFields, clsBadgeHtml, periodSuffixHtml, stringList } from "../page-values";
 
@@ -42,7 +42,7 @@ export interface AggregateModel {
   ruleRows: string[][];
 }
 
-export function aggregateModel(f: RecordFields, r: BookRecord, rules: AggregateRuleInput[]): AggregateModel {
+export function aggregateModel(book: Book, f: RecordFields, r: BookRecord, rules: AggregateRuleInput[]): AggregateModel {
   const af = aggregateFields(f);
   const reach = r.reachable ?? [];
   const starts = new Set(af.transitions.filter((t) => t.from === "-").map((t) => String(t.to)));
@@ -83,13 +83,13 @@ export function aggregateModel(f: RecordFields, r: BookRecord, rules: AggregateR
     tdHtml(clsBadgeHtml(d.classification)),
   ]);
   const ruleRows = rules.map((x) => [
-    tdHtml(inlineRefHtml(x.id) + `<div class="mt-0.5 text-[0.8125rem] text-muted-foreground">${esc(x.statement)}</div>`),
+    tdHtml(inlineRefHtml(book, x.id) + `<div class="mt-0.5 text-[0.8125rem] text-muted-foreground">${esc(x.statement)}</div>`),
     tdHtml(`<span class="font-medium text-foreground">${esc(capitalize(x.kind))}</span>`),
     tdHtml(
       x.refusalCode
         ? `<span class="${codeCls}">${esc(x.refusalCode)}</span>`
         : x.refusalId
-          ? inlineRefHtml(x.refusalId)
+          ? inlineRefHtml(book, x.refusalId)
           : '<span class="font-mono text-[0.6875rem] text-muted-foreground">none</span>',
     ),
   ]);

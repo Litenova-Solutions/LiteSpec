@@ -16,7 +16,7 @@
   <PageSection blockKey="allows" heading="allows" count={allows.length}>
     <DataTable
       head={["Permission", "Meaning"]}
-      rows={allows.map((p) => [tdHtml(inlineRefHtml(p)), tdHtml(esc(String(book.get(stripStep(p))?.fields?.meaning ?? "")))])}
+      rows={allows.map((p) => [tdHtml(inlineRefHtml(book, p)), tdHtml(esc(String(book.get(stripStep(p))?.fields?.meaning ?? "")))])}
     />
   </PageSection>
 {/if}

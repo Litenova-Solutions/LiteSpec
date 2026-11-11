@@ -1,8 +1,8 @@
 // Record prose: the rendered fields and explanation sections of a record,
 // as pure functions.
 
-import { book, inline } from "$lib/frame";
-import type { BookRecord, RecordFields } from "$lib/frame";
+import { inline } from "$lib/frame";
+import type { Book, BookRecord, RecordFields } from "$lib/frame";
 
 export interface BodySection {
   h: string;
@@ -62,13 +62,6 @@ export function leadFieldOf(fields: RecordFields): string | null {
   return null;
 }
 
-/** A record's lead as plain text, for records with no rendered lead. */
-export function leadTextOf(r: BookRecord) {
-  const f: RecordFields = r.fields ?? {};
-  const name = leadFieldOf(f);
-  return name === null ? "" : String(f[name] ?? "");
-}
-
 function stripHtml(html: string) {
   return html
     .replace(/<[^>]*>/g, "")
@@ -80,7 +73,9 @@ export const WHY_SECTIONS = /^(Why.*|Rationale)$/;
 /** The explanation intro, unless it repeats the lead the page already shows. */
 export function bodyIntroOf(r: BookRecord) {
   const intro = secIntro(r).trim();
-  const lt = leadTextOf(r).slice(0, 40);
+  const f: RecordFields = r.fields ?? {};
+  const name = leadFieldOf(f);
+  const lt = name === null ? "" : String(f[name] ?? "").slice(0, 40);
   if (intro && !(lt && stripHtml(intro).indexOf(lt) === 0)) return intro;
   return "";
 }
@@ -104,7 +99,7 @@ export function bodySectionsOf(r: BookRecord): BodySectionView[] {
 }
 
 /** The Why rows: reason fields first, then the Why explanation sections. */
-export function whyPartsOf(r: BookRecord): WhyPart[] {
+export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
   const f: RecordFields = r.fields ?? {};
   const parts: WhyPart[] = [];
   const rows: [string, string][] = [

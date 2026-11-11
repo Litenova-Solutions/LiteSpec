@@ -33,7 +33,7 @@
       return q ? [{ id: x, record: q }] : [];
     }),
   );
-  const model = $derived(useCaseModel(f, r, resultInputs));
+  const model = $derived(useCaseModel(book, f, r, resultInputs));
   const scs = $derived(book.scenariosOf(id).filter((s) => book.get(stripStep(s))));
   const offered = $derived(
     browserReached(stringList(f, "reachedThrough"), (e) => book.kids(e).some((k) => book.typeOf(k) === "screen")),
@@ -97,7 +97,7 @@
       head={["Name", "Type", "Meaning", "Rules"]}
       rows={model.input.map((x) => [
         tdHtml(esc(String(x.name ?? "")) + (x.classification ? `<div class="mt-1">${clsBadgeHtml(x.classification)}</div>` : ""), "nm"),
-        tdHtml(typedFieldHtml(x)),
+        tdHtml(typedFieldHtml(book, x)),
         tdHtml(
           esc(String(x.meaning ?? "")) +
             (x.origin ? `<div class="mt-0.5 text-[0.6875rem] text-muted-foreground">from ${esc(String(x.origin))}</div>` : ""),

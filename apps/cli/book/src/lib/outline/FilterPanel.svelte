@@ -84,7 +84,7 @@
     {#each chips as c (c.key + "|" + c.value)}
       <span class="inline-flex h-6 items-center gap-1 rounded-full border border-rule-border bg-rule pr-1 pl-2.5 text-xs text-foreground">
         {c.label}: {c.name}
-        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-[18px] cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
+        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-6 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
           <RecordIcon name="x" class="size-3.5" />
         </button>
       </span>
@@ -92,7 +92,7 @@
     {#if book.query}
       <span class="inline-flex h-6 items-center gap-1 rounded-full border border-rule-border bg-rule pr-1 pl-2.5 text-xs text-foreground">
         Text: {book.query}
-        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-[18px] cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
+        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-6 cursor-pointer place-items-center rounded-full text-muted-foreground hover:bg-highlight-soft hover:text-foreground">
           <RecordIcon name="x" class="size-3.5" />
         </button>
       </span>

@@ -27,7 +27,7 @@
         )
         .join(" ");
     }
-    return provisionLinkHtml(f.covers);
+    return provisionLinkHtml(book, f.covers);
   });
 </script>
 

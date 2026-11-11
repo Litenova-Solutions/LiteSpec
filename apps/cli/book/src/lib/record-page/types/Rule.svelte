@@ -34,7 +34,7 @@
   <PageSection blockKey="reads" heading="reads" count={reads.length}><RecordList ids={reads} /></PageSection>
 {/if}
 {#if f.releasedBy}
-  <PageSection blockKey="released" heading="releasedBy">{@html releasedByHtml(f.releasedBy)}</PageSection>
+  <PageSection blockKey="released" heading="releasedBy">{@html releasedByHtml(book, f.releasedBy)}</PageSection>
 {/if}
 {#if frozenWhen}
   <PageSection blockKey="frozen" heading="frozenWhen">{frozenWhen}</PageSection>

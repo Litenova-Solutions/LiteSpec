@@ -14,7 +14,7 @@
 {#if lines.length}
   <PageSection blockKey="completion" heading="Completion">
     <ul class="m-0 list-none p-0">
-      {#each lines as line, i (i)}
+      {#each lines as line (line.label)}
         {@const present = line.mark === "present"}
         <li class="flex items-center gap-2">
           <RecordIcon name={present ? "done" : "missing"} class="size-3.5 {present ? 'text-convention-foreground' : 'text-warn-foreground'}" />

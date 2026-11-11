@@ -2,18 +2,18 @@
 // as HTML strings. Record links carry data-go buttons, which the App opens,
 // and explanations carry data-explain, which the ExplainLayer shows.
 
-import { book, editorHref, esc, formatLabel, safeHref, stripStep } from "$lib/frame";
+import { editorHref, esc, formatLabel, recordRefHtml, safeHref, stripStep } from "$lib/frame";
+import type { Book } from "$lib/frame";
 
 /** An inline code span, as book.js rendered .code. */
 export const codeCls =
   "inline-block rounded border border-border bg-muted px-1.5 py-px font-mono text-xs font-medium whitespace-nowrap text-subtle-foreground";
 
 /** A record named inside a sentence: its title as a link, or the bare identifier. */
-export function inlineRefHtml(id: string, label?: string) {
+export function inlineRefHtml(book: Book, id: string, label?: string) {
   const b = stripStep(id);
-  if (book.has(b))
-    return `<button type="button" class="underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="${esc(b)}">${esc(label ?? book.title(b))}</button>`;
-  return `<span class="font-mono text-[0.9em] text-muted-foreground" title="No record with this identifier is in the book">${esc(label ?? b)}</span>`;
+  if (book.has(b)) return recordRefHtml(book, b, label);
+  return `<span class="font-mono text-[0.9rem] text-muted-foreground" title="No record with this identifier is in the book">${esc(label ?? b)}</span>`;
 }
 
 /** A table cell, as book.js rendered td. */
@@ -35,7 +35,7 @@ export function badgeHtml(text: unknown) {
 }
 
 /** A LiteSpec provision ID opens its standards page in the LiteSpec checkout. */
-export function provisionLinkHtml(p: unknown) {
+export function provisionLinkHtml(book: Book, p: unknown) {
   const m = /^litespec\/(.+)#(.+)$/.exec(String(p ?? ""));
   if (!m) return `<span class="${codeCls}">${esc(p)}</span>`;
   const href = editorHref(book, book.man?.roots?.litespec ?? "", "docs/" + (m[1] ?? "") + ".md");
@@ -44,13 +44,13 @@ export function provisionLinkHtml(p: unknown) {
     : `<span class="${codeCls}">${esc(p)}</span>`;
 }
 
-export function linkOrTextHtml(value: unknown) {
+export function linkOrTextHtml(book: Book, value: unknown) {
   const href = safeHref(book, value);
   return href ? `<a href="${esc(href)}">${esc(value)}</a>` : esc(value);
 }
 
-export function opRefHtml(op: unknown) {
+export function opRefHtml(book: Book, op: unknown) {
   const b = stripStep(op);
   const tail = String(op ?? "").split("#")[1];
-  return inlineRefHtml(b) + (tail ? ` <span class="font-mono text-[0.6875rem] text-muted-foreground">${esc(formatLabel(tail))}</span>` : "");
+  return inlineRefHtml(book, b) + (tail ? ` <span class="font-mono text-[0.6875rem] text-muted-foreground">${esc(formatLabel(tail))}</span>` : "");
 }

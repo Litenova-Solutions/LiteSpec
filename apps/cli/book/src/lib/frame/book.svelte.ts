@@ -24,6 +24,7 @@ import type {
   SortKey,
   View,
 } from "./shard-types";
+import { isFlowType } from "./shard-types";
 import {
   parseLexicon,
   parseManifest,
@@ -377,27 +378,27 @@ export class Book {
 
   has(id: string): boolean {
     this.rev;
-    const base = stripStep(id);
-    return !!(this.rec[base] || this.node[base]);
+    const recordId = stripStep(id);
+    return !!(this.rec[recordId] || this.node[recordId]);
   }
 
   title(id: string): string {
     this.rev;
-    const base = stripStep(id);
-    return this.rec[base]?.title ?? this.node[base]?.label ?? base;
+    const recordId = stripStep(id);
+    return this.rec[recordId]?.title ?? this.node[recordId]?.label ?? recordId;
   }
 
   typeOf(id: string): string {
     this.rev;
-    const base = stripStep(id);
-    return this.rec[base]?.type ?? this.node[base]?.type ?? base.split("/")[0] ?? base;
+    const recordId = stripStep(id);
+    return this.rec[recordId]?.type ?? this.node[recordId]?.type ?? recordId.split("/")[0] ?? recordId;
   }
 
   /** The folder and module a record file sits in, as the model computes them. */
   placement(id: string): { folder: string; module: string | null } {
     this.rev;
-    const base = stripStep(id);
-    return { folder: this.rec[base]?.folder ?? "", module: this.rec[base]?.module ?? null };
+    const recordId = stripStep(id);
+    return { folder: this.rec[recordId]?.folder ?? "", module: this.rec[recordId]?.module ?? null };
   }
 
   fields(id: string): RecordFields {
@@ -597,8 +598,8 @@ export class Book {
 
   completeCounts(ids: string[]): string {
     if (!ids.length) return "";
-    const done = ids.filter((id) => this.completeOf(id)).length;
-    return done + " of " + ids.length + " complete";
+    const { done, total } = this.completionSummary(ids);
+    return done + " of " + total + " complete";
   }
 
   /** How many of the records are complete, with the percent complete. */
@@ -734,7 +735,7 @@ export class Book {
     if (!record) return;
     const type = record.type;
     const ids: string[] = [];
-    const depth = type === "use-case" ? 2 : ["reaction", "job", "aggregate", "result"].includes(type) ? 1 : 0;
+    const depth = type === "use-case" ? 2 : isFlowType(type) || type === "aggregate" || type === "result" ? 1 : 0;
     if (depth) {
       const seen = new Set<string>();
       const walk = (current: string, level: number): void => {

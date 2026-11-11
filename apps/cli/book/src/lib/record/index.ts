@@ -1,6 +1,7 @@
 // The shared record pieces: one icon, line, link and prose renderer per
 // record, with type and proof marks, source links and glossary linking.
 
+export { default as EditorFileLink } from "./EditorFileLink.svelte";
 export { default as ExplainLayer } from "./ExplainLayer.svelte";
 export { default as ProofMark } from "./ProofMark.svelte";
 export { default as RecordIcon } from "./RecordIcon.svelte";

@@ -73,19 +73,28 @@ export function duration(iso: string) {
   return [...words(m[1], "day"), ...words(m[2], "hour"), ...words(m[3], "minute"), ...words(m[4], "second")].join(" ") || iso;
 }
 
+/** Escaped text back to raw, for a label the shared link builder escapes again. */
+function unesc(s: string): string {
+  return s.replace(/&quot;/g, '"').replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&");
+}
+
+/** One record link in rendered HTML: a button the App opens by delegation. */
+export function recordRefHtml(book: Book, id: string, label?: string): string {
+  const target = stripStep(id);
+  return `<button type="button" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="${esc(target)}">${esc(label ?? book.title(target))}</button>`;
+}
+
 /**
  * Inline markdown from a record field: code spans that name a record become record
  * links, bold, emphasis, and links. A relative link resolves against the record's
  * own file and opens in the editor.
  */
 export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
-  const recordLink = (id: string, text: string) =>
-    `<button type="button" class="book-ref" data-go="${esc(id)}">${text}</button>`;
   let out = esc(s);
   out = out.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_m, pre, url) => pre + "[" + url.replace(/^https?:\/\/(www\.)?/, "") + "](" + url + ")");
   out = out.replace(/`([^`]+)`/g, (_m, c) => {
     const id = stripStep(c.replace(/&amp;/g, "&"));
-    return book.has(id) ? recordLink(id, esc(book.title(id))) : "<code>" + c + "</code>";
+    return book.has(id) ? recordRefHtml(book, id) : "<code>" + c + "</code>";
   });
   out = out.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
   out = out.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (_m, text, href) => {
@@ -98,7 +107,7 @@ export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
       return external ? `<a href="${esc(external)}" target="_blank" rel="noopener">${text}</a>` : text;
     }
     const bid = href.split("#")[0] ?? "";
-    if (/^[a-z][a-z-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bid)) return book.has(bid) ? recordLink(bid, text) : text;
+    if (/^[a-z][a-z-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bid)) return book.has(bid) ? recordRefHtml(book, bid, unesc(text)) : text;
     if (!curSrc?.path) return text;
     const target = srcHref(book, { path: resolvePath(curSrc.path, bid), line: null, litespec: curSrc.litespec });
     return target ? `<a href="${esc(target)}" title="Open ${esc(href)} in the editor">${text}</a>` : text;

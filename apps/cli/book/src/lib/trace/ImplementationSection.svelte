@@ -1,9 +1,8 @@
 <script lang="ts">
   import { book } from "$lib/frame";
-  import { RecordIcon } from "$lib/record";
+  import { EditorFileLink, RecordIcon } from "$lib/record";
   import { Separator } from "$lib/ui/separator";
-  import EditorFileLink from "./EditorFileLink.svelte";
-  import { kindWord } from "./trace-model";
+  import { implKey, kindWord } from "./trace-model";
 
   // The implementation section: the code that carries the record's mark, or a
   // plain statement that none was found.
@@ -29,7 +28,7 @@
         <span>No code carries the mark of this {typeWord}.</span>
       </p>
     {:else}
-      {#each list as x}
+      {#each list as x (implKey(x))}
         <div class="border-b border-border py-1.5 last:border-b-0">
           <span class="mb-px block text-[0.71875rem] text-muted-foreground">{kindWord(String(x.kind ?? ""))}</span>
           <EditorFileLink path={String(x.path ?? "")} line={typeof x.line === "number" ? x.line : null} />

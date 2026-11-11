@@ -53,7 +53,7 @@
             }
           : null;
         return [
-          tdHtml(inlineRefHtml(u)),
+          tdHtml(inlineRefHtml(book, u)),
           tdHtml(!r.route ? `<span class="${tnCls}">no page</span>` : calls.includes(u) ? "Yes" : `<span class="${warnCls}">No</span>`),
           tdHtml(b ? (b.built ? "Yes" : `<span class="${warnCls}">No</span>`) : ""),
           tdHtml(b ? (b.scenarios ? `${b.verified} of ${b.scenarios}` : `<span class="${warnCls}">None</span>`) : ""),

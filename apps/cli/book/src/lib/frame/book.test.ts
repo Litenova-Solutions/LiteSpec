@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fixtureBook } from "./fixture";
+import { layerStats } from "./relations";
 
 describe("book", () => {
   it("boots with the product page selected", async () => {
@@ -159,6 +160,21 @@ describe("book", () => {
     expect(book.proofState("scenario/library.borrowing.borrow.main")).toBe("unproved");
     expect(book.lacks("scenario/library.borrowing.borrow.main")).toBe("not tested");
     expect(book.lacks("use-case/library.borrowing.borrow")).toBe("scenarios not tested");
+  });
+
+  it("counts a layer's real records and record types", async () => {
+    const book = await fixtureBook();
+    expect(layerStats(book, "intent")).toEqual({
+      ids: [
+        "product/library",
+        "goal/faster-borrowing",
+        "feature/borrow-book",
+        "use-case/library.borrowing.borrow",
+        "scenario/library.borrowing.borrow.main",
+      ],
+      types: ["product", "goal", "feature", "use-case", "scenario"],
+    });
+    expect(layerStats(book, "behavior")).toEqual({ ids: [], types: [] });
   });
 
   it("shows the folder and the module a record sits in", async () => {

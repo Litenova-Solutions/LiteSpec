@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { BookRecord } from "$lib/frame";
-  import { duration, esc, formatLabel } from "$lib/frame";
+  import { book, duration, esc, formatLabel } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
   import DataTable from "../blocks/DataTable.svelte";
@@ -33,6 +33,6 @@
 {/if}
 {#if erasure}
   <PageSection blockKey="er" heading="erasure">
-    <Note kind="quiet" icon="lock" html={erasureHtml(erasure)} />
+    <Note kind="quiet" icon="lock" html={erasureHtml(book, erasure)} />
   </PageSection>
 {/if}

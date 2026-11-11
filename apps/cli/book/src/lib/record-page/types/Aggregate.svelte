@@ -30,7 +30,7 @@
       };
     }),
   );
-  const model = $derived(aggregateModel(f, r, ruleInputs));
+  const model = $derived(aggregateModel(book, f, r, ruleInputs));
   const evs = $derived(book.eventsOf(id));
 </script>
 

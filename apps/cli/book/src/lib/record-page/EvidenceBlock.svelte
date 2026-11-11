@@ -21,7 +21,7 @@
         const isId = /^[a-z][a-z-]*\//.test(source);
         const href = !isId ? safeHref(book, source) : null;
         const sourceHtml = isId
-          ? inlineRefHtml(stripStep(source))
+          ? inlineRefHtml(book, stripStep(source))
           : href
             ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(source)}</a>`
             : esc(source);
