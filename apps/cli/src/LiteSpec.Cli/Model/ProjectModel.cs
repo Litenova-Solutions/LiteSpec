@@ -51,14 +51,14 @@ sealed class ProjectModel
     /// </summary>
     public IReadOnlySet<string> AppliedProvisions { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     /// <summary>Gets or sets what the backend source says: handlers, events and marked elements.</summary>
-    public CodeModel Code { get; set; } = new();
+    public CodeFacts Code { get; set; } = new();
     /// <summary>Gets the route screens the frontend readers found.</summary>
-    public List<ScreenInfo> Screens { get; } = [];
+    public List<CodeScreen> Screens { get; } = [];
     /// <summary>Gets the acceptance scenarios the test readers found.</summary>
-    public List<ScenarioInfo> Tests { get; } = [];
+    public List<CodeScenarioTest> Tests { get; } = [];
 
     /// <summary>Gets the browser tests every frontend reader found.</summary>
-    public List<BrowserTestInfo> BrowserTests { get; } = [];
+    public List<CodeBrowserTest> BrowserTests { get; } = [];
 
     /// <summary>Gets or sets a value indicating whether whether the TypeScript reader's handshake matched, so it is qualified.</summary>
     public bool TypeScriptQualified { get; set; }

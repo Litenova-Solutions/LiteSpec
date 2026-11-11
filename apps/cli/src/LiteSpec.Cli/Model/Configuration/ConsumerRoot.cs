@@ -56,7 +56,7 @@ static class ConsumerRoot
     ///     Finds the folder a command works on and checks it. With <paramref name="requireProject" />,
     ///     the folder is the consumer found by walking up from the start folder, and it must exist and
     ///     hold the project file. Without it, the folder is the start folder itself, literally, for a
-    ///     command that creates the project. A failure is written through <see cref="LastResort.Fail" />
+    ///     command that creates the project. A failure is written through <see cref="CommandFailure.Fail" />
     ///     as one message, with exit code 2.
     /// </summary>
     /// <param name="rootOption">The --root value, or null when it was not passed.</param>
@@ -77,7 +77,7 @@ static class ConsumerRoot
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {
-            exitCode = LastResort.Fail($"Invalid root '{rootOption}': {exception.Message}", json, 2);
+            exitCode = CommandFailure.Fail($"Invalid root '{rootOption}': {exception.Message}", json, 2);
             return null;
         }
 
@@ -88,7 +88,7 @@ static class ConsumerRoot
 
         if (!Directory.Exists(root))
         {
-            exitCode = LastResort.Fail($"Root '{root}' does not exist.", json, 2);
+            exitCode = CommandFailure.Fail($"Root '{root}' does not exist.", json, 2);
             return null;
         }
 
@@ -96,7 +96,7 @@ static class ConsumerRoot
         // would read or write a folder that is not a consumer at all.
         if (!File.Exists(ProjectFile(root)))
         {
-            exitCode = LastResort.Fail(NoProjectMessage(root), json, 2);
+            exitCode = CommandFailure.Fail(NoProjectMessage(root), json, 2);
             return null;
         }
 
@@ -107,7 +107,7 @@ static class ConsumerRoot
     ///     Finds the consumer a command reads, and loads its declaration. Every command
     ///     that reads a consumer calls this, so the folder rule and the project-file
     ///     messages are the same everywhere. A failure is written through
-    ///     <see cref="LastResort.Fail" /> as one message, with exit code 2.
+    ///     <see cref="CommandFailure.Fail" /> as one message, with exit code 2.
     /// </summary>
     /// <param name="rootOption">The --root value, or null when it was not passed.</param>
     /// <param name="json">True when the caller requested JSON output, so a failure is written as the JSON object.</param>
@@ -128,15 +128,15 @@ static class ConsumerRoot
         }
         catch (JsonTextException exception)
         {
-            exitCode = LastResort.Fail(InvalidProjectMessage(exception.Message), json, 2);
+            exitCode = CommandFailure.Fail(InvalidProjectMessage(exception.Message), json, 2);
         }
         catch (InvalidOperationException exception)
         {
-            exitCode = LastResort.Fail(exception.Message, json, 2);
+            exitCode = CommandFailure.Fail(exception.Message, json, 2);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            exitCode = LastResort.Fail($"Cannot read {ProjectFileDisplay}: {exception.Message}", json, 2);
+            exitCode = CommandFailure.Fail($"Cannot read {ProjectFileDisplay}: {exception.Message}", json, 2);
         }
 
         return null;

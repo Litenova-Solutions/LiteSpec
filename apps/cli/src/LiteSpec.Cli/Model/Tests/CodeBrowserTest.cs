@@ -3,7 +3,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Tests;
 
 /// <summary>One browser test and what it proves, reaches and asserts.</summary>
-sealed record BrowserTestInfo(
+sealed record CodeBrowserTest(
     string Frontend,
     string Title,
     string File,

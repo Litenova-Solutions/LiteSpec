@@ -37,7 +37,7 @@ sealed class DotnetScenarioReader : IScenarioReader
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
 
-        var scenarios = new List<ScenarioInfo>();
+        var scenarios = new List<CodeScenarioTest>();
         var comments = new List<CodeComment>();
         var elements = new List<MarkedElement>();
         var strays = new List<StrayMark>();
@@ -49,7 +49,7 @@ sealed class DotnetScenarioReader : IScenarioReader
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => (Scenarios: new List<ScenarioInfo>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>(), Problems: new List<Finding>()),
+            () => (Scenarios: new List<CodeScenarioTest>(), Comments: new List<CodeComment>(), Elements: new List<MarkedElement>(), Strays: new List<StrayMark>(), Problems: new List<Finding>()),
             (file, _, local) =>
             {
                 ReadFile(file, local.Scenarios, local.Comments, local.Elements, local.Strays, local.Problems, stepCalls, probes, stepFacts);
@@ -121,7 +121,7 @@ sealed class DotnetScenarioReader : IScenarioReader
     /// <param name="stepFacts">The step facts by steps class, shared across files.</param>
     private static void ReadFile(
         string file,
-        List<ScenarioInfo> scenarios,
+        List<CodeScenarioTest> scenarios,
         List<CodeComment> comments,
         List<MarkedElement> elements,
         List<StrayMark> strays,
@@ -389,7 +389,7 @@ sealed class DotnetScenarioReader : IScenarioReader
                 }
             }
 
-            scenarios.Add(new ScenarioInfo(
+            scenarios.Add(new CodeScenarioTest(
                 FullNameOf(method),
                 containing?.Identifier.ValueText ?? "",
                 file,

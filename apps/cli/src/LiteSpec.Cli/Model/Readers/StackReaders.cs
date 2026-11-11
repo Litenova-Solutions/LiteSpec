@@ -80,7 +80,7 @@ static class StackReaders
         /// </summary>
         /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
         /// <returns>An empty backend read: an empty code model and no problems.</returns>
-        public BackendRead Read(ConsumerConfig config) => new(new CodeModel(), []);
+        public BackendRead Read(ConsumerConfig config) => new(new CodeFacts(), []);
     }
 
     /// <summary>Reads no scenarios: the project names no stack with .NET tests.</summary>
@@ -115,7 +115,7 @@ interface IFrontendReader
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <param name="code">The code model the screens are checked against.</param>
     /// <returns>The screen read of the frontend.</returns>
-    ScreenRead Read(ConsumerConfig config, CodeModel code);
+    ScreenRead Read(ConsumerConfig config, CodeFacts code);
 }
 
 /// <summary>Reads the acceptance scenarios and what they claim.</summary>

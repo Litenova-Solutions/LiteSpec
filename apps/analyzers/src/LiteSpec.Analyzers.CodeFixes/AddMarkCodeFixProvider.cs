@@ -95,7 +95,7 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
     /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
     /// <param name="cancellationToken">The token that cancels the operation when the host aborts it.</param>
     /// <returns>A task whose result is the use cases.</returns>
-    private static async Task<IReadOnlyList<IRecordFacts>> SiblingUseCasesAsync(
+    private static async Task<IReadOnlyList<IRecordFields>> SiblingUseCasesAsync(
         Document document, TraceabilityFix fix, System.Threading.CancellationToken cancellationToken)
     {
         var folder = FolderOf(document.FilePath);
@@ -156,11 +156,11 @@ public sealed class AddMarkCodeFixProvider : CodeFixProvider
             }
         }
 
-        var records = new List<IRecordFacts>();
+        var records = new List<IRecordFields>();
 
         foreach (var id in ids)
         {
-            if (fix.Store.Index.ById(id) is IRecordFacts record && record.Type == "use-case")
+            if (fix.Store.Index.ById(id) is IRecordFields record && record.Type == "use-case")
             {
                 records.Add(record);
             }

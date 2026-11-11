@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     field is built by its own detail type; this type assembles them per record.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
-static class BookEnrich
+static class BookRecordDetails
 {
     /// <summary>Gets the identity fields the mockup record shape strips from the fields it carries.</summary>
     static string[] StrippedKeys { get; } =
@@ -46,17 +46,17 @@ static class BookEnrich
         var proven = claims.Proof is not null;
         var coverage = BookIntentCoverage.Of(model);
         var index = BookIndexBuilder.BuildIndex(model);
-        var layers = BookEnrichSources.LayerById(outline);
-        var kept = BookEnrichSources.KeptBy(index);
-        var served = BookEnrichSources.ServedBy(index);
-        var tests = proven ? BookEnrichSources.TestsByRecord(model, index) : new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
-        var findings = BookEnrichSources.FindingsBySubject(model, index, claims);
-        var routes = BookEnrichSources.RoutesByScreen(model);
-        var calls = BookEnrichSources.CallsByScreen(model);
-        var handlers = BookEnrichSources.CodeByKey(model, "handlers", "useCase");
-        var endpoints = BookEnrichSources.CodeByKey(model, "endpoints", "useCase");
-        var methods = BookEnrichSources.CodeByKey(model, "aggregateMethods", "aggregate");
-        var runnersByPath = BookEnrichSources.CodeByPaths(model, ["automations", "reactions", "jobs"]);
+        var layers = BookDetailSources.LayerById(outline);
+        var kept = BookDetailSources.KeptBy(index);
+        var served = BookDetailSources.ServedBy(index);
+        var tests = proven ? BookDetailSources.TestsByRecord(model, index) : new Dictionary<string, List<JsonObject>>(StringComparer.Ordinal);
+        var findings = BookDetailSources.FindingsBySubject(model, index, claims);
+        var routes = BookDetailSources.RoutesByScreen(model);
+        var calls = BookDetailSources.CallsByScreen(model);
+        var handlers = BookDetailSources.CodeByKey(model, "handlers", "useCase");
+        var endpoints = BookDetailSources.CodeByKey(model, "endpoints", "useCase");
+        var methods = BookDetailSources.CodeByKey(model, "aggregateMethods", "aggregate");
+        var runnersByPath = BookDetailSources.CodeByPaths(model, ["automations", "reactions", "jobs"]);
 
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
         var order = new List<string>();
@@ -70,7 +70,7 @@ static class BookEnrich
 
             var type = BookRender.StrProp(record, "type") ?? "";
             var detail = BaseRecord(record, type);
-            detail["parent"] = BookDetailValues.StrNode(BookEnrichSources.ParentOf(outline, id));
+            detail["parent"] = BookDetailValues.StrNode(BookDetailSources.ParentOf(outline, id));
             detail["layer"] = BookDetailValues.StrNode(layers.GetValueOrDefault(id));
             if (proven)
             {

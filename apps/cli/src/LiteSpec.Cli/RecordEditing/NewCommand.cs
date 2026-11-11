@@ -100,7 +100,7 @@ static class NewCommand
 
         if (parsed.Error is not null)
         {
-            return LastResort.UsageError(parsed.Error, Usage, json: false);
+            return CommandFailure.UsageError(parsed.Error, Usage, json: false);
         }
 
         if (parsed.Positionals is [var first, ..] && first is "result" or "scenario")
@@ -115,7 +115,7 @@ static class NewCommand
 
         if (parsed.Positionals is not [var type, var id])
         {
-            return LastResort.UsageError("New needs a type and an id, or a document style and a name.", Usage, json: false);
+            return CommandFailure.UsageError("New needs a type and an id, or a document style and a name.", Usage, json: false);
         }
 
         foreach (var option in new[] { "--code", "--outcome", "--result" })
@@ -169,7 +169,7 @@ static class NewCommand
 
             if (type == "feature" && homeName is null)
             {
-                return LastResort.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
+                return CommandFailure.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
             }
 
             if (RecordPages.GrammarError(type, homeName, name, full) is { } grammar)

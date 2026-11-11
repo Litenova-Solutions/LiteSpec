@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The dispatches a held receiver carries through a helper, one hop deep.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-static class HelperDispatchReader
+static class CalledMethodDispatchReader
 {
     /// <summary>
     ///     The dispatches a held receiver carries through a helper: when the class passes a
@@ -27,7 +27,7 @@ static class HelperDispatchReader
         SyntaxTree tree,
         string file,
         Dictionary<string, string> receivers,
-        Dictionary<string, List<HelperMethod>> helpers,
+        Dictionary<string, List<CalledMethod>> helpers,
         QualifiedKinds qualified)
     {
         if (helpers.Count == 0)

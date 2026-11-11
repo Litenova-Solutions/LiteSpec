@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Model.Code;
 
 /// <summary>One use-case handler, linked to its use case through its mark.</summary>
-sealed record HandlerInfo(
+sealed record CodeHandler(
     string UseCaseId,
     string Module,
     string Name,

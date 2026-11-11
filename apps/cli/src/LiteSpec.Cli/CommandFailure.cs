@@ -11,7 +11,7 @@ namespace LiteSpec.Cli;
 ///     error, with the usage text after a usage error.
 /// </summary>
 /// <follows>litespec/core/release#report-verification-exactly</follows>
-internal static class LastResort
+internal static class CommandFailure
 {
     /// <summary>Runs a command under the last-resort handler, choosing the output format from the arguments.</summary>
     /// <param name="command">The command body to run, returning its exit code.</param>
@@ -26,7 +26,7 @@ internal static class LastResort
     /// <param name="stdout">The writer that receives the JSON error object.</param>
     /// <param name="stderr">The writer that receives the plain failure line.</param>
     /// <returns>The command exit code, or 1 when the command throws an unexpected exception.</returns>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "LastResort is the last-resort command handler: every unexpected exception becomes a one-line failure with exit code 1, so no exception type is excluded.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "CommandFailure is the last-resort command handler: every unexpected exception becomes a one-line failure with exit code 1, so no exception type is excluded.")]
     public static int Run(Func<int> command, bool json, TextWriter stdout, TextWriter stderr)
     {
         try

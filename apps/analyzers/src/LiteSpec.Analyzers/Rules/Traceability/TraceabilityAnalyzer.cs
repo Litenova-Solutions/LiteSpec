@@ -28,7 +28,7 @@ public abstract class TraceabilityAnalyzer : LayerAnalyzer
             return;
         }
 
-        var store = RecordStore.Load(context.Options, context.CancellationToken);
+        var store = CompilationRecords.Load(context.Options, context.CancellationToken);
 
         if (store is null)
         {

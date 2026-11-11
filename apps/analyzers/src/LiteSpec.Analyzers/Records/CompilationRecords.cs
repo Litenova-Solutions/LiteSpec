@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using LiteSpec.Model;
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LiteSpec.Analyzers.Records;
@@ -17,26 +16,26 @@ namespace LiteSpec.Analyzers.Records;
 ///     so a keystroke in C# does not reparse record files.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-public sealed class RecordStore
+public sealed class CompilationRecords
 {
     /// <summary>Guards the shared store cache against concurrent access.</summary>
     private static readonly object CacheLock = new object();
     /// <summary>Stores the cache used by the containing code.</summary>
-    private static readonly Dictionary<string, RecordStore?> Cache =
-        new Dictionary<string, RecordStore?>(StringComparer.Ordinal);
+    private static readonly Dictionary<string, CompilationRecords?> Cache =
+        new Dictionary<string, CompilationRecords?>(StringComparer.Ordinal);
 
     /// <summary>Holds the use case by home collected for this operation, keyed or ordered as the type states.</summary>
     private readonly Dictionary<string, string> useCaseByHome;
     /// <summary>Holds the record roots the project file declares, in declaration order.</summary>
     private readonly IReadOnlyList<string> docsRoots;
 
-    /// <summary>Initializes a new instance of the <see cref="RecordStore"/> class.</summary>
+    /// <summary>Initializes a new instance of the <see cref="CompilationRecords"/> class.</summary>
     /// <param name="settings">The project settings parsed from the project file.</param>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <param name="root">The syntax root of the tree being searched.</param>
     /// <param name="projectFile">The project file path, as the host reported it.</param>
     /// <param name="docsRoots">The docs roots resolved from the project file, in declaration order.</param>
-    private RecordStore(ProjectSettings settings, RecordIndex index, string root, string projectFile, IReadOnlyList<string> docsRoots)
+    private CompilationRecords(ProjectSettings settings, RecordIndex index, string root, string projectFile, IReadOnlyList<string> docsRoots)
     {
         Settings = settings;
         Index = index;
@@ -76,7 +75,7 @@ public sealed class RecordStore
     /// <param name="options">The analyzer options carrying the additional files.</param>
     /// <param name="cancellationToken">The analysis cancellation token.</param>
     /// <returns>The store, or null when the rules stay silent.</returns>
-    internal static RecordStore? Load(AnalyzerOptions options, CancellationToken cancellationToken)
+    internal static CompilationRecords? Load(AnalyzerOptions options, CancellationToken cancellationToken)
     {
         var files = new List<RecordFile>();
 
@@ -102,7 +101,7 @@ public sealed class RecordStore
     /// </summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The store, or null when the rules stay silent.</returns>
-    public static RecordStore? Load(IReadOnlyList<RecordFile> files)
+    public static CompilationRecords? Load(IReadOnlyList<RecordFile> files)
     {
         var key = Checksum(files);
 
@@ -173,7 +172,7 @@ public sealed class RecordStore
     /// <summary>Returns the store read from the project file and the record files, or null when none applies.</summary>
     /// <param name="files">The additional files: the project file plus every record file.</param>
     /// <returns>The store, or null when the project file does not read or no record page sits under its roots.</returns>
-    private static RecordStore? LoadUncached(IReadOnlyList<RecordFile> files)
+    private static CompilationRecords? LoadUncached(IReadOnlyList<RecordFile> files)
     {
         var project = ProjectFileOf(files);
 
@@ -182,7 +181,7 @@ public sealed class RecordStore
             return null;
         }
 
-        var records = new List<IRecordFacts>();
+        var records = new List<IRecordFields>();
 
         foreach (var file in files)
         {
@@ -197,7 +196,7 @@ public sealed class RecordStore
             return null;
         }
 
-        return new RecordStore(paths.Settings, new RecordIndex(records), paths.RepositoryRoot, project.Path, paths.DocsRoots);
+        return new CompilationRecords(paths.Settings, new RecordIndex(records), paths.RepositoryRoot, project.Path, paths.DocsRoots);
     }
 
     /// <summary>Returns the project file among the files, the first by path when several hold one.</summary>

@@ -150,7 +150,7 @@ public sealed class PlacementTests
             """);
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
-        var answer = Querier.Query(model, "use-case/spending.submit-expense");
+        var answer = RecordQuery.Query(model, "use-case/spending.submit-expense");
 
         Assert.NotNull(answer);
 
@@ -159,8 +159,8 @@ public sealed class PlacementTests
         Assert.Equal("use-case/spending.submit-expense", document.RootElement.GetProperty("id").GetString());
         Assert.Equal(".litespec/behavior/modules/spending/expenses", document.RootElement.GetProperty("folder").GetString());
         Assert.Equal("spending", document.RootElement.GetProperty("module").GetString());
-        Assert.Null(Querier.Query(model, "spending/expenses/use-case/submit-expense"));
-        Assert.Null(Querier.Query(model, "use-case/spending.no-such-case"));
+        Assert.Null(RecordQuery.Query(model, "spending/expenses/use-case/submit-expense"));
+        Assert.Null(RecordQuery.Query(model, "use-case/spending.no-such-case"));
     }
 
     /// <summary>Model JSON shows the folder and the module of every record.</summary>

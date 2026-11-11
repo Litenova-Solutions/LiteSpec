@@ -24,7 +24,7 @@ public sealed class MarkFactsTests
             internal sealed class Money;
             """);
 
-        var elements = MarkFacts.Read(tree, KindContext.Empty);
+        var elements = MarkedElementReader.Read(tree, KindContext.Empty);
 
         Assert.Equal(
             new[] { "SubmitExpenseCommandHandler", "OpenExpensesQueryHandler", "ExpenseFormatter" },
@@ -68,7 +68,7 @@ public sealed class MarkFactsTests
             }
             """);
 
-        var elements = MarkFacts.Read(tree, KindContext.Empty);
+        var elements = MarkedElementReader.Read(tree, KindContext.Empty);
 
         Assert.Equal(
             new[] { "Expense", "Submit", "Submits" },
@@ -95,7 +95,7 @@ public sealed class MarkFactsTests
             }
             """);
 
-        var element = Assert.Single(MarkFacts.Read(tree, KindContext.Empty));
+        var element = Assert.Single(MarkedElementReader.Read(tree, KindContext.Empty));
 
         Assert.Equal("Format", element.Name);
         Assert.False(element.IsType);
@@ -110,6 +110,6 @@ public sealed class MarkFactsTests
     {
         var tree = TestTrees.Parse("// nothing declared here");
 
-        Assert.Empty(MarkFacts.Read(tree, KindContext.Empty));
+        Assert.Empty(MarkedElementReader.Read(tree, KindContext.Empty));
     }
 }

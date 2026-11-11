@@ -6,11 +6,11 @@ namespace LiteSpec.Cli.Model.Screens;
 
 /// <summary>What the screen read found: route screens and file comments.</summary>
 sealed record ScreenRead(
-    IReadOnlyList<ScreenInfo> Screens,
+    IReadOnlyList<CodeScreen> Screens,
     IReadOnlyList<CodeComment> Comments)
 {
     /// <summary>Gets the browser tests every frontend reader found.</summary>
-    public IReadOnlyList<BrowserTestInfo> BrowserTests { get; init; } = [];
+    public IReadOnlyList<CodeBrowserTest> BrowserTests { get; init; } = [];
 
     /// <summary>Gets findings the readers themselves produced, such as <c>reader-missing</c>.</summary>
     public IReadOnlyList<Finding> Findings { get; init; } = [];

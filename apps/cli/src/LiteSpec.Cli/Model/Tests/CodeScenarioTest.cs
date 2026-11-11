@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Model.Tests;
 
 /// <summary>One acceptance scenario and what it claims.</summary>
-sealed record ScenarioInfo(
+sealed record CodeScenarioTest(
     string Name,
     string Class,
     string File,

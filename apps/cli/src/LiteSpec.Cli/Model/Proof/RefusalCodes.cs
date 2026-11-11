@@ -21,7 +21,7 @@ static class RefusalCodes
     {
         return RefusalCode.Of(rule, ById);
 
-        IRecordFacts? ById(string id) => model.ById.TryGetValue(id, out var result) ? result : null;
+        IRecordFields? ById(string id) => model.ById.TryGetValue(id, out var result) ? result : null;
     }
 
     /// <summary>Indexes the refusal codes each class carries from the literals the code read found.</summary>

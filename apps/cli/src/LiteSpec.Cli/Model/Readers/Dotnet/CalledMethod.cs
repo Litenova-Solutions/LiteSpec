@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet;
 /// <param name="Parameters">The parameters by name with their simple types.</param>
 /// <param name="Dispatches">The dispatches the helper makes through each receiver.</param>
 /// <param name="QualifiedType">The namespace-qualified name of the declaring type.</param>
-sealed record HelperMethod(
+sealed record CalledMethod(
     string Type,
     string Method,
     Dictionary<string, string> Parameters,

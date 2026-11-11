@@ -61,7 +61,7 @@ public sealed class ReactScreenTests
         File.WriteAllText(projectFile, project.ToJsonString());
     }
 
-    static List<ScreenInfo> BuildScreens(string root) =>
+    static List<CodeScreen> BuildScreens(string root) =>
         ModelBuilder.Build(ConsumerConfig.Load(root)).Screens.ToList();
 
     static void Write(string folder, string relative, string text)

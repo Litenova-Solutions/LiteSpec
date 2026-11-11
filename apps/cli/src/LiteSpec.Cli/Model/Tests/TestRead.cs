@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Model.Tests;
 
 /// <summary>What the test read found: scenarios and file comments.</summary>
 sealed record TestRead(
-    IReadOnlyList<ScenarioInfo> Scenarios,
+    IReadOnlyList<CodeScenarioTest> Scenarios,
     IReadOnlyList<CodeComment> Comments,
     IReadOnlyDictionary<string, IReadOnlySet<string>> StepCalls)
 {

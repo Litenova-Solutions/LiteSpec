@@ -7,7 +7,7 @@ using LiteSpec.Model;
 using LiteSpec.Standards;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

@@ -33,7 +33,7 @@ if (args.Length == 0)
 
 var rest = args[1..];
 
-return LastResort.Run(
+return CommandFailure.Run(
     () => args[0] switch
     {
         "--help" or "-h" or "help" => Help(),
@@ -61,4 +61,4 @@ int Version()
 }
 
 int Unknown(string command) =>
-    LastResort.UsageError($"Unknown command '{command}'.", usage, json: false);
+    CommandFailure.UsageError($"Unknown command '{command}'.", usage, json: false);

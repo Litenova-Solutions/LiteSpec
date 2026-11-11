@@ -3,7 +3,7 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

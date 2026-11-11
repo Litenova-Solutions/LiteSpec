@@ -25,7 +25,7 @@ static class AppendListEntry
     {
         if (parsed.Positionals is not [_, var pageArg, var entryType, var name])
         {
-            return LastResort.UsageError("New entry needs a page, a type, and a name.", NewCommand.Usage, json: false);
+            return CommandFailure.UsageError("New entry needs a page, a type, and a name.", NewCommand.Usage, json: false);
         }
 
         foreach (var option in new[] { "--code", "--outcome", "--result" })

@@ -27,7 +27,7 @@ public sealed class QueryEscapingTests
             "result", "result/loans.refused", Path.Combine(temp.Path, "loans.yaml"),
             """{"status": "reviewed", "outcome": "refusal", "meaning": "The reader's <loan> is refused."}"""));
 
-        var output = Querier.Query(model, "result/loans.refused");
+        var output = RecordQuery.Query(model, "result/loans.refused");
 
         Assert.NotNull(output);
         Assert.Contains("The reader's <loan> is refused.", output, StringComparison.Ordinal);

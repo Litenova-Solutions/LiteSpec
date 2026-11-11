@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model;
 ///     Rewrites the fenced generated regions, leaving all other text untouched.
 /// </summary>
 /// <follows>litespec/core/model#render-generated-regions-from-the-model</follows>
-static partial class Renderer
+static partial class GeneratedRegions
 {
     /// <summary>Renders every generated region the builder writes, returning the changed files.</summary>
     /// <param name="model">The built project model the regions render from.</param>

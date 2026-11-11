@@ -20,7 +20,7 @@ static class AuditActionReader
         string file,
         SyntaxTree tree,
         IReadOnlyList<BaseTypeDeclarationSyntax> classes,
-        CodeModel model)
+        CodeFacts model)
     {
         foreach (var declared in classes)
         {

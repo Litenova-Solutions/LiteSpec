@@ -44,7 +44,7 @@ public sealed class BookEnrichTests
     {
         var model = LoadFixture("Book/review.json");
         var outline = BookOutline.Build(model);
-        var details = BookEnrich.Build(model, outline);
+        var details = BookRecordDetails.Build(model, outline);
         foreach (var pair in details)
         {
             var expected = outline.ParentOf.TryGetValue(pair.Key, out var parent) ? parent : null;
@@ -648,7 +648,7 @@ public sealed class BookEnrichTests
         (JsonObject)RecordText.Read(TestCli.Fixture(relative))!;
 
     static IReadOnlyDictionary<string, JsonObject> DetailsOf(JsonObject model) =>
-        BookEnrich.Build(model, BookOutline.Build(model));
+        BookRecordDetails.Build(model, BookOutline.Build(model));
 
     static JsonObject NewModel(params JsonObject[] records)
     {

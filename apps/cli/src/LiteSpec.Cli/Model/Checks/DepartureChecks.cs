@@ -1,6 +1,7 @@
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

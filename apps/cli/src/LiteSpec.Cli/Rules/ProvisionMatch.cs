@@ -10,10 +10,10 @@ namespace LiteSpec.Cli.Rules;
 /// <param name="Reasons">Why the entry was retrieved, in first-match order.</param>
 /// <param name="Departure">The live departure replacing the entry, or null.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
-internal sealed record RuleResult(
+internal sealed record ProvisionMatch(
     ProvisionEntry Entry,
     IReadOnlyList<string> Reasons,
-    DepartureStore.Departure? Departure)
+    DepartureFiles.Departure? Departure)
 {
     /// <summary>Gets the printed one-line statement, or the departure replacement.</summary>
     public string Statement => Departure is null

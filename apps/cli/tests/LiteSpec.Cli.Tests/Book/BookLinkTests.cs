@@ -74,7 +74,7 @@ public sealed class BookLinkTests
             ]}
             """)!.AsObject();
 
-        var details = BookEnrich.Build(model, BookOutline.Build(model));
+        var details = BookRecordDetails.Build(model, BookOutline.Build(model));
         var html = Str(details["research/links"], "bodyHtml") ?? "";
 
         Assert.Contains("click", html, StringComparison.Ordinal);

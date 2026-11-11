@@ -13,7 +13,7 @@ namespace LiteSpec.Model.Roslyn;
 ///     Unmarked declarations of no known kind are left out.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-public static class MarkFacts
+public static class MarkedElementReader
 {
     /// <summary>Reads every marked or markable element of one syntax tree, in document order.</summary>
     /// <param name="tree">The syntax tree to read.</param>

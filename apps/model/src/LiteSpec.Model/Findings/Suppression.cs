@@ -29,7 +29,7 @@ public static class Suppression
     /// <returns>The reported findings and the covered ones, each in report order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Partition(
         IReadOnlyList<Finding> findings,
-        IReadOnlyList<IRecordFacts> records,
+        IReadOnlyList<IRecordFields> records,
         string root,
         DateTime today,
         Func<string, string?> useCaseOfHome,
@@ -84,7 +84,7 @@ public static class Suppression
     /// <param name="departure">The departure record.</param>
     /// <param name="today">Today's date.</param>
     /// <returns>True when the departure holds findings today.</returns>
-    private static bool Live(IRecordFacts departure, DateTime today) =>
+    private static bool Live(IRecordFields departure, DateTime today) =>
         departure.Field("expiresOn") is not string expiresOn
         || (IsoDate(expiresOn, out var expires) && today <= expires);
 
@@ -94,7 +94,7 @@ public static class Suppression
         /// <summary>Initializes a new instance of the <see cref="LiveDeparture"/> class.</summary>
         /// <param name="departure">The departure record.</param>
         /// <param name="codesOfProvision">The finding codes a provision or page governs, by identifier.</param>
-        public LiveDeparture(IRecordFacts departure, Func<string, IReadOnlyList<string>>? codesOfProvision)
+        public LiveDeparture(IRecordFields departure, Func<string, IReadOnlyList<string>>? codesOfProvision)
         {
             Subjects = new HashSet<string>(departure.Ids("subject"), StringComparer.Ordinal);
             Paths = departure.Ids("paths");

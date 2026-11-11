@@ -82,28 +82,28 @@ static class InitCommand
 
         if (parsed.Error is not null)
         {
-            return LastResort.UsageError(parsed.Error, Usage, json: false);
+            return CommandFailure.UsageError(parsed.Error, Usage, json: false);
         }
 
         var size = parsed.Value("--size");
 
         if (size is not ("small" or "large"))
         {
-            return LastResort.UsageError(size is null ? "Missing --size; use small or large." : $"Unknown size '{size}'; use small or large.", Usage, json: false);
+            return CommandFailure.UsageError(size is null ? "Missing --size; use small or large." : $"Unknown size '{size}'; use small or large.", Usage, json: false);
         }
 
         var preset = parsed.Value("--preset");
 
         if (preset is null || !Presets.Contains(preset))
         {
-            return LastResort.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
+            return CommandFailure.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
         }
 
         var install = parsed.Value("--install") ?? "tool";
 
         if (!Installs.TryGetValue(install, out var command))
         {
-            return LastResort.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
+            return CommandFailure.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
         }
 
         // init creates the project, so its root is the folder named, never a parent consumer.
@@ -130,7 +130,7 @@ static class InitCommand
         }
         catch (InvalidOperationException exception)
         {
-            return LastResort.UsageError(exception.Message, Usage, json: false);
+            return CommandFailure.UsageError(exception.Message, Usage, json: false);
         }
 
         var version = LiteSpecHome.Version;

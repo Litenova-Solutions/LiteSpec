@@ -18,7 +18,7 @@ public sealed class ImplementsLinkTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
-        model.Code.Reactions.Add(new ReactionInfo(
+        model.Code.Reactions.Add(new CodeReaction(
             "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, null));
         model.Implements.Add(new ImplementsLink("GhostReaction.cs", "use-case/lending.ghost", "reaction"));
 
@@ -34,7 +34,7 @@ public sealed class ImplementsLinkTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("reaction", "reaction/lending.send-notice-on-loan-overdue", Path.Combine(temp.Path, "send-notice-on-loan-overdue.yaml"), """{"triggeredBy": ["event/loan.overdue"]}"""));
-        model.Code.Reactions.Add(new ReactionInfo(
+        model.Code.Reactions.Add(new CodeReaction(
             "SendNoticeOnLoanOverdueHandler", Path.Combine(temp.Path, "SendNoticeOnLoanOverdueHandler.cs"), 3, null));
         model.Implements.Add(new ImplementsLink("SendNoticeOnLoanOverdueHandler.cs", "reaction/lending.send-notice-on-loan-overdue", "reaction"));
 
@@ -71,7 +71,7 @@ public sealed class ImplementsLinkTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
-        model.Code.Jobs.Add(new JobInfo(
+        model.Code.Jobs.Add(new CodeJob(
             "NightlyJob", Path.Combine(temp.Path, "NightlyJob.cs"), 5, null));
         model.Implements.Add(new ImplementsLink("NightlyJob.cs", "use-case/lending.ghost", "job"));
 

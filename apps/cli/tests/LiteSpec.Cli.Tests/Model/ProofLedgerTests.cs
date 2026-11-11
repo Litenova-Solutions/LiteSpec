@@ -63,7 +63,7 @@ public sealed class ProofLedgerTests
     {
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
         model.Proves.Add(new ProvesLink(TestTitle, Scenario, true, true, false));
-        model.BrowserTests.Add(new BrowserTestInfo("web", TestTitle, TestFile, 1, [], null, [], [], []));
+        model.BrowserTests.Add(new CodeBrowserTest("web", TestTitle, TestFile, 1, [], null, [], [], []));
 
         return model;
     }

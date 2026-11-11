@@ -32,7 +32,7 @@ sealed class TypeScriptFrontendReader : IFrontendReader
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <param name="code">The code model the screens are checked against.</param>
     /// <returns>The screen read built from this frontend's facts.</returns>
-    public ScreenRead Read(ConsumerConfig config, CodeModel code)
+    public ScreenRead Read(ConsumerConfig config, CodeFacts code)
     {
         var facts = run.GetAwaiter().GetResult().FirstOrDefault(entry => entry.Name == frontend.Name)
             ?? FrontendFacts.Failed(

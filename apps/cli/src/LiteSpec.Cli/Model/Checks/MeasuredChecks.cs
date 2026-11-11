@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

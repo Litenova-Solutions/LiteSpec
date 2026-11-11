@@ -1,7 +1,7 @@
 namespace LiteSpec.Cli.Model.Code;
 
-/// <summary>One event handler, linked to its reaction through its mark.</summary>
-sealed record ReactionInfo(
+/// <summary>One job host, linked to its job through its mark.</summary>
+sealed record CodeJob(
     string Class,
     string File,
     int Line,

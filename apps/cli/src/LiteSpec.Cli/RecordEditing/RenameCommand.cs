@@ -50,12 +50,12 @@ static class RenameCommand
 
         if (parsed.Error is not null)
         {
-            return LastResort.UsageError(parsed.Error, Usage, json: false);
+            return CommandFailure.UsageError(parsed.Error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var oldId, var newId])
         {
-            return LastResort.UsageError("Rename needs an old and a new identifier.", Usage, json: false);
+            return CommandFailure.UsageError("Rename needs an old and a new identifier.", Usage, json: false);
         }
 
         if (!TryRecordId(oldId, out var oldType, out var oldHome, out _))

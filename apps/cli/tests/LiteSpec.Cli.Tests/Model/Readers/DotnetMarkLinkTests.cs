@@ -429,7 +429,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("job/lending.nightly-scan", job.RecordId);
     }
 
-    static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
+    static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteProject(string root) =>
         File.WriteAllText(

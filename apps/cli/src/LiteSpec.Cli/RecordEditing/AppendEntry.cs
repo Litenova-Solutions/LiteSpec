@@ -38,7 +38,7 @@ static partial class AppendEntry
 
         if (parsed.Positionals is not [_, var useCaseArg, var name])
         {
-            return LastResort.UsageError(kind == "result" ? "New result needs a use case and a name." : "New scenario needs a use case and a name.", NewCommand.Usage, json: false);
+            return CommandFailure.UsageError(kind == "result" ? "New result needs a use case and a name." : "New scenario needs a use case and a name.", NewCommand.Usage, json: false);
         }
 
         var outcome = parsed.Value("--outcome");

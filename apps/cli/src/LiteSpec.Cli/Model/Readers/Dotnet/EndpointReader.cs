@@ -19,7 +19,7 @@ static class EndpointReader
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
         IReadOnlyList<CodeMark> marks,
-        CodeModel model)
+        CodeFacts model)
     {
         var useCase = ElementReader.SingleMark(marks, "use-case/") ?? "";
 

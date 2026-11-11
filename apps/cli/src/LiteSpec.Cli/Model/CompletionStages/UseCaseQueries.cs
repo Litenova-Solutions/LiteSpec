@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Model.CompletionStages;
 ///     whose folder holds its page.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
-static class UseCaseFacts
+static class UseCaseQueries
 {
     /// <summary>Whether the use case lets anonymous callers in.</summary>
     /// <param name="useCase">The use case record.</param>

@@ -7,7 +7,7 @@ namespace LiteSpec.Model;
 ///     One record read from a page file: a page, or an entry on a page.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
-public sealed class IndexRecord : IRecordFacts
+public sealed class IndexRecord : IRecordFields
 {
     /// <summary>The record's JSON object.</summary>
     private readonly JsonText raw;

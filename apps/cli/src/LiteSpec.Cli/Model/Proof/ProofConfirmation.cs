@@ -115,7 +115,7 @@ static class ProofConfirmation
     /// <param name="test">The browser test.</param>
     /// <param name="claim">The record the test claims to prove.</param>
     /// <returns>True when the browser test confirms the claim.</returns>
-    public static bool BrowserConfirm(ProjectModel model, BrowserTestInfo test, string claim)
+    public static bool BrowserConfirm(ProjectModel model, CodeBrowserTest test, string claim)
     {
         if (claim.StartsWith("litespec/", StringComparison.Ordinal))
         {
@@ -208,7 +208,7 @@ static class ProofConfirmation
         return Identifiers.TrySplit(claim, out _, out var home, out _)
             && home is not null
             && ModelBuilder.UseCaseOf(model, home) is { } useCase
-            && UseCaseFacts.BackgroundOnly(model, useCase);
+            && UseCaseQueries.BackgroundOnly(model, useCase);
     }
 
     /// <summary>
@@ -231,7 +231,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="claim">The record the test claims to prove.</param>
     /// <returns>True when the test confirms the claim.</returns>
-    public static bool Confirm(ProjectModel model, ScenarioInfo test, string claim)
+    public static bool Confirm(ProjectModel model, CodeScenarioTest test, string claim)
     {
         if (claim.StartsWith("litespec/", StringComparison.Ordinal))
         {
@@ -275,7 +275,7 @@ static class ProofConfirmation
 
         if (test.Steps.Count > 0)
         {
-            if (UseCaseFacts.BackgroundOnly(model, useCase))
+            if (UseCaseQueries.BackgroundOnly(model, useCase))
             {
                 // The trigger may arrive through an entry the model does not link to the reaction, such as a
                 // processor webhook, so any when step sets it off; the assertion is what ties the proof to it.
@@ -334,7 +334,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="want">The message type name the test must build.</param>
     /// <returns>True when the test builds the message type.</returns>
-    private static bool Builds(ScenarioInfo test, string want) =>
+    private static bool Builds(CodeScenarioTest test, string want) =>
         test.CreatedTypes.Any(type =>
             type == want || type.EndsWith("." + want, StringComparison.Ordinal));
 
@@ -346,7 +346,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="model">The project model.</param>
     /// <returns>True when the test constructs a handler, an aggregate, or a repository directly.</returns>
-    private static bool ConstructsInside(ScenarioInfo test, ProjectModel model)
+    private static bool ConstructsInside(CodeScenarioTest test, ProjectModel model)
     {
         if (test.CreatedTypes.Count == 0)
         {
@@ -430,7 +430,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="rule">The rule record.</param>
     /// <returns>True when the test confirms the rule claim.</returns>
-    private static bool ConfirmRule(ProjectModel model, ScenarioInfo test, Record rule)
+    private static bool ConfirmRule(ProjectModel model, CodeScenarioTest test, Record rule)
     {
         var governed = rule.Ids(RecordFields.Governs);
 
@@ -456,7 +456,7 @@ static class ProofConfirmation
                 return true;
             }
 
-            if (UseCaseFacts.AggregateOf(model, useCase) is { } holder
+            if (UseCaseQueries.AggregateOf(model, useCase) is { } holder
                 && governed.Contains(holder.Id, StringComparer.Ordinal))
             {
                 return true;
@@ -475,7 +475,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="rule">The rule record.</param>
     /// <returns>True when an integration fact confirms the rule claim.</returns>
-    private static bool ConfirmRuleFact(ProjectModel model, ScenarioInfo test, Record rule)
+    private static bool ConfirmRuleFact(ProjectModel model, CodeScenarioTest test, Record rule)
     {
         if (test.Steps.Count > 0
             || test.ResolvedServices.Count == 0
@@ -520,7 +520,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="pascal">The aggregate's PascalCase name.</param>
     /// <returns>True when the test calls onto the aggregate.</returns>
-    private static bool CallsAggregate(ScenarioInfo test, string pascal)
+    private static bool CallsAggregate(CodeScenarioTest test, string pascal)
     {
         if (test.StaticCalls.Any(call => call.StartsWith(pascal + ".", StringComparison.Ordinal)))
         {
@@ -638,7 +638,7 @@ static class ProofConfirmation
     /// <param name="home">The use case's home name.</param>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when a later step observes what a given step changed.</returns>
-    private static bool ObservedLater(ProjectModel model, ScenarioInfo test, string home, Record useCase)
+    private static bool ObservedLater(ProjectModel model, CodeScenarioTest test, string home, Record useCase)
     {
         var cause = -1;
 
@@ -702,7 +702,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when a when step sets the use case off from upstream.</returns>
-    private static bool Triggers(ProjectModel model, ScenarioInfo test, Record useCase)
+    private static bool Triggers(ProjectModel model, CodeScenarioTest test, Record useCase)
     {
         var trigger = TriggerEvents(model, useCase);
         var producers = model.Records
@@ -740,7 +740,7 @@ static class ProofConfirmation
     /// <param name="model">The project model.</param>
     /// <param name="test">The scenario test.</param>
     /// <returns>True when a then step asserts an effect.</returns>
-    private static bool AssertsEffect(ProjectModel model, ScenarioInfo test) =>
+    private static bool AssertsEffect(ProjectModel model, CodeScenarioTest test) =>
         test.Steps.Any(step =>
             step.Phase == "then"
             && !model.Config.OutcomeOnlySteps.Any(only =>
@@ -757,7 +757,7 @@ static class ProofConfirmation
     /// <param name="test">The scenario test.</param>
     /// <param name="refusal">The refusal result.</param>
     /// <returns>True when the test asserts the refusal.</returns>
-    private static bool Asserts(ProjectModel model, ScenarioInfo test, Record refusal)
+    private static bool Asserts(ProjectModel model, CodeScenarioTest test, Record refusal)
     {
         if (refusal.Field(RecordFields.Code) is not { } code)
         {

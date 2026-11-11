@@ -101,7 +101,7 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
         {
             if (mark.HasRecordId
                 && mark.RecordId.StartsWith("use-case/", System.StringComparison.Ordinal)
-                && state.Store.Index.ById(mark.RecordId) is IRecordFacts record
+                && state.Store.Index.ById(mark.RecordId) is IRecordFields record
                 && record.Type == "use-case"
                 && !useCases.Contains(mark.RecordId))
             {

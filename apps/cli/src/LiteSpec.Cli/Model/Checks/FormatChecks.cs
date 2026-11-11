@@ -1,7 +1,7 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

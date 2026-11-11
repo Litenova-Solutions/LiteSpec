@@ -44,12 +44,12 @@ static class RulesCommand
 
         if (parsed.Error is { } error)
         {
-            return LastResort.UsageError(error, Usage, json: false);
+            return CommandFailure.UsageError(error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var target])
         {
-            return LastResort.UsageError("Rules needs a path or record id.", Usage, json: false);
+            return CommandFailure.UsageError("Rules needs a path or record id.", Usage, json: false);
         }
 
         var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
@@ -69,12 +69,12 @@ static class RulesCommand
         }
         catch (InvalidOperationException exception)
         {
-            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
+            return CommandFailure.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         if (LoadManifest(home) is not { } manifest)
         {
-            return LastResort.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
+            return CommandFailure.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
         }
 
         var backendStack = StackSelection.Stacks(manifest)
@@ -85,13 +85,13 @@ static class RulesCommand
 
         if (context is null)
         {
-            return LastResort.Fail($"No file or record '{target}'.", json: false, code: 1);
+            return CommandFailure.Fail($"No file or record '{target}'.", json: false, code: 1);
         }
 
         var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
-        var conventions = ConventionStore.Load(config);
-        var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-        var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
+        var conventions = ConventionFiles.Load(config);
+        var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var results = ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context);
 
         Print(context, results, parsed.Has("--full"), config.Layers);
         return 0;
@@ -124,7 +124,7 @@ static class RulesCommand
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
     /// <param name="claims">The record layers the project claims.</param>
-    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, LayerClaims claims)
+    static void Print(PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims)
     {
         var parts = new List<string>();
 
@@ -213,7 +213,7 @@ static class RulesCommand
 
     /// <summary>Prints every retrieved provision as a statement grouped by strength, with rationale and example.</summary>
     /// <param name="results">The retrieved provisions in print order.</param>
-    static void PrintFull(IReadOnlyList<RuleResult> results)
+    static void PrintFull(IReadOnlyList<ProvisionMatch> results)
     {
         foreach (var group in ProvisionEntry.GroupOrder)
         {

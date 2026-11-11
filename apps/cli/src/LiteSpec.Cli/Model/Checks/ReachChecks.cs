@@ -3,7 +3,8 @@ using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks;
 
@@ -28,7 +29,7 @@ internal static class ReachChecks
 
         foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
         {
-            if (ModelBuilder.BackgroundOnly(model, useCase) || UseCaseFacts.RunByUseCase(model, useCase))
+            if (ModelBuilder.BackgroundOnly(model, useCase) || UseCaseQueries.RunByUseCase(model, useCase))
             {
                 continue;
             }

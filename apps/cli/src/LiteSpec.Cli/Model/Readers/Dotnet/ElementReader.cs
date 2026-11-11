@@ -35,8 +35,8 @@ static class ElementReader
         IReadOnlyList<MarkableElement> elements,
         IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
         IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
-        CodeModel model,
-        Dictionary<string, List<HelperMethod>> helpers,
+        CodeFacts model,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         QualifiedKinds qualified)
@@ -81,7 +81,7 @@ static class ElementReader
                         HandlerReader.ReadJob(file, tree, declared, marks, model, helpers, holders, qualified);
                         break;
                     case CodeKind.DomainEvent:
-                        model.Events.Add(new DomainEventInfo(
+                        model.Events.Add(new CodeDomainEvent(
                             element.Name,
                             file,
                             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
@@ -120,7 +120,7 @@ static class ElementReader
         string file,
         MarkableElement element,
         IReadOnlyDictionary<TextSpan, MethodDeclarationSyntax> methods,
-        CodeModel model)
+        CodeFacts model)
     {
         var marks = element.Marks
             .Select(mark => new CodeMark(mark.RecordId, mark.Style, mark.Verb, file, mark.Line))

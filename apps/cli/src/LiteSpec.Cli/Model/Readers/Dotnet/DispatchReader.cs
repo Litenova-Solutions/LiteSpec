@@ -25,7 +25,7 @@ static class DispatchReader
         BaseTypeDeclarationSyntax declared,
         SyntaxTree tree,
         string file,
-        Dictionary<string, List<HelperMethod>> helpers,
+        Dictionary<string, List<CalledMethod>> helpers,
         QualifiedKinds qualified)
     {
         var receivers = ClassDetailsReader.ReceiverTypes(declared);
@@ -38,7 +38,7 @@ static class DispatchReader
         var found = ScanDispatches(declared, receivers, tree, file, qualified)
             .Select(entry => entry.Dispatch)
             .ToList();
-        found.AddRange(HelperDispatchReader.HelperDispatches(declared, tree, file, receivers, helpers, qualified));
+        found.AddRange(CalledMethodDispatchReader.HelperDispatches(declared, tree, file, receivers, helpers, qualified));
 
         found.Sort((left, right) =>
         {

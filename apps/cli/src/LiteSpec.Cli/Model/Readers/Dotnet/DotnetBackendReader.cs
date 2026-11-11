@@ -20,7 +20,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <summary>Reads every configured source root, parsing each file once.</summary>
     /// <param name="config">The consumer configuration naming the source roots.</param>
     /// <returns>The code model.</returns>
-    public CodeModel Read(ConsumerConfig config) => Read(config, onParsed: null);
+    public CodeFacts Read(ConsumerConfig config) => Read(config, onParsed: null);
 
     /// <summary>
     ///     Reads every configured source root from one parse of each file: the
@@ -31,7 +31,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <param name="onParsed">Invoked with each file after it parses, or null for no callback.</param>
     /// <returns>The code model.</returns>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Read is the reader entry point that consumers and tests call through a DotnetBackendReader instance; making it static would break those instance calls without changing behaviour.")]
-    public CodeModel Read(ConsumerConfig config, Action<string>? onParsed) =>
+    public CodeFacts Read(ConsumerConfig config, Action<string>? onParsed) =>
         ReadWithProblems(config, onParsed).Code;
 
     /// <summary>Reads the backend through the backend reader interface, with its problems.</summary>
@@ -51,7 +51,7 @@ sealed class DotnetBackendReader : IBackendReader
     /// <returns>The code model and the reader problems.</returns>
     private static BackendRead ReadWithProblems(ConsumerConfig config, Action<string>? onParsed)
     {
-        var model = new CodeModel();
+        var model = new CodeFacts();
 
         var files = new List<string>();
 
@@ -63,16 +63,16 @@ sealed class DotnetBackendReader : IBackendReader
         var (trees, problems) = SyntaxTreeCache.Parse(files, onParsed);
         var (context, qualified) = KindClosure.Of(config, trees);
 
-        var helpers = HelperIndex.Build(config, trees, qualified);
+        var helpers = CalledMethodIndex.Build(config, trees, qualified);
         var aggregateRoots = new HashSet<string>(context.AggregateRoots, StringComparer.Ordinal);
         var holders = RepositoryImplementationReader.RepositoryHoldersOf(config, trees);
 
-        var merged = new CodeModel();
+        var merged = new CodeFacts();
         var gate = new object();
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => new CodeModel(),
+            () => new CodeFacts(),
             (file, _, local) =>
             {
                 if (trees.TryGetValue(file, out var tree))
@@ -184,16 +184,16 @@ sealed class DotnetBackendReader : IBackendReader
         ConsumerConfig config,
         string file,
         SyntaxTree tree,
-        CodeModel model,
+        CodeFacts model,
         KindContext context,
         QualifiedKinds qualified,
-        Dictionary<string, List<HelperMethod>> helpers,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders)
     {
         var root = tree.GetRoot();
         var classes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>().ToList();
-        var readElements = MarkFacts.Read(tree, context, SourceRoots.ProjectOf(config, file), SourceRoots.LayerOf(config, file));
+        var readElements = MarkedElementReader.Read(tree, context, SourceRoots.ProjectOf(config, file), SourceRoots.LayerOf(config, file));
         var types = root.DescendantNodes().OfType<TypeDeclarationSyntax>()
             .ToDictionary(type => type.Identifier.Span, type => type);
         var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()

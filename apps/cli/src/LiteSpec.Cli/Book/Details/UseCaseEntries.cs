@@ -5,4 +5,4 @@ namespace LiteSpec.Cli.Book.Details;
 /// <summary>The results and scenarios that belong to one use case.</summary>
 /// <param name="Results">The use case's results.</param>
 /// <param name="Scenarios">The use case's scenarios.</param>
-sealed record UseCaseKids(IReadOnlyList<JsonObject> Results, IReadOnlyList<JsonObject> Scenarios);
+sealed record UseCaseEntries(IReadOnlyList<JsonObject> Results, IReadOnlyList<JsonObject> Scenarios);

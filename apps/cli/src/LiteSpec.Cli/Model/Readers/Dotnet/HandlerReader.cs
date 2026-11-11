@@ -24,8 +24,8 @@ static class HandlerReader
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
         IReadOnlyList<CodeMark> marks,
-        CodeModel model,
-        Dictionary<string, List<HelperMethod>> helpers,
+        CodeFacts model,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         QualifiedKinds qualified)
@@ -43,7 +43,7 @@ static class HandlerReader
             : "command";
         var details = ClassDetailsReader.HandlerDetailsOf(declared, tree, file, helpers, aggregateRoots, holders, kind == "query", qualified);
 
-        model.Handlers.Add(new HandlerInfo(
+        model.Handlers.Add(new CodeHandler(
             useCase,
             home ?? "",
             name,
@@ -81,12 +81,12 @@ static class HandlerReader
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
         IReadOnlyList<CodeMark> marks,
-        CodeModel model,
-        Dictionary<string, List<HelperMethod>> helpers,
+        CodeFacts model,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
         QualifiedKinds qualified)
     {
-        model.Reactions.Add(new ReactionInfo(
+        model.Reactions.Add(new CodeReaction(
             declared.Identifier.ValueText,
             file,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,
@@ -115,12 +115,12 @@ static class HandlerReader
         SyntaxTree tree,
         TypeDeclarationSyntax declared,
         IReadOnlyList<CodeMark> marks,
-        CodeModel model,
-        Dictionary<string, List<HelperMethod>> helpers,
+        CodeFacts model,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> holders,
         QualifiedKinds qualified)
     {
-        model.Jobs.Add(new JobInfo(
+        model.Jobs.Add(new CodeJob(
             declared.Identifier.ValueText,
             file,
             tree.GetLineSpan(declared.Span).StartLinePosition.Line + 1,

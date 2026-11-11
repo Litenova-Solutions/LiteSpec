@@ -4,7 +4,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Cli.Model.Screens;
 
 /// <summary>One read route: its address, file, operations, use cases and paired calls.</summary>
-sealed record ScreenInfo(
+sealed record CodeScreen(
     string Frontend,
     string Route,
     string File,

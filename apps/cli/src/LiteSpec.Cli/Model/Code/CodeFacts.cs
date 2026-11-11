@@ -1,19 +1,19 @@
 namespace LiteSpec.Cli.Model.Code;
 
 /// <summary>What the backend source says.</summary>
-sealed class CodeModel
+sealed class CodeFacts
 {
     /// <summary>Gets every use-case handler the backend read found, in read order.</summary>
-    public List<HandlerInfo> Handlers { get; } = [];
+    public List<CodeHandler> Handlers { get; } = [];
 
     /// <summary>Gets every event handler the backend read found, in read order.</summary>
-    public List<ReactionInfo> Reactions { get; } = [];
+    public List<CodeReaction> Reactions { get; } = [];
 
     /// <summary>Gets every job host the backend read found, in read order.</summary>
-    public List<JobInfo> Jobs { get; } = [];
+    public List<CodeJob> Jobs { get; } = [];
 
     /// <summary>Gets every domain event class the backend read found, in read order.</summary>
-    public List<DomainEventInfo> Events { get; } = [];
+    public List<CodeDomainEvent> Events { get; } = [];
 
     /// <summary>Gets every refusal code literal the backend read found, in read order.</summary>
     public List<CodeLiteral> Literals { get; } = [];

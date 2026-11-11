@@ -6,7 +6,7 @@ namespace LiteSpec.Model;
 ///     The facts every check host reads from a record: its identity, its place,
 ///     and its fields.
 /// </summary>
-public interface IRecordFacts
+public interface IRecordFields
 {
     /// <summary>Gets the record type, kebab-case.</summary>
     string Type { get; }

@@ -55,7 +55,7 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
             return;
         }
 
-        IReadOnlyList<IRecordFacts> candidates;
+        IReadOnlyList<IRecordFields> candidates;
 
         if (VerbAt(fix, diagnostic.Location.SourceSpan) == MarkVerb.Follows)
         {
@@ -111,14 +111,14 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     /// </summary>
     /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
     /// <returns>The records, in the order this method builds them, or an empty collection when none apply.</returns>
-    private static IReadOnlyList<IRecordFacts> ExpectedRecords(TraceabilityFix fix)
+    private static IReadOnlyList<IRecordFields> ExpectedRecords(TraceabilityFix fix)
     {
         if (fix.Kind is not CodeKind kind)
         {
             return fix.Store.Index.Records;
         }
 
-        var records = new List<IRecordFacts>();
+        var records = new List<IRecordFields>();
 
         foreach (var type in MarkRules.RecordTypes(kind))
         {
@@ -131,9 +131,9 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
     /// <summary>The decision and departure records a <c>follows</c> mark may name.</summary>
     /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
     /// <returns>The records, in the order this method builds them, or an empty collection when none apply.</returns>
-    private static List<IRecordFacts> FollowsRecords(TraceabilityFix fix)
+    private static List<IRecordFields> FollowsRecords(TraceabilityFix fix)
     {
-        var records = new List<IRecordFacts>();
+        var records = new List<IRecordFields>();
 
         records.AddRange(fix.Store.Index.ByType("decision"));
         records.AddRange(fix.Store.Index.ByType("departure"));

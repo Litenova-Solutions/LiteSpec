@@ -24,7 +24,7 @@ internal static class Candidates
     /// <param name="memberName">The member name for a method, else null.</param>
     /// <param name="index">The record index.</param>
     /// <returns>The candidates, exact matches first.</returns>
-    public static IReadOnlyList<IRecordFacts> Derive(
+    public static IReadOnlyList<IRecordFields> Derive(
         CodeKind kind, IReadOnlyList<string> folders, string typeName, string? memberName, RecordIndex index)
     {
         var stem = Naming.Kebab(StripSuffix(kind, memberName ?? typeName));
@@ -45,8 +45,8 @@ internal static class Candidates
             exacts.Add(stem);
         }
 
-        var exactMatches = new List<IRecordFacts>();
-        var nameMatches = new List<IRecordFacts>();
+        var exactMatches = new List<IRecordFields>();
+        var nameMatches = new List<IRecordFields>();
 
         // A test proves the lowest record it verifies, from any of its kinds, but
         // the fix offers scenarios: the other proof targets are named by hand.
@@ -83,9 +83,9 @@ internal static class Candidates
     /// <param name="typed">The mistyped identifier.</param>
     /// <param name="candidates">The records of the expected types.</param>
     /// <returns>Up to three records, nearest first.</returns>
-    public static IReadOnlyList<IRecordFacts> NearestThree(string typed, IReadOnlyList<IRecordFacts> candidates)
+    public static IReadOnlyList<IRecordFields> NearestThree(string typed, IReadOnlyList<IRecordFields> candidates)
     {
-        var ranked = new List<IRecordFacts>(candidates);
+        var ranked = new List<IRecordFields>(candidates);
         ranked.Sort((left, right) =>
         {
             var distance = Distance(typed, left.Id).CompareTo(Distance(typed, right.Id));
@@ -137,7 +137,7 @@ internal static class Candidates
     /// <param name="left">The first identifier to compare.</param>
     /// <param name="right">The second identifier to compare.</param>
     /// <returns>The ids.</returns>
-    private static int CompareIds(IRecordFacts left, IRecordFacts right) =>
+    private static int CompareIds(IRecordFields left, IRecordFields right) =>
         string.Compare(left.Id, right.Id, StringComparison.Ordinal);
 
     /// <summary>Returns true when the record id is exact; otherwise false.</summary>

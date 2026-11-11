@@ -20,7 +20,7 @@ static class RepositoryImplementationReader
     /// <param name="file">The file.</param>
     /// <param name="tree">The parsed syntax tree.</param>
     /// <param name="model">The code model a repository implementation adds to.</param>
-    public static void ReadRepositoryImplementations(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
+    public static void ReadRepositoryImplementations(ConsumerConfig config, string file, SyntaxTree tree, CodeFacts model)
     {
         if (SourceRoots.LayerOf(config, file) != "Infrastructure")
         {

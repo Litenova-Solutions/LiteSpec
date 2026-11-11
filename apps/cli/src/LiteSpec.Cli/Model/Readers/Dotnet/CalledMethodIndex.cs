@@ -11,7 +11,7 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet;
 ///     implements.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-static class HelperIndex
+static class CalledMethodIndex
 {
     /// <summary>
     ///     Builds the helper index of one read: every helper method, so a call through a
@@ -22,7 +22,7 @@ static class HelperIndex
     /// <param name="trees">The parsed syntax trees by file path.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     /// <returns>Every helper method by namespace-qualified <c>Type.Method</c>.</returns>
-    public static Dictionary<string, List<HelperMethod>> Build(
+    public static Dictionary<string, List<CalledMethod>> Build(
         ConsumerConfig config, IReadOnlyDictionary<string, SyntaxTree> trees, QualifiedKinds qualified)
     {
         var files = new List<string>();
@@ -32,12 +32,12 @@ static class HelperIndex
             files.AddRange(SourceTree.Files(root, ".cs"));
         }
 
-        var merged = new Dictionary<string, List<HelperMethod>>(StringComparer.Ordinal);
+        var merged = new Dictionary<string, List<CalledMethod>>(StringComparer.Ordinal);
         var gate = new object();
 
         System.Threading.Tasks.Parallel.ForEach(
             files,
-            () => new List<(HelperMethod Helper, List<string> Aliases)>(),
+            () => new List<(CalledMethod Helper, List<string> Aliases)>(),
             (file, _, local) =>
             {
                 if (trees.TryGetValue(file, out var tree))
@@ -76,7 +76,7 @@ static class HelperIndex
     /// <param name="into">The helpers collected so far, with their aliases.</param>
     /// <param name="qualified">The namespace-qualified names of this read.</param>
     public static void CollectHelpers(
-        string file, SyntaxTree tree, List<(HelperMethod Helper, List<string> Aliases)> into, QualifiedKinds qualified)
+        string file, SyntaxTree tree, List<(CalledMethod Helper, List<string> Aliases)> into, QualifiedKinds qualified)
     {
         foreach (var declared in tree.GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
         {
@@ -127,7 +127,7 @@ static class HelperIndex
                 }
 
                 into.Add((
-                    new HelperMethod(
+                    new CalledMethod(
                         declared.Identifier.ValueText, method.Identifier.ValueText, parameters, dispatches,
                         DotnetNames.QualifiedNameOf(typed)),
                     aliases.Select(face => $"{face}.{method.Identifier.ValueText}").ToList()));

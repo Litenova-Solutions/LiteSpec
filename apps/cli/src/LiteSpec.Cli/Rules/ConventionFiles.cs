@@ -9,7 +9,7 @@ namespace LiteSpec.Cli.Rules;
 ///     a strength, a scope glob, and a default.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
-internal sealed class ConventionStore
+internal sealed class ConventionFiles
 {
     /// <summary>Loads every convention under the consumer's record roots.</summary>
     /// <param name="config">The consumer configuration.</param>

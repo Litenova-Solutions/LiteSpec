@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Book.Details;
 ///     grouped once from the model and the outline.
 /// </summary>
 /// <follows>litespec/core/model#show-only-computed-judgements-in-the-book</follows>
-static class BookEnrichSources
+static class BookDetailSources
 {
     /// <summary>A record or provision identifier a finding message quotes, such as 'goal/approve-claims', shown as code.</summary>
     static readonly Regex QuotedIds = new("'([a-z-]+/[^']+)'", RegexOptions.Compiled);

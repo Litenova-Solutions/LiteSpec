@@ -176,7 +176,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "shows the refusal", Path.Combine(temp.Path, "tests", "loans.spec.ts"), 3,
             [], null, [], ["lending.refused"], []));
 
@@ -242,7 +242,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             [], null, [], [], []));
 
@@ -257,7 +257,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             ["litespec/frontend/ui#check-every-route"], null, [], [], []));
 
@@ -273,7 +273,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [], [], []));
 
@@ -369,7 +369,7 @@ public sealed class ScreenCheckTests
     static List<Finding> WithCode(ProjectModel model, string code) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == code).ToList();
 
-    static BrowserTestInfo BrowserProof(string root, string title, string target) =>
+    static CodeBrowserTest BrowserProof(string root, string title, string target) =>
         new(
             "web", title, Path.Combine(root, "tests", $"{title}.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [target], [], ["The loans are listed."]);
@@ -384,7 +384,7 @@ public sealed class ScreenCheckTests
         model.Code.Endpoints.Add(new EndpointOperation(
             "ListLoans", "use-case/lending.list-loans", "", "",
             Path.Combine(model.Config.Root, "ListLoansEndpoint.cs"), 3));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "web", address, PathText.Relative(model.Config.Root, file),
             [new GeneratedOperation("listLoans", "", "")], useCases, screenId));
     }

@@ -110,7 +110,7 @@ public sealed class CallsLinkTests
         using var temp = TestCli.Temp("calls-link");
         WriteProject(temp.Path);
         var model = new ProjectModel { Config = ConsumerConfig.Load(temp.Path) };
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "web", "/home", "apps/web/src/routes/home/+page.svelte",
             [new GeneratedOperation("listLoans", "", "")],
             ["use-case/lending.list-loans"], "screen/app.home"));
@@ -126,9 +126,9 @@ public sealed class CallsLinkTests
     static FrontendConfig Frontend(string root) =>
         ConsumerConfig.Load(root).Frontends.Single();
 
-    static CodeModel CodeWithEndpoints(params (string Operation, string UseCase)[] endpoints)
+    static CodeFacts CodeWithEndpoints(params (string Operation, string UseCase)[] endpoints)
     {
-        var code = new CodeModel();
+        var code = new CodeFacts();
 
         foreach (var (operation, useCase) in endpoints)
         {

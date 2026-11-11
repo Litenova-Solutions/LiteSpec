@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using LiteSpec.Analyzers.Layers;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;

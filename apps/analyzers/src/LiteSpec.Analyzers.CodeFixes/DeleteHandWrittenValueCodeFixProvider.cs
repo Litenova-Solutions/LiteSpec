@@ -242,7 +242,7 @@ public sealed class DeleteHandWrittenValueCodeFixProvider : CodeFixProvider
         foreach (var mark in MarkReader.Read(fix.Member))
         {
             if (mark.HasRecordId
-                && fix.Store.Index.ById(mark.RecordId) is IRecordFacts record
+                && fix.Store.Index.ById(mark.RecordId) is IRecordFields record
                 && record.Type == recordType)
             {
                 return recordType == "event" ? mark.RecordId : RefusalCode(fix, mark.RecordId);

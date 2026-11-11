@@ -18,7 +18,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
 /// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-internal static class Emitter
+internal static class GeneratedSourceWriter
 {
     /// <summary>Writes every source the inputs call for, or nothing without a usable project file, with no records and no marks, or in an opted-out project.</summary>
     /// <param name="context">The source production context.</param>

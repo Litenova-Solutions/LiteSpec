@@ -73,7 +73,7 @@ static class ModelCommand
 
         if (usageError is { } error)
         {
-            return LastResort.UsageError(error, Usage, json);
+            return CommandFailure.UsageError(error, Usage, json);
         }
 
         var config = ConsumerRoot.Open(parsed.Value("--root"), json, out var openExit);
@@ -99,7 +99,7 @@ static class ModelCommand
                 }
                 catch (FailFast fail)
                 {
-                    return LastResort.Fail(fail.Message, json, fail.Code);
+                    return CommandFailure.Fail(fail.Message, json, fail.Code);
                 }
 
                 model.Ledger.Save(config);
@@ -116,7 +116,7 @@ static class ModelCommand
 
                     if (scope is null)
                     {
-                        return LastResort.Fail(sinceError, json, 2);
+                        return CommandFailure.Fail(sinceError, json, 2);
                     }
 
                     since = scope;
@@ -129,7 +129,7 @@ static class ModelCommand
                     }
                     catch (InvalidOperationException exception)
                     {
-                        return LastResort.Fail(exception.Message, json, 2);
+                        return CommandFailure.Fail(exception.Message, json, 2);
                     }
                 }
 
@@ -268,7 +268,7 @@ static class ModelCommand
                 // explanation files and documents, the records file each
                 // web frontend imports from its frame, and the UI source lock
                 // beside the shared package.
-                var changed = Renderer.Render(model)
+                var changed = GeneratedRegions.Render(model)
                     .Concat(FrontendRecords.Write(model))
                     .Concat(UiSourceLock.Write(model))
                     .ToList();
@@ -286,15 +286,15 @@ static class ModelCommand
             {
                 if (parsed.Positionals is not [var id])
                 {
-                    return LastResort.UsageError("Query needs an id.", Usage, json);
+                    return CommandFailure.UsageError("Query needs an id.", Usage, json);
                 }
 
                 var model = ModelBuilder.Build(config);
-                var answer = Querier.Query(model, id);
+                var answer = RecordQuery.Query(model, id);
 
                 if (answer is null)
                 {
-                    return LastResort.Fail($"No record holds '{id}'.", json, 1);
+                    return CommandFailure.Fail($"No record holds '{id}'.", json, 1);
                 }
 
                 Console.WriteLine(answer);
@@ -302,7 +302,7 @@ static class ModelCommand
             }
 
             default:
-                return LastResort.UsageError($"Unknown command '{command}'.", Usage, json);
+                return CommandFailure.UsageError($"Unknown command '{command}'.", Usage, json);
         }
     }
 

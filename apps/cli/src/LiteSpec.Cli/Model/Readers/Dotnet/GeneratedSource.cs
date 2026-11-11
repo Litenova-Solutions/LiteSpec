@@ -4,7 +4,7 @@ namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>Whether a file or a declaration is generated code the reader leaves out.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-static class GeneratedCodeFacts
+static class GeneratedSource
 {
     /// <summary>Whether the file name is one the compiler treats as generated.</summary>
     /// <param name="file">The file path.</param>

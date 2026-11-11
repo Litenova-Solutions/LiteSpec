@@ -27,7 +27,7 @@ sealed class DotnetFrontendReader : IFrontendReader
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <param name="code">The code model the screens are checked against.</param>
     /// <returns>The screen read built from the .NET screen reader routes and problems.</returns>
-    public ScreenRead Read(ConsumerConfig config, CodeModel code)
+    public ScreenRead Read(ConsumerConfig config, CodeFacts code)
     {
         var screenRead = DotnetScreenReader.ReadWithProblems(frontend);
         var facts = new FrontendFacts(

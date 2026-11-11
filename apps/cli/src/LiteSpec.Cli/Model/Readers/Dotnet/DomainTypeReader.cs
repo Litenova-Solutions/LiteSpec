@@ -22,7 +22,7 @@ static class DomainTypeReader
     /// <param name="file">The file.</param>
     /// <param name="tree">The parsed syntax tree.</param>
     /// <param name="model">The code model a domain type adds to.</param>
-    public static void ReadDomainTypes(ConsumerConfig config, string file, SyntaxTree tree, CodeModel model)
+    public static void ReadDomainTypes(ConsumerConfig config, string file, SyntaxTree tree, CodeFacts model)
     {
         if (SourceRoots.LayerOf(config, file) != "Domain")
         {
@@ -36,7 +36,7 @@ static class DomainTypeReader
                 continue;
             }
 
-            if (GeneratedCodeFacts.IsGeneratedFileName(file) || GeneratedCodeFacts.HasGeneratedCode(declared))
+            if (GeneratedSource.IsGeneratedFileName(file) || GeneratedSource.HasGeneratedCode(declared))
             {
                 continue;
             }

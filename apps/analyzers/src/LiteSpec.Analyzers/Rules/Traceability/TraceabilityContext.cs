@@ -37,7 +37,7 @@ internal sealed class TraceabilityContext
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        BackendLayout layout, string? declared, LayerClaims claims, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
         Layout = layout;
         Declared = declared;
@@ -78,7 +78,7 @@ internal sealed class TraceabilityContext
     public LayerClaims Claims { get; }
 
     /// <summary>Gets the consumer's records.</summary>
-    public RecordStore Store { get; }
+    public CompilationRecords Store { get; }
 
     /// <summary>Gets the cross-file kind names.</summary>
     public KindContext Kinds { get; }
@@ -186,7 +186,7 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, RecordStore store) =>
+    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, CompilationRecords store) =>
         Create(compilation, layout, declared, LayerClaims.All, store);
 
     /// <summary>Builds the context for one compilation under the layers it claims.</summary>
@@ -196,7 +196,7 @@ internal sealed class TraceabilityContext
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, RecordStore store)
+    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -249,7 +249,7 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, RecordStore store) =>
+    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, CompilationRecords store) =>
         GetOrCreate(compilation, layout, declared, LayerClaims.All, store);
 
     /// <summary>Reads the cached context for the compilation or builds and caches it under the layers it claims.</summary>
@@ -259,7 +259,7 @@ internal sealed class TraceabilityContext
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, RecordStore store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, CompilationRecords store)
     {
         if (Cache.TryGetValue(compilation, out var cached)
             && cached.Layout == layout
@@ -525,7 +525,7 @@ internal sealed class TraceabilityContext
     {
         /// <summary>Initializes a new instance of the <see cref="LiveException"/> class.</summary>
         /// <param name="departure">The departure record under inspection.</param>
-        public LiveException(IRecordFacts departure)
+        public LiveException(IRecordFields departure)
         {
             Subjects = new HashSet<string>(departure.Ids("subject"), StringComparer.Ordinal);
             Paths = departure.Ids("paths");

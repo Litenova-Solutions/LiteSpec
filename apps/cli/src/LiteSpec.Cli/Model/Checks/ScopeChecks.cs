@@ -1,7 +1,7 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model.Readers.Operations;
 using LiteSpec.Model;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks;
 

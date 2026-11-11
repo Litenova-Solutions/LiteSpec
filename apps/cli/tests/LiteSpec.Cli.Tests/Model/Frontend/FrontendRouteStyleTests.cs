@@ -18,7 +18,7 @@ public sealed class FrontendRouteStyleTests
         using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "svelte", "attribute");
         var config = ConsumerConfig.Load(temp.Path);
-        var code = new CodeModel();
+        var code = new CodeFacts();
 
         FrontendReadBuilder.Build(config, Frontend(temp.Path), FactsWithRoute("screen/app.expense-list", null, Finding.TypeScriptReader), code);
 
@@ -35,7 +35,7 @@ public sealed class FrontendRouteStyleTests
         using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "blazor", "xml");
         var config = ConsumerConfig.Load(temp.Path);
-        var code = new CodeModel();
+        var code = new CodeFacts();
 
         FrontendReadBuilder.Build(
             config, Frontend(temp.Path),
@@ -53,7 +53,7 @@ public sealed class FrontendRouteStyleTests
         using var temp = TestCli.Temp("route-style");
         WriteProject(temp.Path, "blazor", "attribute");
         var config = ConsumerConfig.Load(temp.Path);
-        var code = new CodeModel();
+        var code = new CodeFacts();
 
         FrontendReadBuilder.Build(config, Frontend(temp.Path), FactsWithRoute("screen/app.expense-list", null), code);
 

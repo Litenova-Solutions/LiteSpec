@@ -55,7 +55,7 @@ static partial class ModelBuilder
         // proof ledger still loads, because it states hashes the next build compares.
         if (stacks is null || backendRun is null || scenarioRun is null)
         {
-            model.Code = new CodeModel();
+            model.Code = new CodeFacts();
             model.Ledger = ProofLedger.Load(config);
             model.Problems.AddRange(model.Ledger.Problems);
         }
@@ -244,11 +244,11 @@ static partial class ModelBuilder
     /// <param name="stacks">The readers the project's stacks select.</param>
     /// <param name="code">The code model.</param>
     /// <returns>The screens, comments, browser tests, and findings every frontend read.</returns>
-    private static ScreenRead ReadScreens(ConsumerConfig config, StackSet stacks, CodeModel code)
+    private static ScreenRead ReadScreens(ConsumerConfig config, StackSet stacks, CodeFacts code)
     {
-        var screens = new List<ScreenInfo>();
+        var screens = new List<CodeScreen>();
         var comments = new List<CodeComment>();
-        var browserTests = new List<BrowserTestInfo>();
+        var browserTests = new List<CodeBrowserTest>();
         var findings = new List<Finding>();
         var qualified = false;
 
@@ -294,7 +294,7 @@ static partial class ModelBuilder
             case JsonValueKind.String:
                 if (value.GetString() is { } single)
                 {
-                    targets.Add(UseCaseFacts.UnwrapSelf(single));
+                    targets.Add(UseCaseQueries.UnwrapSelf(single));
                 }
 
                 break;
@@ -390,7 +390,7 @@ static partial class ModelBuilder
     /// <summary>Whether the use case lets anonymous callers in.</summary>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when the use case's access grant is anonymous.</returns>
-    public static bool Anonymous(Record useCase) => UseCaseFacts.Anonymous(useCase);
+    public static bool Anonymous(Record useCase) => UseCaseQueries.Anonymous(useCase);
 
     /// <summary>
     ///     The permission the use case's access grant names, reading through self(),
@@ -398,24 +398,24 @@ static partial class ModelBuilder
     /// </summary>
     /// <param name="useCase">The use case record.</param>
     /// <returns>The permission the grant names, or null when it names none.</returns>
-    public static string? GrantedPermission(Record useCase) => UseCaseFacts.GrantedPermission(useCase);
+    public static string? GrantedPermission(Record useCase) => UseCaseQueries.GrantedPermission(useCase);
 
     /// <summary>Whether any of the use case's inputs carries rules.</summary>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when one of the use case's inputs carries rules.</returns>
-    public static bool HasValidatedInput(Record useCase) => UseCaseFacts.HasValidatedInput(useCase);
+    public static bool HasValidatedInput(Record useCase) => UseCaseQueries.HasValidatedInput(useCase);
 
     /// <summary>Whether the use case runs in the background: a reaction or job runs it.</summary>
     /// <param name="model">The project model.</param>
     /// <param name="useCase">The use case record.</param>
     /// <returns>True when a reaction or job runs the use case.</returns>
-    public static bool BackgroundOnly(ProjectModel model, Record useCase) => UseCaseFacts.BackgroundOnly(model, useCase);
+    public static bool BackgroundOnly(ProjectModel model, Record useCase) => UseCaseQueries.BackgroundOnly(model, useCase);
 
     /// <summary>The aggregate whose folder holds the use case's page.</summary>
     /// <param name="model">The project model.</param>
     /// <param name="useCase">The use case record.</param>
     /// <returns>The aggregate holding the use case's page, or null when none holds it.</returns>
-    public static Record? AggregateOf(ProjectModel model, Record useCase) => UseCaseFacts.AggregateOf(model, useCase);
+    public static Record? AggregateOf(ProjectModel model, Record useCase) => UseCaseQueries.AggregateOf(model, useCase);
 
     /// <summary>The use case a result or scenario home names, when one holds it.</summary>
     /// <param name="model">The project model.</param>
@@ -444,7 +444,7 @@ static partial class ModelBuilder
     /// <param name="test">The scenario test.</param>
     /// <param name="claim">The record the test claims to prove.</param>
     /// <returns>True when the test confirms the claim.</returns>
-    public static bool Confirm(ProjectModel model, ScenarioInfo test, string claim) =>
+    public static bool Confirm(ProjectModel model, CodeScenarioTest test, string claim) =>
         ProofConfirmation.Confirm(model, test, claim);
 
     /// <summary>
@@ -460,6 +460,6 @@ static partial class ModelBuilder
     /// <param name="test">The browser test.</param>
     /// <param name="claim">The record the test claims to prove.</param>
     /// <returns>True when the browser test confirms the claim.</returns>
-    public static bool BrowserConfirm(ProjectModel model, BrowserTestInfo test, string claim) =>
+    public static bool BrowserConfirm(ProjectModel model, CodeBrowserTest test, string claim) =>
         ProofConfirmation.BrowserConfirm(model, test, claim);
 }

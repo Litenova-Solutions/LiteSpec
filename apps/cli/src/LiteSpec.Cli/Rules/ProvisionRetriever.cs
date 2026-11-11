@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Rules;
 ///     neither Implementation nor Proof retrieves none.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
-internal static class RuleRetriever
+internal static class ProvisionRetriever
 {
     /// <summary>Retrieves the provisions that govern the target, in group then identifier order.</summary>
     /// <param name="catalog">The applied provisions.</param>
@@ -22,10 +22,10 @@ internal static class RuleRetriever
     /// <param name="config">The consumer configuration.</param>
     /// <param name="target">The rules target.</param>
     /// <returns>The retrieved provisions with their reasons.</returns>
-    public static IReadOnlyList<RuleResult> Retrieve(
+    public static IReadOnlyList<ProvisionMatch> Retrieve(
         ProvisionCatalog catalog,
         IReadOnlyList<ProvisionEntry> conventions,
-        IReadOnlyList<DepartureStore.Departure> departures,
+        IReadOnlyList<DepartureFiles.Departure> departures,
         ConsumerConfig config,
         PathContext target)
     {
@@ -60,14 +60,14 @@ internal static class RuleRetriever
             }
         }
 
-        var results = new List<RuleResult>();
+        var results = new List<ProvisionMatch>();
 
         foreach (var (entry, reasons) in found.Values)
         {
             var departure = departures.FirstOrDefault(candidate =>
-                DepartureStore.Names(candidate, entry) && DepartureStore.Covers(candidate, target, candidates));
+                DepartureFiles.Names(candidate, entry) && DepartureFiles.Covers(candidate, target, candidates));
 
-            results.Add(new RuleResult(entry, reasons, departure));
+            results.Add(new ProvisionMatch(entry, reasons, departure));
         }
 
         var groups = ProvisionEntry.GroupOrder.ToList();

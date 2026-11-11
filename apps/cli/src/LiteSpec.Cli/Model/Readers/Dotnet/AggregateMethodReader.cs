@@ -27,7 +27,7 @@ static class AggregateMethodReader
         SyntaxTree tree,
         IReadOnlyList<MarkableElement> elements,
         IReadOnlyDictionary<TextSpan, TypeDeclarationSyntax> types,
-        CodeModel model)
+        CodeFacts model)
     {
         foreach (var element in elements)
         {

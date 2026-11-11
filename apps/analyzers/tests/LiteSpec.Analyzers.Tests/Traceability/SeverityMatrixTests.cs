@@ -181,7 +181,7 @@ public sealed class SeverityMatrixTests
         Assert.Equal(store.IsKnown(expired), context.IsKnown(expired));
     }
 
-    private static RecordStore StoreWith(IReadOnlyList<(string Path, string Source)> files)
+    private static CompilationRecords StoreWith(IReadOnlyList<(string Path, string Source)> files)
     {
         var records = new List<RecordFile>();
 
@@ -190,7 +190,7 @@ public sealed class SeverityMatrixTests
             records.Add(new RecordFile(file.Path, file.Source));
         }
 
-        var store = RecordStore.Load(records);
+        var store = CompilationRecords.Load(records);
 
         Assert.NotNull(store);
 

@@ -20,7 +20,7 @@ public static class RefusalCode
     /// <param name="byId">Reads a record by id, or null when none carries it.</param>
     /// <returns>The refusal code, or null when the rule names none.</returns>
     /// <exception cref="ArgumentNullException">The rule or lookup is null.</exception>
-    public static string? Of(IRecordFacts rule, Func<string, IRecordFacts?> byId)
+    public static string? Of(IRecordFields rule, Func<string, IRecordFields?> byId)
     {
         if (rule is null)
         {

@@ -425,7 +425,7 @@ public sealed class DotnetHandlerShapeReaderTests
         Assert.Empty(element.Marks);
     }
 
-    static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
+    static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteDomainRoot(string root) =>
         WriteSource(root, "Domain", "Order.cs", """

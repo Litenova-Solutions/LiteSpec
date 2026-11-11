@@ -176,7 +176,7 @@ public sealed class NodeFrontendReaderTests
             ConsumerConfig.Load(temp.Path),
             Frontend(temp.Path),
             FrontendFacts.Failed("web", Finding.TypeScriptReader, "Node is absent from PATH."),
-            new CodeModel());
+            new CodeFacts());
 
         var finding = Assert.Single(read.Findings);
         Assert.Equal("reader-missing", finding.Code);
@@ -210,9 +210,9 @@ public sealed class NodeFrontendReaderTests
     static FrontendConfig Frontend(string root) =>
         ConsumerConfig.Load(root).Frontends.Single();
 
-    static CodeModel CodeWithEndpoints(params (string Operation, string UseCase)[] endpoints)
+    static CodeFacts CodeWithEndpoints(params (string Operation, string UseCase)[] endpoints)
     {
-        var code = new CodeModel();
+        var code = new CodeFacts();
 
         foreach (var (operation, useCase) in endpoints)
         {

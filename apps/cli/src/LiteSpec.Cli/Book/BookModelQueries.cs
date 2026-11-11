@@ -57,10 +57,10 @@ static class BookModelQueries
     /// <param name="index">The model index.</param>
     /// <param name="useCaseId">The use-case id.</param>
     /// <returns>The use case's results and scenarios.</returns>
-    public static UseCaseKids UseCaseChildren(BookIndex index, string useCaseId)
+    public static UseCaseEntries UseCaseChildren(BookIndex index, string useCaseId)
     {
         var name = BookModel.SplitId(useCaseId).Name;
-        return new UseCaseKids(
+        return new UseCaseEntries(
             index.ResultsOf.TryGetValue(name, out var results) ? results : [],
             index.ScenariosOf.TryGetValue(name, out var scenarios) ? scenarios : []);
     }

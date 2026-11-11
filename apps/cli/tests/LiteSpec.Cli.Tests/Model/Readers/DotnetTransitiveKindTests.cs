@@ -172,7 +172,7 @@ public sealed class DotnetTransitiveKindTests
         Assert.Equal("LoanBorrowedEvent", element.Class);
     }
 
-    static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
+    static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteProject(string root) =>
         File.WriteAllText(

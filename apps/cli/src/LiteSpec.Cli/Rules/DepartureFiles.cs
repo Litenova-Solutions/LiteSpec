@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Rules;
 ///     or paths they replace them on. A live departure shows in place of the provisions it covers.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
-internal sealed class DepartureStore
+internal sealed class DepartureFiles
 {
     /// <summary>One live departure.</summary>
     /// <param name="Id">The departure identifier.</param>

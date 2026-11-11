@@ -145,7 +145,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFacts record
+                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFields record
                     && record.Type == recordType)
                 {
                     return mark.RecordId;

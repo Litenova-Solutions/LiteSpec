@@ -139,7 +139,7 @@ public sealed class RefusalCodeTests
                 ["refusal"] = refusal,
             });
 
-    private static Func<string, IRecordFacts?> ById(params FakeRecord[] records) =>
+    private static Func<string, IRecordFields?> ById(params FakeRecord[] records) =>
         id =>
         {
             foreach (var record in records)

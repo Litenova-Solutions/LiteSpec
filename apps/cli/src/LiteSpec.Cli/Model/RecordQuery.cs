@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model;
 ///     Prints one record with its links in both directions.
 /// </summary>
 /// <follows>litespec/core/agent#select-task-context</follows>
-static class Querier
+static class RecordQuery
 {
     /// <summary>Queries one record id, or returns null when no record holds it.</summary>
     /// <param name="model">The built project model to query.</param>

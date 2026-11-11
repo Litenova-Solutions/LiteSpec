@@ -4,7 +4,8 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Model;
-using static LiteSpec.Cli.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingText;
+using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks;
 
@@ -172,7 +173,7 @@ internal static class ScreenChecks
     /// <param name="model">The loaded project model that holds each computed screen.</param>
     /// <param name="screenId">The screen record identifier the computed screen must name.</param>
     /// <returns>Each computed screen that names the record.</returns>
-    private static IReadOnlyList<ScreenInfo> ReadScreensFor(ProjectModel model, string screenId) =>
+    private static IReadOnlyList<CodeScreen> ReadScreensFor(ProjectModel model, string screenId) =>
         [.. model.Screens.Where(screen => screen.ScreenId == screenId)];
 
     /// <summary>Reports each screen record that no route element marks.</summary>

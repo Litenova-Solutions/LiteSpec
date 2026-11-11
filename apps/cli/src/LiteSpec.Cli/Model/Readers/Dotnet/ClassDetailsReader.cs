@@ -23,7 +23,7 @@ static class ClassDetailsReader
         BaseTypeDeclarationSyntax declared,
         SyntaxTree tree,
         string file,
-        Dictionary<string, List<HelperMethod>> helpers,
+        Dictionary<string, List<CalledMethod>> helpers,
         HashSet<string> aggregateRoots,
         HashSet<string> holders,
         bool isQuery,
