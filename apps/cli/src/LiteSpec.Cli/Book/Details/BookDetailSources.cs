@@ -251,8 +251,8 @@ static class BookDetailSources
         void Add(JsonObject finding, bool covered)
         {
             if (claims.Implementation is null && claims.Proof is null
-                && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), "S", StringComparison.Ordinal)
-                    || string.Equals(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier"), "S", StringComparison.Ordinal)))
+                && (string.Equals(BookRender.StrProp(finding, "tier") ?? BookRender.StrProp(finding, "level"), BookCheckLevels.S, StringComparison.Ordinal)
+                    || string.Equals(BookRender.StrProp(finding, "level") ?? BookRender.StrProp(finding, "tier"), BookCheckLevels.S, StringComparison.Ordinal)))
             {
                 return;
             }

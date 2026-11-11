@@ -25,10 +25,10 @@ static class BookModelQueries
             link["passing"] is JsonValue scalar && scalar.TryGetValue<bool>(out var passing) ? passing : (bool?)null,
             BookRender.StrProp(link, "scenario") is { } scenario ? index.TestsByName.GetValueOrDefault(scenario) : null)).ToList();
         var confirmed = enriched.Where(link => link.Confirmed).ToList();
-        var state = "unproved";
+        var state = BookProofStates.Unproved;
         if (!BookModel.HasTestRun(index))
         {
-            state = "norun";
+            state = BookProofStates.Norun;
         }
         else if (confirmed.Count > 0)
         {

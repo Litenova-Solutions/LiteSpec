@@ -45,7 +45,7 @@ static class BookProofDetail
         };
     }
 
-    /// <summary>One scenario or rule proof state: the stored state, or the proves links while the model holds none.</summary>
+    /// <summary>One scenario or rule proof state from <see cref="BookProofStates"/>: the stored state, or the proves links while the model holds none.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="id">The record id.</param>
     /// <returns>The proof state.</returns>
@@ -58,18 +58,18 @@ static class BookProofDetail
 
         if (!BookModel.HasTestRun(index))
         {
-            return "norun";
+            return BookProofStates.Norun;
         }
 
         var proof = BookModelQueries.ScenarioProof(index, id);
         return proof.State switch
         {
-            "proved-passing" => "passing",
-            "proved-failing" => "failing",
-            "proved-indirect" => "indirect",
-            "awaiting-run" => "awaiting",
-            "norun" => "norun",
-            _ => proof.Claimed ? "unconfirmed" : "unproved",
+            "proved-passing" => BookProofStates.Passing,
+            "proved-failing" => BookProofStates.Failing,
+            "proved-indirect" => BookProofStates.Indirect,
+            "awaiting-run" => BookProofStates.Awaiting,
+            BookProofStates.Norun => BookProofStates.Norun,
+            _ => proof.Claimed ? BookProofStates.Unconfirmed : BookProofStates.Unproved,
         };
     }
 

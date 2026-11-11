@@ -152,7 +152,7 @@ static class BookShards
             ["type"] = StringOrNull(node.Type),
         };
 
-        if (!string.Equals(node.Kind, "group", StringComparison.Ordinal)
+        if (!string.Equals(node.Kind, BookOutlineKinds.Group, StringComparison.Ordinal)
             && shardOf.TryGetValue(node.Id, out var shard))
         {
             json["shard"] = shard;

@@ -26,7 +26,8 @@ static class BookImplementationDetail
     /// <summary>
     ///     The code implementing one record: handler, endpoint and aggregate method
     ///     entries with their model lines, reaction and job entries with theirs, and
-    ///     every other implements link with a null line at the file head.
+    ///     every other implements link with a null line at the file head. Every entry
+    ///     kind is a member of <see cref="BookImplKinds"/>.
     /// </summary>
     /// <param name="index">The model index.</param>
     /// <param name="handlers">The handler entries per record id.</param>
@@ -75,7 +76,7 @@ static class BookImplementationDetail
         {
             foreach (var handler in ownHandlers)
             {
-                Add("handler", BookRender.StrProp(handler, "path"), BookDetailValues.IntProp(handler, "line"));
+                Add(BookImplKinds.Handler, BookRender.StrProp(handler, "path"), BookDetailValues.IntProp(handler, "line"));
             }
         }
 
@@ -83,7 +84,7 @@ static class BookImplementationDetail
         {
             foreach (var endpoint in ownEndpoints)
             {
-                Add("endpoint", BookRender.StrProp(endpoint, "path"), BookDetailValues.IntProp(endpoint, "line"));
+                Add(BookImplKinds.Endpoint, BookRender.StrProp(endpoint, "path"), BookDetailValues.IntProp(endpoint, "line"));
             }
         }
 
@@ -91,7 +92,7 @@ static class BookImplementationDetail
         {
             foreach (var method in ownMethods)
             {
-                Add("aggregate-method", BookRender.StrProp(method, "path"), BookDetailValues.IntProp(method, "line"));
+                Add(BookImplKinds.AggregateMethod, BookRender.StrProp(method, "path"), BookDetailValues.IntProp(method, "line"));
             }
         }
 
@@ -105,13 +106,13 @@ static class BookImplementationDetail
                 continue;
             }
 
-            if (kind is "automation" or "reaction" or "job" && runnersByPath.TryGetValue(path, out var runner))
+            if (kind is BookImplKinds.Automation or BookImplKinds.Reaction or BookImplKinds.Job && runnersByPath.TryGetValue(path, out var runner))
             {
                 Add(kind, path, BookDetailValues.IntProp(runner, "line"));
             }
             else
             {
-                Add(kind.Length > 0 ? kind : "handler", path, null);
+                Add(kind.Length > 0 ? kind : BookImplKinds.Handler, path, null);
             }
         }
 
@@ -120,7 +121,7 @@ static class BookImplementationDetail
             var file = BookRender.StrProp(routeEntry, "file");
             if (!string.IsNullOrEmpty(file) && !paths.Contains(file))
             {
-                Add("route", file, 1);
+                Add(BookImplKinds.Route, file, 1);
             }
         }
 
@@ -200,7 +201,7 @@ static class BookImplementationDetail
                         continue;
                     }
 
-                    if (BookProofDetail.State(index, scenarioId) == "passing")
+                    if (BookProofDetail.State(index, scenarioId) == BookProofStates.Passing)
                     {
                         pass++;
                     }
@@ -231,7 +232,7 @@ static class BookImplementationDetail
         };
     }
 
-    /// <summary>The missing marks of one record: not implemented, not tested, or scenarios not tested.</summary>
+    /// <summary>The missing marks of one record as a JSON array, possibly empty, never a string: not implemented, not tested, or scenarios not tested.</summary>
     /// <param name="index">The model index.</param>
     /// <param name="tests">The tests per record id.</param>
     /// <param name="impl">The implementing code entries.</param>

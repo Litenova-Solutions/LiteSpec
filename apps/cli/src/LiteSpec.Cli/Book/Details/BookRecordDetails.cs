@@ -34,7 +34,9 @@ static class BookRecordDetails
     ///     proof status and scenario proof. The expectation, the completion and
     ///     the missing marks stop at the claimed layers, so an unclaimed layer
     ///     never reads as missing. Every detail that is a requirement or a
-    ///     journey carries its Intent coverage.
+    ///     journey carries its Intent coverage. Every written type is a member
+    ///     of <see cref="RecordTypes"/> and every written layer is a member of
+    ///     the outline layer keys or null.
     /// </summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="outline">The built outline.</param>
@@ -156,7 +158,8 @@ static class BookRecordDetails
 
         // The computed facts the model builder states beside the record: the
         // screen captures and the problem evidence strength. The book reads only
-        // these names; it computes none of them itself.
+        // these names; it computes none of them itself. A carried capture state
+        // is always a member of BookCaptureStates.
         foreach (var key in new[] { "captures", "captureState", "evidenceStrength" })
         {
             if (record[key] is { } node)

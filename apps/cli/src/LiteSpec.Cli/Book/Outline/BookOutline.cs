@@ -82,7 +82,7 @@ static class BookOutline
             var title = StrProp(pair.Value, "title");
             nodes[pair.Key] = new BookOutlineNode(
                 pair.Key,
-                "record",
+                BookOutlineKinds.Record,
                 title is { Length: > 0 } ? title : pair.Key,
                 StrProp(pair.Value, "type") ?? "",
                 []);
@@ -91,7 +91,7 @@ static class BookOutline
         var layers = new Dictionary<string, BookOutlineNode>(StringComparer.Ordinal);
         foreach (var key in LayerKeys)
         {
-            layers[key] = new BookOutlineNode(key, "group", LayerLabel(key), null, []);
+            layers[key] = new BookOutlineNode(key, BookOutlineKinds.Group, LayerLabel(key), null, []);
         }
 
         var groups = new Dictionary<string, BookOutlineNode>(StringComparer.Ordinal);
@@ -100,7 +100,7 @@ static class BookOutline
             var id = layer + "/" + type;
             if (!groups.TryGetValue(id, out var group))
             {
-                group = new BookOutlineNode(id, "group", PluralOf(type), type, []);
+                group = new BookOutlineNode(id, BookOutlineKinds.Group, PluralOf(type), type, []);
                 groups[id] = group;
                 layers[layer].Children.Add(group);
             }
@@ -274,9 +274,9 @@ static class BookOutline
             {
                 nodes[parent].Children.Add(new BookOutlineNode(
                     "code/" + path,
-                    "code",
+                    BookOutlineKinds.Code,
                     FileName(path),
-                    "code",
+                    BookOutlineKinds.Code,
                     []));
             }
         }
@@ -337,7 +337,7 @@ static class BookOutline
                 .FirstOrDefault();
             if (parent is { Length: > 0 } && attached.TryGetValue(parent, out var placed) && placed)
             {
-                nodes[parent].Children.Add(new BookOutlineNode(id, "test", label, "test", []));
+                nodes[parent].Children.Add(new BookOutlineNode(id, BookOutlineKinds.Test, label, BookOutlineKinds.Test, []));
             }
         }
     }
@@ -379,9 +379,9 @@ static class BookOutline
                 var message = StrProp(finding, "message") ?? "";
                 nodes[target].Children.Add(new BookOutlineNode(
                     "finding/" + at,
-                    "finding",
+                    BookOutlineKinds.Finding,
                     message.Length > 110 ? message[..108] + "..." : message,
-                    "finding",
+                    BookOutlineKinds.Finding,
                     []));
             }
         }
@@ -391,8 +391,8 @@ static class BookOutline
     /// <param name="finding">The finding object.</param>
     /// <returns>True when the finding tier or level is S.</returns>
     static bool IsLevelS(JsonObject finding) =>
-        string.Equals(StrProp(finding, "tier") ?? StrProp(finding, "level"), "S", StringComparison.Ordinal)
-        || string.Equals(StrProp(finding, "level") ?? StrProp(finding, "tier"), "S", StringComparison.Ordinal);
+        string.Equals(StrProp(finding, "tier") ?? StrProp(finding, "level"), BookCheckLevels.S, StringComparison.Ordinal)
+        || string.Equals(StrProp(finding, "level") ?? StrProp(finding, "tier"), BookCheckLevels.S, StringComparison.Ordinal);
 
     /// <summary>The finding objects of a findings node, as an array or a wrapped file.</summary>
     /// <param name="node">The findings node, either an array of findings or an object wrapping one, or null.</param>
@@ -603,7 +603,7 @@ static class BookOutline
             SortNode(child);
         }
 
-        if (string.Equals(node.Kind, "record", StringComparison.Ordinal))
+        if (string.Equals(node.Kind, BookOutlineKinds.Record, StringComparison.Ordinal))
         {
             SortRecordChildren(node);
         }
@@ -656,10 +656,10 @@ static class BookOutline
     static int LeafRank(BookOutlineNode node) =>
         node.Kind switch
         {
-            "record" => 0,
-            "code" => 1,
-            "test" => 2,
-            "finding" => 3,
+            BookOutlineKinds.Record => 0,
+            BookOutlineKinds.Code => 1,
+            BookOutlineKinds.Test => 2,
+            BookOutlineKinds.Finding => 3,
             _ => 4,
         };
 
@@ -718,7 +718,7 @@ static class BookOutline
             return 0;
         }
 
-        if (string.Equals(node.Kind, "group", StringComparison.Ordinal)
+        if (string.Equals(node.Kind, BookOutlineKinds.Group, StringComparison.Ordinal)
             && node.Type is { Length: > 0 }
             && BehaviorListOrder.Contains(node.Type, StringComparer.Ordinal))
         {
@@ -734,8 +734,8 @@ static class BookOutline
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int GovernanceLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
-        var leftDirect = string.Equals(left.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
-        var rightDirect = string.Equals(right.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
+        var leftDirect = string.Equals(left.Kind, BookOutlineKinds.Record, StringComparison.Ordinal) ? 0 : 1;
+        var rightDirect = string.Equals(right.Kind, BookOutlineKinds.Record, StringComparison.Ordinal) ? 0 : 1;
         if (leftDirect != rightDirect)
         {
             return leftDirect.CompareTo(rightDirect);
@@ -756,8 +756,8 @@ static class BookOutline
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int DirectFirstOrder(BookOutlineNode left, BookOutlineNode right)
     {
-        var leftDirect = string.Equals(left.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
-        var rightDirect = string.Equals(right.Kind, "record", StringComparison.Ordinal) ? 0 : 1;
+        var leftDirect = string.Equals(left.Kind, BookOutlineKinds.Record, StringComparison.Ordinal) ? 0 : 1;
+        var rightDirect = string.Equals(right.Kind, BookOutlineKinds.Record, StringComparison.Ordinal) ? 0 : 1;
         if (leftDirect != rightDirect)
         {
             return leftDirect.CompareTo(rightDirect);
@@ -800,7 +800,7 @@ static class BookOutline
     /// <param name="type">The record type to match.</param>
     /// <returns>True when the node is a record of the given type; otherwise false.</returns>
     static bool IsRecordOf(BookOutlineNode node, string type) =>
-        string.Equals(node.Kind, "record", StringComparison.Ordinal) && string.Equals(node.Type, type, StringComparison.Ordinal);
+        string.Equals(node.Kind, BookOutlineKinds.Record, StringComparison.Ordinal) && string.Equals(node.Type, type, StringComparison.Ordinal);
 
     /// <summary>Reads one string property of a JSON object.</summary>
     /// <param name="obj">The JSON object to read, or null.</param>
