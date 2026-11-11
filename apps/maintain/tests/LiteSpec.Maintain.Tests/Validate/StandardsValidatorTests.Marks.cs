@@ -1,6 +1,7 @@
+using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Self-mark cases: MARK_MISSING and MARK_UNRESOLVED over fixture projects.</summary>
 public sealed partial class StandardsValidatorTests

@@ -1,6 +1,7 @@
+using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Page titles, sections, links, and glossary cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests

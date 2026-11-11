@@ -1,7 +1,6 @@
-using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Support;
 
 /// <summary>
 ///     The minimal LiteSpec tree every standards case mutates, so each case isolates one rule.

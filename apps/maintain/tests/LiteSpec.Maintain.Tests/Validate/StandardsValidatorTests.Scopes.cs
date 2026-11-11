@@ -2,7 +2,7 @@ using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Scope block, Strength line, Applies to line, and generated counts cases.</summary>
 public sealed partial class StandardsValidatorTests

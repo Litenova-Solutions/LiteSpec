@@ -2,7 +2,7 @@ using System.Diagnostics;
 using LiteSpec.Maintain.Changelog;
 using LiteSpec.Maintain.Tests.Support;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Changelog;
 
 /// <summary>Tests for <c>litespec-maintain changelog</c>.</summary>
 public sealed class ProvisionDiffTests

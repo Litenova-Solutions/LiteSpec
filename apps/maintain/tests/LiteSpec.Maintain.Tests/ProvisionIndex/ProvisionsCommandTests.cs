@@ -2,7 +2,7 @@ using System.Text.Json;
 using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.ProvisionIndex;
 
 /// <summary>Tests for <c>litespec-maintain provisions</c>.</summary>
 public sealed class ProvisionsCommandTests

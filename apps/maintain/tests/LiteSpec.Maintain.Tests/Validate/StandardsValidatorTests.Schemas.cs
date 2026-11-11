@@ -3,7 +3,7 @@ using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Schema, template-index, and template cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests

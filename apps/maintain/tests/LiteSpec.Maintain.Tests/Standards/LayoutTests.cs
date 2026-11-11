@@ -2,7 +2,7 @@ using System.Text.Json.Nodes;
 using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Standards;
 
 /// <summary>Folder-based layout cases: shipped stacks and the pages a selection applies.</summary>
 public sealed class LayoutTests

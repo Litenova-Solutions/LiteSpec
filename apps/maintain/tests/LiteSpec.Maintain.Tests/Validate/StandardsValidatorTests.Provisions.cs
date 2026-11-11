@@ -1,6 +1,7 @@
+using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Identifier, Standard, and Convention cases, each asserting its diagnostic codes.</summary>
 public sealed partial class StandardsValidatorTests

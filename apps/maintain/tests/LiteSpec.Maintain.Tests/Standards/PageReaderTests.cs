@@ -1,7 +1,7 @@
 using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Standards;
 
 /// <summary>Reader cases: structure comes from Markdig, each with a passing and a failing case.</summary>
 public sealed class PageReaderTests

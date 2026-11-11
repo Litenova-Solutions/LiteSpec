@@ -1,7 +1,7 @@
 using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Manifest, stack, shape, extension, and vocabulary cases.</summary>
 public sealed partial class StandardsValidatorTests

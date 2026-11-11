@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Cli.Tests.Shared;
+namespace LiteSpec.Cli.Tests;
 
 /// <summary>Proves the shared JSON readings: message text, truthiness and strict equality.</summary>
 public sealed class JsonValuesTests

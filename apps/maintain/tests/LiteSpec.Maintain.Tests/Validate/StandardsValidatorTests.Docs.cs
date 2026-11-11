@@ -2,7 +2,7 @@ using LiteSpec.Maintain.Tests.Support;
 using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Maintain.Tests.Authoring;
+namespace LiteSpec.Maintain.Tests.Validate;
 
 /// <summary>Cases that bind the documentation to the tools, the templates, the example, the index and the pattern budget.</summary>
 public sealed partial class StandardsValidatorTests
