@@ -97,7 +97,7 @@ static class NodeFrontendReader
             }
         }
 
-        for (var folder = new DirectoryInfo(Directory.GetCurrentDirectory()); folder is not null; folder = folder.Parent)
+        for (var folder = new DirectoryInfo(CliHost.WorkingDirectory); folder is not null; folder = folder.Parent)
         {
             var candidate = Path.Combine(folder.FullName, "apps", "cli", "fe-reader", "dist", "litespec-fe-reader.mjs");
 
@@ -114,7 +114,7 @@ static class NodeFrontendReader
     /// <returns>The Node executable path, or null when Node is not on PATH.</returns>
     public static string? FindNode()
     {
-        var path = Environment.GetEnvironmentVariable("PATH") ?? "";
+        var path = CliHost.Variable("PATH") ?? "";
 
         foreach (var folder in path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
         {

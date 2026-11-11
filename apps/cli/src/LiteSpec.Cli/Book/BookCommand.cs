@@ -50,7 +50,7 @@ static class BookCommand
         var parsed = ParseArgs(args);
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -127,7 +127,7 @@ static class BookCommand
         try
         {
             var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Layers);
-            Console.Out.Write(line + "\n");
+            CliHost.Out.Write(line + "\n");
             return 0;
         }
         catch (Exception exception)

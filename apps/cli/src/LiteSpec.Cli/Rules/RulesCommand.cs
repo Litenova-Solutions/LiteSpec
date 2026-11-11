@@ -30,7 +30,7 @@ static class RulesCommand
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return args.Length == 0 ? 2 : 0;
         }
 
@@ -38,7 +38,7 @@ static class RulesCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -143,13 +143,13 @@ static class RulesCommand
             parts.Add($"artifact: {context.Artifact}");
         }
 
-        Console.WriteLine(parts.Count > 0
+        CliHost.Out.WriteLine(parts.Count > 0
             ? $"Rules for {context.Display} ({string.Join(", ", parts)})"
             : $"Rules for {context.Display}");
 
         if (results.Count == 0)
         {
-            Console.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
+            CliHost.Out.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
                 ? "No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records."
                 : "No provisions apply.");
             return;
@@ -172,11 +172,11 @@ static class RulesCommand
                 continue;
             }
 
-            Console.WriteLine($"{group}:");
+            CliHost.Out.WriteLine($"{group}:");
 
             foreach (var item in items)
             {
-                Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
             }
         }
 
@@ -187,11 +187,11 @@ static class RulesCommand
 
         if (checkedItems.Count > 0)
         {
-            Console.WriteLine("Checked by a tool:");
+            CliHost.Out.WriteLine("Checked by a tool:");
 
             foreach (var item in checkedItems)
             {
-                Console.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
             }
         }
 
@@ -202,11 +202,11 @@ static class RulesCommand
 
         if (layerItems.Count > 0)
         {
-            Console.WriteLine("Concern-wide:");
+            CliHost.Out.WriteLine("Concern-wide:");
 
             foreach (var item in layerItems)
             {
-                Console.WriteLine($"- {item.Entry.Id}");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}");
             }
         }
     }
@@ -224,29 +224,29 @@ static class RulesCommand
                 continue;
             }
 
-            Console.WriteLine($"{group}:");
+            CliHost.Out.WriteLine($"{group}:");
 
             foreach (var item in items)
             {
-                Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
 
                 if (item.Departure is not null)
                 {
                     if (item.Rationale.Length > 0)
                     {
-                        Console.WriteLine($"    Consequences: {item.Rationale}");
+                        CliHost.Out.WriteLine($"    Consequences: {item.Rationale}");
                     }
                 }
                 else
                 {
                     if (item.Rationale.Length > 0)
                     {
-                        Console.WriteLine($"    Rationale: {item.Rationale}");
+                        CliHost.Out.WriteLine($"    Rationale: {item.Rationale}");
                     }
 
                     if (item.Example.Length > 0)
                     {
-                        Console.WriteLine($"    Example: {item.Example}");
+                        CliHost.Out.WriteLine($"    Example: {item.Example}");
                     }
                 }
             }

@@ -3,8 +3,10 @@ using System.Diagnostics;
 namespace LiteSpec.Cli.Tests.Support;
 
 /// <summary>
-///     Runs the built <c>litespec</c> CLI as its own process, the way a consumer
-///     runs it, so a case proves the exit code and the printed text together.
+///     Runs the <c>litespec</c> CLI so a case proves the exit code and the printed text
+///     together: in this process through the CLI's own dispatch by default, or as its own
+///     process for a native executable, for <c>LITESPEC_TEST_PROCESS</c>, and for a command
+///     that sets its own <c>LITESPEC_HOME</c>.
 /// </summary>
 static class TestCli
 {
@@ -33,6 +35,70 @@ static class TestCli
     /// <param name="environment">Extra environment variables, or null for none.</param>
     /// <returns>The exit code and the two output streams of the run.</returns>
     public static CliResult Run(IEnumerable<string> args, string? workingDirectory = null, IDictionary<string, string>? environment = null)
+    {
+        var argList = args.ToArray();
+        return RunsInProcess(environment)
+            ? RunInProcess(argList, workingDirectory, environment)
+            : RunProcess(argList, workingDirectory, environment);
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether commands run inside the test process. They do unless the suite runs a
+    ///     native executable, or <c>LITESPEC_TEST_PROCESS</c> asks for one process per command.
+    /// </summary>
+    public static bool InProcess { get; } =
+        Executable is null && Environment.GetEnvironmentVariable("LITESPEC_TEST_PROCESS") is not { Length: > 0 };
+
+    /// <summary>
+    ///     Whether this command can run in-process. A command that sets its own
+    ///     <c>LITESPEC_HOME</c> runs as a process: the release root is read once per process.
+    /// </summary>
+    /// <param name="environment">The variables the command sets, or null for none.</param>
+    /// <returns>True when the command runs in this process.</returns>
+    static bool RunsInProcess(IDictionary<string, string>? environment) =>
+        InProcess
+        && (environment is null
+            || !environment.TryGetValue("LITESPEC_HOME", out var home)
+            || Path.GetFullPath(home) == Path.GetFullPath(Repository));
+
+    /// <summary>
+    ///     Runs the command through the CLI's own dispatch in this process, with its own output,
+    ///     folder and variables, so a command costs no process start or JIT warm-up. The native
+    ///     CI jobs run the same cases against the installed executable.
+    /// </summary>
+    /// <param name="args">The command arguments.</param>
+    /// <param name="workingDirectory">The working directory, or null for the repository root.</param>
+    /// <param name="environment">Extra environment variables, or null for none.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
+    static CliResult RunInProcess(string[] args, string? workingDirectory, IDictionary<string, string>? environment)
+    {
+        var variables = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["LITESPEC_HOME"] = Repository,
+            ["CI"] = "",
+        };
+
+        foreach (var (key, value) in environment ?? new Dictionary<string, string>())
+        {
+            variables[key] = value;
+        }
+
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        var stdout = TextWriter.Synchronized(output);
+        var stderr = TextWriter.Synchronized(error);
+        var status = CliHost.Run(new CliRun(stdout, stderr, workingDirectory ?? Repository, variables), args);
+        stdout.Flush();
+        stderr.Flush();
+        return new CliResult(status, output.ToString(), error.ToString());
+    }
+
+    /// <summary>Runs the command as its own process: the native executable, or the built CLI on the .NET runtime.</summary>
+    /// <param name="args">The command arguments.</param>
+    /// <param name="workingDirectory">The working directory, or null for the repository root.</param>
+    /// <param name="environment">Extra environment variables, or null for none.</param>
+    /// <returns>The exit code and the two output streams of the run.</returns>
+    static CliResult RunProcess(string[] args, string? workingDirectory, IDictionary<string, string>? environment)
     {
         var start = new ProcessStartInfo(Executable ?? "dotnet")
         {

@@ -32,14 +32,14 @@ static class AppendListEntry
         {
             if (parsed.Value(option) is not null)
             {
-                Console.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
+                CliHost.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
                 return 2;
             }
         }
 
         if (OwnerOf(entryType) is null)
         {
-            Console.Error.WriteLine($"Unknown entry type '{entryType}'. Use requirement, rule, permission, or setting.");
+            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use requirement, rule, permission, or setting.");
             return 2;
         }
 
@@ -59,7 +59,7 @@ static class AppendListEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
             return 1;
         }
 
@@ -67,7 +67,7 @@ static class AppendListEntry
 
         if (!File.Exists(pageFile))
         {
-            Console.Error.WriteLine($"No page at '{pageArg}'.");
+            CliHost.Error.WriteLine($"No page at '{pageArg}'.");
             return 2;
         }
 
@@ -79,13 +79,13 @@ static class AppendListEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
             return 1;
         }
 
         if (!RecordFile.TryParse(text, out var parsedRoot, out _, out var parseError))
         {
-            Console.Error.WriteLine($"The file holds no record to append to: {parseError}");
+            CliHost.Error.WriteLine($"The file holds no record to append to: {parseError}");
             return 2;
         }
 
@@ -98,7 +98,7 @@ static class AppendListEntry
         if (pageType != PageOf(entryType))
         {
             var actual = pageType is null ? "a file without a type" : $"'{pageType}'";
-            Console.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
+            CliHost.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
             return 2;
         }
 
@@ -106,7 +106,7 @@ static class AppendListEntry
 
         if (home is null && entryType != "permission")
         {
-            Console.Error.WriteLine(entryType switch
+            CliHost.Error.WriteLine(entryType switch
             {
                 "setting" => $"The file '{PathText.Relative(config.Root, pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
                 "requirement" => $"The file '{PathText.Relative(config.Root, pageFile)}' names no feature to take the home from.",
@@ -119,7 +119,7 @@ static class AppendListEntry
 
         if (RecordPages.GrammarError(entryType, home, name, entryId) is { } grammar)
         {
-            Console.Error.WriteLine(grammar);
+            CliHost.Error.WriteLine(grammar);
             return 2;
         }
 
@@ -127,7 +127,7 @@ static class AppendListEntry
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
+            CliHost.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -136,7 +136,7 @@ static class AppendListEntry
 
         if (updated is null)
         {
-            Console.Error.WriteLine(error);
+            CliHost.Error.WriteLine(error);
             return 2;
         }
 
@@ -146,11 +146,11 @@ static class AppendListEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, pageFile)}.");
+        CliHost.Out.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, pageFile)}.");
         return 0;
     }
 

@@ -44,7 +44,7 @@ static class RenameCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -60,25 +60,25 @@ static class RenameCommand
 
         if (!TryRecordId(oldId, out var oldType, out var oldHome, out _))
         {
-            Console.Error.WriteLine($"'{oldId}' is not a record identifier.");
+            CliHost.Error.WriteLine($"'{oldId}' is not a record identifier.");
             return 2;
         }
 
         if (!TryRecordId(newId, out var newType, out var newHome, out var newName))
         {
-            Console.Error.WriteLine($"'{newId}' is not a record identifier.");
+            CliHost.Error.WriteLine($"'{newId}' is not a record identifier.");
             return 2;
         }
 
         if (oldType != newType)
         {
-            Console.Error.WriteLine($"Cannot rename '{oldId}' to '{newId}': a rename keeps the record type.");
+            CliHost.Error.WriteLine($"Cannot rename '{oldId}' to '{newId}': a rename keeps the record type.");
             return 2;
         }
 
         if (oldId == newId)
         {
-            Console.Error.WriteLine($"'{oldId}' already names the record.");
+            CliHost.Error.WriteLine($"'{oldId}' already names the record.");
             return 2;
         }
 
@@ -98,7 +98,7 @@ static class RenameCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
             return 1;
         }
 
@@ -106,7 +106,7 @@ static class RenameCommand
 
         if (old is null)
         {
-            Console.Error.WriteLine($"No record holds '{oldId}'.");
+            CliHost.Error.WriteLine($"No record holds '{oldId}'.");
             return 2;
         }
 
@@ -114,7 +114,7 @@ static class RenameCommand
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{newId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
+            CliHost.Error.WriteLine($"Identifier '{newId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -124,15 +124,15 @@ static class RenameCommand
         {
             if (!moved.Moved)
             {
-                Console.Error.WriteLine(moved.Error);
+                CliHost.Error.WriteLine(moved.Error);
                 return 1;
             }
 
-            Console.WriteLine($"Moved {PathText.Relative(config.Root, moved.From)} -> {PathText.Relative(config.Root, moved.To)}.");
+            CliHost.Out.WriteLine($"Moved {PathText.Relative(config.Root, moved.From)} -> {PathText.Relative(config.Root, moved.To)}.");
 
             if (moved.ExplanationFrom is not null && moved.ExplanationTo is not null)
             {
-                Console.WriteLine($"Moved {PathText.Relative(config.Root, moved.ExplanationFrom)} -> {PathText.Relative(config.Root, moved.ExplanationTo)}.");
+                CliHost.Out.WriteLine($"Moved {PathText.Relative(config.Root, moved.ExplanationFrom)} -> {PathText.Relative(config.Root, moved.ExplanationTo)}.");
             }
         }
 
@@ -151,7 +151,7 @@ static class RenameCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, file)}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, file)}': {exception.Message}");
                 return 1;
             }
 
@@ -182,11 +182,11 @@ static class RenameCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, file)}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, file)}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Updated {PathText.Relative(config.Root, file)} ({count} {(code ? "marks" : "citations")}).");
+            CliHost.Out.WriteLine($"Updated {PathText.Relative(config.Root, file)} ({count} {(code ? "marks" : "citations")}).");
 
             if (code)
             {
@@ -200,11 +200,11 @@ static class RenameCommand
             }
         }
 
-        Console.WriteLine($"Rewrote {citations} citations in {files} files.");
+        CliHost.Out.WriteLine($"Rewrote {citations} citations in {files} files.");
 
         if (marks > 0)
         {
-            Console.WriteLine($"Rewrote {marks} marks in {markFiles} files.");
+            CliHost.Out.WriteLine($"Rewrote {marks} marks in {markFiles} files.");
         }
 
         return 0;

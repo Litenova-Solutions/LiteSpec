@@ -76,7 +76,7 @@ static class InitCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -118,7 +118,7 @@ static class InitCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{target}' already exists; litespec init never overwrites it.");
+            CliHost.Error.WriteLine($"'{target}' already exists; litespec init never overwrites it.");
             return 2;
         }
 
@@ -137,7 +137,7 @@ static class InitCommand
 
         if (version is null)
         {
-            Console.Error.WriteLine("The LiteSpec release holds no readable version.");
+            CliHost.Error.WriteLine("The LiteSpec release holds no readable version.");
             return 1;
         }
 
@@ -149,14 +149,14 @@ static class InitCommand
         {
             if (RecordText.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
             {
-                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
+                CliHost.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
                 return 1;
             }
 
             if (RecordText.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
                 || presetJson["shape"] is null)
             {
-                Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
+                CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
                 return 1;
             }
 
@@ -170,7 +170,7 @@ static class InitCommand
 
                 if (!File.Exists(source))
                 {
-                    Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
                     return 1;
                 }
 
@@ -182,7 +182,7 @@ static class InitCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)
         {
-            Console.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
             return 1;
         }
 
@@ -269,11 +269,11 @@ static class InitCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{target}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{target}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {target}.");
+        CliHost.Out.WriteLine($"Wrote {target}.");
 
         var copied = 0;
         var shapeText = (string?)project["shape"] ?? "server";
@@ -288,7 +288,7 @@ static class InitCommand
 
             if (File.Exists(destination))
             {
-                Console.WriteLine($"'{destination}' already exists; left alone.");
+                CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
                 continue;
             }
 
@@ -303,11 +303,11 @@ static class InitCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Wrote {destination}.");
+            CliHost.Out.WriteLine($"Wrote {destination}.");
             copied += 1;
         }
 
@@ -315,7 +315,7 @@ static class InitCommand
 
         if (File.Exists(gitignore))
         {
-            Console.WriteLine($"'{gitignore}' already exists; left alone.");
+            CliHost.Out.WriteLine($"'{gitignore}' already exists; left alone.");
         }
         else
         {
@@ -326,11 +326,11 @@ static class InitCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{gitignore}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to write '{gitignore}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Wrote {gitignore}.");
+            CliHost.Out.WriteLine($"Wrote {gitignore}.");
         }
 
         // A standalone project pins the release in reviewedLiteSpecVersion alone, so only a tool install writes the tool manifest.
@@ -340,7 +340,7 @@ static class InitCommand
 
             if (File.Exists(toolManifest))
             {
-                Console.WriteLine($"'{toolManifest}' already exists; left alone.");
+                CliHost.Out.WriteLine($"'{toolManifest}' already exists; left alone.");
             }
             else
             {
@@ -351,25 +351,25 @@ static class InitCommand
                 }
                 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
                 {
-                    Console.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
+                    CliHost.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
                     return 1;
                 }
 
-                Console.WriteLine($"Wrote {toolManifest}.");
+                CliHost.Out.WriteLine($"Wrote {toolManifest}.");
             }
         }
 
         if (unfilled.Count > 0)
         {
-            Console.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
+            CliHost.Out.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
         }
 
         if (copied > 0)
         {
-            Console.WriteLine("Fill every <placeholder> in the copied files before validating.");
+            CliHost.Out.WriteLine("Fill every <placeholder> in the copied files before validating.");
         }
 
-        Console.WriteLine($"Next step: {command} model check");
+        CliHost.Out.WriteLine($"Next step: {command} model check");
         return 0;
     }
 

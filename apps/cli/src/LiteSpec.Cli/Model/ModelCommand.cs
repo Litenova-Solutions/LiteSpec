@@ -35,7 +35,7 @@ static class ModelCommand
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return args.Length == 0 ? 2 : 0;
         }
 
@@ -67,7 +67,7 @@ static class ModelCommand
 
         if (parsed.Help && usageError is null)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -171,13 +171,13 @@ static class ModelCommand
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
                     payload["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]);
 
-                    CliJson.Write(payload);
+                    CliHost.Out.WriteLine(CliJson.Serialize(payload));
                 }
                 else
                 {
                     if (since is not null)
                     {
-                        Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
+                        CliHost.Out.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                     }
 
                     // Each listed finding prints once. The open blocking findings come first, so the lines
@@ -193,18 +193,18 @@ static class ModelCommand
                     foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
                                  .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                     {
-                        Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
+                        CliHost.Out.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                     }
 
                     foreach (var finding in covered)
                     {
-                        Console.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
+                        CliHost.Out.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
                     }
 
                     if (shown.Count > 0)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine("Findings by code:");
+                        CliHost.Out.WriteLine();
+                        CliHost.Out.WriteLine("Findings by code:");
 
                         foreach (var group in shown
                             .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
@@ -213,16 +213,16 @@ static class ModelCommand
                             .ThenByDescending(group => group.Count)
                             .ThenBy(group => group.Code, StringComparer.Ordinal))
                         {
-                            Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
+                            CliHost.Out.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
                         }
                     }
 
                     if (!all && advisoryCount > 0)
                     {
-                        Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
+                        CliHost.Out.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
                     }
 
-                    Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
+                    CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
                 }
 
                 return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
@@ -235,21 +235,21 @@ static class ModelCommand
 
                 foreach (var file in invalid)
                 {
-                    Console.Error.WriteLine($"{file}: does not parse.");
+                    CliHost.Error.WriteLine($"{file}: does not parse.");
                 }
 
                 foreach (var file in changed)
                 {
-                    Console.WriteLine(file);
+                    CliHost.Out.WriteLine(file);
                 }
 
                 if (check)
                 {
-                    Console.WriteLine($"{changed.Count} files would change.");
+                    CliHost.Out.WriteLine($"{changed.Count} files would change.");
                 }
                 else
                 {
-                    Console.WriteLine($"{changed.Count} files rewritten.");
+                    CliHost.Out.WriteLine($"{changed.Count} files rewritten.");
                 }
 
                 if (invalid.Count > 0)
@@ -275,10 +275,10 @@ static class ModelCommand
 
                 foreach (var file in changed)
                 {
-                    Console.WriteLine(file);
+                    CliHost.Out.WriteLine(file);
                 }
 
-                Console.WriteLine($"{changed.Count} files rewritten.");
+                CliHost.Out.WriteLine($"{changed.Count} files rewritten.");
                 return 0;
             }
 
@@ -297,7 +297,7 @@ static class ModelCommand
                     return CommandFailure.Fail($"No record holds '{id}'.", json, 1);
                 }
 
-                Console.WriteLine(answer);
+                CliHost.Out.WriteLine(answer);
                 return 0;
             }
 

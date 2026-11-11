@@ -49,13 +49,13 @@ static partial class AppendEntry
         {
             if (resultRef is not null)
             {
-                Console.Error.WriteLine("Option --result applies only to new scenario.");
+                CliHost.Error.WriteLine("Option --result applies only to new scenario.");
                 return 2;
             }
 
             if (outcome is not "success" and not "refusal")
             {
-                Console.Error.WriteLine(outcome is null
+                CliHost.Error.WriteLine(outcome is null
                     ? "New result needs --outcome success or --outcome refusal."
                     : $"Unknown outcome '{outcome}'. Use success or refusal.");
                 return 2;
@@ -63,7 +63,7 @@ static partial class AppendEntry
 
             if (outcome == "refusal" && code is null)
             {
-                Console.Error.WriteLine("New result needs --code <module>.<reason> for a refusal.");
+                CliHost.Error.WriteLine("New result needs --code <module>.<reason> for a refusal.");
                 return 2;
             }
         }
@@ -71,32 +71,32 @@ static partial class AppendEntry
         {
             if (code is not null)
             {
-                Console.Error.WriteLine("Option --code applies only to new result.");
+                CliHost.Error.WriteLine("Option --code applies only to new result.");
                 return 2;
             }
 
             if (outcome is not null)
             {
-                Console.Error.WriteLine("Option --outcome applies only to new result.");
+                CliHost.Error.WriteLine("Option --outcome applies only to new result.");
                 return 2;
             }
 
             if (resultRef is null)
             {
-                Console.Error.WriteLine("New scenario needs --result <result-id>.");
+                CliHost.Error.WriteLine("New scenario needs --result <result-id>.");
                 return 2;
             }
         }
 
         if (code is not null && !RefusalCodePattern().IsMatch(code))
         {
-            Console.Error.WriteLine($"Code '{code}' is not a refusal code. Use <module>.<reason>.");
+            CliHost.Error.WriteLine($"Code '{code}' is not a refusal code. Use <module>.<reason>.");
             return 2;
         }
 
         if (resultRef is not null && !ValidResultRef(resultRef))
         {
-            Console.Error.WriteLine($"Result '{resultRef}' is not a result identifier.");
+            CliHost.Error.WriteLine($"Result '{resultRef}' is not a result identifier.");
             return 2;
         }
 
@@ -105,13 +105,13 @@ static partial class AppendEntry
         if (!Identifiers.TrySplit(useCaseId, out var usePrefix, out var useHome, out var useName)
             || usePrefix != "use-case")
         {
-            Console.Error.WriteLine($"'{useCaseArg}' is not a use-case identifier. Use use-case/<module>.<name>.");
+            CliHost.Error.WriteLine($"'{useCaseArg}' is not a use-case identifier. Use use-case/<module>.<name>.");
             return 2;
         }
 
         if (RecordPages.GrammarError("use-case", useHome, useName, useCaseId) is { } useGrammar)
         {
-            Console.Error.WriteLine(useGrammar);
+            CliHost.Error.WriteLine(useGrammar);
             return 2;
         }
 
@@ -119,7 +119,7 @@ static partial class AppendEntry
 
         if (RecordPages.GrammarError(kind, useName, name, entryId) is { } entryGrammar)
         {
-            Console.Error.WriteLine(entryGrammar);
+            CliHost.Error.WriteLine(entryGrammar);
             return 2;
         }
 
@@ -138,7 +138,7 @@ static partial class AppendEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
             return 1;
         }
 
@@ -146,7 +146,7 @@ static partial class AppendEntry
 
         if (useCase is null)
         {
-            Console.Error.WriteLine($"No use case holds '{useCaseId}'.");
+            CliHost.Error.WriteLine($"No use case holds '{useCaseId}'.");
             return 2;
         }
 
@@ -154,7 +154,7 @@ static partial class AppendEntry
 
         if (clash is not null)
         {
-            Console.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
+            CliHost.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
             return 2;
         }
 
@@ -166,7 +166,7 @@ static partial class AppendEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
             return 1;
         }
 
@@ -180,7 +180,7 @@ static partial class AppendEntry
 
         if (updated is null)
         {
-            Console.Error.WriteLine(error);
+            CliHost.Error.WriteLine(error);
             return 2;
         }
 
@@ -190,11 +190,11 @@ static partial class AppendEntry
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, useCase.File)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, useCase.File)}.");
+        CliHost.Out.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, useCase.File)}.");
         return 0;
     }
 

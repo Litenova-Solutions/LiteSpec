@@ -18,7 +18,7 @@ internal static class CommandFailure
     /// <param name="args">The original command arguments, inspected for the JSON format request.</param>
     /// <returns>The command exit code, or 1 when the command throws an unexpected exception.</returns>
     public static int Run(Func<int> command, string[] args) =>
-        Run(command, WantsJson(args), Console.Out, Console.Error);
+        Run(command, WantsJson(args), CliHost.Out, CliHost.Error);
 
     /// <summary>Runs a command and converts an unexpected exception into a reported failure.</summary>
     /// <param name="command">The command delegate to execute and shield from unhandled exceptions.</param>
@@ -68,11 +68,11 @@ internal static class CommandFailure
     {
         if (json)
         {
-            Console.Out.WriteLine(Json(message));
+            CliHost.Out.WriteLine(Json(message));
         }
         else
         {
-            Console.Error.WriteLine(message);
+            CliHost.Error.WriteLine(message);
         }
 
         return code;
@@ -90,8 +90,8 @@ internal static class CommandFailure
             return Fail(message, json, 2);
         }
 
-        Console.Error.WriteLine(message);
-        Console.Error.WriteLine(usage);
+        CliHost.Error.WriteLine(message);
+        CliHost.Error.WriteLine(usage);
         return 2;
     }
 

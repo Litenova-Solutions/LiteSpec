@@ -97,7 +97,7 @@ static class NewCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
@@ -125,14 +125,14 @@ static class NewCommand
         {
             if (parsed.Value(option) is not null)
             {
-                Console.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
+                CliHost.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
                 return 2;
             }
         }
 
         if (!RecordTypes.All.Contains(type) && !RecordTypes.PageStyles.Contains(type))
         {
-            Console.Error.WriteLine($"Unknown type '{type}'.");
+            CliHost.Error.WriteLine($"Unknown type '{type}'.");
             return 2;
         }
 
@@ -145,11 +145,11 @@ static class NewCommand
         {
             if (RecordPages.EntryHomes.TryGetValue(type, out var home))
             {
-                Console.Error.WriteLine($"Type '{type}' lives as an entry in {home}; add the entry there instead of scaffolding a file.");
+                CliHost.Error.WriteLine($"Type '{type}' lives as an entry in {home}; add the entry there instead of scaffolding a file.");
             }
             else
             {
-                Console.Error.WriteLine($"Type '{type}' is not scaffolded; copy templates/consumer/{type}.yaml to its home.");
+                CliHost.Error.WriteLine($"Type '{type}' is not scaffolded; copy templates/consumer/{type}.yaml to its home.");
             }
 
             return 2;
@@ -166,7 +166,7 @@ static class NewCommand
 
             if (!Identifiers.TrySplit(full, out var prefix, out homeName, out name) || prefix != type)
             {
-                Console.Error.WriteLine($"Identifier '{full}' is not a valid {type} identifier.");
+                CliHost.Error.WriteLine($"Identifier '{full}' is not a valid {type} identifier.");
                 return 2;
             }
 
@@ -183,7 +183,7 @@ static class NewCommand
             {
                 if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
                 {
-                    Console.Error.WriteLine($"'{homeName}' is not a valid module name.");
+                    CliHost.Error.WriteLine($"'{homeName}' is not a valid module name.");
                     return 2;
                 }
 
@@ -193,7 +193,7 @@ static class NewCommand
 
             if (RecordPages.GrammarError(type, identifierHome, name, full) is { } grammar)
             {
-                Console.Error.WriteLine(grammar);
+                CliHost.Error.WriteLine(grammar);
                 return 2;
             }
         }
@@ -201,19 +201,19 @@ static class NewCommand
         {
             if (HasDecisionNumber(id))
             {
-                Console.Error.WriteLine("New decision takes a name without a number; the tool allocates the next number.");
+                CliHost.Error.WriteLine("New decision takes a name without a number; the tool allocates the next number.");
                 return 2;
             }
 
             if (!Identifiers.ValidName(id, false) || Identifiers.AllDigitsName(id))
             {
-                Console.Error.WriteLine($"'{id}' is not a valid decision name: use kebab-case without the number.");
+                CliHost.Error.WriteLine($"'{id}' is not a valid decision name: use kebab-case without the number.");
                 return 2;
             }
 
             if (id.Split('-', StringSplitOptions.RemoveEmptyEntries).Length > 5)
             {
-                Console.Error.WriteLine($"Decision name '{id}' is too long: use at most five words; the number is allocated.");
+                CliHost.Error.WriteLine($"Decision name '{id}' is too long: use at most five words; the number is allocated.");
                 return 2;
             }
 
@@ -237,7 +237,7 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
         {
-            Console.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
             return 1;
         }
 
@@ -249,7 +249,7 @@ static class NewCommand
 
             if (RecordPages.GrammarError(type, homeName, name, full) is { } composed)
             {
-                Console.Error.WriteLine(composed);
+                CliHost.Error.WriteLine(composed);
                 return 2;
             }
         }
@@ -258,7 +258,7 @@ static class NewCommand
 
         if (holder is not null)
         {
-            Console.Error.WriteLine($"Identifier '{full}' is already taken by {PathText.Relative(config.Root, holder.File)}.");
+            CliHost.Error.WriteLine($"Identifier '{full}' is already taken by {PathText.Relative(config.Root, holder.File)}.");
             return 2;
         }
 
@@ -271,13 +271,13 @@ static class NewCommand
 
         if (!RecordFile.TryParse(template, out _, out var tree, out var parseError))
         {
-            Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}: {parseError}");
+            CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}: {parseError}");
             return 1;
         }
 
         if (RecordFile.NodeOf(tree) is not JsonObject node)
         {
-            Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}.");
+            CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{templateFile}.");
             return 1;
         }
 
@@ -314,7 +314,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
+            CliHost.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -322,7 +322,7 @@ static class NewCommand
 
         if (explanationTarget is not null && File.Exists(explanationTarget))
         {
-            Console.Error.WriteLine($"'{PathText.Relative(config.Root, explanationTarget)}' already exists; pick another name.");
+            CliHost.Error.WriteLine($"'{PathText.Relative(config.Root, explanationTarget)}' already exists; pick another name.");
             return 2;
         }
 
@@ -338,15 +338,15 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)} with {full}.");
+        CliHost.Out.WriteLine($"Wrote {PathText.Relative(config.Root, target)} with {full}.");
 
         if (explanationTarget is not null)
         {
-            Console.WriteLine($"Wrote {PathText.Relative(config.Root, explanationTarget)}.");
+            CliHost.Out.WriteLine($"Wrote {PathText.Relative(config.Root, explanationTarget)}.");
         }
 
         return 0;
@@ -361,7 +361,7 @@ static class NewCommand
     {
         if (!Identifiers.ValidName(name, false) || Identifiers.AllDigitsName(name))
         {
-            Console.Error.WriteLine($"'{name}' is not a valid {style} name: use kebab-case.");
+            CliHost.Error.WriteLine($"'{name}' is not a valid {style} name: use kebab-case.");
             return 2;
         }
 
@@ -385,7 +385,7 @@ static class NewCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
+            CliHost.Error.WriteLine($"'{PathText.Relative(config.Root, target)}' already exists; pick another name.");
             return 2;
         }
 
@@ -396,11 +396,11 @@ static class NewCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, target)}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {PathText.Relative(config.Root, target)}.");
+        CliHost.Out.WriteLine($"Wrote {PathText.Relative(config.Root, target)}.");
         return 0;
     }
 
@@ -430,7 +430,7 @@ static class NewCommand
 
             if (!File.Exists(templatePath))
             {
-                Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
+                CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
                 return null;
             }
 
@@ -438,12 +438,12 @@ static class NewCommand
         }
         catch (InvalidOperationException exception)
         {
-            Console.Error.WriteLine(exception.Message);
+            CliHost.Error.WriteLine(exception.Message);
             return null;
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}: {exception.Message}");
+            CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}: {exception.Message}");
             return null;
         }
     }

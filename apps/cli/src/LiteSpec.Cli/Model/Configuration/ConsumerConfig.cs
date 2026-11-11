@@ -395,7 +395,7 @@ sealed class ConsumerConfig
             }
         }
 
-        config.IsContinuousIntegration = Environment.GetEnvironmentVariable("CI") is { Length: > 0 };
+        config.IsContinuousIntegration = CliHost.Variable("CI") is { Length: > 0 };
         config.Problems = problems;
 
         return config;

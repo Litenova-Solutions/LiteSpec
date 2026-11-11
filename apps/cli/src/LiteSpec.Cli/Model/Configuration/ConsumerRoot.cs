@@ -39,7 +39,7 @@ static class ConsumerRoot
     /// <returns>The consumer root, or the full start folder when no folder above it holds a project file.</returns>
     static string Resolve(string? explicitRoot)
     {
-        var start = new DirectoryInfo(Path.GetFullPath(string.IsNullOrEmpty(explicitRoot) ? Directory.GetCurrentDirectory() : explicitRoot));
+        var start = new DirectoryInfo(Path.GetFullPath(string.IsNullOrEmpty(explicitRoot) ? CliHost.WorkingDirectory : explicitRoot));
 
         for (var current = start; current is not null; current = current.Parent)
         {
@@ -73,7 +73,7 @@ static class ConsumerRoot
         {
             root = requireProject
                 ? Resolve(rootOption)
-                : Path.GetFullPath(string.IsNullOrEmpty(rootOption) ? Directory.GetCurrentDirectory() : rootOption);
+                : Path.GetFullPath(string.IsNullOrEmpty(rootOption) ? CliHost.WorkingDirectory : rootOption);
         }
         catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
         {

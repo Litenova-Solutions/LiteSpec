@@ -90,7 +90,7 @@ sealed class DiffBase : IDisposable
     {
         var direct = Path.IsPathRooted(baseArg)
             ? baseArg
-            : Path.Combine(Directory.GetCurrentDirectory(), baseArg);
+            : Path.Combine(CliHost.WorkingDirectory, baseArg);
 
         if (Directory.Exists(direct))
         {
