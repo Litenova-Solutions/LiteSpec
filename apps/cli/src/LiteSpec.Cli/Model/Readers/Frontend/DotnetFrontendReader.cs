@@ -1,6 +1,6 @@
 using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Model.Configuration;
-using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet.Screens;
 using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Model;
 

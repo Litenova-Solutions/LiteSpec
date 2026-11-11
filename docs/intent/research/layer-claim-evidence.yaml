@@ -5,7 +5,7 @@ sources:
   - path: apps/cli/src/LiteSpec.Cli/Model/CompletionStages/CompletionCalculator.cs
     readOn: 2026-11-10
     key: completion-calculator
-  - path: apps/cli/src/LiteSpec.Cli/Model/Checks/ProofChecks.cs
+  - path: apps/cli/src/LiteSpec.Cli/Model/Checks/Proof/ProofChecks.cs
     readOn: 2026-11-10
     key: proof-checks
   - path: schemas/record.schema.yaml

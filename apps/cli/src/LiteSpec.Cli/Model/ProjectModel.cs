@@ -300,7 +300,7 @@ sealed class ProjectModel
 
                 if (record.Type == RecordTypes.Problem)
                 {
-                    writer.WriteString("evidenceStrength", Checks.IntentChecks.EvidenceStrengthOf(record));
+                    writer.WriteString("evidenceStrength", Checks.Intent.IntentChecks.EvidenceStrengthOf(record));
                 }
 
                 writer.WriteString("file", PathText.Relative(Config.Root, record.File));

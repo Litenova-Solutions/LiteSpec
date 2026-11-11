@@ -2,7 +2,7 @@ using System.Text.Json;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers;
-using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet.Scenarios;
 using LiteSpec.Cli.Model.Readers.JUnit;
 using LiteSpec.Cli.Tests.Support;
 

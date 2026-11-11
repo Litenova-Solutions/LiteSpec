@@ -1,6 +1,6 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model;
-using LiteSpec.Cli.Model.Checks;
+using LiteSpec.Cli.Model.Checks.RecordShape;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 
