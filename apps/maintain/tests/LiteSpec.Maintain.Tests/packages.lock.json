@@ -164,7 +164,7 @@
           "Microsoft.CodeAnalysis.CSharp": "[4.14.0, )"
         }
       },
-      "litespec.model.core": {
+      "litespec.model": {
         "type": "Project",
         "dependencies": {
           "YamlDotNet": "[18.1.0, )"
@@ -173,13 +173,13 @@
       "litespec.model.roslyn": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )"
+          "LiteSpec.Model": "[1.0.0, )"
         }
       },
       "litespec.shared": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )",
+          "LiteSpec.Model": "[1.0.0, )",
           "Markdig": "[1.4.0, )"
         }
       },

@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+        <ProjectReference Include="../../src/LiteSpec.Model/LiteSpec.Model.csproj" />
         <ProjectReference Include="../../src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
     </ItemGroup>
 

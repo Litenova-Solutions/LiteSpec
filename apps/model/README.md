@@ -8,7 +8,7 @@ You maintain the shared model library in `apps/model/`. You change how a record 
 
 `apps/model` holds the rules that the CLI and the maintainer tool share: the record types and their folders, the identifier grammar, the finding codes, the YAML reader and writer, the layer claims, and the C# mark reader. It has no command line of its own. The [CLI](../cli/README.md) reads a consumer's records through it, and the [maintainer tool](../maintain/README.md) reads the LiteSpec pages through it.
 
-The library is three projects. `LiteSpec.Model.Core` targets `netstandard2.0`, holds the record model, and reads YAML with YamlDotNet. `LiteSpec.Model.Roslyn` targets `netstandard2.0`, reads the marks in C# source, and references `Microsoft.CodeAnalysis.CSharp`. `LiteSpec.Shared` holds the code that both command lines use: option parsing, JSON output, the LiteSpec release locator, the page reader, the stack layout, the pattern parsers, and the JSON Schema evaluator.
+The library is three projects. `LiteSpec.Model` targets `netstandard2.0`, holds the project model's vocabulary, and reads YAML with YamlDotNet. `LiteSpec.Model.Roslyn` targets `netstandard2.0`, reads the marks in C# source, and references `Microsoft.CodeAnalysis.CSharp`. `LiteSpec.Shared` holds the code that both command lines use: option parsing, JSON output, the LiteSpec release locator, the page reader, the stack layout, the pattern parsers, and the JSON Schema evaluator.
 
 ## Quick Start
 
@@ -30,12 +30,12 @@ dotnet build LiteSpec.slnx
 
 | Path | What it owns |
 |:---|:---|
-| `src/LiteSpec.Model.Core/` | The record model: `RecordTypes.cs` names each record type and its page style, `RecordFolders.cs` and `RecordFiles.cs` place and read the record files, `Identifiers.cs` checks the identifier grammar, `FindingCodes.cs` and `FindingCode.cs` hold the finding codes, `LayerClaims.cs` and `RecordLayer.cs` hold the layer claims, and `YamlText.cs` and `YamlWriter.cs` read and write canonical YAML. `Marks/` and `Layers/` hold the mark and layer rules. |
+| `src/LiteSpec.Model/` | The project model's vocabulary, one folder per concept. `Records/` names each record type, field and folder and checks the identifier grammar (`RecordTypes.cs`, `RecordFields.cs`, `RecordFolders.cs`, `RecordFiles.cs`, `Identifiers.cs`). `Findings/` holds the finding codes, severities and suppressions. `Project/` reads the project file's paths and layer claims. `Events/` holds the act-event check both hosts run. `Text/` reads and writes JSON and canonical YAML and converts name casing (`YamlText.cs`, `YamlWriter.cs`, `Naming.cs`). `Marks/` and `Layers/` hold the mark and architecture layer rules. |
 | `src/LiteSpec.Model.Roslyn/` | The C# mark reader. `MarkReader.cs` reads the marks on a member from its syntax, `KindReader.cs` reads the record kind a type declares, and `RaisedEvents.cs` and `StateChanges.cs` read the events and state changes a method raises. The reader works on syntax only and never builds a compilation. |
 | `src/LiteSpec.Shared/` | The code both command lines use. `CliArgs.cs` parses options, `CliJson.cs` writes JSON with two-space indentation, `LiteSpecHome.cs` locates the LiteSpec release, `Authoring/` reads the Markdown pages and the stack layout, `Patterns/` parses the pattern pages, and `Schemas/` holds the JSON Schema evaluator. |
 | `tests/LiteSpec.Model.Tests/` | The model tests, one file per area, on `xunit.v3` and the Microsoft Testing Platform. `Layers/`, `Marks/` and `Roslyn/` hold the tests of those folders. |
 
-A rule that changes a record type or a finding code belongs in `LiteSpec.Model.Core`, with a test in `tests/LiteSpec.Model.Tests/`. A change to a command's output belongs in the command, not here.
+A rule that changes a record type or a finding code belongs in `LiteSpec.Model`, with a test in `tests/LiteSpec.Model.Tests/`. A change to a command's output belongs in the command, not here.
 
 ## Limits
 

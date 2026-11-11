@@ -41,7 +41,7 @@
 
     <ItemGroup>
         <!-- The shared rule library and the mark reader load beside the analyzers, so they ship in the analyzer folder. -->
-        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model/LiteSpec.Model.csproj" PrivateAssets="all" />
         <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
     </ItemGroup>
 
@@ -63,7 +63,7 @@
 
     <ItemGroup>
         <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-        <None Include="$(OutputPath)LiteSpec.Model.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)LiteSpec.Model.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(PkgYamlDotNet)/lib/netstandard2.0/YamlDotNet.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- The code fixes build in their own project, which references this one; pack the solution build of it. -->

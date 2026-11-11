@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+        <ProjectReference Include="../LiteSpec.Model/LiteSpec.Model.csproj" />
     </ItemGroup>
 
     <ItemGroup>

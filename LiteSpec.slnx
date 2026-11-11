@@ -13,7 +13,7 @@
     <Project Path="apps/maintain/tests/LiteSpec.Maintain.Tests/LiteSpec.Maintain.Tests.csproj" />
   </Folder>
   <Folder Name="/apps/model/">
-    <Project Path="apps/model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+    <Project Path="apps/model/src/LiteSpec.Model/LiteSpec.Model.csproj" />
     <Project Path="apps/model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
     <Project Path="apps/model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
     <Project Path="apps/model/tests/LiteSpec.Model.Tests/LiteSpec.Model.Tests.csproj" />

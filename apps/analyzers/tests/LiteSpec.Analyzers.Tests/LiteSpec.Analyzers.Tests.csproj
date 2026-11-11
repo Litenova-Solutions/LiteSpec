@@ -15,7 +15,7 @@
     <ItemGroup>
         <ProjectReference Include="../../src/LiteSpec.Analyzers/LiteSpec.Analyzers.csproj" />
         <ProjectReference Include="../../src/LiteSpec.Analyzers.CodeFixes/LiteSpec.Analyzers.CodeFixes.csproj" />
-        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model/LiteSpec.Model.csproj" />
     </ItemGroup>
 
     <ItemGroup>

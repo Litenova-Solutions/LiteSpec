@@ -159,14 +159,14 @@
       "litespec.cli": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )",
+          "LiteSpec.Model": "[1.0.0, )",
           "LiteSpec.Model.Roslyn": "[1.0.0, )",
           "LiteSpec.Shared": "[1.0.0, )",
           "Microsoft.CodeAnalysis.CSharp": "[5.9.0, )",
           "Microsoft.Extensions.FileSystemGlobbing": "[10.0.0, )"
         }
       },
-      "litespec.model.core": {
+      "litespec.model": {
         "type": "Project",
         "dependencies": {
           "YamlDotNet": "[18.1.0, )"
@@ -175,13 +175,13 @@
       "litespec.model.roslyn": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )"
+          "LiteSpec.Model": "[1.0.0, )"
         }
       },
       "litespec.shared": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )",
+          "LiteSpec.Model": "[1.0.0, )",
           "Markdig": "[1.4.0, )"
         }
       },

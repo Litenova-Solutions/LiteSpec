@@ -5,7 +5,7 @@ sources:
   - path: docs/core/model.md
     readOn: 2026-10-30
     key: model
-  - path: apps/model/src/LiteSpec.Model.Core/RecordTypes.cs
+  - path: apps/model/src/LiteSpec.Model/Records/RecordTypes.cs
     readOn: 2026-10-30
     key: recordtypes
   - path: docs/tools/model.md

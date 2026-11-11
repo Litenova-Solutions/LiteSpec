@@ -51,7 +51,7 @@
         "resolved": "1.2.0.556",
         "contentHash": "zvn9Mqs/ox/83cpYPignI8hJEM2A93s2HkHs8HYMOAQW0PkampyoErAiIyKxgTLqbbad29HX/shv/6LGSjPJNQ=="
       },
-      "litespec.model.core": {
+      "litespec.model": {
         "type": "Project",
         "dependencies": {
           "YamlDotNet": "[18.1.0, )"
@@ -60,13 +60,13 @@
       "litespec.model.roslyn": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )"
+          "LiteSpec.Model": "[1.0.0, )"
         }
       },
       "litespec.shared": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )",
+          "LiteSpec.Model": "[1.0.0, )",
           "Markdig": "[1.4.0, )"
         }
       },

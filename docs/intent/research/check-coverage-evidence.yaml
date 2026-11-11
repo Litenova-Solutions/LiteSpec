@@ -8,10 +8,10 @@ sources:
   - path: apps/cli/src/LiteSpec.Cli/Model/Checker.cs
     readOn: 2026-10-30
     key: checker
-  - path: apps/model/src/LiteSpec.Model.Core/Finding.cs
+  - path: apps/model/src/LiteSpec.Model/Findings/Finding.cs
     readOn: 2026-10-30
     key: finding
-  - path: apps/model/src/LiteSpec.Model.Core/Suppression.cs
+  - path: apps/model/src/LiteSpec.Model/Findings/Suppression.cs
     readOn: 2026-10-30
     key: suppression
 question: Which links and parents does the checker enforce, which does it only report, and which does no check read at all?

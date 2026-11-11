@@ -19,7 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../LiteSpec.Analyzers/LiteSpec.Analyzers.csproj" PrivateAssets="all" />
-        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model/LiteSpec.Model.csproj" PrivateAssets="all" />
         <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
     </ItemGroup>
 

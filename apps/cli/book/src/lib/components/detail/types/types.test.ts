@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { fixtureBook } from "$lib/book/fixture";
 import type { BookRecord } from "$lib/book/types";
 import { TYPES } from "./index";
-import recordTypesSource from "../../../../../../../model/src/LiteSpec.Model.Core/RecordTypes.cs?raw";
+import recordTypesSource from "../../../../../../../model/src/LiteSpec.Model/Records/RecordTypes.cs?raw";
 
 // The written record types, read from the model library that defines them.
 function recordTypes() {

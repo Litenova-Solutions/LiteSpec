@@ -166,7 +166,7 @@
           "xunit.v3.runner.common": "[4.0.2]"
         }
       },
-      "litespec.model.core": {
+      "litespec.model": {
         "type": "Project",
         "dependencies": {
           "YamlDotNet": "[18.1.0, )"
@@ -175,7 +175,7 @@
       "litespec.model.roslyn": {
         "type": "Project",
         "dependencies": {
-          "LiteSpec.Model.Core": "[1.0.0, )"
+          "LiteSpec.Model": "[1.0.0, )"
         }
       },
       "YamlDotNet": {
