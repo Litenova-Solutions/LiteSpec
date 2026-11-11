@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { book, inline } from "$lib/frame";
   import type { Explanation } from "$lib/frame";
   import * as Popover from "$lib/ui/popover";
@@ -7,10 +8,12 @@
   // One explanation popover for the whole book. Any element with data-explain,
   // including ones inside rendered prose, opens it on hover, focus or click; the
   // text always comes from LiteSpec: a glossary term or a section of the model page.
+  // This component takes no props.
   let open = $state(false);
   let anchor = $state<HTMLElement | null>(null);
   let text = $state<Explanation | null>(null);
   let timer: ReturnType<typeof setTimeout> | undefined;
+  onDestroy(() => clearTimeout(timer));
 
   function show(el: HTMLElement) {
     const e = book.explain(el.dataset.explain ?? "");
@@ -19,7 +22,12 @@
     text = e;
     open = true;
   }
-  const target = (e: Event) => (e.target as Element | null)?.closest?.("[data-explain]") as HTMLElement | null;
+
+  function target(e: Event): HTMLElement | null {
+    if (!(e.target instanceof Element)) return null;
+    const found = e.target.closest("[data-explain]");
+    return found instanceof HTMLElement ? found : null;
+  }
 
   function over(e: MouseEvent) {
     const t = target(e);
@@ -30,8 +38,8 @@
   function out(e: MouseEvent) {
     const t = target(e);
     if (!t) return;
-    const to = e.relatedTarget as Element | null;
-    if (to && (t.contains(to) || to.closest("[data-explain-popover]"))) return;
+    const to = e.relatedTarget;
+    if (to instanceof Element && (t.contains(to) || to.closest("[data-explain-popover]"))) return;
     clearTimeout(timer);
     open = false;
     anchor = null;

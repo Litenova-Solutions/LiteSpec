@@ -3,21 +3,22 @@
 
   // The global keys. Typing, Ctrl, Cmd and Alt keep their own meaning, except
   // Ctrl or Cmd K; shadcn closes its own overlays on Escape.
-  let { onFocusSearchRequest, onOpenShortcuts }: { onFocusSearchRequest: (select: boolean) => void; onOpenShortcuts: () => void } = $props();
+  type Props = { onFocusSearchRequest: (select: boolean) => void; onOpenShortcuts: () => void; onRevealRequest: () => void };
+  let { onFocusSearchRequest, onOpenShortcuts, onRevealRequest }: Props = $props();
 
   const views = ["outline", "security"] as const;
 
-  async function move(delta: number) {
-    const list = book.navIds;
+  async function move(delta: number): Promise<void> {
+    const list = book.navOrder();
     const sel = book.selected;
     const i = list.indexOf(sel ?? "");
     const n = list[i + delta] ?? (i < 0 ? list[0] : undefined);
     if (!n) return;
     await book.select(n);
-    book.focusNavTick++;
+    onRevealRequest();
   }
 
-  async function keyed(e: KeyboardEvent) {
+  async function keyed(e: KeyboardEvent): Promise<void> {
     const k = e.key;
     const t = e.target as HTMLElement | null;
     const typing = !!t?.tagName && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName);
@@ -57,21 +58,21 @@
       const p = sel ? book.parent(sel) : null;
       if (p) {
         await book.select(p);
-        book.focusNavTick++;
+        onRevealRequest();
       }
       e.preventDefault();
       return;
     }
     if (inTree && k === "ArrowLeft") {
       if (sel) book.expanded[sel] = false;
-      book.focusNavTick++;
+      onRevealRequest();
       e.preventDefault();
       return;
     }
     if (inTree && k === "ArrowRight") {
       if (sel && book.kids(sel).length) {
         book.expanded[sel] = true;
-        book.focusNavTick++;
+        onRevealRequest();
       }
       e.preventDefault();
       return;
@@ -82,7 +83,7 @@
         const n = sib[sib.indexOf(sel) + (k === "]" ? 1 : -1)];
         if (n) {
           await book.select(n);
-          book.focusNavTick++;
+          onRevealRequest();
         }
       }
       return;
@@ -96,7 +97,8 @@
       return;
     }
     if (k >= "1" && k <= "2") {
-      void book.setView(views[+k - 1]);
+      const next = views[+k - 1];
+      if (next) void book.setView(next);
     }
   }
 </script>

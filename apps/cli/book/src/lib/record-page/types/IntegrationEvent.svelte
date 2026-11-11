@@ -7,21 +7,27 @@
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { codeCls, linkOrTextHtml, tdHtml } from "../page-html";
-  import { clsBadgeHtml, typedFieldHtml } from "../page-values";
+  import { clsBadgeHtml, objectList, stringField, typedFieldHtml } from "../page-values";
 
   // An integration event: its identity and trust, and the payload it carries.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const f = $derived(r.fields ?? {});
-  const payload = $derived(((f.payload as RecordFields[] | undefined) ?? []) as RecordFields[]);
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
+  const f: RecordFields = $derived(r.fields ?? {});
+  const payload = $derived(objectList(f, "payload"));
+  const eventType = $derived(stringField(f, "eventType") ?? "");
+  const translates = $derived(stringField(f, "translates"));
+  const trust = $derived(stringField(f, "trust"));
+  const correlation = $derived(stringField(f, "correlation"));
+  const dataschema = $derived(f.dataschema);
 </script>
 
 <PageSection blockKey="id" heading="eventType">
   <DefinitionList>
-    <DefinitionRow label="Event type" html={`<span class="${codeCls}">${esc(String(f.eventType ?? ""))}</span>`} />
-    {#if f.translates}<DefinitionRow label="Translates"><RecordLink id={String(f.translates)} /></DefinitionRow>{/if}
-    {#if f.trust}<DefinitionRow label="Trust">{String(f.trust)}</DefinitionRow>{/if}
-    {#if f.correlation}<DefinitionRow label="Correlation">{String(f.correlation)}</DefinitionRow>{/if}
-    {#if f.dataschema}<DefinitionRow label="Dataschema" html={linkOrTextHtml(f.dataschema)} />{/if}
+    <DefinitionRow label="Event type" html={`<span class="${codeCls}">${esc(eventType)}</span>`} />
+    {#if translates}<DefinitionRow label="Translates"><RecordLink id={translates} /></DefinitionRow>{/if}
+    {#if trust}<DefinitionRow label="Trust">{trust}</DefinitionRow>{/if}
+    {#if correlation}<DefinitionRow label="Correlation">{correlation}</DefinitionRow>{/if}
+    {#if dataschema}<DefinitionRow label="Dataschema" html={linkOrTextHtml(dataschema)} />{/if}
   </DefinitionList>
 </PageSection>
 {#if payload.length}
@@ -29,9 +35,9 @@
     <DataTable
       head={["Name", "Type", "Meaning", "Classification"]}
       rows={payload.map((p) => [
-        tdHtml(esc(String(p.name ?? "")), "nm"),
+        tdHtml(esc(stringField(p, "name") ?? ""), "nm"),
         tdHtml(typedFieldHtml(p)),
-        tdHtml(esc(String(p.meaning ?? ""))),
+        tdHtml(esc(stringField(p, "meaning") ?? "")),
         tdHtml(clsBadgeHtml(p.classification)),
       ])}
     />

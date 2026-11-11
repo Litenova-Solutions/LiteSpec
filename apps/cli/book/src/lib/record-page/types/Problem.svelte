@@ -5,7 +5,8 @@
   import { proseOf } from "../page-prose";
 
   // A problem: the situation it describes. The evidence table is a generic section.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const situation = $derived(proseOf(r, "situation"));
 </script>
 

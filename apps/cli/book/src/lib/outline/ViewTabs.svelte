@@ -3,7 +3,8 @@
   import type { View } from "$lib/frame";
 
   // The view tabs: the Outline and the Security view, each with its count.
-  let { onViewChange }: { onViewChange: (v: View) => void } = $props();
+  type Props = { onViewChange: (v: View) => void };
+  let { onViewChange }: Props = $props();
   const tabs = $derived.by(() => {
     void book.rev;
     return [
@@ -25,7 +26,7 @@
         : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'}"
     >
       {t.label}
-      <span class="font-mono text-[11px] tabular-nums opacity-70">{formatCount(t.count)}</span>
+      <span class="font-mono text-[0.6875rem] tabular-nums opacity-70">{formatCount(t.count)}</span>
     </button>
   {/each}
 </div>

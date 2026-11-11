@@ -1,27 +1,17 @@
-// The rail's local model: the goal-to-behavior trace, the words for
-// implementation kinds, and the connections grouped by layer and relation.
-// Every string comes from book.js; the store supplies records and relations.
-import { book, capitalize, pluralize, stripStep } from "$lib/frame";
-import type { Connection } from "$lib/frame";
+// The trace's local model: the goal-to-behavior trace, the words for
+// implementation kinds, and the kept-by sentences. Every band word comes from
+// the lexicon's layer labels; the store supplies records and relations.
+import { capitalize, isFlowType, pluralize, stripStep } from "$lib/frame";
+import type { Book, ImplKind } from "$lib/frame";
 
-export const GAP: Record<string, string> = {
+/** A goal or feature with nothing below it reads as a gap in the trace. */
+const GAP: Record<string, string> = {
   goal: "No feature serves this goal",
   feature: "No requirement cites this feature",
 };
 
-const BAND: Record<string, string> = {
-  intent: "Intent",
-  behavior: "Behavior",
-  entry: "",
-  governance: "Governance",
-};
-
-export function bandOf(id: string): string {
-  const t = book.typeOf(id);
-  if (t === "code" || t === "route") return "Implementation";
-  if (t === "test") return "Proof";
-  return BAND[book.kindOf(id)] || "Behavior";
-}
+/** A requirement nothing keeps reads as a gap in the trace and the Intent tree. */
+export const GAP_TEXT = "Nothing keeps this requirement";
 
 const KIND_WORD: Record<string, string> = {
   handler: "Handler",
@@ -38,12 +28,36 @@ const KIND_WORD: Record<string, string> = {
   result: "Result code",
   "domain-service": "Domain service",
   route: "Route",
-};
+} satisfies Record<ImplKind, string>;
 
-export const kindWord = (kind: string) => KIND_WORD[kind] || capitalize(kind);
+/** The words for an implementation kind. Forward tolerance: a kind the lexicon does not name yet reads capitalized. */
+export function kindWord(kind: string): string {
+  return KIND_WORD[kind] ?? capitalize(kind);
+}
 
-export function keptByOf(id: string): Record<string, number> {
-  return (book.get(stripStep(id))?.keptBy ?? {}) as Record<string, number>;
+/** The trace band a record reads in, from the lexicon's layer labels. */
+export function bandOf(book: Book, id: string): string {
+  const t = book.typeOf(id);
+  if (t === "code" || t === "route") return book.layerByKey.implementation?.label ?? "Implementation";
+  if (t === "test") return book.layerByKey.proof?.label ?? "Proof";
+  const kind = book.kindOf(id);
+  if (kind === "unlayered") return book.layerByKey.behavior?.label ?? "Behavior";
+  return book.layerByKey[kind]?.label ?? capitalize(kind);
+}
+
+/** What keeps a requirement, or null when nothing keeps it. */
+export function keptBySentence(book: Book, id: string): string | null {
+  const keptBy = book.get(stripStep(id))?.keptBy ?? {};
+  const parts = Object.keys(keptBy).map((t) => pluralize(keptBy[t] ?? 0, book.typeName(t).toLowerCase()));
+  return parts.length ? "kept by " + parts.join(", ") : null;
+}
+
+/** Whether the Intent chain breaks at a record: a goal or feature with nothing below it, or a requirement nothing keeps. */
+export function breaksIntentChain(book: Book, id: string, childCount: number): boolean {
+  const t = book.typeOf(id);
+  if (t === "goal" || t === "feature") return childCount === 0;
+  if (t === "requirement") return keptBySentence(book, id) === null;
+  return false;
 }
 
 export interface DownEntry {
@@ -53,15 +67,14 @@ export interface DownEntry {
 
 // Down the authority order: what each record type leads to in the layer below,
 // with the words for that step.
-export function downOf(id: string): DownEntry[] {
+export function downOf(book: Book, id: string): DownEntry[] {
   void book.rev;
-  const r = book.get(id);
   const t = book.typeOf(id);
   const out: DownEntry[] = [];
   const add = (list: readonly string[] | null | undefined, phrase: string) => {
     for (const raw of list ?? []) {
-      const x = stripStep(raw);
-      if (book.has(x) && x !== stripStep(id)) out.push({ id: x, phrase });
+      const x = stripStep(raw) ?? "";
+      if (book.has(x) && x !== (stripStep(id) ?? "")) out.push({ id: x, phrase });
     }
   };
   if (t === "product") add(book.order.filter((x) => book.typeOf(x) === "goal"), "a goal of the product");
@@ -70,13 +83,11 @@ export function downOf(id: string): DownEntry[] {
   if (t === "feature") add(book.ins(id, "cites"), "cites this feature");
   if (t === "requirement") add(book.ins(id, "fulfills"), "fulfills this requirement");
   if (t === "journey") add(book.ins(id, "serves"), "serves a step");
-  if (t === "use-case" || t === "reaction" || t === "job") {
+  if (isFlowType(t)) {
     add(book.ins(id, "offers"), "offers it");
     add(book.resultsOf(id), "how it ends");
   }
   if (t === "result") add(book.shownByOf(id), "shows this result");
-  if (t === "scenario" || t === "rule") add((r?.provedBy ?? []) as string[], "proves a scenario of it");
-  if (t === "screen") add((r?.implementedBy ?? []) as string[], "implements it");
   if (t === "aggregate") add(book.ins(id, "changes"), "changes it");
   return out;
 }
@@ -99,14 +110,17 @@ export interface TraceModel {
   bands: TraceBand[];
 }
 
-export function buildTrace(id: string): TraceModel {
+export function buildTrace(book: Book, id: string): TraceModel {
   void book.rev;
+  const intentBand = book.layerByKey.intent?.label ?? "Intent";
+  const behaviorBand = book.layerByKey.behavior?.label ?? "Behavior";
   const up = book.traceOf(id).filter((x) => x !== id);
   const seen: Record<string, boolean> = {};
   const rows: TraceRow[] = [];
   // Above a use case, results and scenarios are walked through but not listed,
   // so the trace reaches code and tests without the detail.
-  const quiet = !["use-case", "reaction", "job", "result", "scenario", "rule"].includes(book.typeOf(id));
+  const top = book.typeOf(id);
+  const quiet = !isFlowType(top) && top !== "result" && top !== "scenario" && top !== "rule";
   for (const x of up) {
     seen[x] = true;
     rows.push({ kind: "rec", id: x, depth: 0, phrase: "", here: false, showPh: false });
@@ -115,27 +129,31 @@ export function buildTrace(id: string): TraceModel {
   rows.push({ kind: "rec", id, depth: 0, phrase: "", here: true, showPh: false });
   const walk = (x: string, depth: number): void => {
     if (depth > 5) return;
-    const kids = downOf(x);
+    const kids = downOf(book, x);
     if (book.typeOf(x) === "requirement" && book.get(stripStep(x))) {
-      const kb = keptByOf(x);
-      const parts = Object.keys(kb).map((t) => pluralize(kb[t] ?? 0, book.typeName(t).toLowerCase()));
+      const sentence = keptBySentence(book, x);
       rows.push(
-        parts.length
-          ? { kind: "note", note: book.title(x) + ": kept by " + parts.join(", "), depth: depth + 1, band: "Behavior" }
-          : { kind: "gap", gap: "Nothing keeps this requirement", depth: depth + 1, band: "Intent" },
+        sentence
+          ? { kind: "note", note: book.title(x) + ": " + sentence, depth: depth + 1, band: behaviorBand }
+          : { kind: "gap", gap: GAP_TEXT, depth: depth + 1, band: intentBand },
       );
     }
-    if (!kids.length && GAP[book.typeOf(x)]) {
-      rows.push({ kind: "gap", gap: GAP[book.typeOf(x)], depth: depth + 1, band: bandOf(x) });
+    const gapText = GAP[book.typeOf(x)];
+    if (!kids.length && gapText) {
+      rows.push({ kind: "gap", gap: gapText, depth: depth + 1, band: bandOf(book, x) });
     }
     const by: Record<string, DownEntry[]> = {};
     for (const k of kids) {
       if (seen[k.id]) continue;
-      (by[book.typeOf(k.id)] ??= []).push(k);
+      const key = book.typeOf(k.id);
+      const entries = by[key] ?? [];
+      entries.push(k);
+      by[key] = entries;
     }
     for (const t of Object.keys(by)) {
+      const entries = by[t] ?? [];
       const hide = quiet && (t === "result" || t === "scenario");
-      by[t].forEach((k, i) => {
+      entries.forEach((k, i) => {
         seen[k.id] = true;
         if (hide) {
           walk(k.id, depth);
@@ -145,15 +163,15 @@ export function buildTrace(id: string): TraceModel {
           rows.push({ kind: "rec", id: k.id, depth: depth + 1, phrase: k.phrase, here: false, showPh: false });
           walk(k.id, depth + 1);
         } else if (i === 3) {
-          rows.push({ kind: "more", more: by[t].length - 3, depth: depth + 1, t });
+          rows.push({ kind: "more", more: entries.length - 3, depth: depth + 1, t });
         }
       });
     }
   };
   walk(id, 0);
-  const bands: TraceBand[] = ["Intent", "Behavior"].map((b) => {
+  const bands: TraceBand[] = [intentBand, behaviorBand].map((b) => {
     const here = rows.filter((x) =>
-      x.kind === "note" || x.kind === "gap" ? x.band === b : x.kind === "rec" ? bandOf(x.id) === b : false,
+      x.kind === "note" || x.kind === "gap" ? x.band === b : x.kind === "rec" ? bandOf(book, x.id) === b : false,
     );
     let lastPh = "";
     for (const x of here) {

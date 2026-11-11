@@ -2,29 +2,34 @@
 // use case with a scenario, and the lexicon words the explanations read.
 
 import { Book } from "./book.svelte";
-import type { LayerClaim, Lexicon, Manifest, OutlineNode, SecurityItem } from "./shard-types";
+import type { ShardLoader } from "./shard-loader";
+import type { BookRecord, LayerClaim, Lexicon, Manifest, OutlineNode, SecurityItem } from "./shard-types";
 
-const records: Record<string, Record<string, any>> = {
+const records: Record<string, BookRecord> = {
   "product/library": {
-    type: "product", title: "Riverside Library",
+    type: "product",
+    title: "Riverside Library",
     fields: { boundary: "Lending for one branch." },
   },
   "goal/faster-borrowing": {
-    type: "goal", title: "Faster Borrowing",
+    type: "goal",
+    title: "Faster Borrowing",
     fields: {},
-    in: [{ from: "feature/borrow-book", key: "advances" }],
+    in: [{ id: "feature/borrow-book", key: "advances" }],
   },
   "feature/borrow-book": {
-    type: "feature", title: "Borrow Book",
+    type: "feature",
+    title: "Borrow Book",
     fields: {},
     out: [
-      { to: "goal/faster-borrowing", key: "advances" },
-      { to: "use-case/library.borrowing.borrow", key: "fulfilledBy" },
+      { id: "goal/faster-borrowing", key: "advances" },
+      { id: "use-case/library.borrowing.borrow", key: "fulfilledBy" },
     ],
-    in: [{ from: "use-case/library.borrowing.borrow", key: "fulfills" }],
+    in: [{ id: "use-case/library.borrowing.borrow", key: "fulfills" }],
   },
   "use-case/library.borrowing.borrow": {
-    type: "use-case", title: "Borrow",
+    type: "use-case",
+    title: "Borrow",
     folder: "behavior/library/borrowing",
     module: "library",
     fields: {},
@@ -32,39 +37,59 @@ const records: Record<string, Record<string, any>> = {
     tests: [],
     expect: { impl: true, proof: true },
     completion: { hasCode: true, hasTests: false, scenarios: { pass: 0, of: 1 } },
-    lacks: "scenarios not tested",
-    out: [{ to: "feature/borrow-book", key: "fulfills" }],
-    in: [{ from: "feature/borrow-book", key: "fulfilledBy" }],
+    lacks: ["scenarios not tested"],
+    out: [{ id: "feature/borrow-book", key: "fulfills" }],
+    in: [{ id: "feature/borrow-book", key: "fulfilledBy" }],
   },
   "scenario/library.borrowing.borrow.main": {
-    type: "scenario", title: "Main",
+    type: "scenario",
+    title: "Main",
     fields: {},
     tests: [],
     expect: { impl: false, proof: true },
     completion: { hasTests: false },
     proof: { state: "unproved", tests: 0, test: null },
-    lacks: "not tested",
+    lacks: ["not tested"],
   },
   "feature/checkout": {
-    type: "feature", title: "Checkout",
+    type: "feature",
+    title: "Checkout",
     fields: {},
   },
 };
 
 const outline: OutlineNode[] = [
   {
-    id: "product/library", kind: "record", label: "Riverside Library", type: "product",
+    id: "product/library",
+    kind: "record",
+    label: "Riverside Library",
+    type: "product",
     children: [
       {
-        id: "goal/faster-borrowing", kind: "record", label: "Faster Borrowing", type: "goal",
+        id: "goal/faster-borrowing",
+        kind: "record",
+        label: "Faster Borrowing",
+        type: "goal",
         children: [
           {
-            id: "feature/borrow-book", kind: "record", label: "Borrow Book", type: "feature",
+            id: "feature/borrow-book",
+            kind: "record",
+            label: "Borrow Book",
+            type: "feature",
             children: [
               {
-                id: "use-case/library.borrowing.borrow", kind: "record", label: "Borrow", type: "use-case",
+                id: "use-case/library.borrowing.borrow",
+                kind: "record",
+                label: "Borrow",
+                type: "use-case",
                 children: [
-                  { id: "scenario/library.borrowing.borrow.main", kind: "record", label: "Main", type: "scenario", children: [] },
+                  {
+                    id: "scenario/library.borrowing.borrow.main",
+                    kind: "record",
+                    label: "Main",
+                    type: "scenario",
+                    children: [],
+                  },
                 ],
               },
             ],
@@ -75,7 +100,7 @@ const outline: OutlineNode[] = [
   },
 ];
 
-const lexicon = {
+const lexicon: Lexicon = {
   types: {
     product: { label: "Product", plural: "Products", layer: "intent", question: "What product is this?" },
     goal: { label: "Goal", plural: "Goals", layer: "intent", question: "What outcome does the product want?" },
@@ -93,20 +118,32 @@ const lexicon = {
     { field: "fulfilledBy", carriers: "feature", forward: "is fulfilled by the use case", inverse: "fulfills the feature" },
   ],
   sections: {
-    "Completion Stages": { text: "Completion is computed from code, tests and passing scenarios.", source: "model.md, Completion Stages" },
+    "Completion Stages": {
+      text: "Completion is computed from code, tests and passing scenarios.",
+      source: "model.md, Completion Stages",
+    },
     "Check Levels": { text: "Blocking findings stop a release.", source: "model.md, Check Levels" },
   },
   glossary: {
     finding: { term: "Finding", definition: "A check result on a record." },
-    departure: { term: "Departure", definition: "A record that departs from a provision and covers the findings it names." },
-    coded: { term: "Coded", definition: "The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for." },
-    covered: { term: "Covered", definition: "The outcome of a finding a departure record covers: reported, and never blocking." },
+    departure: {
+      term: "Departure",
+      definition: "A record that departs from a provision and covers the findings it names.",
+    },
+    coded: {
+      term: "Coded",
+      definition: "The computed state of a use case, rule, event, or aggregate state the stack's builder finds code for.",
+    },
+    covered: {
+      term: "Covered",
+      definition: "The outcome of a finding a departure record covers: reported, and never blocking.",
+    },
   },
   fields: { boundary: "Boundary" },
   findings: { "goal-unused": { level: "G", meaning: "A goal nothing advances." } },
-} as unknown as Lexicon;
+};
 
-const manifest = {
+const manifest: Manifest = {
   project: { id: "product/library", title: "Riverside Library" },
   roots: { consumer: "C:/work/shop", litespec: "C:/work/litespec" },
   editor: "vscode://file/{root}/{path}:{line}",
@@ -117,11 +154,18 @@ const manifest = {
     { layer: "proof", practice: "litespec" },
   ],
   intentCoverage: {
-    reached: 1, total: 2, share: 0.5,
+    reached: 1,
+    total: 2,
+    share: 0.5,
     requirements: { reached: 1, total: 1 },
     steps: { reached: 0, total: 1 },
     entries: [
-      { id: "requirement/borrow-book.main", kind: "requirement", reached: true, reachedBy: ["use-case/library.borrowing.borrow"] },
+      {
+        id: "requirement/borrow-book.main",
+        kind: "requirement",
+        reached: true,
+        reachedBy: ["use-case/library.borrowing.borrow"],
+      },
       { id: "journey/borrowing#s1", kind: "step", reached: false, reachedBy: [] },
     ],
   },
@@ -132,14 +176,17 @@ const manifest = {
     { key: "behavior", label: "Behavior", outline: ["outline-behavior"] },
   ],
   shardOf: {
-    "product/library": "records-a", "goal/faster-borrowing": "records-a", "feature/borrow-book": "records-a",
-    "use-case/library.borrowing.borrow": "records-a", "scenario/library.borrowing.borrow.main": "records-a",
+    "product/library": "records-a",
+    "goal/faster-borrowing": "records-a",
+    "feature/borrow-book": "records-a",
+    "use-case/library.borrowing.borrow": "records-a",
+    "scenario/library.borrowing.borrow.main": "records-a",
     "feature/checkout": "records-a",
   },
   search: [],
   unplaced: [],
   generatedOn: "2026-01-02T00:00:00.000Z",
-} as unknown as Manifest;
+};
 
 const security: SecurityItem[] = [];
 
@@ -152,12 +199,30 @@ const shards: Record<string, unknown> = {
   "records-a": records,
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && Array.isArray(value) === false;
+}
+
 /** A book over the fixture shards, booted and ready for assertions. */
-export async function fixtureBook(hash = "", opts: { editor?: string; claims?: LayerClaim[] } = {}) {
+export async function fixtureBook(hash = "", opts: { editor?: string; claims?: LayerClaim[] } = {}): Promise<Book> {
   const data: Record<string, unknown> = structuredClone(shards);
-  if (opts.editor !== undefined) (data.manifest as Manifest).editor = opts.editor;
-  if (opts.claims !== undefined) (data.manifest as Manifest).claims = opts.claims;
-  const book = new Book({ load: async (key: string) => structuredClone(data[key]) } as any);
+  const manifestData = data["manifest"];
+  if (isRecord(manifestData)) {
+    if (opts.editor !== undefined) manifestData["editor"] = opts.editor;
+    if (opts.claims !== undefined) manifestData["claims"] = opts.claims;
+  }
+  const loader: ShardLoader = {
+    put(key: string, value: unknown): void {
+      data[key] = value;
+    },
+    get(key: string): unknown {
+      return data[key];
+    },
+    load(key: string): Promise<unknown> {
+      return Promise.resolve(structuredClone(data[key]));
+    },
+  };
+  const book = new Book(loader);
   await book.boot(hash);
   return book;
 }

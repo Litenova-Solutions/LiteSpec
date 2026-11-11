@@ -1,6 +1,6 @@
 <script lang="ts">
   import { book, capitalize } from "$lib/frame";
-  import type { BookRecord } from "$lib/frame";
+  import type { BookRecord, RecordFields } from "$lib/frame";
   import { RecordLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
@@ -8,26 +8,41 @@
   import RecordList from "../blocks/RecordList.svelte";
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
+  import { stringField } from "../page-values";
 
   // A setting: its default, its type, and who sets and reads it.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const f = $derived(r.fields ?? {});
+  type Props = { id: string; r: BookRecord };
+  let { id, r }: Props = $props();
+  const f: RecordFields = $derived(r.fields ?? {});
   const readers = $derived(book.ins(id, "reads"));
-  const fallback = $derived(f.secret ? "Hidden" : f.default !== undefined ? String(f.default) + (f.unit ? " " + String(f.unit) : "") : f.value !== undefined ? String(f.value) : "None");
+  const fallback = $derived(
+    f.secret
+      ? "Hidden"
+      : f.default !== undefined
+        ? String(f.default) + (f.unit ? " " + String(f.unit) : "")
+        : f.value !== undefined
+          ? String(f.value)
+          : "None",
+  );
+  const valueType = $derived(stringField(f, "valueType") ?? "");
+  const range = $derived(stringField(f, "range"));
+  const setBy = $derived(stringField(f, "setBy") ?? "");
+  const atBound = $derived(stringField(f, "atBound"));
+  const runbook = $derived(stringField(f, "runbook"));
 </script>
 
 <PageSection blockKey="val" heading="default">
   <FactGrid>
     <FactCell k="default" big>{fallback}</FactCell>
-    <FactCell k="valueType">{capitalize(String(f.valueType ?? ""))}</FactCell>
-    {#if f.range}<FactCell k="range">{String(f.range)}</FactCell>{/if}
-    <FactCell k="setBy">{capitalize(String(f.setBy ?? ""))}</FactCell>
+    <FactCell k="valueType">{capitalize(valueType)}</FactCell>
+    {#if range}<FactCell k="range">{range}</FactCell>{/if}
+    <FactCell k="setBy">{capitalize(setBy)}</FactCell>
   </FactGrid>
   <DefinitionList>
-    {#if f.atBound}<DefinitionRow label="atBound">{String(f.atBound)}</DefinitionRow>{/if}
+    {#if atBound}<DefinitionRow label="atBound">{atBound}</DefinitionRow>{/if}
     {#if readers.length}
       <DefinitionRow label="Read by"><RecordList ids={readers} /></DefinitionRow>
     {/if}
-    {#if f.runbook}<DefinitionRow label="runbook"><RecordLink id={String(f.runbook)} /></DefinitionRow>{/if}
+    {#if runbook}<DefinitionRow label="runbook"><RecordLink id={runbook} /></DefinitionRow>{/if}
   </DefinitionList>
 </PageSection>

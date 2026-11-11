@@ -4,7 +4,8 @@
   import RecordIcon from "./RecordIcon.svelte";
 
   // Every entry links to the file and line it comes from, opened in the editor.
-  let { src }: { src: SourceRef | null | undefined } = $props();
+  type Props = { src: SourceRef | null | undefined };
+  let { src }: Props = $props();
   const href = $derived(srcHref(book, src));
   const text = $derived(src ? (src.litespec ? "LiteSpec " + src.path : src.path + (src.line ? ":" + src.line : "")) : "");
   const icon = $derived(src?.litespec ? "book" : "ext");

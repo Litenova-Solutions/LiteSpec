@@ -4,8 +4,6 @@ import type { Component } from "svelte";
 import type { BookRecord } from "$lib/frame";
 import Actor from "./Actor.svelte";
 import Aggregate from "./Aggregate.svelte";
-import ArchitectureLayer from "./ArchitectureLayer.svelte";
-import CheckTier from "./CheckTier.svelte";
 import Code from "./Code.svelte";
 import Constraint from "./Constraint.svelte";
 import Decision from "./Decision.svelte";
@@ -15,11 +13,9 @@ import Departure from "./Departure.svelte";
 import ExternalSystem from "./ExternalSystem.svelte";
 import Feature from "./Feature.svelte";
 import Finding from "./Finding.svelte";
-import FindingCode from "./FindingCode.svelte";
-import Folder from "./Folder.svelte";
-import Frontend from "./Frontend.svelte";
 import Generic from "./Generic.svelte";
 import Goal from "./Goal.svelte";
+import GroupingPage from "./GroupingPage.svelte";
 import IntegrationEvent from "./IntegrationEvent.svelte";
 import Job from "./Job.svelte";
 import Journey from "./Journey.svelte";
@@ -42,8 +38,6 @@ import Screen from "./Screen.svelte";
 import Setting from "./Setting.svelte";
 import Term from "./Term.svelte";
 import Test from "./Test.svelte";
-import TestClass from "./TestClass.svelte";
-import TestProject from "./TestProject.svelte";
 import UseCase from "./UseCase.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
@@ -80,13 +74,13 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,
-  "architecture-layer": ArchitectureLayer,
-  folder: Folder,
-  frontend: Frontend,
-  "test-project": TestProject,
-  "test-class": TestClass,
-  "check-tier": CheckTier,
-  "finding-code": FindingCode,
+  "architecture-layer": GroupingPage,
+  folder: GroupingPage,
+  frontend: GroupingPage,
+  "test-project": GroupingPage,
+  "test-class": GroupingPage,
+  "check-tier": GroupingPage,
+  "finding-code": GroupingPage,
   finding: Finding,
   code: Code,
   route: Route,

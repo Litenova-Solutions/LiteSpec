@@ -5,21 +5,25 @@
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
+  import { stringField } from "../page-values";
 
   // A finding: its code, the record it is about, and where it was found.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
-  const subj = $derived(f.subject ? stripStep(String(f.subject)) : null);
+  const subject = $derived(stringField(f, "subject"));
+  const subj = $derived(subject ? stripStep(subject) : null);
+  const code = $derived(stringField(f, "code") ?? "");
 </script>
 
 <PageSection blockKey="about" heading="Finding">
   <DefinitionList>
-    <DefinitionRow label="code"><RecordLink id={"finding-code/" + String(f.code ?? "")} /></DefinitionRow>
+    <DefinitionRow label="code"><RecordLink id={"finding-code/" + code} /></DefinitionRow>
     <DefinitionRow label="subject">
       {#if subj}
         <RecordLink id={subj} />
       {:else}
-        <span class="font-mono text-[11px] text-muted-foreground">none</span>
+        <span class="font-mono text-[0.6875rem] text-muted-foreground">none</span>
       {/if}
     </DefinitionRow>
     {#if r.src}

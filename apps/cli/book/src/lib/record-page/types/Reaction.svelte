@@ -8,23 +8,25 @@
   import EffectsBlock from "../shared/EffectsBlock.svelte";
   import FailureBlock from "../shared/FailureBlock.svelte";
   import { proseOf } from "../page-prose";
-  import { idemTileOf, triggeredByHtml } from "../page-values";
+  import { idemTileOf, reactionFields, triggeredByHtml } from "../page-values";
 
   // A reaction: what triggers it, what it does, and what it does when it fails.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
+  const rf = $derived(reactionFields(f));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const trig = $derived(triggeredByHtml(f.triggeredBy));
+  const trig = $derived(triggeredByHtml(rf.triggeredBy));
   const idem = $derived(idemTileOf(f));
 </script>
 
 {#if whatHappens}
   <PageSection blockKey="wh" heading="whatHappens"><RenderedProse html={whatHappens} /></PageSection>
 {/if}
-{#if trig || f.skippedWhen}
+{#if trig || rf.skippedWhen}
   <PageSection blockKey="trig" heading="triggeredBy">
     {@html trig}
-    {#if f.skippedWhen}<div class="text-sm">Skipped when {String(f.skippedWhen)}</div>{/if}
+    {#if rf.skippedWhen}<div class="text-sm">Skipped when {rf.skippedWhen}</div>{/if}
   </PageSection>
 {/if}
 <EffectsBlock {f} />

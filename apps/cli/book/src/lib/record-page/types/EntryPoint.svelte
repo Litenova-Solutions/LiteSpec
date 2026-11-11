@@ -2,13 +2,16 @@
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import { codeCls } from "../page-html";
+  import { stringField } from "../page-values";
 
   // An entry point: the path it serves.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
+  const path = $derived(stringField(r.fields ?? {}, "path"));
 </script>
 
-{#if r.fields?.path}
+{#if path}
   <PageSection blockKey="path" heading="path">
-    <span class="{codeCls} px-2.5 py-1 text-sm">{String(r.fields.path)}</span>
+    <span class="{codeCls} px-2.5 py-1 text-sm">{path}</span>
   </PageSection>
 {/if}

@@ -4,16 +4,18 @@
   import PageSection from "../blocks/PageSection.svelte";
   import ScenarioCard from "../shared/ScenarioCard.svelte";
   import { codeCls } from "../page-html";
+  import { stringField } from "../page-values";
 
   // A result: what it means, its code, and the scenarios that show it.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const f = $derived(r.fields ?? {});
+  type Props = { id: string; r: BookRecord };
+  let { id, r }: Props = $props();
+  const code = $derived(stringField(r.fields ?? {}, "code"));
   const sc = $derived(book.shownByOf(id).filter((x) => book.get(stripStep(x))));
 </script>
 
-{#if f.code}
+{#if code}
   <PageSection blockKey="code" heading="Refusal code">
-    <span class="{codeCls} px-2.5 py-1 text-[13px]">{String(f.code)}</span>
+    <span class="{codeCls} px-2.5 py-1 text-[0.8125rem]">{code}</span>
   </PageSection>
 {/if}
 {#if sc.length}

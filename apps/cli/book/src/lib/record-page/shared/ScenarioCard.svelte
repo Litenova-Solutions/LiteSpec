@@ -1,18 +1,20 @@
 <script lang="ts">
   import { book, stripStep } from "$lib/frame";
-  import type { ProofState } from "$lib/frame";
   import { ProofMark, RecordIcon } from "$lib/record";
   import Fact from "../blocks/Fact.svelte";
+  import GivenWhenThen from "./GivenWhenThen.svelte";
   import { codeCls } from "../page-html";
-  import { resultInfoOf } from "../page-values";
+  import { resultInfoOf, scenarioFields } from "../page-values";
 
   // One scenario card: the title with its proof mark, opening to Given, When and Then.
-  let { sid, startOpen = false }: { sid: string; startOpen?: boolean } = $props();
+  type Props = { sid: string; initiallyOpen?: boolean };
+  let { sid, initiallyOpen = false }: Props = $props();
   let open = $state<boolean | null>(null);
-  const isOpen = $derived(open ?? startOpen);
+  const isOpen = $derived(open ?? initiallyOpen);
   const s = $derived(book.get(stripStep(sid)));
-  const f = $derived(s?.fields ?? {});
-  const ri = $derived(resultInfoOf(sid));
+  const cf = $derived(scenarioFields(s?.fields ?? {}));
+  const resultId = $derived(book.outs(stripStep(sid), "result")[0] ?? null);
+  const ri = $derived(resultInfoOf(resultId ? book.get(resultId) : null));
 </script>
 
 {#if s}
@@ -23,20 +25,13 @@
       aria-expanded={isOpen}
       onclick={() => (open = !isOpen)}
     >
-      <RecordIcon name="chev" class="size-3.5 text-muted-foreground transition-transform {isOpen ? 'rotate-90' : ''}" />
+      <RecordIcon name="chev" class="size-3.5 text-muted-foreground motion-safe:transition-transform {isOpen ? 'rotate-90' : ''}" />
       <span class="flex-1 text-sm font-medium">{s.title}</span>
-      <ProofMark state={(s.proof?.state as ProofState | undefined) ?? null} />
+      <ProofMark state={s.proof?.state ?? null} />
     </button>
     {#if isOpen}
       <div class="py-1 pr-3.5 pb-3.5 pl-10">
-        <dl class="grid grid-cols-[56px_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm">
-          <dt class="pt-0.5 font-mono text-[11.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">Given</dt>
-          <dd class="m-0">{String(f.given ?? "")}</dd>
-          <dt class="pt-0.5 font-mono text-[11.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">When</dt>
-          <dd class="m-0">{String(f.when ?? "")}</dd>
-          <dt class="pt-0.5 font-mono text-[11.5px] font-medium tracking-[0.06em] text-muted-foreground uppercase">Then</dt>
-          <dd class="m-0">{String(f.then ?? "")}</dd>
-        </dl>
+        <GivenWhenThen given={cf.given ?? ""} when={cf.when ?? ""} then={cf.then ?? ""} />
         <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-border pt-2.5 text-xs text-muted-foreground">
           {#if ri}
             <Fact text={ri.title} />

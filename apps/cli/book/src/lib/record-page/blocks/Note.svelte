@@ -3,19 +3,16 @@
   import type { Snippet } from "svelte";
 
   // A plain note with a tinted edge: info, warn, quiet, good or bad.
-  let {
-    kind,
-    icon,
-    html = null,
-    children,
-  }: {
-    kind: "info" | "warn" | "quiet" | "good" | "bad";
+  type NoteKind = "info" | "warn" | "quiet" | "good" | "bad";
+  type Props = {
+    kind: NoteKind;
     icon: string;
     html?: string | null;
     children?: Snippet;
-  } = $props();
+  };
+  let { kind, icon, html = null, children }: Props = $props();
 
-  const TONE: Record<string, { edge: string; icon: string }> = {
+  const TONE: Record<NoteKind, { edge: string; icon: string }> = {
     info: { edge: "border-pattern-border", icon: "text-pattern-foreground" },
     warn: { edge: "border-warn-border", icon: "text-warn-foreground" },
     quiet: { edge: "border-border", icon: "text-muted-foreground" },

@@ -6,19 +6,16 @@
   import { Kbd } from "$lib/ui/kbd";
 
   // The filter box: after 120 ms of quiet the query reaches the store, and Enter
-  // opens the best hit. The box follows the store when the query clears elsewhere.
-  let { input = $bindable<HTMLInputElement | null>(null) }: { input?: HTMLInputElement | null } = $props();
+  // opens the best hit. The box shows the store query, so it follows the store
+  // when the query clears elsewhere.
+  type Props = { input?: HTMLInputElement | null; onRevealRequest: () => void };
+  let { input = $bindable<HTMLInputElement | null>(null), onRevealRequest }: Props = $props();
   let timer: ReturnType<typeof setTimeout> | null = null;
   onDestroy(() => {
     if (timer) clearTimeout(timer);
   });
 
-  $effect(() => {
-    const q = book.query;
-    if (input && document.activeElement !== input && input.value !== q) input.value = q;
-  });
-
-  function changed(value: string) {
+  function changed(value: string): void {
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       book.setQuery(value);
@@ -26,7 +23,7 @@
     }, 120);
   }
 
-  async function keyed(e: KeyboardEvent) {
+  async function keyed(e: KeyboardEvent): Promise<void> {
     const el = e.target as HTMLInputElement;
     if (e.key === "Escape") {
       if (timer) clearTimeout(timer);
@@ -40,10 +37,10 @@
       const hit = book.bestSearchHit();
       if (hit) {
         await book.select(hit);
-        book.focusNavTick++;
+        onRevealRequest();
       }
     } else if (e.key === "ArrowDown") {
-      book.focusNavTick++;
+      onRevealRequest();
       e.preventDefault();
     }
   }
@@ -58,6 +55,7 @@
     aria-label="Filter the navigation"
     autocomplete="off"
     class="pr-10 pl-8"
+    value={book.query}
     onfocus={() => void book.ensureSearch()}
     oninput={(e) => changed((e.target as HTMLInputElement).value)}
     onkeydown={keyed}

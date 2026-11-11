@@ -4,8 +4,8 @@ type Resolve = (value: unknown) => void;
 
 export interface ShardLoader {
   put(key: string, value: unknown): void;
-  get<T>(key: string): T | undefined;
-  load<T>(key: string): Promise<T>;
+  get(key: string): unknown;
+  load(key: string): Promise<unknown>;
 }
 
 export function createShardLoader(doc: Document, dir = "data/"): ShardLoader {
@@ -18,18 +18,18 @@ export function createShardLoader(doc: Document, dir = "data/"): ShardLoader {
       pending.delete(key);
       for (const resolve of waiting) resolve(value);
     },
-    get<T>(key: string) {
-      return data.get(key) as T | undefined;
+    get(key: string) {
+      return data.get(key);
     },
-    load<T>(key: string) {
-      if (data.has(key)) return Promise.resolve(data.get(key) as T);
-      return new Promise<T>((resolve, reject) => {
+    load(key: string) {
+      if (data.has(key)) return Promise.resolve(data.get(key));
+      return new Promise<unknown>((resolve, reject) => {
         const waiting = pending.get(key);
         if (waiting) {
-          waiting.push(resolve as Resolve);
+          waiting.push(resolve);
           return;
         }
-        pending.set(key, [resolve as Resolve]);
+        pending.set(key, [resolve]);
         const script = doc.createElement("script");
         script.dataset.shard = key;
         script.src = dir + key + ".js";

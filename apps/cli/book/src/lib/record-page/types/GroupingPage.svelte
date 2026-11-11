@@ -2,8 +2,9 @@
   import type { BookRecord } from "$lib/frame";
   import RecordsList from "../shared/RecordsList.svelte";
 
-  // A test class: the records placed below it.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  // A grouping: the records placed below it in the outline.
+  type Props = { id: string; r: BookRecord };
+  let { id }: Props = $props();
 </script>
 
 <RecordsList {id} />

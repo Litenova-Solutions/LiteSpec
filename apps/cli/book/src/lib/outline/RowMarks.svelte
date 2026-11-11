@@ -4,10 +4,11 @@
 
   // The marks at the end of a navigation row: what the record lacks, whether
   // it links to the selection, and a failing test.
-  let { id }: { id: string } = $props();
+  type Props = { id: string };
+  let { id }: Props = $props();
   const lacks = $derived(book.lacks(id));
   const linked = $derived(id !== book.selected && book.related.has(id));
-  const failing = $derived(book.proofState(id) === "failing");
+  const failing = $derived(book.hasFailingProof(id));
 </script>
 
 {#if lacks}

@@ -8,24 +8,24 @@
   import SecurityView from "./SecurityView.svelte";
   import OutlineTools from "./OutlineTools.svelte";
   import ViewTabs from "./ViewTabs.svelte";
-  import { buildListRows, buildOutlineRows, ROW_HEIGHT, securityGroups, type OutlineRow as OutlineRowData } from "./outline-rows";
+  import { outlineState } from "./outline-state.svelte";
+  import { buildOutlineRows, ROW_HEIGHT, securityGroups, type OutlineRow as OutlineRowData } from "./outline-rows";
 
   // The book's left navigation: view tabs, tools and filters over the
-  // virtualized outline or record list, or the security groups.
+  // virtualized outline, or the security groups.
   const outlinesReady = $derived.by(() => (book.man?.layers ?? []).every((l) => book.isLayerLoaded(l.key)));
   const outlineLoading = $derived(book.anyFilter() && !outlinesReady);
   const rows = $derived.by((): OutlineRowData[] => {
     if (outlineLoading) return [];
     if (book.view === "outline") return buildOutlineRows(book);
-    if (book.view === "list") return buildListRows(book);
     return [];
   });
   const models = $derived.by(() => ({
     security: !outlineLoading && book.view === "security" ? securityGroups(book) : [],
   }));
   const navKeys = $derived.by((): string[] => {
-    if (book.view === "outline" || book.view === "list")
-      return rows.flatMap((r) => (r.kind === "record" || r.kind === "listrecord" ? [r.id] : []));
+    if (book.view === "outline")
+      return rows.flatMap((r) => (r.kind === "record" ? [r.id] : []));
     return models.security.flatMap((g) => g.items.map((i) => i.id));
   });
 
@@ -35,10 +35,6 @@
       loadingOutlines = true;
       void book.ensureAllOutlines().finally(() => { loadingOutlines = false; });
     }
-  });
-
-  $effect(() => {
-    book.navIds = navKeys;
   });
 
   let scrollEl = $state<HTMLDivElement | null>(null);
@@ -96,8 +92,8 @@
       if (doFocus) el0.focus({ preventScroll: true });
       return;
     }
-    if ((book.view === "outline" || book.view === "list") && virt) {
-      const idx = untrack(() => rows).findIndex((r) => (r.kind === "record" || r.kind === "listrecord") && r.id === key);
+    if (book.view === "outline" && virt) {
+      const idx = untrack(() => rows).findIndex((r) => r.kind === "record" && r.id === key);
       if (idx < 0) return;
       virt.scrollToIndex(idx, { align: "center" });
       for (let t = 0; t < 8; t++) {
@@ -117,7 +113,6 @@
     }
   }
 
-  let revealTick = $state(0);
   $effect(() => {
     void book.view;
     if (scrollEl) scrollEl.scrollTop = 0;
@@ -125,8 +120,7 @@
   let lastTick = 0;
   $effect(() => {
     const sel = book.selected;
-    const tick = book.focusNavTick;
-    void revealTick;
+    const tick = outlineState.revealRequest;
     void book.view;
     if (untrack(() => outlineLoading)) {
       lastTick = tick;
@@ -139,7 +133,6 @@
   });
 
   async function switchView(v: View) {
-    if (v !== "outline" && v !== "security") return;
     if (v === book.view) return;
     await book.setView(v);
     if (v === "security") {
@@ -152,15 +145,15 @@
 <div class="flex h-full flex-col">
   <div class="border-b px-3 pt-3 pb-2">
     <ViewTabs onViewChange={(v) => void switchView(v)} />
-    <OutlineTools onRevealRequest={() => revealTick++} />
+    <OutlineTools onRevealRequest={() => outlineState.requestReveal()} />
     <FilterPanel />
   </div>
   <div bind:this={scrollEl} class="min-h-0 flex-1 overflow-y-auto px-2.5 py-1.5">
     {#if outlineLoading}
       <p class="mx-2 my-2 text-xs text-muted-foreground">Loading the outline.</p>
-    {:else if book.view === "outline" || book.view === "list"}
+    {:else if book.view === "outline"}
       {@const items = $virtStore.getVirtualItems()}
-      <div role="tree" aria-label={book.view === "list" ? "Records" : "Outline"} class="relative w-full" style="height: {$virtStore.getTotalSize()}px">
+      <div role="tree" aria-label="Outline" class="relative w-full" style="height: {$virtStore.getTotalSize()}px">
         {#each items as item (item.key)}
           {@const row = rows[item.index]}
           {#if row}

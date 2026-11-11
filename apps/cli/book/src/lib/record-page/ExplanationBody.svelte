@@ -7,7 +7,8 @@
 
   // The explanation body: the intro, then each section, with Known Limits,
   // Examples and open questions set apart.
-  let { r }: { r: BookRecord } = $props();
+  type Props = { r: BookRecord };
+  let { r }: Props = $props();
   const intro = $derived(bodyIntroOf(r));
   const sections = $derived(bodySectionsOf(r));
 </script>
@@ -15,7 +16,7 @@
 {#if intro}
   <div class="mb-6"><RenderedProse html={intro} /></div>
 {/if}
-{#each sections as s}
+{#each sections as s (s.key)}
   <PageSection blockKey={s.key} heading={s.h}>
     {#if s.kind === "risk"}
       <div class="border-l-[3px] border-rule-border py-0.5 pl-3.5"><RenderedProse html={s.html} /></div>

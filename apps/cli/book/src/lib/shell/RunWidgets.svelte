@@ -3,15 +3,14 @@
   import { RecordIcon } from "$lib/record";
 
   // The test run and completion widgets. Both read rev so they update as shards load.
-  let run = $derived.by(() => {
+  const run = $derived.by(() => {
     void book.rev;
     return book.man?.testRun ?? null;
   });
-  let complete = $derived.by(() => {
+  const complete = $derived.by(() => {
     void book.rev;
     const real = book.order.filter((id) => book.isReal(id));
-    const done = real.filter((id) => book.completeOf(id)).length;
-    return { done, total: real.length, pct: Math.max(1, Math.round((done / Math.max(1, real.length)) * 100)) };
+    return book.completionSummary(real);
   });
 </script>
 
@@ -33,6 +32,6 @@
 <span class="inline-flex items-center gap-2 text-xs whitespace-nowrap text-muted-foreground">
   <span><b class="font-semibold text-foreground tabular-nums">{formatCount(complete.done)}</b> of {formatCount(complete.total)} complete</span>
   <span class="h-1 w-24 overflow-hidden rounded-full border border-border bg-muted"
-    ><i class="block h-full bg-convention-foreground" style="width: {complete.pct}%"></i></span
+    ><i class="block h-full bg-convention-foreground" style="width: {complete.percent}%"></i></span
   >
 </span>

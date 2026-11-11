@@ -3,7 +3,8 @@
   import { Kbd } from "$lib/ui/kbd";
 
   // The keyboard shortcuts dialog, with the exact list from the old book.
-  let { open = $bindable(false) }: { open?: boolean } = $props();
+  type Props = { open?: boolean };
+  let { open = $bindable(false) }: Props = $props();
 </script>
 
 <Dialog.Root bind:open>

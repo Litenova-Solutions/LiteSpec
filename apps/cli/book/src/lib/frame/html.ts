@@ -16,7 +16,8 @@ export function esc(s: unknown) {
 function editorScheme(book: Book) {
   const t = book.man?.editor;
   if (!t || t === "none") return null;
-  return /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(t.trim())?.[1].toLowerCase() ?? null;
+  const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(t.trim())?.[1];
+  return scheme ? scheme.toLowerCase() : null;
 }
 
 /** A link target the book may open: http, https, mailto, the editor scheme, or a relative path. */
@@ -28,7 +29,7 @@ export function safeHref(book: Book, value: unknown): string | null {
   if (text.startsWith("#")) return text;
   const scheme = /^([A-Za-z][A-Za-z0-9+.-]*):/.exec(text);
   if (scheme) {
-    const name = scheme[1].toLowerCase();
+    const name = (scheme[1] ?? "").toLowerCase();
     return name === "http" || name === "https" || name === "mailto" || name === editorScheme(book) ? text : null;
   }
   if (text.startsWith("//") || text.startsWith("\\\\")) return null;
@@ -96,7 +97,7 @@ export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
       const external = safeHref(book, href);
       return external ? `<a href="${esc(external)}" target="_blank" rel="noopener">${text}</a>` : text;
     }
-    const bid = href.split("#")[0];
+    const bid = href.split("#")[0] ?? "";
     if (/^[a-z][a-z-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bid)) return book.has(bid) ? recordLink(bid, text) : text;
     if (!curSrc?.path) return text;
     const target = srcHref(book, { path: resolvePath(curSrc.path, bid), line: null, litespec: curSrc.litespec });

@@ -4,7 +4,8 @@
   import RecordList from "../blocks/RecordList.svelte";
 
   // The records below a grouping: children in the outline, 150 with a Show all button.
-  let { id }: { id: string } = $props();
+  type Props = { id: string };
+  let { id }: Props = $props();
   const kids = $derived(book.kids(id));
 </script>
 

@@ -8,9 +8,8 @@ import {
   Timer, TriangleAlert, User, Waypoints, Workflow, X, Zap,
 } from "@lucide/svelte";
 
-// One icon per record type and per mark. A record type the table does not name
-// reads with a plain circle, never a guessed icon.
-export const ICONS: Record<string, Component> = {
+// One icon per record type and per mark.
+const ICONS: Record<string, Component> = {
   product: Package, problem: TriangleAlert, goal: Target, feature: Boxes, requirement: FileCheck, decision: Scale,
   constraint: Fence, research: Microscope, journey: Route, actor: User, module: Folder,
   aggregate: Table2, rule: Shield, event: Activity, "integration-event": Radio, "use-case": Zap, scenario: ListChecks,
@@ -25,10 +24,10 @@ export const ICONS: Record<string, Component> = {
   globe: Globe, missing: CircleAlert, tree: ListTree, expand: ChevronsUpDown, collapse: ChevronsDownUp,
   copy: Copy, filter: Funnel, search: Search, keyboard: Keyboard, locate: LocateFixed, trace: Waypoints,
   network: Network,
-};
+} satisfies Record<string, Component>;
 
-export const LAYER_ICON: Record<string, string> = {
-  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "departure", glossary: "term",
-};
-
-export function iconFor(name: string): Component { return ICONS[name] ?? Circle; }
+// The icon for a record type or mark. A name the table does not hold reads
+// with a plain circle, never a guessed icon.
+export function recordIcon(name: string): Component {
+  return ICONS[name] ?? Circle;
+}

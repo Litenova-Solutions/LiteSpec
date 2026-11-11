@@ -8,12 +8,14 @@ import recordTypesSource from "../../../../../../model/src/LiteSpec.Model/Record
 // The written record types, read from the model library that defines them.
 function recordTypes() {
   const block = /HashSet<string> All = new HashSet<string>\(StringComparer\.Ordinal\)\s*\{([^}]*)\}/.exec(recordTypesSource);
-  return [...(block?.[1] ?? "").matchAll(/"([a-z-]+)"/g)].map((m) => m[1]);
+  return [...(block?.[1] ?? "").matchAll(/"([a-z-]+)"/g)].map((m) => m[1]).filter((t): t is string => !!t);
 }
 
 function render(type: string, r: BookRecord) {
   const target = document.createElement("div");
-  const view = mount(TYPES[type], { target, props: { id: type + "/x", r } });
+  const Renderer = TYPES[type];
+  if (!Renderer) throw new Error("no renderer for " + type);
+  const view = mount(Renderer, { target, props: { id: type + "/x", r } });
   flushSync();
   const html = target.innerHTML;
   unmount(view);

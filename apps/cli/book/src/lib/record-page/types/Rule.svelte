@@ -1,17 +1,21 @@
 <script lang="ts">
-  import type { BookRecord } from "$lib/frame";
+  import { book, stripStep } from "$lib/frame";
+  import type { BookRecord, RecordFields } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import ResultCards from "../shared/ResultCards.svelte";
-  import { refusalOf, releasedByHtml } from "../page-values";
+  import { refusalOf, releasedByHtml, stringField, stringList } from "../page-values";
 
   // A rule: the refusal it raises, and what it binds, reads and releases.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const f = $derived(r.fields ?? {});
-  const rf = $derived(refusalOf(id));
-  const binds = $derived(((f.binds as string[] | undefined) ?? []).map(String));
-  const reads = $derived(((f.reads as string[] | undefined) ?? []).map(String));
+  type Props = { id: string; r: BookRecord };
+  let { id, r }: Props = $props();
+  const f: RecordFields = $derived(r.fields ?? {});
+  const refusalId = $derived(book.outs(stripStep(id), "refusal")[0] ?? null);
+  const rf = $derived(refusalOf(refusalId ? book.get(refusalId) : null, refusalId));
+  const binds = $derived(stringList(f, "binds"));
+  const reads = $derived(stringList(f, "reads"));
+  const frozenWhen = $derived(stringField(f, "frozenWhen"));
 </script>
 
 <PageSection blockKey="ref" heading="refusal">
@@ -32,6 +36,6 @@
 {#if f.releasedBy}
   <PageSection blockKey="released" heading="releasedBy">{@html releasedByHtml(f.releasedBy)}</PageSection>
 {/if}
-{#if f.frozenWhen}
-  <PageSection blockKey="frozen" heading="frozenWhen">{String(f.frozenWhen)}</PageSection>
+{#if frozenWhen}
+  <PageSection blockKey="frozen" heading="frozenWhen">{frozenWhen}</PageSection>
 {/if}

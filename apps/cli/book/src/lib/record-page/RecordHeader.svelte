@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { book, stripStep } from "$lib/frame";
+  import { book, copyText, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RecordIcon, SourceLink } from "$lib/record";
   import { Button } from "$lib/ui/button";
@@ -7,17 +7,10 @@
   // The page header: the breadcrumb from the parent chain, the title, the type
   // line, the identifier, the folder and the module,
   // and the traversal row.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { id, r }: Props = $props();
   const b = $derived(stripStep(id));
-  const chain = $derived.by(() => {
-    const out: string[] = [];
-    let p = book.parent(id);
-    while (p) {
-      out.unshift(p);
-      p = book.parent(p);
-    }
-    return out;
-  });
+  const chain = $derived(book.breadcrumbOf(id));
   const layerKey = $derived(book.layerOf[id] ?? (id.indexOf("layer/") === 0 ? id.slice(6) : ""));
   const layerLabel = $derived(layerKey ? (book.layerByKey[layerKey]?.label ?? "") : "");
   const pluralName = $derived(book.pluralName(r.type));
@@ -35,42 +28,19 @@
     timer = window.setTimeout(() => (copied = false), 1600);
   }
 
-  function copyText(text: string) {
-    function fallback() {
-      const area = document.createElement("textarea");
-      area.value = text;
-      area.setAttribute("readonly", "");
-      area.style.position = "fixed";
-      area.style.opacity = "0";
-      document.body.appendChild(area);
-      area.select();
-      try {
-        document.execCommand("copy");
-      } catch {
-        // The clipboard is unavailable; the note still confirms the tap.
-      }
-      area.remove();
-      done();
-    }
-    if (navigator.clipboard?.writeText) {
-      let p: Promise<void> | null = null;
-      try {
-        p = navigator.clipboard.writeText(text);
-      } catch {
-        p = null;
-      }
-      if (p?.then) p.then(done, fallback);
-      else fallback();
-    } else fallback();
+  function copy(text: string) {
+    copyText(text).then((ok) => {
+      if (ok) done();
+    });
   }
 </script>
 
-<nav class="mb-[18px] flex flex-wrap items-center gap-1.5 text-[13px] text-muted-foreground" aria-label="Location">
+<nav class="mb-[18px] flex flex-wrap items-center gap-1.5 text-[0.8125rem] text-muted-foreground" aria-label="Location">
   {#if layerLabel && id.indexOf("layer/") !== 0}
     <button type="button" class="hover:text-foreground" data-go={"layer/" + layerKey}>{layerLabel}</button>
     <span class="text-strong">/</span>
   {/if}
-  {#each chain as c}
+  {#each chain as c (c)}
     <button type="button" class="hover:text-foreground" data-go={c}>{book.title(c)}</button>
     <span class="text-strong">/</span>
   {/each}
@@ -80,7 +50,7 @@
   {/if}
   <b class="font-semibold text-foreground">{r.title}</b>
 </nav>
-<h1 class="m-0 mb-1.5 max-w-[72ch] text-[34px] leading-[1.15] font-semibold tracking-[-0.03em]">{r.title}</h1>
+<h1 id="record-title" tabindex="-1" class="outline-none m-0 mb-1.5 max-w-[72ch] text-[2.125rem] leading-[1.15] font-semibold tracking-[-0.03em]">{r.title}</h1>
 <p class="mt-0 mb-2 text-sm font-semibold text-subtle-foreground">
   <button type="button" class="cursor-help text-left" data-explain={"type:" + r.type}>
     {book.typeName(r.type)}{question ? ": " + question : ""}
@@ -92,7 +62,7 @@
     class="cursor-pointer rounded-sm"
     aria-label={copied ? "Copy ID " + b + " (Copied)" : "Copy ID " + b}
     title="Copy ID"
-    onclick={() => copyText(b)}
+    onclick={() => copy(b)}
   >
     <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{b}</code>
   </button>
@@ -103,7 +73,7 @@
       class="cursor-pointer rounded-sm"
       aria-label={"Copy folder " + r.folder}
       title="Copy folder"
-      onclick={() => copyText(r.folder ?? "")}
+      onclick={() => copy(r.folder ?? "")}
     >
       <code class="font-mono text-xs font-medium break-all text-foreground hover:underline">{r.folder}</code>
     </button>
@@ -116,10 +86,10 @@
     <SourceLink src={r.src} />
   {/if}
   <span class="ml-auto inline-flex items-center gap-1.5">
-    <Button variant="outline" size="sm" class="h-7" aria-label="Copy Title" onclick={() => copyText(r.title)}>
+    <Button variant="outline" size="sm" class="h-7" aria-label="Copy Title" onclick={() => copy(r.title)}>
       <RecordIcon name="copy" class="size-3.5" /><span>Copy Title</span>
     </Button>
-    <Button variant="outline" size="sm" class="h-7" aria-label={copied ? "Copy ID (Copied)" : "Copy ID"} onclick={() => copyText(b)}>
+    <Button variant="outline" size="sm" class="h-7" aria-label={copied ? "Copy ID (Copied)" : "Copy ID"} onclick={() => copy(b)}>
       <RecordIcon name="copy" class="size-3.5" /><span>Copy ID</span>
     </Button>
     {#if copied}

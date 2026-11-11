@@ -2,10 +2,12 @@
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import RecordList from "../blocks/RecordList.svelte";
+  import { stringList } from "../page-values";
 
   // A test: the scenarios it claims.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const claims = $derived(((r.fields?.claims as string[] | undefined) ?? []).map(String));
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
+  const claims = $derived(stringList(r.fields ?? {}, "claims"));
 </script>
 
 {#if claims.length}

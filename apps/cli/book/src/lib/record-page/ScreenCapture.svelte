@@ -1,30 +1,22 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
-  import type { BookRecord, RecordFields } from "$lib/frame";
+  import { book, formatLabel } from "$lib/frame";
+  import type { BookRecord } from "$lib/frame";
   import { Button } from "$lib/ui/button";
+  import { pickCapture, routeTextOf, stringField } from "./page-values";
 
   // The screenshot of a screen, with width and theme toggles kept per record.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const captures = $derived(((r.captures as RecordFields[] | undefined) ?? []) as RecordFields[]);
-  const captureState = $derived(String((r.captureState as string | undefined) ?? (captures.length ? "captured" : "")));
-  const routeText = $derived.by(() => {
-    const rt = r.route as RecordFields | undefined;
-    return String(rt?.route ?? rt?.path ?? (r.fields?.address as string | undefined) ?? "");
-  });
+  type Props = { id: string; r: BookRecord };
+  let { id, r }: Props = $props();
+  const captures = $derived(r.captures ?? []);
+  const captureState = $derived(r.captureState ?? (captures.length ? "captured" : ""));
+  const routeText = $derived(routeTextOf(r.route) ?? stringField(r.fields ?? {}, "address") ?? "");
 
   let choice = $state<Record<string, { width: string; theme: string }>>({});
   const ch = $derived(choice[id] ?? { width: "desktop", theme: "light" });
 
-  const current = $derived.by(() => {
-    const wantWidth = ch.width === "phone" ? 390 : 1440;
-    return (
-      captures.filter((c) => c.theme === ch.theme && (+c.width === wantWidth || (ch.width === "phone" ? +c.width < 600 : +c.width >= 600)))[0] ??
-      captures.filter((c) => c.theme === ch.theme)[0] ??
-      captures[0]
-    );
-  });
+  const current = $derived(pickCapture(captures, ch));
   const others = $derived(captures.filter((c) => c !== current));
-  const src = $derived(String(current?.bookPath ?? current?.path ?? ""));
+  const src = $derived(current ? String(current.bookPath ?? current.path) : "");
   const caption = $derived(
     [
       routeText ? "Route: " + routeText : "",
@@ -42,22 +34,22 @@
 </script>
 
 <svelte:head>
-  {#each others as c}
+  {#each others as c (c.path)}
     <link rel="prefetch" href={String(c.bookPath ?? c.path ?? "")} as="image" />
   {/each}
 </svelte:head>
 
 {#if !captures.length}
   {#if captureState === "route-not-captured"}
-    <p class="mt-0 mb-6 text-[14.5px] text-subtle-foreground">The route exists but was not captured.</p>
+    <p class="mt-0 mb-6 text-[0.90625rem] text-subtle-foreground">The route exists but was not captured.</p>
   {:else if captureState === "no-route"}
-    <p class="mt-0 mb-6 text-[14.5px] text-subtle-foreground">No page carries this screen.</p>
+    <p class="mt-0 mb-6 text-[0.90625rem] text-subtle-foreground">No page carries this screen.</p>
   {:else if captureState}
-    <p class="mt-0 mb-6 text-[14.5px] text-subtle-foreground">Capture captureState: {captureState}.</p>
+    <p class="mt-0 mb-6 text-[0.90625rem] text-subtle-foreground">Capture state: {formatLabel(captureState)}.</p>
   {:else if r.route}
-    <p class="mt-0 mb-6 text-[14.5px] text-subtle-foreground">The route exists but was not captured.</p>
+    <p class="mt-0 mb-6 text-[0.90625rem] text-subtle-foreground">The route exists but was not captured.</p>
   {:else}
-    <p class="mt-0 mb-6 text-[14.5px] text-subtle-foreground">No page carries this screen.</p>
+    <p class="mt-0 mb-6 text-[0.90625rem] text-subtle-foreground">No page carries this screen.</p>
   {/if}
 {:else}
   <figure class="m-0 mb-2">

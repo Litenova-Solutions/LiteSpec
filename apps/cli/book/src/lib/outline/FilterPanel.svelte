@@ -1,6 +1,7 @@
 <script lang="ts">
   import { book, cn, formatCount } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
+  import { outlineState } from "./outline-state.svelte";
   import { securityItems } from "./outline-rows";
 
   // The filter panel, the active filter chips and the shown line with the
@@ -8,7 +9,7 @@
   interface FacetVal { value: string; name: string; count: number; on: boolean }
   interface FacetModel { key: string; label: string; vals: FacetVal[] }
   const facets = $derived.by((): FacetModel[] => {
-    if (!book.facetsOpen) return [];
+    if (!outlineState.facetsOpen) return [];
     void book.rev;
     const out: FacetModel[] = [];
     for (const f of book.facets) {
@@ -52,11 +53,11 @@
   });
 </script>
 
-{#if book.facetsOpen}
+{#if outlineState.facetsOpen}
   <div id="facetPanel" role="group" aria-label="Filters" class="mt-2 max-h-[52vh] overflow-auto rounded-md border bg-background p-2.5">
     {#each facets as f (f.key)}
       <div class="mb-2.5 last:mb-0">
-        <h4 class="mb-1.5 text-[11px] font-medium tracking-[0.08em] text-muted-foreground uppercase">{f.label}</h4>
+        <h4 class="mb-1.5 text-[0.6875rem] font-medium tracking-[0.08em] text-muted-foreground uppercase">{f.label}</h4>
         <div class="flex flex-wrap gap-1">
           {#each f.vals as v (v.value)}
             <button
@@ -70,7 +71,7 @@
               )}
             >
               {v.name}
-              <span class={cn("font-mono text-[10.5px]", v.on ? "text-primary-foreground opacity-75" : "text-muted-foreground")}>{v.count}</span>
+              <span class={cn("font-mono text-[0.65625rem]", v.on ? "text-primary-foreground opacity-75" : "text-muted-foreground")}>{v.count}</span>
             </button>
           {/each}
         </div>

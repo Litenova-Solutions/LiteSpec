@@ -5,8 +5,9 @@
 
   // A record as one line: type icon, title and type label. An identifier that
   // names no record in the book reads as itself, never as a link.
-  let { id, suffix = "" }: { id: string; suffix?: string } = $props();
-  const b = $derived(stripStep(id));
+  type Props = { id: string; suffix?: string };
+  let { id, suffix = "" }: Props = $props();
+  const b = $derived(stripStep(id) ?? "");
   const t = $derived(book.typeOf(b));
   const r = $derived(book.get(b));
   const href = $derived(r?.src && !r.src.litespec ? srcHref(book, r.src) : null);

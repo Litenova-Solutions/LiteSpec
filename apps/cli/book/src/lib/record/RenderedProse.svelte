@@ -1,15 +1,16 @@
 <script lang="ts">
   import { cn } from "$lib/frame";
-  import { glossary } from "./glossary-links";
+  import { glossaryLinks } from "./glossary-links";
 
   // Rendered prose from the CLI or from inline(): typography from the Tailwind
   // plugin, record links as underlined buttons, glossary terms linked on first use.
-  let { html, class: className = "", lead = false }: { html: string; class?: string; lead?: boolean } = $props();
+  type Props = { html: string; class?: string; lead?: boolean };
+  let { html, class: className = "", lead = false }: Props = $props();
 </script>
 
 {#if html}
   <div
-    use:glossary={html}
+    use:glossaryLinks={html}
     class={cn(
       "prose prose-stone max-w-none dark:prose-invert prose-a:underline-offset-2 prose-code:before:content-none prose-code:after:content-none",
       "[&_.book-ref]:underline [&_.book-ref]:decoration-strong [&_.book-ref]:underline-offset-2 [&_.book-ref:hover]:decoration-foreground",

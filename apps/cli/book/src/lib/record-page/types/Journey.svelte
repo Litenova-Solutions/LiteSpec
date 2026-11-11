@@ -1,30 +1,43 @@
 <script lang="ts">
   import { book, stripStep } from "$lib/frame";
-  import type { BookRecord, RecordFields } from "$lib/frame";
+  import type { BookRecord } from "$lib/frame";
   import { RecordIcon, RecordLine, RecordLink, RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Fact from "../blocks/Fact.svelte";
   import { proseOf } from "../page-prose";
-  import { serverLineInfo } from "../page-values";
+  import { journeyFields, serverLineInfo } from "../page-values";
 
   // A journey: when it counts as finished, and each step with what serves it.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
-  const steps = $derived(((f.steps as RecordFields[] | undefined) ?? []) as RecordFields[]);
-  const srv = $derived(((r.stepServers as Record<string, string[]> | undefined) ?? {}) as Record<string, string[]>);
-  const screens = $derived(((r.stepScreens as Record<string, string[]> | undefined) ?? {}) as Record<string, string[]>);
+  const jf = $derived(journeyFields(f));
+  const srv: Record<string, string[]> = $derived(r.stepServers ?? {});
+  const screens: Record<string, string[]> = $derived(r.stepScreens ?? {});
   const between = $derived(proseOf(r, "betweenSteps"));
+  const serverInfo = $derived.by(() => {
+    const out: Record<string, { built: boolean; scenarios: number; verified: number } | null> = {};
+    for (const s of jf.steps) {
+      for (const b of (srv[String(s.id ?? "")] ?? []).map(String)) {
+        if (b in out) continue;
+        const q = book.get(stripStep(b));
+        const states = book.scenariosOf(stripStep(b)).filter((x) => book.get(x)).map((x) => book.get(x)?.proof?.state);
+        out[b] = serverLineInfo(q?.machine, states);
+      }
+    }
+    return out;
+  });
 </script>
 
-{#if f.finishedWhen}
-  <div class="mb-6 grid grid-cols-[20px_1fr] gap-2.5 border-l-[3px] border-convention-foreground py-0.5 pl-3.5 text-[14.5px]">
+{#if jf.finishedWhen}
+  <div class="mb-6 grid grid-cols-[20px_1fr] gap-2.5 border-l-[3px] border-convention-foreground py-0.5 pl-3.5 text-[0.90625rem]">
     <RecordIcon name="passing" class="mt-1 size-3.5 text-convention-foreground" />
-    <div><b>Finished when</b> {String(f.finishedWhen)}</div>
+    <div><b>Finished when</b> {jf.finishedWhen}</div>
   </div>
 {/if}
-{#if steps.length}
-  <PageSection blockKey="steps" heading="steps" count={steps.length}>
-    {#each steps as s, i}
+{#if jf.steps.length}
+  <PageSection blockKey="steps" heading="steps" count={jf.steps.length}>
+    {#each jf.steps as s, i (s.id ?? i)}
       {@const by = (srv[String(s.id ?? "")] ?? []).map(String)}
       {@const scr = (screens[String(s.id ?? "")] ?? []).map(String)}
       {@const sys = !!s.system}
@@ -33,7 +46,7 @@
           {i + 1}
         </span>
         <div class="min-w-0">
-          <div class="text-[15px] leading-relaxed">{String(s.statement ?? "")}</div>
+          <div class="text-[0.9375rem] leading-relaxed">{String(s.statement ?? "")}</div>
           {#if s.actor}
             <div class="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
               Actor: <RecordLink id={String(s.actor)} />
@@ -45,15 +58,15 @@
             </div>
           {/if}
           {#if s.failure}
-            <div class="mt-2 grid grid-cols-[18px_1fr] gap-1.5 rounded-md bg-rule px-2.5 py-2 text-[13.5px] text-subtle-foreground">
+            <div class="mt-2 grid grid-cols-[18px_1fr] gap-1.5 rounded-md bg-rule px-2.5 py-2 text-[0.84375rem] text-subtle-foreground">
               <RecordIcon name="alert" class="mt-0.5 size-3.5 text-rule-foreground" />
               <span><b>Failure</b> {String(s.failure)}</span>
             </div>
           {/if}
           <div class="mt-2 flex flex-col items-stretch gap-1">
             {#if by.length}
-              {#each by as b}
-                {@const info = serverLineInfo(stripStep(b))}
+              {#each by as b (b)}
+                {@const info = serverInfo[b] ?? null}
                 <div class="flex flex-wrap items-center gap-1.5">
                   <RecordLine id={b} />
                   {#if info}
@@ -78,7 +91,7 @@
                 <RecordIcon name="screen" class="size-3.5 text-muted-foreground" />
                 <span>
                   screen:{" "}
-                  {#each scr as x, j}{#if j > 0}, {/if}<RecordLink id={x} />{/each}
+                  {#each scr as x, j (x)}{#if j > 0}, {/if}<RecordLink id={x} />{/each}
                 </span>
               </div>
             {:else if !sys && by.length}

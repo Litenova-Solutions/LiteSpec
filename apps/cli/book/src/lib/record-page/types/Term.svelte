@@ -1,30 +1,34 @@
 <script lang="ts">
-  import type { BookRecord, RecordFields } from "$lib/frame";
+  import type { BookRecord } from "$lib/frame";
   import { esc } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { tdHtml } from "../page-html";
+  import { objectField, objectList, stringField, stringList } from "../page-values";
 
   // A term: its labels, its values, the words it rejects, and its neighbors.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
   const LANG: Record<string, string> = { nl: "Dutch", de: "German", fr: "French" };
-  const values = $derived(((f.values as RecordFields[] | undefined) ?? []) as RecordFields[]);
-  const rejected = $derived(((f.rejected as RecordFields[] | undefined) ?? []) as RecordFields[]);
-  const broader = $derived(((f.broader as string[] | undefined) ?? []).map(String));
-  const narrower = $derived(((f.narrower as string[] | undefined) ?? []).map(String));
+  const labels = $derived(objectField(f, "labels"));
+  const term = $derived(stringField(f, "term") ?? "");
+  const values = $derived(objectList(f, "values"));
+  const rejected = $derived(objectList(f, "rejected"));
+  const broader = $derived(stringList(f, "broader"));
+  const narrower = $derived(stringList(f, "narrower"));
 </script>
 
-{#if f.labels}
+{#if labels}
   <PageSection blockKey="lab" heading="labels">
     <DataTable
       head={["Language", "Word"]}
       rows={[
-        [tdHtml("English", "mut"), tdHtml(`<b>${esc(String(f.term ?? ""))}</b>`)],
-        ...Object.keys(f.labels as Record<string, string>).map((k) => [
+        [tdHtml("English", "mut"), tdHtml(`<b>${esc(term)}</b>`)],
+        ...Object.keys(labels).map((k) => [
           tdHtml(esc(LANG[k] ?? k), "mut"),
-          tdHtml(esc(String((f.labels as Record<string, string>)[k]))),
+          tdHtml(esc(String(labels[k] ?? ""))),
         ]),
       ]}
     />
@@ -37,15 +41,15 @@
   <PageSection blockKey="vals" heading="values" count={values.length}>
     <DataTable
       head={["Code", "Label"]}
-      rows={values.map((v) => [tdHtml(esc(String(v.code ?? "")), "nm"), tdHtml(esc(String(v.label ?? "")))])}
+      rows={values.map((v) => [tdHtml(esc(stringField(v, "code") ?? ""), "nm"), tdHtml(esc(stringField(v, "label") ?? ""))])}
     />
   </PageSection>
 {/if}
 {#if rejected.length}
   <PageSection blockKey="rej" heading="rejected" count={rejected.length}>
     <div class="border-t border-border">
-      {#each rejected as x}
-        <div class="grid grid-cols-[150px_minmax(0,1fr)] gap-3 border-b border-border py-2.5 text-[13.5px]">
+      {#each rejected as x, i (String(x.word ?? i))}
+        <div class="grid grid-cols-[150px_minmax(0,1fr)] gap-3 border-b border-border py-2.5 text-[0.84375rem]">
           <s class="font-medium text-warn-foreground [text-decoration-thickness:1.5px]">{String(x.word ?? "")}</s>
           <div><p class="m-0 text-subtle-foreground">{String(x.reason ?? "")}</p></div>
         </div>

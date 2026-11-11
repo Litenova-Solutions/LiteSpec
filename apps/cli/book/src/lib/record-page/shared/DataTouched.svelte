@@ -7,12 +7,15 @@
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import RecordList from "../blocks/RecordList.svelte";
+  import { objectField, stringList } from "../page-values";
 
   // The data a behavior touches: what it changes, what it reads, and how the two agree.
-  let { f }: { f: RecordFields } = $props();
-  const changes = $derived(((f.changes as string[] | undefined) ?? []).map(String));
-  const reads = $derived(((f.reads as string[] | undefined) ?? []).map(String));
-  const consistency = $derived((f.consistency as RecordFields | undefined) ?? null);
+  type Props = { f: RecordFields };
+  let { f }: Props = $props();
+  const changes = $derived(stringList(f, "changes"));
+  const reads = $derived(stringList(f, "reads"));
+  const consistency = $derived(objectField(f, "consistency"));
+  const cites = $derived(stringList(consistency, "cites"));
   const has = $derived(changes.length > 0 || reads.length > 0 || !!consistency);
 </script>
 
@@ -28,10 +31,9 @@
       {#if consistency}
         <DefinitionRow label="Consistency">
           <Fact text={capitalize(consistency.mode)} />
-          {@const cites = ((consistency.cites as string[] | undefined) ?? []).map(String)}
           {#if cites.length}
-            <div class="mt-1 font-mono text-[11px] text-muted-foreground">
-              because {#each cites as c, i}{#if i > 0}, {/if}<RecordLink id={c} />{/each}
+            <div class="mt-1 font-mono text-[0.6875rem] text-muted-foreground">
+              because {#each cites as c, i (c)}{#if i > 0}, {/if}<RecordLink id={c} />{/each}
             </div>
           {/if}
         </DefinitionRow>

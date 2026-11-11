@@ -4,19 +4,17 @@
 
   // A definition list of facts. Pairs carry rendered HTML and empty pairs drop
   // out; or compose DefinitionRow children for live content such as record lists.
-  let {
-    pairs = null,
-    children,
-  }: {
+  type Props = {
     pairs?: { label: string; html: string }[] | null;
     children?: Snippet;
-  } = $props();
+  };
+  let { pairs = null, children }: Props = $props();
 
   const rows = $derived((pairs ?? []).filter((p) => p.html !== undefined && p.html !== null && p.html !== ""));
 </script>
 
 {#if pairs ? rows.length > 0 : true}
-  <dl class="grid grid-cols-[160px_minmax(0,1fr)] gap-x-5 gap-y-2.5 text-[14.5px]">
+  <dl class="grid grid-cols-[160px_minmax(0,1fr)] gap-x-5 gap-y-2.5 text-[0.90625rem]">
     {#if pairs}
       {#each rows as p (p.label)}
         <dt class="text-muted-foreground">{book.fieldLabel(p.label)}</dt>

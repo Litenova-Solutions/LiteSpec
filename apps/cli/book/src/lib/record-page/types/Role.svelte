@@ -4,10 +4,12 @@
   import PageSection from "../blocks/PageSection.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { inlineRefHtml, tdHtml } from "../page-html";
+  import { stringList } from "../page-values";
 
   // A role: the permissions it allows, each with its meaning.
-  let { id, r }: { id: string; r: BookRecord } = $props();
-  const allows = $derived(((r.fields?.allows as string[] | undefined) ?? []).map(String));
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
+  const allows = $derived(stringList(r.fields ?? {}, "allows"));
 </script>
 
 {#if allows.length}

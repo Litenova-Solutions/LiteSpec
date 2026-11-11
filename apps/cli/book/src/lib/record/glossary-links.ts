@@ -1,24 +1,25 @@
+import type { Action } from "svelte/action";
 import { book } from "$lib/frame";
 
 // Links the first use of each glossary term in a block of prose: to the term
 // record when the book holds one, else to its glossary definition.
-function terms() {
+function terms(): string[] {
   const out = new Set<string>();
   for (const [k, g] of Object.entries(book.lex.glossary ?? {})) {
-    const term = (g as { term?: string }).term || k;
+    const term = g.term || k;
     if (term && term.length > 2) out.add(term);
   }
   for (const r of Object.values(book.rec)) if (r.type === "term" && r.title) out.add(r.title);
   return [...out].sort((a, b) => b.length - a.length);
 }
 
-function termRecordId(term: string) {
+function termRecordId(term: string): string | null {
   const wanted = term.toLowerCase();
   for (const [id, r] of Object.entries(book.rec)) if (r.type === "term" && r.title.toLowerCase() === wanted) return id;
   return null;
 }
 
-function link(root: HTMLElement) {
+function link(root: HTMLElement): void {
   const list = terms();
   if (!list.length) return;
   const linked = new Set<string>();
@@ -32,7 +33,10 @@ function link(root: HTMLElement) {
     },
   });
   const nodes: Text[] = [];
-  while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+  while (walker.nextNode()) {
+    const current = walker.currentNode;
+    if (current instanceof Text) nodes.push(current);
+  }
   for (const node of nodes) {
     const text = node.nodeValue ?? "";
     const lower = text.toLowerCase();
@@ -64,11 +68,11 @@ function link(root: HTMLElement) {
 }
 
 /** Svelte action: link glossary terms in the node's prose, again whenever the HTML changes. */
-export function glossary(node: HTMLElement, _html: string) {
+export const glossaryLinks: Action<HTMLElement, string> = (node) => {
   link(node);
   return {
     update() {
       link(node);
     },
   };
-}
+};

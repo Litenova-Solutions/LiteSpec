@@ -1,13 +1,13 @@
 <script lang="ts">
   import { book, cn, esc, formatCount, inline } from "$lib/frame";
-  import { LAYER_ICON, RecordIcon } from "$lib/record";
-  import { Button } from "$lib/ui/button";
-  import TreeRow from "./TreeRow.svelte";
-  import { indentClass, type OutlineRow } from "./outline-rows";
+  import { RecordIcon } from "$lib/record";
+  import RecordTreeRow from "./RecordTreeRow.svelte";
+  import { indentClass, layerIconOf, type OutlineRow } from "./outline-rows";
 
-  // One virtual row in the outline or list view: a layer header, a layer
-  // description, a group header, a record, a note or the Show all button.
-  let { row }: { row: OutlineRow } = $props();
+  // One virtual row in the outline: a layer header, a layer description, a
+  // group header, a record or a note.
+  type Props = { row: OutlineRow };
+  let { row }: Props = $props();
 
   const stats = $derived.by(() => {
     void book.rev;
@@ -26,7 +26,7 @@
     return inline(book, meta?.question ?? "") + (meta?.writes ? " Written by " + esc(meta.writes) + "." : "");
   });
 
-  function toggleLayer(key: string) {
+  function toggleLayer(key: string): void {
     const opening = !book.openLayers[key];
     book.openLayers[key] = opening;
     if (opening && !book.isLayerLoaded(key)) void book.ensureLayer(key);
@@ -43,18 +43,18 @@
     aria-expanded={open}
     aria-current={here ? "page" : undefined}
     onclick={() => toggleLayer(row.layer)}
-    class="flex h-[34px] w-full cursor-pointer items-center gap-2 rounded-sm bg-background px-2 text-left text-[13px] font-semibold hover:bg-muted"
+    class="flex h-[34px] w-full cursor-pointer items-center gap-2 rounded-sm bg-background px-2 text-left text-[0.8125rem] font-semibold hover:bg-muted"
   >
     <span class={cn("grid flex-none text-muted-foreground", here && "text-highlight-foreground")}>
-      <RecordIcon name={LAYER_ICON[row.layer] ?? "core"} class="size-4" />
+      <RecordIcon name={layerIconOf(row.layer)} class="size-4" />
     </span>
     <span class="flex-none">{meta?.label ?? row.layer}</span>
     {#if loaded && stats}
-      <span class="ml-auto font-mono text-[11px] font-normal whitespace-nowrap text-muted-foreground" title="{stats.done} of {stats.total} complete">
+      <span class="ml-auto font-mono text-[0.6875rem] font-normal whitespace-nowrap text-muted-foreground" title="{stats.done} of {stats.total} complete">
         {book.anyFilter() ? `${stats.shown} shown` : formatCount(stats.total || stats.all)}
       </span>
     {/if}
-    <RecordIcon name="chev" class={cn("size-3.5 flex-none text-muted-foreground transition-transform duration-150", open && "rotate-90")} />
+    <RecordIcon name="chev" class={cn("size-3.5 flex-none text-muted-foreground motion-safe:transition-transform motion-safe:duration-150", open && "rotate-90")} />
   </button>
 {:else if row.kind === "desc"}
   <p class="mr-2 ml-8 pb-1.5 text-xs leading-relaxed text-muted-foreground">
@@ -65,28 +65,15 @@
     type="button"
     aria-expanded={row.open}
     onclick={() => { book.closedGroups[row.gk] = row.open; }}
-    class={cn("flex h-[26px] w-full cursor-pointer items-center gap-1.5 rounded-sm pr-1 text-[11.5px] font-medium tracking-[0.02em] text-muted-foreground", indentClass(row.depth))}
+    class={cn("flex h-[26px] w-full cursor-pointer items-center gap-1.5 rounded-sm pr-1 text-[0.71875rem] font-medium tracking-[0.02em] text-muted-foreground", indentClass(row.depth))}
   >
-    <RecordIcon name="chev" class={cn("size-3.5 flex-none transition-transform duration-150", row.open && "rotate-90")} />
+    <RecordIcon name="chev" class={cn("size-3.5 flex-none motion-safe:transition-transform motion-safe:duration-150", row.open && "rotate-90")} />
     <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">{row.label}</span>
     {#if row.completion}<span class="flex-none font-normal whitespace-nowrap">{row.completion}</span>{/if}
-    <span class="flex-none font-mono text-[11px]">{row.count}</span>
+    <span class="flex-none font-mono text-[0.6875rem]">{row.count}</span>
   </button>
 {:else if row.kind === "record"}
-  <TreeRow id={row.id} depth={row.depth} level={row.level} kids={row.kids} open={row.open} dim={row.dim} />
-{:else if row.kind === "listgroup"}
-  <div class="flex h-[30px] items-center gap-1.5 px-1.5 text-[11.5px] font-semibold text-subtle-foreground">
-    {#if row.icon}<span class="grid flex-none text-muted-foreground"><RecordIcon name={row.icon} class="size-3.5" /></span>{/if}
-    <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{row.label}</span>
-    {#if row.completion}<span class="flex-none font-normal text-muted-foreground">{row.completion}</span>{/if}
-    <span class="flex-none font-mono text-[11px] font-normal text-muted-foreground">{row.count}</span>
-  </div>
-{:else if row.kind === "listrecord"}
-  <TreeRow id={row.id} variant="list" />
+  <RecordTreeRow id={row.id} depth={row.depth} level={row.level} kids={row.kids} open={row.open} dim={row.dim} />
 {:else if row.kind === "note"}
   <p class="mx-2 flex h-7 items-center text-xs text-muted-foreground">{row.text}</p>
-{:else}
-  <div class="flex h-[50px] items-center px-2">
-    <Button variant="outline" class="w-full" onclick={() => { book.listShowAll = true; }}>Show all {row.total} records</Button>
-  </div>
 {/if}

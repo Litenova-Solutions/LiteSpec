@@ -2,7 +2,7 @@
 // the book prints about a record still comes from the lexicon or the record.
 
 /** An identifier without its #step suffix. */
-export const stripStep = (s: unknown) => String(s ?? "").split("#")[0];
+export const stripStep = (s: unknown): string => String(s ?? "").split("#")[0] ?? "";
 
 /** A word with its first letter uppercased. */
 export const capitalize = (s: unknown) => { const t = String(s ?? ""); return t.charAt(0).toUpperCase() + t.slice(1); };

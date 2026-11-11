@@ -5,21 +5,15 @@
   // One page section: a heading from the field label, an optional count, and an
   // optional aside. Blocks that only list linked records stay off the page; the
   // rail shows them. A zero count or empty HTML hides the block.
-  let {
-    blockKey,
-    heading,
-    count = null,
-    aside = "",
-    html = null,
-    children,
-  }: {
+  type Props = {
     blockKey: string;
     heading: string;
     count?: number | null;
     aside?: string;
     html?: string | null;
     children?: Snippet;
-  } = $props();
+  };
+  let { blockKey, heading, count = null, aside = "", html = null, children }: Props = $props();
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",

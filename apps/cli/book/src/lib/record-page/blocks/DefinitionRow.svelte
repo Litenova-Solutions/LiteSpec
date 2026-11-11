@@ -3,15 +3,12 @@
   import type { Snippet } from "svelte";
 
   // One row of a composed definition list: a labeled value, as HTML or live content.
-  let {
-    label,
-    html = null,
-    children,
-  }: {
+  type Props = {
     label: string;
     html?: string | null;
     children?: Snippet;
-  } = $props();
+  };
+  let { label, html = null, children }: Props = $props();
 </script>
 
 <dt class="text-muted-foreground">{book.fieldLabel(label)}</dt>

@@ -5,16 +5,15 @@
   import Fact from "../blocks/Fact.svelte";
 
   // Results as aligned rows: the outcome icon, the title, the meaning and the code.
-  let {
-    items,
-  }: {
+  type Props = {
     items: { id?: string | null; title: string; outcome: string; meaning: string; code?: string | null; kind?: string }[];
-  } = $props();
+  };
+  let { items }: Props = $props();
 </script>
 
 {#if items?.length}
   <div>
-    {#each items as x}
+    {#each items as x, i (x.id ?? i)}
       {@const ok = x.outcome === "success"}
       <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-1 border-b border-border py-2.5">
         <div class="flex items-start gap-2 text-sm font-medium">
@@ -28,7 +27,7 @@
           {/if}
           {#if x.kind === "generic"}{" "}<Fact text="Generic refusal" />{/if}
         </div>
-        <p class="m-0 text-[13.5px] leading-snug text-subtle-foreground">{x.meaning}</p>
+        <p class="m-0 text-[0.84375rem] leading-snug text-subtle-foreground">{x.meaning}</p>
         {#if x.code}<div class="col-start-2 mt-0.5"><span class={codeCls}>{x.code}</span></div>{/if}
       </div>
     {/each}

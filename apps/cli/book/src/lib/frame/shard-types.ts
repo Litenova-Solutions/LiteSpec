@@ -6,6 +6,65 @@ export interface TestStep {
   screenshots?: string[];
 }
 
+/** A record's fields, read by name. */
+export type RecordFields = Record<string, unknown>;
+
+/** A scenario or rule proof state from its proves links and its proving test. */
+export type ProofState =
+  | "passing"
+  | "failing"
+  | "awaiting"
+  | "unconfirmed"
+  | "unproved"
+  | "indirect"
+  | "norun";
+
+/** A screen capture state from the model: captured, route-not-captured or no-route. */
+export type CaptureState = "captured" | "route-not-captured" | "no-route";
+
+/** A finding check level: blocking, should-fix or advisory. */
+export type CheckLevel = "G" | "S" | "A";
+
+/** An implementation entry kind the book writes in impl[].kind. */
+export type ImplKind =
+  | "handler"
+  | "endpoint"
+  | "aggregate-root"
+  | "aggregate-method"
+  | "automation"
+  | "reaction"
+  | "job"
+  | "port"
+  | "adapter"
+  | "event"
+  | "rule-exception"
+  | "result"
+  | "domain-service"
+  | "route";
+
+/** An outline node kind: a record, a group, or the code, test or finding under its subject. */
+export type OutlineKind = "record" | "group" | "code" | "test" | "finding";
+
+/** A record layer the project claims. */
+export type LayerKey = "intent" | "behavior" | "implementation" | "proof";
+
+/** A navigation sort: outline order, title, or proof with failing first. */
+export type SortKey = "outline" | "title" | "proof";
+
+/** A navigation view: the outline or the security list. */
+export type View = "outline" | "security";
+
+/** The book load state: loading, ready, or failed with the reason. */
+export type LoadState = { kind: "loading" } | { kind: "ready" } | { kind: "failed"; error: string };
+
+/** The record types with scenarios that prove them: use cases, reactions and jobs. */
+export const FLOW_TYPES: readonly ["use-case", "reaction", "job"] = ["use-case", "reaction", "job"];
+
+/** Whether a record type has scenarios that prove it. */
+export function isFlowType(type: string): boolean {
+  return FLOW_TYPES.some((flow) => flow === type);
+}
+
 /** A record the Records packs carry, with every computed detail the book adds. */
 export interface BookRecord {
   type: string;
@@ -13,12 +72,13 @@ export interface BookRecord {
   /** The folder the record file sits in, relative to the consumer root. */
   folder?: string;
   module?: string | null;
-  fields: Record<string, unknown>;
-  layer?: string | null;
+  fields: RecordFields;
+  layer?: LayerKey | null;
   src?: SourceRef | null;
   impl?: { path?: string; line?: number | null; kind?: string }[];
   tests?: BookTest[];
   expect?: { impl?: boolean; proof?: boolean };
+  /** What the record still lacks in the layers the project claims, always an array. */
   lacks?: string[];
   /** Computed completion from proof: code, tests and passing scenarios, each null when the record expects nothing there. */
   completion?: {
@@ -54,19 +114,34 @@ export interface BookRecord {
   sections?: BookSections | null;
   fieldsHtml?: Record<string, string>;
   requires?: string[];
-  route?: { frontend?: string; path?: string; surfaces?: string[] } | null;
+  calls?: string[];
+  route?: {
+    path?: string;
+    surfaces?: string[];
+    frontend?: string;
+    route?: string;
+    file?: string;
+    reader?: string;
+  } | null;
   steps?: { text?: string; serves?: string[] }[];
-  captures?: { path?: string; bookPath?: string }[];
-  captureState?: string;
+  stepServers?: Record<string, string[]>;
+  stepScreens?: Record<string, string[]>;
+  captures?: { path: string; bookPath?: string; theme?: string; width?: number; capturedOn?: string }[];
+  captureState?: CaptureState;
   evidenceStrength?: string;
   parent?: string | null;
-  [k: string]: unknown;
+  results?: string[];
+  scenarios?: string[];
+  rules?: string[];
+  events?: string[];
+  screens?: string[];
+  shownBy?: string[];
 }
 
 /** One outline node: a record, a group, or the code, test or finding under its subject. */
 export interface OutlineNode {
   id: string;
-  kind: "record" | "group" | "code" | "test" | "finding";
+  kind: OutlineKind;
   label: string;
   type?: string | null;
   children: OutlineNode[];
@@ -101,11 +176,8 @@ export interface BookFinding {
 
 /** One edge as the records packs carry it: the other end and the field key. */
 export interface BookEdgeJson {
-  id?: string;
-  key?: string;
-  field?: string;
-  to?: string;
-  from?: string;
+  id: string;
+  key: string;
 }
 
 /** One explanation section: its heading and its rendered HTML. */
@@ -207,24 +279,11 @@ export interface SecurityItem {
   text: string;
 }
 
-/** A scenario or rule proof state from its proves links and its proving test. */
-export type ProofState =
-  | "passing"
-  | "failing"
-  | "awaiting"
-  | "unconfirmed"
-  | "unproved"
-  | "indirect"
-  | "norun";
-
 /** A link edge: the link field and the linked record id. */
 export interface LinkEdge {
   field: string;
   id: string;
 }
-
-/** A record's fields, read by name. */
-export type RecordFields = Record<string, any>;
 
 /** One search row: id, title, type and excerpt. */
 export type SearchRow = string[];

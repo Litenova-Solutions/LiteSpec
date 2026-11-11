@@ -6,11 +6,16 @@
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
   import { proseOf } from "../page-prose";
+  import { stringField } from "../page-values";
 
   // A goal: why it matters, and the measure with its target and due date.
-  let { id, r }: { id: string; r: BookRecord } = $props();
+  type Props = { id: string; r: BookRecord };
+  let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
   const why = $derived(proseOf(r, "whyItMatters"));
+  const measure = $derived(stringField(f, "measure") ?? "");
+  const target = $derived(stringField(f, "target") ?? "");
+  const dueBy = $derived(stringField(f, "dueBy"));
 </script>
 
 {#if why}
@@ -18,10 +23,10 @@
 {/if}
 <PageSection blockKey="m" heading="measure">
   <FactGrid>
-    <FactCell k="Measure">{String(f.measure ?? "")}</FactCell>
-    <FactCell k="target" big>{String(f.target ?? "")}</FactCell>
-    <FactCell k="dueBy" hint={f.dueBy ? book.dateHint(String(f.dueBy)) : ""}>
-      {f.dueBy ? book.fmtDate(String(f.dueBy)) : ""}
+    <FactCell k="Measure">{measure}</FactCell>
+    <FactCell k="target" big>{target}</FactCell>
+    <FactCell k="dueBy" hint={dueBy ? book.dateHint(dueBy) : ""}>
+      {dueBy ? book.fmtDate(dueBy) : ""}
     </FactCell>
   </FactGrid>
 </PageSection>

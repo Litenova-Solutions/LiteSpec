@@ -2,26 +2,25 @@
   import { book, dedupe, stripStep } from "$lib/frame";
   import { TypeTag } from "$lib/record";
   import { Button } from "$lib/ui/button";
+  import { statementOf } from "../page-prose";
 
   // Records as a numbered list: the title link, the type label and the
   // expandable statement. Long lists keep a limit with a Show all button.
-  let {
-    ids,
-    limit = null,
-    moreKey = "",
-  }: {
+  type Props = {
     ids: (string | null | undefined)[];
     limit?: number | null;
     moreKey?: string;
-  } = $props();
+  };
+  let { ids, limit = null, moreKey = "" }: Props = $props();
 
   const all = $derived(dedupe((ids ?? []).filter((x): x is string => !!x).map((x) => stripStep(String(x)))));
-  const open = $derived(moreKey ? !!book.more[moreKey] : true);
+  let showAll = $state(false);
+  const open = $derived(moreKey ? showAll : true);
   const shown = $derived(limit && !open ? all.slice(0, limit) : all);
+  let expanded = $state<Record<string, boolean>>({});
 
   function statement(id: string) {
-    const f = book.get(id)?.fields ?? {};
-    return String(f.statement ?? f.meaning ?? f.summary ?? f.description ?? f.offering ?? "");
+    return statementOf(book.get(id)?.fields ?? {}) ?? "";
   }
 </script>
 
@@ -30,8 +29,8 @@
     {#each shown as id (id)}
       {@const t = book.typeOf(id)}
       {@const stmt = statement(id)}
-      {@const expanded = !!book.more["stmt|" + id]}
-      <li class="border-b border-border py-2 text-[14.5px] marker:font-mono marker:text-xs marker:text-muted-foreground">
+      {@const isExpanded = expanded[id] ?? false}
+      <li class="border-b border-border py-2 text-[0.90625rem] marker:font-mono marker:text-xs marker:text-muted-foreground">
         {#if book.has(id)}
           <button type="button" class="font-medium underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go={id}>
             {book.title(id)}
@@ -43,17 +42,17 @@
           <TypeTag type={t} />
         </span>
         {#if stmt}
-          <div class="mt-0.5 text-[13px] leading-snug text-muted-foreground">
+          <div class="mt-0.5 text-[0.8125rem] leading-snug text-muted-foreground">
             {#if stmt.length <= 220}
               {stmt}
             {:else}
-              {expanded ? stmt : stmt.slice(0, 220) + "..."}{" "}
+              {isExpanded ? stmt : stmt.slice(0, 220) + "..."}{" "}
               <button
                 type="button"
                 class="cursor-pointer font-semibold text-highlight-foreground underline underline-offset-2"
-                onclick={() => (book.more["stmt|" + id] = !expanded)}
+                onclick={() => (expanded[id] = !isExpanded)}
               >
-                {expanded ? "Show less" : "Show more"}
+                {isExpanded ? "Show less" : "Show more"}
               </button>
             {/if}
           </div>
@@ -62,6 +61,6 @@
     {/each}
   </ol>
   {#if limit && !open && all.length > shown.length}
-    <Button variant="outline" size="sm" class="mt-2" onclick={() => (book.more[moreKey] = true)}>Show all {all.length}</Button>
+    <Button variant="outline" size="sm" class="mt-2" onclick={() => (showAll = true)}>Show all {all.length}</Button>
   {/if}
 {/if}

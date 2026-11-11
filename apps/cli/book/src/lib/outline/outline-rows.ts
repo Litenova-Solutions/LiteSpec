@@ -1,24 +1,21 @@
-// The navigation's rows: the outline with its field groups, the record list
-// with its groups, and the security groups. Rows carry everything a row
-// renders, so the components never walk the store twice.
+// The outline's rows: layer headers with their descriptions, records grouped by
+// record field, and the security groups. Rows carry everything a row renders,
+// so the components never walk the store twice.
 
-import { capitalize, formatLabel, stripStep, type Book } from "$lib/frame";
-import type { SecurityItem } from "$lib/frame";
+import { capitalize, formatLabel, stripStep } from "$lib/frame";
+import type { Book, RecordFields, SecurityItem } from "$lib/frame";
 
-/** One virtual row in the outline or list view. */
+/** One virtual row in the outline. */
 export type OutlineRow =
   | { kind: "layer"; key: string; layer: string }
   | { kind: "desc"; key: string; layer: string }
   | { kind: "group"; key: string; gk: string; label: string; count: number; completion: string; open: boolean; depth: number }
   | { kind: "record"; key: string; id: string; depth: number; level: number; kids: number; open: boolean; dim: boolean }
-  | { kind: "listgroup"; key: string; label: string; icon: string | null; count: number; completion: string }
-  | { kind: "listrecord"; key: string; id: string }
-  | { kind: "note"; key: string; text: string }
-  | { kind: "showall"; key: string; total: number };
+  | { kind: "note"; key: string; text: string };
 
 /** The estimated pixel height per row kind for the virtualizer. */
 export const ROW_HEIGHT: Record<OutlineRow["kind"], number> = {
-  layer: 34, desc: 56, note: 28, group: 26, record: 28, listgroup: 30, listrecord: 46, showall: 50,
+  layer: 34, desc: 56, note: 28, group: 26, record: 28,
 };
 
 const INDENTS = [
@@ -27,12 +24,89 @@ const INDENTS = [
 ];
 
 /** The indentation class for an outline depth, clamped to the deepest step. */
-export function indentClass(depth: number) {
-  return INDENTS[Math.min(Math.max(depth, 0), INDENTS.length - 1)];
+export function indentClass(depth: number): string {
+  return INDENTS[Math.min(Math.max(depth, 0), INDENTS.length - 1)] ?? "pl-0";
+}
+
+/** The navigation icon per record layer; an unknown layer reads as the core stack. */
+const LAYER_ICONS: Record<string, string> = {
+  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "departure", glossary: "term",
+};
+
+/** The navigation icon name for a record layer. */
+export function layerIconOf(layer: string): string {
+  return LAYER_ICONS[layer] ?? "core";
+}
+
+/** Whether a field value reads by field name. */
+function isFieldMap(value: unknown): value is RecordFields {
+  return typeof value === "object" && value !== null;
+}
+
+function homeOf(id: string): string {
+  return ((stripStep(id) ?? "").split("/")[1] ?? "").split(".")[0] ?? "";
+}
+
+function parentTitleOf(book: Book, id: string): string {
+  const p = book.parent(id);
+  return p ? book.title(p) : "";
+}
+
+function goalTitleForFeatureOf(book: Book, id: string): string {
+  const titles = book.outs(stripStep(id) ?? "", "advances").map((x) => book.title(x)).filter(Boolean);
+  return titles[0] ?? "";
+}
+
+function goalTitleForProblemOf(book: Book, id: string): string {
+  for (const f of book.ins(stripStep(id) ?? "", "solves")) {
+    const g = goalTitleForFeatureOf(book, f);
+    if (g) return g;
+  }
+  return "";
+}
+
+/** The record field children group by, per record type: a feature, an aggregate, an actor. */
+function groupFieldOf(book: Book, id: string): [string, string] | null {
+  const fields = book.fields(id);
+  const t = book.typeOf(id);
+  if (t === "requirement") {
+    const feature = parentTitleOf(book, id);
+    return feature ? [feature, ""] : null;
+  }
+  if (["use-case", "rule", "reaction", "job", "notification", "setting"].includes(t)) {
+    const agg = parentTitleOf(book, id);
+    const mod = homeOf(id);
+    return [agg || mod, agg && mod ? mod : ""];
+  }
+  if (t === "screen") {
+    const floorplan = fields.floorplan;
+    return [parentTitleOf(book, id) || "No entry point", floorplan ? capitalize(formatLabel(floorplan)) : ""];
+  }
+  if (t === "journey") {
+    const actor = fields.actor;
+    const serves = book.outs(stripStep(id) ?? "", "serves").map((x) => book.title(x));
+    return [actor ? book.title(stripStep(actor) ?? "") : "No actor", serves[0] ?? ""];
+  }
+  if (t === "problem") {
+    const affects = fields.affects;
+    const list = Array.isArray(affects) ? affects : [];
+    return [list.length ? book.title(stripStep(list[0]) ?? "") : "No affected actor", goalTitleForProblemOf(book, id)];
+  }
+  if (t === "feature") return [parentTitleOf(book, id) || "No module", goalTitleForFeatureOf(book, id)];
+  if (t === "actor") {
+    const kind = fields.kind;
+    return [kind ? capitalize(kind) : "No kind", ""];
+  }
+  return null;
+}
+
+/** The comparator for the active sort; the table holds every sort key, so the last arm never runs. */
+function compareFor(book: Book): (a: string, b: string) => number {
+  return book.sorts[book.sortKey]?.cmp ?? book.sorts.outline?.cmp ?? (() => 0);
 }
 
 /** One record row and, when open, its children grouped by record field. */
-function walkRecord(book: Book, id: string, depth: number, rows: OutlineRow[]) {
+function walkRecord(book: Book, id: string, depth: number, rows: OutlineRow[]): void {
   if (!book.isVisible(id)) return;
   const kids = book.kids(id).filter((k) => book.isVisible(k));
   const open = kids.length > 0 && (book.anyFilter() ? true : !!book.expanded[id]);
@@ -44,12 +118,13 @@ function walkRecord(book: Book, id: string, depth: number, rows: OutlineRow[]) {
 }
 
 /** Children grouped by record field, else by type, each with its completion. */
-function walkGroups(book: Book, kids: string[], parent: string, depth: number, rows: OutlineRow[]) {
+function walkGroups(book: Book, kids: string[], parent: string, depth: number, rows: OutlineRow[]): void {
   const groups: { key: string; label: string; list: string[] }[] = [];
   const byKey: Record<string, { key: string; label: string; list: string[] }> = {};
   for (const id of kids) {
-    const g = book.fieldGroup(id);
-    let key: string, label: string;
+    const g = groupFieldOf(book, id);
+    let key: string;
+    let label: string;
     if (g && g[0]) {
       key = "field:" + g.join("/");
       label = g.filter(Boolean).join(": ");
@@ -59,14 +134,18 @@ function walkGroups(book: Book, kids: string[], parent: string, depth: number, r
       const q = book.lex.types?.[t];
       label = q ? q.plural || q.label || t : capitalize(t) + "s";
     }
-    byKey[key] ??= { key, label, list: [] };
-    if (!groups.includes(byKey[key])) groups.push(byKey[key]);
-    byKey[key].list.push(id);
+    let entry = byKey[key];
+    if (!entry) {
+      entry = { key, label, list: [] };
+      byKey[key] = entry;
+      groups.push(entry);
+    }
+    entry.list.push(id);
   }
   const filtering = book.anyFilter();
   for (const g of groups) {
     const list = g.list.slice();
-    if (book.sortKey !== "outline") list.sort(book.sorts[book.sortKey]?.cmp ?? book.sorts.outline.cmp);
+    if (book.sortKey !== "outline") list.sort(compareFor(book));
     const visible = list.filter((id) => book.isVisible(id));
     if (!visible.length) continue;
     const gk = parent + "|" + g.key;
@@ -102,49 +181,6 @@ export function buildOutlineRows(book: Book): OutlineRow[] {
   return rows;
 }
 
-/** The list rows: group headers with their completion, then records, capped at 400. */
-export function buildListRows(book: Book): OutlineRow[] {
-  const rows: OutlineRow[] = [];
-  const cmp = book.sorts[book.sortKey]?.cmp ?? book.sorts.outline.cmp;
-  const ids = book.order.filter((id) => book.passesFilters(id)).sort(cmp);
-  const counts: Record<string, number> = {};
-  const members: Record<string, string[]> = {};
-  if (book.groupKey !== "none") {
-    for (const id of ids) {
-      const v = book.groupVal(id)[0];
-      counts[v] = (counts[v] ?? 0) + 1;
-      (members[v] ??= []).push(id);
-    }
-    ids.sort((a, b) => {
-      const x = book.groupVal(a)[0], y = book.groupVal(b)[0];
-      return x < y ? -1 : +(x > y);
-    });
-    if (book.groupKey === "type") {
-      const order = Object.keys(book.lex.types ?? {});
-      ids.sort((a, b) => order.indexOf(book.typeOf(a)) - order.indexOf(book.typeOf(b)));
-    }
-  }
-  const shown = book.listShowAll ? ids.length : 400;
-  const slice = ids.slice(0, shown);
-  let last: string | null = null;
-  for (const id of slice) {
-    const g = book.groupVal(id);
-    if (book.groupKey !== "none" && g[0] !== last) {
-      rows.push({
-        kind: "listgroup", key: "listgroup/" + g[0], label: g[1],
-        icon: book.groupKey === "type" ? g[0] : null,
-        count: counts[g[0]] ?? 0, completion: book.completeCounts(members[g[0]] ?? []),
-      });
-      last = g[0];
-    }
-    rows.push({ kind: "listrecord", key: "list/" + id, id });
-  }
-  if (ids.length > shown) rows.push({ kind: "showall", key: "list/showall", total: ids.length });
-  else if (book.listShowAll && ids.length > 400) rows.push({ kind: "note", key: "list/shown", text: "Showing all " + ids.length + " records." });
-  if (!ids.length) rows.push({ kind: "note", key: "list/empty", text: "No record matches these filters." });
-  return rows;
-}
-
 /** The security items: the shard once loaded, else read from the loaded records. */
 export function securityItems(book: Book): SecurityItem[] {
   if (book.security !== null) return book.securityItems();
@@ -152,24 +188,35 @@ export function securityItems(book: Book): SecurityItem[] {
   for (const id of book.order) {
     if (!book.isReal(id)) continue;
     const f = book.fields(id);
-    if (f.access && f.access.tenant === "cross") {
-      items.push({ kind: "cross", id, text: "Acts across tenants" + (f.access.grant ? ", through " + book.title(f.access.grant) : "") });
+    const access = f.access;
+    if (isFieldMap(access) && access.tenant === "cross") {
+      const grant = access.grant;
+      items.push({ kind: "cross", id, text: "Acts across tenants" + (typeof grant === "string" && grant ? ", through " + book.title(grant) : "") });
     }
-    for (const e of f.effects ?? []) {
-      if (e.calls) {
+    const effects = f.effects;
+    if (Array.isArray(effects)) {
+      for (const effect of effects) {
+        if (!isFieldMap(effect)) continue;
+        const calls = effect.calls;
+        if (typeof calls !== "string" || !calls) continue;
         items.push({
           kind: "calls", id,
-          text: "Calls " + book.title(stripStep(String(e.calls)))
-            + (String(e.calls).indexOf("#") > 0 ? ", " + formatLabel(String(e.calls).split("#")[1]) : ""),
+          text: "Calls " + book.title(stripStep(calls) ?? "")
+            + (calls.indexOf("#") > 0 ? ", " + formatLabel(calls.split("#")[1]) : ""),
         });
       }
     }
-    for (const d of f.dataClasses ?? []) {
-      if (d.classification === "personal" || d.classification === "sensitive") {
+    const dataClasses = f.dataClasses;
+    if (Array.isArray(dataClasses)) {
+      for (const entry of dataClasses) {
+        if (!isFieldMap(entry)) continue;
+        const classification = entry.classification;
+        if (classification !== "personal" && classification !== "sensitive") continue;
+        const erasure = entry.onErasure;
         items.push({
           kind: "data", id,
-          text: capitalize(String(d.classification)) + " data: " + formatLabel(d.name)
-            + (d.onErasure ? ", on erasure " + d.onErasure : ""),
+          text: capitalize(classification) + " data: " + formatLabel(entry.name)
+            + (typeof erasure === "string" && erasure ? ", on erasure " + erasure : ""),
         });
       }
     }

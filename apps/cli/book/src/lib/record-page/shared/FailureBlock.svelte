@@ -5,13 +5,14 @@
   import PageSection from "../blocks/PageSection.svelte";
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
-  import { modeWord } from "../page-values";
+  import { modeWord, objectField, stringField } from "../page-values";
 
   // What a reaction or job does when it fails: retries, then dead letters or surfaces.
-  let { f }: { f: RecordFields } = $props();
-  const o = $derived((f.onFailure as RecordFields | undefined) ?? null);
+  type Props = { f: RecordFields };
+  let { f }: Props = $props();
+  const o = $derived(objectField(f, "onFailure"));
   const retry = $derived.by(() => {
-    const r = (o?.retry as RecordFields | undefined) ?? null;
+    const r = objectField(o, "retry");
     if (!r) return "";
     return (
       pluralize(Number(r.maxAttempts ?? 0), "attempt") +
@@ -20,6 +21,9 @@
       (r.backoff ? ", " + modeWord(r.backoff) + " backoff" : "")
     );
   });
+  const dead = $derived(objectField(o, "deadLetter"));
+  const surfacesIn = $derived(stringField(o, "surfacesIn"));
+  const runbook = $derived(stringField(o, "runbook"));
 </script>
 
 {#if o}
@@ -28,12 +32,11 @@
       <FactCell k="mode">{capitalize(modeWord(o.mode))}</FactCell>
       {#if retry}<FactCell k="retry">{retry}</FactCell>{/if}
       {#if o.then}<FactCell k="then">{modeWord(o.then)}</FactCell>{/if}
-      {#if o.deadLetter}
-        {@const d = o.deadLetter as RecordFields}
-        <FactCell k="deadLetter" hint={d.action ? String(d.action) : ""}>After {duration(String(d.after ?? ""))}</FactCell>
+      {#if dead}
+        <FactCell k="deadLetter" hint={dead.action ? String(dead.action) : ""}>After {duration(String(dead.after ?? ""))}</FactCell>
       {/if}
-      {#if o.surfacesIn}<FactCell k="surfacesIn"><RecordLink id={String(o.surfacesIn)} /></FactCell>{/if}
-      {#if o.runbook}<FactCell k="runbook"><RecordLink id={String(o.runbook)} /></FactCell>{/if}
+      {#if surfacesIn}<FactCell k="surfacesIn"><RecordLink id={surfacesIn} /></FactCell>{/if}
+      {#if runbook}<FactCell k="runbook"><RecordLink id={runbook} /></FactCell>{/if}
     </FactGrid>
   </PageSection>
 {/if}
