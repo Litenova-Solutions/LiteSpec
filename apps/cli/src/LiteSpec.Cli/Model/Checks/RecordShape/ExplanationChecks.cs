@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -6,17 +7,19 @@ using static LiteSpec.Cli.Model.Checks.FindingText;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The explanation checks: every article type carries its explanation file with its required sections, and every explanation file stands beside a record file.</summary>
+/// <summary>The explanation checks: every article type carries its explanation file with its required sections, every record page on a required layer carries its explanation file, and every explanation file stands beside a record file.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class ExplanationChecks
 {
-    /// <summary>Reports explanation-orphaned and explanation-missing.</summary>
+    /// <summary>Reports explanation-orphaned, explanation-missing and project-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         CheckOrphaned(model, findings);
         CheckMissing(model, findings);
+        CheckRequiredLayers(model, findings);
+        CheckUnclaimedLayers(model, findings);
     }
 
     /// <summary>Reports each Markdown file under a record root that is neither a document nor an explanation file.</summary>
@@ -81,16 +84,12 @@ internal static class ExplanationChecks
     {
         foreach (var record in model.Records.Where(record => !record.IsEntry && RecordFile.ArticleTypes.Contains(record.Type)))
         {
-            if (!RequiredSections.TryGetValue(record.Type, out var sections))
+            if (!ExplanationSections.TryGetValue(record.Type, out var sections))
             {
                 continue;
             }
 
-            var label = record.Type switch
-            {
-                RecordTypes.Research => "Research",
-                _ => "Decision",
-            };
+            var label = LabelOf(record.Type);
 
             if (record.ExplanationFile is null || record.Explanation is null)
             {
@@ -102,22 +101,109 @@ internal static class ExplanationChecks
 
             var headings = HeadingsOf(record.Explanation);
 
-            foreach (var section in sections)
+            foreach (var section in sections.Where(section => !section.Optional))
             {
-                if (!headings.Contains("## " + section))
+                if (!headings.Contains("## " + section.Name))
                 {
-                    findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no {section} section in its explanation.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no {section.Name} section in its explanation.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
     }
 
-    /// <summary>The H2 sections each article type requires in its explanation file.</summary>
-    private static readonly Dictionary<string, string[]> RequiredSections = new(StringComparer.Ordinal)
+    /// <summary>Reports each record page on a required layer with no explanation file, and each explanation lacking a required section or any H2 section.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckRequiredLayers(ProjectModel model, List<Finding> findings)
     {
-        [RecordTypes.Research] = ["Answer"],
-        [RecordTypes.Decision] = ["Context"],
+        if (model.Config.ExplanationLayers.Count == 0)
+        {
+            return;
+        }
+
+        var required = new HashSet<string>(model.Config.ExplanationLayers, StringComparer.Ordinal);
+
+        foreach (var record in model.Records.Where(record => !record.IsEntry && !RecordFile.ArticleTypes.Contains(record.Type)))
+        {
+            if (!RecordTypes.LayerByType.TryGetValue(record.Type, out var layer) || !required.Contains(layer))
+            {
+                continue;
+            }
+
+            var label = LabelOf(record.Type);
+
+            if (record.ExplanationFile is null || record.Explanation is null)
+            {
+                var expected = RecordFile.ExplanationPathOf(record.File);
+
+                findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no explanation file '{PathText.Relative(model.Config.Root, expected)}'.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            if (ExplanationSections.TryGetValue(record.Type, out var sections))
+            {
+                var headings = HeadingsOf(record.Explanation);
+
+                foreach (var section in sections.Where(section => !section.Optional))
+                {
+                    if (!headings.Contains("## " + section.Name))
+                    {
+                        findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no {section.Name} section in its explanation.", record.File, record.Line, SubjectOf(record)));
+                    }
+                }
+            }
+            else if (HeadingsOf(record.Explanation).Count == 0)
+            {
+                findings.Add(new Finding("explanation-missing", $"{label} '{record.Id}' holds no H2 section in its explanation.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
+    /// <summary>Reports each required explanation layer the project does not claim in layers.</summary>
+    /// <param name="model">The loaded project model that holds the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckUnclaimedLayers(ProjectModel model, List<Finding> findings)
+    {
+        if (model.Config.ExplanationLayers.Count == 0)
+        {
+            return;
+        }
+
+        var projectFile = ConsumerRoot.ProjectFile(model.Config.Root);
+
+        foreach (var layer in model.Config.ExplanationLayers)
+        {
+            var claimed = layer switch
+            {
+                "intent" => model.Config.Layers.Intent,
+                "behavior" => model.Config.Layers.Behavior,
+                _ => true,
+            };
+
+            if (!claimed)
+            {
+                findings.Add(new Finding("project-invalid", $"explanations.layers names '{layer}', which the project does not claim in layers [litespec/core/model#require-explanation-files-on-the-layers-a-project-names]", projectFile, 1, null));
+            }
+        }
+    }
+
+    /// <summary>The H2 sections each record type with fixed sections requires in its explanation file, in order, with the sections that stay optional.</summary>
+    private static readonly Dictionary<string, (string Name, bool Optional)[]> ExplanationSections = new(StringComparer.Ordinal)
+    {
+        [RecordTypes.Problem] = [("Who Has It", false), ("What They Do Today", false), ("Evidence", false), ("What Would Retire It", false)],
+        [RecordTypes.Journey] = [("Who Walks and Why", false), ("Before It Starts", true), ("Example", false), ("What It Connects To", false)],
+        [RecordTypes.Feature] = [("Who It Serves and Why", false), ("What It Offers", false), ("What Good Looks Like", false)],
+        [RecordTypes.Goal] = [("Why It Matters", false), ("What Counts as Done", false), ("What It Connects To", false)],
+        [RecordTypes.Actor] = [("Who They Are", false), ("What They Do", false), ("What They Can Reach", false)],
+        [RecordTypes.Research] = [("Answer", false)],
+        [RecordTypes.Decision] = [("Context", false)],
     };
+
+    /// <summary>The prose label a finding shows for a record type: the type capitalized with hyphens as spaces.</summary>
+    /// <param name="type">The record type identifier.</param>
+    /// <returns>The capitalized prose label.</returns>
+    private static string LabelOf(string type) =>
+        type.Length == 0 ? "Record" : char.ToUpperInvariant(type[0]) + type.Substring(1).Replace('-', ' ');
 
     /// <summary>Every H2 heading line of an explanation file, trimmed, as the page contract reads them.</summary>
     /// <param name="explanation">The explanation file text.</param>

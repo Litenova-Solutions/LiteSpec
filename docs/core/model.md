@@ -177,7 +177,7 @@ A record file is one file `<name>.yaml` holding one YAML mapping: the page recor
 
 ### Explanation Files
 
-An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only.
+An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only. It stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
 
 ### Documents
 
@@ -556,6 +556,22 @@ The book renders the in-memory model only and judges nothing itself.
 **Example:** `research/approval-time-benchmarks` carries its Answer in `approval-time-benchmarks.md`.
 
 **Checked by:** `litespec model check` reports `explanation-missing` for an article type with no explanation file or with a required H2 section missing.
+
+### Require Explanation Files on the Layers a Project Names
+
+**ID:** `litespec/core/model#require-explanation-files-on-the-layers-a-project-names`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A record page on a layer the project lists in `explanations.layers` MUST carry its explanation file with the required H2 sections.
+
+**Rationale:** A complex product needs every record explained for people who did not write it. The setting makes the explanation a gate instead of a habit.
+
+**Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Who Has It, What They Do Today, Evidence and What Would Retire It. A problem without that file, or without one of those sections, fails the check.
+
+**Checked by:** `litespec model check` reports `explanation-missing` for a record page on a listed layer with no explanation file or with a required H2 section missing.
 
 ### Write Every Record File in Canonical Form
 

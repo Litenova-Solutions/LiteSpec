@@ -232,4 +232,133 @@ public sealed class ExplanationCheckTests
 
         Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
     }
+
+    /// <summary>A feature on a required layer without its explanation file reports the missing file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void RequiredLayerWithoutExplanationReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - intent\n");
+        var file = Path.Combine(temp.Path, "submit-an-expense-claim.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("feature", "feature/submit-an-expense-claim", file, """{"summary": "Reminders nudge approvers."}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Feature 'feature/submit-an-expense-claim' holds no explanation file 'submit-an-expense-claim.md'.", finding.Message);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Equal("feature/submit-an-expense-claim", finding.Subject);
+    }
+
+    /// <summary>A feature explanation without What Good Looks Like reports the missing section.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void RequiredLayerExplanationWithoutSectionReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - intent\n");
+        var file = Path.Combine(temp.Path, "submit-an-expense-claim.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "feature",
+                "feature/submit-an-expense-claim",
+                file,
+                1,
+                """{"summary": "Reminders nudge approvers."}""",
+                Path.Combine(temp.Path, "submit-an-expense-claim.md"),
+                "# Submit an Expense Claim\n\n## Who It Serves and Why\n\nEmployees wait.\n\n## What It Offers\n\nReminders.\n"));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Feature 'feature/submit-an-expense-claim' holds no What Good Looks Like section in its explanation.", finding.Message);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Equal("feature/submit-an-expense-claim", finding.Subject);
+    }
+
+    /// <summary>A use case explanation with no H2 section reports the missing section.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void TypeWithoutFixedSectionsAndNoH2Reports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - behavior\n");
+        var file = Path.Combine(temp.Path, "submit-expense.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "use-case",
+                "use-case/spending.submit-expense",
+                file,
+                1,
+                """{"kind": "command"}""",
+                Path.Combine(temp.Path, "submit-expense.md"),
+                "# Submit Expense\n\nNo sections here.\n"));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
+        Assert.Equal("A", finding.Tier);
+        Assert.Equal("Use case 'use-case/spending.submit-expense' holds no H2 section in its explanation.", finding.Message);
+        Assert.Equal(file, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Equal("use-case/spending.submit-expense", finding.Subject);
+    }
+
+    /// <summary>A use case on a layer not listed needs no explanation file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void RecordOnUnlistedLayerNeedsNoExplanation()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        File.WriteAllText(Path.Combine(projectDir, "project.yaml"), "layers:\n  intent: litespec\n  behavior: litespec\nexplanations:\n  layers:\n  - intent\n");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("use-case", "use-case/spending.submit-expense", Path.Combine(temp.Path, "submit-expense.yaml"), """{"kind": "command"}"""));
+
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
+    }
+
+    /// <summary>A feature with no explanations field needs no explanation file.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void FieldAbsentNeedsNoExplanation()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("feature", "feature/submit-an-expense-claim", Path.Combine(temp.Path, "submit-an-expense-claim.yaml"), """{"summary": "Reminders nudge approvers."}"""));
+
+        Assert.DoesNotContain("explanation-missing", TestModel.Codes(model));
+    }
+
+    /// <summary>A listed layer that is not claimed reports the configuration finding.</summary>
+    /// <proves>litespec/core/model#require-explanation-files-on-the-layers-a-project-names</proves>
+    [Fact]
+    public void ListedLayerNotClaimedReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var projectDir = Path.Combine(temp.Path, ".litespec");
+        Directory.CreateDirectory(projectDir);
+        var projectFile = Path.Combine(projectDir, "project.yaml");
+        File.WriteAllText(projectFile, "layers:\n  intent: litespec\nexplanations:\n  layers:\n  - behavior\n");
+        var model = TestModel.Model(TestModel.Config(temp.Path));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "project-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("explanations.layers names 'behavior', which the project does not claim in layers [litespec/core/model#require-explanation-files-on-the-layers-a-project-names]", finding.Message);
+        Assert.Equal(projectFile, finding.Path);
+        Assert.Equal(1, finding.Line);
+        Assert.Null(finding.Subject);
+    }
 }

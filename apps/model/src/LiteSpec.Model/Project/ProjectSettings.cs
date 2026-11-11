@@ -1,16 +1,18 @@
 namespace LiteSpec.Model;
 
 /// <summary>
-///     The check settings a host reads from .litespec/project.yaml: the mark style and the
-///     record layers the project claims.
+///     The check settings a host reads from .litespec/project.yaml: the mark style, the
+///     record layers the project claims, and the layers whose records carry explanations.
 /// </summary>
 /// <param name="Marks">The declared mark style.</param>
 /// <param name="Layers">The declared layer claims.</param>
-public sealed record ProjectSettings(MarkStyle Marks, LayerClaims Layers)
+/// <param name="Explanations">The declared explanation claims.</param>
+public sealed record ProjectSettings(MarkStyle Marks, LayerClaims Layers, ExplanationClaims Explanations)
 {
     /// <summary>
     ///     Reads the settings from the project file text. A missing or unknown value reads as
-    ///     its default: xml marks, and every layer with LiteSpec's practice when the file has no layers. The project
+    ///     its default: xml marks, every layer with LiteSpec's practice when the file has no layers,
+    ///     and no required explanation layer. The project
     ///     schema reports a value of the wrong shape, so this reader never reports one.
     /// </summary>
     /// <param name="text">The project file text.</param>
@@ -19,7 +21,7 @@ public sealed record ProjectSettings(MarkStyle Marks, LayerClaims Layers)
     /// <returns>Whether the text holds a mapping the settings read from.</returns>
     public static bool TryParse(string text, out ProjectSettings settings, out string? error)
     {
-        settings = new ProjectSettings(MarkStyle.Xml, LayerClaims.All);
+        settings = new ProjectSettings(MarkStyle.Xml, LayerClaims.All, ExplanationClaims.None);
         error = null;
 
         JsonText root;
@@ -40,7 +42,7 @@ public sealed record ProjectSettings(MarkStyle Marks, LayerClaims Layers)
             return false;
         }
 
-        settings = new ProjectSettings(ReadMarks(root), LayerClaims.Read(root));
+        settings = new ProjectSettings(ReadMarks(root), LayerClaims.Read(root), ExplanationClaims.Read(root));
         return true;
     }
 

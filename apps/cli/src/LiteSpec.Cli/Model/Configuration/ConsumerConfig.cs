@@ -117,6 +117,9 @@ sealed class ConsumerConfig
     /// <summary>Gets the record layers the project claims in <c>layers</c>; every layer with LiteSpec's practice when the project file names none, which the schema check reports.</summary>
     public LayerClaims Layers { get; private set; } = LayerClaims.All;
 
+    /// <summary>Gets the record layers whose every record page carries an explanation file, from <c>explanations.layers</c>; empty when the project file names none.</summary>
+    public IReadOnlyList<string> ExplanationLayers { get; private set; } = [];
+
     /// <summary>Gets a value indicating whether the project claims Implementation or Proof, so the stack readers read code, screens, tests and test runs.</summary>
     public bool ReadsCode => Layers.Implementation is not null || Layers.Proof is not null;
 
@@ -163,6 +166,7 @@ sealed class ConsumerConfig
         var document = RecordText.Parse(text, RecordText.IsYaml(file)) as JsonObject ?? new JsonObject();
         config.Marks = projectPaths.Settings.Marks;
         config.Layers = projectPaths.Settings.Layers;
+        config.ExplanationLayers = projectPaths.Settings.Explanations.Layers;
 
         var paths = ObjectAt(document, "paths");
         var dotnet = ObjectAt(ObjectAt(document, "stackConfig"), "dotnet");

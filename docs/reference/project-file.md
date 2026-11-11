@@ -27,6 +27,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `project` | object | yes | none |
 | `size` | string | yes | none |
 | `layers` | object | yes | none |
+| `explanations` | object | no | none |
 | `shape` | string | no | `"server"` |
 | `stacks` | array of string | when `implementation` or `proof` is claimed | none |
 | `proof` | object | no | none |
@@ -47,6 +48,7 @@ What each field means and what reads it:
 - `project` names the project. `litespec model check` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
 - `layers` names the record layers the project claims and the practice each follows. See the `layers` object below.
+- `explanations` names the record layers whose every record page carries an explanation file. See the `explanations` object below.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
 - `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. It is required when the project claims `implementation` or `proof`; otherwise a stack is informational. `litespec model check` refuses an id the pinned release does not ship.
 - `proof` tunes how the model builder confirms proof claims for the project. See the `proof` object below.
@@ -76,6 +78,17 @@ What each field means and what reads it:
 - `litespec` follows LiteSpec's practice for the layer. `own` keeps the project's own practice for `implementation` or `proof` and claims only that code and tests mark the records they serve.
 - A lower layer needs the one above it: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. The schema refuses a file that breaks this.
 - `litespec model check`, the book, `litespec rules` and the analyzers report only the claimed layers.
+
+### The `explanations` Object
+
+| Field | Type | Required | Default |
+|:---|:---|:---|:---|
+| `layers` | array of string | yes | none |
+
+What each field means and what reads it:
+
+- `layers` lists the record layers whose every record page carries an explanation file: `intent`, `behavior` or both, each once: the layers that hold record pages, with each record type on the layer the [Project Model](../core/model.md) gives it. A page on a listed layer without its `<name>.md` beside its record file, or with a required H2 section missing, is an `explanation-missing` finding. A listed layer the project does not claim in `layers` is a `project-invalid` finding.
+- When the object is omitted, explanation files stay optional, except the article types, which always require one. `litespec model check` reads the list from the project file.
 
 ### The `project` Object
 

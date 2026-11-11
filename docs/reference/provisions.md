@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1654 provisions in 4 groups across 6 areas.
+The active release states 1655 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -42,7 +42,7 @@ The active release states 1654 provisions in 4 groups across 6 areas.
 | [core/language](../core/language.md) | 25 | 8 | 32% |
 | [core/layers](../core/layers.md) | 9 | 4 | 44% |
 | [core/maintaining](../core/maintaining.md) | 7 | 5 | 71% |
-| [core/model](../core/model.md) | 49 | 32 | 65% |
+| [core/model](../core/model.md) | 50 | 33 | 66% |
 | [core/principles](../core/principles.md) | 22 | 4 | 18% |
 | [core/privacy](../core/privacy.md) | 15 | 2 | 13% |
 | [core/release](../core/release.md) | 19 | 1 | 5% |
@@ -665,6 +665,7 @@ The active release states 1654 provisions in 4 groups across 6 areas.
 | litespec/core/model#render-generated-regions-from-the-model | [Render Generated Regions from the Model](../core/model.md#render-generated-regions-from-the-model) | convention | any | records | any | any | no | default | guidance | Which generated regions render code-computed facts? Look inside the generated fences beside the book and the model output. |
 | litespec/core/model#report-unverified-use-cases | [Report Unverified Use Cases](../core/model.md#report-unverified-use-cases) | rule | any | records | record:use-case | any | no | required | checkable | `litespec model check` reports `use-case-unverified` (level A) for a use case whose scenarios are not all proved, and `litespec model check --release` blocks on it. |
 | litespec/core/model#require-an-explanation-file-for-article-types | [Require an Explanation File for Article Types](../core/model.md#require-an-explanation-file-for-article-types) | rule | any | records | record:research, record:decision | any | no | required | checkable | `litespec model check` reports `explanation-missing` for an article type with no explanation file or with a required H2 section missing. |
+| litespec/core/model#require-explanation-files-on-the-layers-a-project-names | [Require Explanation Files on the Layers a Project Names](../core/model.md#require-explanation-files-on-the-layers-a-project-names) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `explanation-missing` for a record page on a listed layer with no explanation file or with a required H2 section missing. |
 | litespec/core/model#resolve-every-page-link | [Resolve Every Page Link](../core/model.md#resolve-every-page-link) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `link-unknown` for a link that resolves to no file and no written record identifier. |
 | litespec/core/model#rewrite-every-link-on-a-rename | [Rewrite Every Link on a Rename](../core/model.md#rewrite-every-link-on-a-rename) | rule | any | records | any | any | no | required | checkable | `litespec rename` leaves no citation of the old identifier, and `litespec-maintain validate` emits no `ID_UNKNOWN_REFERENCE` diagnostic. |
 | litespec/core/model#scaffold-pages-and-reserve-identifiers | [Scaffold Pages and Reserve Identifiers](../core/model.md#scaffold-pages-and-reserve-identifiers) | rule | any | records | any | any | no | required | guidance | Which new pages lack a reserved identifier? Look for pages created without `litespec new`. |
