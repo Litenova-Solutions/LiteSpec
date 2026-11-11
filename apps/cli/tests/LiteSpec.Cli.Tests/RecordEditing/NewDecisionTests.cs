@@ -1,7 +1,7 @@
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.RecordEditing;
 
 /// <summary>Tests for <c>litespec new decision</c> and its number allocation.</summary>
 public sealed class NewDecisionTests

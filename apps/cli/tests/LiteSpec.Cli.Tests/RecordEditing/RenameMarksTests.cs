@@ -1,6 +1,6 @@
 using LiteSpec.Cli.Tests.Support;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.RecordEditing;
 
 /// <summary>Proves <c>litespec rename</c> rewrites marks and leaves other strings alone.</summary>
 public sealed class RenameMarksTests

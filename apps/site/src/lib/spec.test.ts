@@ -9,7 +9,7 @@ import { appliedPages, backendStacks, extensionStack, frontendStacks, layers, ma
 
 describe("slug", () => {
   it("matches the shared CLI fixture for every entry", () => {
-    const file = path.join(root, "apps/cli/tests/LiteSpec.Cli.Tests/Authoring/SlugCases.json");
+    const file = path.join(root, "apps/cli/tests/LiteSpec.Cli.Tests/Standards/SlugCases.json");
     const cases = JSON.parse(fs.readFileSync(file, "utf8")) as { heading: string; slug: string }[];
     assert.ok(cases.length > 0);
     for (const entry of cases) {

@@ -5,7 +5,7 @@ using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.CommandLine;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.RecordEditing;
 
 /// <summary>Tests for <c>litespec new result</c> and <c>litespec new scenario</c>.</summary>
 public sealed class NewAppendTests

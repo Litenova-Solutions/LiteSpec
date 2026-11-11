@@ -3,7 +3,7 @@ using LiteSpec.Cli.Tests.Consumer;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.CommandLine;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.RecordEditing;
 
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests

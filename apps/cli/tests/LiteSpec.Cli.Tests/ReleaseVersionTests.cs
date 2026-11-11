@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests;
 
 /// <summary>
 ///     Proves every place that names the release names the same one: a tag publishes the

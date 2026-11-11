@@ -1,7 +1,7 @@
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Cli.Tests.Authoring;
+namespace LiteSpec.Cli.Tests.Standards;
 
 /// <summary>Slug fixture cases: HeadingSlug returns each listed slug.</summary>
 public sealed class SlugCasesTests
@@ -11,7 +11,7 @@ public sealed class SlugCasesTests
     [Fact(DisplayName = "heading slugs match the fixture")]
     public void SlugsMatchFixture()
     {
-        var file = Path.Combine(TestCli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Authoring", "SlugCases.json");
+        var file = Path.Combine(TestCli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Standards", "SlugCases.json");
         var cases = RecordText.Read(file)!.AsArray();
         Assert.NotEmpty(cases);
         foreach (var entry in cases)
