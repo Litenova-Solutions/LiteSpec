@@ -10,7 +10,7 @@ namespace LiteSpec.Consumer;
 static class GlobWalker
 {
     /// <summary>The glob includes that collect the record files and the Markdown files.</summary>
-    private static readonly string[] PageIncludes = ["**/*" + RecordFile.Extension, "**/*" + RecordFile.ExplanationExtension];
+    private static readonly string[] PageIncludes = ["**/*" + RecordFiles.Extension, "**/*" + RecordFile.ExplanationExtension];
 
     /// <summary>The glob excludes that leave out generated output, hidden files and the top-level model and book folders.</summary>
     private static readonly string[] PageExcludes =

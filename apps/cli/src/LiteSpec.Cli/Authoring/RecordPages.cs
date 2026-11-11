@@ -42,13 +42,6 @@ static class RecordPages
         ["term"] = "the glossary",
     };
 
-    /// <summary>Folder names the citation walk skips, covering build output, installed packages and tool state.</summary>
-    private static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
-    };
-
     /// <summary>The file kinds that cite record identifiers: files, data, and the code that anchors to records.</summary>
     private static readonly HashSet<string> CitingExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -353,7 +346,7 @@ static class RecordPages
             }
 
             if ((name.StartsWith('.') && !string.Equals(name, ".litespec", StringComparison.Ordinal))
-                || SkippedFolders.Contains(name))
+                || SourceTree.SkippedFolders.Contains(name))
             {
                 continue;
             }

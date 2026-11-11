@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace LiteSpec.Model;
@@ -9,6 +10,14 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 public static class RecordFiles
 {
+    /// <summary>The record file extension.</summary>
+    public const string Extension = ".yaml";
+
+    /// <summary>Whether the path names a record file: a <c>.yaml</c> file, in any letter case.</summary>
+    /// <param name="path">The file path.</param>
+    /// <returns>True for a <c>.yaml</c> file; otherwise false.</returns>
+    public static bool IsRecordFile(string path) => path.EndsWith(Extension, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>
     ///     Reads the page record and the entries of the record file: the YAML mapping.
     ///     A file that does not parse, or whose top level is no object with a type,

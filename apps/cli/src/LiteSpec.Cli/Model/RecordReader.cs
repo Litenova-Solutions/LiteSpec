@@ -23,7 +23,7 @@ static class RecordReader
 
         foreach (var root in config.RecordRoots)
         {
-            files.AddRange(SourceTree.Files(root, RecordFile.Extension, RecordFile.ExplanationExtension));
+            files.AddRange(SourceTree.Files(root, RecordFiles.Extension, RecordFile.ExplanationExtension));
         }
 
         // The generated model and book under the record root hold no records.
@@ -46,7 +46,7 @@ static class RecordReader
             {
                 // SourceTree matches extensions without regard to case: a record file in any
                 // casing still reads as one.
-                if (file.EndsWith(RecordFile.Extension, StringComparison.OrdinalIgnoreCase))
+                if (file.EndsWith(RecordFiles.Extension, StringComparison.OrdinalIgnoreCase))
                 {
                     ReadRecordFile(config, file, local.Records, local.Bodies, local.Problems);
                 }

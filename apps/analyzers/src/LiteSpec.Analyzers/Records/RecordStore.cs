@@ -186,7 +186,7 @@ public sealed class RecordStore
 
         foreach (var file in files)
         {
-            if (IsRecordFile(file.Path) && UnderRoots(file.Path, paths.DocsRoots))
+            if (RecordFiles.IsRecordFile(file.Path) && UnderRoots(file.Path, paths.DocsRoots))
             {
                 records.AddRange(RecordFiles.Read(file.Path, file.Text));
             }
@@ -218,12 +218,6 @@ public sealed class RecordStore
 
         return found;
     }
-
-    /// <summary>Returns true when the path is a record file; otherwise false.</summary>
-    /// <param name="path">The file path as the host reports it.</param>
-    /// <returns>True when the path is a record file; otherwise false.</returns>
-    private static bool IsRecordFile(string path) =>
-        path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Returns true when the under-roots condition holds; otherwise false.</summary>
     /// <param name="path">The file path as the host reports it.</param>

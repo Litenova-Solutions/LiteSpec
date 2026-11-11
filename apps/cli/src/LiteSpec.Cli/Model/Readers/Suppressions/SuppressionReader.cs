@@ -14,13 +14,6 @@ namespace LiteSpec.Model.Readers.Suppressions;
 /// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
 static class SuppressionReader
 {
-    /// <summary>Directory names the walk leaves out: build output, installed packages and tool folders.</summary>
-    private static readonly HashSet<string> Skipped = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
-    };
-
     /// <summary>One analyzer rule identifier, such as LS1001.</summary>
     private static readonly Regex RuleId = new(@"LS\d{4}", RegexOptions.Compiled);
 
@@ -152,7 +145,7 @@ static class SuppressionReader
 
                 foreach (var child in Directory.EnumerateDirectories(folder, "*", options))
                 {
-                    if (!Skipped.Contains(Path.GetFileName(child)))
+                    if (!SourceTree.SkippedFolders.Contains(Path.GetFileName(child)))
                     {
                         pending.Push(child);
                     }

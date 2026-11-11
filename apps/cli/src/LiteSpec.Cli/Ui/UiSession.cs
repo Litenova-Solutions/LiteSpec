@@ -460,7 +460,7 @@ sealed class UiSession
                 continue;
             }
 
-            if (!RecordFile.IsRecordFile(entry.Name))
+            if (!RecordFiles.IsRecordFile(entry.Name))
             {
                 continue;
             }

@@ -54,13 +54,6 @@ internal static class PlacementChecks
         "UseCases", "Composition", "Jobs", "Tests", "Test", "Acceptance", "Integration", "Unit",
     };
 
-    /// <summary>Directory names the folder walk leaves out: build output, installed packages and tool folders.</summary>
-    static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
-    };
-
     /// <summary>Runs the placement checks.</summary>
     /// <param name="model">The loaded project model that holds every record and each marked code element.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -653,14 +646,14 @@ internal static class PlacementChecks
             return;
         }
 
-        var expected = new List<string> { Pascal(path.Module!) };
+        var expected = new List<string> { Naming.Pascal(path.Module!) };
 
         if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module!))
         {
-            expected.Add(Pascal(path.Aggregate));
+            expected.Add(Naming.Pascal(path.Aggregate));
         }
 
-        expected.Add(Pascal(path.Name!));
+        expected.Add(Naming.Pascal(path.Name!));
 
         if (PlacedSegments(product, actual) is not { } placed
             || (!NamespaceMatches(placed, expected) && !NamespaceMatches(placed, WithModuleNamedAggregate(path, expected))))
@@ -1109,16 +1102,16 @@ internal static class PlacementChecks
             return [];
         }
 
-        var expected = new List<string> { Pascal(path.Module) };
+        var expected = new List<string> { Naming.Pascal(path.Module) };
 
         if (path.Aggregate is not null && !SameName(path.Aggregate, path.Module))
         {
-            expected.Add(Pascal(path.Aggregate));
+            expected.Add(Naming.Pascal(path.Aggregate));
         }
 
         if (path.Name is not null && path.IsUseCase && !SameName(path.Name, path.Aggregate ?? ""))
         {
-            expected.Add(Pascal(path.Name));
+            expected.Add(Naming.Pascal(path.Name));
         }
 
         return expected;
@@ -1168,7 +1161,7 @@ internal static class PlacementChecks
             return expected;
         }
 
-        return [expected[0], Pascal(path.Aggregate), .. expected.Skip(1)];
+        return [expected[0], Naming.Pascal(path.Aggregate), .. expected.Skip(1)];
     }
 
     /// <summary>The declared namespace segments after the product.</summary>
@@ -1447,11 +1440,11 @@ internal static class PlacementChecks
                 }
                 else if (Identifiers.TrySplit(trigger, out _, out var home, out var name) && name.Length > 0)
                 {
-                    folders.Add((path.Module, "On" + Pascal(name)));
+                    folders.Add((path.Module, "On" + Naming.Pascal(name)));
 
                     if (home is not null && !name.StartsWith(home + "-", StringComparison.Ordinal))
                     {
-                        folders.Add((path.Module, "On" + Pascal(home + "-" + name)));
+                        folders.Add((path.Module, "On" + Naming.Pascal(home + "-" + name)));
                     }
                 }
             }
@@ -1468,7 +1461,7 @@ internal static class PlacementChecks
         try
         {
             return Directory.EnumerateDirectories(folder)
-                .Where(child => !SkippedFolders.Contains(Path.GetFileName(child)))
+                .Where(child => !SourceTree.SkippedFolders.Contains(Path.GetFileName(child)))
                 .OrderBy(child => child, StringComparer.Ordinal)
                 .ToList();
         }
@@ -1505,30 +1498,5 @@ internal static class PlacementChecks
         var right = name.Replace("-", "", StringComparison.Ordinal).Replace("_", "", StringComparison.Ordinal);
 
         return string.Equals(left, right, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>The PascalCase spelling of a kebab-case record name segment.</summary>
-    /// <param name="name">The record name segment.</param>
-    /// <returns>The segment with each word capitalized and its separators removed.</returns>
-    private static string Pascal(string name)
-    {
-        var built = new System.Text.StringBuilder();
-
-        foreach (var word in name.Split('-', '_'))
-        {
-            if (word.Length == 0)
-            {
-                continue;
-            }
-
-            built.Append(char.ToUpperInvariant(word[0]));
-
-            if (word.Length > 1)
-            {
-                built.Append(word[1..]);
-            }
-        }
-
-        return built.ToString();
     }
 }

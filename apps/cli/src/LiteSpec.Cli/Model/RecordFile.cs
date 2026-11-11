@@ -13,9 +13,6 @@ namespace LiteSpec.Model;
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
 static class RecordFile
 {
-    /// <summary>The record file extension.</summary>
-    public const string Extension = ".yaml";
-
     /// <summary>The explanation file extension.</summary>
     public const string ExplanationExtension = ".md";
 
@@ -26,11 +23,6 @@ static class RecordFile
     public static readonly IReadOnlySet<string> ArticleTypes =
         new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Research, RecordTypes.Decision };
 
-    /// <summary>Whether the path names a record file.</summary>
-    /// <param name="path">The file path.</param>
-    /// <returns>True for a <c>.yaml</c> file.</returns>
-    public static bool IsRecordFile(string path) => path.EndsWith(Extension, StringComparison.Ordinal);
-
     /// <summary>The explanation file beside a record file.</summary>
     /// <param name="recordPath">The record file path.</param>
     /// <returns>The explanation file path.</returns>
@@ -39,7 +31,7 @@ static class RecordFile
     /// <summary>The record file beside an explanation file.</summary>
     /// <param name="explanationPath">The explanation file path.</param>
     /// <returns>The record file path.</returns>
-    public static string RecordPathOf(string explanationPath) => Path.ChangeExtension(explanationPath, Extension);
+    public static string RecordPathOf(string explanationPath) => Path.ChangeExtension(explanationPath, RecordFiles.Extension);
 
     /// <summary>
     ///     Parses a record file's text.

@@ -56,13 +56,6 @@ internal static class FolderChecks
         "model", "book",
     };
 
-    /// <summary>Directory names the walk leaves out, mirroring the source tree: build output, installed packages and tool folders.</summary>
-    private static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
-    };
-
     /// <summary>Reports folder-invalid, module-undeclared and record-placement-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -157,7 +150,7 @@ internal static class FolderChecks
             {
                 var directory = stack.Pop();
 
-                if (SkippedFolders.Contains(Path.GetFileName(directory)))
+                if (SourceTree.SkippedFolders.Contains(Path.GetFileName(directory)))
                 {
                     continue;
                 }

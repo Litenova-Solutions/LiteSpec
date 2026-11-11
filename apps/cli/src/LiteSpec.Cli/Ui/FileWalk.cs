@@ -11,12 +11,11 @@ namespace LiteSpec.Ui;
 /// <follows>litespec/frontend/web/ui#track-source-changes</follows>
 static class FileWalk
 {
-    /// <summary>The directory names the walk never enters.</summary>
-    static readonly HashSet<string> IgnoredDirectories = new(StringComparer.Ordinal)
-    {
-        "node_modules", ".next", "out", "dist", "build", ".output", ".svelte-kit", "coverage",
-        "android", "ios", ".tanstack", "test-results", "playwright-report",
-    };
+    /// <summary>
+    ///     The native app folders a web frontend may hold beside its source. The UI walk leaves
+    ///     them out on top of the folders every walk skips; the code readers still read them.
+    /// </summary>
+    static readonly string[] NativeAppFolders = ["android", "ios"];
 
     /// <summary>Whether a path exists as a file or a directory.</summary>
     /// <param name="path">The path to test.</param>
@@ -53,5 +52,5 @@ static class FileWalk
     /// </summary>
     /// <returns>The exclude patterns.</returns>
     static string[] Excludes() =>
-        [.. IgnoredDirectories.SelectMany(name => new[] { "**/" + name, "**/" + name + "/**/*" })];
+        [.. SourceTree.SkippedFolders.Concat(NativeAppFolders).SelectMany(name => new[] { "**/" + name, "**/" + name + "/**/*" })];
 }

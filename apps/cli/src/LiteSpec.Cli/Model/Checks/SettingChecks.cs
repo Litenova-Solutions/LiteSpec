@@ -238,7 +238,7 @@ internal static class SettingChecks
 
         foreach (var param in notification.Strings(RecordFields.Params))
         {
-            var pascal = ToPascalCase(param);
+            var pascal = Naming.Pascal(param);
 
             if (!placeholders.Contains(pascal))
             {
@@ -250,25 +250,5 @@ internal static class SettingChecks
                     SubjectOf(notification)));
             }
         }
-    }
-
-    /// <summary>The PascalCase form of a declared parameter: each part capitalized and joined.</summary>
-    /// <param name="name">The declared parameter name in any separator form.</param>
-    /// <returns>The PascalCase form with each separator part capitalized and the separators removed.</returns>
-    private static string ToPascalCase(string name)
-    {
-        var built = new StringBuilder();
-
-        foreach (var part in name.Split(['_', '-', ' ', '.'], StringSplitOptions.RemoveEmptyEntries))
-        {
-            built.Append(char.ToUpperInvariant(part[0]));
-
-            if (part.Length > 1)
-            {
-                built.Append(part.AsSpan(1));
-            }
-        }
-
-        return built.ToString();
     }
 }

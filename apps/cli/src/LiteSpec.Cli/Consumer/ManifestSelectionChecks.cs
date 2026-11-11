@@ -246,7 +246,7 @@ static class ManifestSelectionChecks
 
         foreach (var file in run.Files)
         {
-            if (!RecordFile.IsRecordFile(file))
+            if (!RecordFiles.IsRecordFile(file))
             {
                 continue;
             }

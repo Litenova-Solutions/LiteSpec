@@ -27,12 +27,12 @@ internal static class Candidates
     public static IReadOnlyList<IRecordFacts> Derive(
         CodeKind kind, IReadOnlyList<string> folders, string typeName, string? memberName, RecordIndex index)
     {
-        var stem = Kebab(StripSuffix(kind, memberName ?? typeName));
+        var stem = Naming.Kebab(StripSuffix(kind, memberName ?? typeName));
         var exacts = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var folder in folders)
         {
-            var home = Kebab(folder);
+            var home = Naming.Kebab(folder);
 
             if (home.Length > 0 && stem.Length > 0)
             {
@@ -208,58 +208,5 @@ internal static class Candidates
         }
 
         return name;
-    }
-
-    /// <summary>PascalCase, underscores and dots in kebab-case: SubmitExpense reads submit-expense.</summary>
-    /// <param name="name">The name to convert or match.</param>
-    /// <returns>The string as text.</returns>
-    private static string Kebab(string name)
-    {
-        var built = new System.Text.StringBuilder();
-
-        for (var i = 0; i < name.Length; i++)
-        {
-            var character = name[i];
-
-            if (character == '_' || character == '.' || character == '-' || character == ' ')
-            {
-                if (built.Length > 0 && built[built.Length - 1] != '-')
-                {
-                    built.Append('-');
-                }
-
-                continue;
-            }
-
-            if (character >= 'A' && character <= 'Z')
-            {
-                if (built.Length > 0 && built[built.Length - 1] != '-')
-                {
-                    var previous = name[i - 1];
-                    var next = i + 1 < name.Length ? name[i + 1] : 'a';
-
-                    if ((previous >= 'a' && previous <= 'z')
-                        || (previous >= '0' && previous <= '9')
-                        || (next >= 'a' && next <= 'z'))
-                    {
-                        built.Append('-');
-                    }
-                }
-
-                built.Append(char.ToLowerInvariant(character));
-                continue;
-            }
-
-            built.Append(char.ToLowerInvariant(character));
-        }
-
-        var kebab = built.ToString().Trim('-');
-
-        while (kebab.IndexOf("--", StringComparison.Ordinal) >= 0)
-        {
-            kebab = kebab.Replace("--", "-");
-        }
-
-        return kebab;
     }
 }

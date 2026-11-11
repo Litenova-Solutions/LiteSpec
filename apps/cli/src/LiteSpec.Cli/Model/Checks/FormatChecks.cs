@@ -15,13 +15,13 @@ internal static class FormatChecks
 
         foreach (var record in model.Records)
         {
-            if (RecordFile.IsRecordFile(record.File))
+            if (RecordFiles.IsRecordFile(record.File))
             {
                 subjects.TryAdd(record.File, SubjectOf(record));
             }
         }
 
-        if (RecordFile.IsRecordFile(model.Config.GlossaryPath))
+        if (RecordFiles.IsRecordFile(model.Config.GlossaryPath))
         {
             subjects.TryAdd(model.Config.GlossaryPath, null);
         }

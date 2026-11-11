@@ -93,7 +93,7 @@ static class PageChecks
             var raw = run.ReadText(file);
             var add = errors[index].Add;
 
-            if (RecordFile.IsRecordFile(file))
+            if (RecordFiles.IsRecordFile(file))
             {
                 isPage[index] = CheckRecordFile(run, file, relative, raw, add);
             }

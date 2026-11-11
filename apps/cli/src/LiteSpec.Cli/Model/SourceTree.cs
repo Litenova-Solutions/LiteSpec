@@ -29,18 +29,21 @@ static class SourceTree
         }
     }
 
-    /// <summary>Directory names the walk leaves out: build output, installed packages and tool folders.</summary>
-    private static readonly HashSet<string> Skipped = new(StringComparer.OrdinalIgnoreCase)
+    /// <summary>
+    ///     Directory names every walk of a consumer leaves out: build output, installed packages,
+    ///     framework caches and test reports. Every walk reads this one list.
+    /// </summary>
+    public static readonly IReadOnlySet<string> SkippedFolders = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
+        "bin", "obj", "out", "build", "dist", ".output", "coverage", "TestResults", "test-results",
+        "playwright-report", "node_modules", ".git", ".svelte-kit", ".next", ".tanstack",
     };
 
     /// <summary>The one include that collects every file at any depth.</summary>
     private static readonly string[] AllFiles = ["**/*"];
 
     /// <summary>The glob excludes that leave out every skipped directory at any depth.</summary>
-    private static readonly string[] SkippedExcludes = [.. Skipped.Select(name => "**/" + name + "/**/*")];
+    private static readonly string[] SkippedExcludes = [.. SkippedFolders.Select(name => "**/" + name + "/**/*")];
 
     /// <summary>
     ///     Every file under a directory, recursively, in a stable order.

@@ -228,7 +228,7 @@ static class RenameCommand
     /// <returns>True when the file is a record file under a record root and not the glossary; otherwise false.</returns>
     static bool IsRecordCandidate(ConsumerConfig config, string file)
     {
-        if (!RecordFile.IsRecordFile(file))
+        if (!RecordFiles.IsRecordFile(file))
         {
             return false;
         }

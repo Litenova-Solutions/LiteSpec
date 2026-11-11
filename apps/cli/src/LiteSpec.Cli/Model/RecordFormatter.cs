@@ -56,7 +56,7 @@ static class RecordFormatter
 
         foreach (var root in config.RecordRoots)
         {
-            foreach (var file in SourceTree.Files(root, RecordFile.Extension))
+            foreach (var file in SourceTree.Files(root, RecordFiles.Extension))
             {
                 if (seen.Add(file))
                 {
@@ -65,7 +65,7 @@ static class RecordFormatter
             }
         }
 
-        if (config.GlossaryPath.EndsWith(RecordFile.Extension, StringComparison.OrdinalIgnoreCase)
+        if (config.GlossaryPath.EndsWith(RecordFiles.Extension, StringComparison.OrdinalIgnoreCase)
             && File.Exists(config.GlossaryPath)
             && seen.Add(config.GlossaryPath))
         {
