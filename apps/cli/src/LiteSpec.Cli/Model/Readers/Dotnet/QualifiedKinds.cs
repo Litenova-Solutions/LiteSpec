@@ -9,12 +9,18 @@ namespace LiteSpec.Model.Readers.Dotnet;
 ///     simple name in different namespaces never share a kind, a helper or a port.
 ///     The marked ports of the read live here, so no read shares mutable static state.
 /// </summary>
-/// <param name="bySimple">Every declared type by simple name, each with its qualified name.</param>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-sealed class QualifiedKinds(IReadOnlyDictionary<string, List<DeclaredType>> bySimple)
+sealed class QualifiedKinds
 {
+    /// <summary>Initializes a new instance of the <see cref="QualifiedKinds"/> class for one read.</summary>
+    /// <param name="bySimple">Every declared type by simple name, each with its qualified name.</param>
+    public QualifiedKinds(IReadOnlyDictionary<string, List<DeclaredType>> bySimple)
+    {
+        BySimple = bySimple;
+    }
+
     /// <summary>Gets every declared type by simple name, each with its qualified name.</summary>
-    public IReadOnlyDictionary<string, List<DeclaredType>> BySimple { get; } = bySimple;
+    public IReadOnlyDictionary<string, List<DeclaredType>> BySimple { get; }
 
     /// <summary>Gets the resolved base names by namespace-qualified type name.</summary>
     public Dictionary<string, List<string>> Bases { get; } = new(StringComparer.Ordinal);

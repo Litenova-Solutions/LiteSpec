@@ -130,7 +130,15 @@ static class NodeFrontendReader
     }
 
     /// <summary>The failure a Node reader run reports; its message states why the run produced no facts.</summary>
-    private sealed class ReaderFailure(string message) : Exception(message);
+    private sealed class ReaderFailure : Exception
+    {
+        /// <summary>Initializes a new instance of the <see cref="ReaderFailure"/> class.</summary>
+        /// <param name="message">Why the run produced no facts.</param>
+        public ReaderFailure(string message)
+            : base(message)
+        {
+        }
+    }
 
     /// <summary>Runs the Node reader bundle for the web frontends and captures its output and error text.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>

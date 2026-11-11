@@ -4,8 +4,18 @@ namespace LiteSpec.Model.Readers;
 ///     Reads one run across several result formats. Absent when no reader finds a result file.
 /// </summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>
-sealed class CombinedTestRunReader(params ITestRunReader[] readers) : ITestRunReader
+sealed class CombinedTestRunReader : ITestRunReader
 {
+    /// <summary>The readers, one per result format, in the order their runs merge.</summary>
+    private readonly ITestRunReader[] readers;
+
+    /// <summary>Initializes a new instance of the <see cref="CombinedTestRunReader"/> class over the given readers.</summary>
+    /// <param name="readers">The readers, one per result format, in the order their runs merge.</param>
+    public CombinedTestRunReader(params ITestRunReader[] readers)
+    {
+        this.readers = readers;
+    }
+
     /// <summary>Reads and merges every reader's run, in order.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <returns>The merged test run, or null when no reader found a run.</returns>

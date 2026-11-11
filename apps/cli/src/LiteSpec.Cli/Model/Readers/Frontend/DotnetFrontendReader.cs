@@ -8,8 +8,18 @@ namespace LiteSpec.Model.Readers.Frontend;
 ///     which stays qualified.
 /// </summary>
 /// <follows>litespec/frontend/structure#mark-each-route-with-its-screen</follows>
-sealed class DotnetFrontendReader(FrontendConfig frontend) : IFrontendReader
+sealed class DotnetFrontendReader : IFrontendReader
 {
+    /// <summary>The frontend this reader reads.</summary>
+    private readonly FrontendConfig frontend;
+
+    /// <summary>Initializes a new instance of the <see cref="DotnetFrontendReader"/> class for one Blazor or Android frontend.</summary>
+    /// <param name="frontend">The frontend this reader reads.</param>
+    public DotnetFrontendReader(FrontendConfig frontend)
+    {
+        this.frontend = frontend;
+    }
+
     /// <summary>Reads this frontend's route entries and their screen marks.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
     /// <param name="code">The code model the screens are checked against.</param>
