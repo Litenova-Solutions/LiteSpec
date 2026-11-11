@@ -34,6 +34,6 @@ const { items, icon, current } = Astro.props;
         </li>
       ))
     }
-    <li><span class="crumb-current" aria-current="page">{current}</span></li>
+    <li><span class:list={["crumb-current", { "crumb-area": items.length === 0 }]} aria-current="page">{items.length === 0 && icon && <Icon name={icon} class="icon-sm" />}{current}</span></li>
   </ol>
 </nav>

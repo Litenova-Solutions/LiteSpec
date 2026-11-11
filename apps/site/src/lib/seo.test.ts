@@ -54,35 +54,35 @@ describe("absoluteUrl and buildDate", () => {
 });
 
 describe("breadcrumbs", () => {
-  it("numbers every crumb and links only the crumbs that have a path", () => {
+  it("gives every entry an item, leaving out an ancestor that is not a link", () => {
     const list = breadcrumbs([
       { name: "LiteSpec", path: "/" },
-      { name: "Backend", path: null },
-      { name: "Domain", path: "/5.1.0/backend/domain/" },
+      { name: "Learn", path: null },
+      { name: "Learn LiteSpec", path: "/5.1.0/learn/" },
     ]) as { itemListElement: Record<string, unknown>[] };
     assert.strictEqual(list["@type"], "BreadcrumbList");
     assert.deepStrictEqual(
-      list.itemListElement.map((item) => item.position),
-      [1, 2, 3],
+      list.itemListElement.map((item) => [item.position, item.name, item.item]),
+      [
+        [1, "LiteSpec", "https://litespec.dev/"],
+        [2, "Learn LiteSpec", "https://litespec.dev/5.1.0/learn/"],
+      ],
     );
-    assert.strictEqual(list.itemListElement[0].item, "https://litespec.dev/");
-    assert.strictEqual("item" in list.itemListElement[1], false);
-    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/5.1.0/backend/domain/");
   });
 
-  it("matches the visible trail: ancestors linked, the current page not", () => {
+  it("ends with the current page and its own URL", () => {
     const list = breadcrumbs([
       { name: "LiteSpec", path: "/" },
       { name: "Standard", path: "/5.1.0/standard/" },
       { name: "Backend", path: "/5.1.0/backend/" },
-      { name: "Domain Layer", path: null },
+      { name: "Domain Layer", path: "/5.1.0/backend/domain/" },
     ]) as { itemListElement: Record<string, unknown>[] };
     assert.deepStrictEqual(
       list.itemListElement.map((item) => item.name),
       ["LiteSpec", "Standard", "Backend", "Domain Layer"],
     );
-    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/5.1.0/backend/");
-    assert.strictEqual("item" in list.itemListElement[3], false);
+    assert.ok(list.itemListElement.every((item) => typeof item.item === "string"));
+    assert.strictEqual(list.itemListElement[3].item, "https://litespec.dev/5.1.0/backend/domain/");
   });
 });
 

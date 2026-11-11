@@ -79,16 +79,19 @@ export const softwareSource = {
   author: { "@id": `${SITE_ORIGIN}/#organization` },
 };
 
-/** A breadcrumb trail, each item a name and an optional site path. An item
- * without a path is a visible crumb that is not a link, so it carries no item. */
+/** A breadcrumb trail for search engines, from the visible trail: each crumb a
+ * name and its site path, the last one the current page. Google requires an
+ * item on every entry, so an ancestor without a path (a visible crumb that is
+ * not a link) is left out, and the positions count only the entries kept. */
 export function breadcrumbs(items: { name: string; path?: string | null }[]): Record<string, unknown> {
+  const kept = items.filter((item): item is { name: string; path: string } => typeof item.path === "string" && item.path !== "");
   return {
     "@type": "BreadcrumbList",
-    itemListElement: items.map((item, index) => ({
+    itemListElement: kept.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      ...(item.path ? { item: absoluteUrl(item.path) } : {}),
+      item: absoluteUrl(item.path),
     })),
   };
 }

@@ -52,7 +52,12 @@ const description =
 // The breadcrumb ancestors from the navigation order: the group, the area or
 // folders, each linked to its overview. The sidebar and the pager read the
 // same order, so all three agree about where the page sits.
-const trail = crumbTrail(page);
+// A folder index reads as "<folder> Overview"; its own folder, the last
+// ancestor and not a link, would repeat that name, so the trail drops it.
+const isIndex = pageName(page) !== page.title;
+const fullTrail = crumbTrail(page);
+const last = fullTrail.at(-1);
+const trail = isIndex && last !== undefined && last.url === null ? fullTrail.slice(0, -1) : fullTrail;
 const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: string; label: string } | null } = pageNeighbors(page);
 ---
 
@@ -66,7 +71,7 @@ const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: strin
     breadcrumbs([
       { name: "LiteSpec", path: "/" },
       ...trail.map((crumb) => ({ name: crumb.name, path: crumb.url })),
-      { name: page.title, path: null },
+      { name: pageName(page), path: pageUrl(page) },
     ]),
   ]}
 >
@@ -89,8 +94,8 @@ const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: strin
         })();
       </script>
       <div class="docs-body" data-pagefind-body data-pagefind-meta={`group:${group.label}`}>
-        <Breadcrumbs items={trail} icon={group.icon} current={page.title} />
-        <h1 data-pagefind-meta={`title:${pageName(page)}`}>{page.title}</h1>
+        <Breadcrumbs items={trail} icon={group.icon} current={pageName(page)} />
+        <h1 data-pagefind-meta={`title:${pageName(page)}`}>{pageName(page)}</h1>
         {meta.length > 0 && (
           <p class="page-meta" data-pagefind-ignore>
             {meta.map((pair) => (
