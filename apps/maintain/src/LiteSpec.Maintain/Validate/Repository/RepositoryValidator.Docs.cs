@@ -113,7 +113,7 @@ internal sealed partial class RepositoryValidator
                 {
                     // A placeholder such as use-case/<module>.<name> names a shape, not a record.
                     var id = span.Split('#')[0];
-                    if (!RecordLinkTarget.IsMatch(id) || known.Contains(id))
+                    if (!LinkValidator.RecordLinkTarget.IsMatch(id) || known.Contains(id))
                     {
                         continue;
                     }
@@ -290,7 +290,7 @@ internal sealed partial class RepositoryValidator
         {
             var href = link.Target.Trim();
             var part = href.Split('#')[0];
-            if (part.Length == 0 || AbsoluteUriPattern().IsMatch(href) || !TryDecodeURIComponent(part, out var decoded))
+            if (part.Length == 0 || LinkValidator.AbsoluteUriPattern().IsMatch(href) || !LinkValidator.TryDecodeURIComponent(part, out var decoded))
             {
                 continue;
             }

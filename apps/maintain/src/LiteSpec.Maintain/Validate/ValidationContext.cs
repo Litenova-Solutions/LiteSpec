@@ -25,6 +25,8 @@ internal sealed class ValidationContext
         Provisions = new ProvisionValidator(this);
         Manifest = new ManifestValidator(this);
         Repository = new RepositoryValidator(this);
+        Templates = new TemplateValidator(this);
+        Links = new LinkValidator(this);
         Marks = new MarksValidator(this);
         Records = new RecordsValidator(this);
         Fields = new FieldValidator(this);
@@ -57,6 +59,12 @@ internal sealed class ValidationContext
 
     /// <summary>Gets the repository-wide validator.</summary>
     public RepositoryValidator Repository { get; }
+
+    /// <summary>Gets the authoring and consumer template validator.</summary>
+    public TemplateValidator Templates { get; }
+
+    /// <summary>Gets the link validator.</summary>
+    public LinkValidator Links { get; }
 
     /// <summary>Gets the self-mark validator.</summary>
     public MarksValidator Marks { get; }

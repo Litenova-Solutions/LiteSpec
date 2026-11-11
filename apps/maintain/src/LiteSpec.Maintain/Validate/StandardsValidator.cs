@@ -76,7 +76,7 @@ internal static class StandardsValidator
                 continue;
             }
 
-            if (context.Repository.ReservedTemplateStems.Contains(relative))
+            if (context.Templates.ReservedTemplateStems.Contains(relative))
             {
                 Add(relative, 1, MaintainerDiagnostics.Codes.IdPageFilename, $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
                 continue;
@@ -101,8 +101,8 @@ internal static class StandardsValidator
         context.Repository.CheckCitations(parsedPages, activeIds);
         context.Marks.CheckMarks(activeIds);
 
-        context.Repository.CheckAuthoringTemplates();
-        context.Repository.CheckLinks(current);
+        context.Templates.CheckAuthoringTemplates();
+        context.Links.CheckLinks(current);
         // The docs cite the tools, the templates and the example, so each citation is a lookup
         // against data the tools already hold. (litespec/core/authoring#run-repeatable-authoring-checks)
         context.Repository.CheckFindingCitations(parsedPages);
@@ -179,8 +179,8 @@ internal static class StandardsValidator
         // The template index is the only map from a template file to the consumer path
         // it targets. A renamed template leaves a row pointing at nothing, and that row
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
-        context.Repository.CheckTemplateIndex();
-        context.Repository.CheckConsumerTemplates();
+        context.Templates.CheckTemplateIndex();
+        context.Templates.CheckConsumerTemplates();
         context.Repository.CheckGeneratedCounts(parsedPages);
         context.ValueStyle.CheckValueStyle();
 

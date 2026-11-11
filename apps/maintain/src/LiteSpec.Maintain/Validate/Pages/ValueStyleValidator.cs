@@ -115,7 +115,7 @@ internal sealed partial class ValueStyleValidator
     private void CheckValueField(string field, string value, bool inSteps, string? enclosingType, string relative)
     {
         var add = Context.Add;
-        if (RepositoryValidator.IsTemplatePlaceholder(value))
+        if (TemplateNormalizer.IsTemplatePlaceholder(value))
         {
             return;
         }
