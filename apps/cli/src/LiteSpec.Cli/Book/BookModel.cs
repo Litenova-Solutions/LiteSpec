@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The book's model words and addresses: the navigation layers, the type and

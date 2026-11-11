@@ -1,9 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.CommandLine;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The project model: written records, read code, screens, tests, the test run,
@@ -291,7 +292,7 @@ sealed class ProjectModel
 
                 if (record.Type == RecordTypes.Problem)
                 {
-                    writer.WriteString("evidenceStrength", LiteSpec.Model.Checks.IntentChecks.EvidenceStrengthOf(record));
+                    writer.WriteString("evidenceStrength", Checks.IntentChecks.EvidenceStrengthOf(record));
                 }
 
                 writer.WriteString("file", PathText.Relative(Config.Root, record.File));

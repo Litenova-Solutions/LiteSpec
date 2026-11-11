@@ -1,7 +1,7 @@
+using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Model;
-using LiteSpec.Model.Readers.Dotnet;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Reads one Blazor or Android frontend through the .NET screen reader,

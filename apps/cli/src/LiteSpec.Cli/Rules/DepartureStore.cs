@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The departures: departure records under <c>.litespec/governance/departures/</c> whose

@@ -1,8 +1,9 @@
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The mark checks: every element carries the marks its kind takes, each mark names

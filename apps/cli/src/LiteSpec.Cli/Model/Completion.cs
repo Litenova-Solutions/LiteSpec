@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One record's computed completion: its stage, whether proof is known, the

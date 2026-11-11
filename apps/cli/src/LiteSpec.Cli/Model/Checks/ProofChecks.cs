@@ -1,10 +1,7 @@
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The proof checks: every use case has a success result and, at the large size, a scenario, every written refusal is thrown, and every claimed proof is reached and steady.</summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>

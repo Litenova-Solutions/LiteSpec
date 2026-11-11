@@ -1,7 +1,8 @@
 using System.Text.Json;
-using LiteSpec.Model;
-using LiteSpec.Model.Checks;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -488,11 +489,11 @@ public sealed class PlacementDriftModuleLayoutTests
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <param name="raw">The raw record JSON.</param>
     /// <returns>The record.</returns>
-    static LiteSpec.Model.Record Rec(string type, string id, string qualified, string root, string raw = """{"status": "reviewed"}""")
+    static LiteSpec.Cli.Model.Record Rec(string type, string id, string qualified, string root, string raw = """{"status": "reviewed"}""")
     {
         using var document = JsonDocument.Parse(raw);
 
-        return new LiteSpec.Model.Record
+        return new LiteSpec.Cli.Model.Record
         {
             Type = type,
             Id = id,

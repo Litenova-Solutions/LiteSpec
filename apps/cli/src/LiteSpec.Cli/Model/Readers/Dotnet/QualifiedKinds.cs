@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>
 ///     The cross-file names one read collects, keyed by namespace-qualified type name

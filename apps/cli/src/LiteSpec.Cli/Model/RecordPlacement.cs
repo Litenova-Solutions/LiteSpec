@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Where a record file sits in the consumer: the folder it is in, relative to the

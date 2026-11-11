@@ -1,10 +1,8 @@
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The measured checks: every measured requirement names a check with a passing run, and a statement naming a number names a measure.</summary>
 /// <follows>litespec/core/intent#state-the-measure-on-a-counted-requirement</follows>

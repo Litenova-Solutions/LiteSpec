@@ -1,7 +1,8 @@
 using System.Text.Json;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The record-graph and advisory checks: orphans, steps, loops, queries,

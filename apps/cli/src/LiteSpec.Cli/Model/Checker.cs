@@ -2,10 +2,11 @@ using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using LiteSpec.Model.Checks;
+using LiteSpec.Cli.Model.Checks;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and levels.

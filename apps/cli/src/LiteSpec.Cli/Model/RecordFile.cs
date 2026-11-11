@@ -1,8 +1,9 @@
 using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The two files a record lives in: the record file, <c>&lt;name&gt;.yaml</c>, holding

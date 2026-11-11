@@ -1,7 +1,8 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The departure checks: every covers item names a finding code the tools emit, a shared

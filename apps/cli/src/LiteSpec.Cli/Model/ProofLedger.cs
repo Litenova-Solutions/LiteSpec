@@ -1,8 +1,9 @@
 using System.Text;
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 
 

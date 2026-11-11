@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The digest a source lock records for one copied primitive: the SHA-256 of its

@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Diff;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Diff;
 
 /// <summary>
 ///     Finds the client-breaking contract changes between the base model and the

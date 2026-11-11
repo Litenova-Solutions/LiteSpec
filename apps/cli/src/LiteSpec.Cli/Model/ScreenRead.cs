@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>What the screen read found: route screens and file comments.</summary>
 sealed record ScreenRead(

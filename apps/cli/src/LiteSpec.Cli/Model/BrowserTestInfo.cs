@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One browser test and what it proves, reaches and asserts.</summary>
 sealed record BrowserTestInfo(

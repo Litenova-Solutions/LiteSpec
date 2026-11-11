@@ -1,6 +1,6 @@
-using System.Text.Json;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Facts read straight from a use case record: its access grant, whether its

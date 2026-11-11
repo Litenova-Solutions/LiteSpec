@@ -1,10 +1,8 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The lifecycle checks: every aggregate transition names states of the aggregate and a use case that performs it, and every state is reached.</summary>
 /// <follows>litespec/core/domain-model#connect-every-state-through-transitions</follows>

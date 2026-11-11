@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The route coverage checks of the UI validator: every route a frontend

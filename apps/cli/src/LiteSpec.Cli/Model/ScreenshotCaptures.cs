@@ -1,8 +1,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Records each screen's screenshot captures from the gallery folders the

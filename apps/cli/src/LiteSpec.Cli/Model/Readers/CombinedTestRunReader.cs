@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>
 ///     Reads one run across several result formats. Absent when no reader finds a result file.

@@ -1,6 +1,6 @@
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     One retrieved provision with why it was retrieved. A departure the target

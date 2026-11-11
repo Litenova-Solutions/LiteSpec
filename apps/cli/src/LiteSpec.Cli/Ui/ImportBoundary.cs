@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
-using LiteSpec.Standards;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>One import the application boundary refuses, with its finding text.</summary>
 /// <param name="Pattern">The import specifier pattern refused.</param>

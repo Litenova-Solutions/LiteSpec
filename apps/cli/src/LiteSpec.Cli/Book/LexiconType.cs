@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One record type's book words: its display label, plural, layer and question.</summary>
 /// <param name="Label">The display label, such as Use case.</param>

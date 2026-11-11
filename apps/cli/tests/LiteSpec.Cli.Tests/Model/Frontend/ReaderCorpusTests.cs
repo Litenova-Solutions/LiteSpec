@@ -1,5 +1,5 @@
 using System.Text.Json;
-using LiteSpec.Model.Readers.Frontend;
+using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Frontend;

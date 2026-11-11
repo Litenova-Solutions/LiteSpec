@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Ui;
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using LiteSpec.Ui;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     What the model builder reads from the consumer's declaration.

@@ -1,8 +1,9 @@
 using System.Text.Json;
-using LiteSpec.Model.Readers.Operations;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Cli.Model.Readers.Operations;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The scope checks: every runbook is named by an alert, a job, a reaction or a failure policy.</summary>
 /// <follows>litespec/ext/delivery#name-every-runbook-from-an-alert-job-reaction-or-failure-policy</follows>

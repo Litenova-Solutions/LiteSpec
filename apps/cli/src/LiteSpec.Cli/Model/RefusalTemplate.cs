@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     A refusal code the project composes at run time from a key, such as <c>uniqueness.{key}-taken</c> for the

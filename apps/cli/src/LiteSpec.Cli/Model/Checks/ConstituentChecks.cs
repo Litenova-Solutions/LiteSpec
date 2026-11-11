@@ -1,7 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The constituent check: an unmarked Domain type under no aggregate folder and outside the kernel.</summary>
 /// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>

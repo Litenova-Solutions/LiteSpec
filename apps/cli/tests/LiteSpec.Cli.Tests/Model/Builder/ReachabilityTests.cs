@@ -1,8 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
-using LiteSpec.Cli.Tests.Model;
-using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Builder;
 

@@ -1,8 +1,9 @@
 using System.Globalization;
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The parse cache of one backend read: every file parsed once, in parallel.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

@@ -1,10 +1,6 @@
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The size checks: every record type the project size requires is held, and the product has one record.</summary>
 /// <follows>litespec/core/model#declare-size-and-stacks</follows>

@@ -1,9 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Model.Marks;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Builder;
 

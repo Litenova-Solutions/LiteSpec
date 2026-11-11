@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The LiteSpec words the book renders: type labels, layer writers, link phrases,

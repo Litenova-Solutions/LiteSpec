@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One browser frontend the consumer declares.

@@ -1,10 +1,10 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using LiteSpec.Model.Readers.Operations;
+using LiteSpec.Cli.Model.Readers.Operations;
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The operations checks: every alert rule names its quality requirement and

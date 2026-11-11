@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The model's records and links indexed once for one computation, so each

@@ -1,9 +1,10 @@
+using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>
 ///     Collects the cross-file names kind recognition needs: the aggregate roots,

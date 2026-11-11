@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     Reads the direct packages of an SPDX 2.x JSON bill of materials: the packages the

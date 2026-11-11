@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>One departure record the UI gates read their own departures from.</summary>
 /// <param name="File">The departure file, relative to the consumer root.</param>

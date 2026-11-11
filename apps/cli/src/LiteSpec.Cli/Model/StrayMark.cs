@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One marked type or method of no known kind: a reading method, a private

@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Reads one Svelte or React frontend through the shared TypeScript reader

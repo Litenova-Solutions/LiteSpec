@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The heading checks of the consumer validator: the page title and every

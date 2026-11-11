@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The relationship readings over the index: one scenario's proof state, the

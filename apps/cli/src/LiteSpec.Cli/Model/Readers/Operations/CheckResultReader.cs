@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Operations;
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>
 ///     Reads the check results the drills and measuring harnesses write under

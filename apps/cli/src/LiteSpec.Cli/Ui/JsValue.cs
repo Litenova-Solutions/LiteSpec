@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     A JSON property read with its presence: whether the key exists,

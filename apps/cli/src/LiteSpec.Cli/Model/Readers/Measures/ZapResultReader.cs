@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LiteSpec.Model.Readers.Measures;
+namespace LiteSpec.Cli.Model.Readers.Measures;
 
 /// <summary>
 ///     Reads ZAP JSON reports: one result per alert plus a summary. An alert passes

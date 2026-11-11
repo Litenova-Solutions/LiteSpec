@@ -1,7 +1,8 @@
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>Reads one handler, one event handler, or one job host, with its shape.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

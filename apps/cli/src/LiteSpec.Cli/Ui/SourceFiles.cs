@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The patterns that classify a frontend's source files for the UI checks:

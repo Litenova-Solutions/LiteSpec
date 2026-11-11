@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One refusal code literal in code. <paramref name="Declares" /> is true when the literal

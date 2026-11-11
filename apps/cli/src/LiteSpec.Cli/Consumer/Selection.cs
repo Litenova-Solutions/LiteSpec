@@ -1,4 +1,4 @@
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     One extension selection: a bare id string normalizes to a selection carrying only the id.

@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One proves link enriched with its test, if the scenario names one.</summary>
 /// <param name="Scenario">The proving scenario name.</param>

@@ -1,10 +1,8 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The fulfilment checks: every requirement is fulfilled or decided and cites a reason, and every applying constraint is cited.</summary>
 /// <follows>litespec/core/intent#restrict-requirement-fulfillment-to-behavior</follows>

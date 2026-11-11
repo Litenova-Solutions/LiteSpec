@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One outline node: a record, a group, or the code, test or finding under its subject.</summary>
 /// <param name="Id">The record id, the layer key, the layer and type, or the code, test or finding id.</param>

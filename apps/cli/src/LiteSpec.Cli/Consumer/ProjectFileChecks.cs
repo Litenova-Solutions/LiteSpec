@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The project record checks of the consumer validator: the record against

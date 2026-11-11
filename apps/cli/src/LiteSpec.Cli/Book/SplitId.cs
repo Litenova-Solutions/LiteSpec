@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>A record id split into its type, home module and name.</summary>
 /// <param name="Type">The part before the slash.</param>

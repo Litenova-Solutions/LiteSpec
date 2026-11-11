@@ -1,9 +1,9 @@
-using LiteSpec;
-using LiteSpec.Authoring;
-using LiteSpec.Book;
-using LiteSpec.Init;
-using LiteSpec.Model;
-using LiteSpec.Rules;
+using LiteSpec.Cli;
+using LiteSpec.Cli.Authoring;
+using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Init;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Rules;
 using LiteSpec.Standards;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather

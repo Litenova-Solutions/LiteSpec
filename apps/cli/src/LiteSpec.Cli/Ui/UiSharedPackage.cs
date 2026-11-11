@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>The shared package summary the human and JSON outputs print.</summary>
 /// <param name="NameFound">Whether the package declares a name.</param>

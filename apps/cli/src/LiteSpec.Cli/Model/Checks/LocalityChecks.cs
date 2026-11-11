@@ -1,7 +1,8 @@
 using System.Text.Json;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The locality checks, kept in one class so the partial checker holds only the entry point.

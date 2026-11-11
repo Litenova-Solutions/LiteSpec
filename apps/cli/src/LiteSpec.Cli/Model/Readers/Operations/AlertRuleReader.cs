@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Operations;
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>
 ///     Reads alert rules from the groups files the project lists in paths.alerts.

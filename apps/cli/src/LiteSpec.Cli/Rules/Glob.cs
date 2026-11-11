@@ -1,4 +1,4 @@
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     A glob over consumer-relative paths: <c>*</c> crosses no folder and

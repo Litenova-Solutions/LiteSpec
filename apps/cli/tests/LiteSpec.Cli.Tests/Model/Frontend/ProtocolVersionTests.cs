@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Tests.Support;
-using LiteSpec.Model.Readers.Frontend;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Frontend;

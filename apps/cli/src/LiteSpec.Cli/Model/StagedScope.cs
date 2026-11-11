@@ -1,7 +1,8 @@
 
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The git scope for <c>model check --since</c>: the records on changed

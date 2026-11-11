@@ -1,5 +1,4 @@
-using LiteSpec;
-using LiteSpec.Authoring;
+using LiteSpec.Cli.Authoring;
 using LiteSpec.Cli.Tests.Consumer;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.CommandLine;

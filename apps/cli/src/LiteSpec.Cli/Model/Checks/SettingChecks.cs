@@ -1,8 +1,8 @@
-using System.Text;
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The setting-key and template-store checks: every operator setting names its key, every keyed setting is bound by a marked options class spelling it, and the notification templates and the template store stay one set with every parameter used.</summary>
 /// <follows>litespec/core/use-cases#name-the-configuration-key-of-every-operator-setting</follows>

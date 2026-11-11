@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Settings;
+namespace LiteSpec.Cli.Model.Readers.Settings;
 
 /// <summary>One stored template: its key, its line, and the placeholders its texts use.</summary>
 /// <param name="Key">The template key.</param>

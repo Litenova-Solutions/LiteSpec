@@ -1,6 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The use-case id a frontend module folder mirrors: three segments

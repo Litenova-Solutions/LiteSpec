@@ -1,6 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Derives each unmarked Domain type's aggregate from its folder: the first folder walking

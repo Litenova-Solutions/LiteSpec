@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 
 
@@ -575,7 +575,7 @@ static class BookOutline
     static string PluralOf(string type) =>
         string.Equals(type, "screen", StringComparison.Ordinal)
             ? "Screens"
-            : LiteSpec.Book.BookModel.TypeLabel(type, plural: true);
+            : LiteSpec.Cli.Book.BookModel.TypeLabel(type, plural: true);
 
     /// <summary>Sorts every layer tree and then each layer root by its layer order.</summary>
     /// <param name="layers">The layer root nodes keyed by layer key.</param>

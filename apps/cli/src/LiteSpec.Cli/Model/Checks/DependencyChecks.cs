@@ -1,8 +1,8 @@
 using System.Text.Json;
-using LiteSpec.Model.Readers.Dependencies;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Cli.Model.Readers.Dependencies;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The dependency checks, kept in one class so the partial checker holds only the entry point.

@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The dispatches a held receiver carries through a helper, one hop deep.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

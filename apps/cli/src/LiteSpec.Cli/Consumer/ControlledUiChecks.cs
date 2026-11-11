@@ -1,7 +1,8 @@
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Ui;
 using LiteSpec.Model;
-using LiteSpec.Ui;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The controlled UI delegation of the consumer validator: the UI validator's

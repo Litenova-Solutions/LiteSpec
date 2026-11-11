@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Ui;
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using LiteSpec.Ui;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The UI source lock beside the shared package, written by <c>litespec model render</c>:

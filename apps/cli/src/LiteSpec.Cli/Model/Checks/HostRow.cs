@@ -1,6 +1,4 @@
-using System.Text.Json;
-
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>One event handler or job host row: the holder ids with the shape the checks read.</summary>
 internal sealed record HostRow(

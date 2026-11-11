@@ -1,7 +1,7 @@
 using System.Formats.Tar;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Diff;
+namespace LiteSpec.Cli.Model.Diff;
 
 /// <summary>
 ///     One loaded comparison base: its model and its label. Disposing removes the

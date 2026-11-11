@@ -1,7 +1,8 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     The manifest pins of the carried LiteSpec release: the NuGet pins compared

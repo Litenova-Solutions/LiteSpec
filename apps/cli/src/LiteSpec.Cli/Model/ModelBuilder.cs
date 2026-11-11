@@ -1,10 +1,11 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Model.Readers;
-using LiteSpec.Model.Readers.Measures;
+using LiteSpec.Cli.Model.Readers;
+using LiteSpec.Cli.Model.Readers.Measures;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Builds the project model: reads records, code, screens, tests, the test run,

@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>One use-case module folder a frontend reader found.</summary>
 /// <param name="Folder">The folder, relative to the frontend root with forward slashes.</param>

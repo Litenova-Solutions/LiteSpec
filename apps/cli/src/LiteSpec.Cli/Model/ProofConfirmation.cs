@@ -1,7 +1,8 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Confirms what a test proves: whether a backend or browser test's claim on a

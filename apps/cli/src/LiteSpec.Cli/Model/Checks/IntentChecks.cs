@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The Intent checks: a problem is an outside pain with evidence, an actor is a person or organization named from a journey, a problem or an access position, and a goal is moved by a journey or a quality requirement.</summary>
 /// <follows>litespec/core/intent#admit-only-outside-pains-as-problems</follows>

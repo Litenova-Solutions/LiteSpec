@@ -2,10 +2,11 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>One in-process validation run: the errors, digests, and manifest it collects.</summary>
 /// <follows>litespec/frontend/ui#select-one-visual-authority</follows>

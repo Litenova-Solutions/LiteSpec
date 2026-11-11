@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Xml.Linq;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>
 ///     Reads test outcomes from TRX files. Absent when the folder holds none.

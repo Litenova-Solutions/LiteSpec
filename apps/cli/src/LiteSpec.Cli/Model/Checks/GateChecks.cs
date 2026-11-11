@@ -1,10 +1,8 @@
-using System.Globalization;
-using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The gate checks: every decision names what it decides or what it rests on, and a negating rule keeps its restriction in its name.</summary>
 /// <follows>litespec/core/model#name-what-every-decision-decides</follows>

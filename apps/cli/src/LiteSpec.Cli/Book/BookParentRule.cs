@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One parent rule: the record type, the parent types it may sit under, and how the parent is found.</summary>
 /// <param name="Type">The record type the rule covers.</param>

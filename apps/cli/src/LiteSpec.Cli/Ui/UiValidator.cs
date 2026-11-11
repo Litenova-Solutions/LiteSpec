@@ -1,4 +1,4 @@
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The controlled web UI validator: the in-process <see cref="Validate"/> the consumer pass calls.

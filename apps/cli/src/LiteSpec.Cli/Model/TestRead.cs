@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>What the test read found: scenarios and file comments.</summary>
 sealed record TestRead(

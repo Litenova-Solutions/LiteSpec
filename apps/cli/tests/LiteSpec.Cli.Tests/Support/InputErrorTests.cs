@@ -1,4 +1,3 @@
-using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 
 namespace LiteSpec.Cli.Tests.Support;

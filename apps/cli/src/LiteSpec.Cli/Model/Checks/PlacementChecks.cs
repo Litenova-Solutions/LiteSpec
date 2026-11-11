@@ -1,10 +1,11 @@
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The placement checks: every backend mark sits under the code folder its record's placement names with its namespace,

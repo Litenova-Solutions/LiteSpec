@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One scenario's proof state from its proves links.</summary>
 /// <param name="State">The proof state key.</param>

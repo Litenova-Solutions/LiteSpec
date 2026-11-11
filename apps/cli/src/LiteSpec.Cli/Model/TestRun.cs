@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>The latest test run, read from result files.</summary>
 /// <follows>litespec/core/model#compute-proof-statuses-in-the-builder</follows>

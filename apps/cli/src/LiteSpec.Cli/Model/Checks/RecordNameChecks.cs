@@ -1,6 +1,7 @@
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The name-shape checks on records: template keys, setting units, published event names and job names.</summary>
 /// <follows>litespec/core/use-cases#state-the-unit-of-every-quantity-setting</follows>

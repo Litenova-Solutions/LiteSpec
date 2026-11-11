@@ -1,4 +1,3 @@
-using Record = LiteSpec.Model.Record;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;

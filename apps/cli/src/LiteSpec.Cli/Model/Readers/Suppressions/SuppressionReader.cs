@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace LiteSpec.Model.Readers.Suppressions;
+namespace LiteSpec.Cli.Model.Readers.Suppressions;
 
 /// <summary>
 ///     Reads every lowering or suppression of a LiteSpec analyzer rule under the

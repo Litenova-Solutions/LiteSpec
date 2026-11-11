@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The computed Intent coverage status: for each Intent requirement and

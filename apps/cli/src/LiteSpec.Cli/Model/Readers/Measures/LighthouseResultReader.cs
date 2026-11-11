@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LiteSpec.Model.Readers.Measures;
+namespace LiteSpec.Cli.Model.Readers.Measures;
 
 /// <summary>
 ///     Reads Lighthouse report files: one result per category and per audit with a

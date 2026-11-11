@@ -1,6 +1,7 @@
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The project conventions: provision-shaped Markdown files under

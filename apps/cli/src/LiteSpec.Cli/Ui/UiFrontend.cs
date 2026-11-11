@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>One declared frontend, with the raw values the outputs print.</summary>
 /// <param name="NameFound">Whether the frontend declares a name.</param>

@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One labelled completion count: how many of a set are done.</summary>
 /// <param name="Done">How many in the set are done.</param>

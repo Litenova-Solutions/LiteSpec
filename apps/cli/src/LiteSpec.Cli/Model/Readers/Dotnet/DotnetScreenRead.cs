@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>What the .NET screen read found: route facts and one problem per file it could not read or parse.</summary>
 /// <param name="Routes">The route entries.</param>

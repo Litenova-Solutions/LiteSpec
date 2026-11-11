@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Xml.Linq;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.JUnit;
+namespace LiteSpec.Cli.Model.Readers.JUnit;
 
 /// <summary>
 ///     Reads test outcomes from JUnit XML files. Absent when the folder holds none.

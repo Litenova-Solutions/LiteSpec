@@ -1,4 +1,4 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
 
@@ -187,14 +187,14 @@ public sealed class CompletionTests
         Assert.Equal(1, completion.Counts["features verified"].Of);
     }
 
-    static LiteSpec.Model.Record Requirement(string root, string id, string fields) =>
+    static LiteSpec.Cli.Model.Record Requirement(string root, string id, string fields) =>
         TestModel.Record("requirement", id, Path.Combine(root, id.Replace('/', '.') + ".yaml"), fields == "{}"
             ? """{"kind": "functional", "statement": "A reader borrows one copy."}"""
             : $$"""{"kind": "functional", "statement": "A reader borrows one copy.", {{fields[1..^1]}}}""");
 
-    static LiteSpec.Model.Record UseCase(string root, string id, string fields) =>
+    static LiteSpec.Cli.Model.Record UseCase(string root, string id, string fields) =>
         TestModel.Record("use-case", id, Path.Combine(root, id.Replace('/', '.') + ".yaml"), fields);
 
-    static LiteSpec.Model.Record Feature(string root) =>
+    static LiteSpec.Cli.Model.Record Feature(string root) =>
         TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}""");
 }

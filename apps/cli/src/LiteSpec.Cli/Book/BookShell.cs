@@ -1,8 +1,8 @@
 using System.Globalization;
 using System.Text;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The book's single shell: the carried header and three columns with the

@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     What a rules target names: a file or folder path with its stack, layer,

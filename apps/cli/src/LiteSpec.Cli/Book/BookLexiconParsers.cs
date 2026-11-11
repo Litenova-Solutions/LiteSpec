@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The five carried-release table parsers of the lexicon: the record-type table,

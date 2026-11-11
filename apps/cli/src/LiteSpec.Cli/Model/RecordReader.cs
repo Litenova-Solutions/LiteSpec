@@ -1,6 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Finds every written record under the consumer's roots: the records each record file

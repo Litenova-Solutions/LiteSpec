@@ -1,6 +1,6 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     Walks the consumer's files for the UI checks: existence, containment,

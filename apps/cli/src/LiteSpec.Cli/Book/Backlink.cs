@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One incoming link: the record it comes from and the field that holds it.</summary>
 /// <param name="From">The linking record's id.</param>

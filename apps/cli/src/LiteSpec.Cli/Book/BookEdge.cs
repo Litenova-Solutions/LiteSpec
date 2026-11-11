@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One outgoing or incoming edge: the other end and the field key.</summary>
 /// <param name="Id">The other record id, or a code or test id for computed edges.</param>

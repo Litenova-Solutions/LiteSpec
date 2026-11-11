@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>The collected result of one <see cref="UiValidator.Validate"/> run.</summary>
 /// <param name="ExitCode">What the UI pass returns: 0 pass, 1 problems, 2 unusable root.</param>

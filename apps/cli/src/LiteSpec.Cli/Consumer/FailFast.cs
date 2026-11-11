@@ -1,4 +1,4 @@
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     Carries an exit code and its message out of a check that ends the consumer

@@ -1,11 +1,11 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Consumer;
+using LiteSpec.Cli.Model.Diff;
 using LiteSpec.CommandLine;
-using LiteSpec.Consumer;
-using LiteSpec.Model.Diff;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The <c>litespec model</c> command: check, format, render and query a consumer's project model.

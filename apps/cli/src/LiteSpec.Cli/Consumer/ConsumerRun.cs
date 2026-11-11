@@ -1,9 +1,9 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The mutable state of the consumer pass inside <c>model check</c>: the roots,

@@ -1,6 +1,7 @@
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The format check: every record file stands in its canonical form.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

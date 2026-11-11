@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>
 ///     One helper method the source tree declares: the type declaring it, its parameters by

@@ -1,7 +1,8 @@
 using System.Text.Json;
-using LiteSpec.Model.Readers.Operations;
+using LiteSpec.Cli.Model.Readers.Operations;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Readers.Measures;
+namespace LiteSpec.Cli.Model.Readers.Measures;
 
 /// <summary>
 ///     Reads measured-check results the way the test-run reader reads test runs:

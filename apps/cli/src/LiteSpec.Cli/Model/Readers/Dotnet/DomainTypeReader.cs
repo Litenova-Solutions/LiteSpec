@@ -1,8 +1,9 @@
+using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>Reads every top-level Domain type of one file into the model.</summary>
 /// <follows>litespec/backend/domain#place-every-constituent-type-in-its-aggregates-folder</follows>

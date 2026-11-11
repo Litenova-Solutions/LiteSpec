@@ -1,7 +1,8 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The explanation checks: every article type carries its explanation file with its required sections, and every explanation file stands beside a record file.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

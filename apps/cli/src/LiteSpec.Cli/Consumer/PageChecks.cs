@@ -1,10 +1,11 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Ui;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using LiteSpec.Ui;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The page scan of the consumer validator: collects the record files and Markdown files,

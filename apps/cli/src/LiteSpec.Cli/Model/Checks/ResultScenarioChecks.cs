@@ -1,6 +1,7 @@
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The result check: every written result is shown by a scenario.</summary>
 /// <follows>litespec/core/use-cases#prove-every-written-result-with-a-scenario</follows>

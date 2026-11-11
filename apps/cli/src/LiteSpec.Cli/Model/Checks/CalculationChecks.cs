@@ -1,10 +1,8 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The calculation checks: every calculation rule is shown by a scenario with an examples table.</summary>
 /// <follows>litespec/core/domain-model#tabulate-every-calculation-with-examples</follows>

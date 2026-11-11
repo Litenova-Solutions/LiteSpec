@@ -1,4 +1,4 @@
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The source-scan checks of the UI validator: the shared package's own

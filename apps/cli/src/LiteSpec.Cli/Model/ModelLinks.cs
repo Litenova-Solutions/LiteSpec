@@ -1,7 +1,8 @@
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The links the builder resolves from the marks and records: each record's

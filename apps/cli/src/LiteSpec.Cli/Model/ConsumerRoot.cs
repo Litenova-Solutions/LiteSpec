@@ -1,6 +1,6 @@
 using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Where a consumer's LiteSpec files live: every LiteSpec file in a consumer

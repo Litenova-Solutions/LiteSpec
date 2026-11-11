@@ -1,6 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Rewrites every record file into canonical form, leaving all other files untouched.

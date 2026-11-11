@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The research source checks: a research explanation cites every source by key and links no URL directly.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

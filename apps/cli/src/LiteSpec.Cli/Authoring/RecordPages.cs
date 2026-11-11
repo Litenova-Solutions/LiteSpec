@@ -1,6 +1,7 @@
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Cli.Authoring;
 
 /// <summary>
 ///     Where a record file lives: the home folder of each page-owning record

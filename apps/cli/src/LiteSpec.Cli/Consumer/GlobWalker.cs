@@ -1,6 +1,7 @@
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
 
-namespace LiteSpec.Consumer;
+namespace LiteSpec.Cli.Consumer;
 
 /// <summary>
 ///     The page scan's file walk: every record file and Markdown file under the documentation root, in a stable order.

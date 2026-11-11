@@ -1,4 +1,4 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
 

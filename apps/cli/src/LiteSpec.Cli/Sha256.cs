@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Numerics;
 
-namespace LiteSpec;
+namespace LiteSpec.Cli;
 
 /// <summary>
 ///     SHA-256 as FIPS 180-4 defines it, computed in managed code. The CLI hashes content to

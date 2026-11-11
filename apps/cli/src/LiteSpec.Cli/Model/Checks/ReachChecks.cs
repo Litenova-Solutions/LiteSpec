@@ -1,10 +1,9 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The reach checks: every use case sits in a journey, every declared code literal is recorded, every screen call matches an endpoint, every Intent record reaches Behavior, every role is held, every permission is allowed, and no two decisions decide one record.</summary>
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>

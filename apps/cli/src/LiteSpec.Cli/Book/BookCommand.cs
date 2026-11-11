@@ -1,13 +1,13 @@
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Consumer;
+using LiteSpec.Cli.Model;
 using LiteSpec.CommandLine;
-using LiteSpec.Consumer;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The <c>litespec book</c> command: generate the project book, one offline

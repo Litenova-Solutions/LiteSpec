@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>One type declaration the reader found, with its namespace-qualified name.</summary>
 /// <param name="Qualified">The namespace-qualified name, including each containing type.</param>

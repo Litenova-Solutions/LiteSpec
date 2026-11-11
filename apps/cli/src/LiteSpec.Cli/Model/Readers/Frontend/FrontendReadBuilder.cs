@@ -1,7 +1,7 @@
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Turns one frontend's facts into screens, mark elements and browser tests:

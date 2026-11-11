@@ -1,6 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     Reads the direct packages of every bill of materials the project names in paths.sbom:

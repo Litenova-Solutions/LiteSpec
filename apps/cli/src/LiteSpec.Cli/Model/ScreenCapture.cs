@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One screenshot capture of a screen route: its file, theme, width and capture date.</summary>
 /// <param name="Path">The capture file, relative to the consumer root with forward slashes.</param>

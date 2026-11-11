@@ -1,10 +1,10 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or

@@ -1,10 +1,11 @@
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Settings;
+namespace LiteSpec.Cli.Model.Readers.Settings;
 
 /// <summary>
 ///     Reads the options classes that bind keyed settings: every class carrying an

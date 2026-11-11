@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Suppressions;
+namespace LiteSpec.Cli.Model.Readers.Suppressions;
 
 /// <summary>
 ///     One lowering or suppression of a LiteSpec analyzer rule: the rule it names, the

@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One Links-table row's book words: the field, its carriers and both phrases.</summary>
 /// <param name="Field">The link field, such as serves or access.grant.</param>

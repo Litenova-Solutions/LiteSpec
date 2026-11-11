@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>One per-field erasure position differing from its class.</summary>
 internal sealed record DataClassException(

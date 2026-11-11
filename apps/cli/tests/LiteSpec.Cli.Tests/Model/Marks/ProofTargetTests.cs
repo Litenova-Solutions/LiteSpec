@@ -1,6 +1,6 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model;
 using LiteSpec.Model;
-using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 

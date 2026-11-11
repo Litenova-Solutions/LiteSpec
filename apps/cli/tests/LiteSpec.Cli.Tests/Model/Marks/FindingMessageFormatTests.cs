@@ -1,8 +1,9 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
-using Record = LiteSpec.Model.Record;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 

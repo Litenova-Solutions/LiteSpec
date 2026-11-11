@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.CommandLine;
 
-namespace LiteSpec;
+namespace LiteSpec.Cli;
 
 /// <summary>
 ///     The last-resort handler for an unexpected exception in a command, and the one

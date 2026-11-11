@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Diff;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Diff;
 
 /// <summary>
 ///     Finds the proving tests changed since the base without their scenario: a scenario whose base

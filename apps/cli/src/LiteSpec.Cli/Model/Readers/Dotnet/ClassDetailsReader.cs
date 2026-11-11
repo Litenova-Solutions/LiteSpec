@@ -1,7 +1,8 @@
+using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The collected details of one class: what it takes, produces, throws, and handles.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

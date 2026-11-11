@@ -1,7 +1,8 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Rewrites the fenced generated regions, leaving all other text untouched.

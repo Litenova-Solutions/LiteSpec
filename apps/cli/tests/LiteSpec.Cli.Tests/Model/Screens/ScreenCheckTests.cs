@@ -1,8 +1,9 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using Record = LiteSpec.Model.Record;
+using Record = LiteSpec.Cli.Model.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Screens;
 
@@ -335,10 +336,10 @@ public sealed class ScreenCheckTests
     [Fact]
     public void AddressMatchingTreatsParametersAsAnySegment()
     {
-        Assert.True(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42"));
-        Assert.True(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/{}", "/loans/42"));
-        Assert.False(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42/edit"));
-        Assert.False(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans", "/cards"));
+        Assert.True(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42"));
+        Assert.True(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/{}", "/loans/42"));
+        Assert.False(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42/edit"));
+        Assert.False(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans", "/cards"));
     }
 
     /// <summary>Severity Uses The Producing Readers Qualification.</summary>

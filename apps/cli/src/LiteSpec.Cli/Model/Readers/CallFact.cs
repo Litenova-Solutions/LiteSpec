@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>One generated-client call a route reaches: the operation name as the client exports it.</summary>
 /// <param name="Operation">The operation name, as the client exports it.</param>

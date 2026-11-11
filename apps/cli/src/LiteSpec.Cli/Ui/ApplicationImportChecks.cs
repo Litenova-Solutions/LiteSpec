@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
-using LiteSpec.Standards;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The application import checks of the UI validator: an application

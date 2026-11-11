@@ -1,6 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The YAML frontmatter a document carries between two fence lines.

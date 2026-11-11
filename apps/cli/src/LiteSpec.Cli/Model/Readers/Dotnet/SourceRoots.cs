@@ -1,6 +1,7 @@
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The backend source roots of a consumer, as the reader walks them.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

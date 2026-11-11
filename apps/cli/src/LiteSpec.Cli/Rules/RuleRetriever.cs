@@ -1,7 +1,7 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     Retrieves the provisions that govern a target: artifact-scoped provisions match

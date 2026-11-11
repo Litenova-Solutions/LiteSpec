@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The refusal codes of the model: the code each rule refuses with, and the

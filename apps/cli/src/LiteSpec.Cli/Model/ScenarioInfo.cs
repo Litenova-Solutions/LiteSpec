@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One acceptance scenario and what it claims.</summary>
 sealed record ScenarioInfo(

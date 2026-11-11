@@ -1,8 +1,9 @@
 using System.Text;
 using System.Text.Json;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Runs the TypeScript reader through Node once per build or check, as the

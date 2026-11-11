@@ -1,4 +1,4 @@
-using LiteSpec.Consumer;
+using LiteSpec.Cli.Consumer;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Consumer;

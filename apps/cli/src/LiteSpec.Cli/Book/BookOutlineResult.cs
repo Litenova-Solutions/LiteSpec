@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One built outline: the parent per record, the layer trees, and the unplaced ids.</summary>
 /// <param name="ParentOf">The parent id per record id, or null when no rule places it.</param>

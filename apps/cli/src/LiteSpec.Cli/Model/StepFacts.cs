@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     What one steps method does through the helpers of its class: the request routes it names and the HTTP

@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>The results and scenarios that belong to one use case.</summary>
 /// <param name="Results">The use case's results.</param>

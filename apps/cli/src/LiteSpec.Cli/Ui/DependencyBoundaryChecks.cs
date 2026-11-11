@@ -1,4 +1,4 @@
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The dependency boundary checks of the UI validator: no second

@@ -1,10 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Cli.Authoring;
 
 /// <summary>
 ///     The <c>litespec rename</c> command: renames one record identifier across

@@ -1,4 +1,4 @@
-using LiteSpec.Book;
+using LiteSpec.Cli.Book;
 
 namespace LiteSpec.Cli.Tests.Shared;
 

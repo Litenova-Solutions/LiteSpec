@@ -1,11 +1,11 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Model;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Cli.Authoring;
 
 /// <summary>
 ///     The <c>litespec new result</c> and <c>litespec new scenario</c> append paths:

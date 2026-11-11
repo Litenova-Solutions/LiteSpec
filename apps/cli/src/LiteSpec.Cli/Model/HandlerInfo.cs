@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One use-case handler, linked to its use case through its mark.</summary>
 sealed record HandlerInfo(

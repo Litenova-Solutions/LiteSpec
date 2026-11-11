@@ -1,11 +1,9 @@
-using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Standards;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The citation checks: every cited identifier resolves to a record or a shared provision, in record fields, explanations and documents, and code and test comments.</summary>
 /// <follows>litespec/core/language#resolve-every-identifier-citation</follows>

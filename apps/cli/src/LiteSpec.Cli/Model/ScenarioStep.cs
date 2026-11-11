@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One step call inside a scenario.</summary>
 sealed record ScenarioStep(string Phase, string Receiver, string? ReceiverType, string Method)

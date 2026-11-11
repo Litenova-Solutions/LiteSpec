@@ -1,7 +1,8 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The canonical key order of a record: identity, the type's own fields in

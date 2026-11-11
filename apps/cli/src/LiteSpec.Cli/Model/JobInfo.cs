@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One job host, linked to its job through its mark.</summary>
 sealed record JobInfo(

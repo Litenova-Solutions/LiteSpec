@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One dispatch call a handler, reaction or job class makes. <paramref name="Verb" /> is

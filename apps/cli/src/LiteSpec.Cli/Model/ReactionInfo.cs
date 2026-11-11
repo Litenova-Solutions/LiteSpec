@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One event handler, linked to its reaction through its mark.</summary>
 sealed record ReactionInfo(

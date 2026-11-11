@@ -1,7 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Standards;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The prose fields of one record rendered to HTML: every C4 field the record

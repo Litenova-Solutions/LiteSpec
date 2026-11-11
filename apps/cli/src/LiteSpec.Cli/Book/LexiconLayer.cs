@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One record layer's book words: its display label and writers.</summary>
 /// <param name="Label">The display label, such as Intent.</param>

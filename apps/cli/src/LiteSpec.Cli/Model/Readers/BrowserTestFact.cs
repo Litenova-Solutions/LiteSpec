@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>One browser test a frontend reader found.</summary>
 /// <param name="File">The test file, relative to the frontend root with forward slashes.</param>

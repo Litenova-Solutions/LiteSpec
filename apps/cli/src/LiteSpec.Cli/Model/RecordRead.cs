@@ -1,6 +1,6 @@
-using LiteSpec.Standards;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     What the record read found: records, bodies, provisions and problems.

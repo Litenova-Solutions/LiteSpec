@@ -1,8 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>Helpers the check domains share: record subjects, JSON field reads, and aggregate transition and data reads.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

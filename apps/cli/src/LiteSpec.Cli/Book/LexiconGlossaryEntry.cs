@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One glossary term's book words: its definition, layer and source.</summary>
 /// <param name="Term">The term, in the glossary heading's words.</param>

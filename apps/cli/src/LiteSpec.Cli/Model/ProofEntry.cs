@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One scenario's recorded proof: its hashes at the last passing run, and that run.</summary>
 /// <param name="Scenario">The scenario semantic hash at the last passing run.</param>

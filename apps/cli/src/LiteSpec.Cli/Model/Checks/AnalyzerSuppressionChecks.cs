@@ -1,7 +1,8 @@
-using LiteSpec.Model.Readers.Suppressions;
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Cli.Model.Readers.Suppressions;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>
 ///     The analyzer suppression check, kept in one class so the partial checker holds only the entry point.

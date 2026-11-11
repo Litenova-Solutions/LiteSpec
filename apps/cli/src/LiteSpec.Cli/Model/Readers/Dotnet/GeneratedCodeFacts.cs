@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>Whether a file or a declaration is generated code the reader leaves out.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

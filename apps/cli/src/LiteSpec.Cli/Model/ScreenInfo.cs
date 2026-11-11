@@ -1,4 +1,6 @@
-namespace LiteSpec.Model;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One read route: its address, file, operations, use cases and paired calls.</summary>
 sealed record ScreenInfo(

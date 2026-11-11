@@ -1,4 +1,4 @@
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>One public method on an aggregate root with the domain events it raises.</summary>
 sealed record AggregateMethod(string Aggregate, string Method, IReadOnlyList<string> Events, string File, int Line)

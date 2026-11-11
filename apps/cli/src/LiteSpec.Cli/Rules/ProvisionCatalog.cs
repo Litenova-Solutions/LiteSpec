@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The provisions the consumer's selection applies: every provision on an applied

@@ -1,6 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     One record: a page, an entry on a page, a term, or a derived generic result.

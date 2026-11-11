@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>What the backend read found: the code model and the files it could not read.</summary>
 /// <param name="Code">What the backend source says.</param>

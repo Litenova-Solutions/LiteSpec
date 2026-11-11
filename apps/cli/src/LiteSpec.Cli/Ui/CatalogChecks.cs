@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Ui;
+namespace LiteSpec.Cli.Ui;
 
 /// <summary>
 ///     The pattern catalog checks of the UI validator: one recorded decision

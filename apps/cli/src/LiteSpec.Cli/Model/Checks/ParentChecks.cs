@@ -1,6 +1,7 @@
-using static LiteSpec.Model.Checks.FindingHelpers;
+using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 
-namespace LiteSpec.Model.Checks;
+namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>The parent check: every record with a required written parent names it.</summary>
 /// <follows>litespec/core/model#give-every-record-one-parent</follows>

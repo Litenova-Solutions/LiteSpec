@@ -3,7 +3,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace LiteSpec;
+namespace LiteSpec.Cli;
 
 /// <summary>
 ///     How a JSON value reads outside its document: the text a message prints, whether

@@ -1,7 +1,8 @@
-using LiteSpec.Model;
-using LiteSpec.Model.Readers;
-using LiteSpec.Model.Readers.Frontend;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Readers;
+using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Frontend;
 

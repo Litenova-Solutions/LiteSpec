@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>One route entry a frontend reader found, as the frontend facts protocol states it.</summary>
 /// <param name="File">The route file, relative to the frontend root with forward slashes.</param>

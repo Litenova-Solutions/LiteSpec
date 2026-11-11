@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     Escapes text for HTML: the one escaping every HTML writer shares, so a value

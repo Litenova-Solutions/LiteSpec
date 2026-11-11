@@ -1,5 +1,3 @@
-using LiteSpec.Model;
-
 namespace LiteSpec.Cli.Tests.Model.Frontend;
 
 /// <summary>Proves the mark checks over frontend modules: missing, unresolved, mirrored and styled.</summary>

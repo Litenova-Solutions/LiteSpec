@@ -1,8 +1,9 @@
-using LiteSpec.Model.Readers.Dotnet;
-using LiteSpec.Model.Readers.Frontend;
-using LiteSpec.Model.Readers.JUnit;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Frontend;
+using LiteSpec.Cli.Model.Readers.JUnit;
+using LiteSpec.Model;
 
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>
 ///     Picks the readers for a consumer: the .NET backend and scenario readers when the

@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>One finding code's book words: its check level and its meaning.</summary>
 /// <param name="Tier">The check level the finding-code table states.</param>

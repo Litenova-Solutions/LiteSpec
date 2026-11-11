@@ -1,4 +1,4 @@
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>A carried LiteSpec page the lexicon needs is missing or lost its shape.</summary>
 sealed class BookLexiconException : Exception
