@@ -68,11 +68,15 @@ internal static class DependencyChecks
                     null));
             }
 
-            if (pin is not null && !pin.Equals(package.Version, StringComparison.Ordinal))
+            if (pin is not null && !SatisfiesPin(pin, package.Version))
             {
+                var relation = pin.EndsWith(".x", StringComparison.Ordinal)
+                    ? "is outside its manifest pin"
+                    : "differs from its manifest pin";
+
                 findings.Add(new Finding(
                     "dependency-version-drift",
-                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} differs from its manifest pin '{pin}'.",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} {relation} '{pin}'.",
                     package.File,
                     1,
                     null));
@@ -190,6 +194,33 @@ internal static class DependencyChecks
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Whether a resolved version satisfies a manifest pin: an exact pin needs
+    ///     ordinal equality, and a major pin needs the same major with no prerelease
+    ///     suffix, because the baseline names stable releases.
+    /// </summary>
+    /// <param name="pin">The manifest pin, either an exact version or a major stated as N.x.</param>
+    /// <param name="version">The resolved package version text, empty when the bill of materials names none.</param>
+    /// <returns>True when the version is inside the pin; otherwise false.</returns>
+    private static bool SatisfiesPin(string pin, string version)
+    {
+        if (!pin.EndsWith(".x", StringComparison.Ordinal)
+            || !int.TryParse(pin[..^2], out var pinnedMajor))
+        {
+            return pin.Equals(version, StringComparison.Ordinal);
+        }
+
+        if (version.Length == 0 || version.Contains('-'))
+        {
+            return false;
+        }
+
+        var dot = version.IndexOf('.');
+        var majorText = dot < 0 ? version : version[..dot];
+
+        return int.TryParse(majorText, out var major) && major == pinnedMajor;
     }
 
     /// <summary>

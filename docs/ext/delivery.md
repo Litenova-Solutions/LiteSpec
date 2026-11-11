@@ -492,13 +492,13 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Applies to:** artifact: any
 
-**Statement:** Every direct package in the project's generated bill of materials that the manifest pins MUST ship at the pinned version.
+**Statement:** Every direct package in the project's generated bill of materials that the manifest pins MUST ship within its pin: a stable release of the pinned major, or the exact version where the manifest pins one.
 
-**Rationale:** The bill of materials (SBOM) is the computed list of what ships, so it is the one place a pin can be checked against instead of trusted. A version that drifted from its pin carries advisories and behavior the release never reviewed. The bill is generated, so the fact stays written once, and a record per package would rewrite hundreds of facts on every update.
+**Rationale:** The bill of materials (SBOM) is the computed list of what ships, so it is the one place a pin can be checked against instead of trusted. A version outside its pin carries a major's breaking changes, or a prerelease's behavior, that the release never reviewed. The bill is generated, so the fact stays written once, and a record per package would rewrite hundreds of facts on every update.
 
-**Example:** Claimwick's bill of materials sits at `.litespec/proof/sbom/api.spdx.json`, the project file names that folder in `paths.sbom`, and a direct `pkg:nuget/Marten` at a version other than the manifest pin is reported.
+**Example:** Claimwick's bill of materials sits at `.litespec/proof/sbom/api.spdx.json`, the project file names that folder in `paths.sbom`, and a direct `pkg:nuget/Marten` at 10.0.0 is reported because the manifest pins `9.x`.
 
-**Checked by:** `litespec model check` reports `dependency-version-drift` (level S) for a direct package whose version differs from its manifest pin.
+**Checked by:** `litespec model check` reports `dependency-version-drift` (level S) for a direct package whose version is outside its manifest pin.
 
 ### Accept Every Shipped Package License Explicitly
 

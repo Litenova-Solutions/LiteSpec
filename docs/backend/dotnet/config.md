@@ -45,9 +45,9 @@ Four files at fixed paths decide how the backend builds, wherever it builds. The
 
 **Strength:** required
 
-**Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry the exact manifest pins.
+**Statement:** `apps/api/Directory.Packages.props` MUST enable central package management and carry an exact version within each manifest pin.
 
-**Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact pins, so an upgrade touches one place.
+**Rationale:** A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact version within each pin, so an upgrade touches one place.
 
 **Reviewed for:** Does `apps/api/Directory.Packages.props` enable central management with the manifest pins, and which project files carry versions? Look at the central file beside the project files.
 

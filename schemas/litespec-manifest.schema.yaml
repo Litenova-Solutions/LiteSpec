@@ -14,7 +14,7 @@ required:
 - uiBaseline
 properties:
   schemaVersion:
-    $comment: 'Each release pins one exact shape. A consumer adopting a later release absorbs every difference at that moment, so no minor-compatible range exists between two releases. See litespec/core/authoring#publish-each-release-as-a-complete-contract and litespec/core/authoring#exclude-cross-release-compatibility-work.'
+    $comment: 'Each release pins one exact shape. A consumer adopting a later release absorbs every difference at that moment, so no minor-compatible range exists between two releases. Third-party package pins state a major version only; the consumer lockfile holds the exact version. See litespec/core/authoring#publish-each-release-as-a-complete-contract and litespec/core/authoring#exclude-cross-release-compatibility-work.'
     const: 6
   version:
     type: string
@@ -142,6 +142,7 @@ $defs:
     additionalProperties:
       type: string
       minLength: 1
+      pattern: '^(?:(0|[1-9][0-9]*)\.x|\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$'
   recordType:
     type: string
     enum:

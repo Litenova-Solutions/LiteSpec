@@ -1,6 +1,6 @@
-// Tests that the manifest's npm pins equal the versions this repository's own
-// packages use. A package names a catalog version as "catalog:", and the root
-// pnpm-workspace.yaml holds that version, so the test reads the catalog too.
+// Tests that the versions this repository's own packages use satisfy the
+// manifest's npm pins. A package names a catalog version as "catalog:", and the
+// root pnpm-workspace.yaml holds that version, so the test reads the catalog too.
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import fs from "node:fs";
@@ -33,6 +33,13 @@ function catalog(): Map<string, string> {
 
 const packageFiles = ["apps/site/package.json", "apps/cli/book/package.json", "apps/cli/fe-reader/package.json"];
 
+/** Whether a repository version satisfies a manifest pin: an N.x pin needs the same major, an exact pin needs equality. */
+function satisfies(pin: string, version: string): boolean {
+  const major = /^(\d+)\.x$/.exec(pin);
+  if (!major) return version === pin;
+  return version.split(".")[0] === major[1];
+}
+
 describe("npm pins", () => {
   const manifest = readYaml("litespec.manifest.yaml");
   const pins = (manifest.packages?.npm ?? {}) as Record<string, string>;
@@ -44,7 +51,7 @@ describe("npm pins", () => {
 
   it("gives every catalog version the manifest pin, where the manifest names the package", () => {
     for (const [name, version] of versions) {
-      if (name in pins) assert.strictEqual(pins[name], version, `manifest pins ${name} at ${pins[name]}, the catalog at ${version}`);
+      if (name in pins) assert.ok(satisfies(pins[name], version), `manifest pins ${name} at ${pins[name]}, the catalog at ${version}`);
     }
   });
 
@@ -55,7 +62,7 @@ describe("npm pins", () => {
         for (const [name, declared] of Object.entries((pkg[section] ?? {}) as Record<string, string>)) {
           const version = declared === "catalog:" ? versions.get(name) : declared;
           assert.ok(version, `${file} names ${name} as catalog:, but the catalog does not hold it`);
-          if (name in pins) assert.strictEqual(version, pins[name], `${file} ${section} pins ${name} at ${version}, the manifest at ${pins[name]}`);
+          if (name in pins) assert.ok(satisfies(pins[name], version), `${file} ${section} pins ${name} at ${version}, the manifest at ${pins[name]}`);
         }
       }
     }

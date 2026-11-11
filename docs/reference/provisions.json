@@ -2894,8 +2894,8 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "\u0060apps/api/Directory.Packages.props\u0060 MUST enable central package management and carry the exact manifest pins.",
-      "rationale": "A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact pins, so an upgrade touches one place.",
+      "statement": "\u0060apps/api/Directory.Packages.props\u0060 MUST enable central package management and carry an exact version within each manifest pin.",
+      "rationale": "A version written in a project file is invisible to the manifest that owns it, and two projects drift to two versions of one package. With central management, project files name packages only, and one file carries the exact version within each pin, so an upgrade touches one place.",
       "example": ""
     },
     {
@@ -15811,16 +15811,16 @@
       "anchor": "match-every-shipped-package-to-its-pin",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060dependency-version-drift\u0060 (level S) for a direct package whose version differs from its manifest pin.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060dependency-version-drift\u0060 (level S) for a direct package whose version is outside its manifest pin.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Every direct package in the project\u0027s generated bill of materials that the manifest pins MUST ship at the pinned version.",
-      "rationale": "The bill of materials (SBOM) is the computed list of what ships, so it is the one place a pin can be checked against instead of trusted. A version that drifted from its pin carries advisories and behavior the release never reviewed. The bill is generated, so the fact stays written once, and a record per package would rewrite hundreds of facts on every update.",
-      "example": "Claimwick\u0027s bill of materials sits at \u0060.litespec/proof/sbom/api.spdx.json\u0060, the project file names that folder in \u0060paths.sbom\u0060, and a direct \u0060pkg:nuget/Marten\u0060 at a version other than the manifest pin is reported."
+      "statement": "Every direct package in the project\u0027s generated bill of materials that the manifest pins MUST ship within its pin: a stable release of the pinned major, or the exact version where the manifest pins one.",
+      "rationale": "The bill of materials (SBOM) is the computed list of what ships, so it is the one place a pin can be checked against instead of trusted. A version outside its pin carries a major\u0027s breaking changes, or a prerelease\u0027s behavior, that the release never reviewed. The bill is generated, so the fact stays written once, and a record per package would rewrite hundreds of facts on every update.",
+      "example": "Claimwick\u0027s bill of materials sits at \u0060.litespec/proof/sbom/api.spdx.json\u0060, the project file names that folder in \u0060paths.sbom\u0060, and a direct \u0060pkg:nuget/Marten\u0060 at 10.0.0 is reported because the manifest pins \u00609.x\u0060."
     },
     {
       "id": "litespec/ext/delivery#meet-release-readiness-gates",
@@ -29347,16 +29347,16 @@
       "anchor": "pin-every-dependency-version-centrally",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Every version resolves through central management or the committed lockfile at the manifest pin where one exists; no version sits inline in a module file.",
+      "evidence": "Every version resolves through central management or the committed lockfile within the manifest major where one exists; no version sits inline in a module file.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Every dependency version MUST resolve through central management or the committed lockfile, at the pin \u0060litespec.manifest.yaml\u0060 states where it states one.",
-      "rationale": "An inline version in one module file is invisible to the manifest that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place: the manifest pins the baseline stack the standards name, and the consumer\u0027s own central file or lockfile pins the product\u0027s own packages. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer\u0027s pins live beside its code, admitted by \u0060litespec/workspace/dependencies#approve-new-packages-explicitly\u0060.",
-      "example": "A consumer generating invoices pins its PDF library in its central version file with a decision record. The manifest names only the baseline stack, and the pin is still central."
+      "statement": "Every dependency version MUST resolve through central management or the committed lockfile, within the major \u0060litespec.manifest.yaml\u0060 pins where it pins one.",
+      "rationale": "An inline version in one module file is invisible to the file that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place. The manifest pins the major of each baseline package, so a consumer takes a patch without waiting for a LiteSpec release; it pins an exact version only where a check depends on exact output. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer\u0027s exact versions live beside its code, admitted by \u0060litespec/workspace/dependencies#approve-new-packages-explicitly\u0060. Settled by [decision/0036-pin-third-party-packages-to-their-major](decision/0036-pin-third-party-packages-to-their-major).",
+      "example": "Claimwick\u0027s central version file holds Marten at 9.50.2 while the manifest pins \u00609.x\u0060, so a patch lands without a LiteSpec release. Its receipt PDF library sits exact in the same file with a decision record, because the manifest names only the baseline stack."
     },
     {
       "id": "litespec/workspace/naming#align-business-names-across-layers",

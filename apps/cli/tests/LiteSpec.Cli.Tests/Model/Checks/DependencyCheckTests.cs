@@ -76,7 +76,138 @@ public sealed class DependencyCheckTests
         Assert.Contains("nuget:Marten", finding);
         Assert.Contains("1.0.0", finding);
         Assert.Contains("MIT", finding);
-        Assert.Contains("9.50.1", finding);
+        Assert.Contains("outside its manifest pin", finding);
+        Assert.Contains("9.x", finding);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
+    }
+
+    /// <summary>A pinned package shipped at a newer patch inside the pinned major reports nothing.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void PatchInsideMajorPasses()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.50.2", "MIT", "pkg:nuget/Marten@9.50.2")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>A pinned package shipped at another minor inside the pinned major reports nothing.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void MinorInsideMajorPasses()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.4.0", "MIT", "pkg:nuget/Marten@9.4.0")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>A pinned package shipped at the next major reports dependency-version-drift.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void NextMajorReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "10.0.0", "MIT", "pkg:nuget/Marten@10.0.0")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", finding);
+        Assert.Contains("nuget:Marten", finding);
+        Assert.Contains("10.0.0", finding);
+        Assert.Contains("outside its manifest pin", finding);
+        Assert.Contains("9.x", finding);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
+    }
+
+    /// <summary>A pinned package shipped at a prerelease inside the pinned major reports dependency-version-drift.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void PrereleaseInsideMajorReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "9.51.0-rc.1", "MIT", "pkg:nuget/Marten@9.51.0-rc.1")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", finding);
+        Assert.Contains("nuget:Marten", finding);
+        Assert.Contains("9.51.0-rc.1", finding);
+        Assert.Contains("outside its manifest pin", finding);
+        Assert.Contains("9.x", finding);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
+    }
+
+    /// <summary>An exactly pinned package shipped at its pin reports nothing.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void ExactPinMatchPasses()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "5.1.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@5.1.0")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+
+        AssertNoDependencyFindings(check);
+    }
+
+    /// <summary>An exactly pinned package shipped at another patch reports dependency-version-drift.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void ExactPinMismatchReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "5.1.1", "MIT", "pkg:nuget/LiteSpec.Analyzers@5.1.1")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", finding);
+        Assert.Contains("nuget:LiteSpec.Analyzers", finding);
+        Assert.Contains("5.1.1", finding);
+        Assert.Contains("differs from its manifest pin", finding);
+        Assert.Contains("5.1.0", finding);
+        Assert.DoesNotContain("dependency-undeclared", check.Output);
+        Assert.DoesNotContain("dependency-license-unknown", check.Output);
+    }
+
+    /// <summary>A pinned package shipped with no version reports dependency-version-drift.</summary>
+    /// <proves>litespec/ext/delivery#match-every-shipped-package-to-its-pin</proves>
+    [Fact]
+    public void EmptyVersionReports()
+    {
+        using var temp = ModelFixture.Prepare("small");
+        ConfigureSbom(temp.Path);
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("Marten", "", "MIT", "pkg:nuget/Marten")));
+
+        var check = TestCli.Run("model", "check", "--root", temp.Path);
+        var finding = check.Output.Split('\n').Single(candidate => candidate.Contains("[dependency-version-drift]"));
+
+        Assert.Equal(1, check.Status);
+        Assert.Contains("[S]", finding);
+        Assert.Contains("nuget:Marten", finding);
+        Assert.Contains("no version", finding);
+        Assert.Contains("outside its manifest pin", finding);
+        Assert.Contains("9.x", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
