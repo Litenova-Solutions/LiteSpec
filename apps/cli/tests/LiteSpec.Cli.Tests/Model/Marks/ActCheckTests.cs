@@ -157,7 +157,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "5.0.0",
+                  "reviewedLiteSpecVersion": "5.1.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -404,7 +404,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "5.0.0",
+                  "reviewedLiteSpecVersion": "5.1.0",
                   "owners": [
                     "lending-team"
                   ],

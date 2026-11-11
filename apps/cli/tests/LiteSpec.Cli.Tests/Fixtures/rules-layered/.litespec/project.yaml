@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: Layered
@@ -11,7 +11,7 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
-reviewedLiteSpecVersion: 5.0.0
+reviewedLiteSpecVersion: 5.1.0
 paths:
   docs: .litespec
   behaviorDocs: .litespec/behavior

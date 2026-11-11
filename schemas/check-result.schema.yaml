@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.0.0/schemas/check-result.schema.yaml'
+$id: 'https://litespec.dev/5.1.0/schemas/check-result.schema.yaml'
 title: LiteSpec Check Result
 description: One result a drill or measuring harness writes under paths.checkResults. A file that does not match it is reported as proof-invalid, so a harness that writes a malformed result cannot pass silently.
 type: object
