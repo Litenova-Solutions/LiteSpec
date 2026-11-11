@@ -14,4 +14,3 @@ public enum Outcome
     /// <summary>The finding is covered by a departure: printed in its own list, and the check passes.</summary>
     Covered = 2,
 }
-

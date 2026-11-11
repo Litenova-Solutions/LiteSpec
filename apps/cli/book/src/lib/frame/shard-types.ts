@@ -297,4 +297,3 @@ export interface SourceRef {
   line?: number | null;
   litespec?: boolean;
 }
-
