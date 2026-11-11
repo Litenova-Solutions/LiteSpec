@@ -195,7 +195,7 @@ static class KindClosure
             return false;
         }
 
-        return !GeneratedSource.IsGeneratedFileName(file) && !GeneratedSource.HasGeneratedCode(declared) && !IsMigrationBase(declared);
+        return !KindReader.IsGeneratedFileName(file) && !KindReader.HasGeneratedCodeAttribute(declared) && !IsMigrationBase(declared);
     }
 
     /// <summary>Whether the declaration derives from a type named <c>Migration</c> or <c>ModelSnapshot</c>.</summary>

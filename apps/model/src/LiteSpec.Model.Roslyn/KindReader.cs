@@ -815,10 +815,10 @@ public static class KindReader
         return false;
     }
 
-    /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute.</summary>
+    /// <summary>Whether the declaration carries a <c>GeneratedCode</c> attribute, however its name is written. Every reader of code asks here.</summary>
     /// <param name="type">The type declaration.</param>
     /// <returns>True when the declaration carries a GeneratedCode attribute.</returns>
-    private static bool HasGeneratedCodeAttribute(TypeDeclarationSyntax type)
+    public static bool HasGeneratedCodeAttribute(TypeDeclarationSyntax type)
     {
         foreach (var list in type.AttributeLists)
         {
@@ -853,6 +853,26 @@ public static class KindReader
     }
 
     /// <summary>
+    ///     Whether the file name marks generated code: a <c>TemporaryGeneratedFile_</c> prefix, or a
+    ///     <c>.g.cs</c>, <c>.g.i.cs</c>, <c>.designer.cs</c> or <c>.generated.cs</c> ending. Every reader of
+    ///     code asks here.
+    /// </summary>
+    /// <param name="path">The file path, with either separator.</param>
+    /// <returns>True when the file name marks generated code; otherwise false.</returns>
+    public static bool IsGeneratedFileName(string path)
+    {
+        var normalized = path.Replace('\\', '/');
+        var slash = normalized.LastIndexOf('/');
+        var file = slash < 0 ? normalized : normalized.Substring(slash + 1);
+
+        return file.StartsWith("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     ///     Whether the compiler treats the file as generated: a generated file name
     ///     or an <c>auto-generated</c> marker on one of the first two lines.
     /// </summary>
@@ -860,15 +880,7 @@ public static class KindReader
     /// <returns>True when the compiler treats the file as generated.</returns>
     private static bool IsGeneratedFile(SyntaxTree tree)
     {
-        var path = tree.FilePath.Replace('\\', '/');
-        var slash = path.LastIndexOf('/');
-        var file = slash < 0 ? path : path.Substring(slash + 1);
-
-        if (file.StartsWith("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".g.i.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".designer.cs", StringComparison.OrdinalIgnoreCase)
-            || file.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase))
+        if (IsGeneratedFileName(tree.FilePath))
         {
             return true;
         }

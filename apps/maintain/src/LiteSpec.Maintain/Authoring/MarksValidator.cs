@@ -114,7 +114,7 @@ internal sealed class MarksValidator
                 {
                     if (node.Members.OfType<MethodDeclarationSyntax>().Any()
                         && !followed.Contains(ClassKey(node))
-                        && !HasGeneratedCode(node))
+                        && !KindReader.HasGeneratedCodeAttribute(node))
                     {
                         var line = node.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
                         add(relative, line, Diagnostics.Codes.MarkMissing, $"class '{node.Identifier.Text}' declares a method and carries no follows mark");
@@ -197,26 +197,4 @@ internal sealed class MarksValidator
     /// <returns>True when the class carries a follows mark.</returns>
     private static bool HasFollowsMark(ClassDeclarationSyntax node) =>
         MarkReader.Read(node).Any(mark => mark.Verb == MarkVerb.Follows);
-
-    /// <summary>Reports whether a class carries a GeneratedCode attribute.</summary>
-    /// <param name="node">The class declaration.</param>
-    /// <returns>True when the class is generated code.</returns>
-    private static bool HasGeneratedCode(ClassDeclarationSyntax node)
-    {
-        foreach (var attribute in node.AttributeLists.SelectMany(list => list.Attributes))
-        {
-            var name = attribute.Name.ToString().Split('.').Last();
-            if (name.EndsWith("Attribute", StringComparison.Ordinal))
-            {
-                name = name[..^"Attribute".Length];
-            }
-
-            if (name == "GeneratedCode")
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
