@@ -4,7 +4,6 @@ using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Model.Readers.Dotnet.Scenarios;
 using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Model.Readers.JUnit;
-using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
 
@@ -98,41 +97,4 @@ static class StackReaders
                 new TestRead([], [], new Dictionary<string, IReadOnlySet<string>>(StringComparer.Ordinal)),
                 []);
     }
-}
-
-/// <summary>Reads the backend source for the configured backend roots.</summary>
-interface IBackendReader
-{
-    /// <summary>Reads handlers, reactions, jobs, events, failure-code literals, comments and endpoint operations.</summary>
-    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
-    /// <returns>The backend read: the code model and the files it could not read.</returns>
-    BackendRead Read(ConsumerConfig config);
-}
-
-/// <summary>Reads the routes of one frontend.</summary>
-interface IFrontendReader
-{
-    /// <summary>Reads the frontend's route screens and file comments.</summary>
-    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
-    /// <param name="code">The code model the screens are checked against.</param>
-    /// <returns>The screen read of the frontend.</returns>
-    ScreenRead Read(ConsumerConfig config, CodeFacts code);
-}
-
-/// <summary>Reads the acceptance scenarios and what they claim.</summary>
-interface IScenarioReader
-{
-    /// <summary>Reads scenarios with their claimed cases, steps and asserted codes, and file comments.</summary>
-    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
-    /// <returns>The scenario read: the scenarios and the files it could not read.</returns>
-    ScenarioRead Read(ConsumerConfig config);
-}
-
-/// <summary>Reads test outcomes by test name and by fully qualified test name.</summary>
-interface ITestRunReader
-{
-    /// <summary>Reads the run, or null when no result file exists.</summary>
-    /// <param name="config">The consumer configuration that locates the roots and files to read.</param>
-    /// <returns>The test run, or null when no result file exists.</returns>
-    TestRun? Read(ConsumerConfig config);
 }
