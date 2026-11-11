@@ -9,6 +9,7 @@ namespace LiteSpec.Cli.Model.CompletionStages;
 ///     completion reads a lookup instead of scanning every record or link. Every
 ///     list keeps the order a scan of the model gives.
 /// </summary>
+/// <follows>litespec/core/model#compute-completion-in-the-builder</follows>
 sealed class CompletionLookups
 {
     /// <summary>The empty record list a lookup returns for a key with no records.</summary>

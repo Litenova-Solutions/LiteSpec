@@ -4,9 +4,8 @@ using LiteSpec.Standards;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static LiteSpec.Authoring.ValidatorSupport;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
 ///     The self-mark check: every class with a method in a source project carries a
@@ -117,7 +116,7 @@ internal sealed class MarksValidator
                         && !KindReader.HasGeneratedCodeAttribute(node))
                     {
                         var line = node.Identifier.GetLocation().GetLineSpan().StartLinePosition.Line + 1;
-                        add(relative, line, Diagnostics.Codes.MarkMissing, $"class '{node.Identifier.Text}' declares a method and carries no follows mark");
+                        add(relative, line, MaintainerDiagnostics.Codes.MarkMissing, $"class '{node.Identifier.Text}' declares a method and carries no follows mark");
                     }
                 }
             }
@@ -128,7 +127,7 @@ internal sealed class MarksValidator
                 {
                     if (mark.Verb is MarkVerb.Follows or MarkVerb.Proves && !provisionIds.Contains(mark.RecordId))
                     {
-                        add(relative, mark.Line, Diagnostics.Codes.MarkUnresolved, $"mark names '{mark.RecordId}', which is no provision in docs/reference/provisions.md");
+                        add(relative, mark.Line, MaintainerDiagnostics.Codes.MarkUnresolved, $"mark names '{mark.RecordId}', which is no provision in docs/reference/provisions.md");
                     }
                 }
             }

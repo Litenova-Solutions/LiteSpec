@@ -1,10 +1,11 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.Validate.Repository;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Pages;
 
 /// <summary>
 ///     The value-style pass: the mechanical half of the value-style table over LiteSpec's own templates and examples.
@@ -133,12 +134,12 @@ internal sealed partial class ValueStyleValidator
                 // reads as a capitalized word.
                 if (!char.IsUpper(text[0]))
                 {
-                    add(relative, 1, Diagnostics.Codes.ValueStyle, "step `statement` must start with `The` or an actor title");
+                    add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "step `statement` must start with `The` or an actor title");
                 }
 
                 if (!text.EndsWith('.'))
                 {
-                    add(relative, 1, Diagnostics.Codes.ValueStyle, "step `statement` must end in a period");
+                    add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "step `statement` must end in a period");
                 }
 
                 return;
@@ -146,12 +147,12 @@ internal sealed partial class ValueStyleValidator
 
             if (!text.EndsWith('.'))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, "`statement` must end in a period");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "`statement` must end in a period");
             }
 
             if (enclosingType is "requirement" or "rule" && LowerModalPattern().Match(BacktickSpanPattern().Replace(text, " ")) is { Success: true } modal)
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`statement` must not hold the modal word `{modal.Groups[1].Value}`");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, $"`statement` must not hold the modal word `{modal.Groups[1].Value}`");
             }
 
             return;
@@ -163,13 +164,13 @@ internal sealed partial class ValueStyleValidator
                 && !text.StartsWith("An ", StringComparison.Ordinal)
                 && !text.StartsWith("The ", StringComparison.Ordinal))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, "`meaning` must start with A, An or The");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "`meaning` must start with A, An or The");
             }
 
             var words = text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
             if (words.Length > 25)
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`meaning` holds {words.Length} words; at most 25");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, $"`meaning` holds {words.Length} words; at most 25");
             }
 
             return;
@@ -179,7 +180,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (StartsWithWord(text, "because"))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`{field}` must not start with `because`");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, $"`{field}` must not start with `because`");
             }
 
             return;
@@ -189,7 +190,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (StartsWithWord(text, "when") || StartsWithWord(text, "if"))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, $"`{field}` must not start with `when` or `if`");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, $"`{field}` must not start with `when` or `if`");
             }
 
             return;
@@ -199,7 +200,7 @@ internal sealed partial class ValueStyleValidator
         {
             if (RefusalCodePattern().IsMatch(text))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, "`failure` must not hold a refusal code");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "`failure` must not hold a refusal code");
             }
 
             return;
@@ -212,12 +213,12 @@ internal sealed partial class ValueStyleValidator
             // titles do.
             if (char.IsLower(text[0]))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, "`title` must start with a capital letter");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "`title` must start with a capital letter");
             }
 
             if (text.EndsWith('.'))
             {
-                add(relative, 1, Diagnostics.Codes.ValueStyle, "`title` must carry no final period");
+                add(relative, 1, MaintainerDiagnostics.Codes.ValueStyle, "`title` must carry no final period");
             }
 
             return;

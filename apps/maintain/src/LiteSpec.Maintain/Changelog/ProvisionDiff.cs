@@ -2,12 +2,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Model;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Changelog;
 
 /// <summary>
 ///     The provision comparison behind <c>litespec-maintain changelog</c>: it reads the

@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Maintain.Validate.Pages;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>One LiteSpec record: its record file, its parsed value, and its explanation page.</summary>
 /// <param name="Relative">The record file path, relative to the repository root.</param>

@@ -1,9 +1,9 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
 ///     The field-naming contract: one concept, one name, and one shape on every record that carries it.
@@ -182,7 +182,7 @@ internal sealed class FieldValidator
 
             if (shapeB is not null)
             {
-                add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
+                add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds {shapeA} in {defA} and {shapeB} in {defB}; rename one concept or record the exception in litespec/core/language#name-each-field-by-its-word-class");
             }
         }
 
@@ -196,14 +196,14 @@ internal sealed class FieldValidator
                     && !EndsByOrOn(field)
                     && reported.Add("date:" + field))
                 {
-                    add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` holds a date but its name ends in neither By nor On");
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` holds a date but its name ends in neither By nor On");
                 }
 
                 if (ResolvesToDef(node, "nonEmptyString", defs, [])
                     && EndsByOrOn(field)
                     && reported.Add("string:" + field))
                 {
-                    add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` reads as a deadline or a recorded date but holds a plain string; make it an ISO date");
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` reads as a deadline or a recorded date but holds a plain string; make it an ISO date");
                 }
 
                 if (nouns.Contains(field))
@@ -211,11 +211,11 @@ internal sealed class FieldValidator
                     var shape = FieldShape(node, defs, []);
                     if (shape == "array")
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds an array under a singular name; use the plural name for a list and another name for prose");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds an array under a singular name; use the plural name for a list and another name for prose");
                     }
                     else if (shape == "string" && !ReachesTypeId(node, TypeIdsFor(field, idDefs), defs, []))
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a record type but holds prose; use the plural name for a list and another name for prose");
                     }
                 }
 
@@ -227,7 +227,7 @@ internal sealed class FieldValidator
                     var shape = FieldShape(node, defs, []);
                     if (shape is not null && shape != "array" && !ReachesAnyId(node, idDefs, defs, []))
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} reads as a link verb but holds {shape}; a link verb holds one link or a list of links");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} reads as a link verb but holds {shape}; a link verb holds one link or a list of links");
                     }
                 }
 
@@ -241,7 +241,7 @@ internal sealed class FieldValidator
                     var stem = field[..^2];
                     if (!IsParticipleStem(stem))
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} ends in By but `{stem}` is no participle; name it `<participle>By` or hold a date under a deadline name");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} ends in By but `{stem}` is no participle; name it `<participle>By` or hold a date under a deadline name");
                     }
                 }
 
@@ -249,7 +249,7 @@ internal sealed class FieldValidator
                 // one of fixed values.
                 if (ClosedSetNouns.Contains(field) && !HoldsEnum(node, defs, []))
                 {
-                    add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a closed set but holds no enum; a closed-set noun holds one of its values");
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a closed set but holds no enum; a closed-set noun holds one of its values");
                 }
 
                 // A prose noun holds text, or a list of sentences under a plural
@@ -259,7 +259,7 @@ internal sealed class FieldValidator
                     var shape = FieldShape(node, defs, []);
                     if (shape is not null && shape != "string" && !(shape == "array" && ArrayItemsAreStrings(node, defs)))
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names prose but holds {shape}; a prose noun holds text or a list of sentences");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names prose but holds {shape}; a prose noun holds text or a list of sentences");
                     }
                 }
 
@@ -270,7 +270,7 @@ internal sealed class FieldValidator
                     var shape = FieldShape(node, defs, []);
                     if (shape is not null && shape != "string")
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a condition but holds {shape}; a condition holds one clause");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a condition but holds {shape}; a condition holds one clause");
                     }
                 }
 
@@ -281,7 +281,7 @@ internal sealed class FieldValidator
                     var shape = FieldShape(node, defs, []);
                     if (shape is not null && shape != "string")
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a reason but holds {shape}; a reason holds one clause");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a reason but holds {shape}; a reason holds one clause");
                     }
                 }
 
@@ -299,7 +299,7 @@ internal sealed class FieldValidator
                     var stem = field[..^2];
                     if (!IsPastVerbStem(stem))
                     {
-                        add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a recorded date but `{stem}` is no past verb; name it `<verb>edOn`");
+                        add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} names a recorded date but `{stem}` is no past verb; name it `<verb>edOn`");
                     }
                 }
 
@@ -308,7 +308,7 @@ internal sealed class FieldValidator
                 // (litespec/core/language#name-a-boolean-as-a-predicate)
                 if (FieldShape(node, defs, []) == "boolean" && HasIsHasPrefix(field))
                 {
-                    add(relative, 1, Diagnostics.Codes.FieldNameShape, $"field `{field}` in {def} is a boolean with an `is` or `has` prefix; name it a present-tense predicate");
+                    add(relative, 1, MaintainerDiagnostics.Codes.FieldNameShape, $"field `{field}` in {def} is a boolean with an `is` or `has` prefix; name it a present-tense predicate");
                 }
             }
         }

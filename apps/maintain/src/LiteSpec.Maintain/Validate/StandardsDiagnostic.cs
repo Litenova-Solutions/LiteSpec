@@ -1,4 +1,4 @@
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate;
 
 /// <summary>
 ///     One authoring finding: the repository-relative file, the 1-based line, the stable code, and the message.

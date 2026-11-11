@@ -1,4 +1,4 @@
-using LiteSpec.Authoring;
+using LiteSpec.Maintain.Validate;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
 
@@ -105,7 +105,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "unmarked class with a method reports MARK_MISSING")]
     public void UnmarkedClassWithMethodReportsMarkMissing() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/src/X", "Widget.cs", UnmarkedClass),
-        [Diagnostics.Codes.MarkMissing]);
+        [MaintainerDiagnostics.Codes.MarkMissing]);
 
     /// <summary>Marked class with a method reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>
@@ -140,7 +140,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "unknown proves mark reports MARK_UNRESOLVED")]
     public void UnknownProvesMarkReportsMarkUnresolved() => Check(
         root => StandardsFixture.WriteSource(root, "apps/x/tests/X.Tests", "WidgetTests.cs", UnknownProof),
-        [Diagnostics.Codes.MarkUnresolved]);
+        [MaintainerDiagnostics.Codes.MarkUnresolved]);
 
     /// <summary>Known proves mark reports nothing.</summary>
     /// <proves>litespec/core/maintaining#mark-the-tools-with-the-provisions-they-follow</proves>

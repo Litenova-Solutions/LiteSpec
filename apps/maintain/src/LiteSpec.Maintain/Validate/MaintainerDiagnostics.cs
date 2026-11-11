@@ -1,10 +1,10 @@
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate;
 
 /// <summary>
 ///     The stable diagnostic codes the maintainer emits, held once.
 /// </summary>
 /// <follows>litespec/core/authoring#run-repeatable-authoring-checks</follows>
-internal static class Diagnostics
+internal static class MaintainerDiagnostics
 {
     /// <summary>Gets every diagnostic code in declaration order.</summary>
     public static IReadOnlyList<string> All { get; } =

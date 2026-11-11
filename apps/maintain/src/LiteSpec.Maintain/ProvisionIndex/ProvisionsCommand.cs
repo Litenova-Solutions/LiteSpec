@@ -1,7 +1,7 @@
 using LiteSpec.CommandLine;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.ProvisionIndex;
 
 /// <summary>
 ///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>,

@@ -1,10 +1,10 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Pages;
 
 /// <summary>
 ///     The provision contract: labels, assertions, and inline verification.
@@ -61,7 +61,7 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
     /// <param name="provisions">The provisions to check.</param>
-    internal void CheckProvisionBodies(string relative, PageReader reader, List<Provision> provisions)
+    internal void CheckProvisionBodies(string relative, PageReader reader, List<ProvisionSection> provisions)
     {
         var add = Context.Add;
         foreach (var provision in provisions)
@@ -92,14 +92,14 @@ internal sealed partial class ProvisionValidator
                     activeLabel = name;
                     if (!allowedLabels.Contains(name))
                     {
-                        add(relative, item.Number, Diagnostics.Codes.StandardLabelInvalid, $"label '{name}' is invalid in {provision.Section}");
+                        add(relative, item.Number, MaintainerDiagnostics.Codes.StandardLabelInvalid, $"label '{name}' is invalid in {provision.Section}");
                     }
 
                     if (name is "Rationale" or "Example")
                     {
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
-                            add(relative, item.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
+                            add(relative, item.Number, MaintainerDiagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
                         }
                     }
                     else if (name == "Deviation" && provision.Section == "Standards")
@@ -108,7 +108,7 @@ internal sealed partial class ProvisionValidator
                         // bounded reason that permits a departure, in plain words.
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
-                            add(relative, item.Number, Diagnostics.Codes.StandardDeviationNormative, $"Deviation for '{provision.Id}' contains normative vocabulary");
+                            add(relative, item.Number, MaintainerDiagnostics.Codes.StandardDeviationNormative, $"Deviation for '{provision.Id}' contains normative vocabulary");
                         }
                     }
 
@@ -119,7 +119,7 @@ internal sealed partial class ProvisionValidator
                 {
                     if (activeLabel != "Example" && !fenceReported)
                     {
-                        add(relative, item.Number, Diagnostics.Codes.StandardExampleLabel, $"fenced example in '{provision.Id}' must follow an Example label");
+                        add(relative, item.Number, MaintainerDiagnostics.Codes.StandardExampleLabel, $"fenced example in '{provision.Id}' must follow an Example label");
                         fenceReported = true;
                     }
 
@@ -133,14 +133,14 @@ internal sealed partial class ProvisionValidator
 
                 if (activeLabel == "" || activeLabel is "Statement" or "Deviation" or "Default" or "Replacement")
                 {
-                    add(relative, item.Number, Diagnostics.Codes.StandardUnlabeledContent, $"content in '{provision.Id}' must follow a Rationale or Example label");
+                    add(relative, item.Number, MaintainerDiagnostics.Codes.StandardUnlabeledContent, $"content in '{provision.Id}' must follow a Rationale or Example label");
                 }
 
                 if (activeLabel is "Rationale" or "Example")
                 {
                     if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                     {
-                        add(relative, item.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
+                        add(relative, item.Number, MaintainerDiagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
                     }
                 }
             }
@@ -150,7 +150,7 @@ internal sealed partial class ProvisionValidator
                 var count = labels.Count(label => label.Name == name);
                 if (count > 1)
                 {
-                    add(relative, labels.First(label => label.Name == name).Line, Diagnostics.Codes.StandardLabelDuplicate, $"provision '{provision.Id}' has {count} {name} labels");
+                    add(relative, labels.First(label => label.Name == name).Line, MaintainerDiagnostics.Codes.StandardLabelDuplicate, $"provision '{provision.Id}' has {count} {name} labels");
                 }
             }
 
@@ -160,7 +160,7 @@ internal sealed partial class ProvisionValidator
                 var position = Array.IndexOf(allowedLabels, label.Name);
                 if (position >= 0 && position < previousLabel)
                 {
-                    add(relative, label.Line, Diagnostics.Codes.StandardLabelOrder, $"label '{label.Name}' is out of order in '{provision.Id}'");
+                    add(relative, label.Line, MaintainerDiagnostics.Codes.StandardLabelOrder, $"label '{label.Name}' is out of order in '{provision.Id}'");
                     break;
                 }
 
@@ -193,19 +193,19 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="provision">The provision to check.</param>
     /// <param name="nonblank">The nonblank body lines.</param>
-    private void CheckStandardAssertion(string relative, Provision provision, List<LineItem> nonblank)
+    private void CheckStandardAssertion(string relative, ProvisionSection provision, List<PageLine> nonblank)
     {
         var add = Context.Add;
         var statements = nonblank.Where(item => item.Line.StartsWith("**Statement:**", StringComparison.Ordinal)).ToList();
         if (statements.Count == 0)
         {
-            add(relative, provision.Line, Diagnostics.Codes.StandardMissingRequirement, $"Standard '{provision.Id}' has no Statement");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardMissingRequirement, $"Standard '{provision.Id}' has no Statement");
             return;
         }
 
         if (statements.Count > 1)
         {
-            add(relative, provision.Line, Diagnostics.Codes.StandardRequirementCount, $"Standard '{provision.Id}' has {statements.Count} Statements");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardRequirementCount, $"Standard '{provision.Id}' has {statements.Count} Statements");
         }
 
         var assertion = statements[0];
@@ -214,34 +214,34 @@ internal sealed partial class ProvisionValidator
         var modalCount = ModalsPattern().Count(visibleStatement);
         if (modalCount != 1)
         {
-            add(relative, assertion.Number, Diagnostics.Codes.StandardModalCount, $"Statement for '{provision.Id}' has {modalCount} normative modals");
+            add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardModalCount, $"Statement for '{provision.Id}' has {modalCount} normative modals");
         }
 
         if (OtherNormativePattern().IsMatch(visibleStatement))
         {
-            add(relative, assertion.Number, Diagnostics.Codes.StandardModalVocabulary, $"Statement for '{provision.Id}' uses an unsupported normative term");
+            add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardModalVocabulary, $"Statement for '{provision.Id}' uses an unsupported normative term");
         }
 
         if (Prose.Sentences(visibleStatement).Count != 1)
         {
-            add(relative, assertion.Number, Diagnostics.Codes.StandardSentenceCount, $"Statement for '{provision.Id}' must contain one sentence");
+            add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardSentenceCount, $"Statement for '{provision.Id}' must contain one sentence");
         }
 
         var should = ShouldPattern().IsMatch(visibleStatement);
         var deviations = nonblank.Where(item => item.Line.StartsWith("**Deviation:**", StringComparison.Ordinal)).ToList();
         if (should && deviations.Count == 0)
         {
-            add(relative, provision.Line, Diagnostics.Codes.StandardMissingDeviation, $"recommendation '{provision.Id}' has no Deviation statement");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardMissingDeviation, $"recommendation '{provision.Id}' has no Deviation statement");
         }
 
         if (!should && deviations.Count > 0)
         {
-            add(relative, deviations[0].Number, Diagnostics.Codes.StandardUnexpectedDeviation, $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
+            add(relative, deviations[0].Number, MaintainerDiagnostics.Codes.StandardUnexpectedDeviation, $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
         }
 
         if (deviations.Count > 0 && Prose.Sentences(PageReader.VisibleText(deviations[0].Line["**Deviation:**".Length..].Trim())).Count != 1)
         {
-            add(relative, deviations[0].Number, Diagnostics.Codes.StandardDeviationSentence, $"Deviation for '{provision.Id}' must contain one sentence");
+            add(relative, deviations[0].Number, MaintainerDiagnostics.Codes.StandardDeviationSentence, $"Deviation for '{provision.Id}' must contain one sentence");
         }
     }
 
@@ -249,43 +249,43 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="provision">The provision to check.</param>
     /// <param name="nonblank">The nonblank body lines.</param>
-    private void CheckConventionAssertion(string relative, Provision provision, List<LineItem> nonblank)
+    private void CheckConventionAssertion(string relative, ProvisionSection provision, List<PageLine> nonblank)
     {
         var add = Context.Add;
         var defaults = nonblank.Where(item => item.Line.StartsWith("**Default:**", StringComparison.Ordinal)).ToList();
         var replacements = nonblank.Where(item => item.Line.StartsWith("**Replacement:**", StringComparison.Ordinal)).ToList();
         if (defaults.Count == 0)
         {
-            add(relative, provision.Line, Diagnostics.Codes.ConventionMissingDefault, $"convention '{provision.Id}' has no Default statement");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.ConventionMissingDefault, $"convention '{provision.Id}' has no Default statement");
         }
 
         if (replacements.Count == 0)
         {
-            add(relative, provision.Line, Diagnostics.Codes.ConventionMissingReplacement, $"convention '{provision.Id}' has no Replacement statement");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.ConventionMissingReplacement, $"convention '{provision.Id}' has no Replacement statement");
         }
 
         if (defaults.Count > 0 && Prose.Sentences(PageReader.VisibleText(defaults[0].Line["**Default:**".Length..].Trim())).Count != 1)
         {
-            add(relative, defaults[0].Number, Diagnostics.Codes.ConventionDefaultSentence, $"Default for '{provision.Id}' must contain one sentence");
+            add(relative, defaults[0].Number, MaintainerDiagnostics.Codes.ConventionDefaultSentence, $"Default for '{provision.Id}' must contain one sentence");
         }
 
         if (replacements.Count > 0 && Prose.Sentences(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..].Trim())).Count != 1)
         {
-            add(relative, replacements[0].Number, Diagnostics.Codes.ConventionReplacementSentence, $"Replacement for '{provision.Id}' must contain one sentence");
+            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementSentence, $"Replacement for '{provision.Id}' must contain one sentence");
         }
 
         // A Replacement names the local convention that takes the default's
         // place. A departure instrument belongs to a Standard, never here.
         if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
-            add(relative, replacements[0].Number, Diagnostics.Codes.ConventionReplacementDeviation, $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
+            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementDeviation, $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
         }
     }
 
     /// <summary>Checks that no provision assertion only restates its heading.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="provisions">The provisions to check.</param>
-    internal void CheckProvisionClaims(string relative, List<Provision> provisions)
+    internal void CheckProvisionClaims(string relative, List<ProvisionSection> provisions)
     {
         var add = Context.Add;
         // A provision whose Statement or Default only repeats its own heading
@@ -304,7 +304,7 @@ internal sealed partial class ProvisionValidator
             provision.Claim = Claim(assertion.Line[prefix.Length..]);
             if (provision.Claim.Length > 0 && provision.Claim == Claim(provision.Title))
             {
-                add(relative, provision.Line, Diagnostics.Codes.ProvisionRestatesHeading, $"{label} for '{provision.Id}' only restates its heading");
+                add(relative, provision.Line, MaintainerDiagnostics.Codes.ProvisionRestatesHeading, $"{label} for '{provision.Id}' only restates its heading");
             }
         }
     }
@@ -313,7 +313,7 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="clean">The fence-stripped page lines.</param>
     /// <param name="provisions">The provisions on the page.</param>
-    internal void CheckNormativeLocation(string relative, List<LineItem> clean, List<Provision> provisions)
+    internal void CheckNormativeLocation(string relative, List<PageLine> clean, List<ProvisionSection> provisions)
     {
         var add = Context.Add;
         var provisionLines = new HashSet<int>(provisions.SelectMany(provision => new[] { provision.Line }.Concat(provision.Body.Select(item => item.Number))));
@@ -326,7 +326,7 @@ internal sealed partial class ProvisionValidator
 
             if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
             {
-                add(relative, item.Number, Diagnostics.Codes.ProseNormativeLocation, "normative vocabulary is outside a Statement, Default, or Replacement");
+                add(relative, item.Number, MaintainerDiagnostics.Codes.ProseNormativeLocation, "normative vocabulary is outside a Statement, Default, or Replacement");
             }
         }
     }
@@ -335,7 +335,7 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="provision">The provision to check.</param>
     /// <param name="fields">The provision field lines.</param>
-    private void CheckProvisionIdentity(string relative, Provision provision, List<LineItem> fields)
+    private void CheckProvisionIdentity(string relative, ProvisionSection provision, List<PageLine> fields)
     {
         var add = Context.Add;
         // The ID line is the first line after the heading. It holds the
@@ -345,29 +345,29 @@ internal sealed partial class ProvisionValidator
         var ids = fields.Where(item => PageReader.TryParseIdLine(item.Line, out _)).ToList();
         if (ids.Count == 0)
         {
-            add(relative, provision.Line, Diagnostics.Codes.IdLineMissing, $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.IdLineMissing, $"provision '{provision.Id}' has no ID line; the first line after the heading states its ID");
             return;
         }
 
         var first = fields.First(item => item.Line.Trim().Length > 0);
         if (!PageReader.TryParseIdLine(first.Line, out _))
         {
-            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMissing, $"ID line for '{provision.Id}' must be the first line after the heading");
+            add(relative, ids[0].Number, MaintainerDiagnostics.Codes.IdLineMissing, $"ID line for '{provision.Id}' must be the first line after the heading");
         }
 
         if (!PageReader.TryParseIdLine(ids[0].Line, out var stated) || !Provisions.IsProvisionId(stated))
         // The combined condition above also covers a stated id that is no provision identifier.
         {
-            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMismatch, $"ID line states '{stated}', which is not a provision identifier");
+            add(relative, ids[0].Number, MaintainerDiagnostics.Codes.IdLineMismatch, $"ID line states '{stated}', which is not a provision identifier");
         }
         else if (Provisions.Parse(stated)!.Page != Provisions.PagePath(relative))
         {
-            add(relative, ids[0].Number, Diagnostics.Codes.IdLineMismatch, $"ID line states '{stated}' but the provision sits on page '{Provisions.PagePath(relative)}'");
+            add(relative, ids[0].Number, MaintainerDiagnostics.Codes.IdLineMismatch, $"ID line states '{stated}' but the provision sits on page '{Provisions.PagePath(relative)}'");
         }
 
         if (ids.Count > 1)
         {
-            add(relative, ids[1].Number, Diagnostics.Codes.IdLineMismatch, $"provision '{provision.Id}' has {ids.Count} ID lines");
+            add(relative, ids[1].Number, MaintainerDiagnostics.Codes.IdLineMismatch, $"provision '{provision.Id}' has {ids.Count} ID lines");
         }
     }
 
@@ -395,7 +395,7 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
     /// <param name="provisions">The provisions to check.</param>
-    internal void CheckProvisionScopes(string relative, PageReader reader, List<Provision> provisions)
+    internal void CheckProvisionScopes(string relative, PageReader reader, List<ProvisionSection> provisions)
     {
         var add = Context.Add;
         var vocabulary = Context.Vocabulary;
@@ -416,7 +416,7 @@ internal sealed partial class ProvisionValidator
         {
             foreach (var (provision, named) in artifactNamed.Where(entry => !entry.named))
             {
-                add(relative, provision.Line, Diagnostics.Codes.ScopeArtifact, $"provision '{provision.Id}' names no artifact on a page where another provision names one; name the kinds of file it governs, or `artifact: any` when it governs every file of its layer");
+                add(relative, provision.Line, MaintainerDiagnostics.Codes.ScopeArtifact, $"provision '{provision.Id}' names no artifact on a page where another provision names one; name the kinds of file it governs, or `artifact: any` when it governs every file of its layer");
             }
         }
 
@@ -436,11 +436,11 @@ internal sealed partial class ProvisionValidator
             var strengths = fields.Where(item => PageReader.TryParseStrengthLine(item.Line, out _)).ToList();
             if (strengths.Count == 0)
             {
-                add(relative, provision.Line, Diagnostics.Codes.StrengthLine, $"provision '{provision.Id}' carries no Strength line; write `**Strength:** rule`, `default`, or `advice` directly after its ID line");
+                add(relative, provision.Line, MaintainerDiagnostics.Codes.StrengthLine, $"provision '{provision.Id}' carries no Strength line; write `**Strength:** rule`, `default`, or `advice` directly after its ID line");
             }
             else if (PageReader.TryParseStrengthLine(strengths[0].Line, out var named) && !Scopes.StrengthValues.Contains(Scopes.Unquote(named)))
             {
-                add(relative, strengths[0].Number, Diagnostics.Codes.StrengthLine, $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `required`, `default`, and `advisory`");
+                add(relative, strengths[0].Number, MaintainerDiagnostics.Codes.StrengthLine, $"Strength line for '{provision.Id}' names '{Scopes.Unquote(named)}', which is outside `required`, `default`, and `advisory`");
             }
 
             var applies = fields.Where(item => PageReader.TryParseAppliesToLine(item.Line, out _)).ToList();
@@ -457,14 +457,14 @@ internal sealed partial class ProvisionValidator
             var narrowed = Scopes.ParseScopeFields(rest);
             if (narrowed.Count == 0)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, artifact, layer, or trace");
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names no field; write `field: value` naming stack, artifact, layer, or trace");
                 continue;
             }
 
             var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name is not ("stack" or "artifact" or "layer" or "trace"));
             if (unknown is not null)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, artifact, layer, or trace");
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, artifact, layer, or trace");
                 continue;
             }
 
@@ -473,7 +473,7 @@ internal sealed partial class ProvisionValidator
             {
                 if (field.Values.Count == 0)
                 {
-                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
+                    add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with no value");
                     clean = false;
                     continue;
                 }
@@ -482,19 +482,19 @@ internal sealed partial class ProvisionValidator
                 {
                     if (field.Values.Count != 1)
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with {field.Values.Count} values; name exactly one value");
+                        add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` with {field.Values.Count} values; name exactly one value");
                         clean = false;
                         continue;
                     }
 
                     if (field.Name == "trace" && !Scopes.TraceValues.Contains(field.Values[0]))
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `trace` value '{field.Values[0]}', which is outside `yes` and `no`");
+                        add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `trace` value '{field.Values[0]}', which is outside `yes` and `no`");
                         clean = false;
                     }
                     else if (field.Name == "layer" && vocabulary.Readable && !vocabulary.Layers.Contains(field.Values[0]))
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `layer` value '{field.Values[0]}', which is outside the docs/core/scopes.md vocabulary");
+                        add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `layer` value '{field.Values[0]}', which is outside the docs/core/scopes.md vocabulary");
                         clean = false;
                     }
 
@@ -513,7 +513,7 @@ internal sealed partial class ProvisionValidator
                         : vocabulary.IsArtifact(value);
                     if (!known)
                     {
-                        add(relative, applies[0].Number, Diagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
+                        add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `{field.Name}` value '{value}', which is outside the docs/core/scopes.md vocabulary");
                         clean = false;
                     }
                 }
@@ -547,7 +547,7 @@ internal sealed partial class ProvisionValidator
                     && ScopeValues(narrowed, "stack").Count == 0
                     && ScopeValues(narrowed, "artifact").Count == 0)
                 {
-                    add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, repeats);
+                    add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeNarrow, repeats);
                 }
 
                 continue;
@@ -579,15 +579,15 @@ internal sealed partial class ProvisionValidator
 
             if (widened)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' widens its page scope");
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' widens its page scope");
             }
             else if (repeated.Count > 0)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, repeats);
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeNarrow, repeats);
             }
             else if (!strictlyNarrower)
             {
-                add(relative, applies[0].Number, Diagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' is as wide as its page scope; narrow it or remove the line");
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeNarrow, $"Applies to line for '{provision.Id}' is as wide as its page scope; narrow it or remove the line");
             }
         }
     }
@@ -597,7 +597,7 @@ internal sealed partial class ProvisionValidator
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="reader">The parsed page.</param>
     /// <param name="provisions">The provisions to check.</param>
-    internal void CheckInlineVerification(string relative, PageReader reader, List<Provision> provisions)
+    internal void CheckInlineVerification(string relative, PageReader reader, List<ProvisionSection> provisions)
     {
         var add = Context.Add;
         var root = Context.Root;
@@ -616,12 +616,12 @@ internal sealed partial class ProvisionValidator
         {
             if (table.Header.Count == 3 && table.Header[0] == "ID" && table.Header[1] == "Mark" && table.Header[2] == "Evidence")
             {
-                add(relative, table.HeaderLine, Diagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
+                add(relative, table.HeaderLine, MaintainerDiagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
                 foreach (var row in table.Rows)
                 {
                     if (row.Cells.Count == 3 && Provisions.IsProvisionId(row.Cells[0].Trim()))
                     {
-                        add(relative, row.Line, Diagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
+                        add(relative, row.Line, MaintainerDiagnostics.Codes.VerifyHeader, "standards pages carry verification beside each provision; remove the Verification table");
                     }
                 }
             }
@@ -651,13 +651,13 @@ internal sealed partial class ProvisionValidator
                 .ToList();
             if (lines.Count == 0)
             {
-                add(relative, provision.Line, Diagnostics.Codes.VerifyMissingId, $"provision '{provision.Id}' has no verification line");
+                add(relative, provision.Line, MaintainerDiagnostics.Codes.VerifyMissingId, $"provision '{provision.Id}' has no verification line");
                 continue;
             }
 
             if (lines.Count > 1)
             {
-                add(relative, lines[1].Item.Number, Diagnostics.Codes.VerifyDuplicateId, $"provision '{provision.Id}' has {lines.Count} verification lines");
+                add(relative, lines[1].Item.Number, MaintainerDiagnostics.Codes.VerifyDuplicateId, $"provision '{provision.Id}' has {lines.Count} verification lines");
             }
 
             var (found, position) = lines[0];
@@ -668,19 +668,19 @@ internal sealed partial class ProvisionValidator
                     || item.Fenced
                     || item.Line.Trim().Length > 0)))
             {
-                add(relative, found.Number, Diagnostics.Codes.VerifyOrder, $"verification line for '{provision.Id}' must be last among its fields");
+                add(relative, found.Number, MaintainerDiagnostics.Codes.VerifyOrder, $"verification line for '{provision.Id}' must be last among its fields");
             }
 
             var parsedVerification = PageReader.TryParseVerificationLine(found.Line, out var labelName, out var evidence);
             var mark = parsedVerification && labelName == "Checked by" ? "checkable" : "guidance";
             if (HasNormativeVocabulary(PageReader.VisibleText(found.Line)))
             {
-                add(relative, found.Number, Diagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
+                add(relative, found.Number, MaintainerDiagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
             }
 
             if (GenericEvidencePattern().IsMatch(PageReader.VisibleText(evidence)))
             {
-                add(relative, found.Number, Diagnostics.Codes.VerifyGenericEvidence, $"Verification for '{provision.Id}' uses generic evidence");
+                add(relative, found.Number, MaintainerDiagnostics.Codes.VerifyGenericEvidence, $"Verification for '{provision.Id}' uses generic evidence");
             }
 
             // Evidence that echoes its own provision heading names no artifact. It
@@ -691,13 +691,13 @@ internal sealed partial class ProvisionValidator
             var withoutTags = ProvisionTagPattern().Replace(evidence, " ");
             if (ownerClaim.Length > 0 && Claim(withoutTags).Contains(ownerClaim, StringComparison.Ordinal))
             {
-                add(relative, found.Number, Diagnostics.Codes.VerifyTemplatedEvidence, $"Verification for '{provision.Id}' repeats its provision heading instead of naming evidence");
+                add(relative, found.Number, MaintainerDiagnostics.Codes.VerifyTemplatedEvidence, $"Verification for '{provision.Id}' repeats its provision heading instead of naming evidence");
             }
 
             var normalized = evidence.Trim();
             if (normalized.Length > 0 && !seenEvidence.Add(normalized))
             {
-                add(relative, found.Number, Diagnostics.Codes.VerifyDuplicateEvidence, $"Verification for '{provision.Id}' repeats evidence used by another provision on this page");
+                add(relative, found.Number, MaintainerDiagnostics.Codes.VerifyDuplicateEvidence, $"Verification for '{provision.Id}' repeats evidence used by another provision on this page");
             }
 
             if (mark == "checkable")
@@ -726,7 +726,7 @@ internal sealed partial class ProvisionValidator
         var command = EvidenceCommandPattern().Match(evidence);
         if (!command.Success)
         {
-            add(relative, line, Diagnostics.Codes.VerifyCommand, $"Verification for '{id}' is checkable but names no command");
+            add(relative, line, MaintainerDiagnostics.Codes.VerifyCommand, $"Verification for '{id}' is checkable but names no command");
             return;
         }
 
@@ -762,7 +762,7 @@ internal sealed partial class ProvisionValidator
             var target = JoinRoot(root, candidate);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{candidate}', which does not exist in the repository");
                 return;
             }
         }
@@ -787,19 +787,19 @@ internal sealed partial class ProvisionValidator
 
                 if (shipped is not null && !shipped.Contains(span))
                 {
-                    add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', but the pinned analyzer release '{pin}' does not ship it");
+                    add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', but the pinned analyzer release '{pin}' does not ship it");
                 }
             }
             else if (MaintainCodePattern().IsMatch(span))
             {
                 if (!StableCodeSet.Contains(span))
                 {
-                    add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
+                    add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a litespec-maintain diagnostic code");
                 }
             }
             else if (FindingCodePattern().IsMatch(span) && !FindingCodes.IsKnown(span))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a finding code");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names '{span}', which is not a finding code");
             }
         }
 
@@ -808,7 +808,7 @@ internal sealed partial class ProvisionValidator
         if (command.Groups[1].Value.Contains("litespec model check", StringComparison.Ordinal)
             && !InlineCodes(evidence).Any(span => FindingCodes.IsKnown(span)))
         {
-            add(relative, line, Diagnostics.Codes.CheckedByFindingMissing, $"Verification for '{id}' names 'litespec model check' but no finding code");
+            add(relative, line, MaintainerDiagnostics.Codes.CheckedByFindingMissing, $"Verification for '{id}' names 'litespec model check' but no finding code");
         }
     }
 
@@ -825,7 +825,7 @@ internal sealed partial class ProvisionValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!LiteSpecCommands.Contains(subcommand))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {subcommand}', which is not a litespec command");
             }
 
             return;
@@ -836,7 +836,7 @@ internal sealed partial class ProvisionValidator
             var subcommand = tokens.Length > 1 ? tokens[1] : "";
             if (!MaintainCommands.Contains(subcommand))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {subcommand}', which is not a litespec-maintain command");
             }
 
             return;
@@ -846,12 +846,12 @@ internal sealed partial class ProvisionValidator
         {
             if (tokens[3].EndsWith("LiteSpec.Cli", StringComparison.Ordinal) && !LiteSpecCommands.Contains(tokens[5]))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec {tokens[5]}', which is not a litespec command");
             }
 
             if (tokens[3].EndsWith("LiteSpec.Maintain", StringComparison.Ordinal) && !MaintainCommands.Contains(tokens[5]))
             {
-                add(relative, line, Diagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
+                add(relative, line, MaintainerDiagnostics.Codes.CheckedByUnknown, $"Verification for '{id}' names 'litespec-maintain {tokens[5]}', which is not a litespec-maintain command");
             }
         }
     }

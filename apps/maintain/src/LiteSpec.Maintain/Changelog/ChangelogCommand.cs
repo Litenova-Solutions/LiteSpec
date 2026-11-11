@@ -1,7 +1,7 @@
 using LiteSpec.CommandLine;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Changelog;
 
 /// <summary>
 ///     The <c>litespec-maintain changelog</c> command: writes the Added, Removed, and
@@ -9,7 +9,7 @@ namespace LiteSpec.Authoring;
 ///     into the marked section of <c>CHANGELOG.md</c>.
 /// </summary>
 /// <follows>litespec/core/authoring#generate-the-provision-diff-for-each-release</follows>
-static class ProvisionDiffCommand
+static class ChangelogCommand
 {
     /// <summary>The command's usage text.</summary>
     public const string Usage = """

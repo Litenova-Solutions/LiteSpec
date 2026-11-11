@@ -1,11 +1,11 @@
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
 ///     The checks that bind the documentation to the tools and the example: a page cites only finding
@@ -58,7 +58,7 @@ internal sealed partial class RepositoryValidator
                 {
                     if (ProvisionValidator.FindingCodePattern().IsMatch(span) && !FindingCodes.IsKnown(span))
                     {
-                        add(page.Relative, number, Diagnostics.Codes.FindingCodeUnknown, $"'{span}' is not a finding code in the finding code table");
+                        add(page.Relative, number, MaintainerDiagnostics.Codes.FindingCodeUnknown, $"'{span}' is not a finding code in the finding code table");
                     }
                 }
             }
@@ -86,7 +86,7 @@ internal sealed partial class RepositoryValidator
                     var target = JoinRoot(root, path);
                     if (!File.Exists(target) && !Directory.Exists(target))
                     {
-                        add(page.Relative, number, Diagnostics.Codes.TemplateCitedUnknown, $"'{span}' names no file or folder under templates/");
+                        add(page.Relative, number, MaintainerDiagnostics.Codes.TemplateCitedUnknown, $"'{span}' names no file or folder under templates/");
                     }
                 }
             }
@@ -118,7 +118,7 @@ internal sealed partial class RepositoryValidator
                         continue;
                     }
 
-                    add(page.Relative, number, Diagnostics.Codes.ExampleRecordUnknown, $"'{id}' names no record in examples/claimwick/.litespec");
+                    add(page.Relative, number, MaintainerDiagnostics.Codes.ExampleRecordUnknown, $"'{id}' names no record in examples/claimwick/.litespec");
                 }
             }
         }
@@ -155,7 +155,7 @@ internal sealed partial class RepositoryValidator
             var declared = usages.Where(usage => usage.Commands.Contains(named.Command)).ToList();
             if (declared.Count == 0)
             {
-                add(page.Relative, named.Number, Diagnostics.Codes.CommandOptionUnknown, $"'{named.Command}' names no command with a usage text in source");
+                add(page.Relative, named.Number, MaintainerDiagnostics.Codes.CommandOptionUnknown, $"'{named.Command}' names no command with a usage text in source");
                 continue;
             }
 
@@ -166,7 +166,7 @@ internal sealed partial class RepositoryValidator
                 {
                     if (!parsed.Contains(option))
                     {
-                        add(page.Relative, number, Diagnostics.Codes.CommandOptionUnknown, $"'{option}' is not an option '{named.Command}' parses");
+                        add(page.Relative, number, MaintainerDiagnostics.Codes.CommandOptionUnknown, $"'{option}' is not an option '{named.Command}' parses");
                     }
                 }
             }
@@ -253,7 +253,7 @@ internal sealed partial class RepositoryValidator
             .OrderBy(relative => relative, StringComparer.Ordinal);
         foreach (var page in pages.Where(page => !reached.Contains(page)))
         {
-            add(page, 1, Diagnostics.Codes.IndexPageMissing, $"'{page}' is reached by no link from the documentation index");
+            add(page, 1, MaintainerDiagnostics.Codes.IndexPageMissing, $"'{page}' is reached by no link from the documentation index");
         }
     }
 

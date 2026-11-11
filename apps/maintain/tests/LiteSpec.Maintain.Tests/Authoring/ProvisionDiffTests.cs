@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using LiteSpec.Authoring;
+using LiteSpec.Maintain.Changelog;
 using LiteSpec.Maintain.Tests.Support;
 
 namespace LiteSpec.Maintain.Tests.Authoring;

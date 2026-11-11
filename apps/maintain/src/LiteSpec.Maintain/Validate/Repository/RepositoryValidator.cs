@@ -1,14 +1,14 @@
-using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.PageText;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
 ///     The repository-wide checks: identity, citations, templates, links, indexes, and removed forms.
@@ -96,7 +96,7 @@ internal sealed partial class RepositoryValidator
                     : segments[index];
                 if (!KebabSegmentPattern().IsMatch(name))
                 {
-                    add(page.Relative, 1, Diagnostics.Codes.IdPageFilename, $"path segment '{name}' is not lowercase kebab case");
+                    add(page.Relative, 1, MaintainerDiagnostics.Codes.IdPageFilename, $"path segment '{name}' is not lowercase kebab case");
                 }
             }
         }
@@ -116,7 +116,7 @@ internal sealed partial class RepositoryValidator
             {
                 if (!activeIds.Contains(match.Value))
                 {
-                    add(page.Relative, LineNumber(prose, match.Index), Diagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
+                    add(page.Relative, LineNumber(prose, match.Index), MaintainerDiagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
                 }
             }
         }
@@ -161,7 +161,7 @@ internal sealed partial class RepositoryValidator
             var nonAscii = NonAsciiOffset(stripped);
             if (nonAscii >= 0)
             {
-                add(relative, 1, Diagnostics.Codes.ProseNonAscii, NonAsciiMessage(stripped[nonAscii], "authoring template contains non-ASCII character "));
+                add(relative, 1, MaintainerDiagnostics.Codes.ProseNonAscii, NonAsciiMessage(stripped[nonAscii], "authoring template contains non-ASCII character "));
             }
 
             Context.Pages.ParsePage(virtualRelative, templateReader, @virtual: true);
@@ -208,7 +208,7 @@ internal sealed partial class RepositoryValidator
 
                 if (!TryDecodeURIComponent(targetPart, out var decoded))
                 {
-                    add(relative, link.Line, Diagnostics.Codes.LinkBroken, $"link target '{href}' holds a malformed percent escape");
+                    add(relative, link.Line, MaintainerDiagnostics.Codes.LinkBroken, $"link target '{href}' holds a malformed percent escape");
                     continue;
                 }
 
@@ -217,7 +217,7 @@ internal sealed partial class RepositoryValidator
                     : file;
                 if (targetPart.Length > 0 && !File.Exists(target) && !Directory.Exists(target))
                 {
-                    add(relative, link.Line, Diagnostics.Codes.LinkBroken, $"link target '{href}' does not exist");
+                    add(relative, link.Line, MaintainerDiagnostics.Codes.LinkBroken, $"link target '{href}' does not exist");
                     continue;
                 }
 
@@ -230,7 +230,7 @@ internal sealed partial class RepositoryValidator
 
                     if (!targetReader.Anchors.Contains(anchor))
                     {
-                        add(relative, link.Line, Diagnostics.Codes.AnchorBroken, $"anchor '#{anchor}' does not exist in '{PathText.Relative(root, target)}'");
+                        add(relative, link.Line, MaintainerDiagnostics.Codes.AnchorBroken, $"anchor '#{anchor}' does not exist in '{PathText.Relative(root, target)}'");
                     }
                 }
             }
@@ -296,7 +296,7 @@ internal sealed partial class RepositoryValidator
             var target = Path.Combine(root, "templates", "consumer", template);
             if (!File.Exists(target) && !Directory.Exists(target))
             {
-                add(relative, index + 1, Diagnostics.Codes.TemplateIndexPath, $"template '{template}' named in the index does not exist");
+                add(relative, index + 1, MaintainerDiagnostics.Codes.TemplateIndexPath, $"template '{template}' named in the index does not exist");
             }
         }
 
@@ -325,7 +325,7 @@ internal sealed partial class RepositoryValidator
                 continue;
             }
 
-            add(relative, 1, Diagnostics.Codes.TemplateIndexPath, $"template '{entry}' is tracked but no index row names it");
+            add(relative, 1, MaintainerDiagnostics.Codes.TemplateIndexPath, $"template '{entry}' is tracked but no index row names it");
         }
     }
 
@@ -389,7 +389,7 @@ internal sealed partial class RepositoryValidator
 
                 if (!RecordsValidator.TryParseRecordFile(FileText.ReadText(file), out var record, out var error))
                 {
-                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"record file is invalid: {error}");
+                    add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"record file is invalid: {error}");
                     continue;
                 }
 
@@ -405,7 +405,7 @@ internal sealed partial class RepositoryValidator
                         continue;
                     }
 
-                    add(relative, 1, Diagnostics.Codes.TemplateSchema, "template names no record type");
+                    add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, "template names no record type");
                     continue;
                 }
 
@@ -415,11 +415,11 @@ internal sealed partial class RepositoryValidator
                 {
                     if (RecordTypes.PageStyles.Contains(type))
                     {
-                        add(relative, 1, Diagnostics.Codes.TemplateSchema, $"type '{type}' is a document style; its template lives in '{type}.md', not in this YAML file");
+                        add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"type '{type}' is a document style; its template lives in '{type}.md', not in this YAML file");
                     }
                     else
                     {
-                        add(relative, 1, Diagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
+                        add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
                     }
 
                     continue;
@@ -437,7 +437,7 @@ internal sealed partial class RepositoryValidator
 
                 if (!TryParseDocumentFrontmatter(raw, out var frontmatter, out var error))
                 {
-                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"document frontmatter is invalid: {error}");
+                    add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"document frontmatter is invalid: {error}");
                     continue;
                 }
 
@@ -452,7 +452,7 @@ internal sealed partial class RepositoryValidator
                         continue;
                     }
 
-                    add(relative, 1, Diagnostics.Codes.TemplateSchema, "template frontmatter names no document style");
+                    add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, "template frontmatter names no document style");
                     continue;
                 }
 
@@ -460,7 +460,7 @@ internal sealed partial class RepositoryValidator
                 // holding a record type is the shape the record files replaced.
                 if (RecordTypes.All.Contains(type) || ContainerPageStyles.Contains(type))
                 {
-                    add(relative, 1, Diagnostics.Codes.TemplateSchema, $"type '{type}' is a record type; its template lives in '{type}.yaml', not in this Markdown file");
+                    add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"type '{type}' is a record type; its template lives in '{type}.yaml', not in this Markdown file");
                     continue;
                 }
             }
@@ -477,7 +477,7 @@ internal sealed partial class RepositoryValidator
             var def = defs[TemplateDefName(type)];
             if (def is null)
             {
-                add(relative, 1, Diagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
+                add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, $"template type '{type}' matches no record definition");
                 continue;
             }
 
@@ -499,7 +499,7 @@ internal sealed partial class RepositoryValidator
                 var text = message.StartsWith(relative + ": ", StringComparison.Ordinal)
                     ? message[(relative.Length + 2)..]
                     : message;
-                add(relative, 1, Diagnostics.Codes.TemplateSchema, text);
+                add(relative, 1, MaintainerDiagnostics.Codes.TemplateSchema, text);
             }
         }
     }
@@ -1240,13 +1240,13 @@ internal sealed partial class RepositoryValidator
 
         if (routingLine < 0)
         {
-            add(relative, 1, Diagnostics.Codes.IndexMissingRouting, $"documentation root index has no '{RoutingHeading}' section, so a reader cannot tell which page class answers their question");
+            add(relative, 1, MaintainerDiagnostics.Codes.IndexMissingRouting, $"documentation root index has no '{RoutingHeading}' section, so a reader cannot tell which page class answers their question");
             return;
         }
 
         if (firstGroupLine >= 0 && routingLine > firstGroupLine)
         {
-            add(relative, routingLine, Diagnostics.Codes.IndexMissingRouting, $"'{RoutingHeading}' appears after the first navigation group at line {firstGroupLine}");
+            add(relative, routingLine, MaintainerDiagnostics.Codes.IndexMissingRouting, $"'{RoutingHeading}' appears after the first navigation group at line {firstGroupLine}");
         }
     }
 
@@ -1286,25 +1286,25 @@ internal sealed partial class RepositoryValidator
 
                 if (closer < 0)
                 {
-                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, "generated counts region has no closing marker");
+                    add(page.Relative, index + 1, MaintainerDiagnostics.Codes.GeneratedStale, "generated counts region has no closing marker");
                     continue;
                 }
 
                 var content = string.Join('\n', lines[(index + 1)..closer]);
                 if (source.Length == 0)
                 {
-                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, "generated counts region names no count source; name provisions or analyzer-rules");
+                    add(page.Relative, index + 1, MaintainerDiagnostics.Codes.GeneratedStale, "generated counts region names no count source; name provisions or analyzer-rules");
                 }
                 else if (!counts.TryGetValue(source, out var expected))
                 {
-                    add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, $"generated counts region names unknown count source '{source}'");
+                    add(page.Relative, index + 1, MaintainerDiagnostics.Codes.GeneratedStale, $"generated counts region names unknown count source '{source}'");
                 }
                 else
                 {
                     var match = CountNumberPattern().Match(content);
                     if (!match.Success || !int.TryParse(match.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var stated) || stated != expected)
                     {
-                        add(page.Relative, index + 1, Diagnostics.Codes.GeneratedStale, match.Success
+                        add(page.Relative, index + 1, MaintainerDiagnostics.Codes.GeneratedStale, match.Success
                             ? $"generated counts region states {match.Value} but the source holds {expected}"
                             : "generated counts region states no count");
                     }

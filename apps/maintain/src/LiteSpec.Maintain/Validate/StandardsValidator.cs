@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
 using LiteSpec.CommandLine;
+using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate;
 
 /// <summary>
 ///     The <c>litespec-maintain validate</c> command: the authoring checks over the LiteSpec repository.
@@ -25,7 +26,7 @@ internal static class StandardsValidator
         """;
 
     /// <summary>Every diagnostic code the validator can emit, in declaration order.</summary>
-    public static readonly IReadOnlyList<string> StableDiagnosticCodes = Diagnostics.All;
+    public static readonly IReadOnlyList<string> StableDiagnosticCodes = MaintainerDiagnostics.All;
 
     /// <summary>Validates the repository at <paramref name="root"/> and returns its sorted diagnostics.</summary>
     /// <param name="root">The repository root.</param>
@@ -57,7 +58,7 @@ internal static class StandardsValidator
         List<string> markdown;
         try
         {
-            markdown = ValidatorSupport.Walk(resolved, file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase));
+            markdown = RepositoryWalk.Walk(resolved, file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception exception)
         {
@@ -65,7 +66,7 @@ internal static class StandardsValidator
         }
 
         var context = new ValidationContext(resolved, Add);
-        var current = markdown.Where(file => ValidatorSupport.IsCurrentStandardsMaterial(PathText.Relative(resolved, file))).ToList();
+        var current = markdown.Where(file => RepositoryWalk.IsCurrentStandardsMaterial(PathText.Relative(resolved, file))).ToList();
         var parsedPages = new List<ParsedPage>();
         foreach (var file in current)
         {
@@ -77,7 +78,7 @@ internal static class StandardsValidator
 
             if (context.Repository.ReservedTemplateStems.Contains(relative))
             {
-                Add(relative, 1, Diagnostics.Codes.IdPageFilename, $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
+                Add(relative, 1, MaintainerDiagnostics.Codes.IdPageFilename, $"'{relative}' is the virtual path an authoring template parses as; rename the page so its scope is its own");
                 continue;
             }
 
@@ -85,10 +86,10 @@ internal static class StandardsValidator
             var reader = PageReader.Parse(raw);
             var prose = string.Join('\n', reader.Lines.Select((line, index) =>
                 reader.FencedLines.Contains(index + 1) || reader.GeneratedLines.Contains(index + 1) ? "" : line));
-            var nonAscii = ValidatorSupport.NonAsciiOffset(prose);
+            var nonAscii = PageText.NonAsciiOffset(prose);
             if (nonAscii >= 0)
             {
-                Add(relative, ValidatorSupport.LineNumber(prose, nonAscii), Diagnostics.Codes.ProseNonAscii, ValidatorSupport.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
+                Add(relative, PageText.LineNumber(prose, nonAscii), MaintainerDiagnostics.Codes.ProseNonAscii, PageText.NonAsciiMessage(prose[nonAscii], "non-ASCII character "));
             }
 
             parsedPages.Add(new ParsedPage(relative, reader, context.Pages.ParsePage(relative, reader)));
@@ -117,34 +118,34 @@ internal static class StandardsValidator
         // The provision index and its data file are derived. A stale page would send a
         // reader to the wrong heading, so the gate compares both with the active standards.
         // (litespec/core/authoring#regenerate-the-provision-index)
-        var indexFile = ValidatorSupport.JoinRoot(resolved, Provisions.IndexPath);
+        var indexFile = RepositoryWalk.JoinRoot(resolved, Provisions.IndexPath);
         if (File.Exists(indexFile))
         {
             var expected = Provisions.BuildIndex(resolved) + "\n";
             var actual = FileText.ReadText(indexFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actual != expected)
             {
-                Add(Provisions.IndexPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision index differs from the active standards; run litespec-maintain provisions");
+                Add(Provisions.IndexPath, 1, MaintainerDiagnostics.Codes.ProvisionsStale, "generated provision index differs from the active standards; run litespec-maintain provisions");
             }
         }
         else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
         {
-            Add(Provisions.IndexPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision index is missing; run litespec-maintain provisions");
+            Add(Provisions.IndexPath, 1, MaintainerDiagnostics.Codes.ProvisionsStale, "generated provision index is missing; run litespec-maintain provisions");
         }
 
-        var jsonFile = ValidatorSupport.JoinRoot(resolved, Provisions.JsonPath);
+        var jsonFile = RepositoryWalk.JoinRoot(resolved, Provisions.JsonPath);
         if (File.Exists(jsonFile))
         {
             var expectedJson = Provisions.BuildJson(resolved) + "\n";
             var actualJson = FileText.ReadText(jsonFile).Replace("\r\n", "\n", StringComparison.Ordinal);
             if (actualJson != expectedJson)
             {
-                Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data differs from the active standards; run litespec-maintain provisions");
+                Add(Provisions.JsonPath, 1, MaintainerDiagnostics.Codes.ProvisionsStale, "generated provision data differs from the active standards; run litespec-maintain provisions");
             }
         }
         else if (Directory.Exists(Path.Combine(resolved, "docs", "reference")))
         {
-            Add(Provisions.JsonPath, 1, Diagnostics.Codes.ProvisionsStale, "generated provision data is missing; run litespec-maintain provisions");
+            Add(Provisions.JsonPath, 1, MaintainerDiagnostics.Codes.ProvisionsStale, "generated provision data is missing; run litespec-maintain provisions");
         }
 
         // The finding code, folder and pin tables are written from the code and the manifest, so a
@@ -155,16 +156,16 @@ internal static class StandardsValidator
             {
                 foreach (var (path, text) in ReferenceTables.Outputs(resolved))
                 {
-                    var file = ValidatorSupport.JoinRoot(resolved, path);
+                    var file = RepositoryWalk.JoinRoot(resolved, path);
                     if (!File.Exists(file) || FileText.ReadText(file).Replace("\r\n", "\n", StringComparison.Ordinal) != text)
                     {
-                        Add(path, 1, Diagnostics.Codes.ProvisionsStale, "generated table differs from its source; run litespec-maintain provisions");
+                        Add(path, 1, MaintainerDiagnostics.Codes.ProvisionsStale, "generated table differs from its source; run litespec-maintain provisions");
                     }
                 }
             }
             catch (InvalidOperationException exception)
             {
-                Add(ReferenceTables.ManifestPath, 1, Diagnostics.Codes.ProvisionsStale, exception.Message);
+                Add(ReferenceTables.ManifestPath, 1, MaintainerDiagnostics.Codes.ProvisionsStale, exception.Message);
             }
         }
 
@@ -191,9 +192,9 @@ internal static class StandardsValidator
         // A stable sort: diagnostics that share a file, line, and code keep the order
         // the checks emitted them in, as the reference implementation's sort does.
         var sorted = diagnostics
-            .OrderBy(diagnostic => diagnostic.Relative, ValidatorSupport.SortOrder)
+            .OrderBy(diagnostic => diagnostic.Relative, RepositoryWalk.SortOrder)
             .ThenBy(diagnostic => diagnostic.Line)
-            .ThenBy(diagnostic => diagnostic.Code, ValidatorSupport.SortOrder)
+            .ThenBy(diagnostic => diagnostic.Code, RepositoryWalk.SortOrder)
             .ToList();
         return new StandardsResult(sorted, null);
     }

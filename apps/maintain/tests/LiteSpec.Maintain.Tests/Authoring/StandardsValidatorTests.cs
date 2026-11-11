@@ -1,6 +1,5 @@
-using System.Linq;
-using LiteSpec.Authoring;
 using LiteSpec.Maintain.Tests.Support;
+using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
@@ -55,28 +54,28 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "pattern page with a broken wireframe")]
     public void PatternPageWithBrokenWireframe() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "action \"Refund\"", "button \"Refund\"")),
-        [Diagnostics.Codes.PatternInvalid]);
+        [MaintainerDiagnostics.Codes.PatternInvalid]);
 
     /// <summary>Pattern page whose heading names the pattern rather than an action.</summary>
     /// <proves>litespec/core/authoring#prefer-direct-action-headings</proves>
     [Fact(DisplayName = "pattern page whose heading names the pattern rather than an action")]
     public void PatternHeadingNamesThePattern() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.PatternPage, "## Patterns\n\n### Record Header", "## Standards\n\n### Header layout")),
-        [Diagnostics.Codes.HeadingAction]);
+        [MaintainerDiagnostics.Codes.HeadingAction]);
 
     /// <summary>Tutorial that omits what the reader built.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "tutorial that omits what the reader built")]
     public void TutorialOmitsWhatReaderBuilt() => Check(
         root => StandardsFixture.Write(root, "docs/tutorial/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.TutorialPage, "## What You Built", "## Verification")),
-        [Diagnostics.Codes.PageMissingSection, Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection, MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>How-to that ends in verification.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "how-to that ends in verification")]
     public void HowToEndingInVerification() => Check(
         root => StandardsFixture.Write(root, "docs/guide/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.GuidePage, "## Check", "## Verification")),
-        [Diagnostics.Codes.PageMissingSection, Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection, MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Analyzer rule page and analyzer procedure pass.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -95,21 +94,21 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "analyzer rule page written as a procedure")]
     public void AnalyzerRuleAsProcedure() => Check(
         root => StandardsFixture.Write(root, "docs/analyzers/rules/sample.md", StandardsFixture.GuidePage),
-        [Diagnostics.Codes.PageMissingSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection]);
 
     /// <summary>Example page without an Intent.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "example page without an Intent")]
     public void ExamplePageWithoutIntent() => Check(
         root => StandardsFixture.Write(root, "docs/example/sample.md", "# Sample Example\n\n## The product\n\nA library lends copies.\n"),
-        [Diagnostics.Codes.PageMissingSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection]);
 
     /// <summary>Reference page carrying an unknown section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "reference page carrying an unknown section")]
     public void ReferenceWithUnknownSection() => Check(
         root => StandardsFixture.Write(root, "docs/reference/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReferencePage, "## Notes", "## Procedure")),
-        [Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Reference page out of order.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -121,14 +120,14 @@ public sealed partial class StandardsValidatorTests
             page = StandardsFixture.ReplaceFirst(page, "The values above come from the repository manifest.", "State the exact values that this repository publishes.\n\n## Intent\n\nThe values above come from the repository manifest.");
             StandardsFixture.Write(root, "docs/reference/sample.md", page);
         },
-        [Diagnostics.Codes.PageSectionOrder]);
+        [MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Command page hiding its mechanism.</summary>
     /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
     [Fact(DisplayName = "command page hiding its mechanism")]
     public void CommandHidingMechanism() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Underneath\n\nNone.\n", "")),
-        [Diagnostics.Codes.PageMissingSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection]);
 
     /// <summary>Command page without exit codes.</summary>
     /// <proves>litespec/core/authoring#name-the-escape-from-every-abstraction</proves>
@@ -136,7 +135,7 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "command page without exit codes")]
     public void CommandWithoutExitCodes() => Check(
         root => StandardsFixture.Write(root, "docs/tools/sample.md", StandardsFixture.ReplaceFirst(StandardsFixture.CommandPage, "## Exit Codes", "## Results")),
-        [Diagnostics.Codes.PageMissingSection, Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageMissingSection, MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Frontend standard page with per-stack sections rejected.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -149,28 +148,28 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "docs/frontend/web/sample.md", page);
             StandardsFixture.RebuildIndex(root);
         },
-        [Diagnostics.Codes.PageUnknownSection, Diagnostics.Codes.PageSectionOrder]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Per-stack section outside frontend pages.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "per-stack section outside frontend pages")]
     public void PerStackOutsideFrontend() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Standards", "## React\n\n- React names the binding the rule below forbids.\n\n## Standards")),
-        [Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Stack page carrying a composition section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "stack page carrying a composition section")]
     public void StackWithCompositionSection() => Check(
         root => StandardsFixture.Write(root, "docs/backend/sample/stack.md", StandardsFixture.ReplaceFirst(StandardsFixture.StackPage, "## Conventions", "## Composition\n\n- [Topic standard](../../core/topic.md)\n\n## Conventions")),
-        [Diagnostics.Codes.PageUnknownSection]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Per-stack section after standards.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
     [Fact(DisplayName = "per-stack section after standards")]
     public void PerStackAfterStandards() => Check(
         root => StandardsFixture.Write(root, "docs/frontend/web/sample.md", StandardsFixture.TopicPage.Replace("core/topic", "frontend/web/sample") + "\n## React\n\n- React names the binding the rule above forbids.\n"),
-        [Diagnostics.Codes.PageUnknownSection, Diagnostics.Codes.PageSectionOrder]);
+        [MaintainerDiagnostics.Codes.PageUnknownSection, MaintainerDiagnostics.Codes.PageSectionOrder]);
 
     /// <summary>Stack page with a concepts section.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
@@ -279,28 +278,28 @@ public sealed partial class StandardsValidatorTests
     [Fact(DisplayName = "index without a routing block")]
     public void IndexWithoutRouting() => Check(
         root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n"),
-        [Diagnostics.Codes.IndexMissingRouting]);
+        [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Routing block after the first navigation group.</summary>
     /// <proves>litespec/core/authoring#route-the-reader-before-listing-pages</proves>
     [Fact(DisplayName = "routing block after the first navigation group")]
     public void RoutingAfterNavigation() => Check(
         root => StandardsFixture.Write(root, "docs/README.md", "# Documentation\n\n## Intent\n\nUse this page to find repository documentation.\n\n## Core\n\n- [Topic](core/topic.md)\n\n" + StandardsFixture.IndexRouting),
-        [Diagnostics.Codes.IndexMissingRouting]);
+        [MaintainerDiagnostics.Codes.IndexMissingRouting]);
 
     /// <summary>Stale provision index.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "stale provision index")]
     public void StaleProvisionIndex() => Check(
         root => StandardsFixture.Write(root, Provisions.IndexPath, "# Provision Index\n\n## Intent\n\nThis page is out of date.\n"),
-        [Diagnostics.Codes.ProvisionsStale]);
+        [MaintainerDiagnostics.Codes.ProvisionsStale]);
 
     /// <summary>Missing provision index.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "missing provision index")]
     public void MissingProvisionIndex() => Check(
         root => StandardsFixture.Delete(root, Provisions.IndexPath),
-        [Diagnostics.Codes.ProvisionsStale]);
+        [MaintainerDiagnostics.Codes.ProvisionsStale]);
 
     /// <summary>Declared prose exclusions pass.</summary>
     /// <proves>litespec/core/authoring#keep-authored-prose-ascii-safe</proves>
@@ -318,12 +317,12 @@ public sealed partial class StandardsValidatorTests
         Assert.Equal(2, result.Status);
     }
 
-    /// <summary>Every emitted diagnostic code is declared in Diagnostics.Codes.</summary>
+    /// <summary>Every emitted diagnostic code is declared in MaintainerDiagnostics.Codes.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "every emitted diagnostic code is declared in Diagnostics.Codes")]
+    [Fact(DisplayName = "every emitted diagnostic code is declared in MaintainerDiagnostics.Codes")]
     public void EmittedCodesAreDeclared()
     {
-        var declared = typeof(Diagnostics.Codes)
+        var declared = typeof(MaintainerDiagnostics.Codes)
             .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
             .Where(field => field.IsLiteral && !field.IsInitOnly && field.FieldType == typeof(string))
             .Select(field => (string)field.GetRawConstantValue()!)
@@ -347,114 +346,114 @@ public sealed partial class StandardsValidatorTests
     {
         var covered = new HashSet<string>(StringComparer.Ordinal)
         {
-            Diagnostics.Codes.AnchorBroken,
-            Diagnostics.Codes.CheckedByUnknown,
-            Diagnostics.Codes.ConventionDefaultSentence,
-            Diagnostics.Codes.ConventionMissingDefault,
-            Diagnostics.Codes.ConventionMissingReplacement,
-            Diagnostics.Codes.ConventionReplacementDeviation,
-            Diagnostics.Codes.ConventionReplacementSentence,
-            Diagnostics.Codes.ExtensionActivation,
-            Diagnostics.Codes.ExtensionBaseline,
-            Diagnostics.Codes.ExtensionDependencies,
-            Diagnostics.Codes.ExtensionKind,
-            Diagnostics.Codes.ExtensionReplacesEnforced,
-            Diagnostics.Codes.ExtensionReplacesUnknown,
-            Diagnostics.Codes.ExtensionLocation,
-            Diagnostics.Codes.ExtensionScope,
-            Diagnostics.Codes.ExtensionUnlisted,
-            Diagnostics.Codes.FieldNameShape,
-            Diagnostics.Codes.LayerUnreachable,
-            Diagnostics.Codes.ShapePage,
-            Diagnostics.Codes.StackFolder,
-            Diagnostics.Codes.StackReference,
-            Diagnostics.Codes.GlossaryDefinition,
-            Diagnostics.Codes.GlossaryOrder,
-            Diagnostics.Codes.HeadingAction,
-            Diagnostics.Codes.HeadingEmptyBody,
-            Diagnostics.Codes.IdDuplicate,
-            Diagnostics.Codes.IdInHeading,
-            Diagnostics.Codes.IdLineMissing,
-            Diagnostics.Codes.IdLineMismatch,
-            Diagnostics.Codes.IdPageFilename,
-            Diagnostics.Codes.IdUnknownReference,
-            Diagnostics.Codes.IndexContainsProcedure,
-            Diagnostics.Codes.IndexIntent,
-            Diagnostics.Codes.CheckedByFindingMissing,
-            Diagnostics.Codes.CommandOptionUnknown,
-            Diagnostics.Codes.ExampleRecordUnknown,
-            Diagnostics.Codes.FindingCodeUnknown,
-            Diagnostics.Codes.IndexMissingRouting,
-            Diagnostics.Codes.IndexPageMissing,
-            Diagnostics.Codes.PatternOptionCount,
-            Diagnostics.Codes.TemplateCitedUnknown,
-            Diagnostics.Codes.LayerUnlisted,
-            Diagnostics.Codes.LinkBroken,
-            Diagnostics.Codes.ManifestAnalyzerPin,
-            Diagnostics.Codes.ManifestAnalyzerRule,
-            Diagnostics.Codes.ManifestAnchor,
-            Diagnostics.Codes.ManifestDuplicatePath,
-            Diagnostics.Codes.ManifestPath,
-            Diagnostics.Codes.ManifestYaml,
-            Diagnostics.Codes.MarkMissing,
-            Diagnostics.Codes.MarkUnresolved,
-            Diagnostics.Codes.PageEmptySection,
-            Diagnostics.Codes.PageEmptySectionText,
-            Diagnostics.Codes.PageHeadingCase,
-            Diagnostics.Codes.PageMissingSection,
-            Diagnostics.Codes.PageSectionOrder,
-            Diagnostics.Codes.PageTitleCase,
-            Diagnostics.Codes.PageTitleCount,
-            Diagnostics.Codes.PageUnknownSection,
-            Diagnostics.Codes.PatternInvalid,
-            Diagnostics.Codes.ProseNonAscii,
-            Diagnostics.Codes.ProseNormativeLocation,
-            Diagnostics.Codes.ProvisionRestatesHeading,
-            Diagnostics.Codes.ProvisionsStale,
-            Diagnostics.Codes.RecordDecisionUncited,
-            Diagnostics.Codes.RecordExplanationMissing,
-            Diagnostics.Codes.RecordExplanationOrphaned,
-            Diagnostics.Codes.RecordIdMismatch,
-            Diagnostics.Codes.RecordSchema,
-            Diagnostics.Codes.RecordSource,
-            Diagnostics.Codes.RecordUnknownReference,
-            Diagnostics.Codes.ReferenceExampleDeclaration,
-            Diagnostics.Codes.SchemaId,
-            Diagnostics.Codes.SchemaInvalid,
-            Diagnostics.Codes.SchemaUnsupportedKeyword,
-            Diagnostics.Codes.SchemaYaml,
-            Diagnostics.Codes.StandardDeviationNormative,
-            Diagnostics.Codes.StandardDeviationSentence,
-            Diagnostics.Codes.StandardExampleLabel,
-            Diagnostics.Codes.StandardInformativeNormative,
-            Diagnostics.Codes.StandardLabelDuplicate,
-            Diagnostics.Codes.StandardLabelInvalid,
-            Diagnostics.Codes.StandardLabelOrder,
-            Diagnostics.Codes.StandardMissingDeviation,
-            Diagnostics.Codes.StandardMissingRequirement,
-            Diagnostics.Codes.StandardModalCount,
-            Diagnostics.Codes.StandardModalVocabulary,
-            Diagnostics.Codes.StandardRequirementCount,
-            Diagnostics.Codes.StandardSentenceCount,
-            Diagnostics.Codes.StandardUnexpectedDeviation,
-            Diagnostics.Codes.StandardUnlabeledContent,
-            Diagnostics.Codes.TemplateIndexPath,
-            Diagnostics.Codes.TemplateSchema,
-            Diagnostics.Codes.VerifyCommand,
-            Diagnostics.Codes.VerifyDuplicateEvidence,
-            Diagnostics.Codes.VerifyDuplicateId,
-            Diagnostics.Codes.VerifyGenericEvidence,
-            Diagnostics.Codes.VerifyHeader,
-            Diagnostics.Codes.VerifyMissingId,
-            Diagnostics.Codes.VerifyOrder,
-            Diagnostics.Codes.VerifyTemplatedEvidence,
-            Diagnostics.Codes.ValueStyle,
-            Diagnostics.Codes.GeneratedStale,
-            Diagnostics.Codes.ScopeArtifact,
-            Diagnostics.Codes.ScopeBlock,
-            Diagnostics.Codes.ScopeNarrow,
-            Diagnostics.Codes.ScopeValue,
-            Diagnostics.Codes.StrengthLine,
+            MaintainerDiagnostics.Codes.AnchorBroken,
+            MaintainerDiagnostics.Codes.CheckedByUnknown,
+            MaintainerDiagnostics.Codes.ConventionDefaultSentence,
+            MaintainerDiagnostics.Codes.ConventionMissingDefault,
+            MaintainerDiagnostics.Codes.ConventionMissingReplacement,
+            MaintainerDiagnostics.Codes.ConventionReplacementDeviation,
+            MaintainerDiagnostics.Codes.ConventionReplacementSentence,
+            MaintainerDiagnostics.Codes.ExtensionActivation,
+            MaintainerDiagnostics.Codes.ExtensionBaseline,
+            MaintainerDiagnostics.Codes.ExtensionDependencies,
+            MaintainerDiagnostics.Codes.ExtensionKind,
+            MaintainerDiagnostics.Codes.ExtensionReplacesEnforced,
+            MaintainerDiagnostics.Codes.ExtensionReplacesUnknown,
+            MaintainerDiagnostics.Codes.ExtensionLocation,
+            MaintainerDiagnostics.Codes.ExtensionScope,
+            MaintainerDiagnostics.Codes.ExtensionUnlisted,
+            MaintainerDiagnostics.Codes.FieldNameShape,
+            MaintainerDiagnostics.Codes.LayerUnreachable,
+            MaintainerDiagnostics.Codes.ShapePage,
+            MaintainerDiagnostics.Codes.StackFolder,
+            MaintainerDiagnostics.Codes.StackReference,
+            MaintainerDiagnostics.Codes.GlossaryDefinition,
+            MaintainerDiagnostics.Codes.GlossaryOrder,
+            MaintainerDiagnostics.Codes.HeadingAction,
+            MaintainerDiagnostics.Codes.HeadingEmptyBody,
+            MaintainerDiagnostics.Codes.IdDuplicate,
+            MaintainerDiagnostics.Codes.IdInHeading,
+            MaintainerDiagnostics.Codes.IdLineMissing,
+            MaintainerDiagnostics.Codes.IdLineMismatch,
+            MaintainerDiagnostics.Codes.IdPageFilename,
+            MaintainerDiagnostics.Codes.IdUnknownReference,
+            MaintainerDiagnostics.Codes.IndexContainsProcedure,
+            MaintainerDiagnostics.Codes.IndexIntent,
+            MaintainerDiagnostics.Codes.CheckedByFindingMissing,
+            MaintainerDiagnostics.Codes.CommandOptionUnknown,
+            MaintainerDiagnostics.Codes.ExampleRecordUnknown,
+            MaintainerDiagnostics.Codes.FindingCodeUnknown,
+            MaintainerDiagnostics.Codes.IndexMissingRouting,
+            MaintainerDiagnostics.Codes.IndexPageMissing,
+            MaintainerDiagnostics.Codes.PatternOptionCount,
+            MaintainerDiagnostics.Codes.TemplateCitedUnknown,
+            MaintainerDiagnostics.Codes.LayerUnlisted,
+            MaintainerDiagnostics.Codes.LinkBroken,
+            MaintainerDiagnostics.Codes.ManifestAnalyzerPin,
+            MaintainerDiagnostics.Codes.ManifestAnalyzerRule,
+            MaintainerDiagnostics.Codes.ManifestAnchor,
+            MaintainerDiagnostics.Codes.ManifestDuplicatePath,
+            MaintainerDiagnostics.Codes.ManifestPath,
+            MaintainerDiagnostics.Codes.ManifestYaml,
+            MaintainerDiagnostics.Codes.MarkMissing,
+            MaintainerDiagnostics.Codes.MarkUnresolved,
+            MaintainerDiagnostics.Codes.PageEmptySection,
+            MaintainerDiagnostics.Codes.PageEmptySectionText,
+            MaintainerDiagnostics.Codes.PageHeadingCase,
+            MaintainerDiagnostics.Codes.PageMissingSection,
+            MaintainerDiagnostics.Codes.PageSectionOrder,
+            MaintainerDiagnostics.Codes.PageTitleCase,
+            MaintainerDiagnostics.Codes.PageTitleCount,
+            MaintainerDiagnostics.Codes.PageUnknownSection,
+            MaintainerDiagnostics.Codes.PatternInvalid,
+            MaintainerDiagnostics.Codes.ProseNonAscii,
+            MaintainerDiagnostics.Codes.ProseNormativeLocation,
+            MaintainerDiagnostics.Codes.ProvisionRestatesHeading,
+            MaintainerDiagnostics.Codes.ProvisionsStale,
+            MaintainerDiagnostics.Codes.RecordDecisionUncited,
+            MaintainerDiagnostics.Codes.RecordExplanationMissing,
+            MaintainerDiagnostics.Codes.RecordExplanationOrphaned,
+            MaintainerDiagnostics.Codes.RecordIdMismatch,
+            MaintainerDiagnostics.Codes.RecordSchema,
+            MaintainerDiagnostics.Codes.RecordSource,
+            MaintainerDiagnostics.Codes.RecordUnknownReference,
+            MaintainerDiagnostics.Codes.ReferenceExampleDeclaration,
+            MaintainerDiagnostics.Codes.SchemaId,
+            MaintainerDiagnostics.Codes.SchemaInvalid,
+            MaintainerDiagnostics.Codes.SchemaUnsupportedKeyword,
+            MaintainerDiagnostics.Codes.SchemaYaml,
+            MaintainerDiagnostics.Codes.StandardDeviationNormative,
+            MaintainerDiagnostics.Codes.StandardDeviationSentence,
+            MaintainerDiagnostics.Codes.StandardExampleLabel,
+            MaintainerDiagnostics.Codes.StandardInformativeNormative,
+            MaintainerDiagnostics.Codes.StandardLabelDuplicate,
+            MaintainerDiagnostics.Codes.StandardLabelInvalid,
+            MaintainerDiagnostics.Codes.StandardLabelOrder,
+            MaintainerDiagnostics.Codes.StandardMissingDeviation,
+            MaintainerDiagnostics.Codes.StandardMissingRequirement,
+            MaintainerDiagnostics.Codes.StandardModalCount,
+            MaintainerDiagnostics.Codes.StandardModalVocabulary,
+            MaintainerDiagnostics.Codes.StandardRequirementCount,
+            MaintainerDiagnostics.Codes.StandardSentenceCount,
+            MaintainerDiagnostics.Codes.StandardUnexpectedDeviation,
+            MaintainerDiagnostics.Codes.StandardUnlabeledContent,
+            MaintainerDiagnostics.Codes.TemplateIndexPath,
+            MaintainerDiagnostics.Codes.TemplateSchema,
+            MaintainerDiagnostics.Codes.VerifyCommand,
+            MaintainerDiagnostics.Codes.VerifyDuplicateEvidence,
+            MaintainerDiagnostics.Codes.VerifyDuplicateId,
+            MaintainerDiagnostics.Codes.VerifyGenericEvidence,
+            MaintainerDiagnostics.Codes.VerifyHeader,
+            MaintainerDiagnostics.Codes.VerifyMissingId,
+            MaintainerDiagnostics.Codes.VerifyOrder,
+            MaintainerDiagnostics.Codes.VerifyTemplatedEvidence,
+            MaintainerDiagnostics.Codes.ValueStyle,
+            MaintainerDiagnostics.Codes.GeneratedStale,
+            MaintainerDiagnostics.Codes.ScopeArtifact,
+            MaintainerDiagnostics.Codes.ScopeBlock,
+            MaintainerDiagnostics.Codes.ScopeNarrow,
+            MaintainerDiagnostics.Codes.ScopeValue,
+            MaintainerDiagnostics.Codes.StrengthLine,
         };
 
         foreach (var code in StandardsValidator.StableDiagnosticCodes)
@@ -475,7 +474,7 @@ public sealed partial class StandardsValidatorTests
 
         var result = StandardsValidator.Validate(temp.Path);
         var relatives = result.Diagnostics
-            .Where(diagnostic => diagnostic.Code == Diagnostics.Codes.IdPageFilename)
+            .Where(diagnostic => diagnostic.Code == MaintainerDiagnostics.Codes.IdPageFilename)
             .Select(diagnostic => diagnostic.Relative)
             .ToList();
 

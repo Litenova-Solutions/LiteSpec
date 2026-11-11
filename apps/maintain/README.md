@@ -55,12 +55,14 @@ dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate --help
 
 ## Layout
 
-The entry file sits at the top of `apps/maintain/src/LiteSpec.Maintain/`. Each command lives in `Authoring/` with its validator, its helpers, and its usage text.
+The entry file sits at the top of `apps/maintain/src/LiteSpec.Maintain/`. Each command lives in its own folder with its validators, its helpers, and its usage text.
 
 | Path | What it owns |
 |:---|:---|
 | `Program.cs` | Command dispatch and the top-level usage text. It sets UTF-8 console output, handles `--help` and `--version`, and routes `validate`, `provisions`, and `changelog` to their `Run` methods. Unknown commands print usage to standard error and exit 2. |
-| `Authoring/` | The `validate`, `provisions`, and `changelog` commands. `StandardsValidator.cs` holds the usage text, the full `StableDiagnosticCodes` list, and `Run`. `PageValidator.cs`, `ProvisionValidator.cs`, `ManifestValidator.cs`, and `RepositoryValidator.cs` hold the page, provision, manifest, and repository checks. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. `ProvisionDiffCommand.cs` writes or checks the changelog section through `ProvisionDiff`, which compares the index and the manifest at a git ref with the current ones. File text and relative paths come from the `FileText` and `PathText` in `LiteSpec.Standards`; the manifest is read through `LiteSpecHome.ReadManifest`, and YAML files through `DataFile`. `ValidatorSupport.cs` keeps the directory walk, which skips folders the checks never read. |
+| `Validate/` | The `validate` command. `StandardsValidator.cs` holds the usage text and `Run`, and `MaintainerDiagnostics.cs` the full list of stable diagnostic codes. `Pages/` holds the page, provision, and value-style checks (`PageValidator.cs`, `ProvisionValidator.cs`, `ValueStyleValidator.cs`) and the parsed page they share. `Repository/` holds the repository-wide, manifest, marks, records, and field checks (`RepositoryValidator.cs`, `ManifestValidator.cs`, `MarksValidator.cs`, `RecordsValidator.cs`, `FieldValidator.cs`). `RepositoryWalk.cs` keeps the directory walk, which skips folders the checks never read, and `PageText.cs` the line, citation, and non-ASCII readers. File text and relative paths come from the `FileText` and `PathText` in `LiteSpec.Standards`; the manifest is read through `LiteSpecHome.ReadManifest`, and YAML files through `RecordText`. |
+| `ProvisionIndex/` | The `provisions` command. `ProvisionsCommand.cs` writes or checks the index through the shared `Provisions` builder. |
+| `Changelog/` | The `changelog` command. `ChangelogCommand.cs` writes or checks the changelog section through `ProvisionDiff`, which compares the index and the manifest at a git ref with the current ones. |
 
 The solution file `LiteSpec.slnx` lists the maintainer tool and its tests beside the CLI, the analyzers, and the model library. `Directory.Build.props` pins the target framework to `net10.0` with nullable reference types and implicit usings, and stops MSBuild files in parent folders from applying inside this repository. `Directory.Packages.props` pins `Markdig` for the shared page reader and `xunit.v3` for the tests. `global.json` selects `Microsoft.Testing.Platform` as the test runner and pins the SDK to `10.0.114`.
 
@@ -96,9 +98,9 @@ To add a fixture repository for a new case, follow the harness the area already 
 
 #### Add an Authoring Diagnostic Code End to End
 
-1. Add the code to `StableDiagnosticCodes` in `Authoring/StandardsValidator.cs`, in declaration order.
+1. Add the code to `MaintainerDiagnostics.Codes` and `MaintainerDiagnostics.All` in `Validate/MaintainerDiagnostics.cs`, in declaration order; `StandardsValidator.StableDiagnosticCodes` exposes that list.
 2. Emit it through the `Add` callback inside `Validate` with the repository-relative file, the 1-based line, the code, and a message that names the file and the fix. Never construct a `StandardsDiagnostic` with a code the list does not hold.
-3. Add a test under `Authoring/` that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test that the clean tree passes.
+3. Add a test under the tests' `Authoring/` folder that starts from `StandardsFixture.Base`, mutates one file, and asserts the `file:line [CODE] message` line and the exit code. Add the mirror test that the clean tree passes.
 4. Quote the code on the affected `docs/maintain/validate.md` behavior or the relevant standard page when the rule restates visible behavior.
 
 #### Change a Message

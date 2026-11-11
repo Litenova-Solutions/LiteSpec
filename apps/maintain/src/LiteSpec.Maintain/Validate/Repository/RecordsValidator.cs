@@ -1,12 +1,14 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using LiteSpec.Maintain.Validate.Pages;
 using LiteSpec.Model;
 using LiteSpec.Standards;
-using static LiteSpec.Authoring.ManifestValidator;
-using static LiteSpec.Authoring.ProvisionValidator;
-using static LiteSpec.Authoring.ValidatorSupport;
+using static LiteSpec.Maintain.Validate.Pages.ProvisionValidator;
+using static LiteSpec.Maintain.Validate.PageText;
+using static LiteSpec.Maintain.Validate.Repository.ManifestValidator;
+using static LiteSpec.Maintain.Validate.RepositoryWalk;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate.Repository;
 
 /// <summary>
 ///     The record pass: record files, identifiers, sources, references, and decision citations for LiteSpec's own research and decisions.
@@ -64,7 +66,7 @@ internal sealed partial class RecordsValidator
             {
                 if (!activeIds.Contains(match.Value))
                 {
-                    add(record.Relative, LineNumber(record.Raw, match.Index), Diagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
+                    add(record.Relative, LineNumber(record.Raw, match.Index), MaintainerDiagnostics.Codes.IdUnknownReference, $"active content references unknown provision '{match.Value}'");
                 }
             }
         }
@@ -164,7 +166,7 @@ internal sealed partial class RecordsValidator
             var offset = NonAsciiOffset(record.Raw);
             if (offset >= 0)
             {
-                add(record.Relative, LineNumber(record.Raw, offset), Diagnostics.Codes.ProseNonAscii, NonAsciiMessage(record.Raw[offset], "non-ASCII character "));
+                add(record.Relative, LineNumber(record.Raw, offset), MaintainerDiagnostics.Codes.ProseNonAscii, NonAsciiMessage(record.Raw[offset], "non-ASCII character "));
             }
         }
     }
@@ -224,7 +226,7 @@ internal sealed partial class RecordsValidator
         {
             if (record.Node is null)
             {
-                add(record.Relative, 1, Diagnostics.Codes.RecordSchema, $"record file is invalid: {record.Error}");
+                add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordSchema, $"record file is invalid: {record.Error}");
                 continue;
             }
 
@@ -250,7 +252,7 @@ internal sealed partial class RecordsValidator
                 var text = message.StartsWith(record.Relative + ": ", StringComparison.Ordinal)
                     ? message[(record.Relative.Length + 2)..]
                     : message;
-                add(record.Relative, 1, Diagnostics.Codes.RecordSchema, text);
+                add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordSchema, text);
             }
         }
     }
@@ -268,7 +270,7 @@ internal sealed partial class RecordsValidator
         {
             if (record.Explanation is null)
             {
-                add(record.Relative, 1, Diagnostics.Codes.RecordExplanationMissing, $"record has no explanation file '{Path.ChangeExtension(record.Relative, ".md")}' beside it; research and decision records require one");
+                add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordExplanationMissing, $"record has no explanation file '{Path.ChangeExtension(record.Relative, ".md")}' beside it; research and decision records require one");
             }
         }
 
@@ -278,7 +280,7 @@ internal sealed partial class RecordsValidator
             if (page.Parsed.Kind is "research" or "decision"
                 && !recordFiles.Contains(Path.ChangeExtension(page.Relative, ".yaml")))
             {
-                add(page.Relative, 1, Diagnostics.Codes.RecordExplanationOrphaned, $"explanation file has no record file '{Path.ChangeExtension(page.Relative, ".yaml")}' beside it");
+                add(page.Relative, 1, MaintainerDiagnostics.Codes.RecordExplanationOrphaned, $"explanation file has no record file '{Path.ChangeExtension(page.Relative, ".yaml")}' beside it");
             }
         }
     }
@@ -303,7 +305,7 @@ internal sealed partial class RecordsValidator
             var expected = $"{record.Kind}/{stem}";
             if (id != expected)
             {
-                add(record.Relative, 1, Diagnostics.Codes.RecordIdMismatch, $"record id '{id}' does not match file name; expected '{expected}'");
+                add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordIdMismatch, $"record id '{id}' does not match file name; expected '{expected}'");
             }
         }
     }
@@ -333,13 +335,13 @@ internal sealed partial class RecordsValidator
                 var read = JsonString(entry["readOn"]);
                 if (read is null || read.Length == 0)
                 {
-                    add(record.Relative, 1, Diagnostics.Codes.RecordSource, $"source {index + 1} has no read date");
+                    add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordSource, $"source {index + 1} has no read date");
                 }
 
                 var path = JsonString(entry["path"]);
                 if (path is not null && path.Length > 0 && !File.Exists(JoinRoot(root, path)))
                 {
-                    add(record.Relative, 1, Diagnostics.Codes.RecordSource, $"source {index + 1} path '{path}' does not exist");
+                    add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordSource, $"source {index + 1} path '{path}' does not exist");
                 }
             }
         }
@@ -387,7 +389,7 @@ internal sealed partial class RecordsValidator
                         continue;
                     }
 
-                    add(record.Relative, 1, Diagnostics.Codes.RecordUnknownReference, $"'{field}' names unknown record '{target}'");
+                    add(record.Relative, 1, MaintainerDiagnostics.Codes.RecordUnknownReference, $"'{field}' names unknown record '{target}'");
                 }
             }
         }
@@ -407,7 +409,7 @@ internal sealed partial class RecordsValidator
                     continue;
                 }
 
-                add(page.Relative, LineNumber(prose, match.Index), Diagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
+                add(page.Relative, LineNumber(prose, match.Index), MaintainerDiagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
             }
         }
 
@@ -421,7 +423,7 @@ internal sealed partial class RecordsValidator
                     continue;
                 }
 
-                add(record.Relative, LineNumber(record.Raw, match.Index), Diagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
+                add(record.Relative, LineNumber(record.Raw, match.Index), MaintainerDiagnostics.Codes.RecordUnknownReference, $"active content references unknown record '{id}'");
             }
         }
     }
@@ -557,7 +559,7 @@ internal sealed partial class RecordsValidator
         {
             if (!rationales.Any(text => text.Contains(id, StringComparison.Ordinal)))
             {
-                add(relative, 1, Diagnostics.Codes.RecordDecisionUncited, $"decision '{id}' is cited by no provision Rationale");
+                add(relative, 1, MaintainerDiagnostics.Codes.RecordDecisionUncited, $"decision '{id}' is cited by no provision Rationale");
             }
         }
     }

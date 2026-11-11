@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
 using LiteSpec.Maintain.Tests.Support;
+using LiteSpec.Maintain.Validate;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
@@ -26,7 +26,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$id\":\"https://example.com/schemas/record.schema.yaml\",\"type\":\"object\"}");
         },
-        [Diagnostics.Codes.SchemaId]);
+        [MaintainerDiagnostics.Codes.SchemaId]);
 
     /// <summary>Schema id naming the published home and release.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -40,7 +40,7 @@ public sealed partial class StandardsValidatorTests
 
         var result = StandardsValidator.Validate(temp.Path);
 
-        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == Diagnostics.Codes.SchemaId);
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == MaintainerDiagnostics.Codes.SchemaId);
     }
 
     /// <summary>Schema file that does not parse.</summary>
@@ -52,7 +52,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{");
         },
-        [Diagnostics.Codes.SchemaYaml]);
+        [MaintainerDiagnostics.Codes.SchemaYaml]);
 
     /// <summary>Schema with no $id.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -63,7 +63,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"type\":\"object\"}");
         },
-        [Diagnostics.Codes.SchemaId]);
+        [MaintainerDiagnostics.Codes.SchemaId]);
 
     /// <summary>Invalid schema consumer.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -74,7 +74,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"required\":[\"version\"],\"properties\":{\"version\":{\"const\":\"1.0.0\"}},\"additionalProperties\":false}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Unsupported schema keyword.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -85,7 +85,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"example\":{\"version\":\"4.0.0\"}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         },
-        [Diagnostics.Codes.SchemaUnsupportedKeyword]);
+        [MaintainerDiagnostics.Codes.SchemaUnsupportedKeyword]);
 
     /// <summary>Unsupported schema keyword inside a branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -96,7 +96,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"anyOf\":[{\"type\":\"object\",\"properties\":{\"version\":{\"example\":\"4.0.0\"}}}]}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         },
-        [Diagnostics.Codes.SchemaUnsupportedKeyword]);
+        [MaintainerDiagnostics.Codes.SchemaUnsupportedKeyword]);
 
     /// <summary>Unsupported schema keyword inside propertyNames.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -107,7 +107,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"propertyNames\":{\"type\":\"string\",\"example\":\"version\"}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         },
-        [Diagnostics.Codes.SchemaUnsupportedKeyword]);
+        [MaintainerDiagnostics.Codes.SchemaUnsupportedKeyword]);
 
     /// <summary>Schema upper bound.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -118,7 +118,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"properties\":{\"version\":{\"type\":\"string\",\"maxLength\":3}}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema anyOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -129,7 +129,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"properties\":{\"version\":{\"anyOf\":[{\"type\":\"integer\"},{\"type\":\"boolean\"}]}}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema dependent property.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -140,7 +140,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"dependentRequired\":{\"version\":[\"name\"]}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema property name shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -151,7 +151,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"propertyNames\":{\"pattern\":\"^[a-z]+$\"}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"Version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema pattern properties.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -162,7 +162,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"patternProperties\":{\"^v\":{\"type\":\"integer\"}},\"additionalProperties\":false}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"version\":\"4.0.0\"}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema array bounds.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -173,7 +173,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{\"type\":\"object\",\"properties\":{\"areas\":{\"type\":\"array\",\"maxItems\":1}}}");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{\"areas\":[\"CORE\",\"EXT\"]}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Schema YAML.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -184,7 +184,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-manifest.schema.yaml", "{");
             StandardsFixture.Write(root, "litespec.manifest.yaml", "{}");
         },
-        [Diagnostics.Codes.SchemaYaml]);
+        [MaintainerDiagnostics.Codes.SchemaYaml]);
 
     /// <summary>Project template carrying a removed overrides entry.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -195,7 +195,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-project.schema.yaml", StandardsFixture.ShippedProjectSchema());
             StandardsFixture.Write(root, "templates/consumer/project.yaml", "{\"overrides\":[{\"provisionId\":\"litespec/core/topic#keep-the-topic-bounded\"}]}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Value matches no oneOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -206,7 +206,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-project.schema.yaml", OneOfSchema);
             StandardsFixture.Write(root, "templates/consumer/project.yaml", "{\"selectedExtensions\":[{\"id\":\"outbox\",\"criterion\":\"Durable delivery.\",\"scope\":\"project\"}]}");
         },
-        [Diagnostics.Codes.SchemaInvalid]);
+        [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Value matches exactly one oneOf branch.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -217,7 +217,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/litespec-project.schema.yaml", OneOfSchema);
             StandardsFixture.Write(root, "templates/consumer/project.yaml", "{\"selectedExtensions\":[\"outbox\",{\"id\":\"jobs\",\"criterion\":\"Holds expire on a timer.\"}]}");
         },
-        [], [Diagnostics.Codes.SchemaInvalid]);
+        [], [MaintainerDiagnostics.Codes.SchemaInvalid]);
 
     /// <summary>Template index names a missing file.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
@@ -228,7 +228,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
             StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n| `absent.md` | `docs/absent.md` | Renamed away. |\n");
         },
-        [Diagnostics.Codes.TemplateIndexPath]);
+        [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
     /// <summary>Template index omits a tracked template.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
@@ -240,7 +240,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/unlisted.md", "# Unlisted\n");
             StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
-        [Diagnostics.Codes.TemplateIndexPath]);
+        [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
     /// <summary>Template index resolves every row.</summary>
     /// <proves>litespec/core/principles#keep-one-authored-source</proves>
@@ -251,7 +251,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/sample.md", "# Sample\n");
             StandardsFixture.Write(root, "templates/consumer/README.md", "# Templates\n\n## Intent\n\nUse these starting points.\n\n| Template | Target | Purpose |\n|:---|:---|:---|\n| `sample.md` | `docs/sample.md` | Present. |\n");
         },
-        [], [Diagnostics.Codes.TemplateIndexPath]);
+        [], [MaintainerDiagnostics.Codes.TemplateIndexPath]);
 
     /// <summary>Field name carrying two shapes.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -265,7 +265,7 @@ public sealed partial class StandardsValidatorTests
                 "\"betaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Date field without a By or On name.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -278,7 +278,7 @@ public sealed partial class StandardsValidatorTests
                 "\"decisionPage\":{\"type\":\"object\",\"properties\":{\"decided\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
                 "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Deadline name holding a plain string.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -291,7 +291,7 @@ public sealed partial class StandardsValidatorTests
                 "\"goalPage\":{\"type\":\"object\",\"properties\":{\"finishBy\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Record-type noun holding a list under its singular name.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -305,7 +305,7 @@ public sealed partial class StandardsValidatorTests
                 "\"featureId\":{\"type\":\"string\"}," +
                 "\"featureIdArray\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/featureId\"}}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Link verb holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -318,7 +318,7 @@ public sealed partial class StandardsValidatorTests
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"cites\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Binds holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -331,7 +331,7 @@ public sealed partial class StandardsValidatorTests
                 "\"ruleEntry\":{\"type\":\"object\",\"properties\":{\"binds\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>By name without a participle stem.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -344,7 +344,7 @@ public sealed partial class StandardsValidatorTests
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"writerBy\":{\"$ref\":\"#/$defs/writerName\"}}}," +
                 "\"writerName\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Closed-set noun holding prose.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -357,7 +357,7 @@ public sealed partial class StandardsValidatorTests
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"kind\":{\"$ref\":\"#/$defs/nonEmptyString\"}}}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Prose noun holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -369,7 +369,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"summary\":{\"type\":\"boolean\"}}}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>When condition holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -381,7 +381,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"finishedWhen\":{\"type\":\"boolean\"}}}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Because reason holding a boolean.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -393,7 +393,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"appliesBecause\":{\"type\":\"boolean\"}}}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Recorded date without a past verb stem.</summary>
     /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
@@ -406,7 +406,7 @@ public sealed partial class StandardsValidatorTests
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"writerOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
                 "\"isoDate\":{\"type\":\"string\",\"format\":\"date\"}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Lapse date stating what its date does.</summary>
     /// <proves>litespec/core/language#name-each-date-by-what-it-marks</proves>
@@ -431,7 +431,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"$defs\":{" +
                 "\"alphaPage\":{\"type\":\"object\",\"properties\":{\"isActive\":{\"type\":\"boolean\"}}}}}");
         },
-        [Diagnostics.Codes.FieldNameShape]);
+        [MaintainerDiagnostics.Codes.FieldNameShape]);
 
     /// <summary>Mode objects sharing one shape across pages.</summary>
     /// <proves>litespec/core/language#name-each-field-by-its-word-class</proves>
@@ -478,7 +478,7 @@ public sealed partial class StandardsValidatorTests
 
         var result = StandardsValidator.Validate(temp.Path);
 
-        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == Diagnostics.Codes.FieldNameShape);
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == MaintainerDiagnostics.Codes.FieldNameShape);
     }
 
     static readonly string TemplateGoalSchema =
@@ -518,7 +518,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "templates/consumer/goal.yaml", StandardsFixture.Yaml(
                 "{\"type\":\"goal\",\"id\":\"goal/sample\",\"kind\":\"a\"}"));
         },
-        [Diagnostics.Codes.TemplateSchema]);
+        [MaintainerDiagnostics.Codes.TemplateSchema]);
 
     /// <summary>Consumer template with an invalid record file.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -529,7 +529,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$defs\":{}}");
             StandardsFixture.Write(root, "templates/consumer/goal.yaml", "{");
         },
-        [Diagnostics.Codes.TemplateSchema]);
+        [MaintainerDiagnostics.Codes.TemplateSchema]);
 
     /// <summary>Document template with invalid frontmatter.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -540,7 +540,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$defs\":{}}");
             StandardsFixture.Write(root, "templates/consumer/design-contract.md", "---\n{not yaml}\n---\n\n# Sample\n");
         },
-        [Diagnostics.Codes.TemplateSchema]);
+        [MaintainerDiagnostics.Codes.TemplateSchema]);
 
     /// <summary>Consumer template with an unknown record type.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -551,7 +551,7 @@ public sealed partial class StandardsValidatorTests
             StandardsFixture.Write(root, "schemas/record.schema.yaml", "{\"$defs\":{\"goalPage\":{\"type\":\"object\"}}}");
             StandardsFixture.Write(root, "templates/consumer/portal.yaml", StandardsFixture.Yaml("{\"type\":\"portal\"}"));
         },
-        [Diagnostics.Codes.TemplateSchema]);
+        [MaintainerDiagnostics.Codes.TemplateSchema]);
 
     /// <summary>Consumer template dropping a removable placeholder.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>

@@ -1,5 +1,5 @@
-using LiteSpec.Authoring;
 using LiteSpec.Maintain.Tests.Support;
+using LiteSpec.Maintain.Validate;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
 
@@ -34,7 +34,7 @@ public sealed class PageReaderTests
         var found = Diagnose(root => StandardsFixture.Write(root, "docs/core/topic.md",
             StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "## Conventions",
                 "### Not a verb\n\n**ID:** `litespec/core/topic#not-a-verb`\n\n**Statement:** Consumers MUST record the test boundary.\n\n**Checked by:** `litespec-maintain validate` confirms the test boundary is recorded.\n\n## Conventions")));
-        Assert.Contains(found, item => item.Code == Diagnostics.Codes.HeadingAction);
+        Assert.Contains(found, item => item.Code == MaintainerDiagnostics.Codes.HeadingAction);
     }
 
     /// <summary>Reader passes a Statement inside a code span.</summary>
@@ -62,7 +62,7 @@ public sealed class PageReaderTests
             StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage,
                 "**Rationale:** The boundary gives reviewers one testable result.",
                 "**Statement:** Consumers MUST name the topic owner.\n\n**Rationale:** The boundary gives reviewers one testable result.")));
-        Assert.Contains(found, item => item.Code == Diagnostics.Codes.StandardRequirementCount);
+        Assert.Contains(found, item => item.Code == MaintainerDiagnostics.Codes.StandardRequirementCount);
     }
 
     /// <summary>Reader passes a link inside a code span.</summary>
@@ -86,7 +86,7 @@ public sealed class PageReaderTests
             StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage,
                 "This page defines one repository topic.",
                 "Read [missing](missing.md) for details.\n\nThis page defines one repository topic.")));
-        Assert.Contains(found, item => item.Code == Diagnostics.Codes.LinkBroken);
+        Assert.Contains(found, item => item.Code == MaintainerDiagnostics.Codes.LinkBroken);
     }
 
     /// <summary>Reader passes a valid table cell link.</summary>
@@ -110,7 +110,7 @@ public sealed class PageReaderTests
             StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage,
                 "This page defines one repository topic.",
                 "This page defines one repository topic.\n\n| Link | Target |\n|:---|:---|\n| [Missing](missing.md) | Missing page. |")));
-        Assert.Contains(found, item => item.Code == Diagnostics.Codes.LinkBroken);
+        Assert.Contains(found, item => item.Code == MaintainerDiagnostics.Codes.LinkBroken);
     }
 
     /// <summary>Reader passes a page with one H1.</summary>
@@ -130,7 +130,7 @@ public sealed class PageReaderTests
         StandardsFixture.Base(temp.Path);
         StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.TopicPage + "\n# Second Title\n");
         var result = StandardsValidator.Validate(temp.Path);
-        var finding = Assert.Single(result.Diagnostics, diagnostic => diagnostic.Code == Diagnostics.Codes.PageTitleCount);
+        var finding = Assert.Single(result.Diagnostics, diagnostic => diagnostic.Code == MaintainerDiagnostics.Codes.PageTitleCount);
         var written = File.ReadAllText(Path.Combine(temp.Path, "docs", "core", "topic.md")).Split('\n');
         var expected = Array.FindIndex(written, line => line.Trim() == "# Second Title") + 1;
         Assert.Equal(expected, finding.Line);

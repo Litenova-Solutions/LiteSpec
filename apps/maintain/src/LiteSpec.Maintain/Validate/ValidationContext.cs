@@ -1,6 +1,8 @@
+using LiteSpec.Maintain.Validate.Pages;
+using LiteSpec.Maintain.Validate.Repository;
 using LiteSpec.Standards;
 
-namespace LiteSpec.Authoring;
+namespace LiteSpec.Maintain.Validate;
 
 /// <summary>
 ///     The shared state one validation run carries: the repository root, the
