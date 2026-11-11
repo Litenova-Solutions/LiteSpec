@@ -1,5 +1,5 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;

@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Code;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Readers;

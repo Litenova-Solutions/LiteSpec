@@ -1,3 +1,5 @@
+using LiteSpec.Cli.Model.Code;
+
 namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Readers.Dependencies;

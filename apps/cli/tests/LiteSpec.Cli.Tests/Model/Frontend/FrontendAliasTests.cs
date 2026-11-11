@@ -1,4 +1,4 @@
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Frontend;
 using LiteSpec.Cli.Tests.Support;
 

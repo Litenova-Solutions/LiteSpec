@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Builder;
@@ -193,7 +194,7 @@ public sealed class PlacementTests
         Assert.Equal(module, record.Module);
     }
 
-    static LiteSpec.Cli.Model.Record ById(ProjectModel model, string id) =>
+    static LiteSpec.Cli.Model.Records.Record ById(ProjectModel model, string id) =>
         model.ById.TryGetValue(id, out var record)
             ? record
             : throw new InvalidOperationException($"No record holds '{id}'.");

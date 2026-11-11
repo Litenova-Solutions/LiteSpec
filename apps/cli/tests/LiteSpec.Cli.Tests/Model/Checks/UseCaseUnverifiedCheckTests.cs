@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;

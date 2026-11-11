@@ -1,3 +1,5 @@
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;

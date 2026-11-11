@@ -1,4 +1,6 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Book.Details;
+using LiteSpec.Cli.Book.Output;
 
 namespace LiteSpec.Cli.Book;
 

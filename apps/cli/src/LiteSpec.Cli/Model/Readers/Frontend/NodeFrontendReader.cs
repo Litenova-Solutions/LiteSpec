@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 

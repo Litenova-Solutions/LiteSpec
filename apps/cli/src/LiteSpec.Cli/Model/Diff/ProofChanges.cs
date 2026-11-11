@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Model.Diff;

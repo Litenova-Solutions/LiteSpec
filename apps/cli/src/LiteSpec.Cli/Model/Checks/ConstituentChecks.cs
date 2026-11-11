@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 

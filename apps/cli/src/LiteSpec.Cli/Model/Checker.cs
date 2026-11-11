@@ -3,6 +3,8 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Checks;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 

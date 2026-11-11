@@ -1,3 +1,5 @@
+using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingHelpers;
 

@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;

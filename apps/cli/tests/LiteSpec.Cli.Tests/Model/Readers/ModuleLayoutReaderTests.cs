@@ -1,4 +1,7 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.CompletionStages;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;

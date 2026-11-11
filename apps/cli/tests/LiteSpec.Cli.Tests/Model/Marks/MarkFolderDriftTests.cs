@@ -1,8 +1,10 @@
 using System.Text.Json;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
-using Record = LiteSpec.Cli.Model.Record;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 

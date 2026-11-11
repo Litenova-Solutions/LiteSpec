@@ -1,8 +1,14 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json.Nodes;
-using LiteSpec.Cli.Consumer;
+using LiteSpec.Cli.Book.Details;
+using LiteSpec.Cli.Book.Lexicon;
+using LiteSpec.Cli.Book.Outline;
+using LiteSpec.Cli.Book.Output;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.CompletionStages;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Consumer;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;

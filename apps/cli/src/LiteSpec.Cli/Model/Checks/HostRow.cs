@@ -1,3 +1,5 @@
+using LiteSpec.Cli.Model.Code;
+
 namespace LiteSpec.Cli.Model.Checks;
 
 /// <summary>One event handler or job host row: the holder ids with the shape the checks read.</summary>

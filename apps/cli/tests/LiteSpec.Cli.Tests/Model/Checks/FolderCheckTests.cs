@@ -785,7 +785,7 @@ public sealed class FolderCheckTests
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "proof", "register.yaml");
         using var document = JsonDocument.Parse("{}");
-        var derived = new LiteSpec.Cli.Model.Record
+        var derived = new LiteSpec.Cli.Model.Records.Record
         {
             Type = "result",
             Id = "result/borrow-copy.forbidden",

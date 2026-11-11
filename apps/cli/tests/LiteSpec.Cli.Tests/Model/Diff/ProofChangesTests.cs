@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Diff;
 
 namespace LiteSpec.Cli.Tests.Model.Diff;

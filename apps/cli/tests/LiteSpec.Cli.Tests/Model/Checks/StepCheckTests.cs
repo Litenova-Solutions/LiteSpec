@@ -1,6 +1,6 @@
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Tests.Support;
-using Record = LiteSpec.Cli.Model.Record;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 

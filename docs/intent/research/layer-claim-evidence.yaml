@@ -2,7 +2,7 @@ type: research
 id: research/layer-claim-evidence
 title: Which Record Layers a Project Can Leave Out
 sources:
-  - path: apps/cli/src/LiteSpec.Cli/Model/CompletionCalculator.cs
+  - path: apps/cli/src/LiteSpec.Cli/Model/CompletionStages/CompletionCalculator.cs
     readOn: 2026-11-10
     key: completion-calculator
   - path: apps/cli/src/LiteSpec.Cli/Model/Checks/ProofChecks.cs

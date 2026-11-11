@@ -3,7 +3,7 @@ using System.Text.Json;
 using LiteSpec.Cli.Model.Diff;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
-using Record = LiteSpec.Cli.Model.Record;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Diff;
 

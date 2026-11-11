@@ -1,8 +1,8 @@
 using LiteSpec.Cli;
-using LiteSpec.Cli.Authoring;
 using LiteSpec.Cli.Book;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
+using LiteSpec.Cli.RecordEditing;
 using LiteSpec.Cli.Rules;
 using LiteSpec.Standards;
 

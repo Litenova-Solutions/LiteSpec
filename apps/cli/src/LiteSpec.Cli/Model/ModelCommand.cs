@@ -1,6 +1,9 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Cli.Consumer;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Consumer;
 using LiteSpec.Cli.Model.Diff;
+using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Screens;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;

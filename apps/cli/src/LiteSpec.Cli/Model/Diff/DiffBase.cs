@@ -1,4 +1,5 @@
 using System.Formats.Tar;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Model.Diff;

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Files;
 
 namespace LiteSpec.Cli.Model.Readers.Suppressions;
 

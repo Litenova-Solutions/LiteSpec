@@ -1,5 +1,5 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 

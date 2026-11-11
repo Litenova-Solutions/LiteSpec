@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Model.Code;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

@@ -1,4 +1,4 @@
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers;
 using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Readers.JUnit;

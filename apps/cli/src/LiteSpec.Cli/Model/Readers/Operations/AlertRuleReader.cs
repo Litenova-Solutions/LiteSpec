@@ -1,3 +1,6 @@
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
+
 namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>

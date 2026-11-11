@@ -1,4 +1,4 @@
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Rules;

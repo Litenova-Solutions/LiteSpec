@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Cli.Authoring;
-using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.RecordEditing;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.CommandLine;
