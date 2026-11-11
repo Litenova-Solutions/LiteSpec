@@ -39,9 +39,14 @@ static class BookEdges
                 list.Add(new BookEdge(to, key));
             }
 
-            if (!string.IsNullOrEmpty(type))
+            if (!string.IsNullOrEmpty(type) && pair.Value["fields"] is JsonObject fields)
             {
-                ScanFields(pair.Value["fields"], type, id, index, Add);
+                // A page's records are its entries: they sit below it in the outline and
+                // carry their own links, so the page does not link to them.
+                foreach (var field in fields.Where(field => field.Key != "records"))
+                {
+                    ScanFields(field.Value, type + "." + field.Key, id, index, Add);
+                }
             }
 
             if (type == "screen" && routes.TryGetValue(id, out var route))
