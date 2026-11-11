@@ -4,7 +4,7 @@ State the constraint, decision, or defect that requires the change.
 
 ## Verification
 
-- [ ] I ran the commands in the [Verification section of AGENTS.md](../AGENTS.md#verification) that this change touches, and each one passed.
+- [ ] I ran the commands in the [Verification section of AGENTS.md](https://github.com/Litenova-Solutions/LiteSpec/blob/main/AGENTS.md#verification) that this change touches, and each one passed.
 
 ## Authoring Review
 
@@ -14,7 +14,7 @@ State the constraint, decision, or defect that requires the change.
 - [ ] Each provision contains one testable meaning.
 - [ ] Terminology matches the glossary.
 - [ ] Rationale and examples add useful information.
-- [ ] Prose follows the [writing standard](../docs/core/writing.md).
+- [ ] Prose follows the [writing standard](https://github.com/Litenova-Solutions/LiteSpec/blob/main/docs/core/writing.md).
 - [ ] Verification rows carry the checkable or guidance mark with exact evidence.
 - [ ] Active files contain no history-specific transition material.
 
