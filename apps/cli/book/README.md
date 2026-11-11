@@ -10,10 +10,13 @@ The stack is Svelte 5 with runes, Tailwind CSS v4 with the typography plugin, sh
 
 | Path | Holds |
 |:---|:---|
-| `src/lib/book/` | The store (`book.svelte.ts`): shard loading, the lexicon, relations, review state, filters, sorting and navigation, ported from the former handwritten client with the same names. `search.ts` builds the full-text index, `html.ts` formats links and inline text, `types.ts` describes the shards. |
-| `src/lib/components/book/` | Shared pieces: icons per record type, record references, status and proof marks, source links, rendered prose with glossary links, and the one explanation popover. |
-| `src/lib/components/shell/`, `nav/`, `detail/`, `rail/`, `review/`, `tree/` | The top bar and keyboard, the navigation, the record page, the rail, the verdict bar and the Intent tree. |
-| `src/lib/components/ui/` | shadcn-svelte components, added with `pnpm dlx shadcn-svelte@1.7.2 add <name>` and left as generated. |
+| `src/lib/frame/` | The store (`book.svelte.ts`): shard loading, the lexicon, relations, review state, filters, sorting and navigation. `search.ts` builds the full-text index, `html.ts` formats links and inline text, `shard-types.ts` describes the shards, `shard-loader.ts` loads them, `text.ts` holds the small text helpers and `cn.ts` the class merge. `index.ts` is the public file other modules import from. |
+| `src/lib/record/` | Shared record pieces: the icon, line, link and prose renderers per record, type and proof marks, source links, glossary linking, and the one explanation popover. |
+| `src/lib/record-page/` | The record page: the header, lead, completion, field table, evidence, per-type renderers in `types/`, shared blocks in `blocks/` and `shared/`, and the prose, HTML and value helpers. |
+| `src/lib/outline/` | The outline: the left navigation panel with its rows, views, filters and tools. |
+| `src/lib/trace/` | The trace: the rail beside the record page and the Intent tree. |
+| `src/lib/shell/` | The shell: the top bar with search, shortcuts and run widgets. |
+| `src/lib/ui/` | shadcn-svelte components, added with `pnpm dlx shadcn-svelte@1.7.2 add <name>` and left as generated. |
 
 Two behaviors work by delegation, so they reach prose the CLI renders as HTML: an element with `data-go` opens that record, and an element with `data-explain` opens the LiteSpec explanation for its key.
 

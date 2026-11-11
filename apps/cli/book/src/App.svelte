@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { book } from "$lib/book";
-  import ExplainLayer from "$lib/components/book/ExplainLayer.svelte";
-  import Detail from "$lib/components/detail/Detail.svelte";
-  import Sidebar from "$lib/components/nav/Sidebar.svelte";
-  import Rail from "$lib/components/rail/Rail.svelte";
-  import TopBar from "$lib/components/shell/TopBar.svelte";
-  import IntentTree from "$lib/components/tree/IntentTree.svelte";
-  import * as Tooltip from "$lib/components/ui/tooltip";
+  import { book } from "$lib/frame";
+  import { ExplainLayer } from "$lib/record";
+  import { RecordPage } from "$lib/record-page";
+  import { OutlinePanel } from "$lib/outline";
+  import { RecordRail } from "$lib/trace";
+  import { TopBar } from "$lib/shell";
+  import { IntentTree } from "$lib/trace";
+  import * as Tooltip from "$lib/ui/tooltip";
 
   // The shell: the top bar over three columns, the navigation, the record page
   // and the rail. The Intent tree takes the page and the rail.
@@ -52,18 +52,18 @@
     {:else}
       <div class="grid grid-cols-[minmax(300px,400px)_minmax(0,1fr)] xl:grid-cols-[minmax(300px,400px)_minmax(0,1fr)_minmax(280px,350px)]">
         <aside aria-label="Navigation" class="sticky top-14 h-[calc(100vh-3.5rem)] overflow-hidden border-r">
-          <Sidebar />
+          <OutlinePanel />
         </aside>
         {#if book.wide}
           <section class="xl:col-span-2" aria-label="Intent tree"><IntentTree /></section>
         {:else}
           <main bind:this={main} class="flex min-h-[calc(100vh-3.5rem)] min-w-0 flex-col">
             <article class="mx-auto w-full max-w-[800px] flex-1 px-6 py-8 md:px-12">
-              <Detail />
+              <RecordPage />
             </article>
           </main>
           <aside aria-label="Connections" class="sticky top-14 hidden h-[calc(100vh-3.5rem)] overflow-y-auto border-l px-6 py-7 xl:block">
-            <Rail />
+            <RecordRail />
           </aside>
         {/if}
       </div>
