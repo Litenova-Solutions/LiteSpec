@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Rules;
 
@@ -34,8 +34,8 @@ internal sealed class ProvisionCatalog
     public static ProvisionCatalog Load(
         string home, JsonObject manifest, string shape, IReadOnlyList<string> stacks, IReadOnlyList<string> extensions)
     {
-        var applied = new HashSet<string>(LiteSpec.Authoring.Layout.AppliedPages(home, manifest, shape, stacks, extensions), StringComparer.Ordinal);
-        var replaced = new HashSet<string>(LiteSpec.Authoring.Layout.ReplacedProvisions(manifest, extensions), StringComparer.Ordinal);
+        var applied = new HashSet<string>(StackSelection.AppliedPages(home, manifest, shape, stacks, extensions), StringComparer.Ordinal);
+        var replaced = new HashSet<string>(StackSelection.ReplacedProvisions(manifest, extensions), StringComparer.Ordinal);
 
         if (LoadJson(home) is { Count: > 0 } json)
         {
@@ -302,7 +302,7 @@ internal sealed class ProvisionCatalog
 
                 var id = Text(item, "id");
 
-                if (!Authoring.Provisions.IsProvisionId(id))
+                if (!Provisions.IsProvisionId(id))
                 {
                     continue;
                 }

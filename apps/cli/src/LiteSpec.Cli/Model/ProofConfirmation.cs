@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Model;
 
@@ -113,7 +114,7 @@ static class ProofConfirmation
     {
         if (claim.StartsWith("litespec/", StringComparison.Ordinal))
         {
-            return Authoring.Provisions.IsProvisionId(claim)
+            return Provisions.IsProvisionId(claim)
                 && (model.Provisions.Count == 0 || model.Provisions.Contains(claim));
         }
 
@@ -229,7 +230,7 @@ static class ProofConfirmation
     {
         if (claim.StartsWith("litespec/", StringComparison.Ordinal))
         {
-            return Authoring.Provisions.IsProvisionId(claim)
+            return Provisions.IsProvisionId(claim)
                 && (model.Provisions.Count == 0 || model.Provisions.Contains(claim));
         }
 

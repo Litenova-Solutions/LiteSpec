@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 
 namespace LiteSpec.Analyzers.Layers;
 
@@ -36,7 +36,7 @@ internal sealed class CodeMap
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="modules">The module folders, as forward-slash directory paths.</param>
     /// <param name="slices">The use case and reaction folders, as forward-slash directory paths.</param>
-    private CodeMap(string assemblyName, Layout layout, string? declared, HashSet<string> modules, HashSet<string> slices)
+    private CodeMap(string assemblyName, BackendLayout layout, string? declared, HashSet<string> modules, HashSet<string> slices)
     {
         AssemblyName = assemblyName;
         Layout = layout;
@@ -49,7 +49,7 @@ internal sealed class CodeMap
     public string AssemblyName { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
-    public Layout Layout { get; }
+    public BackendLayout Layout { get; }
 
     /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
     public string? Declared { get; }
@@ -207,7 +207,7 @@ internal sealed class CodeMap
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="assemblyName">The modules assembly name, which names the modules project folder.</param>
     /// <returns>The module folders, as forward-slash directory paths.</returns>
-    private static HashSet<string> FindModules(List<string> paths, Layout layout, string assemblyName)
+    private static HashSet<string> FindModules(List<string> paths, BackendLayout layout, string assemblyName)
     {
         var modules = new HashSet<string>(StringComparer.Ordinal);
         foreach (var path in paths)
@@ -218,7 +218,7 @@ internal sealed class CodeMap
                 continue;
             }
 
-            if (layout == Layout.LayerProjects)
+            if (layout == BackendLayout.LayerProjects)
             {
                 if (ProjectModuleOf(folder) is string module)
                 {
@@ -242,7 +242,7 @@ internal sealed class CodeMap
         // Under the module layout every top-level folder of the modules project outside the
         // known folders is a module, whether or not it publishes a Contracts folder yet.
         // Composition/ belongs to no module: it names several modules at once.
-        if (layout != Layout.LayerProjects && ApplicationRootOf(paths, assemblyName) is string root)
+        if (layout != BackendLayout.LayerProjects && ApplicationRootOf(paths, assemblyName) is string root)
         {
             foreach (var path in paths)
             {
@@ -386,12 +386,12 @@ internal sealed class CodeMap
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="root">The modules project root, or null when the compilation is no modules project; under modules a slice sits below it, directly under a UseCases/ folder.</param>
     /// <returns>The slice folders, as forward-slash directory paths.</returns>
-    private static HashSet<string> FindSlices(List<string> paths, Layout layout, string? root)
+    private static HashSet<string> FindSlices(List<string> paths, BackendLayout layout, string? root)
     {
         var slices = new HashSet<string>(StringComparer.Ordinal);
         // Under layer-projects the use case folders sit in the layer projects; under modules only
         // the modules project holds them.
-        if (root is null && layout != Layout.LayerProjects)
+        if (root is null && layout != BackendLayout.LayerProjects)
         {
             return slices;
         }
@@ -406,7 +406,7 @@ internal sealed class CodeMap
 
             // A slice is a folder directly under a UseCases/ folder, at module or
             // aggregate level, including On{Fact}/ reaction folders.
-            if (layout != Layout.LayerProjects)
+            if (layout != BackendLayout.LayerProjects)
             {
                 if (ParentNameIs(folder, "UseCases"))
                 {

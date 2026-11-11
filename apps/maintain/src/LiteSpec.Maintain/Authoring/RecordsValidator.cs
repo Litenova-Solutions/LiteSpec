@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
-using LiteSpec.Schemas;
+using LiteSpec.Standards;
 using static LiteSpec.Authoring.ManifestValidator;
 using static LiteSpec.Authoring.ProvisionValidator;
 using static LiteSpec.Authoring.ValidatorSupport;
@@ -80,7 +80,7 @@ internal sealed partial class RecordsValidator
         node = null;
         try
         {
-            node = DataFile.NodeOf(YamlText.Parse(text));
+            node = RecordText.NodeOf(YamlText.Parse(text));
             error = "";
             return true;
         }
@@ -194,7 +194,7 @@ internal sealed partial class RecordsValidator
         JsonNode? schema;
         try
         {
-            schema = DataFile.Read(schemaFile);
+            schema = RecordText.Read(schemaFile);
         }
         catch (IOException)
         {

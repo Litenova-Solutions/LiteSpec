@@ -1,9 +1,10 @@
 using System.Text.Json.Nodes;
 using LiteSpec;
 using LiteSpec.Authoring;
-using LiteSpec.Model;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.CommandLine;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Authoring;
 

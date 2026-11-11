@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Standards;
 using static LiteSpec.Authoring.ManifestValidator;
 using static LiteSpec.Authoring.ValidatorSupport;
 
@@ -85,7 +86,7 @@ internal sealed class FieldValidator
             JsonNode? schema;
             try
             {
-                schema = DataFile.Read(file);
+                schema = RecordText.Read(file);
             }
             catch (LiteSpec.Model.JsonTextException)
             {

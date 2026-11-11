@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Rules;
 
@@ -291,7 +292,7 @@ public sealed class RulesCommandTests
         }
 
         var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
-        var declared = DataFile.Read(project)!.AsObject();
+        var declared = RecordText.Read(project)!.AsObject();
         declared["layers"] = LiteSpec.Cli.Tests.Consumer.ConsumerFixture.Claim(claim);
         File.WriteAllText(project, declared.ToJsonString());
 

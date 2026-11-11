@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -366,7 +367,7 @@ public sealed class SettingsCheckTests
     static void AddTemplateStore(string root, string store)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
         var dotnet = (JsonObject)((JsonObject)project["stackConfig"]!)["dotnet"]!;
         dotnet["templateStore"] = store;
         File.WriteAllText(file, project.ToJsonString());

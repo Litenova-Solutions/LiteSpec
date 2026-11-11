@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Consumer;
 
@@ -270,7 +271,7 @@ sealed class ConsumerRun
     /// </summary>
     /// <param name="file">The file to read.</param>
     /// <returns>The parsed value.</returns>
-    public JsonNode? ReadData(string file) => DataFile.Parse(ReadText(file), DataFile.IsYaml(file));
+    public JsonNode? ReadData(string file) => RecordText.Parse(ReadText(file), RecordText.IsYaml(file));
 
     /// <summary>
     ///     Reads the pinned release manifest. A release that ships no manifest reads as null,
@@ -317,7 +318,7 @@ sealed class ConsumerRun
             }
         }
 
-        var schema = DataFile.Read(file);
+        var schema = RecordText.Read(file);
 
         lock (SchemaLock)
         {

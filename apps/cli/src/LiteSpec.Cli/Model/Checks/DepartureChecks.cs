@@ -1,4 +1,4 @@
-using LiteSpec.Authoring;
+using LiteSpec.Standards;
 using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;

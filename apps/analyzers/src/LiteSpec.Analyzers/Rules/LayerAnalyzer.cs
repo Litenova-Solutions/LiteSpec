@@ -41,7 +41,7 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            if (FileScope.DeclaredLayout(start.Options) == Layout.LayerProjects)
+            if (FileScope.DeclaredLayout(start.Options) == BackendLayout.LayerProjects)
             {
                 var layer = LayerResolver.FromAssemblyName(start.Compilation.AssemblyName ?? string.Empty);
                 if (layer == Layer.None || !AppliesTo(layer))

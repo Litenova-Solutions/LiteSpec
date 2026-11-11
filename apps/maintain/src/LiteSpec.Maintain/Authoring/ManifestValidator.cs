@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-using LiteSpec.Schemas;
+using LiteSpec.Standards;
 using static LiteSpec.Authoring.ValidatorSupport;
 
 namespace LiteSpec.Authoring;
@@ -189,7 +189,7 @@ internal sealed partial class ManifestValidator
                 continue;
             }
 
-            if (Layout.KindFor(folder).Length == 0)
+            if (StackSelection.KindFor(folder).Length == 0)
             {
                 add("litespec.manifest.yaml", 1, Diagnostics.Codes.StackFolder, $"stack '{id}' folder '{folder}' is not under 'docs/backend/' or 'docs/frontend/'");
                 continue;
@@ -222,7 +222,7 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        var kinds = Layout.Stacks(manifest).ToDictionary(stack => stack.Id, stack => stack.Kind, StringComparer.Ordinal);
+        var kinds = StackSelection.Stacks(manifest).ToDictionary(stack => stack.Id, stack => stack.Kind, StringComparer.Ordinal);
         foreach (var (id, stackNode) in stacks)
         {
             var stack = stackNode as JsonObject;
@@ -300,7 +300,7 @@ internal sealed partial class ManifestValidator
             return;
         }
 
-        var folders = Layout.Stacks(manifest).Select(stack => stack.Folder.Replace('\\', '/').TrimEnd('/')).ToList();
+        var folders = StackSelection.Stacks(manifest).Select(stack => stack.Folder.Replace('\\', '/').TrimEnd('/')).ToList();
         foreach (var (id, extensionNode) in extensions)
         {
             var path = JsonString((extensionNode as JsonObject)?["path"]);
@@ -375,7 +375,7 @@ internal sealed partial class ManifestValidator
         foreach (var (_, stackNode) in stacks)
         {
             var folder = JsonString((stackNode as JsonObject)?["folder"]);
-            var kind = folder is null ? "" : Layout.KindFor(folder);
+            var kind = folder is null ? "" : StackSelection.KindFor(folder);
             if (folder is null || folder.Length == 0 || kind.Length == 0)
             {
                 continue;
@@ -399,7 +399,7 @@ internal sealed partial class ManifestValidator
 
         foreach (var folder in covered.ToList())
         {
-            covered.UnionWith(Layout.CompanionFolders(root, folder));
+            covered.UnionWith(StackSelection.CompanionFolders(root, folder));
         }
 
         foreach (var area in new[] { "docs/backend", "docs/frontend" })
@@ -593,7 +593,7 @@ internal sealed partial class ManifestValidator
             string? id;
             try
             {
-                id = DataFile.Read(file)?["$id"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
+                id = RecordText.Read(file)?["$id"] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
             }
             catch (Exception exception)
             {
@@ -631,8 +631,8 @@ internal sealed partial class ManifestValidator
         JsonNode? value;
         try
         {
-            schema = DataFile.Read(schemaFile);
-            value = DataFile.Read(valueFile);
+            schema = RecordText.Read(schemaFile);
+            value = RecordText.Read(valueFile);
         }
         catch (Exception exception)
         {

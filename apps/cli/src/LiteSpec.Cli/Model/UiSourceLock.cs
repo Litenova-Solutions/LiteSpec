@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Standards;
 using LiteSpec.Ui;
 
 namespace LiteSpec.Model;
@@ -29,7 +30,7 @@ static class UiSourceLock
     public static IReadOnlyList<string> Write(ProjectModel model)
     {
         var root = model.Config.Root;
-        var project = DataFile.Read(ConsumerRoot.ProjectFile(root));
+        var project = RecordText.Read(ConsumerRoot.ProjectFile(root));
         var lockRelative = TextAt(project, "ui", "package", "sourceLock");
         var packageRelative = TextAt(project, "ui", "package", "path");
         if (lockRelative is null || packageRelative is null)
@@ -51,8 +52,8 @@ static class UiSourceLock
             return [];
         }
 
-        var manifest = DataFile.Read(manifestFile);
-        if (DataFile.Read(lockFile) is not JsonObject lockObject)
+        var manifest = RecordText.Read(manifestFile);
+        if (RecordText.Read(lockFile) is not JsonObject lockObject)
         {
             return [];
         }
@@ -117,7 +118,7 @@ static class UiSourceLock
         }
 
         var header = $"# yaml-language-server: $schema=https://litespec.dev/{version}/schemas/ui-source-lock.schema.yaml\n";
-        var text = header + YamlWriter.Write(DataFile.TextOf(lockObject));
+        var text = header + YamlWriter.Write(RecordText.TextOf(lockObject));
         if (File.ReadAllText(lockFile).Replace("\r\n", "\n", StringComparison.Ordinal) == text)
         {
             return [];

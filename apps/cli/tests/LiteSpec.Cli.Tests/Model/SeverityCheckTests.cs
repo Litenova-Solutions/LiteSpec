@@ -1,8 +1,9 @@
-using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
+using LiteSpec.Cli.Tests.Consumer;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -83,7 +84,7 @@ public sealed class SeverityCheckTests
     static void SetClaim(string root, JsonObject layers)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
         project["layers"] = layers;
         File.WriteAllText(file, project.ToJsonString());
     }
@@ -93,7 +94,7 @@ public sealed class SeverityCheckTests
     static void SetOnlyWebStacks(string root)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("svelte"));
         File.WriteAllText(file, project.ToJsonString());
     }
@@ -104,7 +105,7 @@ public sealed class SeverityCheckTests
     static void BreakMarks(string root, string value)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
         project["marks"] = JsonValue.Create(value);
         File.WriteAllText(file, project.ToJsonString());
     }

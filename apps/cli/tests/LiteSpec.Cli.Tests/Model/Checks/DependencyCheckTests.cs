@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -376,7 +377,7 @@ public sealed class DependencyCheckTests
     static void ConfigureSbom(string root)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var node = DataFile.Read(file)!.AsObject();
+        var node = RecordText.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(".litespec/proof/sbom");
         node["dependencies"] = new JsonObject { ["licenses"] = new JsonArray("MIT", "Apache-2.0") };
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
@@ -386,7 +387,7 @@ public sealed class DependencyCheckTests
     {
         ConfigureSbom(root);
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var node = DataFile.Read(file)!.AsObject();
+        var node = RecordText.Read(file)!.AsObject();
         node["paths"]!.AsObject()["sbom"] = new JsonArray(sbom);
         File.WriteAllText(file, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }

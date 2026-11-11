@@ -1,6 +1,7 @@
+using System.Linq;
 using LiteSpec.Authoring;
 using LiteSpec.Maintain.Tests.Support;
-using System.Linq;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
 

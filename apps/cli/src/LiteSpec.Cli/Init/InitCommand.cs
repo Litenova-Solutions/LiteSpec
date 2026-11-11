@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
+using LiteSpec.CommandLine;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Init;
 
@@ -144,13 +146,13 @@ static class InitCommand
 
         try
         {
-            if (DataFile.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
+            if (RecordText.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
             {
                 Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
                 return 1;
             }
 
-            if (DataFile.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
+            if (RecordText.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
                 || presetJson["shape"] is null)
             {
                 Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
@@ -260,7 +262,7 @@ static class InitCommand
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             // The first line names the schema for YAML language servers; the body is the project
             // as YAML, written from the same tree the placeholders were filled in.
-            var body = YamlWriter.Write(DataFile.TextOf(project));
+            var body = YamlWriter.Write(RecordText.TextOf(project));
             var header = $"# yaml-language-server: $schema=https://litespec.dev/{version}/schemas/litespec-project.schema.yaml\n";
             File.WriteAllText(target, header + (body.EndsWith('\n') ? body : body + "\n"));
         }

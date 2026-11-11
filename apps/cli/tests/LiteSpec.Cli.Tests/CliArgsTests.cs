@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.CommandLine;
 
 namespace LiteSpec.Cli.Tests;
 

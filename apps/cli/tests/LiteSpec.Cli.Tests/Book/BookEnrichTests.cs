@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Book;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -643,7 +644,7 @@ public sealed class BookEnrichTests
     }
 
     static JsonObject LoadFixture(string relative) =>
-        (JsonObject)DataFile.Read(TestCli.Fixture(relative))!;
+        (JsonObject)RecordText.Read(TestCli.Fixture(relative))!;
 
     static IReadOnlyDictionary<string, JsonObject> DetailsOf(JsonObject model) =>
         BookEnrich.Build(model, BookOutline.Build(model));

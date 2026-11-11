@@ -1,5 +1,5 @@
-using LiteSpec.Authoring;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Rules;
 

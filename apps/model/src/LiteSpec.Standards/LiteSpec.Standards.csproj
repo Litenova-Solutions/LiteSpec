@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!--
+            Reads the standards material the LiteSpec release carries: the release itself,
+            its pages and provisions, its pattern pages, and its JSON Schemas, with the
+            record and file text they are written in. The CLI and the maintainer read
+            the release through it.
+        -->
+        <RootNamespace>LiteSpec.Standards</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <!-- The native CLI compiles this library ahead of time, so the trim and AOT analyzers check it in every build. -->
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Markdig" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../LiteSpec.Model/LiteSpec.Model.csproj" />
+    </ItemGroup>
+
+</Project>

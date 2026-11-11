@@ -1,7 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 using LiteSpec.Model.Checks;
-using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -679,7 +679,7 @@ public sealed class FolderCheckTests
         Assert.Empty(Run(model));
     }
 
-    /// <summary>Valid Layout Passes.</summary>
+    /// <summary>Valid BackendLayout Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
     public void ValidLayoutPasses()

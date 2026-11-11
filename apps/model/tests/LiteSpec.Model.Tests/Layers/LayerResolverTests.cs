@@ -46,15 +46,15 @@ public sealed class LayerResolverTests
     /// <param name="expected">The expected result for the case.</param>
     /// <proves>litespec/core/system#point-code-and-tests-up-to-records</proves>
     [Theory]
-    [InlineData(null, Layout.Modules)]
-    [InlineData("", Layout.Modules)]
-    [InlineData("modules", Layout.Modules)]
-    [InlineData("Modules", Layout.Modules)]
-    [InlineData("layer-projects", Layout.LayerProjects)]
-    [InlineData("Layer-Projects", Layout.LayerProjects)]
-    [InlineData("layerprojects", Layout.LayerProjects)]
-    [InlineData("slices", Layout.Modules)]
-    public void ParsesADeclaredLayout(string? value, Layout expected) =>
+    [InlineData(null, BackendLayout.Modules)]
+    [InlineData("", BackendLayout.Modules)]
+    [InlineData("modules", BackendLayout.Modules)]
+    [InlineData("Modules", BackendLayout.Modules)]
+    [InlineData("layer-projects", BackendLayout.LayerProjects)]
+    [InlineData("Layer-Projects", BackendLayout.LayerProjects)]
+    [InlineData("layerprojects", BackendLayout.LayerProjects)]
+    [InlineData("slices", BackendLayout.Modules)]
+    public void ParsesADeclaredLayout(string? value, BackendLayout expected) =>
         Assert.Equal(expected, LayerResolver.ParseLayout(value));
 
     /// <summary>The nearest layer folder names the layer.</summary>
@@ -113,7 +113,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/WelcomeNoticeText.cs", Layer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", Layer.None)]
     public void ResolvesAModuleFile(string filePath, Layer expected) =>
-        Assert.Equal(expected, LayerResolver.FileLayer(filePath, "Claimwick", Layout.Modules, null));
+        Assert.Equal(expected, LayerResolver.FileLayer(filePath, "Claimwick", BackendLayout.Modules, null));
 
     /// <summary>A host file reads its layer from its assembly.</summary>
     /// <param name="assemblyName">The assembly name the test source compiles under.</param>
@@ -123,7 +123,7 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick.WebApi", Layer.WebApi)]
     [InlineData("Claimwick.Worker", Layer.Worker)]
     public void ResolvesAHostFileFromItsAssembly(string assemblyName, Layer expected) =>
-        Assert.Equal(expected, LayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, Layout.Modules, null));
+        Assert.Equal(expected, LayerResolver.FileLayer("Claimwick.WebApi/Program.cs", assemblyName, BackendLayout.Modules, null));
 
     /// <summary>A test file stays in the test layer whatever folders it mirrors.</summary>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
@@ -131,7 +131,7 @@ public sealed class LayerResolverTests
     public void ResolvesATestFileFromItsAssembly()
     {
         var layer = LayerResolver.FileLayer(
-            "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", Layout.Modules, null);
+            "Claimwick.Tests/Organizations/Teams/Domain/TeamTests.cs", "Claimwick.Tests", BackendLayout.Modules, null);
 
         Assert.Equal(Layer.Test, layer);
     }
@@ -142,7 +142,7 @@ public sealed class LayerResolverTests
     public void ResolvesEveryFileFromItsAssemblyUnderLayerProjects()
     {
         var layer = LayerResolver.FileLayer(
-            "Orders/Order.cs", "Shop.Domain", Layout.LayerProjects, null);
+            "Orders/Order.cs", "Shop.Domain", BackendLayout.LayerProjects, null);
 
         Assert.Equal(Layer.Domain, layer);
     }
@@ -151,9 +151,9 @@ public sealed class LayerResolverTests
     /// <param name="layout">The backend layout under test.</param>
     /// <proves>litespec/backend/architecture#point-dependencies-inward</proves>
     [Theory]
-    [InlineData(Layout.Modules)]
-    [InlineData(Layout.LayerProjects)]
-    public void DeclaredLayerWins(Layout layout)
+    [InlineData(BackendLayout.Modules)]
+    [InlineData(BackendLayout.LayerProjects)]
+    public void DeclaredLayerWins(BackendLayout layout)
     {
         var layer = LayerResolver.FileLayer(
             "Claimwick/Organizations/Teams/Domain/Team.cs", "Claimwick", layout, "Application");

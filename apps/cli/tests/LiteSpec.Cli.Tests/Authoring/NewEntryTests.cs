@@ -2,6 +2,7 @@ using LiteSpec;
 using LiteSpec.Authoring;
 using LiteSpec.Cli.Tests.Consumer;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.CommandLine;
 
 namespace LiteSpec.Cli.Tests.Authoring;
 

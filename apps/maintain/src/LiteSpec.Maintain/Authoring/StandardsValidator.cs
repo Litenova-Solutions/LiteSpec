@@ -1,4 +1,6 @@
 using System.Text.Json.Nodes;
+using LiteSpec.CommandLine;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Authoring;
 

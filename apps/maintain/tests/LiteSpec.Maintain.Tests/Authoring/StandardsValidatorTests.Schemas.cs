@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
-using LiteSpec.Schemas;
 using LiteSpec.Maintain.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
 

@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Model;
-using LiteSpec.Schemas;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Consumer;
 

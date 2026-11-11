@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Authoring;
 
@@ -13,7 +13,7 @@ public sealed class SlugCasesTests
     public void SlugsMatchFixture()
     {
         var file = Path.Combine(TestCli.Repository, "apps", "cli", "tests", "LiteSpec.Cli.Tests", "Authoring", "SlugCases.json");
-        var cases = DataFile.Read(file)!.AsArray();
+        var cases = RecordText.Read(file)!.AsArray();
         Assert.NotEmpty(cases);
         foreach (var entry in cases)
         {

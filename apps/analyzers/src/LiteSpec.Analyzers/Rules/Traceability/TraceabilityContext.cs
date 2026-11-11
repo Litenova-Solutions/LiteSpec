@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,6 +7,7 @@ using LiteSpec.Analyzers.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
+using System;
 
 namespace LiteSpec.Analyzers.Rules.Traceability;
 
@@ -37,7 +37,7 @@ internal sealed class TraceabilityContext
     /// <param name="eventIds">The event id by simple event type name.</param>
     /// <param name="project">The assembly name, for project checks.</param>
     public TraceabilityContext(
-        Layout layout, string? declared, LayerClaims claims, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
+        BackendLayout layout, string? declared, LayerClaims claims, RecordStore store, KindContext kinds, IReadOnlyDictionary<string, string> eventIds, string project)
     {
         Layout = layout;
         Declared = declared;
@@ -69,7 +69,7 @@ internal sealed class TraceabilityContext
     }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
-    public Layout Layout { get; }
+    public BackendLayout Layout { get; }
 
     /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
     public string? Declared { get; }
@@ -110,7 +110,7 @@ internal sealed class TraceabilityContext
     /// <returns>The project name.</returns>
     public string ProjectOf(ISymbol symbol)
     {
-        if (Layout == Layout.LayerProjects)
+        if (Layout == BackendLayout.LayerProjects)
         {
             return Project;
         }
@@ -186,7 +186,7 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
+    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, RecordStore store) =>
         Create(compilation, layout, declared, LayerClaims.All, store);
 
     /// <summary>Builds the context for one compilation under the layers it claims.</summary>
@@ -196,7 +196,7 @@ internal sealed class TraceabilityContext
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The context.</returns>
-    public static TraceabilityContext Create(Compilation compilation, Layout layout, string? declared, LayerClaims claims, RecordStore store)
+    public static TraceabilityContext Create(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, RecordStore store)
     {
         var roots = new HashSet<string>(StringComparer.Ordinal);
         var exceptions = new HashSet<string>(StringComparer.Ordinal);
@@ -249,7 +249,7 @@ internal sealed class TraceabilityContext
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, RecordStore store) =>
+    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, RecordStore store) =>
         GetOrCreate(compilation, layout, declared, LayerClaims.All, store);
 
     /// <summary>Reads the cached context for the compilation or builds and caches it under the layers it claims.</summary>
@@ -259,7 +259,7 @@ internal sealed class TraceabilityContext
     /// <param name="claims">The record layers the project claims.</param>
     /// <param name="store">The consumer's records.</param>
     /// <returns>The compilation's context.</returns>
-    public static TraceabilityContext GetOrCreate(Compilation compilation, Layout layout, string? declared, LayerClaims claims, RecordStore store)
+    public static TraceabilityContext GetOrCreate(Compilation compilation, BackendLayout layout, string? declared, LayerClaims claims, RecordStore store)
     {
         if (Cache.TryGetValue(compilation, out var cached)
             && cached.Layout == layout

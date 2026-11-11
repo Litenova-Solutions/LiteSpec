@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
-using LiteSpec.Schemas;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Ui;
 
@@ -412,7 +412,7 @@ sealed class UiSession
                 return "react";
             }
 
-            var lockNode = DataFile.Read(FilePath(relative));
+            var lockNode = RecordText.Read(FilePath(relative));
             return JsonRead.Child(lockNode, "generator") is { Node: JsonValue generator } && generator.TryGetValue<string>(out var name) && name == "shadcn-svelte"
                 ? "svelte"
                 : "react";
@@ -514,7 +514,7 @@ sealed class UiSession
     {
         try
         {
-            return DataFile.Read(file);
+            return RecordText.Read(file);
         }
         catch (Exception cause)
         {

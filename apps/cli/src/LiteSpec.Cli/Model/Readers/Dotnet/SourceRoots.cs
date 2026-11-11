@@ -1,3 +1,5 @@
+using LiteSpec.Standards;
+
 namespace LiteSpec.Model.Readers.Dotnet;
 
 /// <summary>The backend source roots of a consumer, as the reader walks them.</summary>
@@ -141,7 +143,7 @@ static class SourceRoots
         var layer = LayerResolver.FileLayer(
             PathText.Relative(root, file),
             FolderName(root),
-            config.IsLayerProjects ? Layout.LayerProjects : Layout.Modules,
+            config.IsLayerProjects ? BackendLayout.LayerProjects : BackendLayout.Modules,
             declared: null);
 
         return layer switch

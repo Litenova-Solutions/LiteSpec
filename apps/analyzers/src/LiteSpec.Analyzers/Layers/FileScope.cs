@@ -1,7 +1,7 @@
-using System;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 
 namespace LiteSpec.Analyzers.Layers;
 
@@ -17,7 +17,7 @@ internal sealed class FileScope
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="applies">The rule's layer predicate.</param>
-    private FileScope(string assemblyName, Layout layout, string? declared, Func<Layer, bool> applies)
+    private FileScope(string assemblyName, BackendLayout layout, string? declared, Func<Layer, bool> applies)
     {
         AssemblyName = assemblyName;
         Layout = layout;
@@ -29,7 +29,7 @@ internal sealed class FileScope
     public string AssemblyName { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
-    public Layout Layout { get; }
+    public BackendLayout Layout { get; }
 
     /// <summary>Gets the declared layer name, or null when the project sets none.</summary>
     public string? Declared { get; }
@@ -51,7 +51,7 @@ internal sealed class FileScope
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <param name="applies">The rule's layer predicate.</param>
     /// <returns>The scope.</returns>
-    public static FileScope For(string assemblyName, Layout layout, string? declared, Func<Layer, bool> applies) =>
+    public static FileScope For(string assemblyName, BackendLayout layout, string? declared, Func<Layer, bool> applies) =>
         new(assemblyName, layout, declared, applies);
 
     /// <summary>Returns true when the rule applies to the tree's file; otherwise false.</summary>
@@ -100,7 +100,7 @@ internal sealed class FileScope
     /// <summary>Reads the declared layout property, or the module layout when the project sets none.</summary>
     /// <param name="options">The analyzer options carrying the additional files.</param>
     /// <returns>The layout.</returns>
-    public static Layout DeclaredLayout(AnalyzerOptions options)
+    public static BackendLayout DeclaredLayout(AnalyzerOptions options)
     {
         if (options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(LayerResolver.LayoutPropertyKey, out var declared)
             && !string.IsNullOrWhiteSpace(declared))
@@ -108,6 +108,6 @@ internal sealed class FileScope
             return LayerResolver.ParseLayout(declared);
         }
 
-        return Layout.Modules;
+        return BackendLayout.Modules;
     }
 }

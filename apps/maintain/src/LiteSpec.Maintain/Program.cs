@@ -1,5 +1,6 @@
 using LiteSpec;
 using LiteSpec.Authoring;
+using LiteSpec.Standards;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
 // than the Windows code page, which turns a non-ASCII character into a control byte.

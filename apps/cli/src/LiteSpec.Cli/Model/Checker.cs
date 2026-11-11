@@ -2,8 +2,8 @@ using System.Collections.Concurrent;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using LiteSpec.Authoring;
 using LiteSpec.Model.Checks;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Model;
 

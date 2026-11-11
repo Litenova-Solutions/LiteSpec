@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -231,7 +232,7 @@ public sealed class BookCommandTests
         var plain = Path.Combine(temp.Path, "plain");
         Directory.CreateDirectory(Path.Combine(plain, "shots"));
         File.WriteAllBytes(Path.Combine(plain, "shots", "home.png"), [137, 80, 78, 71]);
-        var model = (JsonObject)DataFile.Read(TestCli.Fixture("Book/model.json"))!;
+        var model = (JsonObject)RecordText.Read(TestCli.Fixture("Book/model.json"))!;
         var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";

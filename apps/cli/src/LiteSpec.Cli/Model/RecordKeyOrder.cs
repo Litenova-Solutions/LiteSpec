@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Model;
 
@@ -42,7 +43,7 @@ static class RecordKeyOrder
             return orders;
         }
 
-        if (DataFile.Read(path) is not JsonObject schema || schema["$defs"] is not JsonObject definitions)
+        if (RecordText.Read(path) is not JsonObject schema || schema["$defs"] is not JsonObject definitions)
         {
             return orders;
         }

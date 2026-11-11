@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -138,7 +139,7 @@ public sealed class DecideTests
     static void AddWebFrontend(string root)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
 
         project["frontends"] = new JsonArray(
             new JsonObject

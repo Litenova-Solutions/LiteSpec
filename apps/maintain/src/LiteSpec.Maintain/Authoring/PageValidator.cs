@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using LiteSpec.Standards;
 using static LiteSpec.Authoring.ValidatorSupport;
 
 namespace LiteSpec.Authoring;
@@ -124,7 +125,7 @@ internal sealed partial class PageValidator
             return "explanation";
         }
 
-        if (Patterns.PatternPage.IsPatternPage(relative))
+        if (PatternPage.IsPatternPage(relative))
         {
             return "pattern";
         }
@@ -768,7 +769,7 @@ internal sealed partial class PageValidator
         if (kind == "pattern")
         {
             var group = Path.GetFileNameWithoutExtension(relative);
-            var patternPage = Patterns.PatternPage.Parse(group, reader.Raw);
+            var patternPage = PatternPage.Parse(group, reader.Raw);
             foreach (var (line, message) in patternPage.Check())
             {
                 add(relative, line, Diagnostics.Codes.PatternInvalid, message);

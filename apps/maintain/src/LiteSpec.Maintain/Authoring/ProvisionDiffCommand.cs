@@ -1,3 +1,6 @@
+using LiteSpec.CommandLine;
+using LiteSpec.Standards;
+
 namespace LiteSpec.Authoring;
 
 /// <summary>

@@ -1,5 +1,5 @@
 // The wireframe language parser, part catalog and rules, defined in
-// docs/frontend/patterns.md. The checks in apps/model/src/LiteSpec.Shared/Patterns/Wireframe.cs
+// docs/frontend/patterns.md. The checks in apps/model/src/LiteSpec.Standards/Patterns/Wireframe.cs
 // read the same language; names below match it in camelCase.
 // This module uses no Node API so it runs at build time and in the browser.
 

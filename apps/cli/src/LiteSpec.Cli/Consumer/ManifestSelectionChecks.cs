@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Consumer;
 
@@ -81,7 +82,7 @@ static class ManifestSelectionChecks
 
         if (manifestObj is not null)
         {
-            var stacks = LiteSpec.Authoring.Layout.Stacks(manifestObj);
+            var stacks = StackSelection.Stacks(manifestObj);
             var byId = stacks.ToDictionary(stack => stack.Id, stack => stack, StringComparer.Ordinal);
             var backendIds = stacks.Where(stack => stack.Kind == "backend").Select(stack => stack.Id).OrderBy(id => id, StringComparer.Ordinal).ToList();
             var frontendIds = stacks.Where(stack => stack.Kind == "frontend").Select(stack => stack.Id).OrderBy(id => id, StringComparer.Ordinal).ToList();

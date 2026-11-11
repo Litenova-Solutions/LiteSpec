@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Model.Readers;
 using LiteSpec.Model.Readers.Measures;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Model;
 
@@ -198,10 +199,10 @@ static partial class ModelBuilder
 
             return (
                 new HashSet<string>(
-                    Authoring.Layout.AppliedPages(home, manifest, config.Shape, config.Stacks, config.Extensions),
+                    StackSelection.AppliedPages(home, manifest, config.Shape, config.Stacks, config.Extensions),
                     StringComparer.Ordinal),
                 new HashSet<string>(
-                    Authoring.Layout.AppliedProvisions(home, manifest, config.Shape, config.Stacks, config.Extensions),
+                    StackSelection.AppliedProvisions(home, manifest, config.Shape, config.Stacks, config.Extensions),
                     StringComparer.Ordinal));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)

@@ -68,13 +68,13 @@ public sealed class Sha256Tests
     }
 
     /// <summary>
-    ///     The CLI and its shared library name no System.Security.Cryptography type: on Linux that
+    ///     The CLI and the libraries only it and the maintainer compile name no System.Security.Cryptography type: on Linux that
     ///     namespace runs through OpenSSL, which the native executable must not need.
     /// </summary>
     [Fact]
     public void TheCLIUsesNoPlatformCryptography()
     {
-        var sources = new[] { Path.Combine("apps", "cli", "src"), Path.Combine("apps", "model", "src", "LiteSpec.Shared") }
+        var sources = new[] { Path.Combine("apps", "cli", "src"), Path.Combine("apps", "model", "src", "LiteSpec.CommandLine"), Path.Combine("apps", "model", "src", "LiteSpec.Standards") }
             .SelectMany(folder => Directory.EnumerateFiles(Path.Combine(Support.TestCli.Repository, folder), "*.cs", SearchOption.AllDirectories))
             .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
             .Where(file => File.ReadAllText(file).Contains("System.Security.Cryptography", StringComparison.Ordinal))

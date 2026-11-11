@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -406,7 +407,7 @@ public sealed class OperationsCheckTests
     static void SelectDelivery(string root)
     {
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         project["selectedExtensions"] = new JsonArray(new JsonObject { ["id"] = "delivery", ["criterion"] = "The project runs alerts and runbooks in production." });
         File.WriteAllText(projectFile, project.ToJsonString());
     }
@@ -414,7 +415,7 @@ public sealed class OperationsCheckTests
     static void SetPaths(string root, string[]? alerts = null, string[]? operations = null, string? checkResults = null)
     {
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         var paths = project["paths"]!.AsObject();
 
         if (alerts is not null)

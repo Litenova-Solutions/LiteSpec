@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
+using LiteSpec.CommandLine;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Rules;
 
@@ -76,7 +77,7 @@ static class RulesCommand
             return LastResort.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
         }
 
-        var backendStack = LiteSpec.Authoring.Layout.Stacks(manifest)
+        var backendStack = StackSelection.Stacks(manifest)
             .FirstOrDefault(stack => stack.Kind == "backend" && config.Stacks.Contains(stack.Id, StringComparer.Ordinal))
             ?.Id ?? "";
 

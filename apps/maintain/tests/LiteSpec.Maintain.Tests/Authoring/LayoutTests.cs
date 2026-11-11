@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Authoring;
 using LiteSpec.Maintain.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Maintain.Tests.Authoring;
 
@@ -55,7 +56,7 @@ public sealed class LayoutTests
     [Fact(DisplayName = "stacks read folders kinds and pairing rules")]
     public void StacksReadFoldersKindsAndPairingRules()
     {
-        var stacks = Layout.Stacks(Manifest("""
+        var stacks = StackSelection.Stacks(Manifest("""
             {
               "stacks": {
                 "dotnet": { "folder": "docs/backend/dotnet" },
@@ -78,7 +79,7 @@ public sealed class LayoutTests
         Assert.Equal(["dotnet"], stacks[1].PairsWith);
         Assert.Equal("stray", stacks[2].Id);
         Assert.Equal("", stacks[2].Kind);
-        Assert.Empty(Layout.Stacks(Manifest("{}")));
+        Assert.Empty(StackSelection.Stacks(Manifest("{}")));
     }
 
     /// <summary>Applied pages for a server project.</summary>
@@ -89,7 +90,7 @@ public sealed class LayoutTests
         using var temp = Cli.Temp("layers");
         Trees(temp.Path);
 
-        var pages = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample", "react"], []);
+        var pages = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample", "react"], []);
 
         string[] expected =
         [
@@ -115,7 +116,7 @@ public sealed class LayoutTests
         using var temp = Cli.Temp("layers");
         Trees(temp.Path);
 
-        var pages = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "client-only", ["react"], []);
+        var pages = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "client-only", ["react"], []);
 
         string[] expected =
         [
@@ -139,7 +140,7 @@ public sealed class LayoutTests
         using var temp = Cli.Temp("layers");
         Trees(temp.Path);
 
-        var pages = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample"], ["efcore"]);
+        var pages = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample"], ["efcore"]);
 
         string[] expected =
         [
@@ -163,7 +164,7 @@ public sealed class LayoutTests
         using var temp = Cli.Temp("layers");
         Trees(temp.Path);
 
-        var pages = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "unknown", ["cobol"], ["nope"]);
+        var pages = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "unknown", ["cobol"], ["nope"]);
 
         string[] expected =
         [
@@ -185,8 +186,8 @@ public sealed class LayoutTests
         Page(temp.Path, "docs/frontend/patterns/forms/inline.md");
         Page(temp.Path, "docs/backend/sample/guides/errors.md");
 
-        var react = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "client-only", ["react"], []);
-        var sample = Layout.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample"], []);
+        var react = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "client-only", ["react"], []);
+        var sample = StackSelection.AppliedPages(temp.Path, Manifest(TreesManifest), "server", ["sample"], []);
 
         Assert.Contains("docs/frontend/patterns/record-detail.md", react);
         Assert.Contains("docs/frontend/patterns/forms/inline.md", react);
@@ -196,6 +197,6 @@ public sealed class LayoutTests
         Assert.DoesNotContain("docs/frontend/patterns/record-detail.md", sample);
         Assert.Equal(
             ["docs/frontend/patterns", "docs/frontend/patterns/forms"],
-            Layout.CompanionFolders(temp.Path, "docs/frontend"));
+            StackSelection.CompanionFolders(temp.Path, "docs/frontend"));
     }
 }

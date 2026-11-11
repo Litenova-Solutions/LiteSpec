@@ -149,8 +149,8 @@ public sealed class SeverityMatrixTests
         var store = StoreWith([ProjectFile(), UseCase()]);
         var compilation = CSharpCompilation.Create("Shop.Application");
 
-        var first = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
-        var second = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
+        var first = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
+        var second = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
 
         Assert.Same(first, second);
         Assert.True(TraceabilityContext.TryGet(compilation, out var cached));
@@ -164,7 +164,7 @@ public sealed class SeverityMatrixTests
     {
         var store = StoreWith([ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"], id: "departure/marks-deferred"), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "departure/marks-styled"), Departure(["mark-missing"], paths: ["Old.cs"], id: "departure/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
-        var context = TraceabilityContext.GetOrCreate(compilation, Layout.LayerProjects, null, store);
+        var context = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
 
         var byFile = new Finding("mark-missing", "Missing.", "Source.cs", 1, null);
         var byGap = new Finding("mark-style-invalid", "Mixed.", "Other.cs", 1, "use-case/spending.submit-expense");

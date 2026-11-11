@@ -1,7 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -37,7 +38,7 @@ public sealed class StackReaderTests
         using var temp = ModelFixture.Prepare("small");
 
         var projectFile = Path.Combine(temp.Path, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         project["stacks"] = new JsonArray(JsonValue.Create("react"));
         File.WriteAllText(projectFile, project.ToJsonString());
 

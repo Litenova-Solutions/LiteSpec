@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Authoring;
+using LiteSpec.Standards;
 using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;

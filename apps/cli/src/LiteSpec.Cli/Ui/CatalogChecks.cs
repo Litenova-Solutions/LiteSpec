@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
-using LiteSpec.Patterns;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Ui;
 

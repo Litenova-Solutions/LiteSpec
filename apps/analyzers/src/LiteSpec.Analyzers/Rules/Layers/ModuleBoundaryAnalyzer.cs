@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using LiteSpec.Analyzers.Layers;
 using LiteSpec.Model;
@@ -6,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 
 namespace LiteSpec.Analyzers.Rules.Layers;
 
@@ -31,7 +31,7 @@ public sealed class ModuleBoundaryAnalyzer : LayerAnalyzer
     private protected override void Register(CompilationStartAnalysisContext context)
     {
         var map = CodeMap.For(context.Compilation, context.Options);
-        if (map.Layout == Layout.LayerProjects)
+        if (map.Layout == BackendLayout.LayerProjects)
         {
             return;
         }

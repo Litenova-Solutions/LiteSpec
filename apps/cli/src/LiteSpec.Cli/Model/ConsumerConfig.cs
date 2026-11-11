@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Standards;
 using LiteSpec.Ui;
 
 namespace LiteSpec.Model;
@@ -157,7 +158,7 @@ sealed class ConsumerConfig
             throw new InvalidOperationException(error!);
         }
 
-        var document = DataFile.Parse(text, DataFile.IsYaml(file)) as JsonObject ?? new JsonObject();
+        var document = RecordText.Parse(text, RecordText.IsYaml(file)) as JsonObject ?? new JsonObject();
         config.Marks = projectPaths.Settings.Marks;
         config.Layers = projectPaths.Settings.Layers;
 

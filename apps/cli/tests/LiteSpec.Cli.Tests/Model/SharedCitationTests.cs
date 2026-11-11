@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -43,7 +44,7 @@ public sealed class SharedCitationTests
     static TempFolder WriteFixtureHome()
     {
         var home = TestCli.Temp("model-home");
-        var manifest = (JsonObject)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
+        var manifest = (JsonObject)RecordText.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
         manifest["version"] = PinnedVersion;
         File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), manifest.ToJsonString() + "\n");
         var schemas = Path.Combine(home.Path, "schemas");
@@ -65,7 +66,7 @@ public sealed class SharedCitationTests
     static void PinReviewedVersion(string root)
     {
         var file = Path.Combine(root, ".litespec", "project.yaml");
-        var project = (JsonObject)DataFile.Read(file)!;
+        var project = (JsonObject)RecordText.Read(file)!;
         project["reviewedLiteSpecVersion"] = PinnedVersion;
         File.WriteAllText(file, project.ToJsonString() + "\n");
     }

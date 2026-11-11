@@ -159,10 +159,14 @@
       "litespec-maintain": {
         "type": "Project",
         "dependencies": {
+          "LiteSpec.CommandLine": "[1.0.0, )",
           "LiteSpec.Model.Roslyn": "[1.0.0, )",
-          "LiteSpec.Shared": "[1.0.0, )",
+          "LiteSpec.Standards": "[1.0.0, )",
           "Microsoft.CodeAnalysis.CSharp": "[4.14.0, )"
         }
+      },
+      "litespec.commandline": {
+        "type": "Project"
       },
       "litespec.model": {
         "type": "Project",
@@ -176,7 +180,7 @@
           "LiteSpec.Model": "[1.0.0, )"
         }
       },
-      "litespec.shared": {
+      "litespec.standards": {
         "type": "Project",
         "dependencies": {
           "LiteSpec.Model": "[1.0.0, )",

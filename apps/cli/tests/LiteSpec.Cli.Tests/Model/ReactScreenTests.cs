@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -54,7 +55,7 @@ public sealed class ReactScreenTests
         Write(routes, "-components/LoanRow.tsx", "export function LoanRow() { return null; }\n");
 
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }

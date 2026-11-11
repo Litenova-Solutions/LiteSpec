@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Authoring;
 
@@ -13,7 +14,7 @@ public sealed class ReleaseVersionTests
     static string Read(params string[] parts) => File.ReadAllText(Path.Combine([TestCli.Repository, .. parts]));
 
     static string Manifest() =>
-        ((string?)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!["version"])!;
+        ((string?)RecordText.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!["version"])!;
 
     static string PackageVersion(params string[] project) =>
         Regex.Match(Read(project), "<Version>(?<v>[^<]+)</Version>").Groups["v"].Value;
@@ -77,7 +78,7 @@ public sealed class ReleaseVersionTests
     public void TheConsumerTemplateReviewsTheManifestRelease() =>
         Assert.Equal(
             Manifest(),
-            (string?)DataFile.Read(Path.Combine(TestCli.Repository, "templates", "consumer", "project.yaml"))!["reviewedLiteSpecVersion"]);
+            (string?)RecordText.Read(Path.Combine(TestCli.Repository, "templates", "consumer", "project.yaml"))!["reviewedLiteSpecVersion"]);
 
     /// <summary>Every Schema Id Names The Manifest Release.</summary>
     /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>

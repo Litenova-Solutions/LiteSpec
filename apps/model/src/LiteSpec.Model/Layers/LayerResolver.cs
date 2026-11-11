@@ -22,14 +22,14 @@ public static class LayerResolver
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <returns>The layer.</returns>
-    public static Layer FileLayer(string? filePath, string assemblyName, Layout layout, string? declared)
+    public static Layer FileLayer(string? filePath, string assemblyName, BackendLayout layout, string? declared)
     {
         if (!string.IsNullOrWhiteSpace(declared))
         {
             return Parse(declared!.Trim());
         }
 
-        if (layout == Layout.LayerProjects)
+        if (layout == BackendLayout.LayerProjects)
         {
             return FromAssemblyName(assemblyName);
         }
@@ -105,15 +105,15 @@ public static class LayerResolver
     /// <summary>Reads a declared layout name; anything unrecognized reads as the module layout.</summary>
     /// <param name="value">The declared layout name text, or null when the project sets none.</param>
     /// <returns>The layout.</returns>
-    public static Layout ParseLayout(string? value)
+    public static BackendLayout ParseLayout(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return Layout.Modules;
+            return BackendLayout.Modules;
         }
 
         var text = value!.Trim().Replace(".", string.Empty).Replace("-", string.Empty).ToUpperInvariant();
-        return text == "LAYERPROJECTS" ? Layout.LayerProjects : Layout.Modules;
+        return text == "LAYERPROJECTS" ? BackendLayout.LayerProjects : BackendLayout.Modules;
     }
 
     /// <summary>Reads the layer from the last segments of an assembly name.</summary>

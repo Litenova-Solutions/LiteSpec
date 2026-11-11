@@ -1,3 +1,5 @@
+using LiteSpec.Book;
+
 namespace LiteSpec.Cli.Tests.Shared;
 
 /// <summary>Proves the shared HTML escaping, with and without the apostrophe.</summary>

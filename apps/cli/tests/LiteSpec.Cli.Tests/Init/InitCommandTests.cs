@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Schemas;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Init;
 
@@ -33,7 +33,7 @@ public sealed class InitCommandTests
         var result = TestCli.Run("init", "--preset", preset, "--size", "small", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var project = DataFile.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
+        var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
         Assert.Equal(expected, project.ContainsKey("ui"));
     }
 
@@ -54,7 +54,7 @@ public sealed class InitCommandTests
         var result = TestCli.Run("init", "--preset", preset, "--size", "small", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var project = DataFile.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"));
+        var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"));
         var schemaFile = Path.Combine(TestCli.Repository, "schemas", "litespec-project.schema.yaml");
         var problems = JsonSchema.Problems(schemaFile, project, ".litespec/project.yaml", _ => ProjectSchema.Value);
         Assert.True(problems.Count == 0, string.Join("\n", problems));
@@ -70,7 +70,7 @@ public sealed class InitCommandTests
         var result = TestCli.Run("init", "--preset", "records", "--size", "small", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var project = DataFile.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
+        var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
         Assert.Equal(2, project["layers"]!.AsObject().Count);
         Assert.Equal("litespec", project["layers"]!["behavior"]!.GetValue<string>());
         Assert.Equal("server", project["shape"]!.GetValue<string>());
@@ -180,7 +180,7 @@ public sealed class InitCommandTests
         Assert.Equal(0, result.Status);
         var tools = Path.Combine(consumer.Path, ".config", "dotnet-tools.json");
         Assert.Contains($"Wrote {tools}.", result.Stdout, StringComparison.Ordinal);
-        var manifest = DataFile.Read(tools)!;
+        var manifest = RecordText.Read(tools)!;
         Assert.Equal(FixtureVersion, manifest["tools"]!["LiteSpec.Cli"]!["version"]!.GetValue<string>());
         Assert.Equal("litespec", manifest["tools"]!["LiteSpec.Cli"]!["commands"]![0]!.GetValue<string>());
     }
@@ -227,7 +227,7 @@ public sealed class InitCommandTests
         Assert.False(File.Exists(Path.Combine(consumer.Path, ".config", "dotnet-tools.json")));
         Assert.Contains("Next step: litespec model check", result.Stdout, StringComparison.Ordinal);
 
-        var project = DataFile.Read(Path.Combine(consumer.Path, ".litespec", "project.yaml"))!;
+        var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec", "project.yaml"))!;
         Assert.Equal(FixtureVersion, project["reviewedLiteSpecVersion"]!.GetValue<string>());
     }
 
@@ -370,7 +370,7 @@ public sealed class InitCommandTests
         Assert.Contains(target, result.Stdout);
         Assert.Contains("litespec model check", result.Stdout);
 
-        var project = DataFile.Read(target)!.AsObject();
+        var project = RecordText.Read(target)!.AsObject();
         Assert.Equal(shape, project["shape"]!.GetValue<string>());
         Assert.Equal(stacks.Split(','), project["stacks"]!.AsArray().Select(node => node!.GetValue<string>()));
         Assert.Equal(size, project["size"]!.GetValue<string>());
@@ -401,7 +401,7 @@ public sealed class InitCommandTests
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
-        var project = DataFile.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
+        var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec/project.yaml"))!.AsObject();
         Assert.Equal(new DirectoryInfo(consumer.Path).Name, project["project"]!["name"]!.GetValue<string>());
     }
 
@@ -513,7 +513,7 @@ public sealed class InitCommandTests
     static JsonNode? LoadProjectSchema()
     {
         var schemaFile = Path.Combine(TestCli.Repository, "schemas", "litespec-project.schema.yaml");
-        return DataFile.Read(schemaFile);
+        return RecordText.Read(schemaFile);
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ using LiteSpec.Book;
 using LiteSpec.Init;
 using LiteSpec.Model;
 using LiteSpec.Rules;
+using LiteSpec.Standards;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
 // than the Windows code page, which turns a non-ASCII character into a control byte.

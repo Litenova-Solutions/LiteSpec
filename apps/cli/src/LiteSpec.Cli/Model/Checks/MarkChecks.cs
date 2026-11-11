@@ -1,4 +1,5 @@
 using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Standards;
 using static LiteSpec.Model.Checks.FindingHelpers;
 
 namespace LiteSpec.Model.Checks;
@@ -317,18 +318,18 @@ internal static class MarkChecks
         var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
         var id = mark.RecordId;
 
-        if (!Authoring.Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
+        if (!Provisions.IsProvisionId(id) || (model.Provisions.Count > 0 && !model.Provisions.Contains(id)))
         {
             findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which matches no provision of the carried release.", mark.File, mark.Line, id));
         }
         else if (model.AppliedPages.Count > 0
-            && Authoring.Provisions.Parse(id) is { } parsed
+            && Provisions.Parse(id) is { } parsed
             && !model.AppliedPages.Contains("docs/" + parsed.Page + ".md"))
         {
             findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which sits on a page the project's stacks and extensions do not apply.", mark.File, mark.Line, id));
         }
         else if (model.AppliedProvisions.Count > 0
-            && Authoring.Provisions.Parse(id) is { }
+            && Provisions.Parse(id) is { }
             && !model.AppliedProvisions.Contains(id))
         {
             findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which a selected extension replaces.", mark.File, mark.Line, id));
