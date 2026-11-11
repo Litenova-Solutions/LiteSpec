@@ -1,0 +1,224 @@
+/* Styles for the landing page: the hero, the How It Works steps with their
+   Claimwick artifacts, and the Where to Go list. Tokens only, as everywhere. */
+
+.hero {
+  display: flex;
+  align-items: center;
+  position: relative;
+  isolation: isolate;
+  padding: var(--space-24) 0 var(--space-16);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: 63px 63px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
+  opacity: 0.7;
+}
+
+.hero-body {
+  width: 100%;
+  padding: 0 var(--space-16);
+}
+
+.hero h1 {
+  font-size: 52px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+  max-width: 22ch;
+  margin: 0 0 var(--space-heading);
+}
+
+.tagline {
+  font-size: 18px;
+  color: var(--muted-fg);
+  max-width: 62ch;
+}
+
+.actions {
+  display: flex;
+  gap: var(--gap-inline);
+  margin-top: var(--space-8);
+}
+
+.home-section {
+  padding-top: var(--space-12);
+  padding-bottom: var(--space-4);
+}
+
+.home-section:last-of-type {
+  padding-bottom: var(--space-16);
+}
+
+.home-section > h2 {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  margin: 0 0 var(--space-6);
+}
+
+/* How It Works: numbered steps with one real artifact each. */
+.how-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-8);
+}
+
+.how-step {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 16rem) minmax(0, 1fr);
+  grid-template-areas:
+    "n title code"
+    ". caption code"
+    ". source code";
+  column-gap: var(--space-4);
+  row-gap: var(--space-2);
+  align-items: start;
+  align-content: start;
+  min-width: 0;
+}
+
+.how-step > .how-n { grid-area: n; }
+.how-step > h3 { grid-area: title; align-self: center; }
+.how-step > pre { grid-area: code; }
+.how-step > .how-caption { grid-area: caption; }
+.how-step > .how-source { grid-area: source; }
+
+@media (max-width: 760px) {
+  .how-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-areas:
+      "n title"
+      "code code"
+      "caption caption"
+      "source source";
+  }
+}
+
+.how-n {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--rail);
+  display: grid;
+  place-items: center;
+  font: 600 13px var(--mono);
+  background: var(--bg);
+}
+
+.how-step h3 {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.how-step pre {
+  margin: 0;
+  padding: var(--pad-box-y) var(--pad-box-x);
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.how-step pre code {
+  font: inherit;
+  white-space: pre;
+}
+
+.how-caption {
+  font-size: 14px;
+  color: var(--fg-2);
+}
+
+.how-source {
+  font-size: 12.5px;
+  color: var(--muted-fg);
+  overflow-wrap: anywhere;
+}
+
+.how-source code {
+  font-size: 0.95em;
+}
+
+/* Where to Go: a plain two-column list of linked titles and sentences. */
+.places {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-10);
+}
+
+.place-title {
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+}
+
+.place-title:hover {
+  text-decoration-color: var(--accent);
+}
+
+.places p {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--muted-fg);
+}
+
+.places p a {
+  font-weight: 500;
+  color: var(--fg-2);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 3px;
+}
+
+.places p a:hover {
+  color: var(--fg);
+  text-decoration-color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .hero {
+    padding: var(--space-16) 0 var(--space-12);
+  }
+
+  .hero-body {
+    padding: 0 var(--space-4);
+  }
+
+  .hero h1 {
+    font-size: 32px;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .how-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .places {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

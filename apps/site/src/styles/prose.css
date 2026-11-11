@@ -195,6 +195,13 @@
   vertical-align: top;
 }
 
+/* Columns keep a readable width instead of squeezing to one word per line; a
+   table wider than its column scrolls inside .table-wrap. */
+.prose thead th,
+.prose tbody td {
+  min-width: 12ch;
+}
+
 .prose tbody tr + tr td {
   border-top: 1px solid var(--border);
 }
@@ -367,6 +374,12 @@
 
 .prose .provision-part[open] > summary::before {
   transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose .provision-part > summary::before {
+    transition: none;
+  }
 }
 
 .prose .provision-part > summary:hover {

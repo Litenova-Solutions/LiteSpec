@@ -5,7 +5,7 @@ import Icon from "./Icon.astro";
 <button type="button" class="search-trigger" data-search-trigger aria-haspopup="dialog" aria-label="Search (Ctrl K)">
   <Icon name="search" />
   <span class="search-trigger-label">Search</span>
-  <span class="kbd" aria-hidden="true">Ctrl K</span>
+  <span class="kbd" data-search-kbd aria-hidden="true">Ctrl K</span>
 </button>
 <dialog class="search-dialog" data-search-dialog aria-label="Search the docs">
   <div class="search-bar">
@@ -107,10 +107,23 @@ import Icon from "./Icon.astro";
     border-radius: var(--radius-sm);
     color: var(--fg);
   }
+  :global(.search-dialog .search-result-top) {
+    display: flex;
+    align-items: baseline;
+    gap: var(--gap-inline);
+  }
   :global(.search-dialog .search-result-title) {
     display: block;
+    flex: 1 1 auto;
+    min-width: 0;
     font-weight: 500;
     font-size: 14px;
+  }
+  :global(.search-dialog .search-result-group) {
+    flex: none;
+    font-size: 12px;
+    color: var(--muted-fg);
+    white-space: nowrap;
   }
   :global(.search-dialog .search-result-excerpt) {
     display: block;
@@ -163,6 +176,16 @@ import Icon from "./Icon.astro";
       !(results instanceof HTMLElement)
     ) {
       return;
+    }
+
+    // The shortcut label follows the platform: Cmd K on macOS and iOS, Ctrl K
+    // everywhere else. The markup holds Ctrl K, so readers without JavaScript
+    // keep a correct label on the common case.
+    var kbd = trigger.querySelector("[data-search-kbd]");
+    var platform = typeof navigator === "undefined" ? "" : navigator.platform || "";
+    if (kbd instanceof HTMLElement && /^(mac|iphone|ipad|ipod)/i.test(platform)) {
+      kbd.textContent = "Cmd K";
+      trigger.setAttribute("aria-label", "Search (Cmd K)");
     }
 
     var HINT = "Type to search pages and rules.";
@@ -223,10 +246,20 @@ import Icon from "./Icon.astro";
         var link = document.createElement("a");
         link.className = "search-result";
         link.setAttribute("href", entry.url);
+        var top = document.createElement("span");
+        top.className = "search-result-top";
         var title = document.createElement("span");
         title.className = "search-result-title";
         title.textContent = (entry.meta && entry.meta.title) || entry.url;
-        link.appendChild(title);
+        top.appendChild(title);
+        var group = entry.meta && entry.meta.group ? String(entry.meta.group) : "";
+        if (group !== "") {
+          var tag = document.createElement("span");
+          tag.className = "search-result-group";
+          tag.textContent = group;
+          top.appendChild(tag);
+        }
+        link.appendChild(top);
         if (entry.excerpt) {
           var excerpt = document.createElement("span");
           excerpt.className = "search-result-excerpt";

@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
-import { appliedPages, backendStacks, extensionStack, frontendStacks, layers, manifest, pages, provisions, root, selectionKey, selectionLayers, selections, slug, type ProvisionIndexEntry } from "./spec.ts";
+import { appliedPages, backendStacks, extensionStack, frontendStacks, layers, manifest, pages, provisions, root, selectionKey, selectionLayers, selections, slug, standardUrl, version, type ProvisionIndexEntry } from "./spec.ts";
 
 describe("slug", () => {
   it("matches the shared CLI fixture for every entry", () => {
@@ -55,6 +55,10 @@ describe("page index", () => {
     for (const selection of selections()) {
       assert.ok(appliedPages(selection).every((file) => !file.startsWith("docs/intent/") && !file.startsWith("docs/implementation/")), selectionKey(selection));
     }
+  });
+
+  it("serves the generated Standard overview under the version", () => {
+    assert.strictEqual(standardUrl(), `/${version}/standard/`);
   });
 
   it("names only indexed pages and layers in every selection", () => {

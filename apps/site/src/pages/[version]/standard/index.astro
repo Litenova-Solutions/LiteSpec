@@ -1,0 +1,121 @@
+---
+// The generated Standard overview: the six standard areas in order, then the
+// stack folders under backend and frontend, each with its title, its first
+// sentence and a link. It uses the normal docs frame with the sidebar and the
+// breadcrumb; the Standard breadcrumb and the pager link here.
+import Base from "../../../layouts/Base.astro";
+import Breadcrumbs from "../../../components/Breadcrumbs.astro";
+import DocsSidebar from "../../../components/DocsSidebar.astro";
+import PageToc from "../../../components/PageToc.astro";
+import "../../../styles/docs.css";
+import "../../../styles/prose.css";
+import { areaLabel } from "../../../lib/areas";
+import type { TocEntry } from "../../../lib/render-markdown";
+import { breadcrumbs, pageTitle, webPage } from "../../../lib/seo";
+import { backendStacks, frontendStacks, manifest, pageByFile, pageUrl, version, type Page } from "../../../lib/spec";
+
+export function getStaticPaths() {
+  return [{ params: { version } }];
+}
+
+const path = `/${version}/standard/`;
+const title = pageTitle("Standard");
+const description =
+  "The Standard holds the rules every LiteSpec project follows, in six areas: the shared core, the backend and frontend principles with their stack bindings, quality, the workspace, and the conditional extensions.";
+
+/** The first sentence of a page's intent, as plain text. */
+function firstSentence(page: Page): string {
+  const plain = page.intent
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[*_`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const end = plain.search(/[.?!]( |$)/);
+  return end < 0 ? plain : plain.slice(0, end + 1);
+}
+
+interface Entry {
+  title: string;
+  sentence: string;
+  url: string;
+}
+
+const areas: Entry[] = ["core", "backend", "frontend", "quality", "workspace", "ext"].map((area) => {
+  const readme = pageByFile(`docs/${area}/README.md`);
+  if (!readme) throw new Error(`No README for docs/${area}`);
+  return { title: areaLabel(area), sentence: firstSentence(readme), url: pageUrl(readme) };
+});
+
+const stacks: Entry[] = [...backendStacks, ...frontendStacks].map((id) => {
+  const stack = pageByFile(`${manifest.stacks[id].folder}/stack.md`);
+  if (!stack) throw new Error(`No stack page for ${id}`);
+  return { title: stack.title, sentence: firstSentence(stack), url: pageUrl(stack) };
+});
+
+const toc: TocEntry[] = [
+  { depth: 2, text: "Areas", id: "areas" },
+  { depth: 2, text: "Stacks", id: "stacks" },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  jsonLd={[
+    webPage({ title: "Standard", description, path }),
+    breadcrumbs([
+      { name: "LiteSpec", path: "/" },
+      { name: "Standard", path: null },
+    ]),
+  ]}
+>
+  <div class="doc3">
+    <DocsSidebar current="" open="standard" />
+    <article class="content">
+      <button type="button" class="btn btn-outline btn-sm docs-browse-btn" data-open-docs>Browse docs</button>
+      <script is:inline>
+        (function () {
+          var button = document.querySelector("[data-open-docs]");
+          var dialog = document.getElementById("docs-drawer");
+          if (!(button instanceof HTMLButtonElement) || !(dialog instanceof HTMLDialogElement)) return;
+          button.addEventListener("click", function () {
+            dialog.showModal();
+            var filter = dialog.querySelector("[data-docs-filter]");
+            if (filter instanceof HTMLInputElement) filter.focus();
+          });
+        })();
+      </script>
+      <div class="docs-body" data-pagefind-body data-pagefind-meta="group:Standard">
+        <Breadcrumbs items={[]} current="Standard" />
+        <h1 data-pagefind-meta="title:Standard">Standard</h1>
+        <p class="page-meta"><span>{version}</span></p>
+        <div class="page-intro prose">
+          <p>{description}</p>
+        </div>
+        <PageToc entries={toc} mobile />
+        <div class="prose">
+          <h2 id="areas">Areas<a class="anchor" href="#areas" aria-label="Link to this section" data-pagefind-ignore>#</a></h2>
+          <ul class="std-list">
+            {areas.map((area) => (
+              <li>
+                <a href={area.url}>{area.title}</a>
+                <p>{area.sentence}</p>
+              </li>
+            ))}
+          </ul>
+          <h2 id="stacks">Stacks<a class="anchor" href="#stacks" aria-label="Link to this section" data-pagefind-ignore>#</a></h2>
+          <ul class="std-list">
+            {stacks.map((stack) => (
+              <li>
+                <a href={stack.url}>{stack.title}</a>
+                <p>{stack.sentence}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </article>
+    <PageToc entries={toc} />
+  </div>
+</Base>

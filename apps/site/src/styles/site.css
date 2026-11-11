@@ -137,6 +137,7 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .site-nav a[aria-current="page"] { color: var(--fg); font-weight: 500; }
 .site-nav a[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); }
 .site-end { margin-left: auto; display: flex; align-items: center; gap: var(--gap-inline); }
+.site-agents[aria-current="page"] { background: var(--muted); border-color: var(--rail); font-weight: 500; }
 .site-menu { display: none; position: relative; }
 .site-menu > summary { list-style: none; }
 .site-menu > summary::-webkit-details-marker { display: none; }
@@ -192,9 +193,15 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .must { color: var(--accent-text); font-weight: 700; letter-spacing: .02em; }
 .muted { color: var(--muted-fg); }
 
+@media (max-width: 1020px) {
+  .site-top .wrap { gap: var(--space-4); }
+  .site-nav { gap: var(--space-4); }
+}
+
 @media (max-width: 760px) {
   :root { --gutter: var(--space-4); }
   .wrap { padding: 0 var(--gutter); }
   .site-nav { display: none; }
+  .site-agents { display: none; }
   .site-menu { display: block; }
 }

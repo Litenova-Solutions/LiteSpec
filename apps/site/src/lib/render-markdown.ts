@@ -42,6 +42,8 @@ export interface RenderedPage {
   /** The opening Intent or Purpose section, rendered, or empty. */
   intro: string;
   toc: TocEntry[];
+  /** The page scope block under the title: the Stack and Concern pairs, in order. */
+  meta: { label: string; value: string }[];
 }
 
 function stripTags(value: string): string {
@@ -411,6 +413,22 @@ function splitIntro(html: string): { intro: string; body: string } {
   return { intro: html.slice(start + introMarker.length, end).trim(), body: html.slice(0, start) + html.slice(end + introEnd.length) };
 }
 
+// Splits the page scope block from the start of the body: the bold Stack and
+// Concern lines a standards page carries under its title. The template shows
+// them as one compact row, so they leave the body.
+function splitMeta(body: string): { meta: { label: string; value: string }[]; rest: string } {
+  const meta: { label: string; value: string }[] = [];
+  let rest = body;
+  for (;;) {
+    const paragraph = /^\s*<p>(<strong>(?:Stack|Concern):<\/strong>[\s\S]*?)<\/p>/.exec(rest);
+    if (!paragraph) return { meta, rest };
+    for (const pair of paragraph[1].matchAll(/<strong>(Stack|Concern):<\/strong>([\s\S]*?)(?=<strong>(?:Stack|Concern):<\/strong>|$)/g)) {
+      meta.push({ label: pair[1], value: pair[2].trim() });
+    }
+    rest = rest.slice(paragraph[0].length);
+  }
+}
+
 // The text of every trail fence in the Markdown, in order.
 function collectTrails(markdown: string): string[] {
   const blocks: string[] = [];
@@ -478,7 +496,14 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
     }
     const display = text.replace(/`/g, "").replace(/\s+/g, " ");
     if (level === 2) toc.push({ depth: 2, text: display, id });
-    if (level === 3 && provisions.has(id)) toc.push({ depth: 3, text: display, id });
+    // A standards page nests its provision headings under their H2; a pattern
+    // page nests its option headings instead, so its right column is an option
+    // index. An option H4 reads "`id`: Name"; the index shows the name.
+    if (level === 3 && provisions.has(id) && page.style !== "pattern") toc.push({ depth: 3, text: display, id });
+    if (level === 4 && page.style === "pattern") {
+      const name = text.includes(": ") ? text.slice(text.indexOf(": ") + 2) : text;
+      toc.push({ depth: 3, text: name.replace(/`/g, "").replace(/\s+/g, " ").trim(), id });
+    }
     return `<h${level} id="${escape(id)}">${inner}<a class="anchor" href="#${escape(id)}" aria-label="Link to this section" data-pagefind-ignore>#</a></h${level}>`;
   });
 
@@ -493,7 +518,8 @@ export async function renderPage(page: Page): Promise<RenderedPage> {
   html = decorateCodeBlocks(html);
   html = wrapProvisions(html, page);
   const { intro, body } = splitIntro(html);
-  return { html: body, intro, toc };
+  const { meta, rest } = splitMeta(body);
+  return { html: rest, intro, toc, meta };
 }
 
 // Renders a short Markdown fragment such as a page intent to inline HTML.

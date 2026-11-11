@@ -16,8 +16,9 @@ interface Props {
   description: string;
   /** The raw Markdown URL of the page, when the page has one. */
   rawUrl?: string;
-  /** The header section this page belongs to. */
-  active?: "docs" | "patterns" | "agents";
+  /** The header section this page belongs to. The layout derives it from the URL
+      path; a page passes this only when its path names no section. */
+  active?: string;
   /** Keeps the page out of search indexes, such as the 404 page. */
   noindex?: boolean;
   /** "article" for a docs page, "website" otherwise. */
@@ -32,10 +33,28 @@ const canonical = absoluteUrl(Astro.url.pathname);
 const graph = JSON.stringify({ "@context": "https://schema.org", "@graph": [organization, ...jsonLd] });
 const github = "https://github.com/Litenova-Solutions/LiteSpec";
 const links = [
-  { href: `/${version}/learn/`, label: "Docs", key: "docs" },
+  { href: `/${version}/learn/`, label: "Learn", key: "learn" },
+  { href: `/${version}/guide/`, label: "Guides", key: "guides" },
+  { href: `/${version}/standard/`, label: "Standard", key: "standard" },
   { href: `/${version}/frontend/patterns/`, label: "UI Patterns", key: "patterns" },
-  { href: `/${version}/select/`, label: "Use with Agents", key: "agents" },
+  { href: `/${version}/reference/`, label: "Reference", key: "reference" },
 ] as const;
+const agents = { href: `/${version}/select/`, label: "Use with Agents", key: "agents" } as const;
+// The active header entry follows the docs area in the URL: Learn holds learn
+// and the worked example, Guides holds the tutorials and how-to guides, UI
+// Patterns holds the pattern pages, and Standard and Reference hold their groups.
+const segments = Astro.url.pathname.split("/").filter((part) => part.length > 0);
+const area = segments.length >= 2 ? segments[1] : "";
+const sub = segments.length >= 3 ? segments[2] : "";
+const fromPath =
+  area === "select" ? agents.key
+  : area === "learn" || area === "example" ? "learn"
+  : area === "guide" || area === "tutorial" ? "guides"
+  : area === "frontend" && sub === "patterns" ? "patterns"
+  : area === "core" || area === "backend" || area === "frontend" || area === "quality" || area === "workspace" || area === "ext" || area === "standard" ? "standard"
+  : area === "reference" || area === "tools" || area === "analyzers" || area === "maintain" ? "reference"
+  : undefined;
+const current = fromPath ?? active;
 ---
 
 <!doctype html>
@@ -91,19 +110,21 @@ const links = [
           </a>
           <nav class="site-nav" aria-label="Site">
             {links.map((link) => (
-              <a href={link.href} aria-current={active === link.key ? "page" : undefined}>{link.label}</a>
+              <a href={link.href} aria-current={current === link.key ? "page" : undefined}>{link.label}</a>
             ))}
           </nav>
           <div class="site-end">
             <Search />
+            <a class="btn btn-outline btn-sm site-agents" href={agents.href} aria-current={current === agents.key ? "page" : undefined}>{agents.label}</a>
             <a class="btn btn-ghost btn-icon" href={github} aria-label="LiteSpec on GitHub"><Icon name="github" /></a>
             <ThemeSwitcher />
             <details class="site-menu">
               <summary class="btn btn-ghost btn-icon" aria-label="Menu"><Icon name="menu" /></summary>
               <nav class="site-menu-panel" aria-label="Site">
                 {links.map((link) => (
-                  <a href={link.href} aria-current={active === link.key ? "page" : undefined}>{link.label}</a>
+                  <a href={link.href} aria-current={current === link.key ? "page" : undefined}>{link.label}</a>
                 ))}
+                <a href={agents.href} aria-current={current === agents.key ? "page" : undefined}>{agents.label}</a>
               </nav>
             </details>
           </div>
@@ -121,6 +142,7 @@ const links = [
           <a href="/llms.txt">llms.txt</a>
           <a href={github}>GitHub</a>
           <a href={`${github}/blob/main/CHANGELOG.md`}>Changelog</a>
+          <a href={`/${version}/intent/`}>Research and Decisions</a>
         </div>
       </footer>
     </div>

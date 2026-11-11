@@ -166,6 +166,14 @@ export function versionLlmsText(): string {
     }
     lines.push("");
   }
+  const records = pages.filter((page) => page.area === "intent");
+  if (records.length > 0) {
+    lines.push("## Research and Decisions", "");
+    for (const page of records) {
+      lines.push(`- [${page.title}](${absoluteUrl(rawUrl(page))}): ${describe(page)}`);
+    }
+    lines.push("");
+  }
   return finish(lines);
 }
 

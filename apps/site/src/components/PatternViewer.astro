@@ -16,6 +16,7 @@ import Icon from "./Icon.astro";
       <button type="button" class="pattern-viewer-pick" data-pattern-pick="wireframe" aria-pressed="false"><Icon name="code" class="icon-sm" />Wireframe</button>
     </div>
     <div class="pattern-viewer-nav">
+      <button type="button" class="btn btn-outline btn-icon" data-pattern-link data-copy="" aria-label="Copy link to this option"><Icon name="link" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-prev aria-label="Previous option"><Icon name="arrow-left" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-next aria-label="Next option"><Icon name="arrow" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-sm" data-pattern-close><Icon name="close" class="icon-sm" />Close</button>
@@ -119,6 +120,12 @@ import Icon from "./Icon.astro";
     display: flex;
     align-items: center;
     gap: var(--gap-inline);
+  }
+  .pattern-viewer-nav [data-pattern-link][hidden] {
+    display: none;
+  }
+  .pattern-viewer-nav [data-pattern-link][data-copied] {
+    color: var(--accent-text);
   }
   .pattern-viewer-body {
     flex: 1;
@@ -232,6 +239,7 @@ import Icon from "./Icon.astro";
     var defaultEl = dialog.querySelector("[data-pattern-default]");
     var posEl = dialog.querySelector("[data-pattern-pos]");
     var picks = Array.prototype.slice.call(dialog.querySelectorAll("[data-pattern-pick]"));
+    var linkBtn = dialog.querySelector("[data-pattern-link]");
     var prevBtn = dialog.querySelector("[data-pattern-prev]");
     var nextBtn = dialog.querySelector("[data-pattern-next]");
     var closeBtn = dialog.querySelector("[data-pattern-close]");
@@ -241,6 +249,7 @@ import Icon from "./Icon.astro";
       !(nameEl instanceof HTMLElement) ||
       !(defaultEl instanceof HTMLElement) ||
       !(posEl instanceof HTMLElement) ||
+      !(linkBtn instanceof HTMLButtonElement) ||
       !(prevBtn instanceof HTMLButtonElement) ||
       !(nextBtn instanceof HTMLButtonElement) ||
       !(closeBtn instanceof HTMLButtonElement)
@@ -267,6 +276,20 @@ import Icon from "./Icon.astro";
       else defaultEl.setAttribute("hidden", "");
       posEl.textContent = current + 1 + " of " + cards.length;
       dialog.setAttribute("aria-label", "Option " + id + " viewer");
+      // The deep link is the option card's own id, which the renderer hoisted
+      // from the option heading, so it matches the "On this page" anchors. The
+      // layout's data-copy behavior copies it; replaceState keeps the address
+      // bar on the viewed option without adding history entries.
+      var anchor = card.id || "";
+      if (anchor !== "") {
+        linkBtn.removeAttribute("hidden");
+        linkBtn.setAttribute("data-copy", window.location.href.split("#")[0] + "#" + anchor);
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, "", "#" + anchor);
+        }
+      } else {
+        linkBtn.setAttribute("hidden", "");
+      }
       picks.forEach(function (pick) {
         var active = pick.getAttribute("data-pattern-pick") === view;
         pick.setAttribute("aria-pressed", active ? "true" : "false");

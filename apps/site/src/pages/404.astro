@@ -10,13 +10,25 @@ import { pageTitle } from "../lib/seo";
     <div class="wrap">
       <span class="ver">404</span>
       <h1>Page Not Found</h1>
-      <p>That address is not part of LiteSpec {version}. Search finds a page by its title or by a word in its rules.</p>
+      <p>That address is not part of LiteSpec {version}. Start from Learn, look up a rule in the Standard, or search every page by its title or by a word in its rules.</p>
       <div class="act">
-        <a class="btn" href={`/${version}/learn/`}>Open the docs</a>
-        <a class="btn btn-outline" href={`/${version}/select/`}>Use with Agents</a>
+        <a class="btn" href={`/${version}/learn/`}>Open Learn</a>
+        <a class="btn btn-outline" href={`/${version}/standard/`}>Browse the Standard</a>
+        <button class="btn btn-outline" type="button" data-open-search>Search the docs</button>
       </div>
     </div>
   </section>
+  <script is:inline>
+    // The search dialog lives in the header; this button opens it from here.
+    (function () {
+      var button = document.querySelector("[data-open-search]");
+      if (!(button instanceof HTMLButtonElement)) return;
+      button.addEventListener("click", function () {
+        var trigger = document.querySelector("[data-search-trigger]");
+        if (trigger instanceof HTMLButtonElement) trigger.click();
+      });
+    })();
+  </script>
 </Base>
 
 <style>

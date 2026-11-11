@@ -174,7 +174,7 @@ function loadProvisions(): Map<string, Provision[]> {
 
 const provisionsByPage = loadProvisions();
 
-/** Every page under docs/, in reading order: the learn/ and example/ pages in the order their index lists them. */
+/** Every page under docs/, in page index order. The sidebar and pager order comes from lib/nav.ts, never from this array. */
 export const pages: Page[] = pageIndex.pages.map((entry) => ({
   ...entry,
   provisions: provisionsByPage.get(entry.file) ?? [],
@@ -228,6 +228,9 @@ export const pageUrl = (page: Page | string) => `/${version}/${htmlPath(page)}/`
 
 /** The raw Markdown URL of a page: /5.0.0/backend/domain.md */
 export const rawUrl = (page: Page | string) => `/${version}/${typeof page === "string" ? page : page.path}.md`;
+
+/** The generated Standard overview URL: /5.0.0/standard/ */
+export const standardUrl = () => `/${version}/standard/`;
 
 /** Every layer the site publishes, in the order the page index gives them. */
 export function layers(): Layer[] {

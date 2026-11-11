@@ -69,6 +69,21 @@ describe("breadcrumbs", () => {
     assert.strictEqual("item" in list.itemListElement[1], false);
     assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/5.0.0/backend/domain/");
   });
+
+  it("matches the visible trail: ancestors linked, the current page not", () => {
+    const list = breadcrumbs([
+      { name: "LiteSpec", path: "/" },
+      { name: "Standard", path: "/5.0.0/standard/" },
+      { name: "Backend", path: "/5.0.0/backend/" },
+      { name: "Domain Layer", path: null },
+    ]) as { itemListElement: Record<string, unknown>[] };
+    assert.deepStrictEqual(
+      list.itemListElement.map((item) => item.name),
+      ["LiteSpec", "Standard", "Backend", "Domain Layer"],
+    );
+    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/5.0.0/backend/");
+    assert.strictEqual("item" in list.itemListElement[3], false);
+  });
 });
 
 describe("techArticle", () => {

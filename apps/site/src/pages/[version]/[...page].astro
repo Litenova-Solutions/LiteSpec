@@ -1,9 +1,10 @@
 ---
 // One HTML page per spec page: the sidebar tree, the content column with the
-// breadcrumb, title, introduction, tool buttons and rendered body, the "On this page"
-// list, and Previous / Next cards. Pattern pages use the full content width
-// with no right column.
+// browse button, breadcrumb, title, meta row, introduction, tool buttons and
+// rendered body, the "On this page" list, and Previous / Next cards. Pattern
+// pages add the pattern viewer beside the same frame.
 import Base from "../../layouts/Base.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import DocsSidebar from "../../components/DocsSidebar.astro";
 import Icon from "../../components/Icon.astro";
 import PageToc from "../../components/PageToc.astro";
@@ -11,7 +12,8 @@ import PatternViewer from "../../components/PatternViewer.astro";
 import "../../styles/docs.css";
 import "../../styles/prose.css";
 import "../../styles/code.css";
-import { folderLabel, folderOverview, foldersOf, groupHome, groupOf, groups, pageName } from "../../lib/areas";
+import { groupOf, pageName } from "../../lib/areas";
+import { crumbTrail, pageNeighbors } from "../../lib/nav";
 import { breadcrumbs, lastModified, pageTitle, techArticle } from "../../lib/seo";
 import { htmlPath, pageByFile, pages, pageUrl, rawUrl, version, type Page } from "../../lib/spec";
 import { renderPage } from "../../lib/render-markdown";
@@ -29,7 +31,7 @@ const { file } = Astro.props as Props;
 const page = pageByFile(file);
 if (!page) throw new Error(`No page for ${file}`);
 
-const { html, intro, toc } = await renderPage(page);
+const { html, intro, toc, meta } = await renderPage(page);
 const group = groupOf(page.area);
 const isPattern = page.style === "pattern";
 const markdownUrl = rawUrl(page);
@@ -47,76 +49,55 @@ const description =
   plainLead.length >= 60
     ? plainLead.slice(0, 300)
     : `${pageName(page)}: ${plainLead === "" ? "" : `${plainLead} `}Part of LiteSpec ${version}, the specification standard for building business applications with AI agents.`;
-// The breadcrumb: the group, each folder between the group and the page, and the
-// page. Every name is the one the sidebar shows.
-const home = groupHome(group);
-const crumbs: { name: string; url: string | null }[] = [
-  { name: group.label, url: home && home.file !== page.file ? pageUrl(home) : null },
-  ...foldersOf(page).map((dir) => {
-    const overview = folderOverview(dir);
-    return { name: folderLabel(dir).label, url: overview && overview.file !== page.file ? pageUrl(overview) : null };
-  }),
-];
-// Neighbors in sidebar order: group by group, and inside a folder its overview first,
-// then its pages, then its subfolders. The root index has no page here, so it is never a neighbor.
-const groupIndex = (entry: Page) => groups.findIndex((entry2) => entry2.areas.includes(entry.area));
-const treeKey = (entry: Page) => {
-  const parts = entry.path.split("/");
-  const name = parts.pop() ?? "";
-  const overview = name === "README" || name === "stack";
-  return [...parts.map((part) => `1${part}`), `0${overview ? 0 : 1}${String(pages.indexOf(entry)).padStart(4, "0")}`].join("/");
-};
-const ordered = pages
-  .filter((entry) => entry.path !== "README" && groupIndex(entry) >= 0)
-  .sort((a, b) => groupIndex(a) - groupIndex(b) || (treeKey(a) < treeKey(b) ? -1 : treeKey(a) > treeKey(b) ? 1 : 0));
-const at = ordered.findIndex((entry) => entry.file === page.file);
-const prev = at > 0 ? ordered[at - 1] : null;
-const next = at >= 0 && at < ordered.length - 1 ? ordered[at + 1] : null;
-const active: "docs" | "patterns" =
-  page.path === "frontend/patterns" || page.path.startsWith("frontend/patterns/") ? "patterns" : "docs";
+// The breadcrumb ancestors from the navigation order: the group, the area or
+// folders, each linked to its overview. The sidebar and the pager read the
+// same order, so all three agree about where the page sits.
+const trail = crumbTrail(page);
+const neighbors: { prev: Page | null; next: Page | null; nextGroup: { url: string; label: string } | null } = pageNeighbors(page);
 ---
 
 <Base
   title={pageTitle(pageName(page), group.label)}
   description={description}
   rawUrl={markdownUrl}
-  active={active}
   ogType="article"
   jsonLd={[
     techArticle({ title: pageName(page), description, path: pageUrl(page), modified: lastModified(page.file), section: group.label }),
     breadcrumbs([
       { name: "LiteSpec", path: "/" },
-      ...crumbs.map((crumb) => ({ name: crumb.name, path: crumb.url })),
-      { name: page.title, path: pageUrl(page) },
+      ...trail.map((crumb) => ({ name: crumb.name, path: crumb.url })),
+      { name: page.title, path: null },
     ]),
   ]}
 >
-  <div class:list={["doc3", { "doc3--full": isPattern }]}>
+  <div class="doc3">
     <DocsSidebar current={page.file} />
     <article class="content">
-      <details class="docs-browse">
-        <summary class="btn btn-outline btn-sm">Browse pages<Icon name="chevron-down" class="icon-sm chev" /></summary>
-        <div class="docs-browse-panel">
-          <DocsSidebar current={page.file} />
-        </div>
-      </details>
-      <div class="docs-body" data-pagefind-body>
-        <nav class="crumb" aria-label="Breadcrumb">
-          <span class="ver">{version}</span>
-          {crumbs.map((crumb, index) => (
-            <>
-              <span aria-hidden="true">/</span>
-              {crumb.url ? (
-                <a class:list={[{ "crumb-area": index === 0 }]} href={crumb.url}>{index === 0 && <Icon name={group.icon} class="icon-sm" />}{crumb.name}</a>
-              ) : (
-                <span class:list={["crumb-text", { "crumb-area": index === 0 }]}>{index === 0 && <Icon name={group.icon} class="icon-sm" />}{crumb.name}</span>
-              )}
-            </>
-          ))}
-          <span aria-hidden="true">/</span>
-          <b>{page.title}</b>
-        </nav>
+      <button type="button" class="btn btn-outline btn-sm docs-browse-btn" data-open-docs>Browse docs</button>
+      <script is:inline>
+        (function () {
+          var button = document.querySelector("[data-open-docs]");
+          var dialog = document.getElementById("docs-drawer");
+          if (!(button instanceof HTMLButtonElement) || !(dialog instanceof HTMLDialogElement)) return;
+          button.addEventListener("click", function () {
+            dialog.showModal();
+            var on = dialog.querySelector("a.on");
+            if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest" });
+            var filter = dialog.querySelector("[data-docs-filter]");
+            if (filter instanceof HTMLInputElement) filter.focus();
+          });
+        })();
+      </script>
+      <div class="docs-body" data-pagefind-body data-pagefind-meta={`group:${group.label}`}>
+        <Breadcrumbs items={trail} icon={group.icon} current={page.title} />
         <h1 data-pagefind-meta={`title:${pageName(page)}`}>{page.title}</h1>
+        {meta.length > 0 && (
+          <p class="page-meta">
+            {meta.map((pair) => (
+              <span><span class="meta-label">{pair.label}:</span> <span set:html={pair.value} /></span>
+            ))}
+          </p>
+        )}
         {intro !== "" && <div class="page-intro prose" set:html={intro} />}
         <div class="tools" data-pagefind-ignore>
           <button class="btn btn-outline btn-sm" type="button" data-copy-url={markdownUrl}>
@@ -127,24 +108,31 @@ const active: "docs" | "patterns" =
           </a>
           {badge !== "" && <span class="badge tools-badge">{badge}</span>}
         </div>
+        <PageToc entries={toc} markdownUrl={markdownUrl} editUrl={editUrl} mobile />
         <div class="prose" set:html={html} />
       </div>
       <nav class="pager" aria-label="Pages">
-        {prev && (
-          <a class="pager-prev" href={pageUrl(prev)}>
+        {neighbors.prev && (
+          <a class="pager-prev" href={pageUrl(neighbors.prev)}>
             <small><Icon name="arrow-left" class="icon-sm" />Previous</small>
-            <b>{pageName(prev)}</b>
+            <b>{pageName(neighbors.prev)}</b>
           </a>
         )}
-        {next && (
-          <a class="pager-next" href={pageUrl(next)}>
+        {neighbors.next && (
+          <a class="pager-next" href={pageUrl(neighbors.next)}>
             <small>Next<Icon name="arrow" class="icon-sm" /></small>
-            <b>{pageName(next)}</b>
+            <b>{pageName(neighbors.next)}</b>
+          </a>
+        )}
+        {!neighbors.next && neighbors.nextGroup && (
+          <a class="pager-next" href={neighbors.nextGroup.url}>
+            <small>Next<Icon name="arrow" class="icon-sm" /></small>
+            <b>{neighbors.nextGroup.label}</b>
           </a>
         )}
       </nav>
     </article>
-    {!isPattern && <PageToc entries={toc} markdownUrl={markdownUrl} editUrl={editUrl} />}
+    <PageToc entries={toc} markdownUrl={markdownUrl} editUrl={editUrl} />
   </div>
   {isPattern && <PatternViewer />}
 </Base>
