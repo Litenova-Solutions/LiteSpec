@@ -56,6 +56,10 @@ import Icon from "./Icon.astro";
   .search-dialog::backdrop {
     background: color-mix(in srgb, var(--outside) 70%, transparent);
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .search-dialog[open] { animation: rise .18s ease-out both; }
+    .search-dialog[open]::backdrop { animation: fade .18s ease-out both; }
+  }
   .search-bar {
     display: flex;
     align-items: center;

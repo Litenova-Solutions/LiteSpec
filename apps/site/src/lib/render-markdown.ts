@@ -24,7 +24,7 @@ async function renderer(): Promise<MarkdownRenderer> {
     // Both themes are emitted as CSS variables; code.css picks one per color scheme.
     processor = await createMarkdownProcessor({
       syntaxHighlight: { type: "shiki", excludeLangs: ["wireframe", "trail"] },
-      shikiConfig: { themes: { light: "github-light", dark: "github-dark" }, defaultColor: false, wrap: false },
+      shikiConfig: { themes: { light: "github-light-default", dark: "github-dark-default" }, defaultColor: false, wrap: false },
       smartypants: false,
     });
   }
@@ -161,12 +161,13 @@ function wireframeFigure(main: WireframeBlock, compact: WireframeBlock | null): 
   const copyText = main.text + compactText;
   return (
     `<section class="option" aria-label="Option ${escape(label)}" data-option-id="${escape(label)}" data-option-name="${escape(main.optionName ?? "")}">` +
-    `<div class="option-head"><code>${escape(label)}</code>${name}${badge}` +
-    `<div class="option-tabs" role="tablist" aria-label="Option views" hidden>` +
+    `<div class="option-head"><div class="option-title"><div class="option-title-line">${name || `<span class="option-name">${escape(label)}</span>`}${badge}</div>` +
+    (name ? `<code class="option-slug">${escape(label)}</code>` : "") +
+    `</div><div class="option-actions"><div class="option-tabs" role="tablist" aria-label="Option views" hidden>` +
     `<button type="button" class="option-tab" role="tab" id="${uid}-preview-tab" aria-selected="true" aria-controls="${uid}-preview" data-tab="preview">${iconSvg(paths.eye)}Preview</button>` +
     `<button type="button" class="option-tab" role="tab" id="${uid}-wireframe-tab" aria-selected="false" aria-controls="${uid}-wireframe" data-tab="wireframe">${iconSvg(paths.code)}Wireframe</button>` +
     `</div>` +
-    `<button type="button" class="btn btn-ghost btn-icon option-expand" data-expand hidden aria-label="Open ${escape(label)} full screen">${iconSvg(paths.expand)}</button></div>` +
+    `<button type="button" class="btn btn-ghost btn-icon option-expand" data-expand hidden aria-label="Open ${escape(label)} full screen">${iconSvg(paths.expand)}</button></div></div>` +
     `<div class="option-panel" role="tabpanel" id="${uid}-preview" aria-labelledby="${uid}-preview-tab" data-panel="preview" tabindex="0">` +
     `<div class="option-drawings">` +
     `<figure class="option-frame" data-view="desktop"><span class="option-enlarge" aria-hidden="true" title="Click to enlarge">${iconSvg(paths.expand)}</span><div class="option-drawing" role="img" aria-label="Wireframe drawing of ${escape(label)}">${desktop}</div></figure>` +
@@ -253,15 +254,43 @@ const labelSplit =
   /(?=<p><strong>(?:Statement|Default|Replacement|Deviation|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
 const labelLead = /^<p><strong>([A-Z][a-z]+(?: [a-z]+)?):<\/strong>\s*/;
 
-// Pattern cards keep their body in order, with each label as a small tag.
-const labelPattern =
-  /<p><strong>(Statement|Default|Replacement|Deviation|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>/g;
+// The facts a pattern card states first; the rest (rationale, cost, reference,
+// the review question) follow under a divider in a second list.
+const leadFacts = ["Question", "Statement", "Default", "Compact", "Applies to", "Replacement", "Deviation"];
+const laterFacts = ["Rationale", "Cost", "Reference", "Example", "Evidence", "Checked by", "Reviewed for"];
 
-function styleLabels(body: string): string {
-  return body.replace(labelPattern, (_match, label: string) =>
-    label === "Statement" || label === "Default" || label === "Question" || label === "Compact"
-      ? `<p class="note"><span class="lbl" data-pagefind-ignore>${label}</span>`
-      : `<p class="note note-muted"><span class="lbl" data-pagefind-ignore>${label}</span>`);
+const regexEscape = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// A pattern card's body: its labelled paragraphs become definition lists, label
+// beside value, and the option cards that follow keep their order. The Default
+// value names the option card it points at and links to it.
+function patternBody(body: string): string {
+  const cut = body.search(/<h4\b|<section\b/);
+  const factsHtml = cut < 0 ? body : body.slice(0, cut);
+  const rest = cut < 0 ? "" : body.slice(cut);
+  const parts = splitLabels(factsHtml);
+  const option = (slug: string): { id: string; name: string } | null => {
+    const found = new RegExp(`<section id="([^"]+)" class="option"[^>]*data-option-id="${regexEscape(slug)}" data-option-name="([^"]*)"`).exec(rest);
+    return found ? { id: found[1], name: found[2] || slug } : null;
+  };
+  const rows = (labels: string[]): string =>
+    labels
+      .filter((label) => parts.has(label))
+      .map((label) => {
+        let html = (parts.get(label) ?? []).join("");
+        if (label === "Default") {
+          html = html.replace(/<p><code>([a-z0-9-]+)<\/code><\/p>/, (whole: string, slug: string) => {
+            const target = option(slug);
+            return target ? `<p><a href="#${target.id}">${target.name}</a></p>` : whole;
+          });
+        }
+        return `<div class="fact"><dt data-pagefind-ignore>${label}</dt><dd>${highlightMust(html)}</dd></div>`;
+      })
+      .join("");
+  const leftover = [...parts.keys()].filter((label) => !leadFacts.includes(label) && !laterFacts.includes(label));
+  const lead = rows([...leadFacts, ...leftover]);
+  const later = rows(laterFacts);
+  return `<dl class="pattern-facts">${lead}</dl>` + (later ? `<dl class="pattern-facts pattern-facts-more">${later}</dl>` : "") + rest;
 }
 
 // Splits a rule or convention body by its labels. Content before the first
@@ -383,7 +412,7 @@ function wrapProvisions(html: string, page: Page): string {
       `<div class="provision-id" data-pagefind-ignore><span class="provision-hash" aria-hidden="true">#</span><code>${escape(provision.id)}</code>` +
       `<button type="button" class="btn btn-ghost btn-icon btn-copy" data-copy="${escape(provision.id)}" aria-label="Copy provision ID">${iconSvg(paths.copy)}</button></div>` +
       (provision.kind === "pattern"
-        ? `<div class="provision-body">${highlightMust(styleLabels(content))}</div>`
+        ? `<div class="provision-body">${patternBody(content)}</div>`
         : provisionParts(content, provision)) +
       `</section>`;
   }

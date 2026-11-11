@@ -66,7 +66,7 @@ const toc: TocEntry[] = [
     webPage({ title: "Standard", description, path }),
     breadcrumbs([
       { name: "LiteSpec", path: "/" },
-      { name: "Standard", path: null },
+      { name: "Standard", path },
     ]),
   ]}
 >
@@ -87,14 +87,13 @@ const toc: TocEntry[] = [
         })();
       </script>
       <div class="docs-body" data-pagefind-body data-pagefind-meta="group:Standard">
-        <Breadcrumbs items={[]} current="Standard" />
+        <Breadcrumbs items={[]} icon="core" current="Standard" />
         <h1 data-pagefind-meta="title:Standard">Standard</h1>
-        <p class="page-meta"><span>{version}</span></p>
         <div class="page-intro prose">
           <p>{description}</p>
         </div>
         <PageToc entries={toc} mobile />
-        <div class="prose">
+        <div class="prose std-index">
           <h2 id="areas">Areas<a class="anchor" href="#areas" aria-label="Link to this section" data-pagefind-ignore>#</a></h2>
           <ul class="std-list">
             {areas.map((area) => (

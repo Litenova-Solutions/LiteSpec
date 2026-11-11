@@ -5,10 +5,12 @@ import Icon from "./Icon.astro";
 <dialog class="pattern-viewer" data-pattern-viewer aria-label="Option viewer">
   <div class="pattern-viewer-top">
     <div class="pattern-viewer-title">
+      <div class="pattern-viewer-line">
+        <span class="pattern-viewer-name" data-pattern-name></span>
+        <span class="badge badge-rule" data-pattern-default hidden>Default</span>
+        <span class="pattern-viewer-pos muted" data-pattern-pos></span>
+      </div>
       <code data-pattern-id></code>
-      <span class="pattern-viewer-name" data-pattern-name></span>
-      <span class="badge badge-rule" data-pattern-default hidden>Default</span>
-      <span class="pattern-viewer-pos muted" data-pattern-pos></span>
     </div>
     <div class="pattern-viewer-switch" role="group" aria-label="View">
       <button type="button" class="pattern-viewer-pick" data-pattern-pick="desktop" aria-pressed="true"><Icon name="monitor" class="icon-sm" />Desktop</button>
@@ -45,6 +47,10 @@ import Icon from "./Icon.astro";
     display: flex;
     flex-direction: column;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    .pattern-viewer[open] { animation: rise .2s ease-out both; }
+    .pattern-viewer[open]::backdrop { animation: fade .2s ease-out both; }
+  }
   .pattern-viewer-top {
     display: flex;
     align-items: center;
@@ -54,25 +60,31 @@ import Icon from "./Icon.astro";
     border-bottom: 1px solid var(--border);
     background: var(--bg);
   }
+  /* The title: the option name with its Default badge and position, over the
+     option slug, as on the option card. */
   .pattern-viewer-title {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .pattern-viewer-line {
     display: flex;
     align-items: center;
     gap: var(--gap-inline);
     min-width: 0;
-    flex: 1 1 auto;
   }
   .pattern-viewer-title code {
     font-family: var(--mono);
-    font-size: 13px;
-    background: var(--code-bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px var(--space-1);
+    font-size: 12px;
+    color: var(--muted-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
   .pattern-viewer-name {
-    font-weight: 500;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 14.5px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

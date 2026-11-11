@@ -1,14 +1,18 @@
-/* Styles for the landing page: the hero, the How It Works steps with their
-   Claimwick artifacts, and the Where to Go list. Tokens only, as everywhere. */
+/* Styles for the landing page: one hero that fills the first screen, with the
+   release badge, the title, the tagline and the two ways in. Tokens only, as
+   everywhere. */
 
 .hero {
+  flex: 1;
   display: flex;
   align-items: center;
   position: relative;
   isolation: isolate;
-  padding: var(--space-24) 0 var(--space-16);
+  min-height: calc(100vh - var(--top) - 72px);
+  padding: var(--space-16) 0;
 }
 
+/* A faint grid behind the title, fading out toward the edges. */
 .hero::before {
   content: "";
   position: absolute;
@@ -19,9 +23,9 @@
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 64px 64px;
   background-position: 63px 63px;
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
-  mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
-  opacity: 0.7;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 70% 45%, black 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 75% 70% at 70% 45%, black 0%, transparent 72%);
+  opacity: 0.8;
 }
 
 .hero-body {
@@ -29,196 +33,110 @@
   padding: 0 var(--space-16);
 }
 
+/* The release badge: the version, then a muted "What is new" and an arrow that
+   moves on hover. It links to the changelog entry of the release. */
+.hero-ver {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-inline);
+  height: 30px;
+  padding: 0 var(--space-3) 0 var(--space-3);
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--rule-bd);
+  border-radius: 999px;
+  background: var(--rule-bg);
+  color: var(--rule-fg);
+  font: 500 13px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-ver-more {
+  padding-left: var(--space-2);
+  margin-left: var(--space-1);
+  border-left: 1px solid var(--rule-bd);
+  font-family: var(--sans);
+  color: var(--fg-2);
+}
+
+.hero-ver .icon {
+  color: var(--rule-fg);
+  transition: translate .15s ease;
+}
+
+.hero-ver:hover {
+  border-color: var(--accent);
+}
+
+.hero-ver:hover .icon {
+  translate: 3px 0;
+}
+
 .hero h1 {
-  font-size: 52px;
-  line-height: 1.08;
+  font-size: clamp(36px, 3.6vw, 60px);
+  line-height: 1.06;
   letter-spacing: -0.04em;
   font-weight: 600;
-  max-width: 22ch;
-  margin: 0 0 var(--space-heading);
+  max-width: 20ch;
+  margin: 0 0 var(--space-5);
 }
 
 .tagline {
   font-size: 18px;
-  color: var(--muted-fg);
-  max-width: 62ch;
+  line-height: 1.6;
+  color: var(--fg-2);
+  max-width: 60ch;
 }
 
 .actions {
   display: flex;
-  gap: var(--gap-inline);
-  margin-top: var(--space-8);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-10);
 }
 
-.home-section {
-  padding-top: var(--space-12);
-  padding-bottom: var(--space-4);
+.btn-lg {
+  height: 46px;
+  padding: 0 var(--space-6);
+  font-size: 15px;
 }
 
-.home-section:last-of-type {
-  padding-bottom: var(--space-16);
+/* Motion: the hero's parts rise in turn on the first paint, and the grid
+   fades in behind them. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero::before { animation: fade 1.2s ease-out both; }
+  .hero-ver,
+  .hero h1,
+  .tagline,
+  .actions { animation: rise .6s cubic-bezier(.2, .7, .2, 1) both; }
+  .hero h1 { animation-delay: .06s; }
+  .tagline { animation-delay: .12s; }
+  .actions { animation-delay: .18s; }
 }
 
-.home-section > h2 {
-  font-size: 28px;
-  letter-spacing: -0.02em;
-  font-weight: 600;
-  margin: 0 0 var(--space-6);
-}
-
-/* How It Works: numbered steps with one real artifact each. */
-.how-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-8);
-}
-
-.how-step {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 16rem) minmax(0, 1fr);
-  grid-template-areas:
-    "n title code"
-    ". caption code"
-    ". source code";
-  column-gap: var(--space-4);
-  row-gap: var(--space-2);
-  align-items: start;
-  align-content: start;
-  min-width: 0;
-}
-
-.how-step > .how-n { grid-area: n; }
-.how-step > h3 { grid-area: title; align-self: center; }
-.how-step > pre { grid-area: code; }
-.how-step > .how-caption { grid-area: caption; }
-.how-step > .how-source { grid-area: source; }
-
-@media (max-width: 760px) {
-  .how-step {
-    grid-template-columns: 28px minmax(0, 1fr);
-    grid-template-areas:
-      "n title"
-      "code code"
-      "caption caption"
-      "source source";
-  }
-}
-
-.how-n {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 1px solid var(--rail);
-  display: grid;
-  place-items: center;
-  font: 600 13px var(--mono);
-  background: var(--bg);
-}
-
-.how-step h3 {
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.how-step pre {
-  margin: 0;
-  padding: var(--pad-box-y) var(--pad-box-x);
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-family: var(--mono);
-  font-size: 12.5px;
-  line-height: 1.6;
-  overflow-x: auto;
-  min-width: 0;
-}
-
-.how-step pre code {
-  font: inherit;
-  white-space: pre;
-}
-
-.how-caption {
-  font-size: 14px;
-  color: var(--fg-2);
-}
-
-.how-source {
-  font-size: 12.5px;
-  color: var(--muted-fg);
-  overflow-wrap: anywhere;
-}
-
-.how-source code {
-  font-size: 0.95em;
-}
-
-/* Where to Go: a plain two-column list of linked titles and sentences. */
-.places {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-6) var(--space-10);
-}
-
-.place-title {
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: underline;
-  text-decoration-color: var(--border);
-  text-underline-offset: 3px;
-}
-
-.place-title:hover {
-  text-decoration-color: var(--accent);
-}
-
-.places p {
-  margin-top: 2px;
-  font-size: 14px;
-  color: var(--muted-fg);
-}
-
-.places p a {
-  font-weight: 500;
-  color: var(--fg-2);
-  text-decoration: underline;
-  text-decoration-color: var(--border);
-  text-underline-offset: 3px;
-}
-
-.places p a:hover {
-  color: var(--fg);
-  text-decoration-color: var(--accent);
+/* Wide screens: the hero grows with the wider frame. */
+@media (min-width: 100rem) {
+  .hero-body { padding: 0 var(--space-24); }
+  .hero h1 { font-size: clamp(60px, 3.6vw, 80px); }
+  .tagline { font-size: 21px; }
+  .hero-ver { height: 34px; font-size: 14px; }
+  .btn-lg { height: 52px; padding: 0 var(--space-8); font-size: 16px; }
 }
 
 @media (max-width: 760px) {
   .hero {
-    padding: var(--space-16) 0 var(--space-12);
+    min-height: 0;
+    padding: var(--space-12) 0 var(--space-16);
   }
 
   .hero-body {
-    padding: 0 var(--space-4);
+    padding: 0 var(--gutter);
   }
 
-  .hero h1 {
-    font-size: 32px;
+  .tagline {
+    font-size: 16px;
   }
 
-  .actions {
-    flex-wrap: wrap;
-  }
-
-  .how-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .places {
-    grid-template-columns: minmax(0, 1fr);
+  .actions .btn {
+    flex: 1 1 auto;
   }
 }

@@ -1,99 +1,24 @@
 ---
 import Base from "../layouts/Base.astro";
 import "../styles/home.css";
-import { pageByFile, version } from "../lib/spec";
+import { version } from "../lib/spec";
 import { softwareSource, website } from "../lib/seo";
-import { readingTime } from "../lib/nav";
+import Icon from "../components/Icon.astro";
 
 const description =
   "LiteSpec is a versioned specification for building business applications with AI coding agents: architecture, code, records, and tests, in a form agents can read and tools can verify.";
-
-// The Learn track in the reading order its index states, with the same reading
-// time the select page shows.
-const learnIndex = pageByFile("docs/learn/README.md");
-const learnPages = [...(learnIndex?.markdown ?? "").matchAll(/^- \[[^\]]+\]\(([a-z0-9-]+)\.md\): (.+)$/gm)]
-  .map((match) => pageByFile(`docs/learn/${match[1]}.md`))
-  .filter((entry): entry is NonNullable<typeof entry> => entry !== undefined);
-const learnMinutes = learnPages.reduce((sum, entry) => sum + readingTime(entry), 0);
-
-// Every artifact below is copied exactly from the Claimwick example. The record
-// opens the Submit Expense use case; the handler carries its doc comment mark;
-// the check ran against the example and every finding is covered by a departure.
-const recordSnippet = `type: use-case
-id: use-case/spending.submit-expense
-title: Submit Expense
-summary: An employee files a work expense so it can be decided and reimbursed.
-kind: command
-access:
-  grant: permission/submit-expense
-  tenant: own`;
-
-const handlerSnippet = `/// <implements>use-case/spending.submit-expense</implements>
-internal sealed class SubmitExpenseCommandHandler(
-    IExpenseRepository expenses,
-    IPolicyRepository policies) : ICommandHandler<SubmitExpenseCommand, SubmitExpenseCommandResult>`;
-
-const checkSnippet = `.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.approve-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
-...
-0 findings, 0 blocking, 26 covered.`;
 ---
 
 <Base title="LiteSpec - Standard for Agent-Built Apps" description={description} jsonLd={[website, softwareSource]}>
   <section class="hero">
     <div class="hero-body">
+      <a class="hero-ver" href="https://github.com/Litenova-Solutions/LiteSpec/blob/main/CHANGELOG.md"><span class="dot" aria-hidden="true"></span>LiteSpec v{version}<span class="hero-ver-more">What is new</span><Icon name="arrow" class="icon-sm" /></a>
       <h1>The Specification Standard for Building Business Applications with AI Agents</h1>
       <p class="tagline">LiteSpec is a versioned specification standard for building one bounded-context business application with AI coding agents. Agents load the rules that apply to your stack; tools check that the code follows them.</p>
       <div class="actions">
-        <a class="btn" href={`/${version}/learn/`}>Start learning</a>
-        <a class="btn btn-outline" href={`/${version}/select/`}>Connect your agent</a>
+        <a class="btn btn-lg" href={`/${version}/learn/`}>Start learning</a>
+        <a class="btn btn-outline btn-lg" href={`/${version}/select/`}>Connect your agent</a>
       </div>
     </div>
-  </section>
-  <section class="home-section wrap" aria-labelledby="how-heading">
-    <h2 id="how-heading">How It Works</h2>
-    <ol class="how-grid">
-      <li class="how-step">
-        <span class="how-n" aria-hidden="true">1</span>
-        <h3>Write the Record</h3>
-        <pre><code>{recordSnippet}</code></pre>
-        <p class="how-caption">One YAML file states what the Submit Expense use case does, what it touches, and what it returns.</p>
-        <p class="how-source">From <code title="examples/claimwick/.litespec/behavior/modules/spending/expenses/submit-expense.yaml">submit-expense.yaml</code> in the Claimwick example.</p>
-      </li>
-      <li class="how-step">
-        <span class="how-n" aria-hidden="true">2</span>
-        <h3>Mark the Handler</h3>
-        <pre><code>{handlerSnippet}</code></pre>
-        <p class="how-caption">The command handler carries the use case id in a doc comment, so the model ties the code to the record.</p>
-        <p class="how-source">From <code title="examples/claimwick/apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs">SubmitExpenseCommandHandler.cs</code> in the Claimwick example.</p>
-      </li>
-      <li class="how-step">
-        <span class="how-n" aria-hidden="true">3</span>
-        <h3>Check the Model</h3>
-        <pre><code>{checkSnippet}</code></pre>
-        <p class="how-caption">The model check reports every gap as a finding; here each one is covered by a departure, so the run exits zero.</p>
-        <p class="how-source">From <code>litespec model check</code> on the Claimwick example, as <a href={`/${version}/example/model-and-checks/#the-full-check`}>the full check</a> shows it.</p>
-      </li>
-    </ol>
-  </section>
-  <section class="home-section wrap" aria-labelledby="where-heading">
-    <h2 id="where-heading">Where to Go</h2>
-    <ul class="places">
-      <li>
-        <a class="place-title" href={`/${version}/learn/`}>Learn LiteSpec</a>
-        <p>Start here: {learnPages.length} pages, about {learnMinutes} minutes, in reading order.</p>
-      </li>
-      <li>
-        <a class="place-title" href={`/${version}/tutorial/getting-started/`}>Build a First Project</a>
-        <p>Turn an empty folder into a consumer with one working use case and a passing model check.</p>
-      </li>
-      <li>
-        <a class="place-title" href={`/${version}/standard/`}>Look Up a Rule</a>
-        <p>The Standard overview lists every area of rules; the <a href={`/${version}/reference/`}>Reference</a> holds the glossary, the provisions, and the commands.</p>
-      </li>
-      <li>
-        <a class="place-title" href={`/${version}/frontend/patterns/`}>Browse UI Patterns</a>
-        <p>The option catalog for screens, dialogs, and flows, each with desktop and phone wireframes.</p>
-      </li>
-    </ul>
   </section>
 </Base>

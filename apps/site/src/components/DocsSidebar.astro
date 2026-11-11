@@ -33,10 +33,11 @@ const link = (page: Page): string =>
     ? `<a class="on" href="${escape(pageUrl(page))}" aria-current="page">${escape(page.title)}</a>`
     : `<a href="${escape(pageUrl(page))}">${escape(page.title)}</a>`;
 
-/** A folder's links: its overview first, then its pages, then its subfolders. */
-const folderLinks = (dir: string): string => {
+/** A folder's links: its overview first, then its pages, then its subfolders.
+    An area heading that already links the overview leaves it out of the list. */
+const folderLinks = (dir: string, withOverview = true): string => {
   const overview = folderOverview(dir);
-  let inner = overview ? link(overview) : "";
+  let inner = overview && withOverview ? link(overview) : "";
   for (const page of pageOrder(dir).filter((page) => page !== overview && !opensSubfolder(page, dir))) inner += link(page);
   for (const sub of folderOrder(dir)) inner += folderTree(sub);
   return inner;
@@ -54,8 +55,17 @@ const groupTree = (group: Group): string => {
   if (group.key === "learn") return folderLinks("docs/learn") + folderTree("docs/example");
   return group.areas
     .map((area) => {
-      const head = group.areas.length > 1 ? `<div class="area-h">${escape(areaLabel(area))}</div>` : "";
-      return head + folderLinks(`docs/${area}`);
+      if (group.areas.length === 1) return folderLinks(`docs/${area}`);
+      // In a group of several areas, each area opens with its heading, which
+      // links the area overview, and a rule above it divides it from the last.
+      const overview = folderOverview(`docs/${area}`);
+      const label = escape(areaLabel(area));
+      const head = !overview
+        ? `<div class="area-h">${label}</div>`
+        : overview.file === current
+          ? `<a class="area-h on" href="${escape(pageUrl(overview))}" aria-current="page">${label}</a>`
+          : `<a class="area-h" href="${escape(pageUrl(overview))}">${label}</a>`;
+      return `<div class="area">${head}${folderLinks(`docs/${area}`, !overview)}</div>`;
     })
     .join("");
 };
@@ -112,7 +122,8 @@ const sidebar = groups
           for (var el = head.nextElementSibling; el && !el.classList.contains("area-h"); el = el.nextElementSibling) {
             if (el.querySelector("a:not([hidden])") || (el.tagName === "A" && !el.hidden)) { visible = true; break; }
           }
-          head.hidden = query !== "" && !visible;
+          var named = head.tagName === "A" && head.textContent.toLowerCase().indexOf(query) >= 0;
+          head.hidden = query !== "" && !visible && !named;
         });
         if (query === "" && saved !== null) {
           Array.prototype.forEach.call(dialog.querySelectorAll("details"), function (d, i) { d.open = !!saved[i]; });
