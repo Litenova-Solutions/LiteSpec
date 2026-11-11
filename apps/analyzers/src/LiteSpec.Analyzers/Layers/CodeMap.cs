@@ -88,8 +88,8 @@ internal sealed class CodeMap
     /// <summary>Returns the layer of the file.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The layer.</returns>
-    public Layer LayerOf(string? filePath) =>
-        LayerResolver.FileLayer(filePath, AssemblyName, Layout, Declared);
+    public ArchitectureLayer LayerOf(string? filePath) =>
+        ArchitectureLayerResolver.FileLayer(filePath, AssemblyName, Layout, Declared);
 
     /// <summary>Returns the module folder holding the file, or null for shared and host files.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
@@ -177,7 +177,7 @@ internal sealed class CodeMap
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>The layer.</returns>
-    public Layer ReferencedLayer(ISymbol symbol, Compilation compilation)
+    public ArchitectureLayer ReferencedLayer(ISymbol symbol, Compilation compilation)
     {
         if (SourceFileOf(symbol, compilation) is string file)
         {
@@ -190,7 +190,7 @@ internal sealed class CodeMap
             assembly = symbol.ContainingType?.ContainingAssembly?.Name;
         }
 
-        return LayerResolver.FromAssemblyName(assembly ?? string.Empty);
+        return ArchitectureLayerResolver.FromAssemblyName(assembly ?? string.Empty);
     }
 
     /// <summary>Returns the display name of a module or slice folder: its last segment.</summary>
@@ -421,7 +421,7 @@ internal sealed class CodeMap
                 continue;
             }
 
-            if (LayerResolver.RoleLayer(FileNameOf(path)) is not null)
+            if (ArchitectureLayerResolver.RoleLayer(FileNameOf(path)) is not null)
             {
                 slices.Add(folder);
             }

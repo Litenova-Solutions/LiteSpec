@@ -1286,7 +1286,7 @@ internal static class PlacementChecks
         element.Kind == CodeKind.Test
         && SourceRoots.LayerOf(config, element.File) != "Infrastructure"
         && !SourceRoots.IsUnder(config.InfrastructureRoot, element.File)
-        && LayerResolver.FolderLayer(element.File) != Layer.Infrastructure;
+        && ArchitectureLayerResolver.FolderLayer(element.File) != ArchitectureLayer.Infrastructure;
 
     /// <summary>The test path segments under the test project, or null when the file sits outside every test root or in a project root.</summary>
     /// <param name="config">The project configuration that holds each test root.</param>

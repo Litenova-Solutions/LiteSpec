@@ -221,7 +221,7 @@ static class StandardsFixture
         | `frontend-ui` | Components, routes, and rendering. |
         | `tests` | The suites that prove behavior. |
 
-        ### Layer Values
+        ### ArchitectureLayer Values
 
         | Value | Meaning |
         |:---|:---|

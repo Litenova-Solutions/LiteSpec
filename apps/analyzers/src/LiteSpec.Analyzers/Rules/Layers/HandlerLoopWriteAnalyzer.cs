@@ -22,8 +22,8 @@ public sealed class HandlerLoopWriteAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) =>
-        layer == Layer.Application || layer == Layer.Infrastructure || layer == Layer.Worker;
+    private protected override bool AppliesTo(ArchitectureLayer layer) =>
+        layer == ArchitectureLayer.Application || layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.Worker;
 
     /// <summary>
     ///     Registers the analysis actions for the handler loop write analyzer rule with the compilation

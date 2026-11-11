@@ -92,14 +92,14 @@ internal sealed class TraceabilityContext
     /// <summary>Returns the layer of the file declaring the symbol, or None when it has none.</summary>
     /// <param name="symbol">The symbol declared by the element under inspection.</param>
     /// <returns>The layer.</returns>
-    public Layer LayerOf(ISymbol symbol)
+    public ArchitectureLayer LayerOf(ISymbol symbol)
     {
         foreach (var reference in symbol.DeclaringSyntaxReferences)
         {
-            return LayerResolver.FileLayer(reference.SyntaxTree?.FilePath, Project, Layout, Declared);
+            return ArchitectureLayerResolver.FileLayer(reference.SyntaxTree?.FilePath, Project, Layout, Declared);
         }
 
-        return Layer.None;
+        return ArchitectureLayer.None;
     }
 
     /// <summary>
@@ -117,13 +117,13 @@ internal sealed class TraceabilityContext
 
         switch (LayerOf(symbol))
         {
-            case Layer.Domain: return "Domain";
-            case Layer.ApplicationAbstractions: return "Application.Abstractions";
-            case Layer.Application: return "Application";
-            case Layer.Infrastructure: return "Infrastructure";
-            case Layer.WebApi: return "WebApi";
-            case Layer.Worker: return "Worker";
-            case Layer.Test: return "Test";
+            case ArchitectureLayer.Domain: return "Domain";
+            case ArchitectureLayer.ApplicationAbstractions: return "Application.Abstractions";
+            case ArchitectureLayer.Application: return "Application";
+            case ArchitectureLayer.Infrastructure: return "Infrastructure";
+            case ArchitectureLayer.WebApi: return "WebApi";
+            case ArchitectureLayer.Worker: return "Worker";
+            case ArchitectureLayer.Test: return "Test";
             default: return Project;
         }
     }

@@ -20,7 +20,7 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <param name="applicationProject">Whether the compilation is the modules project.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
     /// <param name="moduleHost">Whether the compilation is a host beside the modules project.</param>
-    public HostModel(Layer layer, BackendLayout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
+    public HostModel(ArchitectureLayer layer, BackendLayout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
     {
         ModuleHost = moduleHost;
         Layer = layer;
@@ -30,7 +30,7 @@ internal sealed class HostModel : IEquatable<HostModel>
     }
 
     /// <summary>Gets the project layer.</summary>
-    public Layer Layer { get; }
+    public ArchitectureLayer Layer { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
     public BackendLayout Layout { get; }
@@ -53,7 +53,7 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <returns>The declared layer, or empty.</returns>
     public static string DeclaredLayer(AnalyzerConfigOptionsProvider options)
     {
-        if (options.GlobalOptions.TryGetValue(LayerResolver.PropertyKey, out var declared)
+        if (options.GlobalOptions.TryGetValue(ArchitectureLayerResolver.PropertyKey, out var declared)
             && !string.IsNullOrWhiteSpace(declared))
         {
             return declared.Trim();
@@ -67,10 +67,10 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <returns>The declared layout.</returns>
     public static BackendLayout DeclaredLayout(AnalyzerConfigOptionsProvider options)
     {
-        if (options.GlobalOptions.TryGetValue(LayerResolver.LayoutPropertyKey, out var declared)
+        if (options.GlobalOptions.TryGetValue(ArchitectureLayerResolver.LayoutPropertyKey, out var declared)
             && !string.IsNullOrWhiteSpace(declared))
         {
-            return LayerResolver.ParseLayout(declared);
+            return ArchitectureLayerResolver.ParseLayout(declared);
         }
 
         return BackendLayout.Modules;
@@ -85,16 +85,16 @@ internal sealed class HostModel : IEquatable<HostModel>
     public static HostModel Create(string declared, BackendLayout layout, string assemblyName, bool xunitV3)
     {
         var layer = declared.Length == 0
-            ? LayerResolver.FromAssemblyName(assemblyName)
-            : LayerResolver.Parse(declared);
+            ? ArchitectureLayerResolver.FromAssemblyName(assemblyName)
+            : ArchitectureLayerResolver.Parse(declared);
 
         // The assembly ending .Modules is the modules project and generates the registry,
         // the permissions and the roles. The assembly ending .SharedKernel reads layer
         // None with no application project and no host, so it generates nothing.
-        var applicationProject = layout == BackendLayout.Modules && declared.Length == 0 && layer == Layer.None
+        var applicationProject = layout == BackendLayout.Modules && declared.Length == 0 && layer == ArchitectureLayer.None
             && !IsSharedKernelAssembly(assemblyName);
 
-        var moduleHost = layout == BackendLayout.Modules && declared.Length == 0 && layer != Layer.None;
+        var moduleHost = layout == BackendLayout.Modules && declared.Length == 0 && layer != ArchitectureLayer.None;
 
         return new HostModel(layer, layout, applicationProject, xunitV3, moduleHost);
     }

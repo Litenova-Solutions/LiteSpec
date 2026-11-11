@@ -21,8 +21,8 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) =>
-        layer == Layer.Application || layer == Layer.WebApi;
+    private protected override bool AppliesTo(ArchitectureLayer layer) =>
+        layer == ArchitectureLayer.Application || layer == ArchitectureLayer.WebApi;
 
     /// <summary>
     ///     Registers the analysis actions for the layer direction analyzer rule with the compilation
@@ -65,12 +65,12 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
     /// <param name="map">The architectural home of every source file.</param>
     /// <param name="compilation">The compilation whose types and references the check reads.</param>
     /// <returns>The reason clause, or null when the layer may name the type.</returns>
-    private static string? ViolationOf(INamedTypeSymbol type, Layer source, CodeMap map, Compilation compilation)
+    private static string? ViolationOf(INamedTypeSymbol type, ArchitectureLayer source, CodeMap map, Compilation compilation)
     {
-        if (source == Layer.Application)
+        if (source == ArchitectureLayer.Application)
         {
             var layer = map.ReferencedLayer(type, compilation);
-            if (layer == Layer.Infrastructure || layer == Layer.WebApi)
+            if (layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.WebApi)
             {
                 return "which lives in the " + layer + " layer";
             }
@@ -94,12 +94,12 @@ public sealed class LayerDirectionAnalyzer : LayerAnalyzer
         }
 
         var target = map.ReferencedLayer(type, compilation);
-        if (target == Layer.Infrastructure)
+        if (target == ArchitectureLayer.Infrastructure)
         {
             return "which lives in the Infrastructure layer";
         }
 
-        if (target == Layer.Domain && !IsIdentifier(type) && !IsSharedKernel(type, map, compilation))
+        if (target == ArchitectureLayer.Domain && !IsIdentifier(type) && !IsSharedKernel(type, map, compilation))
         {
             return "which is a Domain type outside typed identifiers and shared-kernel values";
         }

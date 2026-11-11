@@ -388,7 +388,7 @@ internal sealed partial class ProvisionValidator
     // its page scope, states a record layer or trace that differs from its page, or marks its
     // layer-wide scope. Strength values are the three the scope page fixes; Scope and Applies
     // to values come from the scope tables, so an unreadable vocabulary skips value checks
-    // while presence and narrowing still run. Layer names are checked against the scope page's
+    // while presence and narrowing still run. ArchitectureLayer names are checked against the scope page's
     // layer table, and trace is yes or no in code. One line reports one scope defect: a line
     // with a value defect reports no narrowing defect beside it.
     /// <summary>Checks the Strength and Applies to lines of every provision on a page.</summary>

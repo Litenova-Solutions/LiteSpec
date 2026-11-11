@@ -22,14 +22,14 @@ public sealed class LayerNameAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.RegisterCompilationStartAction(start =>
         {
-            if (!start.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(LayerResolver.PropertyKey, out var declared)
+            if (!start.Options.AnalyzerConfigOptionsProvider.GlobalOptions.TryGetValue(ArchitectureLayerResolver.PropertyKey, out var declared)
                 || string.IsNullOrWhiteSpace(declared))
             {
                 return;
             }
 
             var value = declared.Trim();
-            if (LayerResolver.Parse(value) != Layer.None || IsOptOut(value))
+            if (ArchitectureLayerResolver.Parse(value) != ArchitectureLayer.None || IsOptOut(value))
             {
                 return;
             }

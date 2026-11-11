@@ -33,7 +33,7 @@ internal static class GeneratedSourceWriter
     {
         // The shared kernel reads layer None with no application project and no host,
         // so it leaves through the same gate as an opted-out project and generates nothing.
-        if (host.Layer == Layer.None && !host.ApplicationProject)
+        if (host.Layer == ArchitectureLayer.None && !host.ApplicationProject)
         {
             return;
         }
@@ -99,9 +99,9 @@ internal static class GeneratedSourceWriter
         // roles through that project, so it generates none of its own.
         if (!host.ModuleHost)
         {
-            EmitRegistry(context, ordered, grants, host.Layer == Layer.WebApi || host.ApplicationProject);
+            EmitRegistry(context, ordered, grants, host.Layer == ArchitectureLayer.WebApi || host.ApplicationProject);
         }
-        else if (host.Layer == Layer.WebApi)
+        else if (host.Layer == ArchitectureLayer.WebApi)
         {
             // The host still maps the operations of the endpoints it holds, which the modules
             // project cannot see.
@@ -109,10 +109,10 @@ internal static class GeneratedSourceWriter
         }
 
         if (!host.ModuleHost
-            && (host.Layer == Layer.Domain
-                || host.Layer == Layer.Application
-                || host.Layer == Layer.Infrastructure
-                || host.Layer == Layer.WebApi
+            && (host.Layer == ArchitectureLayer.Domain
+                || host.Layer == ArchitectureLayer.Application
+                || host.Layer == ArchitectureLayer.Infrastructure
+                || host.Layer == ArchitectureLayer.WebApi
                 || host.ApplicationProject))
         {
             EmitPermissions(context, records);

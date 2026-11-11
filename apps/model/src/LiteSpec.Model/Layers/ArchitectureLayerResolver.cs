@@ -8,7 +8,7 @@ namespace LiteSpec.Model;
 ///     layout, otherwise the nearest layer folder or the file's role suffix.
 /// </summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
-public static class LayerResolver
+public static class ArchitectureLayerResolver
 {
     /// <summary>The analyzer config key the package's build props make visible.</summary>
     public const string PropertyKey = "build_property.LiteSpecLayer";
@@ -22,7 +22,7 @@ public static class LayerResolver
     /// <param name="layout">The backend layout the consumer builds.</param>
     /// <param name="declared">The declared layer name, or null when the project sets none.</param>
     /// <returns>The layer.</returns>
-    public static Layer FileLayer(string? filePath, string assemblyName, BackendLayout layout, string? declared)
+    public static ArchitectureLayer FileLayer(string? filePath, string assemblyName, BackendLayout layout, string? declared)
     {
         if (!string.IsNullOrWhiteSpace(declared))
         {
@@ -35,12 +35,12 @@ public static class LayerResolver
         }
 
         var assemblyLayer = FromAssemblyName(assemblyName);
-        if (assemblyLayer == Layer.Test)
+        if (assemblyLayer == ArchitectureLayer.Test)
         {
-            return Layer.Test;
+            return ArchitectureLayer.Test;
         }
 
-        if (FolderLayer(filePath) is Layer folder)
+        if (FolderLayer(filePath) is ArchitectureLayer folder)
         {
             return folder;
         }
@@ -49,12 +49,12 @@ public static class LayerResolver
         // even when its role suffix names another layer, so a misplaced file reads
         // by its physical home and the checks surface the misplacement. Under the
         // one product project the assembly names no layer, and the role suffix decides.
-        if (assemblyLayer != Layer.None)
+        if (assemblyLayer != ArchitectureLayer.None)
         {
             return assemblyLayer;
         }
 
-        if (RoleLayer(FileNameOf(filePath)) is Layer role)
+        if (RoleLayer(FileNameOf(filePath)) is ArchitectureLayer role)
         {
             return role;
         }
@@ -63,7 +63,7 @@ public static class LayerResolver
         // named without a role suffix is still held to the layer rules.
         if (InSliceFolder(filePath))
         {
-            return Layer.Application;
+            return ArchitectureLayer.Application;
         }
 
         return assemblyLayer;
@@ -86,19 +86,19 @@ public static class LayerResolver
     /// <summary>Reads a declared layer name; an unknown name opts the project out.</summary>
     /// <param name="value">The declared layer name text, with or without dots.</param>
     /// <returns>The layer.</returns>
-    public static Layer Parse(string value)
+    public static ArchitectureLayer Parse(string value)
     {
         switch (value.Replace(".", string.Empty).ToUpperInvariant())
         {
-            case "DOMAIN": return Layer.Domain;
-            case "APPLICATIONABSTRACTIONS": return Layer.ApplicationAbstractions;
-            case "APPLICATION": return Layer.Application;
-            case "INFRASTRUCTURE": return Layer.Infrastructure;
-            case "WEBAPI": return Layer.WebApi;
-            case "WORKER": return Layer.Worker;
-            case "TEST": return Layer.Test;
-            case "TESTS": return Layer.Test;
-            default: return Layer.None;
+            case "DOMAIN": return ArchitectureLayer.Domain;
+            case "APPLICATIONABSTRACTIONS": return ArchitectureLayer.ApplicationAbstractions;
+            case "APPLICATION": return ArchitectureLayer.Application;
+            case "INFRASTRUCTURE": return ArchitectureLayer.Infrastructure;
+            case "WEBAPI": return ArchitectureLayer.WebApi;
+            case "WORKER": return ArchitectureLayer.Worker;
+            case "TEST": return ArchitectureLayer.Test;
+            case "TESTS": return ArchitectureLayer.Test;
+            default: return ArchitectureLayer.None;
         }
     }
 
@@ -119,22 +119,22 @@ public static class LayerResolver
     /// <summary>Reads the layer from the last segments of an assembly name.</summary>
     /// <param name="assemblyName">The assembly name that names the application project.</param>
     /// <returns>The layer named by the last assembly name segments, or None when none names one.</returns>
-    public static Layer FromAssemblyName(string assemblyName)
+    public static ArchitectureLayer FromAssemblyName(string assemblyName)
     {
-        if (EndsWithSegment(assemblyName, "Tests") || EndsWithSegment(assemblyName, "Test")) return Layer.Test;
-        if (EndsWithSegment(assemblyName, "Application.Abstractions")) return Layer.ApplicationAbstractions;
-        if (EndsWithSegment(assemblyName, "Domain")) return Layer.Domain;
-        if (EndsWithSegment(assemblyName, "Application")) return Layer.Application;
-        if (EndsWithSegment(assemblyName, "Infrastructure")) return Layer.Infrastructure;
-        if (EndsWithSegment(assemblyName, "WebApi")) return Layer.WebApi;
-        if (EndsWithSegment(assemblyName, "Worker")) return Layer.Worker;
-        return Layer.None;
+        if (EndsWithSegment(assemblyName, "Tests") || EndsWithSegment(assemblyName, "Test")) return ArchitectureLayer.Test;
+        if (EndsWithSegment(assemblyName, "Application.Abstractions")) return ArchitectureLayer.ApplicationAbstractions;
+        if (EndsWithSegment(assemblyName, "Domain")) return ArchitectureLayer.Domain;
+        if (EndsWithSegment(assemblyName, "Application")) return ArchitectureLayer.Application;
+        if (EndsWithSegment(assemblyName, "Infrastructure")) return ArchitectureLayer.Infrastructure;
+        if (EndsWithSegment(assemblyName, "WebApi")) return ArchitectureLayer.WebApi;
+        if (EndsWithSegment(assemblyName, "Worker")) return ArchitectureLayer.Worker;
+        return ArchitectureLayer.None;
     }
 
     /// <summary>Reads the layer from the nearest layer folder on the file's path.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The layer the nearest layer folder states, or null when no folder on the path states one.</returns>
-    public static Layer? FolderLayer(string? filePath)
+    public static ArchitectureLayer? FolderLayer(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath))
         {
@@ -146,11 +146,11 @@ public static class LayerResolver
         {
             switch (segments[index])
             {
-                case "Domain": return Layer.Domain;
-                case "Application": return Layer.Application;
-                case "Infrastructure": return Layer.Infrastructure;
-                case "WebApi": return Layer.WebApi;
-                case "Contracts": return Layer.Application;
+                case "Domain": return ArchitectureLayer.Domain;
+                case "Application": return ArchitectureLayer.Application;
+                case "Infrastructure": return ArchitectureLayer.Infrastructure;
+                case "WebApi": return ArchitectureLayer.WebApi;
+                case "Contracts": return ArchitectureLayer.Application;
             }
         }
 
@@ -160,7 +160,7 @@ public static class LayerResolver
     /// <summary>Reads the layer from the role suffix of a use case, reaction or job file.</summary>
     /// <param name="fileName">The file name with or without its extension, or null when the document has none.</param>
     /// <returns>The layer the role suffix states, or null when the name carries no role suffix.</returns>
-    public static Layer? RoleLayer(string? fileName)
+    public static ArchitectureLayer? RoleLayer(string? fileName)
     {
         if (string.IsNullOrEmpty(fileName))
         {
@@ -178,7 +178,7 @@ public static class LayerResolver
             || name.EndsWith("RequestModel", StringComparison.Ordinal)
             || name.EndsWith("ResponseModel", StringComparison.Ordinal))
         {
-            return Layer.WebApi;
+            return ArchitectureLayer.WebApi;
         }
 
         if (name.EndsWith("Command", StringComparison.Ordinal)
@@ -189,7 +189,7 @@ public static class LayerResolver
             || name.EndsWith("Job", StringComparison.Ordinal)
             || name.EndsWith("Worker", StringComparison.Ordinal))
         {
-            return Layer.Application;
+            return ArchitectureLayer.Application;
         }
 
         return null;

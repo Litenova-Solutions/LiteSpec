@@ -3,7 +3,7 @@ namespace LiteSpec.Model;
 /// <summary>
 ///     The architecture layer a file belongs to, by the role its type plays.
 /// </summary>
-public enum Layer
+public enum ArchitectureLayer
 {
     /// <summary>No layer: an unrecognized assembly, a file outside the module tree, or an explicit opt-out.</summary>
     None,

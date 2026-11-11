@@ -19,7 +19,7 @@ public sealed class EndpointNamingAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer == Layer.WebApi;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer == ArchitectureLayer.WebApi;
 
     /// <summary>
     ///     Registers the analysis actions for the endpoint naming analyzer rule with the compilation

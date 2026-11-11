@@ -142,7 +142,7 @@ static class SourceRoots
             return null;
         }
 
-        var layer = LayerResolver.FileLayer(
+        var layer = ArchitectureLayerResolver.FileLayer(
             PathText.Relative(root, file),
             FolderName(root),
             config.IsLayerProjects ? BackendLayout.LayerProjects : BackendLayout.Modules,
@@ -150,13 +150,13 @@ static class SourceRoots
 
         return layer switch
         {
-            Layer.Domain => "Domain",
-            Layer.ApplicationAbstractions => "ApplicationAbstractions",
-            Layer.Application => "Application",
-            Layer.Infrastructure => "Infrastructure",
-            Layer.WebApi => "WebApi",
-            Layer.Worker => "Worker",
-            Layer.Test => "Test",
+            ArchitectureLayer.Domain => "Domain",
+            ArchitectureLayer.ApplicationAbstractions => "ApplicationAbstractions",
+            ArchitectureLayer.Application => "Application",
+            ArchitectureLayer.Infrastructure => "Infrastructure",
+            ArchitectureLayer.WebApi => "WebApi",
+            ArchitectureLayer.Worker => "Worker",
+            ArchitectureLayer.Test => "Test",
             _ => null,
         };
     }
@@ -355,5 +355,5 @@ static class SourceRoots
     /// <param name="project">The short project name.</param>
     /// <returns>True when the name is a layer name or ends in one.</returns>
     static bool HasLayerSuffix(string project) =>
-        project.Length > 0 && LayerResolver.FromAssemblyName(project) != Layer.None;
+        project.Length > 0 && ArchitectureLayerResolver.FromAssemblyName(project) != ArchitectureLayer.None;
 }

@@ -19,7 +19,7 @@ public sealed class SealedClassAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer != Layer.None && layer != Layer.Test;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer != ArchitectureLayer.None && layer != ArchitectureLayer.Test;
 
     /// <summary>Registers the analysis actions for the sealed class analyzer rule with the compilation context.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
