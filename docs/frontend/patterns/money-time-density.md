@@ -16,7 +16,7 @@ Each pattern answers one recurring question about money, time, or density, such 
 
 ### The Running Example
 
-The drawings on this page use the Claimwick September 2026 statement: expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with two decimals, moments use the Europe/Amsterdam zone, and counts name what they count. The Standards section states the two rules every option keeps: every amount shows its currency, and a moment shared across zones states its zone.
+The drawings on this page use the Claimwick September 2026 statement: expense EXP-1042 for Ava at EUR 125.00, the payout run holding it, and the autumn travel season. Amounts use currency codes with the decimals each currency defines, moments use the Europe/Amsterdam zone, and counts name what they count. The Standards section states the three rules every option keeps: every amount shows its currency, a moment shared across zones states its zone, and figures in a column line up.
 
 ## Standards
 
@@ -44,6 +44,34 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Reviewed for:** Which built shared moment omits its zone? Open the dates and times on built screens read across zones.
 
+### Align Figures in a Column
+
+**ID:** `litespec/frontend/patterns/money-time-density#align-figures-in-a-column`
+
+**Strength:** required
+
+**Statement:** An amount, count, or quantity shown in a column MUST use tabular figures, so digits of equal place sit under each other.
+
+**Rationale:** Proportional figures give each digit its own width, so a column of them wanders and equal places stop lining up. A reversal column whose digits wander is misread at a glance, and the wrong row pays for it. Tabular figures give every digit one width, so hundreds sit under hundreds down the whole column.
+
+**Reviewed for:** Which built figure column wanders instead of lining up by place? Open built amount, count, and quantity columns and read down each one.
+
+## Conventions
+
+### Mark a Moment with Its Machine Value
+
+**ID:** `litespec/frontend/patterns/money-time-density#mark-a-moment-with-its-machine-value`
+
+**Strength:** default
+
+**Default:** Render a date or moment in a time element that carries its ISO 8601 value.
+
+**Replacement:** A project that departs records where its dates render as plain text.
+
+**Rationale:** A reader's wording of a moment varies: 8 Oct, October 8, next Tuesday. Assistive technology and the browser read the exact value from the machine form, not the reader's wording of it. The ISO value keeps the cited moment exact even where the words stay short.
+
+**Reviewed for:** Which built date or moment lacks its machine value? Open built dates and read each time element for its ISO value.
+
 ## Patterns
 
 ### Writing an Amount
@@ -56,9 +84,9 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Default:** `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`
 
-**Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
+**Compact:** The recommended option reflows: the amount column keeps the code with each figure and the true minus on reversals, while the table scrolls sideways.
 
-**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers negatives and separators. The runner-up is the plain code table. It shows the same choice without reversal rows.
+**Rationale:** Ship the code format in the reader's language with a true minus. It keeps one convention and answers decimals, negatives and separators: each currency shows the decimals it defines. The runner-up is the plain code table. It shows the same choice without reversal rows.
 
 Choose the symbol with code in the header only when the finance screens and the spender screens show the same form. Never ship the no currency option. It loses the currency in exports. Never ship mixed decimals. It breaks the alignment tables exist for.
 
@@ -86,7 +114,7 @@ page
 
 **Cost:** Two totals disagree by design. Labels need to survive a glance. The all-match total adds a second read on every filter change.
 
-#### `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`: Code and Two Decimals, in the Reader's Language, with a True Minus
+#### `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`: Code and the Currency's Own Decimals, in the Reader's Language, with a True Minus
 
 ```wireframe
 page
@@ -103,7 +131,7 @@ page
     text muted "A Dutch page writes EUR 125,00. A reversal uses a true minus."
 ```
 
-**Rationale:** Stripe dashboard and Shopify admin keep one amount format. The reader's language decides the separators. English shows EUR 1,203.65, and Dutch shows EUR 1.203,65. A reversal uses a true minus before the code. The minus lines up with digits in a tabular column.
+**Rationale:** Stripe dashboard and Shopify admin keep one amount format. The reader's language decides the separators. English shows EUR 1,203.65, and Dutch shows EUR 1.203,65. Each currency shows the decimals it defines: none for JPY, three for KWD. A reversal uses a true minus before the code. The minus lines up with digits in a tabular column.
 
 **Cost:** Two colleagues on the same account see different separators, so a screenshot in a support case has to be read in its language. The minus is the only signal of money out, so the State column has to say Reversed as well.
 
@@ -140,7 +168,7 @@ page
 
 **Default:** `groups-subtotals-and-a-grand-total`
 
-**Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
+**Compact:** The recommended option reflows: the groups stack with each subtotal above the grand total, and every figure keeps its currency.
 
 **Rationale:** Keep groups, subtotals, and a grand total. Keep a count under each line. The count is the only completeness check. The runner-up ends in the payouts it became. It fits finance work against bank lines.
 
@@ -236,7 +264,7 @@ page
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
 
-**Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
+**Compact:** The recommended option reflows: the Submitted column keeps its single form with the zone still named once in the header.
 
 **Rationale:** Keep one form per table. State the zone once in the header. A column then reads as a column.
 
@@ -314,7 +342,7 @@ page
 
 **Default:** `chevrons-either-side-of-the-period-as-the-heading`
 
-**Compact:** The recommended option reflows. One column carries the content. Header actions sit under the title. A table scrolls inside its own region.
+**Compact:** The recommended option reflows: the period heading keeps its chevrons with the month control under it, and the spending facts stack below.
 
 **Rationale:** Ship chevrons beside the heading with a month dropdown. Walking is one click and jumping avoids twelve clicks. The runner-up uses presets with typeable bounds. It fits charts and exports where the period is not a month. Never ship the period as a filter chip. The period is the subject, not a refinement.
 
@@ -494,7 +522,7 @@ page
 
 **Default:** `counts-in-the-sidebar-on-the-rows-that-hold-work`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the sidebar counts stack above the work list, each row keeping its count.
 
 **Rationale:** Keep counts where the reader would otherwise fetch them. The sidebar rows that hold work carry them, and the tabs above a list carry them. The runner-up is the stat tiles with their measure stated.
 
@@ -577,7 +605,7 @@ page
 
 **Default:** `daily-columns-with-the-total-above`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the total stays above the daily columns, with the peak still labeled in words.
 
 **Rationale:** Ship the daily columns with the total above and the peak labeled. They answer how much and when in one glance. The runner-up is the cumulative line against the previous quarter.
 
@@ -662,7 +690,7 @@ page
 
 **Default:** `horizontal-bars-with-the-figure-on-each-row`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: each kind keeps its bar with its figure and count on one stacked row.
 
 **Rationale:** Ship the horizontal bars with the figure on each row. Every kind reads with its count and its money in one glance. The runner-up is the table with a bar in each row.
 
@@ -744,7 +772,7 @@ page
 
 **Default:** `a-bar-with-sold-held-and-left-in-words`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the spend bar keeps the claimed, held, and left figures in words beneath it.
 
 **Rationale:** Ship the progress bar with claimed, held, and left in words. One glance says how far the budget has burned and what is still movable. The runner-up is the per-kind spend table.
 
@@ -827,7 +855,7 @@ page
 
 **Default:** `tiles-with-a-delta-pill-and-the-previous-figure`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the comparison tiles stack, each keeping its delta pill with the previous figure in words.
 
 **Rationale:** Ship the tiles with a delta pill and the previous figure in words. The comparison is visible and the basis is stated. The runner-up is the tiles with sparklines.
 
@@ -915,7 +943,7 @@ page
 
 **Default:** `upcoming-payouts-with-the-sales-each-one-holds`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: each payout keeps its arrival date, expenses, and amount in one stacked row.
 
 **Rationale:** Ship the list of upcoming payouts with the expenses each one holds: the company sees what goes out and when in one place. The runner-up is the past payouts table with bank references, which is the better choice for finance reconciling against the bank.
 
@@ -1001,7 +1029,7 @@ page
 
 **Default:** `the-invoice-as-a-document-with-the-usage-behind-each-line`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the seller facts stack above the lines, and the totals keep their order to the amount due.
 
 **Rationale:** Ship the document-style invoice with the usage behind each line: finance sees what the fee paid for without opening another page. The runner-up is the paid invoice with its mandate reference, which is the better state of the same document once the money has moved.
 
@@ -1097,7 +1125,7 @@ page
 
 **Default:** `the-vat-split-under-the-order-total`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the claimed facts stack above the VAT split, with each rate keeping its base and tax.
 
 **Rationale:** Ship the VAT split under the expense total. The spender total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, which is the better choice at quarter end when finance files the return.
 
@@ -1276,7 +1304,7 @@ page
 
 **Default:** `a-code-monospaced-labeled-and-copyable`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: each code card stacks with its label and copy control beside the value.
 
 **Rationale:** Ship the labeled, monospaced, copyable code on the record. It is the shape of the rule and the one thing a support case needs quoted. The runner-up is the identifier as the record name. It is the better choice for records with no human name, such as a payout reference.
 

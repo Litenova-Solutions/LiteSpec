@@ -31,6 +31,17 @@ public sealed partial class UiValidatorTests
         UiFixture.AssertProblem(fixture.Run(), "missing required section 'Motion'");
     }
 
+    /// <summary>Design Contract Missing Its Browser Support.</summary>
+    /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
+    [Fact]
+    public void DesignContractMissingItsBrowserSupport()
+    {
+        using var fixture = UiFixture.Create();
+        File.WriteAllText(fixture.DesignFile,
+            File.ReadAllText(fixture.DesignFile).Replace("## Browser Support", "## Browsers", StringComparison.Ordinal));
+        UiFixture.AssertProblem(fixture.Run(), "missing required section 'Browser Support'");
+    }
+
     /// <summary>Design Contract Naming Another Package.</summary>
     /// <proves>litespec/frontend/ui#publish-a-design-contract</proves>
     [Fact]

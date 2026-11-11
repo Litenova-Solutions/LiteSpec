@@ -18,7 +18,7 @@ sealed class DesignContractChecks
     /// <summary>The sections a design contract carries.</summary>
     static readonly string[] DesignSections =
     [
-        "Brand", "Tokens", "Patterns", "Do", "Do Not", "Motion", "Voice",
+        "Brand", "Tokens", "Patterns", "Do", "Do Not", "Motion", "Browser Support", "Voice",
     ];
 
     /// <summary>An H2 heading of a Markdown page.</summary>

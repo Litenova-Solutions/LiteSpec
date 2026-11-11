@@ -15,7 +15,7 @@ Each pattern answers one recurring question about a field kind, such as how a mo
 
 ### The Running Example
 
-The drawings on this page use the Claimwick expense for Ava's Rotterdam client visit: the EUR 45.00 hotel night, its booking fee, the Amsterdam sales cost centre, and the trips, payouts, and approval policies around them. Every option keeps one rule: every field carries a visible label naming its value. The Standards section states that rule, and the [Feedback and State Patterns](feedback-and-states.md) page states the rule for keeping the reader's input through a failure ([keep the reader's input through a failure](feedback-and-states.md#keep-the-readers-input-through-a-failure)).
+The drawings on this page use the Claimwick expense for Ava's Rotterdam client visit: the EUR 45.00 hotel night, its booking fee, the Amsterdam sales cost centre, and the trips, payouts, and approval policies around them. Every option keeps eight rules: every field carries a visible label naming its value, an error appears after the field is left and clears on a valid value, an error reaches assistive technology, every required field carries a marker, submit stays enabled, each field states its purpose, Enter is ignored while text is composed, and a name is one field of any script. The Standards section states those rules, and the [Feedback and State Patterns](feedback-and-states.md) page states the rule for keeping the reader's input through a failure ([keep the reader's input through a failure](feedback-and-states.md#keep-the-readers-input-through-a-failure)).
 
 ## Standards
 
@@ -30,6 +30,106 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 **Rationale:** A placeholder disappears on the first keystroke, so a filled field with no label no longer says what it holds. Screen readers announce the label, and sighted staff returning to a filled form read it to check each value before saving. Without a visible label, both groups guess what each value means.
 
 **Reviewed for:** Which built field lacks a visible label naming its value? Open every form on built screens and read each field's label.
+
+### Show a Field Error After the Field Is Left
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#show-a-field-error-after-the-field-is-left`
+
+**Strength:** required
+
+**Statement:** A field error MUST appear only once the user leaves the field with a changed value or submits the form, and disappear as soon as the value becomes valid.
+
+**Rationale:** An error shown while the reader is still typing scolds an unfinished value, and one that lingers after the fix makes the reader doubt the fix. The message appears once the field is left or the form is submitted, and it clears as soon as the value turns valid.
+
+**Reviewed for:** Which built field shows an error while it is still being typed, or keeps one after the value turns valid? Open the built forms, type in each field, leave it, fix it, and read when the message appears and clears.
+
+### Expose a Field Error to Assistive Technology
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#expose-a-field-error-to-assistive-technology`
+
+**Strength:** required
+
+**Statement:** A field MUST set `aria-invalid="true"` and point `aria-describedby` at its error only while the error shows.
+
+**Rationale:** WCAG 3.3.1 Error Identification asks that an error be described in text, and WCAG 4.1.2 Name, Role, Value asks that the field expose its state. The two attributes together tell a screen reader which field failed and what it says. An empty required field carries neither until the reader has touched it, so it is not read as invalid first.
+
+**Reviewed for:** Which built field misses its invalid state or its error reference while its error shows, or carries either before it is touched? Open the built forms and read each field's attributes with its error shown and hidden.
+
+### Mark Every Required Field
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#mark-every-required-field`
+
+**Strength:** required
+
+**Statement:** Every required field MUST carry the `required` attribute and a visible marker that the form explains once, above its first field.
+
+**Rationale:** WCAG 3.3.2 Labels or Instructions asks that a required field say so before it is submitted. The marker shows it to a sighted reader and the attribute announces it to a screen reader. One explanation above the first field teaches the marker once for the whole form.
+
+**Reviewed for:** Which built required field lacks a visible marker or the `required` attribute, and which form explains the marker nowhere above its first field? Open the built forms and read each required field and the line above the first one.
+
+### Keep Submit Enabled to Reveal Errors
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#keep-submit-enabled-to-reveal-errors`
+
+**Strength:** required
+
+**Statement:** A submit control MUST stay enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.
+
+**Rationale:** A disabled submit gives no reason and no way forward. The reader presses a live submit and lands on the summary or the first field in error, which names what to fix. The form refuses the submit and keeps every entered value.
+
+**Reviewed for:** Which built submit control disables itself while the form holds errors? Open the built forms with errors and press each submit.
+
+### State Each Field's Purpose
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#state-each-fields-purpose`
+
+**Strength:** required
+
+**Statement:** A field collecting information about the user MUST carry the `autocomplete` token for its purpose.
+
+**Rationale:** WCAG 1.3.5 Identify Input Purpose asks that the purpose of each such field be programmatically determinable. The token lets the browser fill a bank account holder or an email once instead of the reader typing it on every claim. The reader checks the filled value instead of typing it again.
+
+**Reviewed for:** Which built field collecting information about the user lacks the `autocomplete` token for its purpose? Open the built forms and read each such field's token.
+
+### Refuse Enter While Text Is Being Composed
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#refuse-enter-while-text-is-being-composed`
+
+**Strength:** required
+
+**Statement:** A field that acts on the Enter key MUST ignore it while an input method is composing text.
+
+**Rationale:** A reader typing a vendor name in Japanese or Chinese confirms a candidate with Enter. The tag input or inline rename that submits on that keystroke sends half-composed text. Waiting for composition to end keeps the submitted value whole.
+
+**Reviewed for:** Which built field acting on Enter submits half-composed text from an input method? Open the built tag inputs and fields acting on Enter, and confirm a candidate with Enter.
+
+### Take a Name in One Field of Any Script
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#take-a-name-in-one-field-of-any-script`
+
+**Strength:** required
+
+**Statement:** A person's name MUST be one field that accepts letters of any script.
+
+**Rationale:** Given and family names are not universal, and splitting them forces staff into parts their name lacks. A Latin-only rule refuses real staff. One field taking letters of any script holds every name the back office meets.
+
+**Reviewed for:** Which built name entry splits the name or refuses letters outside Latin? Open the built staff and spender forms and enter a name in a non-Latin script.
+
+## Conventions
+
+### Match the Keyboard to the Value
+
+**ID:** `litespec/frontend/patterns/forms-and-fields#match-the-keyboard-to-the-value`
+
+**Strength:** default
+
+**Default:** Set `inputmode` on a numeric or code field for its value, and turn off autocorrect and autocapitalize on an identifier field such as an IBAN or a reference.
+
+**Replacement:** A project that departs records which fields keep the default text keyboard and why.
+
+**Rationale:** The phone keyboard matches the value, and autocorrect does not rewrite an IBAN. A reader entering a booking reference meets keys for the value instead of the full alphabet.
+
+**Reviewed for:** Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project's recorded departures.
 
 ## Patterns
 
@@ -364,7 +464,7 @@ page
 
 **Strength:** default
 
-**Question:** A reader chooses from a closed set, such as a naming rule or a plan. A select hides its options until it opens, so radios beat a select for a short set, and a segmented control fits two or three short values. Nothing is pre-selected in a question, though settings allow it. The decision is which control carries the choice: a radio list, a segmented control, or a select.
+**Question:** A reader chooses from a closed set, such as a naming rule or a plan. A select hides its options until it opens, so radios beat a select for a short set, and a segmented control fits two or three short values. Two to five exclusive options are a radio group, and six or more are a select or a searchable picker. Nothing is pre-selected in a question, though settings allow it. The decision is which control carries the choice: a radio list, a segmented control, or a select.
 
 **Default:** `a-radio-list-with-a-description-per-option`
 
@@ -493,7 +593,7 @@ page
   toast positive "Booking fee waived for the Travel policy."
 ```
 
-**Rationale:** A low-risk switch applies at once, with Undo in a toast. There is no Save to forget and no dialog to dismiss, and the toast names what changed.
+**Rationale:** A low-risk switch applies at once, with Undo in a toast. There is no Save to forget and no dialog to dismiss, and the toast names what changed. Instant apply fits only a setting applied on its own, never a form that holds other unsaved edits.
 
 **Cost:** Every flip is an audited command the moment it happens, with no review step before it. It fits display settings, not money, access, or anything a toast cannot undo.
 
@@ -990,7 +1090,7 @@ page
     heading "Capacity"
     text "How much TRIP10 can spend."
   region "Money on the code"
-    field "Ceiling, in euros" number = "9600"
+    field "Ceiling, in euros" text = "9600"
     text muted "EUR 9,412 claimed. EUR 188 still to claim."
     text "The budget is 94 percent spent."
     fact "Amsterdam sales holds" "EUR 10,000"
@@ -1037,7 +1137,7 @@ page
     fact "Claimed" "9,412"
     fact "Left" "188"
     message info "Claimed is a fact and cannot be edited. Lowering the ceiling below 9,412 is refused."
-    field "Ceiling, in euros" number = "9600"
+    field "Ceiling, in euros" text = "9600"
     text muted "Must stay at or above 9,412."
   footer
     action "Cancel"
@@ -1379,7 +1479,7 @@ page
 
 **Compact:** Below the md breakpoint the postcode and number sit on one row, and the looked-up street follows under them.
 
-**Rationale:** The postcode lookup is the pick: two short values the reader knows produce the street they would mistype. Country first is the runner-up for companies outside the lookup coverage. One search that fills the address is the other alternative for a reader who knows the street but not its spelling. Never ship a single free-text address box: one line cannot be split into street, postcode, and city again.
+**Rationale:** The postcode lookup is the pick: two short values the reader knows produce the street they would mistype. Country first is the runner-up for companies outside the lookup coverage. One search that fills the address is the other alternative for a reader who knows the street but not its spelling. The postcode stays optional for a country that has none, and every lookup offers manual entry beside it. Never ship a single free-text address box: one line cannot be split into street, postcode, and city again.
 
 **Reviewed for:** Which built location input breaks from the wireframe its catalog entry chose? Open the built lookups, country shapes, and map pins beside the catalog entry recording the chosen option and its reason.
 

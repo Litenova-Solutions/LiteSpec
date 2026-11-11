@@ -67,7 +67,13 @@ The floorplans this package provides. A route composes exactly one of them, or n
 | quick | 120ms | Row hover, badge change, focus ring. |
 | slow | 240ms | Drawer open, mobile navigation. |
 
+When the reader asks for reduced motion, `quick` and `slow` become a fade of at most 120ms, and nothing slides, scales or loops.
+
 A number is never animated. The number is the answer.
+
+## Browser Support
+
+Baseline widely available. Every platform feature this package and its routes use has worked in every major browser for at least 30 months, or the file that uses it carries a fallback beside it.
 
 ## Voice
 

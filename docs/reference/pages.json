@@ -1929,6 +1929,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -1943,6 +1944,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -1957,6 +1959,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -2008,7 +2011,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Rendering and Routes",
-      "intent": "A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, and how each route state renders. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.",
+      "intent": "A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2192,7 +2195,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web UI",
-      "intent": "One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every suite marked with what it proves, and every primitive traceable to its source.",
+      "intent": "One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, the browser support target, the color schemes, motion, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every route readable in every scheme and browser it targets, and every primitive traceable to its source.",
       "sections": [
         "Intent",
         "Concepts",

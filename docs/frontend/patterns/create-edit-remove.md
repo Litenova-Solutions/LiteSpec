@@ -16,7 +16,7 @@ Each pattern answers one recurring question about working with records, such as 
 
 ### The Running Example
 
-The drawings on this page use Harbor and Pine travel: trips such as Rotterdam client visit, expenses such as EXP-1042 for Ava, and fares such as the train fare at EUR 48.90. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: every removal offers undo or asks for confirmation, and a successful create shows the created record.
+The drawings on this page use Harbor and Pine travel: trips such as Rotterdam client visit, expenses such as EXP-1042 for Ava, and fares such as the train fare at EUR 48.90. On this page, the reader is the staff member using the screen. The Standards section states the three rules every option keeps: every removal offers undo or asks for confirmation, a successful create shows the created record, and a command in flight refuses a second send.
 
 ## Standards
 
@@ -44,6 +44,18 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 
 **Reviewed for:** Which built create flow ends away from its new record? Open the create dialogs, pages, and bulk flows on built screens.
 
+### Refuse a Second Send While One Is in Flight
+
+**ID:** `litespec/frontend/patterns/create-edit-remove#refuse-a-second-send-while-one-is-in-flight`
+
+**Strength:** required
+
+**Statement:** While a command is in flight, the control that sent it MUST show a pending state and refuse a second send until the first settles.
+
+**Rationale:** A double click on Submit creates two expenses or pays a payout twice. The pending state tells the reader the first send is running, so there is nothing to gain from pressing again. The refused second send keeps one press at one command.
+
+**Reviewed for:** Which built command control sends twice while one send is still in flight, or shows no pending state? Open the built submits and pays, send each twice in a row, and read what runs.
+
 ## Patterns
 
 ### Creating One Record
@@ -56,7 +68,7 @@ The drawings on this page use Harbor and Pine travel: trips such as Rotterdam cl
 
 **Default:** `a-dialog-for-two-or-three-inputs`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-width sheet under the header, with its fields stacked in one column.
 
 **Rationale:** The dialog stays the pick for one to four inputs: it keeps the list behind it and commits with one verb. The full page is the runner-up and the right one past four inputs or with sections. The file import is the other alternative when many records arrive at once, where one dialog per record would take all day. Never ship a form inside a table row: it breaks the table structure and hides validation.
 
@@ -142,7 +154,7 @@ page
 
 **Default:** `one-save-per-page`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the fields stack in one column, with the unsaved note and Save staying together under them.
 
 **Rationale:** One Save per page is the pick. A reader who changed three things saves once, and the dirty banner says what is pending. The impact statement is the runner-up for any change that breaks something. Autosave is the other alternative, and it earns its place only for free text, beside the version history in the after-the-fact pattern. Never ship the inline list-row edit on this wide table: it hides validation.
 
@@ -228,7 +240,7 @@ page
 
 **Default:** `archive-with-what-archiving-means`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the scheduled and archived lists stack in one column, with the search above them and the row menu on each row.
 
 **Rationale:** Archive stays the pick. It is reversible, it keeps the audit trail, and the Archived view is the way back. The thirty-day trash is the runner-up where delete is the verb the reader reaches for. The delete dialog is the other alternative for records that have to go, and it says what is kept. Never ship a bare delete for anything with history: the dialog must name what survives.
 
@@ -320,7 +332,7 @@ page
 
 **Default:** `a-dialog-naming-the-count-and-the-money`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-width sheet with the count and the money stacked above the commit.
 
 **Rationale:** The dialog naming the count and the money stays the pick up to about twenty-five rows. The two figures are what the reader checks. The background job is the runner-up past that size, where a report lands afterwards. The dry-run plan is the other alternative where rows can refuse, because a page reads every refusal before anything runs. Never ship the typed count for an ordinary bulk remove: typing 200 trains copy and paste, which is the reflex the pattern exists to break.
 
@@ -409,7 +421,7 @@ page
 
 **Default:** `create-with-a-name-fill-the-rest-later`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the notice and the missing-parts list stack under the header in one column.
 
 **Rationale:** Create with a name and fill the rest later stays the pick. The record exists as a draft and every later addition is its own audited command. The home-page setup guide is the runner-up and the required companion, because a draft nobody finishes is a dead record. Everything required before the record exists is the other alternative, for a record that must be whole before anyone sees it. Leave out a create that writes nothing until the final publish step: a browser that loses the page loses the whole form.
 
@@ -497,7 +509,7 @@ page
 
 **Default:** `the-old-value-stays-on-the-record-beside-the-new`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the timeline of names stacks under the header in one column.
 
 **Rationale:** Keeping the old value beside the new stays the pick. An expense filed last month still resolves to the trip it was filed for. The dated correction is the runner-up where a fact was entered wrong. The refusal with the newer way named is the other alternative where no safe edit exists. Never ship a silent overwrite of anything priced or paid: the record must show what it was before.
 
@@ -577,7 +589,7 @@ page
 
 **Default:** `a-dialog-that-says-what-the-copy-carries`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-width sheet with the name field and the carried list stacked.
 
 **Rationale:** The dialog that says what the copy carries is the pick: a duplicate that silently drops the ceilings is worse than no duplicate. The carry checklist is the runner-up where the parts vary per company. One click from the row menu is the other alternative, and it earns its place for budget codes and plan entries, which carry no spenders. Never ship one-click duplication for a trip: a silent copy drops the ceilings a trip needs. An expense is never duplicated, because it is one spender's claim.
 
@@ -670,7 +682,7 @@ page
 
 **Default:** `drag-handles-in-the-list`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the rows stack in one column with the grip and the row menu on each row.
 
 **Rationale:** Drag handles in the list are the pick: direct, visible, and the order saves as it changes. Move up and Move down in the row menu are the runner-up and the required companion, because drag alone leaves keyboard and screen-reader users behind. Typed position numbers are the other alternative for a jump across a long list. Never ship typed position numbers alone: two rows both numbered 3 are a question the page cannot answer.
 
@@ -757,7 +769,7 @@ page
 
 **Default:** `restore-from-the-archived-view`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the archived list stacks in one column with Restore on each row, and the toast spans the phone width.
 
 **Rationale:** Restore from the archived view is the pick: the view is the way back, and the row says where the record returns to. The record-page banner is the runner-up for anyone arriving by link. The Undo toast is the other alternative in the seconds after archiving, not as the way back days later. Never ship a restore that silently un-archives parents or overwrites a newer name: both need their own dialog.
 
@@ -842,7 +854,7 @@ page
 
 **Default:** `invite-by-email-with-the-role-chosen-first`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-width sheet with the email, role, and scope stacked.
 
 **Rationale:** Invite by email with the role chosen first is the pick: person, role, and scope are all named on one dialog. The pending list with resend and revoke is the runner-up and the required companion, because an invitation waits far longer than sending takes. The invite link is the other alternative for trip crew on one trip, where forty people are not typed by hand. Never ship an open invite link for staff roles: anyone holding it joins. A request to join is refused: the company invites. Nobody applies.
 
@@ -935,7 +947,7 @@ page
 
 **Default:** `publish-with-the-readiness-check-beside-it`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the dialog becomes a full-width sheet with the readiness facts stacked above the commit.
 
 **Rationale:** Publish with the readiness check beside it is the pick: the reader reads what spenders will find before they find it. Per-channel publish is the runner-up for companies that publish in more than one place. Unpublish with the spender consequences stated is the other alternative, because filed expenses outlive the command. Never ship a silent unpublish: the page must say that filed expenses stay valid.
 
@@ -1028,7 +1040,7 @@ page
 
 **Default:** `a-change-with-a-date-listed-with-the-record`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the now and next facts stack in one column, with the schedule field and its save under them.
 
 **Rationale:** A change with a date, listed with the record, is the pick: current and coming values sit side by side with a cancel. The code timeline is the runner-up where ceilings change on fixed dates. The spender preview is the other alternative where spenders read the value, because a fee change is judged by the line they see. Never ship overlapping schedules on one record: one record cannot become two fees on the same date.
 

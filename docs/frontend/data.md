@@ -33,7 +33,7 @@ Every command ends in one outcome. A page handles each outcome as the table stat
 | Refusal | Renders the refusal beside what was refused, in the sentence the application holds for that code |
 | Field refusal | Places each problem on the field it belongs to, leaving the form open |
 
-Success carries a visible answer wherever nothing else on screen shows it; a silent success tells the user nothing happened. Field problems belong on their fields; a list above a long form forces the user to match each sentence to a label.
+Success carries a visible answer wherever nothing else on screen shows it; a silent success tells the user nothing happened. Field problems belong on their fields; a summary above a long form links to each field in error instead of replacing the messages on them.
 
 ### The Problem Type
 
@@ -143,7 +143,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** A field problem MUST reach the field it names through the frame's one helper, with the form staying open until resolved or abandoned.
 
-**Rationale:** A list of problems above a long form forces the user to read each sentence and each label to pair them, and a problem below the fold is missed entirely. The frame's one helper puts each problem on the field it names, so the user sees what to fix where they fix it. The form stays open until each problem is resolved or the user abandons the form, so no input is lost to a closed dialog.
+**Rationale:** The frame's one helper puts each problem on the field it names, so the user sees what to fix where they fix it. Above a long form, a summary links to each field in error, so a problem below the fold is still one tap away. The summary is a navigation aid added to the messages on each field, never replacing them. The form stays open until each problem is resolved or the user abandons the form, so no input is lost to a closed dialog.
 
 **Reviewed for:** Which field problems miss their fields, bypass the frame helper, or close the form? Look in the forms and the frame helper.
 
@@ -264,6 +264,20 @@ The problem carries the trace identifier the API returns for the request, so sup
 **Rationale:** An instant from the API carries no zone, so a formatter left to pick one shows the user's own zone: a payout cut-off reads as midnight in the user's city instead of the office's. The caller resolves the zone from the record the screen shows: a record with its own zone states it, otherwise the account's zone applies, and an account that chooses none falls back to UTC. Passing the zone explicitly makes each timestamp name whose day it belongs to.
 
 **Reviewed for:** Which timestamp formatters run without an explicit IANA zone resolved from the shown record? Look in the formatter call sites.
+
+### Keep a Calendar Date Free of a Time Zone
+
+**ID:** `litespec/frontend/data#keep-a-calendar-date-free-of-a-time-zone`
+
+**Strength:** required
+
+**Applies to:** artifact: component, route
+
+**Statement:** A date with no time of day, such as a trip day, a payout day or a billing month, MUST travel and display as a calendar date, never as an instant converted through a time zone.
+
+**Rationale:** A trip starting 8 October shows as 7 October to a reader west of the server once a date passes through a zone. The calendar date means the same day to every reader, wherever they sit. The frontend sends and renders the date itself, with no zone attached.
+
+**Reviewed for:** Which dates with no time of day travel or display as instants converted through a time zone? Look in the date sends and renders beside the trip, payout, and billing reads.
 
 ### Keep Secrets Out of Browser Storage
 

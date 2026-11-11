@@ -55,7 +55,7 @@ The drawings on this page use the Claimwick settings for Harbor and Pine: the te
 
 **Default:** `members-with-the-invitations-below`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the members table scrolls sideways while the invitations list stacks beneath it.
 
 **Rationale:** The members table with invitations below is the default because it answers three questions in one scan: who is in, who is invited, and what each may do. The permission matrix is the runner-up; prefer it on the roles page, where capabilities are compared across roles. The cost-centre cards are the alternative for a staff group that claims for one cost centre and whose access ends on a date.
 
@@ -138,7 +138,7 @@ page
 
 **Default:** `keys-table-with-the-grants-in-line`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the keys table keeps its grants in line while scrolling sideways under the tabs.
 
 **Rationale:** The keys table with the grants in line is the default: the list states what each key may do, and last use tells finance whether it still runs. The secret dialog pairs with it at creation, where the new secret shows once and cannot be read again. The endpoint with its delivery log is the runner-up; prefer it on the webhooks tab, where deliveries are the work.
 
@@ -227,7 +227,7 @@ page
 
 **Default:** `imports-with-the-refused-rows-below`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the imports table scrolls sideways with the refused rows stacked beneath it.
 
 **Rationale:** The imports table with the refused rows below is the default, because history and repairs sit on one page. The column mapping is the runner-up; prefer it at import time, where the file's columns meet the product's fields. The dry run is the alternative before a large file lands, where the count of refusals decides whether to continue.
 
@@ -314,7 +314,7 @@ page
 
 **Default:** `connected-account-with-the-methods-below`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the account card stacks above the methods table, which scrolls sideways.
 
 **Rationale:** The connected account card with the methods list is the default, because connection state and methods each have a place and costs sit in line. The capability checklist is the runner-up; prefer it while the connection is new and methods still need approval. The costs table is the alternative when finance compares methods on last month's payouts.
 
@@ -400,7 +400,7 @@ page
 
 **Default:** `invoice-sheet-with-its-lines`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the invoice lines stack with quantities and rates above the total.
 
 **Rationale:** The invoice sheet with its lines is the default, because it reads as the document the books need, with the mandate and the download beside it. The plan page with the mandate is the runner-up; prefer it for changing the plan rather than reading a month. The invoice list is the alternative for the history of months, where state and total are the facts.
 
@@ -490,7 +490,7 @@ page
 
 **Default:** `code-table-with-use-and-state`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the code table keeps value, use, and state in line while scrolling sideways.
 
 **Rationale:** The code table with use and state is the default, because it shows value, use, and dates in one scan, and a leaked code opens from the row and is retired in its editor. The condition editor is the runner-up; prefer it for creating or revising a code with several conditions. The advances list is the alternative when the balance of the money held is the question.
 

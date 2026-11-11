@@ -15,7 +15,7 @@ Each pattern answers one recurring question about screen states, such as what a 
 
 ### The Running Example
 
-The drawings on this page use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a refusal or error message states what failed and the next step, and a failed save keeps the reader's input on screen.
+The drawings on this page use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen. The Standards section states the six rules every option keeps. A refusal or error message states what failed and the next step, a failed save keeps the reader's input on screen, each status is announced by its urgency, a loading region marks itself busy, focus moves to a refusal, and unsent input survives a dropped connection.
 
 ## Standards
 
@@ -43,6 +43,54 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **Reviewed for:** Which built form drops typed values after a refused save? Open the failed submits on built forms and check every field.
 
+### Announce Each Status by Its Urgency
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`
+
+**Strength:** required
+
+**Statement:** A page MUST announce each status through one of two live regions present when the page loads: a polite region for routine news and one assertive region for a session about to end, a lost connection holding unsent input, or a failed money command.
+
+**Rationale:** A live region added at the moment of the message is often not read, so both regions exist from the page load. Assertive messages interrupt whatever the reader hears, so only blocking news earns them: a session about to end, a lost connection holding unsent input, or a failed money command. This is WCAG 4.1.3 Status Messages, which asks that status changes be announced without moving focus.
+
+**Reviewed for:** Which built page announces a routine status assertively, or adds its live regions after the load? Trigger each status with a screen reader and note which region speaks.
+
+### Mark a Loading Region Busy
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#mark-a-loading-region-busy`
+
+**Strength:** required
+
+**Statement:** A loading region MUST expose its state through markup, as busy on the region or as role and value on a progress bar, and not through a live region announcement.
+
+**Rationale:** A `Loading` announcement on every read buries the messages that matter. A region marked busy with `aria-busy="true"` stays silent while assistive technology reports its state on request, and a progress bar with its role and value says how far the read has come. Announcements stay for the news that matters.
+
+**Reviewed for:** Which built loading region announces through a live region, or misses its busy mark or progress role? Trigger each load with a screen reader and inspect the loading markup.
+
+### Move Focus to a Refusal
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#move-focus-to-a-refusal`
+
+**Strength:** required
+
+**Statement:** After the API refuses a command, focus MUST move to the refusal or to the first field it names.
+
+**Rationale:** A sighted reader sees the refusal where it appears, while a keyboard or screen-reader user otherwise never meets it. Moving focus to the refusal, or to the first field it names, puts every reader at the same place. This is WCAG 3.3.1 Error Identification, which asks that each error be described in text.
+
+**Reviewed for:** Which built refusal leaves focus where the command was sent? Refuse each command with a keyboard and note where focus lands.
+
+### Keep Unsent Input When the Connection Drops
+
+**ID:** `litespec/frontend/patterns/feedback-and-states#keep-unsent-input-when-the-connection-drops`
+
+**Strength:** required
+
+**Statement:** A route that loses its connection MUST keep the user's unsent input and show the error state with a retry action.
+
+**Rationale:** A long expense form lost to a train tunnel is typed again or abandoned. Keeping the unsent input on screen with a retry action turns the dead connection into a wait. The reader retries the read instead of retyping the form.
+
+**Reviewed for:** Which built route loses typed input when the connection drops, or offers no retry? Drop the connection on each route holding unsent input and try the retry.
+
 ## Patterns
 
 ### Nothing Has Ever Existed
@@ -55,7 +103,7 @@ The drawings on this page use the Claimwick payout desk: 268 expenses including 
 
 **Default:** `positive-title-one-action`
 
-**Compact:** Below the md breakpoint the recommended option reflows: one column, with the header action under the title.
+**Compact:** Below the md breakpoint the recommended option reflows: the title, the message, and the single action stack in one column.
 
 **Rationale:** Keep the positive title with one action. It is the smallest shape and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home: prefer it when the first expense needs steps across several pages. The sample rows suit a page whose shape is learned by using it. Leave out a table with a dashed sample row, which shows a record that does not exist and leads nowhere when opened.
 
@@ -659,7 +707,7 @@ page
 
 **Compact:** Below the md breakpoint the recommended option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
 
-**Rationale:** Keep one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing suits a page where acting on stale money would move the wrong money. Leave out queuing a command that moves money: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
+**Rationale:** Keep one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing suits a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Leave out queuing a command that moves money: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
 
 **Reviewed for:** Which built offline screen departs from the wireframe its catalog entry chose? Open the built stale banners, failed reads, and refused pages beside the catalog entry recording the chosen option and its reason.
 
@@ -774,16 +822,18 @@ page
     heading "Expenses"
     text "268 expenses, newest first."
     action "Export"
+  region "Sign-in warning"
+    message caution "The sign-in ends in 5 minutes. Stay signed in to keep working."
+    action primary "Stay signed in"
+    action "Sign out"
   region "Expenses"
     table 3 "Expense" "Spender" "Paid"
       item: text "EXP-1042" · text "Ava" · text "EUR 125.00"
-  toast caution "The sign-in ends in 5 minutes. Stay to keep working."
-    action primary "Stay signed in"
 ```
 
-**Rationale:** The session warns before it ends, with one button to stay. The reader who is still there never meets the expired state at all.
+**Rationale:** The session warns before it ends with a warning that stays until the reader extends the session or signs out. The warning is announced through the assertive region, so the reader who is still there never meets the expired state at all.
 
-**Cost:** The warning is a countdown on a page the reader is trying to use. It appears only when the reader is idle enough to need it and active enough to answer it.
+**Cost:** The warning sits on the page until it is answered, so it takes space from the work it guards. It appears only when the reader is idle enough to need it and active enough to answer it.
 
 **Reference:** DigiD
 

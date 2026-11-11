@@ -32,7 +32,7 @@ Each measured requirement names its check, and each kind of measure has one tool
 | Kind | Tool | Evidence |
 |:---|:---|:---|
 | API latency and errors | k6 thresholds | Threshold results under `TestResults/`. |
-| Frontend performance and weight | Lighthouse CI assert | Assert results under `TestResults/`. |
+| Frontend performance and weight | Lighthouse CI assert on largest contentful paint, cumulative layout shift, total blocking time, and resource weight | Assert results under `TestResults/`. |
 | Accessibility | axe in the route suite | The route suite report with zero violations. |
 | Availability and latency objectives | OpenTelemetry signals | Production dashboards linked in the book, with OpenSLO files where the Delivery extension applies. |
 | Security | An ASVS 5.0 level with the ZAP baseline, free static analysis, OSV-Scanner, and Gitleaks | ZAP results under `TestResults/` with scan reports showing no unaccepted finding. |
@@ -107,7 +107,19 @@ The supply-chain gate, its scan scope, pin rules, inventory and license review l
 
 ## Conventions
 
-None.
+### Assert Loading, Stability, and Blocking Time per Route
+
+**ID:** `litespec/quality/ci#assert-loading-stability-and-blocking-time-per-route`
+
+**Strength:** default
+
+**Default:** Assert, for each route the Lighthouse CI run visits, a largest contentful paint of at most 2.5 seconds, a cumulative layout shift of at most 0.1, and a total blocking time of at most 200 milliseconds, as the median of three runs.
+
+**Replacement:** A consumer can replace this default by naming its own thresholds and their reason in its Lighthouse CI configuration.
+
+**Rationale:** A Lighthouse CI assert that names no metric passes every build. Largest contentful paint says when the page's main content shows, cumulative layout shift says whether it jumps while the staff member reads, and total blocking time stands in for interaction to next paint, which a lab run cannot measure because no one clicks. The defaults are the values the web community treats as good, and the median of three runs keeps one slow run from failing a build. Field interaction to next paint is measured in production, where the [operations page](operations.md) places its signals.
+
+**Reviewed for:** Which route in the Lighthouse CI run has no assertion for largest contentful paint, cumulative layout shift, or total blocking time? Look in the Lighthouse CI configuration.
 
 ## Reference Example
 

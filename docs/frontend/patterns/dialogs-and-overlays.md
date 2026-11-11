@@ -15,7 +15,7 @@ Each pattern answers one recurring question about floating layers, such as when 
 
 ### The Running Example
 
-The drawings on this page use the Claimwick payout desk: the March payout run with 1,204 payouts, expenses such as EXP-1042 for Ava, and the reversal and note commands staff run on them. On this page, the reader is the staff member using the screen. The Standards section states the two rules every option keeps: a confirmation dialog labels its confirm action with the command it runs, and an overlay returns focus to the control that opened it.
+The drawings on this page use the Claimwick payout desk: the March payout run with 1,204 payouts, expenses such as EXP-1042 for Ava, and the reversal and note commands staff run on them. On this page, the reader is the staff member using the screen. The Standards section states the eight rules every option keeps. A confirmation dialog labels its confirm action with the command it runs, an overlay returns focus to the control that opened it, a dialog or drawer keeps unsaved input through a dismissal, an irreversible confirmation focuses its safe action, Tab leaves a menu or popover, a timed toast pauses while in use, a toast waits while a modal is open, and the page behind a modal keeps still.
 
 ## Standards
 
@@ -42,6 +42,82 @@ The drawings on this page use the Claimwick payout desk: the March payout run wi
 **Rationale:** Keyboard and screen-reader users navigate by focus position, so closing an overlay must put them back where they started. Focus that falls back to the top of the page strands them far from their row in a long list, and they must tab through the whole page to continue.
 
 **Reviewed for:** Which built overlay leaves focus lost after it closes? Open and dismiss each dialog, drawer, popover, menu, and toast on built screens with a keyboard.
+
+### Keep Unsaved Input Through a Dismissal
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal`
+
+**Strength:** required
+
+**Statement:** A dialog or drawer holding unsaved input MUST ignore a press outside it and ask before its close control or the Escape key discards that input.
+
+**Rationale:** A stray click beside a half-typed payout note loses the work, and retyping it from memory invites errors. Asking before discarding gives the reader one chance to keep what was typed. For money movements this is WCAG 3.3.4 Error Prevention (Legal, Financial, and Data), which asks that the reader verify, check, or reverse the submission.
+
+**Reviewed for:** Which built dialog or drawer loses typed input on a dismissal? Open each dialog and drawer holding unsent input and try a press outside it, the close control, and the Escape key.
+
+### Place Initial Focus on the Safe Action
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#place-initial-focus-on-the-safe-action`
+
+**Strength:** required
+
+**Statement:** A confirmation for a command that cannot be taken back MUST place initial focus on its safe action.
+
+**Rationale:** Focus on the destructive button lets a held Enter key run the command before the reader has read the question. Initial focus on the safe action, such as `Keep the run`, makes the command take a deliberate move. The hurried reader then confirms nothing by accident.
+
+**Reviewed for:** Which built irreversible confirmation opens with focus on its destructive action? Open each confirmation with a keyboard and note where focus lands.
+
+### Keep Tab Free to Leave a Menu or Popover
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-tab-free-to-leave-a-menu-or-popover`
+
+**Strength:** required
+
+**Statement:** Tab MUST move focus out of an open menu or a non-modal popover and close it.
+
+**Rationale:** A menu that keeps Tab cycling inside it strands a keyboard user on one row of the payout list. Only a modal dialog or drawer holds focus inside itself, because the page behind it waits until it closes. Anything less than a modal that traps Tab fails WCAG 2.1.2 No Keyboard Trap.
+
+**Reviewed for:** Which built menu or popover keeps Tab cycling inside it? Open each menu and popover with a keyboard and press Tab until focus leaves.
+
+### Pause a Timed Toast While It Is in Use
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#pause-a-timed-toast-while-it-is-in-use`
+
+**Strength:** required
+
+**Statement:** A toast that closes on a timer MUST pause that timer while the pointer is over it or focus is inside it.
+
+**Rationale:** An Undo that disappears while the reader moves toward it is lost, and the command it would have reversed stands. A paused timer gives the reader the time the movement takes. This is WCAG 2.2.1 Timing Adjustable, which asks that a time limit be adjustable, extendable, or removable.
+
+**Reviewed for:** Which built timed toast closes while the pointer is over it or focus is inside it? Trigger each timed toast, hover it, tab into it, and watch the timer.
+
+### Hold a Toast While a Modal Is Open
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#hold-a-toast-while-a-modal-is-open`
+
+**Strength:** advisory
+
+**Statement:** A toast raised while a modal dialog is open SHOULD wait until the dialog closes.
+
+**Deviation:** A toast that reports the result of the command the open dialog just sent shows with the dialog.
+
+**Rationale:** The page behind a modal is inert, so a toast raised over it can be neither read nor used. Waiting until the dialog closes delivers the news when the reader can act on it. The toast still arrives; it only arrives late enough to be heard.
+
+**Reviewed for:** Which built toast appears over an open modal dialog? Raise each toast while a modal dialog is open and watch where it lands.
+
+### Keep the Page Behind a Modal Still
+
+**ID:** `litespec/frontend/patterns/dialogs-and-overlays#keep-the-page-behind-a-modal-still`
+
+**Strength:** advisory
+
+**Statement:** The page behind a modal overlay SHOULD keep its scroll position and its layout width while the overlay opens and closes.
+
+**Deviation:** A page that rebuilds its layout while the overlay is open keeps its new scroll position and width.
+
+**Rationale:** A page that jumps or shifts sideways when the overlay opens loses the reader's row in the list behind. Keeping the scroll position and the layout width holds the reader's place through the interruption. Closing the overlay then returns to the same view, not to a nearby one.
+
+**Reviewed for:** Which built modal moves the scroll position or the layout width of the page behind it? Open and close each modal over a scrolled list and watch the page.
 
 ## Patterns
 
@@ -478,7 +554,7 @@ page
 
 **Compact:** The recommended option reflows: the menu becomes a bottom sheet with thumb-sized rows, the title naming the row, and one full-width dismissal.
 
-**Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states why an item is disabled. It is the better choice where a command is often disabled, because the reason in place beats a hover.
+**Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states why an item is disabled. It is the better choice where a command is often disabled, because the reason in place beats a hover. Arrow keys move between items, Tab leaves the menu, and Escape closes one level and returns focus to the opener.
 
 Never ship a confirmation inside a menu. A confirmation there is a dialog over a menu, the same nesting the project forbids for dialogs.
 
@@ -610,13 +686,14 @@ page
   region "September charges"
     fact "Business plan" "EUR 49.00 a month"
     fact "Expense fee" "EUR 270.90"
+    link "What is the expense fee"
     fact "Per-line fee" "EUR 236.00"
     fact "Total for September" "EUR 555.90"
   popover "Expense fee"
     text "0.5 percent of every expense total. It pays for payout handling."
 ```
 
-**Rationale:** A word somebody may not know carries its glossary entry beside it. It answers the question where it is asked.
+**Rationale:** A word somebody may not know carries its glossary entry beside it, opened from a visible control on keyboard focus, tap, and hover. It answers the question where it is asked, and touch and screen-reader users reach it the same way.
 
 **Cost:** This is only for a term the application has defined. A hint on every unfamiliar word becomes noise, and the glossary has to stay in step with the hint.
 
@@ -677,7 +754,7 @@ page
 
 **Default:** `a-neutral-band-for-what-this-page-is`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the band stays above the breadcrumb, the header stacks, and the table keeps its first two columns.
 
 **Rationale:** Ship the neutral band stating a fact about the deployment, the same on every page. The bar on the record page is the runner-up for facts true of one record only, drawn as a notice on that record.
 
@@ -868,7 +945,7 @@ page
 
 **Default:** `a-grouped-grid-of-shortcuts`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the shortcut dialog becomes a full-screen sheet with the groups stacked and Close pinned at the foot.
 
 **Rationale:** Ship the grouped grid of shortcuts: three groups, one grid, every key the application honors, closed by the same key. The this-page-only list is the runner-up on dense pages, where it answers the only keys that work there.
 

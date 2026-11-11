@@ -5,7 +5,7 @@
 
 ## Intent
 
-A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, and how each route state renders. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.
+A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.
 
 ## Concepts
 
@@ -115,6 +115,20 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 
 **Reviewed for:** Which data-driven routes miss a loading, empty, error, forbidden, not-found, or ready behavior, or leave an absent address outside the shared outcome page? Look in the route state definitions.
 
+### Move Focus on a Route Change
+
+**ID:** `litespec/frontend/rendering#move-focus-on-a-route-change`
+
+**Strength:** required
+
+**Applies to:** artifact: route
+
+**Statement:** A route change inside the application MUST move keyboard focus to the new route's top-level heading.
+
+**Rationale:** A full page load starts focus and the screen reader at the top of the new page, but a client-side navigation replaces the content under a focus that stays on the link just used, or falls back to the page body. A keyboard user then tabs through the old position and a screen-reader user hears nothing change. Moving focus to the heading reads the new page's title and starts the next Tab from there, as WCAG 2.4.3 Focus Order expects. For example, opening EXP-1042 from the expense list lands focus on the heading "EXP-1042, Ava, EUR 125.00".
+
+**Reviewed for:** Which route leaves focus on the old link or the page body after a navigation inside the application? Look in the route suite output.
+
 ### Keep Authenticated Caching Explicit
 
 **ID:** `litespec/frontend/rendering#keep-authenticated-caching-explicit`
@@ -192,6 +206,22 @@ These six are the states a route has. A control adds `disabled` and `pending` un
 **Rationale:** A layout wraps every route beneath it. A feature-specific provider placed in a shared layout forces unrelated routes to carry its download, its state, and its failure modes. Keeping a layout to the frame and the providers every child route needs keeps each route's cost to what it uses.
 
 **Reviewed for:** Which layouts carry a provider that some child route never needs? Look in the layout definitions.
+
+### Split Long Client Work
+
+**ID:** `litespec/frontend/rendering#split-long-client-work`
+
+**Strength:** default
+
+**Applies to:** artifact: route
+
+**Default:** Split client work that runs longer than 50 milliseconds, such as an import preview or a report total, into chunks that give the browser a turn between them.
+
+**Replacement:** A consumer can replace this default by moving the work to a worker thread or to the server, and naming where it runs.
+
+**Rationale:** While script runs, the page answers no click and no key, so a staff member previewing 1,204 imported payouts sees a frozen screen and clicks again. Giving the browser a turn between chunks keeps every input answered within one frame, and the total blocking time the measured checks record stays low.
+
+**Reviewed for:** Which client task runs longer than 50 milliseconds without yielding? Look in the browser performance traces of the heaviest routes.
 
 ### Keep Server-Only Code Identifiable
 
