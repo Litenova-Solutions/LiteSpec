@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,7 +8,6 @@ using LiteSpec.Analyzers.Records;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
-using System;
 
 namespace LiteSpec.Analyzers.Rules.Traceability;
 

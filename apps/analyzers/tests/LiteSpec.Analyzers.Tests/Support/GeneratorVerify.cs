@@ -2,8 +2,8 @@ using System.Collections.Immutable;
 using System.Text;
 using LiteSpec.Analyzers.Generation;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Analyzers.Tests.Support;

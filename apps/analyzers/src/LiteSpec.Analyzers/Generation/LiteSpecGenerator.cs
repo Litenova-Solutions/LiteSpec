@@ -1,4 +1,4 @@
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using Microsoft.CodeAnalysis;
 
 namespace LiteSpec.Analyzers.Generation;

@@ -1,6 +1,6 @@
+using System;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 
 namespace LiteSpec.Analyzers.Generation;
 

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Analyzers.Records;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;

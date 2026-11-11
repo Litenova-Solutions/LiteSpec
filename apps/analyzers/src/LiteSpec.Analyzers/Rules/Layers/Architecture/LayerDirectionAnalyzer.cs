@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2018: an Application or WebApi file names no type outside its layer.</summary>
 /// <follows>litespec/backend/dotnet/architecture#follow-layer-direction-in-every-file</follows>

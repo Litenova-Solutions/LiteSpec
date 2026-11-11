@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2003: WebApi maps operations through endpoints, never through MVC controllers.</summary>
 /// <follows>litespec/backend/dotnet/api#exclude-mvc-controllers-from-the-stack</follows>

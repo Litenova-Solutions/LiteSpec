@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2004: a command handler writes only through repositories.</summary>
 /// <follows>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</follows>

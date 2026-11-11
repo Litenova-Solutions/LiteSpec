@@ -5,7 +5,7 @@ using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Layers;
+namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
 ///     Whether a rule runs for the record layers the project claims. The traceability rules

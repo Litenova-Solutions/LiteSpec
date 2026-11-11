@@ -1,4 +1,4 @@
-using LiteSpec.Analyzers.Rules.Layers;
+using LiteSpec.Analyzers.Rules.Layers.Architecture;
 using LiteSpec.Analyzers.Tests.Support;
 
 namespace LiteSpec.Analyzers.Tests.Layers;

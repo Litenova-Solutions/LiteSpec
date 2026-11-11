@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2012: a command or query handler never authorizes itself by throwing an access refusal or taking the authorization guard.</summary>
 /// <follows>litespec/backend/application#enforce-target-authorization-in-the-pipeline</follows>

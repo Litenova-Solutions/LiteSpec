@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 
-namespace LiteSpec.Analyzers.Layers;
+namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
 ///     Maps every source file of one compilation to its architectural home: its

@@ -1,21 +1,32 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using System.Linq;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
-/// <summary>LS2011: a query handler projects through the read session, not a repository.</summary>
-/// <follows>litespec/backend/application#project-queries-directly</follows>
+/// <summary>LS2016: a command or query handler takes no pipeline-owned collaborator.</summary>
+/// <follows>litespec/backend/persistence#keep-uniqueness-out-of-handlers</follows>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
+public sealed class PipelineOwnedDependencyAnalyzer : LayerAnalyzer
 {
+    /// <summary>The options key text held for this operation.</summary>
+    private const string OptionsKey = "litespec.LS2016.pipeline_owned_types";
+
+    /// <summary>Creates an immutable hash set string default owned types.</summary>
+    private static readonly ImmutableHashSet<string> DefaultOwnedTypes = ImmutableHashSet.Create(
+        "LiteBus.Messaging.Abstractions.IUnitOfWork",
+        "LiteBus.Messaging.Abstractions.IIdempotencyStore",
+        "LiteBus.Outbox.Abstractions.ITransactionalOutbox",
+        "LiteBus.Outbox.Abstractions.IOutbox");
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(Descriptors.LS2011);
+        ImmutableArray.Create(Descriptors.LS2016);
 
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
@@ -24,8 +35,8 @@ public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
         layer == ArchitectureLayer.Application || layer == ArchitectureLayer.Infrastructure || layer == ArchitectureLayer.Worker;
 
     /// <summary>
-    ///     Registers the analysis actions for the query repository analyzer rule with the compilation
-    ///     context.
+    ///     Registers the analysis actions for the pipeline owned dependency analyzer rule with the
+    ///     compilation context.
     /// </summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
     private protected override void Register(CompilationStartAnalysisContext context)
@@ -55,13 +66,14 @@ public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
             return;
         }
 
-        if (!IsQueryHandler(method.ContainingType))
+        if (!IsCommandOrQueryHandler(method.ContainingType))
         {
             return;
         }
 
         var type = Unwrap(parameter.Type);
-        if (!IsRepositoryInterface(type))
+        var tree = parameter.DeclaringSyntaxReferences.FirstOrDefault()?.SyntaxTree;
+        if (tree == null || !OwnedTypes(context.Options, tree).Contains(type.ToDisplayString()))
         {
             return;
         }
@@ -71,30 +83,47 @@ public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
             if (declaration.GetSyntax() is ParameterSyntax syntax && syntax.Type != null)
             {
                 context.ReportDiagnostic(Diagnostic.Create(
-                    Descriptors.LS2011, syntax.Type.GetLocation(), method.ContainingType.Name, type.Name));
+                    Descriptors.LS2016, syntax.Type.GetLocation(), method.ContainingType.Name, type.Name));
                 return;
             }
         }
     }
 
-    /// <summary>Returns true when the type is query handler; otherwise false.</summary>
+    /// <summary>Returns the types.</summary>
+    /// <param name="options">The analyzer options carrying the additional files.</param>
+    /// <param name="tree">The syntax tree under inspection.</param>
+    /// <returns>The types.</returns>
+    private static ImmutableHashSet<string> OwnedTypes(AnalyzerOptions options, SyntaxTree tree)
+    {
+        if (options.AnalyzerConfigOptionsProvider.GetOptions(tree).TryGetValue(OptionsKey, out var value)
+            && !string.IsNullOrWhiteSpace(value))
+        {
+            return ImmutableHashSet.CreateRange(
+                value.Split(',').Select(name => name.Trim()).Where(name => name.Length > 0));
+        }
+
+        return DefaultOwnedTypes;
+    }
+
+    /// <summary>Returns true when the type is command or query handler; otherwise false.</summary>
     /// <param name="type">The type under inspection.</param>
-    /// <returns>True when the type is query handler; otherwise false.</returns>
-    private static bool IsQueryHandler(INamedTypeSymbol type)
+    /// <returns>True when the type is command or query handler; otherwise false.</returns>
+    private static bool IsCommandOrQueryHandler(INamedTypeSymbol type)
     {
         if (type.TypeKind != TypeKind.Class)
         {
             return false;
         }
 
-        if (type.Name.EndsWith("QueryHandler", StringComparison.Ordinal))
+        if (type.Name.EndsWith("CommandHandler", StringComparison.Ordinal)
+            || type.Name.EndsWith("QueryHandler", StringComparison.Ordinal))
         {
             return true;
         }
 
         foreach (var contract in type.AllInterfaces)
         {
-            if (contract.Name == "IQueryHandler")
+            if (contract.Name is "ICommandHandler" or "IQueryHandler")
             {
                 return true;
             }
@@ -102,14 +131,6 @@ public sealed class QueryRepositoryAnalyzer : LayerAnalyzer
 
         return false;
     }
-
-    /// <summary>Returns true when the type is repository interface; otherwise false.</summary>
-    /// <param name="type">The type under inspection.</param>
-    /// <returns>True when the type is repository interface; otherwise false.</returns>
-    private static bool IsRepositoryInterface(ITypeSymbol type) =>
-        type.TypeKind == TypeKind.Interface
-        && type.Name.StartsWith("I", StringComparison.Ordinal)
-        && type.Name.EndsWith("Repository", StringComparison.Ordinal);
 
     /// <summary>Returns the i type symbol.</summary>
     /// <param name="type">The type under inspection.</param>

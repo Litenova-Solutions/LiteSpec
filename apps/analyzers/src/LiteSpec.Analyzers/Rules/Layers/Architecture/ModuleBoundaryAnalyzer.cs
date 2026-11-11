@@ -1,13 +1,13 @@
+using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2020: a module names another module's types only through its Contracts folder.</summary>
 /// <follows>litespec/backend/dotnet/architecture#reach-another-module-only-through-contracts</follows>

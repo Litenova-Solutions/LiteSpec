@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Application;
 
 /// <summary>LS2015: a command handler never changes records in a loop.</summary>
 /// <follows>litespec/backend/application#issue-per-record-work-from-a-job</follows>

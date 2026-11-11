@@ -4,7 +4,7 @@ using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2017: the declared LiteSpecLayer names no known layer.</summary>
 /// <follows>litespec/backend/dotnet/ext/layer-projects#use-five-application-projects</follows>

@@ -49,16 +49,16 @@ The package needs the .NET 9.0.300 SDK, Visual Studio 17.14, or later. That floo
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Unshipped.md` | No pending rules: every rule the package reports ships in the current release. |
 | `src/LiteSpec.Analyzers/AnalyzerReleases.Shipped.md` | Shipped rules: the 45 rules of Release 4.0.0. |
 | `src/LiteSpec.Analyzers/build/LiteSpec.Analyzers.props` | Makes the `LiteSpecLayer` and `LiteSpecLayout` MSBuild properties visible to the analyzers through `CompilerVisibleProperty`, and sets the layout from the selected extensions. It passes the project file's `layers` as `LiteSpecImplementation` and `LiteSpecProof` (`litespec`, `own`, or empty when the layer is not claimed); a file with no `layers` reads as `litespec` for both. A project sets either property itself to override the file. |
-| `src/LiteSpec.Analyzers/Layers/FileScope.cs` | Decides whether a rule applies to one file, from the rule's layer predicate over the file's layer. |
-| `src/LiteSpec.Analyzers/Layers/CodeMap.cs` | Maps every source file of one compilation to its layer, module, and use case, reaction, or job folder. |
-| `src/LiteSpec.Analyzers/Layers/References.cs` | Resolves the type one written name refers to, skipping names an enclosing construct covers. |
+| `src/LiteSpec.Analyzers/LayerMap/FileScope.cs` | Decides whether a rule applies to one file, from the rule's layer predicate over the file's layer. |
+| `src/LiteSpec.Analyzers/LayerMap/CodeMap.cs` | Maps every source file of one compilation to its layer, module, and use case, reaction, or job folder. |
+| `src/LiteSpec.Analyzers/LayerMap/References.cs` | Resolves the type one written name refers to, skipping names an enclosing construct covers. |
 | `../model/src/LiteSpec.Model/Layers/` | The shared layer surface the analyzers, the CLI, and the checks read: the `ArchitectureLayer` and `BackendLayout` enums and `ArchitectureLayerResolver`, which reads a file's layer from `LiteSpecLayer`, the assembly name, the nearest layer folder, or the file's role suffix. |
 | `src/LiteSpec.Analyzers/Rules/LayerAnalyzer.cs` | Base class of the layer-gated rules: gates a declared or layer-projects compilation once, and registers the rule for per-file gating under the module layout. `LayerNameAnalyzer` (`LS2017`) inherits `DiagnosticAnalyzer` directly. |
 | `src/LiteSpec.Analyzers/Rules/Descriptors.cs` | All 43 analyzer descriptors with IDs, categories, messages, provisions, and help links. The other 2 of the 45 diagnostics, `LS5009` and `LS5012`, live in `Generation/GeneratorDiagnostics.cs`. |
 | `src/LiteSpec.Analyzers/Generation/GeneratorDiagnostics.cs` | The generator diagnostics for `LS5009` and `LS5012` (three descriptors: the permission and role forms of `LS5009`, and `LS5012`) with IDs, messages, provisions, and help links. |
 | `src/LiteSpec.Analyzers/Rules/Provision.cs` | Provision IDs and help links, pinned to release `5.0.0`. |
 | `src/LiteSpec.Analyzers/Rules/Domain/` | 11 analyzers for `LS1001` to `LS1013`. |
-| `src/LiteSpec.Analyzers/Rules/Layers/` | 18 analyzers for `LS2001` and `LS2003` to `LS2020`. |
+| `src/LiteSpec.Analyzers/Rules/Layers/` | 18 analyzers for `LS2001` and `LS2003` to `LS2020`, by the page each cites: `Application/` (handlers, the command pipeline, repositories), `Architecture/` (layer direction, module and slice boundaries, controllers, visibility), and `Naming/` (the naming rules). |
 | `src/LiteSpec.Analyzers/Rules/Style/` | 2 analyzers for `LS3001` and `LS3004`. |
 | `src/LiteSpec.Analyzers/Rules/Tests/` | 1 analyzer for `LS4001`. |
 | `src/LiteSpec.Analyzers/Rules/Traceability/` | 5 analyzers for `LS5001` to `LS5008`. |

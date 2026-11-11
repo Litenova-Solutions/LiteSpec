@@ -1,9 +1,9 @@
+using System;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
 
-namespace LiteSpec.Analyzers.Layers;
+namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
 ///     Whether a rule applies to one file: the rule's layer predicate over the

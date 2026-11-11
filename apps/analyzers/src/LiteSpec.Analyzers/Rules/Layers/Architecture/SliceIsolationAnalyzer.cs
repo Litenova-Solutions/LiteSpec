@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2019: a use case or reaction folder names no type of another such folder, except the message and result of a use case it runs.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-use-case-folders-isolated</follows>

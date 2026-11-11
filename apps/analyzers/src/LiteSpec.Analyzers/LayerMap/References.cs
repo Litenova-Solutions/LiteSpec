@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Layers;
+namespace LiteSpec.Analyzers.LayerMap;
 
 /// <summary>
 ///     Resolves the type one written name refers to, skipping the names an

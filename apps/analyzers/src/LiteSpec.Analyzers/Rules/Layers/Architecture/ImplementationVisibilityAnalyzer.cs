@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Architecture;
 
 /// <summary>LS2001: Application, Infrastructure and WebApi keep implementation types internal sealed.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-implementation-types-internal</follows>

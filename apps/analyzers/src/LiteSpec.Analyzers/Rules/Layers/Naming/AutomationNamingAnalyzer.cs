@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace LiteSpec.Analyzers.Rules.Layers;
+namespace LiteSpec.Analyzers.Rules.Layers.Naming;
 
 /// <summary>LS2007: a reaction or job names its trigger.</summary>
 /// <follows>litespec/workspace/naming#use-architectural-suffixes</follows>

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.RegularExpressions;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
