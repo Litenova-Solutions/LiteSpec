@@ -6,9 +6,8 @@ A LiteSpec consumer is a project built against the LiteSpec standard, and this t
 
 ## Prerequisites
 
-- Read the [agent protocol](../core/agent.md), the [authoring standard](../core/authoring.md), and the [supported scope](../core/scope.md) to learn how agents work, how pages are written, and what one project covers.
-- Read the [extension catalog](../ext/README.md) to learn which capabilities stay inactive at the start.
 - Install the .NET SDK and Node.js releases the adopted release pins under `stack` in its `litespec.manifest.yaml`.
+- Read nothing in advance: each step links the standard it satisfies, so open each linked page at its step.
 - Ship the `dotnet` backend with a React frontend: this tutorial follows that pair from the `dotnet-react` preset. When the product ships another frontend, follow this tutorial first, then declare that frontend with its own how-to, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) or [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md).
 - To start with records only and no stack, follow [Start with Records Only](../guide/start-with-records-only.md) instead of this tutorial.
 
@@ -31,7 +30,7 @@ This lesson creates a new project. The `litespec new` commands below write each 
 13. Write the people records. Run `dotnet litespec new actor <name>` once per party and `dotnet litespec new role <name>` once per grantable set. Create the module permission list from its template and add each permission with `dotnet litespec new entry .litespec/behavior/modules/<module>/permissions.yaml permission <name>`. When the slice exchanges anything with an outside system, run `dotnet litespec new external-system <name>` and complete the record.
 14. Write one journey. Run `dotnet litespec new journey <name>` and complete the record with its `serves`, `finishedWhen`, steps, and `betweenSteps`. This satisfies `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, and `litespec/core/intent#state-when-each-journey-finishes`.
 15. Check the Intent records. Run `dotnet litespec model check` from the consumer root and fix every finding that names a record written so far before continuing. The run sees records only at this point, so it still reports missing Behavior record types and unreached Intent until step 16. The [model command](../tools/model.md) page lists the findings and their levels.
-16. Specify the module from Intent. Follow [Model a Behavior Module](model-domain.md), then run `dotnet litespec model check` and fix every finding before code moves. This satisfies `litespec/core/system#group-module-use-case-files-by-aggregate` and `litespec/core/model#author-one-slice-at-a-time`.
+16. Specify the module from Intent. Leave this tutorial now and complete [Model a Behavior Module](model-domain.md) from its first step to its last, then return here, run `dotnet litespec model check`, and fix every finding before code moves. This satisfies `litespec/core/system#group-module-use-case-files-by-aggregate` and `litespec/core/model#author-one-slice-at-a-time`.
 17. Implement one use case. Move the transition into a business method, keep the handler narrow, commit once, expose one endpoint, and authorize the target. Code points up to its record through its mark. This satisfies `litespec/backend/domain#express-transitions-through-business-methods`, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/dotnet/persistence#commit-once-in-the-command-pipeline`, `litespec/backend/dotnet/api#use-one-endpoint-per-operation`, and `litespec/backend/application#enforce-target-authorization-in-the-pipeline`.
 18. Declare the React frontend. Declare the application tree and mirror the backend use case path. This satisfies `litespec/frontend/web/structure#use-the-frontend-application-tree`. Build each pattern Default and record it with `source: recommended`, waiting for an owner only when a route departs from the Default or no Default exists, and compose each route from one floorplan. This satisfies `litespec/frontend/ui#compose-each-route-from-one-floorplan`.
 19. Deliver one complete slice. Ship source, tests, contracts, and operating evidence for one use case. This satisfies `litespec/core/system#deliver-one-complete-use-case`.
@@ -45,4 +44,5 @@ This lesson creates a new project. The `litespec new` commands below write each 
 
 - A consumer repository at small size that the model check accepts.
 - One coded use case with Intent, Behavior, code, tests, and generated contracts.
+- When the next use case is specified, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each of its code elements with its mark and check.
 - When the product ships another frontend, [Add a Svelte Frontend](../guide/add-a-svelte-frontend.md) and [Add a Blazor Frontend](../guide/add-a-blazor-frontend.md) declare it. The checks are documented on [Model Builder](../tools/model.md); all commands are listed on the [command index](../tools/README.md).

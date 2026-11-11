@@ -48,19 +48,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `Refused` | The manager refused the expense | Approver, decision date, reason |
     | `Reimbursed` | Finance reimbursed the expense | Reimbursement date |
 
-    Create an abstract state record and one sealed record per state. Put state-specific data on the state record. This satisfies `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`.
-
-    ```csharp
-    public abstract record ExpenseState;
-
-    public sealed record ExpenseSubmittedState : ExpenseState;
-
-    public sealed record ExpenseApprovedState(Guid ApprovedBy, DateTimeOffset DecidedAt) : ExpenseState;
-
-    public sealed record ExpenseRefusedState(Guid RefusedBy, DateTimeOffset DecidedAt, string Reason) : ExpenseState;
-
-    public sealed record ExpenseReimbursedState(DateTimeOffset ReimbursedAt) : ExpenseState;
-    ```
+    Create an abstract state record and one sealed record per state, in the C# shape the [.NET Domain Layer](../backend/dotnet/domain.md) page states. Put state-specific data on the state record. This satisfies `litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`.
 
     For each state, answer what makes it true, which data it alone requires, and which actions it allows and rejects. Leave no state half-defined.
 6. Connect the states with transitions. List every allowed state change with the use case that moves it in the aggregate's `transitions` field. This satisfies `litespec/core/domain-model#connect-every-state-through-transitions`.
@@ -154,27 +142,8 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
     Declare every reaction with the events it answers and every job with its kind; a manual job also states where it runs and its guard. This satisfies `litespec/core/automation#trigger-every-reaction-from-its-declared-events`, `litespec/core/automation#run-every-job-from-its-declared-kind`, and `litespec/core/automation#guard-every-manual-job`. Describe every notification with its addresses, channel, and consent, and claim each promise it makes from a requirement. This satisfies `litespec/core/edges#describe-every-notification-with-audience-channel-and-consent` and `litespec/core/edges#claim-every-notification-promise-from-a-requirement`. Hold every commercial, legal, or varying setting default to a requirement, and keep model invariants in rules. This satisfies `litespec/core/use-cases#hold-every-setting-default-to-a-requirement` and `litespec/core/domain-model#keep-model-invariants-in-rules`.
 15. Name the entry points and the external systems. Give each entry point its kind: the expenses app is a browser, the payout bank callback is a webhook. This satisfies `litespec/core/edges#give-each-entry-point-a-kind`. Declare every operation on the payout bank with its timeout, retries, and response, and route erasure through an operation. This satisfies `litespec/core/edges#describe-every-external-system-operation` and `litespec/core/access#declare-erasure-for-every-external-system`. Schedule every data class for retention with its basis, period, enforcement, and Intent acceptance. This satisfies `litespec/core/privacy#schedule-every-data-class-for-retention`.
-16. Keep one transaction per command. One handler stages the aggregates its use case owns and lets the pipeline commit once, with the consistency the record declares. This satisfies `litespec/backend/application#dispatch-only-declared-effect-edges` and `litespec/backend/persistence#commit-each-command-pipeline-once`.
-17. Map the model to folders. Mirror the module, aggregate, `UseCases/`, and use case path in every layer. This satisfies `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
-
-    ```text
-    apps/api/src/Claimwick.Modules/
-      Spending/
-        Expenses/
-          Domain/
-            Expense.cs
-            ExpenseState.cs
-            Events/
-              ExpenseSubmittedEvent.cs
-            Exceptions/
-              ExpenseReceiptMissingException.cs
-          UseCases/
-            SubmitExpense/
-              SubmitExpenseCommand.cs
-              SubmitExpenseCommandHandler.cs
-    ```
-
-    Create subfolders only when real types require them. The folders mirror the records so a reader finds the code; the builder follows the marks from code up to the records.
+16. Place the code for one use case. Follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to stage the aggregates the use case owns in one handler and let the pipeline commit once, with the consistency the record declares. This satisfies `litespec/backend/application#dispatch-only-declared-effect-edges` and `litespec/backend/persistence#commit-each-command-pipeline-once`.
+17. Mirror the records in folders. Follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to mirror the module, aggregate, `UseCases/`, and use case path in every layer, creating subfolders only when real types require them. This satisfies `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 18. Run the model check. Run `litespec model check` from the consumer root. It resolves every citation, follows the marks from code and tests to their records and the screens calling each use case, prints a level beside each finding, and reports each unproved scenario. The [command index](../tools/README.md) states how `litespec` runs in a consumer.
 
 ## What You Built
@@ -182,3 +151,4 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 - One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, events, reactions, jobs, notifications, settings, and permissions.
 - Every identifier is person-chosen, every citation resolves, and every edge between records is declared.
 - Every scenario is proved by a passing test or covered by a departure with an expiry date.
+- Next, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each specified element in code. When this tutorial was entered from [Start a Consumer Repository](getting-started.md) step 16, return there instead and continue with step 17.

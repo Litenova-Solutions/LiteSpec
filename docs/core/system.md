@@ -24,13 +24,7 @@ Because agents do so much execution, the system defines its technical concepts e
 
 Two capable contributors can answer one request with different boundaries, names, transaction behavior, and verification. Each result can compile while the workspace loses a coherent model. The same happens with two agents, or with one agent on two different days.
 
-The system addresses five recurring problems:
-
-- Product intent is lost between a request and its implementation.
-- An agent invents a missing rule when a record leaves a decision implicit.
-- Standard technical concepts are renamed until developers no longer recognize the established pattern.
-- A use case ships one part while persistence, public entry points, tests, or operating impact stay incomplete.
-- Documentation claims behavior that code and automated evidence do not support.
+The system addresses five recurring problems, from product intent lost between a request and its implementation to documentation no evidence supports, which [Why LiteSpec Exists](../learn/why-litespec.md#the-problem) lists in full.
 
 The system makes the record durable and the agent replaceable: a different person, model, or tool continues from the same records and reaches the same required boundaries.
 

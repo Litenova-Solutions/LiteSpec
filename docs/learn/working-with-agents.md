@@ -10,7 +10,7 @@ Without LiteSpec, an agent decides architecture, naming, and testing from its tr
 
 An agent gets three things:
 
-- **Rules it can cite.** Every provision has an ID and a strength, so the agent says exactly which rule a change follows, or why it stopped.
+- **Rules it can cite.** Every provision has an ID and a strength, so the agent cites exactly which rule a change follows; [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy.
 - **Records it can trust.** The records in git say what to build. The specification is closed: the agent builds what they state and nothing more.
 - **Checks it can run.** `dotnet litespec model check` and the CI gates tell the agent whether its change holds before you review it.
 

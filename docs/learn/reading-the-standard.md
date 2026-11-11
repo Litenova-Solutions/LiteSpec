@@ -14,7 +14,7 @@ Your project does not adopt all of LiteSpec. It makes five choices in `.litespec
 | Shape | `server` or `client-only` | Whether the project has its own backend. A client-only project has no API and applies only the backend principles about modeling the domain. |
 | Stacks | One backend stack for a server project, and one stack per frontend | Which technology pages apply: `dotnet` for the backend, and `react`, `svelte`, `blazor`, or `android` for a frontend. |
 | Extensions | Any of the listed extensions, or none | Extra capabilities with their own rules, such as audit, multitenancy, an outbox, or realtime updates. |
-| Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims and, for implementation and proof, whether it follows LiteSpec practice (`litespec`) or only traces to the records (`own`). |
+| Layers | `intent`, `behavior`, `implementation`, `proof` | Which record layers the project claims; [Adopt LiteSpec in Steps](adopting-litespec.md) walks through the claims. |
 
 `litespec init --preset dotnet-react --size small` writes a first project file with a common selection. The [selection page](https://litespec.dev/select/) on the site does the same in a form and shows which pages apply.
 
@@ -128,4 +128,4 @@ The pages in `frontend/patterns/` work differently. Each one covers a group of r
 
 ## Next
 
-[How LiteSpec Works](how-litespec-works.md) explains what your project writes down.
+[Work with Agents](working-with-agents.md) explains how an agent uses the standard and the records together.

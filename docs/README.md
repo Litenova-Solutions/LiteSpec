@@ -58,7 +58,6 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 These principles hold for every backend. A backend stack folder states how its technology realizes them.
 
 - [Backend overview](backend/README.md): the principles every backend shares and the stacks that realize them.
-- [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Backend Architecture](backend/architecture.md): the module layout as the default across four layers, the direction references point, and the modules, aggregates, and use cases inside each layer.
 - [Domain Layer](backend/domain.md): aggregates, lifecycles, closed value sets, and repositories, and what Domain never references.
 - [Application Layer](backend/application.md): use-case coordination, pipeline stages, ports, and reactions.
@@ -218,7 +217,6 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 - [Why LiteSpec Exists](learn/why-litespec.md): the problem LiteSpec solves, for a team that is deciding whether LiteSpec fits.
 - [How LiteSpec Works](learn/how-litespec-works.md): the standard, the records, the model, and the tools, traced through one Claimwick use case.
 - [Read the Standard](learn/reading-the-standard.md): project selections, page arrangement, and provision IDs; how to find the rules that apply to a project.
-- [Reading Tracks](learn/reading-tracks.md): which records to read in which order: why before how, one journey end to end, one module end to end, and the structural words.
 - [How LiteSpec Compares](learn/how-litespec-compares.md): LiteSpec beside fourteen other approaches to spec-driven development, and when each fits.
 - [Lineage](learn/lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](learn/working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
@@ -239,15 +237,16 @@ One product worked end to end, from its first record to a passing check.
 
 Tutorials take a reader to a first working result; how-to guides solve one stated problem in a running project.
 
-- [Guides overview](guide/README.md): which to read when: tutorials for a first result, how-to guides for one goal.
+- [Guides overview](guide/README.md): tutorials for a first result, how-to guides for one goal in a running project.
 - [Start a Consumer Repository](tutorial/getting-started.md): start a small consumer repository through one coded use case.
 - [Model a Behavior Module](tutorial/model-domain.md): specify one spending module the builder reads.
+- [Install the CLI](guide/install-the-cli.md): install the command line for a consumer repository or a machine, by every method a release ships.
 - [Start with Records Only](guide/start-with-records-only.md): claim the Intent and Behavior records alone, and check them with the model check and the book.
 - [Add a Svelte Frontend](guide/add-a-svelte-frontend.md): declare a Svelte frontend on the web stack.
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write a Feature Under a Module](guide/write-a-feature-under-a-module.md): write one feature with its requirement entries under its module.
-- [Folder Reference](guide/folder-reference.md): where each record file lives, with its parent and its identifiers.
+- [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 
 ## LiteSpec's Own Records

@@ -59,34 +59,12 @@ A decision whose source is `recommended` stands until an owner chooses otherwise
 
 ## What the Model Checks
 
-`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract and the one frontend, `web`, which declares `platform: svelte`. The full result against the example, copied from the run, is:
+`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract and the one frontend, `web`, which declares `platform: svelte`. Three lines from the run show the shape of the result, one at each finding level; the full 26-line output is in [The Model and Its Checks](model-and-checks.md#the-full-check):
 
 ```text
-.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.approve-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/approve-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.approve-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/expenses/erase-personal-data.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.erase-personal-data' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/erase-personal-data.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.erase-personal-data' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/expenses/list-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.list-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/expenses/refuse-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.refuse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/refuse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.refuse-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/expenses/reimburse-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.reimburse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/reimburse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.reimburse-expense' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/expenses/submit-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.submit-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/expenses/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/policies/change-receipt-threshold.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.change-receipt-threshold' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/policies/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/receipts/attach-receipt.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.attach-receipt' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/receipts/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
+.litespec/behavior/modules/spending/expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
 .litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s2' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s3' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s4' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s6' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s7' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s8' is served by a browser or device use case but by no screen.
-0 findings, 0 blocking, 26 covered.
-``` The check reports no finding on the screen itself. The use cases and journey steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.
+```
+
+The check reports no finding on the screen itself. The use cases and journey steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.

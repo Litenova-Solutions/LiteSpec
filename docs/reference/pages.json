@@ -2288,20 +2288,6 @@
       ]
     },
     {
-      "file": "docs/guide/folder-reference.md",
-      "path": "guide/folder-reference",
-      "style": "how-to",
-      "area": "guide",
-      "title": "Folder Reference",
-      "intent": "Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the placement the tool reads from the folder path and the \u0060module\u0060 field. Each step names the standard it satisfies, and the guide adds no rule of its own.",
-      "sections": [
-        "Purpose",
-        "Prerequisites",
-        "Procedure",
-        "Check"
-      ]
-    },
-    {
       "file": "docs/guide/install-the-cli.md",
       "path": "guide/install-the-cli",
       "style": "how-to",
@@ -2968,11 +2954,13 @@
       "style": "index",
       "area": "learn",
       "title": "Overview",
-      "intent": "The Learn pages explain LiteSpec, the standard for building one business application from written rules that tools check, to a reader who is new to it: the problem it solves, how its parts fit, how to read the standard, and how a team adopts it. They apply to every project and role, and they state no rules of their own: each rule lives on the standards page they link to. Technical leads and developers read them in order below when they evaluate or adopt LiteSpec, before opening any rules page.",
+      "intent": "LiteSpec is the standard for building one business application from written rules that tools check. Technical leads read these pages to decide whether LiteSpec fits, developers read them to learn how its parts work, and teams read them before handing work to agents. Without one written shape, each agent invents its own design and the reasons behind past designs leave with the people who made them. This page is the single start: it states the five-minute picture and the one order to read in.",
       "sections": [
         "Intent",
-        "Reading Order",
-        "Next"
+        "The Five-Minute Picture",
+        "The Path",
+        "Evaluate",
+        "Then Build"
       ]
     },
     {
@@ -2998,15 +2986,15 @@
       "style": "explanation",
       "area": "learn",
       "title": "How LiteSpec Works",
-      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the record layers and the tools, then follows one use case of Claimwick, the example product in \u0060examples/claimwick/\u0060, from its written record to the check that confirms it. The worked example is in [The Claimwick Product](../example/the-product.md) and the pages after it.",
+      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the layers, the homes, and the tools, then states how to read a specification. Claimwick, the expense product in \u0060examples/claimwick/\u0060, is the worked example, walked from [The Claimwick Product](../example/the-product.md).",
       "sections": [
         "Intent",
         "The Parts",
         "The Four Layers",
         "Record Types and Their Homes",
-        "A Use Case from Record to Code",
         "Links Between Records",
-        "Completion Is Computed",
+        "A Use Case from Record to Code",
+        "How to Read a Specification",
         "The Tools",
         "Next"
       ]
@@ -3029,20 +3017,37 @@
       ]
     },
     {
-      "file": "docs/learn/reading-tracks.md",
-      "path": "learn/reading-tracks",
+      "file": "docs/learn/working-with-agents.md",
+      "path": "learn/working-with-agents",
       "style": "explanation",
       "area": "learn",
-      "title": "Reading Tracks",
-      "intent": "A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [How LiteSpec Works](how-litespec-works.md), before they open their first record.",
+      "title": "Work with Agents",
+      "intent": "An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.",
       "sections": [
         "Intent",
-        "Why Before How",
-        "One Journey End to End",
-        "One Module End to End",
-        "Structural Words",
-        "Which Track to Take",
-        "Next"
+        "Rules, Records, and Checks",
+        "Rule Sources",
+        "The Agent Task Sequence",
+        "Agent Decisions and the Closed Specification",
+        "Next Steps"
+      ]
+    },
+    {
+      "file": "docs/learn/adopting-litespec.md",
+      "path": "learn/adopting-litespec",
+      "style": "explanation",
+      "area": "learn",
+      "title": "Adopt LiteSpec in Steps",
+      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
+      "sections": [
+        "Intent",
+        "Fit Check",
+        "Choose the Layers to Start",
+        "Step 1: Claim Intent and Behavior",
+        "Step 2: Add Implementation",
+        "Step 3: Add Proof",
+        "Departures for a Single Provision",
+        "Next Steps"
       ]
     },
     {
@@ -3083,40 +3088,6 @@
         "Role-Based Access Control",
         "Design by Contract",
         "Next"
-      ]
-    },
-    {
-      "file": "docs/learn/working-with-agents.md",
-      "path": "learn/working-with-agents",
-      "style": "explanation",
-      "area": "learn",
-      "title": "Work with Agents",
-      "intent": "An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.",
-      "sections": [
-        "Intent",
-        "Rules, Records, and Checks",
-        "Rule Sources",
-        "The Agent Task Sequence",
-        "Agent Decisions and the Closed Specification",
-        "Next Steps"
-      ]
-    },
-    {
-      "file": "docs/learn/adopting-litespec.md",
-      "path": "learn/adopting-litespec",
-      "style": "explanation",
-      "area": "learn",
-      "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
-      "sections": [
-        "Intent",
-        "Fit Check",
-        "Choose the Layers to Start",
-        "Step 1: Claim Intent and Behavior",
-        "Step 2: Add Implementation",
-        "Step 3: Add Proof",
-        "Departures for a Single Provision",
-        "Next Steps"
       ]
     },
     {
