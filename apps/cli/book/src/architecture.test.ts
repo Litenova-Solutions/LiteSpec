@@ -104,6 +104,27 @@ describe("the book's structure", () => {
     expect(found).toEqual([]);
   });
 
+  it("exports from each index.ts only what another module or the App uses", () => {
+    // Tests and the vendored ui/ folder count as users: a fixture or helper they import is in use.
+    const all: Record<string, string> = import.meta.glob(["./**/*.ts", "./**/*.svelte"], { query: "?raw", import: "default", eager: true });
+    const users = Object.entries(all).map(([key, text]) => ({ file: key.slice("./".length), text }));
+    const found = modules.flatMap((name) => {
+      const index = sources.find((source) => source.file === `lib/${name}/index.ts`);
+      if (!index) return [];
+      const exported = [
+        ...[...index.text.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}/g)].flatMap((match) =>
+          (match[1] ?? "").split(",").map((part) => part.trim().replace(/^type\s+/, "").split(/\s+as\s+/).pop() ?? ""),
+        ),
+        ...[...index.text.matchAll(/export\s+(?:const|function|class|let)\s+(\w+)/g)].map((match) => match[1] ?? ""),
+      ].filter(Boolean);
+      const outside = users.filter((user) => moduleOf(user.file) !== name);
+      return exported
+        .filter((symbol) => !outside.some((user) => new RegExp(`\\b${symbol}\\b`).test(user.text)))
+        .map((symbol) => `lib/${name}/index.ts: ${symbol} is used by no other module`);
+    });
+    expect(found).toEqual([]);
+  });
+
   it("touches browser storage only in the frame's theme and preferences", () => {
     const allowed = new Set(["lib/frame/theme.svelte.ts", "lib/frame/preferences.svelte.ts"]);
     const found = violations((file, text) => (!allowed.has(file) && /\b(localStorage|sessionStorage)\b/.test(text) ? ["browser storage"] : []));

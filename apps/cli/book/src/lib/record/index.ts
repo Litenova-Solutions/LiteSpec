@@ -11,4 +11,3 @@ export { default as RenderedProse } from "./RenderedProse.svelte";
 export { default as SourceLink } from "./SourceLink.svelte";
 export { default as TypeTag } from "./TypeTag.svelte";
 export { glossaryLinks } from "./glossary-links";
-export { recordIcon } from "./record-icons";

@@ -18,7 +18,7 @@ The stack is Svelte 5 with runes, Tailwind CSS v4 with the typography plugin, sh
 | `src/lib/shell/` | The shell: the top bar with search, shortcuts and run widgets, and `record-navigation.ts`, which opens records from `data-go` links, keeps the address and history, and sets the page title. |
 | `src/lib/ui/` | shadcn-svelte components, added with `pnpm dlx shadcn-svelte@1.7.2 add <name>` and left as generated. |
 
-Modules import downward only: `record-page`, `outline`, `trace` and `shell` reach `record`, `frame` and `ui`; `record` reaches `frame` and `ui`; `frame` reaches none. Another module is imported only through its `index.ts`. `src/architecture.test.ts` checks these rules and that no source uses `any`, a non-null assertion, a cast other than to a DOM type or `as const`, or browser storage outside the frame.
+Modules import downward only: `record-page`, `outline`, `trace` and `shell` reach `record`, `frame` and `ui`; `record` reaches `frame` and `ui`; `frame` reaches none. Another module is imported only through its `index.ts`, which exports only what another module, the App or a test uses. `src/architecture.test.ts` checks these rules and that no source uses `any`, a non-null assertion, a cast other than to a DOM type or `as const`, or browser storage outside the frame.
 
 Two behaviors work by delegation, so they reach prose the CLI renders as HTML: an element with `data-go` opens that record, and an element with `data-explain` opens the LiteSpec explanation for its key.
 
