@@ -47,9 +47,11 @@ The tool renders the model as a book that a reader reads offline. The analyzers 
 
 ## How Agents Use It
 
-An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved. When a statement is not enough, it runs `litespec rules <path> --full` for rationale and example. It answers each returned provision's Reviewed for question before reporting done, and names the provisions it judged and how in its completion report.
+An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved, after the decisions and departures the file follows. When a statement is not enough, it runs `litespec rules <provision-id>` for the whole provision. Before reporting done, it runs `litespec rules --since <base>`, answers the Reviewed for question of each provision the change set returns, and names the provisions it judged and how in its completion report.
 
 It loads record context through `litespec model query <record-id>`, which returns one record with its computed links. It builds only what the specification states; something that seems missing becomes a question to the owner or a backlog item, never code.
+
+The project's `AGENTS.md` carries the agent protocol as a region the tool generates and keeps current. `litespec skill add` installs a LiteSpec skill for Claude Code and OpenCode that walks an agent through this order.
 
 ## Installation
 
@@ -87,7 +89,7 @@ dotnet litespec model check
 
 ## Commands
 
-The CLI has eight commands.
+The CLI commands, with the `model` subcommands on their own rows:
 
 | Command | Does |
 |:---|:---|
@@ -98,7 +100,9 @@ The CLI has eight commands.
 | `litespec model format` | Rewrites record files into canonical form. |
 | `litespec model query` | Returns one record with its computed links. |
 | `litespec book` | Generates the project book from the model. |
-| `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength. |
+| `litespec model render` | Rewrites the generated regions: the agent protocol in `AGENTS.md`, the project skill copies, and the indexes. |
+| `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength, or to a change set with `--since`. |
+| `litespec skill add` | Installs the LiteSpec skill for Claude Code, OpenCode and the shared `.agents` folder. |
 
 See the [command index](docs/tools/README.md) for every option.
 

@@ -43,7 +43,7 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 In a consumer:
 
 1. Read the consumer's `AGENTS.md` and `.litespec/project.yaml`.
-2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the YAML record files themselves with their explanation files.
+2. Find the records the task touches with `litespec model query <id>`, read the query output, then the YAML record files themselves with their explanation files.
 3. Before you generate files or change a public boundary, read the full standards pages those records cite.
 4. Before you edit inside an extension's boundary, read the extension.
 5. Then look at neighboring files and follow a local pattern that complies.
