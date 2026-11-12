@@ -239,9 +239,9 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
 
-### Match Strength to the Modal
+### Match Strength to the Modal Word
 
-**ID:** `litespec/core/authoring#match-strength-to-the-modal`
+**ID:** `litespec/core/authoring#match-strength-to-the-modal-word`
 
 **Strength:** required
 

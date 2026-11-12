@@ -52,7 +52,7 @@ Decision 0040, Require Decisions Only for Six Kinds of Choice, records why.
 
 ### Part E: Strength and Modal Word Agree
 
-- The rule is `litespec/core/authoring#match-strength-to-the-modal`: a `required` statement holds MUST or MUST NOT, an `advisory` statement holds neither, and a permission on its own joins the provision it relaxes or becomes an obligation. `litespec-maintain validate` enforces it as `STANDARD_STRENGTH_MODAL`, and reports `TEMPLATE_CITATION_UNKNOWN` for a `litespec/...` citation in `templates/` that resolves to no provision.
+- The rule is `litespec/core/authoring#match-strength-to-the-modal-word`: a `required` statement holds MUST or MUST NOT, an `advisory` statement holds neither, and a permission on its own joins the provision it relaxes or becomes an obligation. `litespec-maintain validate` enforces it as `STANDARD_STRENGTH_MODAL`, and reports `TEMPLATE_CITATION_UNKNOWN` for a `litespec/...` citation in `templates/` that resolves to no provision.
 - Nine provisions are reworded, each keeping its ID:
   - Required, now obliging: `core/agent#follow-the-local-pattern-before-the-model-query`, `core/agent#replace-only-declared-conventions`, `core/authoring#keep-a-pinned-release-for-as-long-as-it-serves`, `core/use-cases#exercise-rules-from-scenarios`, `core/use-cases#share-scenario-setup-in-background`, `frontend/components#place-a-drawing-no-composite-makes-in-an-exception-file`.
   - Advisory, now suggesting with a Deviation: `frontend/testing#test-observable-states`, `workspace/naming#use-current-language-features`, `workspace/naming#use-intent-revealing-boolean-names`.
@@ -75,7 +75,7 @@ Added (3):
 
 - `litespec/core/agent#keep-the-agent-protocol-current`
 - `litespec/core/agent#search-the-provisions-before-recording-a-decision`
-- `litespec/core/authoring#match-strength-to-the-modal`
+- `litespec/core/authoring#match-strength-to-the-modal-word`
 
 Removed (0):
 

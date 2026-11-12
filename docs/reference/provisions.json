@@ -6244,10 +6244,10 @@
       "example": ""
     },
     {
-      "id": "litespec/core/authoring#match-strength-to-the-modal",
-      "heading": "Match Strength to the Modal",
+      "id": "litespec/core/authoring#match-strength-to-the-modal-word",
+      "heading": "Match Strength to the Modal Word",
       "page": "docs/core/authoring.md",
-      "anchor": "match-strength-to-the-modal",
+      "anchor": "match-strength-to-the-modal-word",
       "kind": "rule",
       "mark": "checkable",
       "evidence": "\u0060litespec-maintain validate\u0060 confirms each Standards provision carries the modal its Strength line grades.",
