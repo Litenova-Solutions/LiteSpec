@@ -123,7 +123,12 @@ static class Checker
         ContractChecks.RunTypedInputs,
         GraphChecks.RunExercises,
         ContractChecks.RunDoors,
-        ScopeChecks.Run
+        ScopeChecks.Run,
+        AgentProtocolChecks.RunRegion,
+        DecisionChecks.RunKind,
+        DecisionChecks.RunLocal,
+        ConventionChecks.RunMisplaced,
+        ConventionChecks.RunScope
     ];
 
     /// <summary>Runs every check, partitioning findings from departures.</summary>
