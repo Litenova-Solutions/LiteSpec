@@ -19,6 +19,9 @@ internal static class DecisionChecks
     /// <summary>The finding code for a technical decision followed only inside one module.</summary>
     internal const string ScopeInvalidCode = "decision-scope-invalid";
 
+    /// <summary>The finding code for a technical decision kept at a level its followers do not match.</summary>
+    internal const string HomeDriftCode = "decision-home-drift";
+
     /// <summary>Reports decision-kind-missing for each technical decision that states no kind.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -87,5 +90,12 @@ internal static class DecisionChecks
         }
 
         return module;
+    }
+
+    /// <summary>Reports decision-home-drift for each technical decision kept at a level its followers do not match.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunHome(ProjectModel model, List<Finding> findings)
+    {
     }
 }

@@ -127,6 +127,7 @@ static class Checker
         AgentProtocolChecks.RunRegion,
         DecisionChecks.RunKind,
         DecisionChecks.RunScope,
+        DecisionChecks.RunHome,
         ConventionChecks.RunFolder,
         ConventionChecks.RunScope
     ];
