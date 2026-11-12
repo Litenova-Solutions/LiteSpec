@@ -265,10 +265,11 @@ static class ModelCommand
                 var model = ModelBuilder.Build(config);
 
                 // Render writes every generated output: the fenced regions in
-                // explanation files and documents, the records file each
-                // web frontend imports from its frame, and the UI source lock
-                // beside the shared package.
+                // explanation files and documents, the agent-protocol region in
+                // AGENTS.md, the records file each web frontend imports from its
+                // frame, and the UI source lock beside the shared package.
                 var changed = GeneratedRegions.Render(model)
+                    .Concat(AgentProtocol.Write(model))
                     .Concat(FrontendRecords.Write(model))
                     .Concat(UiSourceLock.Write(model))
                     .ToList();

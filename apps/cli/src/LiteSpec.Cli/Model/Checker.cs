@@ -126,8 +126,8 @@ static class Checker
         ScopeChecks.Run,
         AgentProtocolChecks.RunRegion,
         DecisionChecks.RunKind,
-        DecisionChecks.RunLocal,
-        ConventionChecks.RunMisplaced,
+        DecisionChecks.RunScope,
+        ConventionChecks.RunFolder,
         ConventionChecks.RunScope
     ];
 

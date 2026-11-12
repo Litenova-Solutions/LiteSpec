@@ -3,20 +3,26 @@
    one row each, and the AGENTS.md block they produce. Rendered statically with
    default values, then updated live by one small inline script. */
 import Icon from "./Icon.astro";
+import {
+  AGENT_PROTOCOL_PLACEHOLDERS,
+  SITE_DEFAULT_COMMAND,
+  SITE_DEFAULT_LAYERS,
+  formatSelectionKey,
+  renderAgentProtocol,
+  selectionValues,
+} from "../lib/agent-protocol";
 
 export interface ExtensionInfo {
   id: string;
   title: string;
   activationScope: string;
   stack: string | null;
-  layerUrl: string;
 }
 
 export interface SelectionInfo {
   shape: string;
   stacks: string[];
   key: string;
-  indexUrl: string;
 }
 
 export interface PresetInfo {
@@ -27,7 +33,6 @@ export interface PresetInfo {
 
 interface Props {
   version: string;
-  siteOrigin: string;
   shapes: string[];
   backendStacks: string[];
   frontendStacks: string[];
@@ -38,12 +43,11 @@ interface Props {
   defaultShape: string;
   defaultBackend: string;
   defaultFrontend: string;
-  initialAgents: string;
+  agentProtocolRegion: string;
 }
 
 const {
   version,
-  siteOrigin,
   shapes,
   backendStacks,
   frontendStacks,
@@ -54,12 +58,11 @@ const {
   defaultShape,
   defaultBackend,
   defaultFrontend,
-  initialAgents,
+  agentProtocolRegion,
 } = Astro.props as Props;
 
 const payload = JSON.stringify({
   version,
-  siteOrigin,
   shapes,
   backendStacks,
   frontendStacks,
@@ -70,6 +73,10 @@ const payload = JSON.stringify({
   defaultShape,
   defaultBackend,
   defaultFrontend,
+  agentProtocolRegion,
+  agentProtocolPlaceholders: AGENT_PROTOCOL_PLACEHOLDERS.map((entry) => entry.placeholder),
+  agentProtocolLayers: SITE_DEFAULT_LAYERS,
+  agentProtocolCommand: SITE_DEFAULT_COMMAND,
 });
 
 function capitalize(value: string): string {
@@ -93,6 +100,19 @@ const defaultStackList =
     : defaultFrontend ? [defaultFrontend] : [];
 const defaultPresetName =
   presets.find((preset) => preset.shape === defaultShape && sameMembers(preset.stacks, defaultStackList))?.name ?? "";
+const defaultSelectionKey =
+  selections.find((entry) => entry.shape === defaultShape && sameMembers(entry.stacks, defaultStackList))?.key ??
+  formatSelectionKey(defaultShape, defaultStackList);
+const initialAgents = renderAgentProtocol(
+  agentProtocolRegion,
+  selectionValues({
+    size: defaultSize,
+    shape: defaultShape,
+    stacks: defaultStackList,
+    extensions: [],
+    selectionKey: defaultSelectionKey,
+  }),
+);
 ---
 
 <li class="step">
@@ -362,18 +382,10 @@ const defaultPresetName =
   var form = document.getElementById("select-form");
   if (!dataEl || !form) return;
   var data = JSON.parse(dataEl.textContent || "{}");
-  var origin = data.siteOrigin || "https://litespec.dev";
 
   function sameMembers(a, b) {
     if (a.length !== b.length) return false;
     return a.every(function (item) { return b.indexOf(item) !== -1; });
-  }
-
-  function joinList(items) {
-    if (items.length === 0) return "none";
-    if (items.length === 1) return items[0];
-    if (items.length === 2) return items[0] + " and " + items[1];
-    return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
   }
 
   function checkedValue(name) {
@@ -516,20 +528,20 @@ const defaultPresetName =
     }
 
     var selection = findSelection(shape, stacks);
-    var indexAbsolute = selection ? origin + selection.indexUrl : origin + "/select/";
     var chosen = checkedExtensions();
-    var layerById = {};
-    for (var e = 0; e < data.extensions.length; e++) {
-      layerById[data.extensions[e].id] = origin + data.extensions[e].layerUrl;
-    }
-    var agentText = [
-      "## LiteSpec",
-      "This project follows LiteSpec " + data.version + ": size " + size + ", shape " + shape +
-        ", stacks " + joinList(stacks) + ", extensions " + (chosen.length ? chosen.join(", ") : "none") + ".",
-      "Before a task, read " + indexAbsolute + " and fetch only the pages the task touches.",
-      "Selected extensions: " + (chosen.length ? chosen.map(function (id) { return layerById[id]; }).join(", ") : "none"),
-      "UI work: the pattern pages listed in that index.",
-    ].join("\n");
+    var values = {
+      "__LITESPEC_VERSION__": data.version,
+      "__SIZE__": size,
+      "__SHAPE__": shape,
+      "__STACKS__": stacks.join(", "),
+      "__EXTENSIONS__": chosen.length ? chosen.join(", ") : "none",
+      "__LAYERS__": data.agentProtocolLayers,
+      "__SELECTION_KEY__": selection ? selection.key : (stacks.length > 0 ? shape + "." + stacks.join(".") : shape),
+      "__LITESPEC_COMMAND__": data.agentProtocolCommand
+    };
+    var agentText = data.agentProtocolPlaceholders.reduce(function (text, name) {
+      return text.split(name).join(values[name] || "");
+    }, data.agentProtocolRegion || "");
     syncPreset(shape, stacks);
 
     var agents = document.getElementById("select-agents");

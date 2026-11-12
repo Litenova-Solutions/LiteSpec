@@ -128,4 +128,81 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
         Assert.Contains("new decision <name>", result.Stdout);
     }
+
+    /// <summary>New decision prints the provisions matching the name's words before it writes.</summary>
+    /// <proves>litespec/core/agent#search-the-provisions-before-recording-a-decision</proves>
+    [Fact(DisplayName = "new decision prints the provisions matching the name's words before it writes")]
+    public void NewDecisionPrintsMatchingProvisionsBeforeWriting()
+    {
+        using var consumer = TestCli.Temp("new-decision");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
+
+        var result = TestCli.Run(
+            "new", "decision", "render-receipts", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("Provisions matching 'render-receipts':", result.Stdout, StringComparison.Ordinal);
+        Assert.Contains(
+            "- litespec/frontend/components#render-data-states: A data component MUST render loading, empty, error, forbidden, and ready.",
+            result.Stdout,
+            StringComparison.Ordinal);
+        Assert.True(
+            result.Stdout.IndexOf("Provisions matching", StringComparison.Ordinal)
+                < result.Stdout.IndexOf("Wrote ", StringComparison.Ordinal),
+            "Expected the matching provisions to print before the written files.");
+        Assert.True(File.Exists(Path.Combine(
+            consumer.Path, ".litespec", "intent", "decisions", "0001-render-receipts.yaml")));
+    }
+
+    /// <summary>New decision prints nothing when no provision statement matches the name.</summary>
+    /// <proves>litespec/core/agent#search-the-provisions-before-recording-a-decision</proves>
+    [Fact(DisplayName = "new decision prints nothing when no provision statement matches the name")]
+    public void NewDecisionPrintsNothingWhenNoProvisionMatches()
+    {
+        using var consumer = TestCli.Temp("new-decision");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
+
+        var result = TestCli.Run(
+            "new", "decision", "wombat-ledger-quarry", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("Provisions matching", result.Stdout, StringComparison.Ordinal);
+        Assert.True(File.Exists(Path.Combine(
+            consumer.Path, ".litespec", "intent", "decisions", "0001-wombat-ledger-quarry.yaml")));
+    }
+
+    /// <summary>New decision matches a plural name word against the singular in a statement.</summary>
+    /// <proves>litespec/core/agent#search-the-provisions-before-recording-a-decision</proves>
+    [Fact(DisplayName = "new decision matches a plural name word against the singular in a statement")]
+    public void NewDecisionMatchesPluralNameWordsAgainstSingularStatements()
+    {
+        using var consumer = TestCli.Temp("new-decision");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
+
+        var result = TestCli.Run(
+            "new", "decision", "wombat-commands", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains(
+            "- litespec/ext/jobs#show-a-preview-before-bulk-money-actions:",
+            result.Stdout,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>New decision skips name words shorter than three letters when matching provisions.</summary>
+    /// <proves>litespec/core/agent#search-the-provisions-before-recording-a-decision</proves>
+    [Fact(DisplayName = "new decision skips name words shorter than three letters when matching provisions")]
+    public void NewDecisionSkipsShortNameWordsWhenMatching()
+    {
+        using var consumer = TestCli.Temp("new-decision");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
+
+        var result = TestCli.Run(
+            "new", "decision", "up-it", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain("Provisions matching", result.Stdout, StringComparison.Ordinal);
+        Assert.True(File.Exists(Path.Combine(
+            consumer.Path, ".litespec", "intent", "decisions", "0001-up-it.yaml")));
+    }
 }

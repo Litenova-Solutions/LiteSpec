@@ -5,9 +5,10 @@ namespace LiteSpec.Standards;
 /// <summary>
 ///     The scope vocabulary of <c>docs/core/scopes.md</c>: the stack, concern, artifact, and
 ///     layer values every Scope block and Applies to line uses, with the parsers for those
-///     lines. Strength values and trace values need no table: the Strength line diagnostic
-///     names <c>rule</c>, <c>default</c>, and <c>advice</c> itself, and a trace value is
-///     <c>yes</c> or <c>no</c>, so both stand in code.
+///     lines. Strength values, trace values, and when values need no table: the Strength
+///     line diagnostic names <c>rule</c>, <c>default</c>, and <c>advice</c> itself, a trace
+///     value is <c>yes</c> or <c>no</c>, and a when value is one of the conditions below,
+///     so all stand in code.
 /// </summary>
 /// <follows>litespec/core/scopes#use-only-declared-scope-values</follows>
 public sealed class Scopes
@@ -31,6 +32,11 @@ public sealed class Scopes
     /// <summary>Gets the trace values an Applies to line names.</summary>
     public static readonly IReadOnlySet<string> TraceValues = new HashSet<string>(
         ["yes", "no"],
+        StringComparer.Ordinal);
+
+    /// <summary>Gets the when values an Applies to line names: the applicability conditions of a provision.</summary>
+    public static readonly IReadOnlySet<string> WhenValues = new HashSet<string>(
+        ["command", "document-number", "erasure", "query", "upload"],
         StringComparer.Ordinal);
 
     /// <summary>The pattern of one backticked span.</summary>
@@ -200,7 +206,7 @@ public sealed class Scopes
 
     // One scope line or Applies to line: `field: value` segments separated by a comma or
     // a semicolon, where a segment without a colon continues the values of the field
-    // before it. Fields keep the order stack, artifact, layer, trace, separated
+    // before it. Fields keep the order stack, artifact, layer, trace, when, separated
     // by `; ` on an Applies to line. Each segment is unquoted first, so a wholly
     // backticked `artifact: aggregate` reads as its inner text. Stray text before the
     // first field is ignored; the value checks own what remains.

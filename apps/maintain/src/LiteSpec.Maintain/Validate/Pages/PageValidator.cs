@@ -761,6 +761,7 @@ internal sealed partial class PageValidator
         var rules = provisions.Where(provision => provision.Section != "Patterns").ToList();
         Context.Provisions.CheckProvisionBodies(relative, reader, rules);
         Context.Provisions.CheckProvisionClaims(relative, rules);
+        Context.Provisions.CheckStrengthAgreement(relative, rules);
         Context.Provisions.CheckNormativeLocation(relative, clean, provisions);
         Context.Provisions.CheckInlineVerification(relative, reader, provisions);
         CheckScopeBlock(relative, reader, provisions);

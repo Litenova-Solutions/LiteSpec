@@ -13,7 +13,7 @@ An agent is software that reads task context, edits files, and runs checks. This
 
 A consumer project describes itself with records of fixed types in four record layers: Intent states the promises, Behavior states how the system keeps them, Implementation holds code and technical decisions, and Proof shows the checks. Governance is a group of records beside the four record layers, not a fifth layer. The [model page](model.md) states the record types and their links. An agent queries that model for the records a task touches: `litespec model query <id>` prints one record with its links in both directions, such as a use case with its rules, results, and scenarios.
 
-The generated agent context is the rendered summary of that selection: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the context before editing starts the run from decided Intent instead of repository guesswork.
+The query output is the task context: the smallest record set that covers the request, with the links the builder joined between records. Code, screens, and tests point up to the records they serve. Reading the query output before editing starts the run from decided Intent instead of repository guesswork. Every task follows one order: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code.
 
 ### Extensions and Their Boundaries
 
@@ -33,7 +33,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs the query before editing and answers each returned provision's Reviewed for question before reporting done, and the completion report names the provisions the agent judged and how.
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
 
 ### Git Is the Decision Record
 
@@ -67,7 +67,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** An agent MUST query the project model for the records that cover the request, and read the generated agent context, before editing.
+**Statement:** An agent MUST query the project model for the records that cover the request, and read the query output, before editing.
 
 **Rationale:** Without the query, an agent reads either too little and invents the missing rules, or half the repository and buries the task in unrelated guidance. The query returns the smallest record set that covers the request, with the links the builder joined between records, so the agent starts from decided Intent.
 
@@ -83,11 +83,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** A change touching no permission that carries `risk` MAY skip the model query, reading the agent context and neighboring code instead.
+**Statement:** An agent MUST run the model query before a change that touches a permission carrying `risk`, and MAY rely on neighboring code otherwise.
 
-**Rationale:** A small edit with no risk behind it does not need the full record set: the agent context plus the neighboring file already show the decided shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a permission that carries `risk` keeps the full query, because the query shows the risk a one-line change would otherwise miss, and it costs seconds.
+**Rationale:** A small edit with no risk behind it does not need the full record set: the neighboring files already show the decided shape. Requiring a model query for every small change would slow ordinary work without adding information. A change touching a permission that carries `risk` keeps the full query, because the query shows the risk a one-line change would otherwise miss, and it costs seconds.
 
-**Example:** A spelling fix in a setting page reads the agent context and the sibling setting, then edits without querying the model.
+**Example:** A spelling fix in a setting page reads the sibling setting, then edits without querying the model.
 
 **Reviewed for:** The change touches no permission carrying `risk` and names the local pattern it followed.
 
@@ -115,13 +115,29 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each returned provision's Reviewed for question before reporting done.
+**Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each judgment provision `litespec rules --since <base>` lists before reporting done.
 
-**Rationale:** 1,800 provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
 
 **Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
 
-**Reviewed for:** Which provisions the rules query returned lack a judged answer in the completion report? Compare the rules output with the report.
+**Reviewed for:** Which judgment provisions that `litespec rules --since <base>` listed lack a judged answer in the completion report? Compare the rules output with the report.
+
+### Keep the Agent Protocol Current
+
+**ID:** `litespec/core/agent#keep-the-agent-protocol-current`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A project MUST keep its agent protocol region equal to what its LiteSpec release generates.
+
+**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The release template plus the project file regenerate the region in one command, so drift is always fixable.
+
+**Example:** Claimwick upgrades its LiteSpec release and runs `litespec model render`; the region in its `AGENTS.md` matches what the new release generates.
+
+**Checked by:** `litespec model check` reports `agent-protocol-drift` (level S) when the region differs from what `render` would write, and `agent-protocol-missing` (level S) when `AGENTS.md` holds no region.
 
 ### Apply Guidance Precedence
 
@@ -145,7 +161,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** An agent MAY apply a replacement for a convention only when the project documentation records that replacement.
+**Statement:** An agent MUST apply a replacement for a convention only when the project documentation records that replacement.
 
 **Rationale:** Conventions exist to be replaced, but only through a recorded decision. An undocumented local preference that silently replaces a baseline default looks identical to a mistake, so the next agent fixes it back. The recorded convention keeps the replacement visible and reviewable.
 
@@ -347,7 +363,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Replacement:** A consumer records a boundary-reading convention naming which changes need the full record.
 
-**Rationale:** Generating a file or changing a public boundary from a summary risks baking a paraphrase into a contract. The full record carries the exact fields, links, and wording the new surface matches. A small edit that follows an existing local pattern can rely on the generated agent context instead.
+**Rationale:** Generating a file or changing a public boundary from a summary risks baking a paraphrase into a contract. The full record carries the exact fields, links, and wording the new surface matches. A small edit that follows an existing local pattern can rely on neighboring code instead.
 
 **Reviewed for:** Each file generation or boundary change cites the full record it matched.
 
@@ -393,8 +409,26 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Reviewed for:** Every agent working file sits under `.agents/` or the path the working-files convention names.
 
+### Search the Provisions Before Recording a Decision
+
+**ID:** `litespec/core/agent#search-the-provisions-before-recording-a-decision`
+
+**Strength:** default
+
+**Applies to:** artifact: any
+
+**Default:** Query `litespec rules` for the decision's subject, and where a provision makes the choice, follow that provision instead of recording a decision.
+
+**Replacement:** A consumer can replace this default with an explicit local convention.
+
+**Rationale:** Many technical choices are already decided: a provision names the shape, the baseline, or the boundary the code follows. A decision that restates such a choice splits authority between the provision and the record, and the two drift. Searching first keeps one home for each decided choice.
+
+**Example:** An agent about to record how Claimwick declares integration edges queries `litespec rules` for the subject; the provision declares every edge in a record, so the code follows it and no decision is recorded.
+
+**Reviewed for:** Which technical decisions restate a choice a provision already makes? Compare each decision with the `rules` output for its subject.
+
 ## Reference Example
 
 This informative example demonstrates `litespec/core/agent#select-task-context`, `litespec/core/agent#load-applicable-provisions-before-editing`, `litespec/core/agent#load-applicable-extensions`, `litespec/core/agent#raise-open-figures-to-the-owner`, and `litespec/core/agent#inspect-local-examples-after-standards`.
 
-A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the generated agent context, runs `litespec rules` for the handler path, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to the owner with recommendations, and the completion report names each judged provision with its judgment. It leaves unrelated frontend and container guidance unread.
+A command-handler change for `use-case/spending.submit-expense` queries the model for its use case, reads the query output, runs `litespec rules` for the handler path, and loads the selected extensions whose boundary the change touches. It then reads the neighboring handler for local names and shapes. Open figures go to the owner with recommendations, and the completion report names each judged provision with its judgment. It leaves unrelated frontend and container guidance unread.

@@ -149,17 +149,29 @@ Every provision has the same parts in the same order:
 **Reviewed for:** Which shared primitives or composites live outside the shared package? Look in the workspace packages.
 ```
 
-A provision adds `**Applies to:**` only when it is narrower than its page, or when its record layer or trace differs from its page, for example `artifact: aggregate` or `layer: implementation; trace: yes`.
+A provision adds `**Applies to:**` only when it is narrower than its page, when its record layer or trace differs from its page, or when it states a `when` condition, for example `artifact: aggregate` or `layer: implementation; trace: yes`.
 
 1. The heading names the provision.
 2. The ID line holds the provision's identity, so a reader copies it from where the provision stands; the heading may change without changing it.
 3. The Strength line grades how binding the provision is: `required`, `default`, or `advisory`, as [Provision Scopes](scopes.md) states.
-4. `Applies to` follows the Strength line only when the provision is narrower than its page, or its record layer or trace differs from its page; otherwise the page scope applies.
+4. `Applies to` follows the Strength line only when the provision is narrower than its page, when its record layer or trace differs from its page, or when it states a `when` condition; otherwise the page scope applies.
 5. A rule states its `Statement`; a convention states its `Default` and `Replacement`; a pattern states its `Question`, `Default`, `Compact` and `Rationale`.
 6. `Rationale` follows, and `Example` is optional and follows `Rationale` when one clarifies the rule.
 7. The verification line comes last among the fields. `Checked by` marks a provision a tool checks (`checkable`) and starts with the checking command in backticks, then the code the tool reports where the tool emits one, then the scope. `Reviewed for` marks a provision a person judges (`guidance`) and asks the one question a reviewer answers, naming the observable evidence and where to look. Evidence like "verify compliance" says nothing and is refused.
 
-A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
+A provision that holds only in some situations states its condition as a `when` key on its `**Applies to:**` line, beside the other scope keys, for example `artifact: use-case; when: query`. The condition names the marked record the provision needs:
+
+| Value | The provision applies when the record the target marks |
+|:---|:---|
+| `query` | is a use case with `kind: query` |
+| `command` | is a use case with `kind: command` |
+| `upload` | is a use case that takes a file from the caller |
+| `document-number` | is a use case that issues a legal document number |
+| `erasure` | is a use case or job that erases, pseudonymizes or anonymizes personal data |
+
+`rules` reads the condition from the provision index and returns the provision for a code path only when the condition holds for the record the file marks. A record path or record ID prints the provision with its condition shown, and a path that marks no record leaves it out.
+
+A Standard carries Strength `required` or `advisory`; a Convention or a pattern carries Strength `default`. A pattern's options follow its verification line. `litespec-maintain provisions` writes the [provision index](../reference/provisions.md) from these lines, with each provision's scope, condition, and strength, so the CLI reads one file instead of parsing every page; nothing else repeats them.
 
 ### Validator Diagnostics
 
@@ -224,6 +236,20 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
 **Checked by:** `litespec-maintain validate` emits no `PROSE_NORMATIVE_LOCATION` or `STANDARD_INFORMATIVE_NORMATIVE` diagnostic.
+
+### Match Strength to the Modal
+
+**ID:** `litespec/core/authoring#match-strength-to-the-modal`
+
+**Strength:** required
+
+**Statement:** A Standards provision MUST carry the modal its Strength line grades.
+
+**Rationale:** The Strength line tells a reader how binding a provision is, and the modal in its Statement says the same thing in words: a required provision obliges with must or must not, while an advisory one suggests with neither. A permission on its own reads as optional advice under a required label, so a permission either joins the provision it relaxes or becomes an obligation. When the two disagree, each reader picks the one that suits the change, and the grade means nothing.
+
+**Example:** A required provision states that a use case declares its kind with must, while an advisory provision suggests a naming shape without it.
+
+**Checked by:** `litespec-maintain validate` confirms each Standards provision carries the modal its Strength line grades.
 
 ### Use One Term for One Concept
 
@@ -681,7 +707,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Strength:** required
 
-**Statement:** A consumer MAY keep any published LiteSpec release for as long as it chooses.
+**Statement:** A LiteSpec release MUST NOT oblige a consumer to move to a later release.
 
 **Rationale:** Adoption is the consumer's decision. If a repository change could oblige a move, every LiteSpec edit would become a deadline for every consumer. Keeping any published release for as long as it serves decouples the consumer's schedule from the standard's.
 

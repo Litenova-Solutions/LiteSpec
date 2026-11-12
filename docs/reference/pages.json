@@ -3276,7 +3276,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Decision Records",
-      "intent": "A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.",
+      "intent": "A decision record pins one expensive-to-reverse choice down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. A technical decision pins a choice of one of six kinds: provider, package, format, boundary, topology, or replacement. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.",
       "sections": [
         "Intent",
         "Reference",
@@ -3500,7 +3500,7 @@
       "style": "command",
       "area": "tools",
       "title": "Rules Query",
-      "intent": "\u0060litespec rules\u0060 lists the provisions that govern a path or a record identifier at the record layers the project claims in [layers](../core/scope.md#layer-claims).",
+      "intent": "\u0060litespec rules\u0060 lists the provisions that govern a path, a record identifier, a change set, or one provision or page identifier, at the record layers the project claims in [layers](../core/scope.md#layer-claims).",
       "sections": [
         "Name",
         "Synopsis",

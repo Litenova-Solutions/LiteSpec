@@ -14,6 +14,7 @@ namespace LiteSpec.Cli.RecordEditing;
 ///     the next free number from the one decision sequence.
 /// </summary>
 /// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
+/// <follows>litespec/core/agent#search-the-provisions-before-recording-a-decision</follows>
 static class NewCommand
 {
     /// <summary>The command's usage text.</summary>
@@ -49,7 +50,10 @@ static class NewCommand
         one decision sequence across the product and technical decisions.
         <name> is the kebab-case name without the number, such as
         receipt-threshold; the full identifier is decision/<number>-<name>.
-        The command refuses a name that already carries a number.
+        Before it writes, it prints the provisions whose statement matches
+        the name's words, so a choice the standard already makes is followed
+        instead of recorded. The command refuses a name that already carries
+        a number.
 
         new <document-style> writes the .md document from its template: a tutorial
         or how-to under guide/, a command or configuration under tools/, a reference
@@ -326,6 +330,11 @@ static class NewCommand
             return 2;
         }
 
+        if (isDecision)
+        {
+            PrintMatchingProvisions(id);
+        }
+
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
@@ -485,6 +494,54 @@ static class NewCommand
 
         return max + 1;
     }
+
+    /// <summary>Prints the provisions whose statement matches the decision name's words, in identifier order, before the files are written.</summary>
+    /// <param name="name">The kebab-case decision name from the command line, without the number.</param>
+    static void PrintMatchingProvisions(string name)
+    {
+        var words = name.Split('-', StringSplitOptions.RemoveEmptyEntries)
+            .Select(word => word.ToLowerInvariant())
+            .Where(word => word.Length >= 3)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (words.Count == 0)
+        {
+            return;
+        }
+
+        var home = LiteSpecHome.Root;
+
+        if (home is null || !Directory.Exists(Path.Combine(home, "docs")))
+        {
+            return;
+        }
+
+        var matches = Provisions.Collect(home)
+            .Where(row => words.Any(word => StatementMatches(row.Statement, word)))
+            .ToList();
+
+        if (matches.Count == 0)
+        {
+            return;
+        }
+
+        CliHost.Out.WriteLine($"Provisions matching '{name}':");
+
+        foreach (var row in matches)
+        {
+            CliHost.Out.WriteLine($"- {row.Id}: {row.Statement}");
+        }
+    }
+
+    /// <summary>Whether the statement matches the name word: it contains the word or, for a plural word, its singular.</summary>
+    /// <param name="statement">The provision statement.</param>
+    /// <param name="word">The lowercased name word of at least three letters.</param>
+    /// <returns>True when the statement contains the word or its singular; otherwise false.</returns>
+    static bool StatementMatches(string statement, string word) =>
+        statement.Contains(word, StringComparison.OrdinalIgnoreCase)
+        || (word.Length > 3 && word.EndsWith('s') && !word.EndsWith("ss", StringComparison.Ordinal)
+            && statement.Contains(word[..^1], StringComparison.OrdinalIgnoreCase));
 
     /// <summary>Fills the document template's frontmatter title and opening heading with the new title.</summary>
     /// <param name="template">The document template text.</param>

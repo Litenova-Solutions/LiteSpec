@@ -5,8 +5,9 @@
 // disagree with each other. Endpoints stay thin: they pick a builder and set
 // the content type.
 import path from "node:path";
-import { groups } from "./areas";
-import { SITE_ORIGIN } from "./origin";
+import { AGENT_PROTOCOL_PLACEHOLDERS, siteDefaultValues } from "./agent-protocol.ts";
+import { groups } from "./areas.ts";
+import { SITE_ORIGIN } from "./origin.ts";
 import {
   appliedPages,
   backendStacks,
@@ -26,7 +27,7 @@ import {
   type Layer,
   type Page,
   type Selection,
-} from "./spec";
+} from "./spec.ts";
 
 /** Join the origin with a site path from the URL helpers in spec.ts. */
 export function absoluteUrl(sitePath: string): string {
@@ -38,13 +39,19 @@ export function oneLine(value: string): string {
   return value.replace(/\s+/g, " ").trim();
 }
 
-/** The one-line description of a page: its intent, or a fixed fallback. */
+/** The first sentence of a one-line Intent, ending at the first mark followed by space or end. */
+function firstSentence(value: string): string {
+  const match = value.match(/^(.+?[.!?])(\s|$)/);
+  return match ? match[1] : value;
+}
+
+/** The one-line description of a page: the first sentence of its intent with page links rewritten, or a fixed fallback. */
 export function describe(page: Page): string {
-  const intent = oneLine(page.intent);
-  if (intent) return intent;
-  // Only the glossary reaches this fallback: it is the one page with no
-  // Intent, Purpose or Name section. The wording follows the page-style
-  // table in docs/core/authoring.md.
+  const first = firstSentence(oneLine(page.intent));
+  if (first) return rewriteLine(first, page, path.posix.dirname(page.file));
+  // Pages with no Intent, Purpose or Name section reach this fallback: the
+  // glossary, the research pages and the decision records. The glossary
+  // wording follows the page-style table in docs/core/authoring.md.
   if (page.style === "glossary") return "One heading per term, in alphabetical order.";
   return `The ${page.title} page of the LiteSpec ${version} release.`;
 }
@@ -252,8 +259,9 @@ export function selectionLlmsText(selection: Selection): string {
   return finish(lines);
 }
 
-/** The root /llms.txt index: what LiteSpec is, how to use it, and every selection and layer. */
+/** The root /llms.txt index: what LiteSpec is, how to use it, every selection and layer, and the filled agent protocol block. */
 export function rootLlmsText(agentProtocol: string): string {
+  const defaults = siteDefaultValues();
   const lines = ["# LiteSpec", ""];
   lines.push(
     "> LiteSpec is the contract for one bounded-context business application. A project names one size, one shape, and its stacks, and the standard states every provision those choices apply.",
@@ -282,7 +290,17 @@ export function rootLlmsText(agentProtocol: string): string {
       `- [${layer.title}](${absoluteUrl(layerUrl(layer.key))}): ${layer.files.length} pages, concatenated in reading order.`,
     );
   }
-  lines.push("", "## Agent Protocol", "", "Paste the block below into the working context. It is the repository AGENTS.md.", "", agentProtocol.trim(), "");
+  lines.push(
+    "",
+    "## Agent Protocol",
+    "",
+    `Paste the block below into the working context. It is the generated agent protocol region of templates/consumer/project-agents.md, filled for the default selection (size ${defaults.size}, shape ${defaults.shape}, stacks ${defaults.stacks}, extensions ${defaults.extensions}). Each placeholder takes the project's value:`,
+    "",
+  );
+  for (const entry of AGENT_PROTOCOL_PLACEHOLDERS) {
+    lines.push(`- ${entry.placeholder}: ${entry.takes}.`);
+  }
+  lines.push("", agentProtocol.trim(), "");
   return finish(lines);
 }
 

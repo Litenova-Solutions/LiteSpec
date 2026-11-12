@@ -103,6 +103,53 @@ internal sealed partial class TemplateValidator
         }
     }
 
+    // A template cites the provisions it teaches or follows, so every
+    // litespec/... citation in templates/ resolves to a provision in the
+    // index. A {placeholder} is a shape, not a citation.
+    /// <summary>Checks that every provision citation in templates resolves to an active provision.</summary>
+    /// <param name="activeIds">The active provision identifiers.</param>
+    internal void CheckProvisionCitations(HashSet<string> activeIds)
+    {
+        var root = Context.Root;
+        var add = Context.Add;
+        var directory = Path.Combine(root, "templates");
+        if (!Directory.Exists(directory))
+        {
+            return;
+        }
+
+        foreach (var file in Walk(directory, _ => true))
+        {
+            var relative = PathText.Relative(root, file);
+            var text = FileText.ReadText(file);
+            var stripped = PlaceholderPattern().Replace(text, match => BlankPlaceholder(match));
+            foreach (Match match in CitationPattern.Matches(stripped))
+            {
+                if (!activeIds.Contains(match.Value))
+                {
+                    add(relative, LineNumber(stripped, match.Index), MaintainerDiagnostics.Codes.TemplateCitationUnknown, $"template references unknown provision '{match.Value}'");
+                }
+            }
+        }
+    }
+
+    /// <summary>Blanks a placeholder match, keeping line breaks so reported lines stay exact.</summary>
+    /// <param name="match">The placeholder match.</param>
+    /// <returns>The blanked text.</returns>
+    private static string BlankPlaceholder(Match match)
+    {
+        var chars = match.Value.ToCharArray();
+        for (var index = 0; index < chars.Length; index++)
+        {
+            if (chars[index] is not '\r' and not '\n')
+            {
+                chars[index] = ' ';
+            }
+        }
+
+        return new string(chars);
+    }
+
     /// <summary>Checks that the consumer template index names every tracked template.</summary>
     internal void CheckTemplateIndex()
     {
@@ -389,4 +436,8 @@ internal sealed partial class TemplateValidator
     /// <summary>Gets the pattern that matches a template index row.</summary>
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|")] private static partial Regex TemplateRowPattern();
+
+    /// <summary>Gets the pattern that matches one brace placeholder in a template.</summary>
+    /// <returns>The compiled pattern.</returns>
+    [GeneratedRegex(@"\{[^{}]*\}")] private static partial Regex PlaceholderPattern();
 }

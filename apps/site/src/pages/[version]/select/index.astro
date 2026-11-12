@@ -11,13 +11,17 @@ import SelectForm from "../../../components/SelectForm.astro";
 import Icon from "../../../components/Icon.astro";
 import "../../../styles/select.css";
 import {
+  SITE_DEFAULT_SHAPE,
+  SITE_DEFAULT_SIZE,
+  loadAgentProtocolRegion,
+  siteDefaultStacks,
+} from "../../../lib/agent-protocol";
+import {
   root,
   version,
   manifest,
   selections,
   selectionKey,
-  selectionIndexUrl,
-  layerUrl,
   backendStacks,
   frontendStacks,
   extensionStack,
@@ -57,7 +61,6 @@ const extensions = Object.entries(manifest.extensions)
     title: pageByFile(ext.path)?.title ?? id,
     activationScope: ext.activationScope ?? "project",
     stack: extensionStack(id),
-    layerUrl: layerUrl(`ext/${id}`),
   }))
   .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 
@@ -65,37 +68,12 @@ const selectionInfos = selections().map((selection) => ({
   shape: selection.shape,
   stacks: selection.stacks,
   key: selectionKey(selection),
-  indexUrl: selectionIndexUrl(selection),
 }));
 
-function joinList(items: string[]): string {
-  if (items.length === 0) return "none";
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
-}
-
-function sameMembers(a: string[], b: string[]): boolean {
-  return a.length === b.length && a.every((item) => b.includes(item));
-}
-
-const defaultSize = "small";
-const defaultShape = "server";
-const defaultBackend = backendStacks[0] ?? "";
-const defaultFrontend = frontendStacks.includes("react") ? "react" : (frontendStacks[0] ?? "");
-const defaultStacks = defaultFrontend ? [defaultBackend, defaultFrontend] : [defaultBackend];
-const defaultSelection = selectionInfos.find(
-  (entry) => entry.shape === defaultShape && sameMembers(entry.stacks, defaultStacks)
-);
-const initialIndexUrl = siteOrigin + (defaultSelection?.indexUrl ?? selectionIndexUrl({ shape: defaultShape, stacks: defaultStacks, extensions: [] }));
-
-const initialAgents = [
-  "## LiteSpec",
-  `This project follows LiteSpec ${version}: size ${defaultSize}, shape ${defaultShape}, stacks ${joinList(defaultStacks)}, extensions none.`,
-  `Before a task, read ${initialIndexUrl} and fetch only the pages the task touches.`,
-  "Selected extensions: none",
-  "UI work: the pattern pages listed in that index.",
-].join("\n");
+const defaultSize = SITE_DEFAULT_SIZE;
+const defaultShape = SITE_DEFAULT_SHAPE;
+const [defaultBackend = "", defaultFrontend = ""] = siteDefaultStacks();
+const agentProtocolRegion = loadAgentProtocolRegion();
 
 // The learn pages in the reading order their index states, each with a
 // reading time at 220 words a minute.
@@ -139,7 +117,6 @@ const description =
       <ol class="steps">
         <SelectForm
           version={version}
-          siteOrigin={siteOrigin}
           shapes={shapes}
           backendStacks={backendStacks}
           frontendStacks={frontendStacks}
@@ -150,7 +127,7 @@ const description =
           defaultShape={defaultShape}
           defaultBackend={defaultBackend}
           defaultFrontend={defaultFrontend}
-          initialAgents={initialAgents}
+          agentProtocolRegion={agentProtocolRegion}
         />
       </ol>
     </section>

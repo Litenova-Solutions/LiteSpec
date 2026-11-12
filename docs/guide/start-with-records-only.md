@@ -44,7 +44,7 @@ Add a `selectedExtensions` entry for each extension the project selects, each wi
 
 ### Tell the Agents
 
-Add the `## LiteSpec` block to the project's `AGENTS.md`, so every agent working in the repository reads the same rules. The [init command page](../tools/init.md) states the block that `litespec init` writes for a new project, with the release, size, shape, stacks and selection index.
+Keep the `agent-protocol` region in the project's `AGENTS.md` current, so every agent working in the repository reads the same rules. The [init command page](../tools/init.md) states the region that `litespec init` writes for a new project, with the release, size, shape, stacks, layers, extensions and selection index, and the [model command page](../tools/model.md) states how `litespec model render` rewrites it. Run `litespec model check` to report a missing or drifted region.
 
 ### Write the First Records
 

@@ -212,6 +212,7 @@ internal sealed class ProvisionCatalog
     {
         var strength = NormalizeStrength(found.GetValueOrDefault("Strength", ""));
         var appliesTo = ParseScope(found.GetValueOrDefault("Applies to", ""));
+        var when = ParseWhen(found.GetValueOrDefault("Applies to", ""));
 
         // The page file alone does not state the record layer, so a fallback entry governs every claim.
         // The generated index holds the layer and trace, and every normal read uses it.
@@ -266,7 +267,8 @@ internal sealed class ProvisionCatalog
             found.GetValueOrDefault("Example", ""),
             reviewedFor,
             ProvisionEntry.LiteSpecSource,
-            mark);
+            mark,
+            when);
     }
 
     /// <summary>Reads the generated provisions file, or null when it is missing or broken.</summary>
@@ -337,7 +339,8 @@ internal sealed class ProvisionCatalog
                     Text(item, "example"),
                     Text(item, "evidence"),
                     ProvisionEntry.LiteSpecSource,
-                    Text(item, "mark").Trim().ToLowerInvariant()));
+                    Text(item, "mark").Trim().ToLowerInvariant(),
+                    NormalizeWhen(Text(item, "when"))));
             }
 
             return entries;
@@ -384,6 +387,46 @@ internal sealed class ProvisionCatalog
     /// <returns>The normalized artifact.</returns>
     static string NormalizeScope(string value) => ParseScope(value);
 
+    /// <summary>Normalizes a when value: backticks stripped, trimmed, lowercased.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The normalized condition, or empty.</returns>
+    static string NormalizeWhen(string value) => value.Trim().Trim('`').Trim().ToLowerInvariant();
+
+    /// <summary>Loads every provision in the carried release without selection filtering, for identifier lookup.</summary>
+    /// <param name="home">The carried LiteSpec release root.</param>
+    /// <returns>The catalog of every provision in identifier order.</returns>
+    public static ProvisionCatalog LoadAll(string home)
+    {
+        if (LoadJson(home) is { Count: > 0 } json)
+        {
+            var kept = json.OrderBy(entry => entry.Id, StringComparer.Ordinal).ToList();
+
+            if (kept.Count > 0)
+            {
+                return new ProvisionCatalog(kept);
+            }
+        }
+
+        var rows = Provisions.Collect(home).ToList();
+        var entries = new List<ProvisionEntry>();
+
+        foreach (var group in rows.GroupBy(row => row.Page, StringComparer.Ordinal))
+        {
+            var file = Path.Combine(home, group.Key.Replace('/', Path.DirectorySeparatorChar));
+            var fields = ReadPageFields(file);
+
+            foreach (var row in group)
+            {
+                fields.TryGetValue(row.Id, out var found);
+                found ??= new Dictionary<string, string>(StringComparer.Ordinal);
+                entries.Add(EntryOf(row, fields[""], found));
+            }
+        }
+
+        entries.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
+        return new ProvisionCatalog(entries);
+    }
+
     /// <summary>Reads the artifact field of an Applies to value.</summary>
     /// <param name="value">The raw value.</param>
     /// <returns>The normalized artifact, or empty.</returns>
@@ -422,6 +465,31 @@ internal sealed class ProvisionCatalog
         }
 
         return artifact;
+    }
+
+    /// <summary>Reads the when field of an Applies to value.</summary>
+    /// <param name="value">The raw value.</param>
+    /// <returns>The normalized condition, or empty.</returns>
+    static string ParseWhen(string value)
+    {
+        var text = value.Trim().Trim('`').Trim();
+
+        if (text.Length == 0)
+        {
+            return "";
+        }
+
+        foreach (var part in text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var segment = part.Trim().Trim('`').Trim();
+
+            if (segment.StartsWith("when:", StringComparison.OrdinalIgnoreCase))
+            {
+                return NormalizeWhen(segment["when:".Length..]);
+            }
+        }
+
+        return "";
     }
 
     /// <summary>Strips the artifact and record prefixes from an artifact value.</summary>

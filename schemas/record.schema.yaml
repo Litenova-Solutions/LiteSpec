@@ -2006,6 +2006,14 @@ $defs:
         $ref: '#/$defs/termIdArray'
       records:
         $ref: '#/$defs/recordsArray'
+      kind:
+        enum:
+        - provider
+        - package
+        - format
+        - boundary
+        - topology
+        - replacement
       options:
         type: array
         uniqueItems: true

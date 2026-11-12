@@ -191,7 +191,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: command
 
 **Statement:** Each command use case MUST share its verb with the aggregate method its handler calls.
 
@@ -394,7 +394,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: command
 
 **Statement:** Each command MUST declare its audit level and target, or its exemption with its justification.
 
@@ -408,7 +408,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Statement:** Each query MUST declare its output in named `include` groups.
 
@@ -424,7 +424,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Statement:** Each include group visible to more roles than the aggregates it reads MUST cite the requirement widening it in `cites`.
 
@@ -438,7 +438,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Statement:** Each collection query MUST declare its paging with `mode` of `pages`, or `{ "mode": "none", "reason": "..." }` with its reason.
 
@@ -452,7 +452,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Statement:** Each query reading lagging aggregates MUST set `builtAsynchronously` with a `{ "mode": "bounded", "within": "..." }` or `{ "mode": "advisory", "authority": "..." }` freshness and a lag scenario.
 
@@ -634,7 +634,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:scenario
 
-**Statement:** A scenario MAY name the rules it shows in `exercises`.
+**Statement:** A scenario MUST name the rules it shows in `exercises`.
 
 **Rationale:** A rule proved only through a test mark hides which example walks it: readers open the rule and find no story. Naming the shown rules in `exercises` ties each example to the rules it walks, so every rule meets its stories.
 
@@ -650,7 +650,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** A use case MAY hold the shared Given of its scenarios in `background`.
+**Statement:** A use case MUST hold the shared Given of its scenarios in `background`.
 
 **Rationale:** Every scenario repeating the same setup buries the step that differs: readers reread one Given on each story. Holding the shared Given once in `background` leaves each scenario its own situation, action, and assertion.
 

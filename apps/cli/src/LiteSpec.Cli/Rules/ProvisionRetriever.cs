@@ -46,10 +46,17 @@ internal static class ProvisionRetriever
 
             var reasons = ReasonsFor(entry, target);
 
-            if (reasons.Count > 0)
+            if (reasons.Count == 0)
             {
-                found[entry.Id] = (entry, reasons);
+                continue;
             }
+
+            if (entry.HasWhen && !ApplyWhen(entry, target, config, reasons))
+            {
+                continue;
+            }
+
+            found[entry.Id] = (entry, reasons);
         }
 
         foreach (var convention in conventions)
@@ -78,6 +85,30 @@ internal static class ProvisionRetriever
         });
 
         return results;
+    }
+
+    /// <summary>Whether the conditional provision is returned for the target, showing its condition on a record.</summary>
+    /// <param name="entry">The conditional provision.</param>
+    /// <param name="target">The rules target.</param>
+    /// <param name="config">The consumer configuration.</param>
+    /// <param name="reasons">The reasons, with the condition added for a record target.</param>
+    /// <returns>True when a record target names it, a code target marks it directly, or its condition holds for a marked record.</returns>
+    static bool ApplyWhen(ProvisionEntry entry, PathContext target, ConsumerConfig config, List<string> reasons)
+    {
+        if (!target.IsCodePath)
+        {
+            reasons.Add($"when {entry.When}");
+            return true;
+        }
+
+        if (target.Marked.Any(marked => string.Equals(marked, entry.Id, StringComparison.Ordinal)))
+        {
+            return true;
+        }
+
+        var records = ProvisionWhen.LoadMarked(config, target);
+
+        return records.Count > 0 && ProvisionWhen.Holds(entry.When, records);
     }
 
     /// <summary>Why the provision governs the target, or empty when it does not.</summary>

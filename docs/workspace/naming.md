@@ -171,7 +171,9 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
-**Statement:** A boolean property or method MUST use `Is`, `Has`, `Can`, or a precise verb.
+**Statement:** A boolean property or method SHOULD use `Is`, `Has`, `Can`, or a precise verb.
+
+**Deviation:** A name fixed by an external contract or an overridden member keeps its fixed wording.
 
 **Rationale:** A boolean answers a yes-or-no question, so its name asks one. `Is`, `Has`, `Can`, or a precise verb make the question explicit: `HasLines` and `CanPublish` state a condition. `LinesPresent` and `CheckPublish` state neither a question nor an answer, so the caller reads the body to learn the polarity.
 
@@ -185,7 +187,9 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Applies to:** artifact: aggregate, state-record, value-object, domain-event, use-case, command-handler, query-handler, validator, reaction, port, repository, endpoint, migration, job
 
-**Statement:** Production code MUST target the pinned language version and use its current construct over an older equivalent.
+**Statement:** Production code SHOULD target the pinned language version and use its current construct over an older equivalent.
+
+**Deviation:** Code that targets an older runtime or generated output keeps the construct its target needs.
 
 **Rationale:** A pinned language version gives every writer the same constructs. Using the current construct over its older equivalent keeps one idiom across the codebase instead of one per author. In the dotnet stack, collection expressions, pattern matching, and primary constructors express the same intent with less incidental code.
 

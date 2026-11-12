@@ -2,7 +2,7 @@
 
 ## Intent
 
-A decision record pins one expensive-to-reverse choice (a data model, a provider, a security boundary) down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.
+A decision record pins one expensive-to-reverse choice down with the options weighed and the evidence cited, so a later team sees why the product looks the way it does instead of relitigating it. A technical decision pins a choice of one of six kinds: provider, package, format, boundary, topology, or replacement. This page states where each record lives in the consumer repository (the application repository built against one pinned LiteSpec release), what fields and explanation sections it holds, and how a record changes: in place, with git keeping the history.
 
 ## Reference
 
@@ -10,7 +10,7 @@ The [Intent layer](../core/intent.md) states what a decision record means. The [
 
 ### Where a Record Lives
 
-Each record is one record file with its explanation file beside it in the consumer repository. `litespec new decision <name>` scaffolds both files and reserves the identifier; it takes a kebab-case name without a number and allocates the next free number from the one decision sequence.
+Each record is one record file with its explanation file beside it in the consumer repository. `litespec new decision <name>` scaffolds both files and reserves the identifier; it takes a kebab-case name without a number and allocates the next free number from the one decision sequence. Before it writes the files, it prints the provisions whose statement matches the name's words, so a choice a provision already makes follows that provision instead of becoming a decision. Before recording a decision, query `rules` for its subject; where a provision makes the choice, the code follows that provision instead, as `litespec/core/agent#search-the-provisions-before-recording-a-decision` states. A technical decision lives under `.litespec/implementation/decisions/` or `.litespec/implementation/modules/<m>/decisions/` instead, as the [model page](../core/model.md) states.
 
 | Item | Value |
 |:---|:---|
@@ -35,7 +35,26 @@ The explanation file carries these sections, in order:
 | Evidence with Confidence | The research and constraints the choice rests on, each with its confidence; the section is optional. |
 | What Would Reopen It | The condition that would reopen the choice, or that no known condition reopens it. |
 
-The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets and `basedOn` with the constraints and research behind it. A record present in git is decided.
+The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets and `basedOn` with the constraints and research behind it. A technical decision also carries `kind`, one of the six kinds the next section names. A product decision carries no `kind`. The field is optional: a technical decision with no `kind` is reported as `decision-kind-missing`, and a choice of no kind is not a decision. A record present in git is decided.
+
+### The Six Kinds
+
+Each technical decision takes one kind, which is the category and the filter at once.
+
+| Kind | Meaning |
+|:---|:---|
+| `provider` | An outside service. |
+| `package` | A third-party package outside the manifest baseline. It pairs with `admits`. |
+| `format` | A stored, published, or wire shape, such as a token layout or a document serialization. |
+| `boundary` | A security or trust boundary. |
+| `topology` | A deployment or hosting shape. |
+| `replacement` | The project takes another way than a manifest baseline. |
+
+A technical choice of none of these kinds states its reason in the class documentation, and the mark on the class names the record the class serves. A technical decision whose followers all sit in one module, and each already carry an `implements` mark, is reported as `decision-scope-invalid`: the reason belongs in the class documentation instead.
+
+### Decisions and Conventions
+
+A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question names how a reviewer finds a breach. A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.
 
 ### Changed in Place
 

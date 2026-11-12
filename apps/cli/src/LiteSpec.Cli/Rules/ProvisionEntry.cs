@@ -23,6 +23,7 @@ namespace LiteSpec.Cli.Rules;
 /// <param name="ReviewedFor">The verification question or check a reviewer answers.</param>
 /// <param name="Source">Where the entry comes from: litespec or convention.</param>
 /// <param name="Mark">The verification mark: checkable when a tool checks the provision, guidance when a person judges it, or empty.</param>
+/// <param name="When">The applicability condition the marked record must meet, or empty for none.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal sealed record ProvisionEntry(
     string Id,
@@ -39,7 +40,8 @@ internal sealed record ProvisionEntry(
     string Example,
     string ReviewedFor,
     string Source,
-    string Mark)
+    string Mark,
+    string When = "")
 {
     /// <summary>The source of a LiteSpec provision from the carried release.</summary>
     public const string LiteSpecSource = "litespec";
@@ -66,6 +68,9 @@ internal sealed record ProvisionEntry(
 
     /// <summary>Gets a value indicating whether a tool checks the provision, so the build already enforces it.</summary>
     public bool IsChecked => string.Equals(Mark, "checkable", StringComparison.Ordinal);
+
+    /// <summary>Gets a value indicating whether the provision carries an applicability condition.</summary>
+    public bool HasWhen => When.Length > 0;
 
     /// <summary>One backticked span in a verification line.</summary>
     static readonly Regex BacktickSpan = new("`([^`]+)`", RegexOptions.Compiled);

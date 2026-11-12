@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
@@ -8,8 +9,9 @@ namespace LiteSpec.Cli.Init;
 
 /// <summary>
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
-///     from one of the ready-made presets in <c>templates/presets/</c>, and copies the
-///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
+///     from one of the ready-made presets in <c>templates/presets/</c>, copies the
+///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>,
+///     and inserts the agent-protocol region into an existing <c>AGENTS.md</c> that holds none.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -44,9 +46,12 @@ static class InitCommand
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the LiteSpec
-        block filled with the release, size, shape, stacks, and selection index of the
-        new project, and names the command that runs the CLI. With --install tool, the
+        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the
+        agent-protocol region filled with the release, size, shape, stacks, layers,
+        extensions, and selection index of the new project, and names the command that
+        runs the CLI. An existing AGENTS.md that holds no region gains the region after
+        its first heading, or at the end; text outside the region is never touched, and a
+        region that is already there is never rewritten. With --install tool, the
         command also writes .config/dotnet-tools.json pinning the LiteSpec.Cli tool at
         the release, and the agent context runs the CLI as dotnet litespec. With
         --install standalone, the project runs the native binary as litespec, and
@@ -55,7 +60,8 @@ static class InitCommand
         instead of the template claim, and a preset that names no stacks or
         no frontends writes a project with none. --size and --name complete the
         project record. The command never overwrites an existing file: it writes
-        each missing file and leaves existing ones alone.
+        each missing file and leaves existing ones alone, except for the region it
+        inserts into an existing AGENTS.md.
 
           --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
           --size     The project size: small or large.
@@ -281,10 +287,35 @@ static class InitCommand
             .Select(entry => (string?)entry)
             .OfType<string>()
             .ToList() ?? [];
+        var extensionNames = ExtensionNames(project);
+        var layerClaims = LayerClaimsOf(project);
+        var filledAgents = AgentProtocol.Fill(
+            scaffold["project-agents.md"],
+            version,
+            size,
+            shapeText,
+            AgentProtocol.FormatStacks(stackNames),
+            AgentProtocol.FormatExtensions(extensionNames),
+            AgentProtocol.FormatLayers(layerClaims),
+            AgentProtocol.SelectionKey(shapeText, stackNames),
+            command);
 
         foreach (var (file, relative) in Scaffold)
         {
             var destination = Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+
+            if (file == "project-agents.md" && File.Exists(destination))
+            {
+                // An existing agent context keeps its own text; init only inserts the region it lacks.
+                var insertion = InsertAgentsRegion(destination, filledAgents);
+
+                if (insertion != 0)
+                {
+                    return insertion;
+                }
+
+                continue;
+            }
 
             if (File.Exists(destination))
             {
@@ -292,9 +323,7 @@ static class InitCommand
                 continue;
             }
 
-            var contents = file == "project-agents.md"
-                ? FillAgents(scaffold[file], version, size, shapeText, stackNames, command)
-                : scaffold[file];
+            var contents = file == "project-agents.md" ? filledAgents : scaffold[file];
 
             try
             {
@@ -373,32 +402,106 @@ static class InitCommand
         return 0;
     }
 
-    /// <summary>Fills the LiteSpec block of a fresh agent context with the new project's selection.</summary>
-    /// <param name="text">The agent context template text with placeholders for the project selection.</param>
-    /// <param name="version">The LiteSpec release version the new project records.</param>
-    /// <param name="size">The project size, small or large.</param>
-    /// <param name="shape">The project shape, server or client-only.</param>
-    /// <param name="stacks">The stack identifiers the preset selects, in list order.</param>
-    /// <param name="command">The command that runs the CLI in the project: <c>dotnet litespec</c> or <c>litespec</c>.</param>
-    /// <returns>The template text with each selection placeholder replaced by its value.</returns>
-    static string FillAgents(string text, string version, string size, string shape, List<string> stacks, string command) =>
-        text.Replace("__LITESPEC_COMMAND__", command, StringComparison.Ordinal)
-            .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
-            .Replace("__SIZE__", size, StringComparison.Ordinal)
-            .Replace("__SHAPE__", shape, StringComparison.Ordinal)
-            .Replace("__STACKS__", JoinList(stacks), StringComparison.Ordinal)
-            .Replace("__SELECTION_KEY__", stacks.Count == 0 ? shape : $"{shape}.{string.Join(".", stacks)}", StringComparison.Ordinal);
-
-    /// <summary>The stacks as prose, the way the selection page joins them: none, one, or joined with commas and and.</summary>
-    /// <param name="items">The stack names to join as prose.</param>
-    /// <returns>The prose form of the list: none for an empty list, the single name alone, two names joined with and, or a comma list ending with and.</returns>
-    static string JoinList(List<string> items) => items.Count switch
+    /// <summary>Inserts the agent-protocol region into an existing agent context that holds none.</summary>
+    /// <param name="destination">The existing AGENTS.md path.</param>
+    /// <param name="filledTemplate">The filled agent context template the region is read from.</param>
+    /// <returns>0 when the region was inserted or the file already holds one, 1 when the file cannot be read or written.</returns>
+    static int InsertAgentsRegion(string destination, string filledTemplate)
     {
-        0 => "none",
-        1 => items[0],
-        2 => $"{items[0]} and {items[1]}",
-        _ => $"{string.Join(", ", items.Take(items.Count - 1))} and {items[^1]}",
-    };
+        string existing;
+
+        try
+        {
+            existing = File.ReadAllText(destination);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to read '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        if (AgentProtocol.ContainsRegion(existing) || AgentProtocol.TemplateBody(filledTemplate) is not { } body)
+        {
+            CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
+            return 0;
+        }
+
+        var newline = existing.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        var rewritten = AgentProtocol.Insert(existing, AgentProtocol.BuildRegion(body, newline), newline);
+
+        try
+        {
+            File.WriteAllText(destination, rewritten);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        CliHost.Out.WriteLine($"Updated {destination}.");
+        return 0;
+    }
+
+    /// <summary>The extension ids the project selects in selectedExtensions, in declaration order.</summary>
+    /// <param name="project">The project document the preset overlay produced.</param>
+    /// <returns>The selected extension ids.</returns>
+    static List<string> ExtensionNames(JsonObject project)
+    {
+        var names = new List<string>();
+
+        if (project["selectedExtensions"] is not JsonArray selected)
+        {
+            return names;
+        }
+
+        foreach (var entry in selected)
+        {
+            if (entry is JsonValue value && value.TryGetValue<string>(out var id) && id.Length > 0)
+            {
+                names.Add(id);
+            }
+            else if (entry is JsonObject container
+                && container["id"] is JsonValue contained
+                && contained.TryGetValue<string>(out var objectId)
+                && objectId.Length > 0)
+            {
+                names.Add(objectId);
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>The layer claims the project declares in layers.</summary>
+    /// <param name="project">The project document the preset overlay produced.</param>
+    /// <returns>The claimed layers with their practices.</returns>
+    static LayerClaims LayerClaimsOf(JsonObject project)
+    {
+        var layers = project["layers"] as JsonObject;
+
+        return new LayerClaims(
+            layers?.ContainsKey("intent") == true,
+            layers?.ContainsKey("behavior") == true,
+            PracticeOf(layers, "implementation"),
+            PracticeOf(layers, "proof"));
+    }
+
+    /// <summary>The practice a layer claims, or null when the layer is not claimed.</summary>
+    /// <param name="layers">The layers mapping, or null when the project names none.</param>
+    /// <param name="name">The layer name.</param>
+    /// <returns>The practice, or null.</returns>
+    static LayerPractice? PracticeOf(JsonObject? layers, string name)
+    {
+        if (layers is null || !layers.ContainsKey(name))
+        {
+            return null;
+        }
+
+        return layers[name] is JsonValue value && value.TryGetValue<string>(out var text) && text == "own"
+            ? LayerPractice.Own
+            : LayerPractice.LiteSpec;
+    }
 
     /// <summary>The local tool manifest pinning the LiteSpec.Cli tool at the release.</summary>
     /// <param name="version">The LiteSpec release version to pin in the tool manifest.</param>

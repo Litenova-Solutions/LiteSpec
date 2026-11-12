@@ -99,7 +99,7 @@ Each page also states the scope its provisions apply to: the technology, the par
 The standard expects departures and gives each one a home:
 
 - **A departure record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the departure over the standard, and a covered finding reports as covered instead of blocking.
-- **A project convention** is a default you replace by stating your own in the provision shape, under `.litespec/governance/conventions/`.
+- **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder.
 - **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
 When guidance overlaps, the most specific source wins: your departure or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the departure in place of the original.

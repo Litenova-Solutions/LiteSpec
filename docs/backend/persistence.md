@@ -242,7 +242,7 @@ A tool that alters the schema from application startup is not a reviewed step wh
 
 **Strength:** required
 
-**Applies to:** artifact: command-handler, repository
+**Applies to:** artifact: command-handler, repository; when: document-number
 
 **Statement:** Each legal document number MUST allocate from a per-owner sequence taken in the command transaction.
 

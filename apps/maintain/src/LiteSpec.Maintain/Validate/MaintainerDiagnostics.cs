@@ -117,6 +117,8 @@ internal static class MaintainerDiagnostics
         Codes.IndexPageMissing,
         Codes.PatternOptionCount,
         Codes.TemplateCitedUnknown,
+        Codes.TemplateCitationUnknown,
+        Codes.StandardStrengthModal,
     ];
 
     /// <summary>The diagnostic code constants.</summary>
@@ -445,5 +447,11 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A docs page that cites a template path the templates folder lacks.</summary>
         public const string TemplateCitedUnknown = "TEMPLATE_CITED_UNKNOWN";
+
+        /// <summary>A template that cites a provision the index lacks.</summary>
+        public const string TemplateCitationUnknown = "TEMPLATE_CITATION_UNKNOWN";
+
+        /// <summary>A provision whose Strength line disagrees with its Statement or Default.</summary>
+        public const string StandardStrengthModal = "STANDARD_STRENGTH_MODAL";
     }
 }

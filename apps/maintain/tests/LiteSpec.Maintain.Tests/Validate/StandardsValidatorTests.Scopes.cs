@@ -167,6 +167,42 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** trace: yes, no\n\n**Statement:**")),
         [MaintainerDiagnostics.Codes.ScopeValue]);
 
+    /// <summary>Applies to line naming a declared when condition beside an artifact.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "applies to line naming a declared when condition beside an artifact")]
+    public void AppliesToDeclaredWhen() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate; when: query\n\n**Statement:**"), "**Strength:** default\n\n**Default:**", "**Strength:** default\n\n**Applies to:** artifact: aggregate\n\n**Default:**"));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
+
+    /// <summary>Applies to line naming only a when condition.</summary>
+    /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
+    [Fact(DisplayName = "applies to line naming only a when condition")]
+    public void AppliesToWhenOnly() => Check(
+        root =>
+        {
+            StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** when: query\n\n**Statement:**"));
+            StandardsFixture.RebuildIndex(root);
+        },
+        []);
+
+    /// <summary>Applies to line naming an unknown when condition.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "applies to line naming an unknown when condition")]
+    public void AppliesToUnknownWhen() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** when: sometimes\n\n**Statement:**")),
+        [MaintainerDiagnostics.Codes.ScopeValue]);
+
+    /// <summary>Applies to line naming two when conditions.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "applies to line naming two when conditions")]
+    public void AppliesToTwoWhens() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** when: query, command\n\n**Statement:**")),
+        [MaintainerDiagnostics.Codes.ScopeValue]);
+
     /// <summary>Applies to line stating its page layer.</summary>
     /// <proves>litespec/core/scopes#state-applies-to-only-when-narrower</proves>
     [Fact(DisplayName = "applies to line stating its page layer")]
@@ -197,6 +233,14 @@ public sealed partial class StandardsValidatorTests
         Assert.Equal(["any", "behavior", "implementation", "intent", "proof"], vocabulary.Layers.OrderBy(value => value, StringComparer.Ordinal).ToArray());
         Assert.Contains("tests", vocabulary.Concerns);
         Assert.Equal(["no", "yes"], Scopes.TraceValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
+    }
+
+    /// <summary>Scope vocabulary naming the when conditions.</summary>
+    /// <proves>litespec/core/scopes#use-only-declared-scope-values</proves>
+    [Fact(DisplayName = "scope vocabulary naming the when conditions")]
+    public void ScopesVocabularyNamesWhen()
+    {
+        Assert.Equal(["command", "document-number", "erasure", "query", "upload"], Scopes.WhenValues.OrderBy(value => value, StringComparer.Ordinal).ToArray());
     }
 
 

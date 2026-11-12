@@ -4,6 +4,7 @@ using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Readers.Dotnet;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Rules;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -63,17 +64,21 @@ internal static class MarkChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckMarkLinks(ProjectModel model, List<Finding> findings)
     {
+        var conventions = ConventionFiles.Load(model.Config)
+            .Select(entry => entry.Id)
+            .ToHashSet(StringComparer.Ordinal);
+
         foreach (var element in model.Code.Elements)
         {
             foreach (var mark in element.Marks)
             {
                 if (mark.Verb == MarkVerb.Follows)
                 {
-                    CheckFollowsMark(model, element, mark, findings);
+                    CheckFollowsMark(model, element, mark, conventions, findings);
                 }
                 else
                 {
-                    CheckServesMark(model, element, mark, findings);
+                    CheckServesMark(model, element, mark, conventions, findings);
                 }
 
                 if (UsesDeclaredStyle(element.Kind) && mark.Style != model.Config.Marks)
@@ -220,20 +225,25 @@ internal static class MarkChecks
     ///     Checks one <c>implements</c> or <c>proves</c> mark: it names a record of
     ///     the type its kind takes, in the verb its kind takes. A test proves the
     ///     lowest record it verifies: a scenario, a rule, a quality requirement, a
-    ///     technical decision, an external system, an integration event, or a
-    ///     provision of the carried release.
+    ///     technical decision, an external system, an integration event, a provision
+    ///     of the carried release, or a project convention.
     /// </summary>
     /// <param name="model">The loaded project model that resolves the marked record.</param>
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The implements or proves mark under test.</param>
+    /// <param name="conventions">The identifiers of the loaded project conventions.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckServesMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
+    private static void CheckServesMark(ProjectModel model, MarkedElement element, CodeMark mark, IReadOnlySet<string> conventions, List<Finding> findings)
     {
         var subject = mark.RecordId.Length > 0 ? mark.RecordId : null;
 
         if (element.Kind == CodeKind.Test && mark.RecordId.StartsWith("litespec/", StringComparison.Ordinal))
         {
             CheckProvisionMark(model, element, mark, "marks", findings);
+        }
+        else if (ConventionIds.IsConventionId(mark.RecordId))
+        {
+            CheckConventionMark(element, mark, "marks", conventions, findings);
         }
         else if (!model.ById.TryGetValue(mark.RecordId, out var record))
         {
@@ -268,14 +278,15 @@ internal static class MarkChecks
 
     /// <summary>
     ///     Checks one <c>follows</c> mark on an element of any kind: it names a
-    ///     provision of the carried release on an applied page, or a decision or
-    ///     departure.
+    ///     provision of the carried release on an applied page, a decision, a
+    ///     departure, or a project convention.
     /// </summary>
     /// <param name="model">The loaded project model that resolves the followed record.</param>
     /// <param name="element">The marked code element that carries the mark.</param>
     /// <param name="mark">The follows mark under test.</param>
+    /// <param name="conventions">The identifiers of the loaded project conventions.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFollowsMark(ProjectModel model, MarkedElement element, CodeMark mark, List<Finding> findings)
+    private static void CheckFollowsMark(ProjectModel model, MarkedElement element, CodeMark mark, IReadOnlySet<string> conventions, List<Finding> findings)
     {
         var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
         var id = mark.RecordId;
@@ -293,6 +304,13 @@ internal static class MarkChecks
             {
                 findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or departure.", mark.File, mark.Line, id));
             }
+
+            return;
+        }
+
+        if (ConventionIds.IsConventionId(id))
+        {
+            CheckConventionMark(element, mark, "follows", conventions, findings);
 
             return;
         }
@@ -340,6 +358,31 @@ internal static class MarkChecks
             && !model.AppliedProvisions.Contains(id))
         {
             findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which a selected extension replaces.", mark.File, mark.Line, id));
+        }
+    }
+
+    /// <summary>
+    ///     Checks one mark naming a project convention: a <c>follows</c> mark on an
+    ///     element of any kind, or a <c>proves</c> mark on a test. It names a
+    ///     convention the project loads from its conventions folder.
+    /// </summary>
+    /// <param name="element">The marked code element that carries the mark.</param>
+    /// <param name="mark">The mark that names the convention.</param>
+    /// <param name="verb">The mark verb shown in the finding message.</param>
+    /// <param name="conventions">The identifiers of the loaded project conventions.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckConventionMark(MarkedElement element, CodeMark mark, string verb, IReadOnlySet<string> conventions, List<Finding> findings)
+    {
+        var name = $"{KindName(element.Kind)} '{DisplayName(element)}'";
+        var id = mark.RecordId;
+
+        if (!conventions.Contains(id))
+        {
+            findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which matches no convention.", mark.File, mark.Line, id));
+        }
+        else if (verb != "follows" && element.Kind is not (CodeKind.Test or CodeKind.BrowserTest))
+        {
+            findings.Add(new Finding("mark-unknown", $"{name} {verb} '{id}', which is a convention, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, id));
         }
     }
 

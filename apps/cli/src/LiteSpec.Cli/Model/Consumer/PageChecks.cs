@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Model.Ui;
+using LiteSpec.Cli.Rules;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
@@ -186,6 +187,12 @@ static class PageChecks
     /// <returns>True when the file is a document.</returns>
     static bool CheckMarkdownFile(ConsumerRun run, string file, string relative, string raw, Action<Finding> add)
     {
+        // A project convention is provision-shaped Markdown that rules reads, not a document or an explanation.
+        if (ConventionFiles.InConventionsFolder(relative))
+        {
+            return false;
+        }
+
         var recordPath = RecordFile.RecordPathOf(file);
 
         // The glossary file is data, not a record, so a Markdown file beside it is no

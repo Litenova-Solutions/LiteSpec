@@ -1,4 +1,5 @@
 using LiteSpec.Model;
+using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.Governance;
 
@@ -20,5 +21,44 @@ internal static class AgentProtocolChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRegion(ProjectModel model, List<Finding> findings)
     {
+        var file = Path.Combine(model.Config.Root, AgentProtocol.FileName);
+
+        // A project without an agent context has no region to keep current; init writes one.
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        var match = AgentProtocol.FindRegion(text);
+
+        if (match is null)
+        {
+            findings.Add(new Finding(MissingCode, "AGENTS.md holds no agent-protocol generated region.", file, 1, null));
+            return;
+        }
+
+        if (AgentProtocol.ExpectedRegion(model) is not { } expected)
+        {
+            return;
+        }
+
+        // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone.
+        var actual = match.Value.Replace("\r\n", "\n", StringComparison.Ordinal);
+
+        if (actual != expected.Replace("\r\n", "\n", StringComparison.Ordinal))
+        {
+            findings.Add(new Finding(DriftCode, "The agent-protocol region in AGENTS.md differs from what model render writes.", file, LineOf(LineStarts(text), match.Index), null));
+        }
     }
 }
