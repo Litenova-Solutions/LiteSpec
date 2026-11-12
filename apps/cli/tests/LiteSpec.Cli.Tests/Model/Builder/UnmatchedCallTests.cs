@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
-using LiteSpec.Cli.Tests.Model;
-using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Builder;
 
@@ -38,7 +38,7 @@ public sealed class UnmatchedCallTests
     static void AddFrontend(string root)
     {
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         project["frontends"]!.AsArray().Add(new JsonObject { ["name"] = "console", ["path"] = "apps/console", ["platform"] = "react" });
         File.WriteAllText(projectFile, project.ToJsonString());
     }

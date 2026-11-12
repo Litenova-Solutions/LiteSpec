@@ -2,8 +2,8 @@ using System.Collections.Immutable;
 using System.Text;
 using LiteSpec.Analyzers.Generation;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Analyzers.Tests.Support;
@@ -36,7 +36,7 @@ internal static class GeneratorVerify
         IEnumerable<MetadataReference>? extraReferences = null,
         string? layout = null)
     {
-        layout ??= LiteSpec.Model.LayerResolver.FromAssemblyName(assemblyName) != LiteSpec.Model.Layer.None ? "layer-projects" : null;
+        layout ??= LiteSpec.Model.ArchitectureLayerResolver.FromAssemblyName(assemblyName) != LiteSpec.Model.ArchitectureLayer.None ? "layer-projects" : null;
         var compilation = CreateCompilation(sources, assemblyName, extraReferences);
         var result = RunToResult(CreateDriver(additionalFiles, layer, layout), compilation);
         var generated = new Dictionary<string, string>(StringComparer.Ordinal);

@@ -1,5 +1,7 @@
-using LiteSpec.Model;
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;

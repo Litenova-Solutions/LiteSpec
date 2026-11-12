@@ -1,7 +1,11 @@
 using System.Text.Json;
-using LiteSpec.Model;
-using LiteSpec.Model.Checks;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks.Implementation;
+using LiteSpec.Cli.Model.Checks.Implementation.Placement;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model;
 
@@ -16,7 +20,10 @@ public sealed class PlacementCheckTests
         using var temp = ModelFixture.Prepare("small", "code-placement-drift");
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
         var findings = new List<Finding>();
-        PlacementChecks.Run(model, findings);
+        BackendPlacementChecks.Run(model, findings);
+        TestPlacementChecks.Run(model, findings);
+        FrontendPlacementChecks.Run(model, findings);
+        ClosedFolderChecks.Run(model, findings);
         var placed = findings.Where(finding => finding.Code == "code-placement-drift").ToList();
 
         Assert.Equal(4, placed.Count);
@@ -284,7 +291,10 @@ public sealed class PlacementCheckTests
     static List<Finding> Run(ProjectModel model)
     {
         var findings = new List<Finding>();
-        PlacementChecks.Run(model, findings);
+        BackendPlacementChecks.Run(model, findings);
+        TestPlacementChecks.Run(model, findings);
+        FrontendPlacementChecks.Run(model, findings);
+        ClosedFolderChecks.Run(model, findings);
 
         return findings.Where(finding => finding.Code == "code-placement-drift").ToList();
     }
@@ -372,11 +382,11 @@ public sealed class PlacementCheckTests
     /// <param name="qualified">The placement path: module, aggregate and name joined by dots.</param>
     /// <param name="root">The fixture root folder the record file sits under.</param>
     /// <returns>The record.</returns>
-    static LiteSpec.Model.Record Rec(string type, string id, string qualified, string root)
+    static LiteSpec.Cli.Model.Records.Record Rec(string type, string id, string qualified, string root)
     {
         using var document = JsonDocument.Parse("""{"status": "reviewed"}""");
 
-        return new LiteSpec.Model.Record
+        return new LiteSpec.Cli.Model.Records.Record
         {
             Type = type,
             Id = id,

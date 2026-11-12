@@ -16,15 +16,7 @@ Start with:
 
 ### Install the Release
 
-Install the `litespec` command line as a local .NET tool at the release the team adopts:
-
-```bash
-dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version <release>
-dotnet tool restore
-```
-
-Run the first command only when the project has no `.config/dotnet-tools.json` yet. A team without the .NET SDK installs the standalone binary instead, and the [CLI overview](../tools/README.md#install-the-cli) lists every install method. The installed release is the contract: it carries the schemas, docs and templates the version names, and it changes only when the team moves the version.
+Install the `litespec` command line at the release the team adopts, as [Install the CLI](install-the-cli.md) states: the local .NET tool pins the release in the repository, and a team without the .NET SDK installs the standalone binary from the GitHub release instead. The installed release is the contract: it carries the schemas, docs and templates the version names, and it changes only when the team moves the version.
 
 ### Write the Project File
 

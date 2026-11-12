@@ -1,6 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model.Tests;
 
-namespace LiteSpec.Model.Readers.Measures;
+namespace LiteSpec.Cli.Model.Readers.Measures;
 
 /// <summary>
 ///     Reads k6 summary files (<c>k6 run --summary-export</c>): one result per

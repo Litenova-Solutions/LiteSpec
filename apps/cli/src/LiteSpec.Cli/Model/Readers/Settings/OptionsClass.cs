@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Settings;
+namespace LiteSpec.Cli.Model.Readers.Settings;
 
 /// <summary>One options class binding keyed settings: its section, properties and marked settings.</summary>
 /// <param name="Class">The class name.</param>

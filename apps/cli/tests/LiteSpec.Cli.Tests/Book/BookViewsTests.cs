@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -303,6 +303,25 @@ public sealed class BookViewsTests
             Arr(details["goal/faster-borrowing"], "in"),
             "feature/self-checkout",
             "feature.advances"));
+    }
+
+    /// <summary>A page's entries are its children in the outline, not links: the page's records field adds no edge.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void PageEntriesAreChildrenNotLinks()
+    {
+        using var temp = TestCli.Temp("book-views");
+        var model = BookTestBooks.LoadFixture("Book/review.json");
+        var useCase = model["records"]!.AsArray().OfType<JsonObject>().Single(record => Str(record, "id") == "use-case/lending.borrow-copy");
+        Obj(useCase, "fields")["records"] = new JsonArray(new JsonObject { ["id"] = "result/borrow-copy.borrowed" });
+        BookTestBooks.Write(model, temp.Path, temp.Path);
+        var details = ReadRecords(Path.Combine(temp.Path, "data"));
+        Assert.DoesNotContain(
+            Arr(details["use-case/lending.borrow-copy"], "out").OfType<JsonObject>(),
+            edge => (Str(edge, "key") ?? "").StartsWith("use-case.records", StringComparison.Ordinal));
+        Assert.DoesNotContain(
+            Arr(details["result/borrow-copy.borrowed"], "in").OfType<JsonObject>(),
+            edge => (Str(edge, "key") ?? "").StartsWith("use-case.records", StringComparison.Ordinal));
     }
 
     /// <summary>Every edge key resolves to a Links table phrase in the lexicon, in both directions.</summary>

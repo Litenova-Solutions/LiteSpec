@@ -1,0 +1,315 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
+using LiteSpec.CommandLine;
+using LiteSpec.Model;
+using LiteSpec.Standards;
+
+namespace LiteSpec.Cli.RecordEditing;
+
+/// <summary>
+///     The <c>litespec new entry</c> append path: one requirement, rule,
+///     permission, or setting entry goes onto its owning list file's records,
+///     last, and the file is written back in canonical form. List files carry
+///     no record identifier, so the file argument is the file's
+///     consumer-relative path.
+/// </summary>
+/// <follows>litespec/core/model#scaffold-pages-and-reserve-identifiers</follows>
+static class AppendListEntry
+{
+    /// <summary>Runs the append path and returns its exit code.</summary>
+    /// <param name="parsed">The parsed command line, holding the file path, the entry type, the entry name and the options.</param>
+    /// <returns>The process exit code: 0 when the entry is appended, 1 on a read or write failure, and 2 on invalid input.</returns>
+    public static int Run(CliArgs parsed)
+    {
+        if (parsed.Positionals is not [_, var pageArg, var entryType, var name])
+        {
+            return CommandFailure.UsageError("New entry needs a page, a type, and a name.", NewCommand.Usage, json: false);
+        }
+
+        foreach (var option in new[] { "--code", "--outcome", "--result" })
+        {
+            if (parsed.Value(option) is not null)
+            {
+                CliHost.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
+                return 2;
+            }
+        }
+
+        if (OwnerOf(entryType) is null)
+        {
+            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use requirement, rule, permission, or setting.");
+            return 2;
+        }
+
+        var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
+
+        if (config is null)
+        {
+            return openExit;
+        }
+
+        var root = config.Root;
+        IReadOnlyList<Record> records;
+
+        try
+        {
+            records = RecordReader.Read(config).Records;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or AggregateException)
+        {
+            CliHost.Error.WriteLine($"Failed to read the consumer repository: {exception.Message}");
+            return 1;
+        }
+
+        var pageFile = Path.IsPathFullyQualified(pageArg) ? pageArg : Path.Combine(root, pageArg);
+
+        if (!File.Exists(pageFile))
+        {
+            CliHost.Error.WriteLine($"No page at '{pageArg}'.");
+            return 2;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(pageFile);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to read '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
+            return 1;
+        }
+
+        if (!RecordFile.TryParse(text, out var parsedRoot, out _, out var parseError))
+        {
+            CliHost.Error.WriteLine($"The file holds no record to append to: {parseError}");
+            return 2;
+        }
+
+        var pageType = parsedRoot.ValueKind == JsonValueKind.Object
+            && parsedRoot.TryGetProperty("type", out var style)
+            && style.ValueKind == JsonValueKind.String
+                ? style.GetString()
+                : null;
+
+        if (pageType != PageOf(entryType))
+        {
+            var actual = pageType is null ? "a file without a type" : $"'{pageType}'";
+            CliHost.Error.WriteLine($"Type '{entryType}' belongs on {OwnerOf(entryType)}; '{PathText.Relative(config.Root, pageFile)}' is {actual}.");
+            return 2;
+        }
+
+        var home = entryType == "permission" ? null : HomeOf(parsedRoot, entryType, pageFile);
+
+        if (home is null && entryType != "permission")
+        {
+            CliHost.Error.WriteLine(entryType switch
+            {
+                "setting" => $"The file '{PathText.Relative(config.Root, pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
+                "requirement" => $"The file '{PathText.Relative(config.Root, pageFile)}' names no feature to take the home from.",
+                _ => $"The file '{PathText.Relative(config.Root, pageFile)}' holds no rule to take the home from.",
+            });
+            return 2;
+        }
+
+        var entryId = entryType == "permission" ? $"{entryType}/{name}" : $"{entryType}/{home}.{name}";
+
+        if (RecordPages.GrammarError(entryType, home, name, entryId) is { } grammar)
+        {
+            CliHost.Error.WriteLine(grammar);
+            return 2;
+        }
+
+        var clash = records.FirstOrDefault(record => record.Id == entryId);
+
+        if (clash is not null)
+        {
+            CliHost.Error.WriteLine($"Identifier '{entryId}' is already taken by {PathText.Relative(config.Root, clash.File)}.");
+            return 2;
+        }
+
+        var entry = EntryFields(entryType, entryId, AppendEntry.TitleFrom(name));
+        var updated = AppendEntry.Insert(text, AppendEntry.Placement.Entry, entry, out var error);
+
+        if (updated is null)
+        {
+            CliHost.Error.WriteLine(error);
+            return 2;
+        }
+
+        try
+        {
+            File.WriteAllText(pageFile, updated);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to write '{PathText.Relative(config.Root, pageFile)}': {exception.Message}");
+            return 1;
+        }
+
+        CliHost.Out.WriteLine($"Appended {entryId} to {PathText.Relative(config.Root, pageFile)}.");
+        return 0;
+    }
+
+    /// <summary>The page style owning the entry type, or null for an unknown type.</summary>
+    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <returns>The page style that owns the entry type, or null when the type is unknown.</returns>
+    static string? PageOf(string entryType) => entryType switch
+    {
+        "requirement" => "feature",
+        "rule" => "rule-set",
+        "permission" => "permission-list",
+        "setting" => "setting-set",
+        _ => null,
+    };
+
+    /// <summary>Where the entry type belongs, for the refusal message, or null for an unknown type.</summary>
+    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
+    static string? OwnerOf(string entryType) => entryType switch
+    {
+        "requirement" => "a feature file",
+        "rule" => "a rule-set file",
+        "permission" => "the permission list",
+        "setting" => "a setting set",
+        _ => null,
+    };
+
+    /// <summary>
+    ///     The new entry's home: the uniform home of the file's existing entries
+    ///     of the same type, else the file stem for a requirement or rule,
+    ///     else the parent modules folder for a setting.
+    /// </summary>
+    /// <param name="root">The parsed record object of the list file.</param>
+    /// <param name="entryType">The entry type name whose home is sought.</param>
+    /// <param name="pageFile">The full path of the list file, used when the entries give no home.</param>
+    /// <returns>The home segment for the entry identifier, or null when neither the entries nor the location gives one.</returns>
+    static string? HomeOf(JsonElement root, string entryType, string pageFile) =>
+        UniformHome(root, entryType) ?? LocationHome(entryType, pageFile);
+
+    /// <summary>
+    ///     The home every existing entry of the type shares, or null when the
+    ///     file holds none or mixes homes.
+    /// </summary>
+    /// <param name="root">The parsed record object of the list file.</param>
+    /// <param name="entryType">The entry type name whose existing entries are examined.</param>
+    /// <returns>The home shared by every existing entry of the type, or null when the file holds none or mixes homes.</returns>
+    static string? UniformHome(JsonElement root, string entryType)
+    {
+        if (root.ValueKind != JsonValueKind.Object
+            || !root.TryGetProperty("records", out var entries)
+            || entries.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        string? home = null;
+
+        foreach (var entry in entries.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.Object
+                || !entry.TryGetProperty("type", out var kind)
+                || kind.ValueKind != JsonValueKind.String
+                || kind.GetString() != entryType
+                || !entry.TryGetProperty("id", out var id)
+                || id.ValueKind != JsonValueKind.String
+                || id.GetString() is not { } text
+                || !Identifiers.TrySplit(text, out _, out var splitHome, out _)
+                || splitHome is null)
+            {
+                continue;
+            }
+
+            if (home is null)
+            {
+                home = splitHome;
+            }
+            else if (!string.Equals(home, splitHome, StringComparison.Ordinal))
+            {
+                return null;
+            }
+        }
+
+        return home;
+    }
+
+    /// <summary>The home the file's place gives: the file stem, or the parent modules folder for a setting.</summary>
+    /// <param name="entryType">The entry type name whose home is sought.</param>
+    /// <param name="pageFile">The full path of the list file.</param>
+    /// <returns>For a setting, the module folder name; otherwise the file stem, or null when the stem is empty.</returns>
+    static string? LocationHome(string entryType, string pageFile)
+    {
+        if (entryType == "setting")
+        {
+            return ModuleOf(pageFile);
+        }
+
+        var stem = Path.GetFileNameWithoutExtension(pageFile);
+
+        return stem.Length > 0 ? stem : null;
+    }
+
+    /// <summary>The parent modules folder's child holding the file, or null outside one.</summary>
+    /// <param name="pageFile">The full path of the list file.</param>
+    /// <returns>The name of the folder directly under a modules folder that holds the file, or null when the file sits outside one.</returns>
+    static string? ModuleOf(string pageFile)
+    {
+        var parts = Path.GetFullPath(pageFile)
+            .Split([Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar], StringSplitOptions.RemoveEmptyEntries);
+
+        for (var index = 0; index + 2 < parts.Length; index++)
+        {
+            if (parts[index].Equals("modules", StringComparison.OrdinalIgnoreCase))
+            {
+                return parts[index + 1];
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The new entry with every required field filled.</summary>
+    /// <param name="entryType">The entry type name, which selects the field template.</param>
+    /// <param name="id">The full identifier of the entry.</param>
+    /// <param name="title">The display title of the entry.</param>
+    /// <returns>The entry object for its type, with every required field filled.</returns>
+    static JsonObject EntryFields(string entryType, string id, string title) => entryType switch
+    {
+        "requirement" => new JsonObject
+        {
+            ["type"] = "requirement",
+            ["id"] = id,
+            ["title"] = title,
+            ["kind"] = "functional",
+            ["statement"] = "The product keeps this commitment.",
+            ["rationale"] = "The business needs this commitment.",
+        },
+        "rule" => new JsonObject
+        {
+            ["type"] = "rule",
+            ["id"] = id,
+            ["title"] = title,
+            ["kind"] = "invariant",
+            ["statement"] = "The records keep this rule.",
+        },
+        "permission" => new JsonObject
+        {
+            ["type"] = "permission",
+            ["id"] = id,
+            ["title"] = title,
+            ["meaning"] = "This permission allows the action.",
+            ["scope"] = "tenant",
+        },
+        _ => new JsonObject
+        {
+            ["type"] = "setting",
+            ["id"] = id,
+            ["title"] = title,
+            ["valueType"] = "integer",
+            ["setBy"] = "product",
+        },
+    };
+}

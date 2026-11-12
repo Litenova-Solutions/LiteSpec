@@ -269,7 +269,7 @@ page
 
 **Default:** `facts-about-the-record-itself`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the identity facts stack in one column under the header, in the same order.
 
 **Rationale:** Keep the facts about the record itself. A trip summary states when, where, and what it may spend, which is the identity of the record rather than its support. The runner-up is the copyable identifiers option. It is the better choice on records a reader quotes elsewhere, such as an expense read out on the phone. Prefer the tiles option only where the reader checks four figures at a glance rather than reading the facts line by line. Never ship values with no section: a row of values standing on the canvas breaks the rule that a section is the only box.
 
@@ -486,7 +486,7 @@ page
 
 **Default:** `newest-first-with-actor-and-timestamp`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the timeline keeps its newest-first entries with actor and timestamp on each line.
 
 **Rationale:** Keep the newest-first timeline with actor and timestamp. It answers who and when on every line. The runner-up is the filtered timeline. It is the better choice once a record carries dozens of entries across kinds. Prefer the table option only where the history is the record rather than context. Never group the main history by actor: it destroys the chronological order a timeline exists to give.
 
@@ -566,7 +566,7 @@ page
 
 **Default:** `each-relation-is-a-link-with-its-state`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: each relation keeps its link with its state in one stacked list.
 
 **Rationale:** Ship the link with state list. Each relation is a link carrying its own state, so a reader can jump and knows what they will find. The runner-up is the preview card option. It is the better choice where the parent facts decide the next step, such as a receipt read against its trip. Prefer the editable table only where the relation itself is the work, such as the exceptions to a policy. Never ship a cross-reference line in the description: it cannot carry the parent state and it hides where a reader does not look.
 
@@ -653,7 +653,7 @@ page
 
 **Default:** `the-commands-are-refused-the-record-is-not`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the refusal reason stays beside each refused command above the readable facts.
 
 **Rationale:** Keep the refused commands on a readable record. Auditors can read an expense and cannot reimburse it, and each refusal names the grant that would allow it. The runner-up is the ask for access option. It is the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader's reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.
 
@@ -737,7 +737,7 @@ When the spender disputes what happened, the company answers from the record its
 
 **Default:** `history-as-a-tab-on-the-record`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the History tab keeps its timeline newest first under the record header.
 
 **Rationale:** Keep the history tab on the record. It keeps one route. The tab state stays in the URL. A reader checking a claim opens History without losing the expense. The runner-up is the per-field history. It fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: the edits that explain the money are missing there.
 
@@ -826,7 +826,7 @@ page
 
 **Default:** `a-notes-section-with-the-composer-on-top`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the composer stays above the notes with the newest note first.
 
 **Rationale:** Keep the notes section with the composer on top. The newest note reads first. Internal scope is the default. It cannot leak. The runner-up is the internal-or-spender composer. It fits records where staff write to the spender from the same box. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will write the wrong one.
 
@@ -914,7 +914,7 @@ page
 
 **Default:** `a-file-list-with-a-drop-zone`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the file rows stack with the drop zone beneath them.
 
 **Rationale:** Keep the file list with a drop zone. Each row names the file and its kind. It names who added it and its size. The drop zone invites the next file. The runner-up is the evidence-grouped option. It fits a dispute: Ben asks for kinds there rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control reads as empty.
 
@@ -1006,7 +1006,7 @@ page
 
 **Compact:** Below the `sm` breakpoint each row stacks: the label above its value, the copy button beside the value.
 
-**Rationale:** Keep the always-visible copy button on each identifier. Support reaches for it without hunting. The runner-up is the in-place confirmation option. It fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Hover-only copy fits nowhere: touch screens have no hover and the button would never appear. Never ship a property list whose long values clip without a way to expand them.
+**Rationale:** Keep the always-visible copy button on each identifier. Support reaches for it without hunting. The runner-up is the in-place confirmation option. It fits records where a miscopied reference causes real mistakes. Prefer the grouped card only where identifiers are quoted together, such as a reference pasted into a dispute. Where the same copy control repeats in every row of a table, it shows on hover and on keyboard focus and stays visible on a touch screen, and a repeated click restarts its confirmation instead of being ignored. Hover-only copy fits nowhere: touch screens have no hover and the button would never appear. Never ship a property list whose long values clip without a way to expand them.
 
 **Reviewed for:** Which built copyable fact differs from the wireframe its catalog entry chose? Open the built confirmations and identifier cards beside the catalog entry recording the chosen option and its reason.
 
@@ -1111,7 +1111,7 @@ page
 
 **Default:** `chevrons-beside-the-breadcrumb`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the chevrons keep the position between them above the record header.
 
 **Rationale:** Keep the chevrons beside the breadcrumb. They keep the list order. They cost almost no space. The runner-up is the jump-by-search option. It fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never say 4 of 268 leave the reader lost in the queue.
 

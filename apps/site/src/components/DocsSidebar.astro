@@ -1,80 +1,118 @@
 ---
 // Left navigation of the docs pages: the full documentation tree grouped by docs
-// group, with an area label above each area inside a multi-area group and
-// collapsible folders. Every link is named by its page's title, the same name
-// the page's heading, breadcrumb and browser tab use; a folder's overview page
-// comes first inside it. The tree is built as a string because Astro components
-// cannot recurse; icons come from the shared icon paths.
-import { areaLabel, folderLabel, folderOverview, groups, inDir } from "../lib/areas";
+// group, in the reading order lib/nav.ts computes from each folder README. It
+// renders once: an inline column on desktop, and the same markup as a native
+// dialog drawer on phones, opened from the Browse docs button. The drawer adds
+// a filter input over page titles; Esc and the close button close it.
+//
+// Every link is named by its page's title, the same name the page's heading,
+// breadcrumb and browser tab use; a folder's overview page comes first inside
+// it. The tree is built as a string because Astro components cannot recurse;
+// icons come from the shared icon paths.
+import { areaLabel, folderLabel, folderOverview, groups, type Group } from "../lib/areas";
+import Icon from "./Icon.astro";
 import { escape } from "../lib/html";
 import { paths } from "../lib/icons";
-import { pages, pageUrl, type Page } from "../lib/spec";
+import { folderOrder, opensSubfolder, pageOrder } from "../lib/nav";
+import { pageUrl, type Page } from "../lib/spec";
 
 interface Props {
-  /** Repository-relative file of the current page, such as docs/core/scope.md. */
+  /** Repository-relative file of the current page, such as docs/core/scope.md. Empty on generated pages. */
   current: string;
+  /** A group key to keep open when the current page names none, such as standard. */
+  open?: string;
 }
 
-const { current } = Astro.props;
+const { current, open } = Astro.props;
 
 const iconSvg = (name: string, cls: string): string =>
   `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(paths as Record<string, string>)[name] ?? ""}</svg>`;
-
-/** Immediate subfolders of a folder that hold pages, in ordinal order. */
-const childDirs = (dir: string): string[] => {
-  const out = new Set<string>();
-  for (const page of pages) {
-    if (!page.file.startsWith(`${dir}/`)) continue;
-    const rest = page.file.slice(dir.length + 1);
-    const slash = rest.indexOf("/");
-    if (slash >= 0) out.add(`${dir}/${rest.slice(0, slash)}`);
-  }
-  return [...out].sort();
-};
 
 const link = (page: Page): string =>
   page.file === current
     ? `<a class="on" href="${escape(pageUrl(page))}" aria-current="page">${escape(page.title)}</a>`
     : `<a href="${escape(pageUrl(page))}">${escape(page.title)}</a>`;
 
-/** Pages that open a subfolder of their own folder, listed inside that subfolder instead. */
-const opensSubfolder = (page: Page, dir: string): boolean =>
-  childDirs(dir).some((sub) => folderOverview(sub) === page);
-
 /** A folder's links: its overview first, then its pages, then its subfolders. */
 const folderLinks = (dir: string): string => {
   const overview = folderOverview(dir);
   let inner = overview ? link(overview) : "";
-  for (const page of inDir(dir).filter((page) => page !== overview && !opensSubfolder(page, dir))) inner += link(page);
-  for (const sub of childDirs(dir)) inner += folderTree(sub);
+  for (const page of pageOrder(dir).filter((page) => page !== overview && !opensSubfolder(page, dir))) inner += link(page);
+  for (const sub of folderOrder(dir)) inner += folderTree(sub);
   return inner;
 };
 
-const folderTree = (dir: string): string => {
-  const { label, stack } = folderLabel(dir);
+/** One collapsible node of the tree, open when it holds the current page. An
+    area passes its own label; a folder below an area takes its folder label. */
+const folderTree = (dir: string, name?: string): string => {
+  const { label: folder, stack } = folderLabel(dir);
+  const label = name ?? folder;
   const tag = stack ? `<span class="tag">stack</span>` : "";
-  const open = current.startsWith(`${dir}/`) ? " open" : "";
-  return `<details${open}><summary>${escape(label)}${tag}${iconSvg("chevron", "icon chev")}</summary><div class="kids">${folderLinks(dir)}</div></details>`;
+  const isOpen = current.startsWith(`${dir}/`) ? " open" : "";
+  return `<details${isOpen}><summary>${escape(label)}${tag}${iconSvg("chevron", "icon chev")}</summary><div class="kids">${folderLinks(dir)}</div></details>`;
+};
+
+/** One group's tree: the Learn group shows its pages, then the worked example as a folder. */
+const groupTree = (group: Group): string => {
+  if (group.key === "learn") return folderLinks("docs/learn") + folderTree("docs/example");
+  // A group of one area lists that area's pages; a group of several areas
+  // holds each area as a collapsible node, like any folder below it.
+  if (group.areas.length === 1) return folderLinks(`docs/${group.areas[0]}`);
+  return group.areas.map((area) => folderTree(`docs/${area}`, areaLabel(area))).join("");
 };
 
 const sidebar = groups
   .map((group) => {
-    const count = pages.filter((page) => group.areas.includes(page.area)).length;
     const holds = group.areas.some((area) => current.startsWith(`docs/${area}/`));
-    const open = group.key === "learn" || holds;
-    const inner = group.areas
-      .map((area) => {
-        const head = group.areas.length > 1 ? `<div class="area-h">${escape(areaLabel(area))}</div>` : "";
-        return head + folderLinks(`docs/${area}`);
-      })
-      .join("");
+    const isOpen = holds || group.key === open || (group.key === "learn" && current === "docs/learn/README.md");
     return (
-      `<details class="group"${open ? " open" : ""}>` +
-      `<summary class="group-h collapse${holds ? " open-here" : ""}">${iconSvg(group.icon, "icon")}${escape(group.label)}<span class="count">${count}</span>${iconSvg("chevron", "icon chev")}</summary>` +
-      `<div class="tree">${inner}</div></details>`
+      `<details class="group"${isOpen ? " open" : ""}>` +
+      `<summary class="group-h collapse${holds ? " open-here" : ""}">${iconSvg(group.icon, "icon")}${escape(group.label)}${iconSvg("chevron", "icon chev")}</summary>` +
+      `<div class="tree">${groupTree(group)}</div></details>`
     );
   })
   .join("");
 ---
 
-<nav class="side" aria-label="Documentation" set:html={sidebar}></nav>
+<dialog class="side-dialog" id="docs-drawer" aria-label="Browse docs">
+  <div class="drawer-head">
+    <input type="search" data-docs-filter placeholder="Filter pages" aria-label="Filter pages" autocomplete="off" />
+    <button type="button" class="btn btn-ghost btn-icon" data-docs-close aria-label="Close"><Icon name="close" /></button>
+  </div>
+  <nav class="side" aria-label="Documentation" set:html={sidebar}></nav>
+  <script is:inline>
+    (function () {
+      var dialog = document.getElementById("docs-drawer");
+      if (!(dialog instanceof HTMLDialogElement)) return;
+      var on = dialog.querySelector("a.on");
+      if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest" });
+      var close = dialog.querySelector("[data-docs-close]");
+      if (close) close.addEventListener("click", function () { dialog.close(); });
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+      var input = dialog.querySelector("[data-docs-filter]");
+      if (!(input instanceof HTMLInputElement)) return;
+      var saved = null;
+      input.addEventListener("input", function () {
+        var query = input.value.trim().toLowerCase();
+        if (saved === null && query !== "") {
+          saved = Array.prototype.map.call(dialog.querySelectorAll("details"), function (d) { return d.open; });
+        }
+        var links = dialog.querySelectorAll("nav a");
+        Array.prototype.forEach.call(links, function (link) {
+          link.hidden = query !== "" && link.textContent.toLowerCase().indexOf(query) < 0;
+        });
+        Array.prototype.forEach.call(dialog.querySelectorAll("details"), function (d) {
+          var match = d.querySelector("a:not([hidden])");
+          d.hidden = query !== "" && !match;
+          if (query !== "" && match) d.open = true;
+        });
+        if (query === "" && saved !== null) {
+          Array.prototype.forEach.call(dialog.querySelectorAll("details"), function (d, i) { d.open = !!saved[i]; });
+          saved = null;
+        }
+      });
+    })();
+  </script>
+</dialog>

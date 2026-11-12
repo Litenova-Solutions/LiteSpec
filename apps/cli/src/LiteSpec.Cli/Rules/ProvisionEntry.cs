@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using LiteSpec.Model;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     One retrievable provision: a LiteSpec provision from the carried release or a

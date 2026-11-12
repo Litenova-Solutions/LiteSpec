@@ -11,7 +11,7 @@ public sealed class RecordIndexTests
     [Fact]
     public void ByIdReadsTheFirstRecordWithTheId()
     {
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord("use-case", "use-case/lending.borrow-copy"),
             new FakeRecord("result", "result/borrow-copy.borrowed"),
@@ -28,7 +28,7 @@ public sealed class RecordIndexTests
     [Fact]
     public void ByTypeReadsEveryRecordOfTheType()
     {
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord("use-case", "use-case/lending.borrow-copy"),
             new FakeRecord("result", "result/borrow-copy.borrowed"),

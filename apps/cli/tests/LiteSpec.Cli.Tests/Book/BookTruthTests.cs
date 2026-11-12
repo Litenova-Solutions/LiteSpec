@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -136,7 +137,7 @@ public sealed class BookTruthTests
 
     static JsonObject WriteReviewModel(Action<JsonObject> mutate)
     {
-        var root = (JsonObject)DataFile.Read(TestCli.Fixture("Book/review.json"))!;
+        var root = (JsonObject)RecordText.Read(TestCli.Fixture("Book/review.json"))!;
         mutate(root);
         return root;
     }

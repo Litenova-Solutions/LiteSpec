@@ -1,11 +1,19 @@
 using System.Globalization;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Consumer;
+using LiteSpec.Cli.Book.Details;
+using LiteSpec.Cli.Book.Lexicon;
+using LiteSpec.Cli.Book.Outline;
+using LiteSpec.Cli.Book.Output;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.CompletionStages;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Consumer;
+using LiteSpec.CommandLine;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The <c>litespec book</c> command: generate the project book, one offline
@@ -42,13 +50,13 @@ static class BookCommand
         var parsed = ParseArgs(args);
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
         if (parsed.Error is not null)
         {
-            return LastResort.UsageError(parsed.Error, Usage, json: false);
+            return CommandFailure.UsageError(parsed.Error, Usage, json: false);
         }
 
         var config = ConsumerRoot.Open(parsed.Root, json: false, out var openExit);
@@ -67,7 +75,7 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
+            return CommandFailure.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         BookLexicon lexicon;
@@ -77,7 +85,7 @@ static class BookCommand
         }
         catch (BookLexiconException exception)
         {
-            return LastResort.Fail($"Cannot load the book words from '{exception.File}': {exception.Message}", json: false, code: 2);
+            return CommandFailure.Fail($"Cannot load the book words from '{exception.File}': {exception.Message}", json: false, code: 2);
         }
 
         ProjectModel model;
@@ -87,7 +95,7 @@ static class BookCommand
         }
         catch (Exception exception)
         {
-            return LastResort.Fail($"Cannot build the model from '{root}': {exception.Message}", json: false, code: 1);
+            return CommandFailure.Fail($"Cannot build the model from '{root}': {exception.Message}", json: false, code: 1);
         }
 
         // The book takes the findings that model check takes, under the layer claims, so the two never disagree.
@@ -100,7 +108,7 @@ static class BookCommand
         }
         catch (FailFast fail)
         {
-            return LastResort.Fail(fail.Message, json: false, code: fail.Code);
+            return CommandFailure.Fail(fail.Message, json: false, code: fail.Code);
         }
 
         model.FindingsJson = new JsonArray([.. findings.Select(finding => (JsonNode?)ModelCommand.AsJson(config, finding, ModelCommand.Decide(model, config, finding, release: false)))]);
@@ -108,7 +116,7 @@ static class BookCommand
 
         if (JsonNode.Parse(model.ToJson()) is not JsonObject store || store["records"] is not JsonArray)
         {
-            return LastResort.Fail("The built model holds no records array.", json: false, code: 1);
+            return CommandFailure.Fail("The built model holds no records array.", json: false, code: 1);
         }
 
         store["intentCoverage"] = BookIntentCoverage.ToJson(IntentCoverage.Compute(model));
@@ -119,12 +127,12 @@ static class BookCommand
         try
         {
             var line = WriteBook(store, root, lexicon, liteSpecRoot, editor, outDir, config.Layers);
-            Console.Out.Write(line + "\n");
+            CliHost.Out.Write(line + "\n");
             return 0;
         }
         catch (Exception exception)
         {
-            return LastResort.Fail($"Cannot write to '{outDir}': {exception.Message}", json: false, code: 1);
+            return CommandFailure.Fail($"Cannot write to '{outDir}': {exception.Message}", json: false, code: 1);
         }
     }
 
@@ -165,7 +173,7 @@ static class BookCommand
         var coverage = BookIntentCoverage.Of(store);
         var index = BookIndexBuilder.BuildIndex(store);
         var outline = BookOutline.Build(store, claims);
-        var details = BookEnrich.Build(store, outline, claims);
+        var details = BookRecordDetails.Build(store, outline, claims);
         var generatedOn = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
 
         var dataDir = Path.Combine(outDir, "data");

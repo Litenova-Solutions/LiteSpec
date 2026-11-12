@@ -15,7 +15,7 @@ Each pattern answers one recurring question about moving through the console, su
 
 ### The Running Example
 
-The drawings on this page use the Claimwick expense console for Harbor and Pine: seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre. The frame marks the current area, and every page carries its own address. The Standards section states the two rules every option keeps: the navigation marks the section holding the current page, and every page opens directly from its own URL.
+The drawings on this page use the Claimwick expense console for Harbor and Pine: seven areas from Home to Settings, expense EXP-1042 for Ava, and the Amsterdam sales cost centre. The frame marks the current area, and every page carries its own address. The Standards section states the three rules every option keeps: the navigation marks the section holding the current page, every page opens directly from its own URL, and a row of sibling pages is a navigation landmark of links rather than a tab list.
 
 ## Standards
 
@@ -42,6 +42,18 @@ The drawings on this page use the Claimwick expense console for Harbor and Pine:
 **Rationale:** A direct address lets a reader share, bookmark, and reopen a page, and lets a notification or a record link to it. Without it, support cannot send the page under discussion, and a refresh drops the reader back to the start.
 
 **Reviewed for:** Which built screen cannot be opened directly from its copied link? Paste three copied addresses into a fresh tab.
+
+### Draw Sibling Pages as Links, Not Tabs
+
+**ID:** `litespec/frontend/patterns/navigation#draw-sibling-pages-as-links-not-tabs`
+
+**Strength:** required
+
+**Statement:** A row of sibling pages MUST be a navigation landmark of links with `aria-current="page"` on the current page, leaving the tab list for switching panels within one page.
+
+**Rationale:** A screen reader announces a tab list as panels on one page, so a reader who opens Receipts from a tab expects the address to stay and the Back button to skip it. A navigation landmark of links tells the truth: each page has its own address, and the Back button returns to the page before it. WCAG 2.2 criterion 1.3.1 Info and Relationships and criterion 4.1.2 Name, Role, Value require the announced role to match the behavior.
+
+**Reviewed for:** Which built row of sibling pages is a tab list instead of links? Open each built row and check the address changes and the Back button returns.
 
 
 ## Patterns
@@ -298,7 +310,7 @@ page
 
 **Default:** `the-bar-with-the-company-name`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the bar keeps the page title, the sidebar toggle, and help on one line, and the company name and acting person move into the account menu.
 
 **Rationale:** The bar with the company name and the acting person states the two facts a support conversation needs before anything else. The bar as the breadcrumb is the runner-up when the trail would otherwise repeat the page title. The deployment identity band fits a sandbox deployment, where naming the deployment avoids confusion with production.
 
@@ -321,7 +333,7 @@ page
     heading "Expenses"
     text "268 expenses from 142 spenders, newest first."
   region "Expenses"
-    table 3 "Expense" "Spender" "State" "Paid"
+    table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
@@ -387,9 +399,9 @@ page
 
 **Default:** `the-shipped-tab-row-with-the-tab-in-the-url`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the row scrolls on one line and keeps the current page in view, never wrapping.
 
-**Rationale:** The tab row with the active tab in the URL carries the facet in a pasted link. Tabs as real links are the runner-up and the most defensible alternative, because middle click and the back button behave as expected. Headed sections on one page fit a record with a handful of facets that all fit.
+**Rationale:** The tab row with the active tab in the URL carries the facet in a pasted link. The row is drawn as tabs but built as navigation links, one address per page, following Draw Sibling Pages as Links, Not Tabs. The current page is marked by more than color: weight or an underline. On a narrow screen the row scrolls on one line and keeps the current page in view, never wrapping. Tabs as real links are the runner-up and the most defensible alternative, because middle click and the back button behave as expected. Headed sections on one page fit a record with a handful of facets that all fit.
 
 Never ship the segmented control for facets: three segments is its ceiling and it cannot carry counts or overflow.
 
@@ -483,7 +495,7 @@ page
 
 **Default:** `an-icon-beside-every-label`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the areas stack above the content in one column, and each icon stays beside its label.
 
 **Rationale:** An icon beside every label reinforces the label rather than replacing it, which makes seven areas easy to read at a glance. Icons only for the actions, with words for the areas, are the runner-up where icon budget is short. Words only fit a small set of areas with no icon set to keep.
 
@@ -588,13 +600,13 @@ page
 
 **Question:** Two switches change nothing about the data. They are the most error-prone controls on the page. An explicit choice is preferred to the account default. A missing translation falls back to the other language.
 
-**Default:** `both-switches-in-the-header-each-showing-its-value`
+**Default:** `the-theme-following-the-system-with-an-override`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the language switch stays in the header showing its value, and the theme choice stays in the account menu.
 
-**Rationale:** Both switches in the header, each showing its value, let the reader see what is set without opening anything. The account menu is the runner-up for language, which rarely changes and belongs with the account. The theme following the system with an override fits a reader whose device already states the preference.
+**Rationale:** The theme follows the device because few readers change it during a day and the device already states the preference, with System, Light, and Dark offered in the account menu for the reader who overrides it. The language stays in the header showing its value because a wrong language makes every other word unreadable. Both switches in the header, each showing its value, is the runner-up for a product whose staff switch theme during a shift.
 
-Never ship no switch at all. One language is a commercial decision about which companies Claimwick serves. Claimwick already serves companies in two languages.
+Never ship with no language switch. One language is a commercial decision about which companies Claimwick serves. Claimwick already serves companies in two languages.
 
 **Reviewed for:** Which built switch differs from the wireframe its catalog entry chose? Open the built locale and appearance controls, in the header and account menu, beside the catalog entry recording the chosen option and its reason.
 
@@ -611,7 +623,7 @@ page
     heading "Expenses"
     text "268 expenses."
   region "Expenses"
-    table 3 "Expense" "Spender" "State" "Paid"
+    table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
@@ -654,18 +666,24 @@ page
 page
   toolbar
     text "Expenses"
-    status "System theme" neutral
-    field "Theme" select = "Match my device"
+    field "Language" select = "English"
+    action "Account: Alex Morgan"
   breadcrumb "Home" "Expenses"
   header
     heading "Expenses"
     text "268 expenses."
+  menu "Alex Morgan · Harbor and Pine"
+    action "Your account"
+    action "System"
+    action "Light"
+    action "Dark"
+    action "Sign out"
   region "Expenses"
     table 4 "Expense" "Spender" "State" "Paid"
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The theme defaults to the operating system's and the reader overrides it once. The preference is kept, and the switch shows the override rather than the system's value.
+**Rationale:** The theme follows the device until the reader picks System, Light, or Dark in the account menu. The language stays in the header showing its value, so a wrong language is visible without opening anything.
 
 **Cost:** A reader whose system is dark gets a dark console without asking. That is the correct behavior. A company filming a screen for a spender then gets a dark screenshot.
 
@@ -783,7 +801,7 @@ page
 
 **Default:** `an-avatar-menu-in-the-header`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the avatar stays in the header, and the menu opens as a bottom sheet with the same entries.
 
 **Rationale:** The avatar menu in the header holds the account page, the access statement, and sign-out in one control. The sidebar foot is the runner-up, but it is far from the top of a long page. The account as a page reached from the menu fits a console where account, email, sign-in, and close are separate pages.
 
@@ -982,7 +1000,7 @@ page
 
 **Default:** `contextual-help-beside-the-page-it-explains`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the help panel stacks below the content it explains, with the same guide and the link to the full guide.
 
 **Rationale:** The guide for the current page in a side panel answers the question without leaving the record. A help page from the sidebar is the runner-up index for a reader who knows what to ask. Help search inside the command palette fits a console where navigation queries already go to one input.
 

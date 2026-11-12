@@ -129,7 +129,7 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       },
-      "litespec.model.core": {
+      "litespec.model": {
         "type": "Project",
         "dependencies": {
           "YamlDotNet": "[18.1.0, )"

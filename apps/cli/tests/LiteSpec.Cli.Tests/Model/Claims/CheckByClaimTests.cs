@@ -1,8 +1,9 @@
-using LiteSpec.Cli.Tests.Consumer;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
+using LiteSpec.Cli.Tests.Consumer;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Claims;
 
@@ -167,7 +168,7 @@ public sealed class CheckByClaimTests
     static void SetClaim(string root, JsonObject layers)
     {
         var file = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(file)!.AsObject();
+        var project = RecordText.Read(file)!.AsObject();
         project["layers"] = layers;
         File.WriteAllText(file, project.ToJsonString());
     }

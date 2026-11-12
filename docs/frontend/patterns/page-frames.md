@@ -43,7 +43,7 @@ The drawings on this page use the Claimwick expense product for Harbor and Pine:
 
 **Default:** `work-first-tiles-second`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the needs-attention and coming-up lists stack in one column above the figures, which stack one per row.
 
 **Rationale:** Work first, tiles second stays the pick. The manager reads the queue and stops, and the figures wait below for the curious reader. The my-work split is the runner-up. Prefer it once assignment is a real command and two people share one queue. The tiles-first layout is the other runner-up for a reader who opens the page to check a number.
 
@@ -142,7 +142,7 @@ page
 
 **Default:** `search-and-a-state-filter-only`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the search box and state filter stack above the table, and the table scrolls sideways inside its own region.
 
 **Rationale:** Search plus one state filter stays the pick. Two controls answer the two questions readers ask, and a bare list needs only the filter added. The row of views is the runner-up for the states a reader returns to. The dense filter bar is the other runner-up past a few hundred rows across many spenders, where the query is restated in words.
 
@@ -228,7 +228,7 @@ page
 
 **Default:** `select-all-on-the-page-banner-for-the-rest`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the banner and the sticky footer keep their place, and the table scrolls sideways inside its own region.
 
 **Rationale:** Select all on the page, then the rest from a banner, stays the pick. It is the clearest answer to the select-all problem, and money deserves the second click. The play mode is the runner-up. Prefer it when each decision needs different information and batch work is rare. A checkbox on every row is the other runner-up for a queue whose bulk job is small and capped.
 
@@ -326,7 +326,7 @@ page
 
 **Default:** `summary-sections-aside-for-history`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the sections stack in one column and the history aside follows them, with the header actions under the title.
 
 **Rationale:** Summary with sections and history in the aside stays the pick. What defines the record runs down the main column while history supports it from the side. The properties rail is the runner-up. Prefer it when the aside must carry editable values rather than history. The tabs layout is the other runner-up for a record with more facets than three sections allow.
 
@@ -432,7 +432,7 @@ page
 
 **Default:** `one-section-one-column-of-fields-cancel-beside-save`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the single column of fields keeps its order, and Cancel sits beside Save at the end.
 
 **Rationale:** One section, one column, Cancel beside Save stays the pick. A single command reads as a list of questions with one place to submit and one to leave. The stacked blocks are the runner-up when the form carries several labeled groups. The one-question-per-screen flow is the other runner-up when each answer changes the next question and nothing may be skipped.
 
@@ -520,7 +520,7 @@ page
 
 **Default:** `chevron-pair-with-the-period-as-the-heading`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the period heading keeps its chevrons with the month select and download beside it, and the statement regions stack in one column.
 
 **Rationale:** The chevron pair with the period as the heading stays the pick. A reader cannot mistake a chevron for a tab, and the list still allows a jump across months. The cards with sparklines are the runner-up. Prefer them mid-month when the question is trend rather than settlement. The typed range is the other runner-up for a report over an arbitrary span.
 
@@ -616,7 +616,7 @@ page
 
 **Default:** `grouped-links-one-line-each`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the grouped links stack in one column, each link keeping its line of explanation.
 
 **Rationale:** Grouped links stay the pick. Each area names what it holds, the page never grows a form, and thirty routes fit in a handful of sections. The left navigation is the runner-up. Prefer it once areas gain enough depth to deserve their own tree. The searchable list is the other runner-up for a reader who knows the name of the setting.
 
@@ -704,7 +704,7 @@ page
 
 **Default:** `form-left-live-preview-right-one-save`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the form stays first and the live preview follows it in one column, with the one Save at the end of the form.
 
 **Rationale:** Form left with a live preview right stays the pick. Every control writes straight into the preview, and nobody saves to find out what a change looks like. The floating panel is the runner-up. Prefer it when the visual dominates, such as a cover image judged at real size. The preview drawer is the other runner-up when the form needs the full page.
 
@@ -808,7 +808,7 @@ page
 
 **Default:** `one-statement-one-next-step`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the statement, the facts, and the next step stack in one column in the same order.
 
 **Rationale:** One statement with one next step stays the pick. A reader who came to learn whether it worked leaves in one glance. The refusal outcome is the runner-up, for the same frame with the fix in the primary place. The confirmation band is the other runner-up when the flow leaves a reference the reader must keep.
 
@@ -891,7 +891,7 @@ page
 
 **Default:** `the-count-the-cost-centres-the-exceptions`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the count stays first, and the cost centre cards stack above the exceptions in one column.
 
 **Rationale:** The count with cost centres and exceptions stays the pick. The finance lead reads one number first, then the per-cost-centre split, then only what needs a person. The exceptions-only view is the runner-up. Prefer it on the wall display once the day is steady and the count is already known. The full-screen count is the other runner-up for a display read from across the room.
 
@@ -1062,7 +1062,7 @@ page
 
 **Default:** `checklist-with-a-progress-bar`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the progress line and the steps stack in one column, each step keeping its status and action.
 
 **Rationale:** The checklist with a progress bar stays the pick: it states the three steps, shows which is done, and waits without leading. The stepper wizard is the runner-up. Prefer it when a step cannot be skipped and the next depends on the last. Starting from a template is the other runner-up when the first trip is a known shape.
 
@@ -1152,7 +1152,7 @@ page
 
 **Default:** `centered-not-found-with-links-back`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the statement and the links back stack centered in one column.
 
 **Rationale:** The centered not-found with links back stays the pick: it says what happened, says where to go, and does both in one glance. The permission refusal is the runner-up. Prefer it whenever the page knows who can resolve it, because Back is not a fix. The full-page outage is the other runner-up when a provider failure blocks the page.
 

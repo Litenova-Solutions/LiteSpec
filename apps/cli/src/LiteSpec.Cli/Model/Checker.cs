@@ -1,9 +1,21 @@
+using System.Collections.Concurrent;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using LiteSpec.Authoring;
-using LiteSpec.Model.Checks;
+using LiteSpec.Cli.Model.Checks.Behavior;
+using LiteSpec.Cli.Model.Checks.Governance;
+using LiteSpec.Cli.Model.Checks.Implementation;
+using LiteSpec.Cli.Model.Checks.Implementation.Handlers;
+using LiteSpec.Cli.Model.Checks.Implementation.Placement;
+using LiteSpec.Cli.Model.Checks.Intent;
+using LiteSpec.Cli.Model.Checks.Proof;
+using LiteSpec.Cli.Model.Checks.RecordShape;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     Every model check: schema, identifiers, citations, gates, proof, reach, graph and levels.
@@ -36,78 +48,116 @@ static class Checker
         return Convert.ToHexString(bytes)[..8].ToLowerInvariant();
     }
 
+    /// <summary>Every check in reporting order. Each reads the built model and adds its findings to the list it is given.</summary>
+    private static readonly Action<ProjectModel, List<Finding>>[] Checks =
+    [
+        SchemaChecks.Run,
+        IdentifierChecks.Run,
+        RecordNameChecks.RunNames,
+        RecordNameChecks.Run,
+        CitationChecks.Run,
+        GateChecks.Run,
+        DepartureChecks.Run,
+        ProofChecks.Run,
+        ProofChecks.RunUnverified,
+        ProofChecks.RunProofInvalid,
+        ResultScenarioChecks.Run,
+        FulfilmentChecks.Run,
+        FulfilmentChecks.RunRequirementCited,
+        FulfilmentChecks.RunConstraintCited,
+        LinkChecks.Run,
+        ExplanationChecks.Run,
+        ResearchSourceChecks.Run,
+        FormatChecks.Run,
+        SizeTypeChecks.Run,
+        ReachChecks.RunReach,
+        ReachChecks.RunBehavior,
+        ReachChecks.RunIntentUnreached,
+        ReachChecks.RunRoleOrphan,
+        ReachChecks.RunPermissionOrphan,
+        ReachChecks.RunDecisionConflict,
+        FolderChecks.Run,
+        LocalityChecks.Run,
+        BackendPlacementChecks.Run,
+        TestPlacementChecks.Run,
+        FrontendPlacementChecks.Run,
+        ClosedFolderChecks.Run,
+        MarkChecks.Run,
+        ScreenChecks.Run,
+        WriteChecks.Run,
+        ResultChecks.Run,
+        EffectChecks.Run,
+        ApiOperationChecks.Run,
+        ReasonlessNameChecks.Run,
+        RepositoryUseChecks.Run,
+        ConstituentChecks.Run,
+        OperationsChecks.Run,
+        SettingChecks.Run,
+        DependencyChecks.Run,
+        AnalyzerSuppressionChecks.Run,
+        LifecycleChecks.Run,
+        PrivacyChecks.RunErasure,
+        PrivacyChecks.RunRetention,
+        CalculationChecks.Run,
+        AutomationChecks.RunReactionTrigger,
+        MeasuredChecks.Run,
+        GraphChecks.RunOrphaned,
+        ParentChecks.Run,
+        IntentChecks.Run,
+        GraphChecks.RunStepUnserved,
+        EffectLoopChecks.Run,
+        ConsistencyChecks.RunConsistency,
+        QueryChecks.RunQueryOutput,
+        QueryChecks.RunPaging,
+        QueryChecks.RunWidening,
+        GraphChecks.RunSettingDefault,
+        ConsistencyChecks.RunReservation,
+        GraphChecks.RunNotificationSender,
+        RequirementChecks.Run,
+        AutomationChecks.RunJobGuard,
+        AutomationChecks.RunSchedule,
+        ProseChecks.Run,
+        ConsistencyChecks.RunManyAggregates,
+        ConsistencyChecks.RunAtomicGroupDrift,
+        ConsistencyChecks.RunAtomicGroupInvalid,
+        ContractChecks.RunTypedInputs,
+        GraphChecks.RunExercises,
+        ContractChecks.RunDoors,
+        ScopeChecks.Run
+    ];
+
     /// <summary>Runs every check, partitioning findings from departures.</summary>
     /// <param name="model">The built project model to check.</param>
     /// <returns>The findings that stand and the findings departures cover, each in sorted order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Check(ProjectModel model)
     {
+        // The checks only read the built model, so they run in parallel, each into its
+        // own list, taking the next check as a thread frees; the lists join in the order above.
+        var raised = new List<Finding>[Checks.Length];
+
+        try
+        {
+            Parallel.ForEach(
+                Partitioner.Create(Enumerable.Range(0, Checks.Length), EnumerablePartitionerOptions.NoBuffering),
+                index =>
+                {
+                    var own = new List<Finding>();
+                    Checks[index](model, own);
+                    raised[index] = own;
+                });
+        }
+        catch (AggregateException failure) when (failure.InnerExceptions.Count > 0)
+        {
+            ExceptionDispatchInfo.Capture(failure.InnerExceptions[0]).Throw();
+            throw;
+        }
+
         var findings = new List<Finding>(model.Problems);
 
-        SchemaChecks.Run(model, findings);
-        IdentifierChecks.Run(model, findings);
-        RecordNameChecks.RunNames(model, findings);
-        RecordNameChecks.Run(model, findings);
-        CitationChecks.Run(model, findings);
-        GateChecks.Run(model, findings);
-        DepartureChecks.Run(model, findings);
-        ProofChecks.Run(model, findings);
-        ProofChecks.RunUnverified(model, findings);
-        ProofChecks.RunProofInvalid(model, findings);
-        ResultScenarioChecks.Run(model, findings);
-        FulfilmentChecks.Run(model, findings);
-        FulfilmentChecks.RunRequirementCited(model, findings);
-        FulfilmentChecks.RunConstraintCited(model, findings);
-        LinkChecks.Run(model, findings);
-        ExplanationChecks.Run(model, findings);
-        ResearchSourceChecks.Run(model, findings);
-        FormatChecks.Run(model, findings);
-        SizeTypeChecks.Run(model, findings);
-        ReachChecks.RunReach(model, findings);
-        ReachChecks.RunBehavior(model, findings);
-        ReachChecks.RunIntentUnreached(model, findings);
-        ReachChecks.RunRoleOrphan(model, findings);
-        ReachChecks.RunPermissionOrphan(model, findings);
-        ReachChecks.RunDecisionConflict(model, findings);
-        FolderChecks.Run(model, findings);
-        LocalityChecks.Run(model, findings);
-        PlacementChecks.Run(model, findings);
-        MarkChecks.Run(model, findings);
-        ScreenChecks.Run(model, findings);
-        CodeChecks.Run(model, findings);
-        ConstituentChecks.Run(model, findings);
-        OperationsChecks.Run(model, findings);
-        SettingChecks.Run(model, findings);
-        DependencyChecks.Run(model, findings);
-        AnalyzerSuppressionChecks.Run(model, findings);
-        LifecycleChecks.Run(model, findings);
-        GraphChecks.RunErasure(model, findings);
-        GraphChecks.RunRetention(model, findings);
-        CalculationChecks.Run(model, findings);
-        GraphChecks.RunReactionTrigger(model, findings);
-        MeasuredChecks.Run(model, findings);
-        GraphChecks.RunOrphaned(model, findings);
-        ParentChecks.Run(model, findings);
-        IntentChecks.Run(model, findings);
-        GraphChecks.RunStepUnserved(model, findings);
-        GraphChecks.RunEffectLoop(model, findings);
-        GraphChecks.RunConsistency(model, findings);
-        GraphChecks.RunQueryOutput(model, findings);
-        GraphChecks.RunPaging(model, findings);
-        GraphChecks.RunWidening(model, findings);
-        GraphChecks.RunSettingDefault(model, findings);
-        GraphChecks.RunReservation(model, findings);
-        GraphChecks.RunNotificationSender(model, findings);
-        GraphChecks.RunExceptFallback(model, findings);
-        GraphChecks.RunJobGuard(model, findings);
-        GraphChecks.RunSchedule(model, findings);
-        GraphChecks.RunProse(model, findings);
-        GraphChecks.RunManyAggregates(model, findings);
-        GraphChecks.RunAtomicGroupDrift(model, findings);
-        GraphChecks.RunAtomicGroupInvalid(model, findings);
-        GraphChecks.RunTypedInputs(model, findings);
-        GraphChecks.RunExercises(model, findings);
-        GraphChecks.RunDoors(model, findings);
-        ScopeChecks.Run(model, findings);
+        foreach (var own in raised)
+        {
+            findings.AddRange(own);
+        }
 
         // A project reports only the findings its layer claims cover.
         findings.RemoveAll(finding => !model.Config.Layers.Covers(finding.Code, model.Config.Extensions));

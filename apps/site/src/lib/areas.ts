@@ -1,9 +1,10 @@
 // The docs groups as the site presents them: order, label, icon and the areas of
 // docs/ each one holds. The sidebar, the breadcrumb and the page metadata all take
 // a group's label from here, and every page is named by its own title, so one
-// page has one name everywhere.
-import type { IconName } from "./icons";
-import { pages, type Page } from "./spec";
+// page has one name everywhere. The reading order inside each group lives in
+// lib/nav.ts.
+import type { IconName } from "./icons.ts";
+import { pages, type Page } from "./spec.ts";
 
 export interface Group {
   key: string;
@@ -13,15 +14,17 @@ export interface Group {
   areas: string[];
 }
 
-// The four groups of the docs folders, in display order. The folders stay where
-// they are, because provision IDs derive from page paths; only the navigation
-// groups them. docs/assets/ holds diagrams, not pages. docs/maintain/ documents
-// the maintainer tool, so it sits with the other command pages in Reference.
+// The five groups of the docs folders, in journey order: understand, do, look
+// up. The folders stay where they are, because provision IDs derive from page
+// paths; only the navigation groups them. docs/assets/ holds diagrams, not
+// pages. docs/intent/ holds LiteSpec's own research and decisions, so it sits
+// outside the groups with a footer link, and its pages keep their URLs.
 export const groups: Group[] = [
+  { key: "learn", label: "Learn", icon: "learn", areas: ["learn", "example"] },
+  { key: "tutorial", label: "Tutorial", icon: "start", areas: ["tutorial"] },
+  { key: "guides", label: "Guides", icon: "file", areas: ["guide"] },
   { key: "standard", label: "Standard", icon: "core", areas: ["core", "backend", "frontend", "quality", "workspace", "ext"] },
-  { key: "reference", label: "Reference", icon: "book", areas: ["analyzers", "reference", "tools", "maintain"] },
-  { key: "learn", label: "Learn", icon: "learn", areas: ["learn", "guide", "tutorial", "example"] },
-  { key: "records", label: "LiteSpec Own Records", icon: "folder", areas: ["intent"] },
+  { key: "reference", label: "Reference", icon: "book", areas: ["reference", "tools", "analyzers", "maintain"] },
 ];
 
 export function groupOf(area: string): Group {
@@ -37,12 +40,12 @@ const AREA_LABELS: Record<string, string> = {
   ext: "Extensions",
   analyzers: "Analyzers",
   reference: "Reference",
-  tools: "CLI",
-  maintain: "Maintain",
+  tools: "CLI Commands",
+  maintain: "Maintainer Tool",
   learn: "Learn",
-  guide: "Guide",
+  guide: "Guides",
   tutorial: "Tutorial",
-  example: "Example",
+  example: "Worked Example: Claimwick",
   intent: "Research and Decisions",
 };
 
@@ -52,10 +55,6 @@ export function areaLabel(area: string): string {
 }
 
 const byFile = new Map(pages.map((page) => [page.file, page]));
-
-/** Pages directly in a folder, in reading order. */
-export const inDir = (dir: string): Page[] =>
-  pages.filter((page) => page.file.startsWith(`${dir}/`) && !page.file.slice(dir.length + 1).includes("/"));
 
 /** A folder's overview page: its stack page, its README, or the page beside the
  *  folder that carries its name, such as frontend/patterns.md for frontend/patterns/. */
@@ -76,14 +75,10 @@ export function groupOverview(group: Group): Page | undefined {
 export function folderLabel(dir: string): { label: string; stack: boolean } {
   const stack = byFile.get(`${dir}/stack.md`);
   if (stack) return { label: stack.title.replace(/ Stack$/, ""), stack: true };
+  if (dir === "docs/example") return { label: areaLabel("example"), stack: false };
   const name = dir.slice(dir.lastIndexOf("/") + 1);
   if (name === "ext") return { label: "Extensions", stack: false };
   return { label: name.charAt(0).toUpperCase() + name.slice(1), stack: false };
-}
-
-/** The page a group's breadcrumb links to: its overview, or the first page of its first area. */
-export function groupHome(group: Group): Page | undefined {
-  return groupOverview(group) ?? inDir(`docs/${group.areas[0]}`)[0];
 }
 
 /** A page's name where it appears without its group around it: in the browser
@@ -95,12 +90,4 @@ export function pageName(page: Page): string {
   const isArea = dir.split("/").length === 2;
   const label = isArea ? areaLabel(page.area) : folderLabel(dir).label;
   return `${label} ${page.title}`;
-}
-
-/** The folders between a page's area and the page, such as docs/backend/dotnet. */
-export function foldersOf(page: Page): string[] {
-  const parts = page.file.split("/").slice(0, -1);
-  const out: string[] = [];
-  for (let i = 3; i <= parts.length; i++) out.push(parts.slice(0, i).join("/"));
-  return out;
 }

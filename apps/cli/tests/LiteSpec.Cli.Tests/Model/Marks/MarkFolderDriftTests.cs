@@ -1,7 +1,10 @@
 using System.Text.Json;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Tests.Support;
-using Record = LiteSpec.Model.Record;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
@@ -228,7 +231,7 @@ public sealed class MarkFolderDriftTests
         Assert.DoesNotContain("Frontend module", finding.Message);
     }
 
-    /// <summary>Handler Outside Its Module In The Module Layout Reports Mark Folder Drift.</summary>
+    /// <summary>Handler Outside Its Module In The Module BackendLayout Reports Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerOutsideItsModuleReportsMarkFolderDrift()
@@ -245,7 +248,7 @@ public sealed class MarkFolderDriftTests
         Assert.Contains("use-case/booking.hold-room", finding.Message);
     }
 
-    /// <summary>Handler In Its Module In The Module Layout Reports No Mark Folder Drift.</summary>
+    /// <summary>Handler In Its Module In The Module BackendLayout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHandlerInItsModuleReportsNoMarkFolderDrift()
@@ -258,7 +261,7 @@ public sealed class MarkFolderDriftTests
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));
     }
 
-    /// <summary>Host Endpoint In The Module Layout Reports No Mark Folder Drift.</summary>
+    /// <summary>Host Endpoint In The Module BackendLayout Reports No Mark Folder Drift.</summary>
     /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
     [Fact]
     public void ModuleLayoutHostEndpointReportsNoMarkFolderDrift()

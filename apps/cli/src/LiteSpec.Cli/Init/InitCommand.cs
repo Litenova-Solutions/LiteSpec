@@ -1,7 +1,10 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.CommandLine;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Init;
+namespace LiteSpec.Cli.Init;
 
 /// <summary>
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
@@ -73,34 +76,34 @@ static class InitCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
         if (parsed.Error is not null)
         {
-            return LastResort.UsageError(parsed.Error, Usage, json: false);
+            return CommandFailure.UsageError(parsed.Error, Usage, json: false);
         }
 
         var size = parsed.Value("--size");
 
         if (size is not ("small" or "large"))
         {
-            return LastResort.UsageError(size is null ? "Missing --size; use small or large." : $"Unknown size '{size}'; use small or large.", Usage, json: false);
+            return CommandFailure.UsageError(size is null ? "Missing --size; use small or large." : $"Unknown size '{size}'; use small or large.", Usage, json: false);
         }
 
         var preset = parsed.Value("--preset");
 
         if (preset is null || !Presets.Contains(preset))
         {
-            return LastResort.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
+            return CommandFailure.UsageError(preset is null ? $"Missing --preset. Known presets: {string.Join(", ", Presets)}." : $"Unknown preset '{preset}'. Known presets: {string.Join(", ", Presets)}.", Usage, json: false);
         }
 
         var install = parsed.Value("--install") ?? "tool";
 
         if (!Installs.TryGetValue(install, out var command))
         {
-            return LastResort.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
+            return CommandFailure.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
         }
 
         // init creates the project, so its root is the folder named, never a parent consumer.
@@ -115,7 +118,7 @@ static class InitCommand
 
         if (File.Exists(target))
         {
-            Console.Error.WriteLine($"'{target}' already exists; litespec init never overwrites it.");
+            CliHost.Error.WriteLine($"'{target}' already exists; litespec init never overwrites it.");
             return 2;
         }
 
@@ -127,14 +130,14 @@ static class InitCommand
         }
         catch (InvalidOperationException exception)
         {
-            return LastResort.UsageError(exception.Message, Usage, json: false);
+            return CommandFailure.UsageError(exception.Message, Usage, json: false);
         }
 
         var version = LiteSpecHome.Version;
 
         if (version is null)
         {
-            Console.Error.WriteLine("The LiteSpec release holds no readable version.");
+            CliHost.Error.WriteLine("The LiteSpec release holds no readable version.");
             return 1;
         }
 
@@ -144,16 +147,16 @@ static class InitCommand
 
         try
         {
-            if (DataFile.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
+            if (RecordText.Read(Path.Combine(home, "templates", "consumer", "project.yaml")) is not JsonObject template)
             {
-                Console.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
+                CliHost.Error.WriteLine("The LiteSpec release holds no readable templates/consumer/project.yaml.");
                 return 1;
             }
 
-            if (DataFile.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
+            if (RecordText.Read(Path.Combine(home, "templates", "presets", $"{preset}.yaml")) is not JsonObject presetJson
                 || presetJson["shape"] is null)
             {
-                Console.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
+                CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/presets/{preset}.yaml.");
                 return 1;
             }
 
@@ -167,7 +170,7 @@ static class InitCommand
 
                 if (!File.Exists(source))
                 {
-                    Console.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
+                    CliHost.Error.WriteLine($"The LiteSpec release holds no readable templates/consumer/{file}.");
                     return 1;
                 }
 
@@ -179,7 +182,7 @@ static class InitCommand
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or JsonTextException)
         {
-            Console.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
             return 1;
         }
 
@@ -260,17 +263,17 @@ static class InitCommand
             Directory.CreateDirectory(Path.GetDirectoryName(target)!);
             // The first line names the schema for YAML language servers; the body is the project
             // as YAML, written from the same tree the placeholders were filled in.
-            var body = YamlWriter.Write(DataFile.TextOf(project));
+            var body = YamlWriter.Write(RecordText.TextOf(project));
             var header = $"# yaml-language-server: $schema=https://litespec.dev/{version}/schemas/litespec-project.schema.yaml\n";
             File.WriteAllText(target, header + (body.EndsWith('\n') ? body : body + "\n"));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            Console.Error.WriteLine($"Failed to write '{target}': {exception.Message}");
+            CliHost.Error.WriteLine($"Failed to write '{target}': {exception.Message}");
             return 1;
         }
 
-        Console.WriteLine($"Wrote {target}.");
+        CliHost.Out.WriteLine($"Wrote {target}.");
 
         var copied = 0;
         var shapeText = (string?)project["shape"] ?? "server";
@@ -285,7 +288,7 @@ static class InitCommand
 
             if (File.Exists(destination))
             {
-                Console.WriteLine($"'{destination}' already exists; left alone.");
+                CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
                 continue;
             }
 
@@ -300,11 +303,11 @@ static class InitCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Wrote {destination}.");
+            CliHost.Out.WriteLine($"Wrote {destination}.");
             copied += 1;
         }
 
@@ -312,7 +315,7 @@ static class InitCommand
 
         if (File.Exists(gitignore))
         {
-            Console.WriteLine($"'{gitignore}' already exists; left alone.");
+            CliHost.Out.WriteLine($"'{gitignore}' already exists; left alone.");
         }
         else
         {
@@ -323,11 +326,11 @@ static class InitCommand
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                Console.Error.WriteLine($"Failed to write '{gitignore}': {exception.Message}");
+                CliHost.Error.WriteLine($"Failed to write '{gitignore}': {exception.Message}");
                 return 1;
             }
 
-            Console.WriteLine($"Wrote {gitignore}.");
+            CliHost.Out.WriteLine($"Wrote {gitignore}.");
         }
 
         // A standalone project pins the release in reviewedLiteSpecVersion alone, so only a tool install writes the tool manifest.
@@ -337,7 +340,7 @@ static class InitCommand
 
             if (File.Exists(toolManifest))
             {
-                Console.WriteLine($"'{toolManifest}' already exists; left alone.");
+                CliHost.Out.WriteLine($"'{toolManifest}' already exists; left alone.");
             }
             else
             {
@@ -348,25 +351,25 @@ static class InitCommand
                 }
                 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
                 {
-                    Console.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
+                    CliHost.Error.WriteLine($"Failed to write '{toolManifest}': {exception.Message}");
                     return 1;
                 }
 
-                Console.WriteLine($"Wrote {toolManifest}.");
+                CliHost.Out.WriteLine($"Wrote {toolManifest}.");
             }
         }
 
         if (unfilled.Count > 0)
         {
-            Console.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
+            CliHost.Out.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
         }
 
         if (copied > 0)
         {
-            Console.WriteLine("Fill every <placeholder> in the copied files before validating.");
+            CliHost.Out.WriteLine("Fill every <placeholder> in the copied files before validating.");
         }
 
-        Console.WriteLine($"Next step: {command} model check");
+        CliHost.Out.WriteLine($"Next step: {command} model check");
         return 0;
     }
 

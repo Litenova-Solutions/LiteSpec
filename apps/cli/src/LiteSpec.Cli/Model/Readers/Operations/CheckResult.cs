@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Operations;
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>One drill or harness run: the check it names and what it saw.</summary>
 /// <param name="Check">The check name the requirement carries.</param>

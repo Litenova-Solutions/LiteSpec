@@ -1,6 +1,7 @@
 using System.Text.Json;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Model;
-using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
@@ -216,7 +217,7 @@ public sealed class ProofTargetTests
         AssertProven(proves, "decision/0002-store-loans-as-documents", passing: true);
         AssertProven(proves, "integration-event/loan-borrowed", passing: false);
 
-        var query = JsonDocument.Parse(Querier.Query(model, "requirement/borrowing.borrow-latency")!);
+        var query = JsonDocument.Parse(RecordQuery.Query(model, "requirement/borrowing.borrow-latency")!);
         var computed = query.RootElement.GetProperty("computed");
 
         Assert.Equal(2, computed.GetProperty("proves").GetArrayLength());

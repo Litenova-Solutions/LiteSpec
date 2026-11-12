@@ -5,7 +5,7 @@
 
 ## Intent
 
-One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every suite marked with what it proves, and every primitive traceable to its source.
+One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, the browser support target, the color schemes, motion, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every route readable in every scheme and browser it targets, and every primitive traceable to its source.
 
 ## Concepts
 
@@ -24,11 +24,33 @@ The browser suite discovers its routes from the generated route tree rather than
 | Accessibility | axe reports zero WCAG 2.2 AA violations |
 | Heading | The page carries exactly one visible `h1` |
 | Landmark | The page carries one `main` landmark |
-| Reflow | At 320 CSS pixels the page has no horizontal overflow; a data table may scroll inside its own region |
+| Reflow | At 320 CSS pixels the page has no horizontal overflow; a data table may scroll inside its own region, which carries `tabindex="0"` and an accessible name |
 | Text spacing | The reflow check still passes under the WCAG 1.4.12 text-spacing override |
-| Keyboard | Every interactive element is reachable and shows a visible focus indicator |
+| Keyboard | Every interactive element is reachable, and the focused element's computed outline is not `none` and reaches 3:1 against the background next to it |
 | Target size | Every pointer target meets the minimum size or spacing |
-| Announcements | Asynchronous status changes announce through a live region |
+| Route change | After a client-side navigation through a link, `document.activeElement` is the route's `h1` |
+| Color scheme | The root's computed `color-scheme` names each scheme the design contract declares, and axe reports zero violations with each one emulated |
+| Motion | With `prefers-reduced-motion: reduce` emulated, `document.getAnimations()` holds no running transform, scale, or infinitely repeating animation once the route settles |
+| Announcements | One `role="status"` region and one `role="alert"` region exist when the route loads, and asynchronous status changes announce through them |
+
+### The Browser Support Target
+
+The design contract's Browser Support section names one Baseline tier, the set of web platform features that every major browser supports:
+
+| Tier | A feature belongs to it when |
+|:---|:---|
+| Baseline widely available | Every major browser has supported it for at least 30 months |
+| Baseline newly available | Every major browser supports it |
+
+The Default is Baseline widely available. A team decides each newer feature in this order, and the first rule that matches wins:
+
+1. The feature belongs to the declared tier: use it with no fallback.
+2. The tier is Baseline newly available and the feature belongs to it: detect the feature and let an unsupported browser show its default behavior.
+3. A fallback fits in the same file, behind `@supports` in CSS or a feature check in script: write it there.
+4. The fallback needs a package: record the decision that admits the package, as `litespec/frontend/ui#govern-behavior-packages` states.
+5. No fallback fits: change the design so it needs no such feature.
+
+Tailwind CSS v4 itself needs a recent browser, so a project that targets older browsers than the styling engine supports records the gap in its design contract.
 
 ### Pattern Implementation
 
@@ -95,6 +117,78 @@ The UI rules for the baseline, floorplans, layout, page references, tones, token
 **Rationale:** Semantic tokens keep every class inside the governed palette, spacing, and type scales. An arbitrary value, a raw palette value, or an important modifier steps outside them: the value answers to no token and survives every restyle. The approved CSS surface is the shared package's stylesheet, holding the Tailwind import, the tokens, the fonts, and the documented resets. The source scan skips build output and reports authored feature CSS. This realizes litespec/frontend/ui#restrict-styling-to-semantic-tokens.
 
 **Checked by:** `litespec model check` reports `ui-class-invalid` for each arbitrary value, raw palette value, and important modifier, and `ui-stylesheet-invalid` for each inline style, with its file.
+
+### Build Within the Browser Support Target
+
+**ID:** `litespec/frontend/web/ui#build-within-the-browser-support-target`
+
+**Strength:** required
+
+**Applies to:** artifact: component, route
+
+**Statement:** The shared package and the routes MUST use only web platform features in the tier the design contract's Browser Support section names, or carry a fallback beside each other feature.
+
+**Rationale:** A feature outside the declared tier breaks silently for the staff member whose browser lacks it: a dialog that never opens, a layout that collapses, a control that does nothing. Naming one tier in the design contract lets every author and agent judge a feature against the same line, and the decision order in the Concepts section says what to write when a feature falls outside it.
+
+**Example:** A design contract that declares Baseline widely available lets the expense record header switch its layout with a size container query, which belongs to that tier, with no fallback. A tooltip placed with CSS anchor positioning, which belongs to neither tier yet, keeps the script positioning of the baseline popover component instead.
+
+**Reviewed for:** Which platform feature in the shared package or a route falls outside the declared tier with no fallback beside it? Look in the stylesheets and components against the design contract's Browser Support section.
+
+### Render Each Declared Color Scheme
+
+**ID:** `litespec/frontend/web/ui#render-each-declared-color-scheme`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A web frontend MUST declare on its root element the color schemes its tokens define and pass the route suite in each of them.
+
+**Rationale:** A token set with a dark scheme that no check renders ships unreadable text to every staff member whose device is set to dark. Declaring `color-scheme` also lets the browser draw scrollbars, form controls, and the page before styles load in the matching scheme, so nothing flashes white. A product that defines only a light scheme declares `color-scheme: light` and is checked in that scheme only.
+
+**Reviewed for:** Which route fails the route suite in a declared color scheme, or which root omits `color-scheme`? Look in the route suite output and the shared stylesheet.
+
+### Honor Reduced Motion
+
+**ID:** `litespec/frontend/web/ui#honor-reduced-motion`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A route MUST run no spatial, scaling, or looping animation while the reader's system asks for reduced motion.
+
+**Rationale:** WCAG 2.3.3 Animation from Interactions: a drawer that slides or a card that zooms can bring on nausea or dizziness for a reader with a vestibular condition. Under reduced motion, a transition becomes a short fade or nothing, and every animation still ends in its final state, so the screen shows the same result without the movement. The design contract's Motion section names what each duration becomes. The mobile stacks hold the same rule in `litespec/frontend/mobile/screens#honor-reduced-motion`.
+
+**Reviewed for:** Which route still slides, scales, or loops an animation with reduced motion emulated? Look in the route suite output.
+
+### Give Moving Content a Pause Control
+
+**ID:** `litespec/frontend/web/ui#give-moving-content-a-pause-control`
+
+**Strength:** required
+
+**Applies to:** artifact: component, route
+
+**Statement:** Content that moves, scrolls, or updates on its own for more than five seconds MUST offer a control that pauses, stops, or hides it.
+
+**Rationale:** WCAG 2.2.2 Pause, Stop, Hide: a ticker of incoming expenses or a rotating banner pulls the eye away from the form a staff member is filling in, and a screen-reader user hears it interrupt. A pause control gives the reader the page back.
+
+**Reviewed for:** Which moving or self-updating content runs longer than five seconds with no pause, stop, or hide control? Look in the routes that show live feeds, carousels, or animated status.
+
+### Set Text Sizes in Relative Units
+
+**ID:** `litespec/frontend/web/ui#set-text-sizes-in-relative-units`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A font-size token MUST use `rem` rather than `px`.
+
+**Rationale:** WCAG 1.4.4 Resize Text: a reader who sets a larger default text size in the browser or the system expects every page to follow it, and a size fixed in pixels ignores that setting. A `rem` token scales with the reader's setting, and the reflow and text-spacing checks then prove that the layout still holds.
+
+**Reviewed for:** Which font-size token is written in `px`? Look in the shared package's token stylesheet.
 
 ### Track Source Changes
 

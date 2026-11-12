@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.CommandLine;
 
 namespace LiteSpec.Cli.Tests;
 
@@ -95,7 +96,7 @@ public sealed class CliArgsTests
         var stdout = new StringWriter();
         var stderr = new StringWriter();
 
-        var code = LastResort.Run(
+        var code = CommandFailure.Run(
             () => throw new InvalidOperationException("boom"),
             json: false,
             stdout,
@@ -116,7 +117,7 @@ public sealed class CliArgsTests
         var stdout = new StringWriter();
         var stderr = new StringWriter();
 
-        var code = LastResort.Run(
+        var code = CommandFailure.Run(
             () => throw new InvalidOperationException("boom"),
             json: true,
             stdout,
@@ -133,10 +134,10 @@ public sealed class CliArgsTests
     [Fact]
     public void LastResortDetectsJsonFormat()
     {
-        Assert.True(LastResort.WantsJson(["model", "--format", "json"]));
-        Assert.True(LastResort.WantsJson(["model", "--format=json"]));
-        Assert.False(LastResort.WantsJson(["model", "--format", "text"]));
-        Assert.False(LastResort.WantsJson(["model"]));
+        Assert.True(CommandFailure.WantsJson(["model", "--format", "json"]));
+        Assert.True(CommandFailure.WantsJson(["model", "--format=json"]));
+        Assert.False(CommandFailure.WantsJson(["model", "--format", "text"]));
+        Assert.False(CommandFailure.WantsJson(["model"]));
     }
 
     /// <summary>Under JSON format a usage error writes one error object on standard output and nothing on standard error.</summary>

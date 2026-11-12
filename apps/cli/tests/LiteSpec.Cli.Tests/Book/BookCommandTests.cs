@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -231,7 +232,7 @@ public sealed class BookCommandTests
         var plain = Path.Combine(temp.Path, "plain");
         Directory.CreateDirectory(Path.Combine(plain, "shots"));
         File.WriteAllBytes(Path.Combine(plain, "shots", "home.png"), [137, 80, 78, 71]);
-        var model = (JsonObject)DataFile.Read(TestCli.Fixture("Book/model.json"))!;
+        var model = (JsonObject)RecordText.Read(TestCli.Fixture("Book/model.json"))!;
         var screen = model["records"]!.AsArray().OfType<JsonObject>().Single(record => record["type"]!.GetValue<string>() == "screen");
         screen["captures"] = JsonNode.Parse("""[{"path":"shots/home.png","route":"/home","theme":"light","width":1440,"capturedOn":"2026-11-01"}]""");
         screen["captureState"] = "captured";
@@ -309,7 +310,7 @@ public sealed class BookCommandTests
         using var consumer = ModelFixture.Prepare("small");
         using var temp = TestCli.Temp("book");
         using var home = TestCli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"5.0.0"}""");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"5.1.0"}""");
         var result = TestCli.Run(
             ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });

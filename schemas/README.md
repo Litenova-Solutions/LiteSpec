@@ -30,7 +30,7 @@ The command checks each `$id` against the manifest version, validates the manife
 | `ui-pattern-catalog.schema.yaml` | `docs/ui/pattern-catalog.json` | `litespec model check` |
 | `ui-source-lock.schema.yaml` | `packages/ui/ui-source-lock.yaml` | `litespec model check` |
 
-The shared evaluator lives in `apps/model/src/LiteSpec.Shared/Schemas/`: `JsonSchema.cs` is the entry every reader above calls, `SchemaGate.cs` rejects any keyword the evaluator does not implement, and `SchemaEvaluator.cs` validates, so one validation path serves all seven schemas.
+The shared evaluator lives in `apps/model/src/LiteSpec.Standards/Schemas/`: `JsonSchema.cs` is the entry every reader above calls, `SchemaGate.cs` rejects any keyword the evaluator does not implement, and `SchemaEvaluator.cs` validates, so one validation path serves all seven schemas.
 
 ### Litespec Manifest Schema
 

@@ -1,8 +1,8 @@
 # Claimwick Agent Context
 
 ## LiteSpec
-This project follows LiteSpec 5.0.0: size large, shape server, stacks dotnet and svelte, extensions none.
-Before a task, read https://litespec.dev/5.0.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 5.1.0: size large, shape server, stacks dotnet and svelte, extensions none.
+Before a task, read https://litespec.dev/5.1.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 

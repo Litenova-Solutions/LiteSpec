@@ -16,7 +16,7 @@ Each pattern answers one recurring question about lists, such as which columns a
 
 ### The Running Example
 
-The drawings on this page use the Claimwick expenses list for Harbor and Pine: 268 expenses across many spenders and trips, with expense EXP-1042 for Ava as one row. Filters, sorting, and paging narrow that list, and the money column shows amounts such as EUR 125.00. The Standards section states the two rules every option keeps: the list view lives in the address, and money columns align right with their currency.
+The drawings on this page use the Claimwick expenses list for Harbor and Pine: 268 expenses across many spenders and trips, with expense EXP-1042 for Ava as one row. Filters, sorting, and paging narrow that list, and the money column shows amounts such as EUR 125.00. The Standards section states the five rules every option keeps: the list view lives in the address, money columns align right with their currency, the sorted column carries its mark, the result count is announced, and a scrolling table sits in a named region.
 
 ## Standards
 
@@ -26,7 +26,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **Strength:** required
 
-**Statement:** A list MUST keep its filters, sort order, and page in the URL.
+**Statement:** A list MUST keep its filters, sort order, and page in the URL, and its expanded groups where it groups rows.
 
 **Rationale:** A view kept in the address survives the back button, a refresh, and a pasted link, so all three return to the same rows. Without it, opening one record loses the filters the reader set, and a link sent to a colleague opens the unfiltered first page instead of the rows under discussion.
 
@@ -43,6 +43,72 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 **Rationale:** Right alignment lines up place value down the column, so a reader compares hundreds against thousands without reading each figure digit by digit. A currency on every amount keeps EUR 125.00 distinct from a bare 125.00, so an export or a screenshot never leaves finance guessing which money it shows.
 
 **Reviewed for:** Which built money column centers its figures or hides a currency? Open the money columns on built tables.
+
+### Mark the Sorted Column
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#mark-the-sorted-column`
+
+**Strength:** required
+
+**Statement:** A sortable column header MUST be a button inside its header cell, with `aria-sort` and its direction on the sorted column only.
+
+**Rationale:** A screen-reader user hears which column orders the expense list and changes it like any button. Without the button shape, the header reads as plain text and sorting stays hidden. Without the mark on the sorted column, the order stays silent even though the rows follow it. This is WCAG 1.3.1 Info and Relationships.
+
+**Reviewed for:** Which built sortable header is no button, or which sorted column lacks its direction mark? Open built tables and read each sortable header and the sorted column mark.
+
+### Announce a List's Result Count
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#announce-a-lists-result-count`
+
+**Strength:** required
+
+**Statement:** A list MUST announce its result count after a filter or search and its selection total after a selection changes, once per change through the page's polite status region.
+
+**Rationale:** A filter that narrows 268 expenses to 58 without a word leaves a screen-reader user on a list that changed under them. A bulk selection of "3 selected, EUR 412.00" is otherwise silent, so the reader acts without knowing the scope. The count goes through the page's polite status region in `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`, once per change. This is WCAG 4.1.3 Status Messages.
+
+**Reviewed for:** Which built list stays silent after a filter, search, or selection change? Open built lists, change the view and the selection, and listen for one announcement per change.
+
+### Make a Scrolling Table a Named Region
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#make-a-scrolling-table-a-named-region`
+
+**Strength:** required
+
+**Statement:** A table that scrolls sideways MUST sit in a named region that takes keyboard focus and shows a cue at each edge it can still scroll.
+
+**Rationale:** A keyboard user on a 390 px screen has no other way to reach the columns past the edge, because a sideways scroll without a focus stop is pointer-only. A sighted user has no sign that more columns exist without a cue at the scrolling edge. The named region gives the table a stop in the tab order and a name for assistive technology. This is WCAG 2.1.1 Keyboard.
+
+**Reviewed for:** Which built sideways-scrolling table misses its focus stop, name, or edge cue? Open built wide tables at 390 px and tab to each table edge.
+
+## Conventions
+
+### Keep the Header Row in View
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#keep-the-header-row-in-view`
+
+**Strength:** default
+
+**Default:** Keep the header row of a table taller than the viewport visible while it scrolls, with no focused row hidden under it.
+
+**Replacement:** A project that departs records the lists it keeps short enough to fit.
+
+**Rationale:** A header that scrolls away leaves a long expense list without column names, so the reader scrolls up to relearn which column is which. A focused row hidden under a fixed header looks lost even though focus sits on it. Keeping the header in view with focus clear of it answers both. This is WCAG 2.4.11 Focus Not Obscured.
+
+**Reviewed for:** Which built tall table loses its header on scroll or hides a focused row under it? Open built long lists and scroll with the keyboard.
+
+### Shape a List by Its Container
+
+**ID:** `litespec/frontend/patterns/lists-and-tables#shape-a-list-by-its-container`
+
+**Strength:** default
+
+**Default:** Switch a list between its table and its cards by the width of the region that holds it, not the width of the screen.
+
+**Replacement:** A project that departs records the breakpoint it uses and why.
+
+**Rationale:** The expense table in a record's side panel has a phone's width on a desktop screen, so a screen-wide breakpoint keeps it a table where cards read better. Measuring the holding region switches each list at the width it actually has. One list on a page stays a table while its neighbor turns to cards.
+
+**Reviewed for:** Which built list switches shape by screen width instead of its container? Open built lists in narrow panels on a wide screen.
 
 ## Patterns
 
@@ -284,7 +350,7 @@ page
 
 **Default:** `one-filter-per-category-visible`
 
-**Compact:** The recommended option reflows below `md`. One column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the search box keeps the top row while the four category controls wrap beneath it, and the expenses table scrolls sideways inside its region.
 
 **Rationale:** Show one visible control per category. A reader sees what can narrow the table without opening anything, and each category keeps its own control. The runner-up is faceted buttons with counts. Prefer it once a category holds more than a few values and the reader needs the split before choosing.
 
@@ -489,7 +555,7 @@ page
 
 **Default:** `a-bar-above-the-table-naming-the-count`
 
-**Compact:** The recommended option reflows below `md`. One column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the selection count and money stack above the table, with the reverse commands wrapping under them.
 
 **Rationale:** Keep a bar above the table naming the count and the money. On a reversals page the total is the thing a reader checks before acting. The runner-up is a floating pill, for reversible bulk work such as resending receipts or tagging, where the bar leaves the table in place.
 
@@ -799,7 +865,7 @@ page
 
 **Default:** `no-data-yet-table-replaced`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the message and its New trip command stack in one column under the header.
 
 **Rationale:** Keep each state as its own sentence for its own fact. No data yet replaces the table. A failed refresh keeps the chrome and names how old the rows are. A slow read names what is loading. Never ship a bare spinner over the table body. Rows that shift when the data lands move the row the reader already chose.
 
@@ -877,7 +943,7 @@ page
 
 **Default:** `tone-only-on-the-states-that-block`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the State column keeps its toned badges while the table scrolls sideways, so Disputed and Awaiting payment still read at a glance.
 
 **Rationale:** Give a tone only to the states that block. Disputed and Awaiting payment take a badge because somebody must act. Paid and Completed stay plain words. Prefer the reason on a second line for a disputes queue where the word alone never answers why. Never ship progress marks. Four blocks per row on a 268-row list cannot serve a lifecycle that branches.
 
@@ -956,7 +1022,7 @@ page
 
 **Default:** `number-only-right-aligned`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the Paid column keeps its right-aligned figures while the table scrolls sideways, with the currency still named in the header.
 
 **Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total. A derived percentage column answers a question no expenses list is asked.
 
@@ -1034,7 +1100,7 @@ page
 
 **Default:** `one-export-button-that-downloads-csv`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the Export CSV command sits beside the search above the table, which scrolls sideways inside its region.
 
 **Rationale:** Keep one Export button that downloads the filtered rows as CSV. The accountant job costs one click and no decisions. Prefer a background export past a few thousand rows where a download would time out. Never ship copy as the only export. Copying the visible page silently drops every row past the pager.
 
@@ -1115,7 +1181,7 @@ page
 
 **Default:** `matches-highlighted-in-the-cells`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the match count stays under the search box, and the table with its highlighted cells scrolls sideways.
 
 **Rationale:** Highlight the matches in the cells. The reader sees why each row matched without opening it. Prefer a scope control once readers search across trips and must say which one. Never ship a match column on its own. It spends a column stating what the highlight already shows.
 
@@ -1196,9 +1262,9 @@ page
 
 **Default:** `grouped-by-day-with-subtotals`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: each day keeps its subtotal above its table, and the day groups stack with their tables scrolling sideways.
 
-**Rationale:** Keep grouped by day with subtotals. It answers what today paid without a chart and without leaving the list. The runner-up is grouped by trip with collapse toggles. Prefer it once trips grow so one day of rows stops fitting. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
+**Rationale:** Keep grouped by day with subtotals. It answers what today paid without a chart and without leaving the list. The runner-up is grouped by trip with collapse toggles. Prefer it once trips grow so one day of rows stops fitting. Collapsed rows stay findable: the browser's find opens the group that holds a match. Never ship two group levels: month-then-day nesting turns the list into a tree that paging cannot cross.
 
 **Reviewed for:** Which built group header breaks from the wireframe its catalog entry chose? Open the built day, trip, and flat groupings beside the catalog entry recording the chosen option and its reason.
 
@@ -1255,7 +1321,7 @@ page
 
 **Rationale:** Grouping by trip can put a toggle on each group header, so a reader following one trip collapses the rest. The header carries the count and the subtotal even while collapsed.
 
-**Cost:** Collapsed groups hide rows from find-in-page and from a reader who forgot they collapsed anything. The toggle state needs to survive a reload or it annoys.
+**Cost:** Collapsed groups hide rows from a reader who forgot they collapsed anything, though the browser's find still opens the group that holds a match. The toggle state needs to survive a reload or it annoys.
 
 **Reference:** Linear
 
@@ -1290,7 +1356,7 @@ page
 
 **Default:** `expand-to-the-order-lines`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the expense lines card stacks under its table, with the Collapse command first.
 
 **Rationale:** Keep expansion to the expense lines. It answers what the spender claimed, which is the question asked from the list. The runner-up is expansion to lines with decision state. Prefer it on the decision list where handover is the work. Never ship expand-all: twenty expanded rows is a page nobody can scan, and one click fires a read per row.
 
@@ -1370,7 +1436,7 @@ page
 
 **Default:** `the-order-column-pinned-while-the-rest-scroll`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the expense column stays pinned while the other columns scroll under it.
 
 **Rationale:** Keep the expense column pinned while the rest scroll. The row stays named at any scroll position, and it costs no control. The runner-up pins the actions too. Prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.
 
@@ -1446,7 +1512,7 @@ page
 
 **Default:** `trip-cards-with-a-budget-bar`
 
-**Compact:** The recommended option reflows: one column, header actions under the title, and a table scrolls inside its own region.
+**Compact:** The recommended option reflows: the trip cards stack in one column, each keeping its dates, state, and claimed figure.
 
 **Rationale:** Keep cards with a progress bar. A handful of trips reads better as cards than as rows. The bar answers the only question the list exists for. The runner-up is a date-led list. Prefer it once the year holds dozens of trips and cards stop fitting. Never ship a month calendar for this question: it answers when, which the list is never asked.
 

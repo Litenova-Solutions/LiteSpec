@@ -108,7 +108,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         }
 
         var roots = paths.DocsRoots;
-        var records = new List<IRecordFacts>();
+        var records = new List<IRecordFields>();
         var grants = new Dictionary<string, string>(StringComparer.Ordinal);
 
         foreach (var text in ordered)

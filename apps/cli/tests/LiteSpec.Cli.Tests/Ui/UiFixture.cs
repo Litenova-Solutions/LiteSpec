@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Ui;
 
@@ -142,7 +143,7 @@ sealed class UiFixture : IDisposable
     /// <summary>Reads a JSON file.</summary>
     /// <param name="file">The JSON file path.</param>
     /// <returns>The parsed JSON value, or null when the file holds null.</returns>
-    public static JsonNode? ReadJson(string file) => DataFile.Read(file);
+    public static JsonNode? ReadJson(string file) => RecordText.Read(file);
 
     /// <summary>Writes a JSON file two-space indented with a trailing newline.</summary>
     /// <param name="file">The JSON file path.</param>

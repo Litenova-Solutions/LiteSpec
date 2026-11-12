@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Suppressions;
+namespace LiteSpec.Cli.Model.Readers.Suppressions;
 
 /// <summary>
 ///     The provision each LiteSpec analyzer rule enforces, read from the rule pages

@@ -1,8 +1,7 @@
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using LiteSpec.Analyzers.Generation;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Analyzers.Rules.Domain;
 using LiteSpec.Analyzers.Rules.Tests;
 using LiteSpec.Analyzers.Rules.Traceability;

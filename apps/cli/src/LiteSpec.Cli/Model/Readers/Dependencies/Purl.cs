@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     A package URL split into the parts the dependency gate compares: the ecosystem,

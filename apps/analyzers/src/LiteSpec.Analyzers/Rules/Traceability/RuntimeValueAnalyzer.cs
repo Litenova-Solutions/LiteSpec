@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -24,7 +24,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer == ArchitectureLayer.Domain;
 
     /// <summary>
     ///     Registers the analysis actions for the runtime value analyzer rule with the compilation
@@ -145,7 +145,7 @@ public sealed class RuntimeValueAnalyzer : TraceabilityAnalyzer
         {
             foreach (var mark in MarkReader.Read(member))
             {
-                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFacts record
+                if (mark.HasRecordId && state.Store.Index.ById(mark.RecordId) is IRecordFields record
                     && record.Type == recordType)
                 {
                     return mark.RecordId;

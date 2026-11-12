@@ -1,6 +1,5 @@
-using System.Text.Json.Nodes;
-using LiteSpec.Cli.Tests.Model;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -97,7 +96,7 @@ public sealed class OperationUseCaseCheckTests
     static void SetContract(string root, string relative)
     {
         var projectFile = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(projectFile)!.AsObject();
+        var project = RecordText.Read(projectFile)!.AsObject();
         project["paths"]!["contract"] = relative;
         File.WriteAllText(projectFile, project.ToJsonString());
     }

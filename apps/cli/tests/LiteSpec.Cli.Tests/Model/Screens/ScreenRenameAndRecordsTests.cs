@@ -1,7 +1,9 @@
-using Record = LiteSpec.Model.Record;
 using System.Text.Json;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Tests.Support;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Screens;
 
@@ -117,8 +119,8 @@ public sealed class ScreenRenameAndRecordsTests
         model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", """{"kind":"command","reachedThrough":["entry-point/admin"]}""", root));
         model.Records.Add(ScreenRec("screen/app.loans", "entry-point/app", root));
         model.Records.Add(ScreenRec("screen/admin.loans", "entry-point/admin", root));
-        model.Screens.Add(new ScreenInfo("web", "/loans", "apps/web/src/routes/loans/+page.ts", [], ["use-case/lending.list-loans"], "screen/app.loans"));
-        model.Screens.Add(new ScreenInfo("admin", "/loans", "apps/admin/src/routes/loans.tsx", [], ["use-case/lending.borrow-copy"], "screen/admin.loans"));
+        model.Screens.Add(new CodeScreen("web", "/loans", "apps/web/src/routes/loans/+page.ts", [], ["use-case/lending.list-loans"], "screen/app.loans"));
+        model.Screens.Add(new CodeScreen("admin", "/loans", "apps/admin/src/routes/loans.tsx", [], ["use-case/lending.borrow-copy"], "screen/admin.loans"));
 
         return model;
     }

@@ -18,7 +18,7 @@ public sealed partial class UiValidatorTests
 
     // Allowed construction (litespec/frontend/web/ui#restrict-css-decisions).
 
-    /// <summary>Approved Layout Utilities.</summary>
+    /// <summary>Approved BackendLayout Utilities.</summary>
     /// <proves>litespec/frontend/web/ui#restrict-css-decisions</proves>
     [Fact]
     public void ApprovedLayoutUtilities()

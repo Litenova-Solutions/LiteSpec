@@ -1,6 +1,9 @@
-using Record = LiteSpec.Model.Record;
 using System.Text.Json;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 

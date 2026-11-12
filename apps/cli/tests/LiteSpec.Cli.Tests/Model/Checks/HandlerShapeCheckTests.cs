@@ -1,4 +1,5 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
@@ -25,7 +26,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
             Path.Combine(temp.Path, "src", "App", "Lending", "VoidOrderCommandHandler.cs"),
             "VoidOrderCommandHandler"));
@@ -40,7 +41,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
             Path.Combine(temp.Path, "src", "App", "Shared", "VoidOrderCommandHandler.cs"),
             "VoidOrderCommandHandler"));
@@ -55,7 +56,7 @@ public sealed class HandlerShapeCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
             Path.Combine(temp.Path, "src", "App", "Lending", "OrderManager.cs"),
             "OrderManager"));
@@ -75,7 +76,7 @@ public sealed class HandlerShapeCheckTests
             Path.Combine(temp.Path, ".litespec/project.yaml"),
             """{"stackConfig": {"dotnet": {"sharedKernel": "src/App.SharedKernel"}}}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command",
             Path.Combine(temp.Path, "src", "App.SharedKernel", "OrderHelper.cs"),
             "OrderHelper"));
@@ -91,7 +92,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file));
 
         Assert.DoesNotContain("collaborator-repository-invalid", TestModel.Codes(model));
@@ -105,7 +106,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             Collaborators: [new CodeCollaborator("OrderEraser", file, 7)]));
 
@@ -122,7 +123,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "SweepJob.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Jobs.Add(new JobInfo(
+        model.Code.Jobs.Add(new CodeJob(
             "SweepJob", file, 3, null, "job/lending.sweep",
             Collaborators: [new CodeCollaborator("OrderEraser", file, 9)]));
 
@@ -137,7 +138,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file));
 
         Assert.DoesNotContain("repository-read-invalid", TestModel.Codes(model));
@@ -151,7 +152,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             LoopReads: [new CodeLoopRead("IOrderRepository", "FindByIdAsync", file, 10)]));
 
@@ -166,7 +167,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ListLoansQueryHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.list-loans", "lending", "list-loans", "ListLoans", "query", file));
 
         Assert.DoesNotContain("query-filter-invalid", TestModel.Codes(model));
@@ -180,7 +181,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "ListLoansQueryHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.list-loans", "lending", "list-loans", "ListLoans", "query", file,
             MemoryFilters: [new CodeMemoryFilter(file, 9)]));
 
@@ -273,7 +274,7 @@ public sealed class HandlerShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var file = Path.Combine(temp.Path, "VoidOrderCommandHandler.cs");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", file,
             "VoidOrderCommandHandler", 3, MessageType: "VoidOrderCommand", DependencyCount: 2,
             AggregateCalls: [new CodeCall("order", "Void", file, 8)],
@@ -306,7 +307,7 @@ public sealed class HandlerShapeCheckTests
         var endpointFile = Path.Combine(root, "VoidOrderEndpoint.cs");
         var commandFile = Path.Combine(root, "VoidOrderCommand.cs");
         var model = TestModel.Model(TestModel.Config(root));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", handlerFile,
             MessageType: message));
         model.Code.Endpoints.Add(new EndpointOperation(operation, "use-case/lending.void-order", "", "", endpointFile));

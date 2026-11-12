@@ -1,4 +1,5 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Proof;
 using LiteSpec.Cli.Tests.Model.Checks;
 using LiteSpec.Cli.Tests.Support;
 
@@ -40,7 +41,7 @@ public sealed class ScreenCaptureTests
               "packs": ["lite"],
               "stacks": ["dotnet"],
               "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-              "reviewedLiteSpecVersion": "5.0.0",
+              "reviewedLiteSpecVersion": "5.1.0",
               "screenshots": { "galleries": ["gallery"], "pattern": "{route}--{theme}--{width}.png" }
             }
             """);

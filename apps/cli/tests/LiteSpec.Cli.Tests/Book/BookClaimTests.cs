@@ -1,8 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
-using Record = LiteSpec.Model.Record;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.CompletionStages;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Book;
 

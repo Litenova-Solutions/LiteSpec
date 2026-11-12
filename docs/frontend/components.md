@@ -155,19 +155,39 @@ The five properties above are the ones a component can satisfy on its own. [WCAG
 
 | Criterion | Level | What it means for the UI |
 |:---|:---|:---|
+| 1.3.5 Identify Input Purpose | AA | A field collecting information about the user names its purpose, so the browser can fill it. |
+| 1.4.11 Non-text Contrast | AA | A control's boundary, state, and focus indicator reach 3:1 against what surrounds them. |
+| 2.2.2 Pause, Stop, Hide | A | Content that moves or updates on its own for more than five seconds can be paused. |
 | 2.4.11 Focus Not Obscured (Minimum) | AA | A focused control stays at least partly visible under a sticky header, bar, or panel. |
 | 2.4.12 Focus Not Obscured (Enhanced) | AAA | A focused control stays fully visible. |
 | 2.4.13 Focus Appearance | AAA | The focus indicator meets the stated minimum area and contrast. |
+| 2.5.1 Pointer Gestures | A | Every swipe, pinch, or multi-point action has a visible single-pointer alternative. |
 | 2.5.7 Dragging Movements | AA | Every drag action has a single-pointer alternative. |
 | 2.5.8 Target Size (Minimum) | AA | A pointer target measures at least 24 by 24 pixels, or meets the stated spacing. |
 | 3.2.6 Consistent Help | A | A help mechanism sits in the same relative order on every page that has one. |
+| 3.3.4 Error Prevention (Legal, Financial, Data) | AA | A command that moves money or changes recorded data can be reviewed, confirmed, or reversed. |
 | 3.3.7 Redundant Entry | A | Information already given in the same process is not asked for again. |
 | 3.3.8 Accessible Authentication (Minimum) | AA | Sign-in offers a path with no cognitive function test. |
 | 3.3.9 Accessible Authentication (Enhanced) | AAA | That path asks for no object recognition or personal content test either. |
+| 4.1.3 Status Messages | AA | A status that appears without a focus move reaches assistive technology through a live region. |
 
 The level column marks which target each criterion belongs to: AA for every project, AAA for a project that targets AAA.
 
 **Reviewed for:** Which interactive UI lacks keyboard operation, visible focus, semantic elements, programmatic labels, or status announcements? Look in the route suite output.
+
+### Show a Focus Indicator That Stands Out
+
+**ID:** `litespec/frontend/components#show-a-focus-indicator-that-stands-out`
+
+**Strength:** required
+
+**Applies to:** artifact: component
+
+**Statement:** A control MUST show, on keyboard focus, an indicator that reaches 3:1 contrast against the colors next to it, drawn in place of any platform indicator it removes.
+
+**Rationale:** WCAG 2.4.7 Focus Visible and 1.4.11 Non-text Contrast: a keyboard user finds their place on the page by the indicator alone, and a faint ring on a gray row is no place at all. The indicator shows on keyboard focus rather than on every click, so pointer users see no ring they did not ask for, and keyboard users always see one. For example, the Approve button on an expense row shows a ring that stays visible on the selected row's tinted background.
+
+**Reviewed for:** Which control shows no focus indicator, or one below 3:1 against its surroundings, on keyboard focus? Look in the route suite output and the shared package's focus styles.
 
 ### Render Data States
 
@@ -272,6 +292,22 @@ A route adds `not-found` under `litespec/frontend/rendering#represent-route-stat
 **Rationale:** A name such as `ExpenseComponent` or `GenericModal` describes the file type, so it fits any component and tells a searcher nothing. A name that states the role, such as `ExpenseLinesSection` or `ReplayDeliveryDialog`, tells the next author what the component does before they open it, and keeps two components for two jobs from sharing one vague name.
 
 **Reviewed for:** Which component names hide the role they play? Look in the shared package and module sources.
+
+### Make Touch Targets Fit a Finger
+
+**ID:** `litespec/frontend/components#make-touch-targets-fit-a-finger`
+
+**Strength:** default
+
+**Applies to:** artifact: component
+
+**Default:** Size every pointer target at least 44 by 44 pixels where the primary pointer is coarse, and keep the 24 by 24 pixel minimum everywhere else.
+
+**Replacement:** A consumer can replace this default by recording, in its design contract, the target size its touch layouts use.
+
+**Rationale:** The 24 pixel minimum of WCAG 2.5.8 stops a mouse user from missing a control, but a finger covers more than that, and a staff member approving expenses on a phone taps Reject when they meant Approve. A larger target on coarse pointers keeps dense desktop tables while giving touch layouts room. The mobile stacks already size targets for a finger.
+
+**Reviewed for:** Which pointer target on a touch layout measures below 44 by 44 pixels? Look in the route suite output at the phone breakpoint.
 
 ### Expose Card and Section Titles as Headings
 

@@ -1,6 +1,8 @@
-using Record = LiteSpec.Model.Record;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Screens;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -33,7 +35,7 @@ public sealed class BehaviorUnrecordedTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.ghost", "lending", "ghost", "Ghost", "command",
             Path.Combine(temp.Path, "GhostHandler.cs")));
 
@@ -117,7 +119,7 @@ public sealed class BehaviorUnrecordedTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/lending.ghost", Path.Combine(temp.Path, "ghost.yaml"), """{"kind": "command"}"""));
-        model.Code.Reactions.Add(new ReactionInfo(
+        model.Code.Reactions.Add(new CodeReaction(
             "GhostReaction", Path.Combine(temp.Path, "GhostReaction.cs"), 3, "use-case/lending.ghost"));
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
@@ -149,7 +151,7 @@ public sealed class BehaviorUnrecordedTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("event", "event/ghost.raised", Path.Combine(temp.Path, "ghost.yaml"), """{"meaning": "A ghost was raised.", "carries": []}"""));
-        model.Code.Events.Add(new DomainEventInfo(
+        model.Code.Events.Add(new CodeDomainEvent(
             "GhostRaisedEvent", Path.Combine(temp.Path, "GhostRaisedEvent.cs"), 3, "event/ghost.raised"));
 
         Assert.DoesNotContain("behavior-unrecorded", TestModel.Codes(model));
@@ -213,7 +215,7 @@ public sealed class BehaviorUnrecordedTests
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "catalog",
             "/ghost",
             "apps/catalog/src/routes/ghost/+page.svelte",
@@ -234,7 +236,7 @@ public sealed class BehaviorUnrecordedTests
         model.Code.Endpoints.Add(new EndpointOperation(
             "", "use-case/lending.ghost", "POST", "/api/lending/ghost-op",
             Path.Combine(temp.Path, "GhostEndpoint.cs")));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "catalog",
             "/ghost",
             "apps/catalog/src/routes/ghost/+page.svelte",
@@ -255,7 +257,7 @@ public sealed class BehaviorUnrecordedTests
         model.Code.Endpoints.Add(new EndpointOperation(
             "GhostOp", "use-case/lending.ghost", "", "",
             Path.Combine(temp.Path, "GhostEndpoint.cs")));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "catalog",
             "/ghost",
             "apps/catalog/src/routes/ghost/+page.svelte",
@@ -273,7 +275,7 @@ public sealed class BehaviorUnrecordedTests
         using var temp = TestCli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """{"shape": "client-only"}""");
         var model = TestModel.Model(TestModel.Config(temp.Path));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "catalog",
             "/ghost",
             "apps/catalog/src/routes/ghost/+page.svelte",

@@ -5,7 +5,7 @@ using LiteSpec.Model;
 namespace LiteSpec.Model.Tests;
 
 /// <summary>A record's facts by hand, for rule tests.</summary>
-sealed class FakeRecord : IRecordFacts
+sealed class FakeRecord : IRecordFields
 {
     private readonly Dictionary<string, string> fields;
     private readonly Dictionary<string, IReadOnlyList<string>> lists;

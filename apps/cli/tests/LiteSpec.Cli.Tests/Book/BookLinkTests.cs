@@ -1,6 +1,8 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Book;
-using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Book.Details;
+using LiteSpec.Cli.Book.Outline;
+using LiteSpec.Cli.Book.Output;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -72,7 +74,7 @@ public sealed class BookLinkTests
             ]}
             """)!.AsObject();
 
-        var details = BookEnrich.Build(model, BookOutline.Build(model));
+        var details = BookRecordDetails.Build(model, BookOutline.Build(model));
         var html = Str(details["research/links"], "bodyHtml") ?? "";
 
         Assert.Contains("click", html, StringComparison.Ordinal);

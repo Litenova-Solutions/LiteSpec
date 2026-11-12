@@ -1,6 +1,8 @@
-using LiteSpec.Model;
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Readers;
 
@@ -427,7 +429,7 @@ public sealed class DotnetMarkLinkTests
         Assert.Equal("job/lending.nightly-scan", job.RecordId);
     }
 
-    static CodeModel Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
+    static CodeFacts Read(string root) => new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     static void WriteProject(string root) =>
         File.WriteAllText(

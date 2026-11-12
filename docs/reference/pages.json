@@ -1,5 +1,5 @@
 {
-  "version": "5.0.0",
+  "version": "5.1.0",
   "pages": [
     {
       "file": "docs/README.md",
@@ -1929,6 +1929,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -1943,6 +1944,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -1957,6 +1959,7 @@
         "Intent",
         "Concepts",
         "Standards",
+        "Conventions",
         "Patterns"
       ]
     },
@@ -2008,7 +2011,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Frontend Rendering and Routes",
-      "intent": "A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, and how each route state renders. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.",
+      "intent": "A route answers three questions: which web address it serves, which data it needs, and which floorplan, the page component fixing the page layout, draws it. This page states how a route loads its data before rendering, how the address carries its parameters, how routes and languages load separately, how each route state renders, and where focus lands when the route changes. Frontend developers and agents apply it for every address the product serves, so each page renders with its data in place and no route shows a blank region where a request is pending or failed.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2192,7 +2195,7 @@
       "style": "standard",
       "area": "frontend",
       "title": "Web UI",
-      "intent": "One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every suite marked with what it proves, and every primitive traceable to its source.",
+      "intent": "One shared UI package carries the pieces every route composes: the registry of page references, the token stylesheet, and the baseline source it installs once. This page states the registry build, the suite marks, the CSS decisions, the browser support target, the color schemes, motion, and the source rules one web frontend requires, following the UI rules in [Controlled UI Governance](../ui.md). A team that applies it while writing shared UI keeps every registry item buildable, every route readable in every scheme and browser it targets, and every primitive traceable to its source.",
       "sections": [
         "Intent",
         "Concepts",
@@ -2277,20 +2280,6 @@
       "area": "guide",
       "title": "Build an Audit Trail",
       "intent": "An audit trail proves who attempted what against which data and what each attempt produced, so a product can answer for every sensitive action. This guide builds that proof on the LiteBus pipeline that runs each state change in the .NET backend: the entry shape, the pipeline handlers, the protected store, and the read path. Each step names the audit rule it satisfies, and the guide adds no rule of its own.",
-      "sections": [
-        "Purpose",
-        "Prerequisites",
-        "Procedure",
-        "Check"
-      ]
-    },
-    {
-      "file": "docs/guide/folder-reference.md",
-      "path": "guide/folder-reference",
-      "style": "how-to",
-      "area": "guide",
-      "title": "Folder Reference",
-      "intent": "Every record has exactly one parent, and its folder states that parent: the product, a module, an aggregate, or an entry point. This guide lists the one folder each record type lives in, the parent each folder stands for, and the placement the tool reads from the folder path and the \u0060module\u0060 field. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2762,6 +2751,18 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0036-pin-third-party-packages-to-their-major.md",
+      "path": "intent/decisions/0036-pin-third-party-packages-to-their-major",
+      "style": "decision",
+      "area": "intent",
+      "title": "Pin Third-Party Packages to Their Major",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence",
       "style": "research",
@@ -2965,11 +2966,13 @@
       "style": "index",
       "area": "learn",
       "title": "Overview",
-      "intent": "The Learn pages explain LiteSpec, the standard for building one business application from written rules that tools check, to a reader who is new to it: the problem it solves, how its parts fit, how to read the standard, and how a team adopts it. They apply to every project and role, and they state no rules of their own: each rule lives on the standards page they link to. Technical leads and developers read them in order below when they evaluate or adopt LiteSpec, before opening any rules page.",
+      "intent": "LiteSpec is the standard for building one business application from written rules that tools check. Technical leads read these pages to decide whether LiteSpec fits, developers read them to learn how its parts work, and teams read them before handing work to agents. Without one written shape, each agent invents its own design and the reasons behind past designs leave with the people who made them. This page is the single start: it states the five-minute picture and the one order to read in.",
       "sections": [
         "Intent",
-        "Reading Order",
-        "Next"
+        "The Five-Minute Picture",
+        "The Path",
+        "Evaluate",
+        "Then Build"
       ]
     },
     {
@@ -2995,15 +2998,15 @@
       "style": "explanation",
       "area": "learn",
       "title": "How LiteSpec Works",
-      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the record layers and the tools, then follows one use case of Claimwick, the example product in \u0060examples/claimwick/\u0060, from its written record to the check that confirms it. The worked example is in [The Claimwick Product](../example/the-product.md) and the pages after it.",
+      "intent": "LiteSpec connects what a team writes about a product to the code that implements it, and checks that the two still agree. This page explains the parts, the layers, the homes, and the tools, then states how to read a specification. Claimwick, the expense product in \u0060examples/claimwick/\u0060, is the worked example, walked from [The Claimwick Product](../example/the-product.md).",
       "sections": [
         "Intent",
         "The Parts",
         "The Four Layers",
         "Record Types and Their Homes",
-        "A Use Case from Record to Code",
         "Links Between Records",
-        "Completion Is Computed",
+        "A Use Case from Record to Code",
+        "How to Read a Specification",
         "The Tools",
         "Next"
       ]
@@ -3026,20 +3029,37 @@
       ]
     },
     {
-      "file": "docs/learn/reading-tracks.md",
-      "path": "learn/reading-tracks",
+      "file": "docs/learn/working-with-agents.md",
+      "path": "learn/working-with-agents",
       "style": "explanation",
       "area": "learn",
-      "title": "Reading Tracks",
-      "intent": "A specification is a tree, and no reader reads the whole tree at once. This page states the order to read in: why before how, one journey from goal to proof, one module from aggregates to proof, and the structural words every record uses. Readers take it after [How LiteSpec Works](how-litespec-works.md), before they open their first record.",
+      "title": "Work with Agents",
+      "intent": "An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.",
       "sections": [
         "Intent",
-        "Why Before How",
-        "One Journey End to End",
-        "One Module End to End",
-        "Structural Words",
-        "Which Track to Take",
-        "Next"
+        "Rules, Records, and Checks",
+        "Rule Sources",
+        "The Agent Task Sequence",
+        "Agent Decisions and the Closed Specification",
+        "Next Steps"
+      ]
+    },
+    {
+      "file": "docs/learn/adopting-litespec.md",
+      "path": "learn/adopting-litespec",
+      "style": "explanation",
+      "area": "learn",
+      "title": "Adopt LiteSpec in Steps",
+      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
+      "sections": [
+        "Intent",
+        "Fit Check",
+        "Choose the Layers to Start",
+        "Step 1: Claim Intent and Behavior",
+        "Step 2: Add Implementation",
+        "Step 3: Add Proof",
+        "Departures for a Single Provision",
+        "Next Steps"
       ]
     },
     {
@@ -3080,40 +3100,6 @@
         "Role-Based Access Control",
         "Design by Contract",
         "Next"
-      ]
-    },
-    {
-      "file": "docs/learn/working-with-agents.md",
-      "path": "learn/working-with-agents",
-      "style": "explanation",
-      "area": "learn",
-      "title": "Work with Agents",
-      "intent": "An AI coding agent (software that reads task context, changes files, and runs checks) does its best work when the rules are written down and the checks run before review. This page explains how an agent finds the LiteSpec rules for your project, the order it follows on a task, and which decisions stay with you. Team members read it when they first hand work to an agent, so the agent starts from your records instead of its own habits.",
-      "sections": [
-        "Intent",
-        "Rules, Records, and Checks",
-        "Rule Sources",
-        "The Agent Task Sequence",
-        "Agent Decisions and the Closed Specification",
-        "Next Steps"
-      ]
-    },
-    {
-      "file": "docs/learn/adopting-litespec.md",
-      "path": "learn/adopting-litespec",
-      "style": "explanation",
-      "area": "learn",
-      "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
-      "sections": [
-        "Intent",
-        "Fit Check",
-        "Choose the Layers to Start",
-        "Step 1: Claim Intent and Behavior",
-        "Step 2: Add Implementation",
-        "Step 3: Add Proof",
-        "Departures for a Single Provision",
-        "Next Steps"
       ]
     },
     {

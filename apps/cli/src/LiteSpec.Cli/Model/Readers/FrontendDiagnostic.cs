@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>One file a frontend reader could not parse.</summary>
 /// <param name="File">The file, relative to the frontend root.</param>

@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     One direct package in a bill of materials: the ecosystem and name its package URL names,

@@ -1,8 +1,7 @@
-using System.Linq;
-using LiteSpec.Model;
-using LiteSpec.Model.Readers;
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet.Screens;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Frontend;
 

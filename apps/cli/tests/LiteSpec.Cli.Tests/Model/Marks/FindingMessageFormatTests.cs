@@ -1,8 +1,13 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Cli.Tests.Support;
-using Record = LiteSpec.Model.Record;
+using LiteSpec.Model;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Marks;
 
@@ -33,7 +38,7 @@ public sealed class FindingMessageFormatTests
     public void CodeMessagesStartWithASubjectAndIdentifier()
     {
         using var temp = TestCli.Temp("marks");
-        var model = CodeModel(temp.Path);
+        var model = CodeFacts(temp.Path);
 
         var codes = new HashSet<string>(StringComparer.Ordinal)
         {
@@ -135,7 +140,7 @@ public sealed class FindingMessageFormatTests
     /// <summary>A model triggering the code-reading findings: one handler per shape, one raising method, and two endpoints sharing an operation.</summary>
     /// <param name="root">The fixture root folder the record files sit under.</param>
     /// <returns>The project model holding the triggering records.</returns>
-    static ProjectModel CodeModel(string root)
+    static ProjectModel CodeFacts(string root)
     {
         File.WriteAllText(
             Path.Combine(root, ".litespec/project.yaml"),
@@ -148,7 +153,7 @@ public sealed class FindingMessageFormatTests
         model.Records.Add(Rec("use-case", "use-case/lending.borrow-copy", Path.Combine(root, "borrow.yaml"), """{"status": "reviewed", "kind": "command", "changes": ["aggregate/lending.order"]}"""));
 
         var handlerFile = Path.Combine(root, "src", "App", "Shared", "VoidOrderCommandHandler.cs");
-        model.Code.Handlers.Add(new HandlerInfo(
+        model.Code.Handlers.Add(new CodeHandler(
             "use-case/lending.void-order", "lending", "void-order", "VoidOrder", "command", handlerFile,
             Repositories: [new CodeRepository("IHoldRepository", handlerFile, 5)],
             Refusals: [new CodeRefusal("lending.ghost-refusal", handlerFile, 9)],
@@ -199,9 +204,9 @@ public sealed class FindingMessageFormatTests
 
         var routeFile = Path.Combine(root, "apps", "web", "src", "routes", "loans", "+page.svelte");
         model.Code.Elements.Add(new MarkedElement(CodeKind.FrontendRoute, "/loans", null, routeFile, 3, [], InTests: false));
-        model.Screens.Add(new ScreenInfo("web", "/loans", "apps/web/src/routes/loans/+page.svelte", [], ["use-case/lending.list-loans"], "screen/app.loans"));
-        model.BrowserTests.Add(new BrowserTestInfo("web", "first", Path.Combine(root, "first.spec.ts"), 3, ["scenario/list-loans.listing-succeeds"], null, ["/elsewhere"], [], []));
-        model.BrowserTests.Add(new BrowserTestInfo("web", "second", Path.Combine(root, "second.spec.ts"), 3, ["scenario/list-loans.listing-succeeds"], null, ["/elsewhere"], [], []));
+        model.Screens.Add(new CodeScreen("web", "/loans", "apps/web/src/routes/loans/+page.svelte", [], ["use-case/lending.list-loans"], "screen/app.loans"));
+        model.BrowserTests.Add(new CodeBrowserTest("web", "first", Path.Combine(root, "first.spec.ts"), 3, ["scenario/list-loans.listing-succeeds"], null, ["/elsewhere"], [], []));
+        model.BrowserTests.Add(new CodeBrowserTest("web", "second", Path.Combine(root, "second.spec.ts"), 3, ["scenario/list-loans.listing-succeeds"], null, ["/elsewhere"], [], []));
         model.Code.DomainTypes.Add(new DomainType("CopyTitle", "Library.Domain.Lending.Copies", Path.Combine(root, "src", "Domain", "Lending", "Copies", "CopyTitle.cs"), 3, false));
 
         return model;

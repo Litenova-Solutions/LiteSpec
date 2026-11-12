@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers;
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>
 ///     The facts one frontend reader read for one frontend. When <see cref="Failure" />

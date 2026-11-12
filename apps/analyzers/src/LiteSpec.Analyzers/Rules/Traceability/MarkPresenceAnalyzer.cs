@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -20,7 +20,7 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer != Layer.None;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer != ArchitectureLayer.None;
 
     /// <summary>
     ///     Registers the analysis actions for the mark presence analyzer rule with the compilation
@@ -131,25 +131,25 @@ public sealed class MarkPresenceAnalyzer : TraceabilityAnalyzer
     /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when the checked-in condition holds; otherwise false.</returns>
-    private static bool CheckedIn(CodeKind kind, Layer layer)
+    private static bool CheckedIn(CodeKind kind, ArchitectureLayer layer)
     {
         switch (layer)
         {
-            case Layer.Domain:
+            case ArchitectureLayer.Domain:
                 return kind is CodeKind.AggregateRoot
                     or CodeKind.AggregateMethod
                     or CodeKind.DomainEvent
                     or CodeKind.RuleException;
-            case Layer.Application:
-            case Layer.ApplicationAbstractions:
+            case ArchitectureLayer.Application:
+            case ArchitectureLayer.ApplicationAbstractions:
                 return kind is CodeKind.Handler or CodeKind.EventHandler or CodeKind.Job or CodeKind.Technical;
-            case Layer.Infrastructure:
+            case ArchitectureLayer.Infrastructure:
                 return kind is CodeKind.Adapter or CodeKind.Job or CodeKind.Technical;
-            case Layer.WebApi:
+            case ArchitectureLayer.WebApi:
                 return kind is CodeKind.Endpoint or CodeKind.Technical;
-            case Layer.Worker:
+            case ArchitectureLayer.Worker:
                 return kind is CodeKind.Job or CodeKind.Technical;
-            case Layer.Test:
+            case ArchitectureLayer.Test:
                 return kind == CodeKind.Test;
             default:
                 return false;

@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>The readers one consumer build reads through.</summary>
 /// <param name="Backend">The backend reader.</param>

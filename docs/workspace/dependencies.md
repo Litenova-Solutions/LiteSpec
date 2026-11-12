@@ -85,13 +85,13 @@ A project that selects the [Delivery extension](../ext/delivery.md) generates a 
 
 **Strength:** required
 
-**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, at the pin `litespec.manifest.yaml` states where it states one.
+**Statement:** Every dependency version MUST resolve through central management or the committed lockfile, within the major `litespec.manifest.yaml` pins where it pins one.
 
-**Rationale:** An inline version in one module file is invisible to the manifest that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place: the manifest pins the baseline stack the standards name, and the consumer's own central file or lockfile pins the product's own packages. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer's pins live beside its code, admitted by `litespec/workspace/dependencies#approve-new-packages-explicitly`.
+**Rationale:** An inline version in one module file is invisible to the file that is supposed to own it, so two modules drift to two versions of the same package. Central management or the committed lockfile resolves every version in one owned place. The manifest pins the major of each baseline package, so a consumer takes a patch without waiting for a LiteSpec release; it pins an exact version only where a check depends on exact output. The manifest belongs to the LiteSpec release rather than to the consumer, so a consumer's exact versions live beside its code, admitted by `litespec/workspace/dependencies#approve-new-packages-explicitly`. Settled by [decision/0036-pin-third-party-packages-to-their-major](decision/0036-pin-third-party-packages-to-their-major).
 
-**Example:** A consumer generating invoices pins its PDF library in its central version file with a decision record. The manifest names only the baseline stack, and the pin is still central.
+**Example:** Claimwick's central version file holds Marten at 9.50.2 while the manifest pins `9.x`, so a patch lands without a LiteSpec release. Its receipt PDF library sits exact in the same file with a decision record, because the manifest names only the baseline stack.
 
-**Reviewed for:** Every version resolves through central management or the committed lockfile at the manifest pin where one exists; no version sits inline in a module file.
+**Reviewed for:** Every version resolves through central management or the committed lockfile within the manifest major where one exists; no version sits inline in a module file.
 
 ### Approve New Packages Explicitly
 

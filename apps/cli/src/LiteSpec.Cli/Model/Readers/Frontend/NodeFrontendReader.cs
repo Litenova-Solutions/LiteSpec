@@ -1,7 +1,10 @@
 using System.Text;
 using System.Text.Json;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Runs the TypeScript reader through Node once per build or check, as the
@@ -94,7 +97,7 @@ static class NodeFrontendReader
             }
         }
 
-        for (var folder = new DirectoryInfo(Directory.GetCurrentDirectory()); folder is not null; folder = folder.Parent)
+        for (var folder = new DirectoryInfo(CliHost.WorkingDirectory); folder is not null; folder = folder.Parent)
         {
             var candidate = Path.Combine(folder.FullName, "apps", "cli", "fe-reader", "dist", "litespec-fe-reader.mjs");
 
@@ -111,7 +114,7 @@ static class NodeFrontendReader
     /// <returns>The Node executable path, or null when Node is not on PATH.</returns>
     public static string? FindNode()
     {
-        var path = Environment.GetEnvironmentVariable("PATH") ?? "";
+        var path = CliHost.Variable("PATH") ?? "";
 
         foreach (var folder in path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
         {
@@ -130,7 +133,15 @@ static class NodeFrontendReader
     }
 
     /// <summary>The failure a Node reader run reports; its message states why the run produced no facts.</summary>
-    private sealed class ReaderFailure(string message) : Exception(message);
+    private sealed class ReaderFailure : Exception
+    {
+        /// <summary>Initializes a new instance of the <see cref="ReaderFailure"/> class.</summary>
+        /// <param name="message">Why the run produced no facts.</param>
+        public ReaderFailure(string message)
+            : base(message)
+        {
+        }
+    }
 
     /// <summary>Runs the Node reader bundle for the web frontends and captures its output and error text.</summary>
     /// <param name="config">The consumer configuration that locates the roots and files to read.</param>

@@ -24,7 +24,7 @@ internal sealed class TraceabilityFix
     /// <param name="kind">The LiteSpec kind of the element under inspection.</param>
     /// <param name="folders">The nearest folder names of the source file, containing first.</param>
     private TraceabilityFix(
-        RecordStore store,
+        CompilationRecords store,
         MemberDeclarationSyntax member,
         ISymbol? symbol,
         CodeKind? kind,
@@ -38,7 +38,7 @@ internal sealed class TraceabilityFix
     }
 
     /// <summary>Gets the consumer's records.</summary>
-    public RecordStore Store { get; }
+    public CompilationRecords Store { get; }
 
     /// <summary>Gets the member declaration the diagnostic sits on or in.</summary>
     public MemberDeclarationSyntax Member { get; }
@@ -90,7 +90,7 @@ internal sealed class TraceabilityFix
     /// <param name="project">The project that owns the document.</param>
     /// <param name="cancellationToken">The token that cancels the operation when the host aborts it.</param>
     /// <returns>A task whose result is the store.</returns>
-    private static async Task<RecordStore?> LoadStoreAsync(Project project, CancellationToken cancellationToken)
+    private static async Task<CompilationRecords?> LoadStoreAsync(Project project, CancellationToken cancellationToken)
     {
         var files = new List<RecordFile>();
 
@@ -104,7 +104,7 @@ internal sealed class TraceabilityFix
             }
         }
 
-        return RecordStore.Load(files);
+        return CompilationRecords.Load(files);
     }
 
     /// <summary>The member declaration holding the span, ascending from the token at its start.</summary>

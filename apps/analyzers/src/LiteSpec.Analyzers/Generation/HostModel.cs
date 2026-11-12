@@ -20,7 +20,7 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <param name="applicationProject">Whether the compilation is the modules project.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
     /// <param name="moduleHost">Whether the compilation is a host beside the modules project.</param>
-    public HostModel(Layer layer, Layout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
+    public HostModel(ArchitectureLayer layer, BackendLayout layout, bool applicationProject, bool xunitV3, bool moduleHost = false)
     {
         ModuleHost = moduleHost;
         Layer = layer;
@@ -30,10 +30,10 @@ internal sealed class HostModel : IEquatable<HostModel>
     }
 
     /// <summary>Gets the project layer.</summary>
-    public Layer Layer { get; }
+    public ArchitectureLayer Layer { get; }
 
     /// <summary>Gets the backend layout the consumer builds.</summary>
-    public Layout Layout { get; }
+    public BackendLayout Layout { get; }
 
     /// <summary>Gets a value indicating whether the compilation is the modules project.</summary>
     public bool ApplicationProject { get; }
@@ -53,7 +53,7 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <returns>The declared layer, or empty.</returns>
     public static string DeclaredLayer(AnalyzerConfigOptionsProvider options)
     {
-        if (options.GlobalOptions.TryGetValue(LayerResolver.PropertyKey, out var declared)
+        if (options.GlobalOptions.TryGetValue(ArchitectureLayerResolver.PropertyKey, out var declared)
             && !string.IsNullOrWhiteSpace(declared))
         {
             return declared.Trim();
@@ -65,15 +65,15 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <summary>Reads the declared layout property, or the module layout when the project sets none.</summary>
     /// <param name="options">The analyzer configuration options.</param>
     /// <returns>The declared layout.</returns>
-    public static Layout DeclaredLayout(AnalyzerConfigOptionsProvider options)
+    public static BackendLayout DeclaredLayout(AnalyzerConfigOptionsProvider options)
     {
-        if (options.GlobalOptions.TryGetValue(LayerResolver.LayoutPropertyKey, out var declared)
+        if (options.GlobalOptions.TryGetValue(ArchitectureLayerResolver.LayoutPropertyKey, out var declared)
             && !string.IsNullOrWhiteSpace(declared))
         {
-            return LayerResolver.ParseLayout(declared);
+            return ArchitectureLayerResolver.ParseLayout(declared);
         }
 
-        return Layout.Modules;
+        return BackendLayout.Modules;
     }
 
     /// <summary>Creates a host model from the declared layer, the layout, the assembly name and the xUnit probe.</summary>
@@ -82,19 +82,19 @@ internal sealed class HostModel : IEquatable<HostModel>
     /// <param name="assemblyName">The compilation assembly name.</param>
     /// <param name="xunitV3">Whether the compilation references xUnit v3.</param>
     /// <returns>The host model.</returns>
-    public static HostModel Create(string declared, Layout layout, string assemblyName, bool xunitV3)
+    public static HostModel Create(string declared, BackendLayout layout, string assemblyName, bool xunitV3)
     {
         var layer = declared.Length == 0
-            ? LayerResolver.FromAssemblyName(assemblyName)
-            : LayerResolver.Parse(declared);
+            ? ArchitectureLayerResolver.FromAssemblyName(assemblyName)
+            : ArchitectureLayerResolver.Parse(declared);
 
         // The assembly ending .Modules is the modules project and generates the registry,
         // the permissions and the roles. The assembly ending .SharedKernel reads layer
         // None with no application project and no host, so it generates nothing.
-        var applicationProject = layout == Layout.Modules && declared.Length == 0 && layer == Layer.None
+        var applicationProject = layout == BackendLayout.Modules && declared.Length == 0 && layer == ArchitectureLayer.None
             && !IsSharedKernelAssembly(assemblyName);
 
-        var moduleHost = layout == Layout.Modules && declared.Length == 0 && layer != Layer.None;
+        var moduleHost = layout == BackendLayout.Modules && declared.Length == 0 && layer != ArchitectureLayer.None;
 
         return new HostModel(layer, layout, applicationProject, xunitV3, moduleHost);
     }

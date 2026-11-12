@@ -1,8 +1,10 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Consumer;
 
@@ -296,7 +298,7 @@ static class ConsumerFixture
 
     static ManifestInfo ReadManifest()
     {
-        var manifest = (JsonObject)DataFile.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
+        var manifest = (JsonObject)RecordText.Read(Path.Combine(TestCli.Repository, "litespec.manifest.yaml"))!;
         var version = (string?)manifest["version"] ?? throw new InvalidOperationException("The manifest names no version.");
         var known = manifest["extensions"] is JsonObject extensions && extensions.Count > 0
             ? extensions.Select(pair => pair.Key).First()
@@ -319,7 +321,7 @@ static class ConsumerFixture
     /// <param name="body">The document body text after the frontmatter.</param>
     /// <returns>The complete document text.</returns>
     public static string Page(JsonNode meta, string body) =>
-        $"---\n{YamlWriter.Write(DataFile.TextOf(meta))}---\n{body}";
+        $"---\n{YamlWriter.Write(RecordText.TextOf(meta))}---\n{body}";
 
     /// <summary>The layers object a project file claims: Intent, Behavior when asked, and each claimed Implementation or Proof practice.</summary>
     /// <param name="implementation">The Implementation practice, litespec or own, or null when the layer is not claimed.</param>
@@ -432,7 +434,7 @@ static class ConsumerFixture
 
         if (mutateManifest is not null)
         {
-            var manifest = (JsonObject)DataFile.Read(Path.Combine(home.Path, "litespec.manifest.yaml"))!;
+            var manifest = (JsonObject)RecordText.Read(Path.Combine(home.Path, "litespec.manifest.yaml"))!;
             mutateManifest(manifest);
             File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), $"{Stringify(manifest)}\n");
         }

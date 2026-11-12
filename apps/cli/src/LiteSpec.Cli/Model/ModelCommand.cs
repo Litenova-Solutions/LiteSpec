@@ -1,9 +1,14 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Consumer;
-using LiteSpec.Model.Diff;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Consumer;
+using LiteSpec.Cli.Model.Diff;
+using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Model.Screens;
+using LiteSpec.CommandLine;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model;
+namespace LiteSpec.Cli.Model;
 
 /// <summary>
 ///     The <c>litespec model</c> command: check, format, render and query a consumer's project model.
@@ -30,7 +35,7 @@ static class ModelCommand
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return args.Length == 0 ? 2 : 0;
         }
 
@@ -62,13 +67,13 @@ static class ModelCommand
 
         if (parsed.Help && usageError is null)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
         if (usageError is { } error)
         {
-            return LastResort.UsageError(error, Usage, json);
+            return CommandFailure.UsageError(error, Usage, json);
         }
 
         var config = ConsumerRoot.Open(parsed.Value("--root"), json, out var openExit);
@@ -94,7 +99,7 @@ static class ModelCommand
                 }
                 catch (FailFast fail)
                 {
-                    return LastResort.Fail(fail.Message, json, fail.Code);
+                    return CommandFailure.Fail(fail.Message, json, fail.Code);
                 }
 
                 model.Ledger.Save(config);
@@ -111,7 +116,7 @@ static class ModelCommand
 
                     if (scope is null)
                     {
-                        return LastResort.Fail(sinceError, json, 2);
+                        return CommandFailure.Fail(sinceError, json, 2);
                     }
 
                     since = scope;
@@ -124,7 +129,7 @@ static class ModelCommand
                     }
                     catch (InvalidOperationException exception)
                     {
-                        return LastResort.Fail(exception.Message, json, 2);
+                        return CommandFailure.Fail(exception.Message, json, 2);
                     }
                 }
 
@@ -166,13 +171,13 @@ static class ModelCommand
                     payload["findings"] = new JsonArray([.. shown.Select(entry => (JsonNode?)AsJson(config, entry.Finding, entry.Severity, entry.Demoted))]);
                     payload["covered"] = new JsonArray([.. covered.Select(finding => (JsonNode?)AsCoveredJson(config, finding))]);
 
-                    CliJson.Write(payload);
+                    CliHost.Out.WriteLine(CliJson.Serialize(payload));
                 }
                 else
                 {
                     if (since is not null)
                     {
-                        Console.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
+                        CliHost.Out.WriteLine($"Since {sinceRef}: {since.ChangedFiles} files, {since.RecordIds.Count} records.");
                     }
 
                     // Each listed finding prints once. The open blocking findings come first, so the lines
@@ -188,18 +193,18 @@ static class ModelCommand
                     foreach (var entry in listed.Where(entry => entry.Severity.Outcome == Outcome.Blocking)
                                  .Concat(listed.Where(entry => entry.Severity.Outcome != Outcome.Blocking)))
                     {
-                        Console.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
+                        CliHost.Out.WriteLine(FindingLine(config, entry.Finding, entry.Demoted));
                     }
 
                     foreach (var finding in covered)
                     {
-                        Console.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
+                        CliHost.Out.WriteLine($"{PathText.Relative(config.Root, finding.Path)}:{finding.Line} [covered {finding.Tier}] [{finding.Code}] {finding.Message}");
                     }
 
                     if (shown.Count > 0)
                     {
-                        Console.WriteLine();
-                        Console.WriteLine("Findings by code:");
+                        CliHost.Out.WriteLine();
+                        CliHost.Out.WriteLine("Findings by code:");
 
                         foreach (var group in shown
                             .GroupBy(entry => (entry.Finding.Code, entry.Finding.Tier))
@@ -208,16 +213,16 @@ static class ModelCommand
                             .ThenByDescending(group => group.Count)
                             .ThenBy(group => group.Code, StringComparer.Ordinal))
                         {
-                            Console.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
+                            CliHost.Out.WriteLine($"  {group.Count,6}  {group.Code} (level {group.Tier})");
                         }
                     }
 
                     if (!all && advisoryCount > 0)
                     {
-                        Console.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
+                        CliHost.Out.WriteLine($"{advisoryCount} advisory findings summarized by code; run with --all to list them.");
                     }
 
-                    Console.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
+                    CliHost.Out.WriteLine($"{shown.Count} findings, {blocking.Count} blocking, {covered.Count} covered.");
                 }
 
                 return shown.Any(entry => entry.Severity.Outcome == Outcome.Blocking) ? 1 : 0;
@@ -230,21 +235,21 @@ static class ModelCommand
 
                 foreach (var file in invalid)
                 {
-                    Console.Error.WriteLine($"{file}: does not parse.");
+                    CliHost.Error.WriteLine($"{file}: does not parse.");
                 }
 
                 foreach (var file in changed)
                 {
-                    Console.WriteLine(file);
+                    CliHost.Out.WriteLine(file);
                 }
 
                 if (check)
                 {
-                    Console.WriteLine($"{changed.Count} files would change.");
+                    CliHost.Out.WriteLine($"{changed.Count} files would change.");
                 }
                 else
                 {
-                    Console.WriteLine($"{changed.Count} files rewritten.");
+                    CliHost.Out.WriteLine($"{changed.Count} files rewritten.");
                 }
 
                 if (invalid.Count > 0)
@@ -263,17 +268,17 @@ static class ModelCommand
                 // explanation files and documents, the records file each
                 // web frontend imports from its frame, and the UI source lock
                 // beside the shared package.
-                var changed = Renderer.Render(model)
+                var changed = GeneratedRegions.Render(model)
                     .Concat(FrontendRecords.Write(model))
                     .Concat(UiSourceLock.Write(model))
                     .ToList();
 
                 foreach (var file in changed)
                 {
-                    Console.WriteLine(file);
+                    CliHost.Out.WriteLine(file);
                 }
 
-                Console.WriteLine($"{changed.Count} files rewritten.");
+                CliHost.Out.WriteLine($"{changed.Count} files rewritten.");
                 return 0;
             }
 
@@ -281,23 +286,23 @@ static class ModelCommand
             {
                 if (parsed.Positionals is not [var id])
                 {
-                    return LastResort.UsageError("Query needs an id.", Usage, json);
+                    return CommandFailure.UsageError("Query needs an id.", Usage, json);
                 }
 
                 var model = ModelBuilder.Build(config);
-                var answer = Querier.Query(model, id);
+                var answer = RecordQuery.Query(model, id);
 
                 if (answer is null)
                 {
-                    return LastResort.Fail($"No record holds '{id}'.", json, 1);
+                    return CommandFailure.Fail($"No record holds '{id}'.", json, 1);
                 }
 
-                Console.WriteLine(answer);
+                CliHost.Out.WriteLine(answer);
                 return 0;
             }
 
             default:
-                return LastResort.UsageError($"Unknown command '{command}'.", Usage, json);
+                return CommandFailure.UsageError($"Unknown command '{command}'.", Usage, json);
         }
     }
 
@@ -313,11 +318,14 @@ static class ModelCommand
     /// <exception cref="FailFast">The consumer pass stopped the run with its own exit code.</exception>
     internal static (List<Finding> Findings, IReadOnlyList<Finding> Covered) Collect(ProjectModel model, string root)
     {
+        // The consumer pass reads the project from disk and not the model, so it runs beside the checks.
+        var consumerRun = new ConsumerRun(root);
+        var consumerPass = Task.Run(consumerRun.Execute);
+
         var (modelFindings, covered) = Checker.Check(model);
         var findings = modelFindings.ToList();
 
-        var consumerRun = new ConsumerRun(root);
-        consumerRun.Execute();
+        consumerPass.GetAwaiter().GetResult();
         findings.AddRange(consumerRun.Errors);
 
         // Consumer findings take the same claim filter as the model findings, so a project

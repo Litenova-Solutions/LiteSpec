@@ -14,7 +14,8 @@
 
     <ItemGroup>
         <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" />
-        <ProjectReference Include="../../../model/src/LiteSpec.Shared/LiteSpec.Shared.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.CommandLine/LiteSpec.CommandLine.csproj" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Standards/LiteSpec.Standards.csproj" />
     </ItemGroup>
 
     <ItemGroup>

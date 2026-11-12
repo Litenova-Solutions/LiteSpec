@@ -14,7 +14,7 @@ sources:
   - url: https://github.com/json-schema-org/JSON-Schema-Test-Suite
     readOn: 2026-11-09
     key: test-suite
-  - path: apps/model/src/LiteSpec.Shared/Schemas/SchemaEvaluator.cs
+  - path: apps/model/src/LiteSpec.Standards/Schemas/SchemaEvaluator.cs
     readOn: 2026-11-09
     key: schema-evaluator
 question: Which JSON Schema evaluator can LiteSpec's tools use with no fee, and does LiteSpec's own evaluator keep the messages the checks print?

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Text;
 
 namespace LiteSpec.Model.Roslyn;

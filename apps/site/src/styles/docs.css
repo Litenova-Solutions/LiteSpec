@@ -4,28 +4,38 @@
    site.css. Source: .agents/mockups/litespec-rails-refined.html. */
 
 .doc3 {
+  --side: 272px;
+  --toc: 208px;
   flex: 1;
   display: grid;
-  grid-template-columns: 272px minmax(0, 1fr) 208px;
-  background: linear-gradient(var(--border), var(--border)) 271px 0 / 1px 100% no-repeat;
+  grid-template-columns: var(--side) minmax(0, 1fr) var(--toc);
+  background: linear-gradient(var(--border), var(--border)) calc(var(--side) - 1px) 0 / 1px 100% no-repeat;
 }
 
-.doc3--full {
-  grid-template-columns: 272px minmax(0, 1fr);
-}
-
-/* Sidebar: sticky under the header with its own scroll. The divider line is
-   drawn by .doc3 so it runs to the footer on a short sidebar. */
-.side {
+/* Sidebar: one native dialog that is an inline sticky column on desktop and a
+   modal drawer on phones. The divider line is drawn by .doc3 so it runs to
+   the footer on a short sidebar. */
+.side-dialog {
+  display: block;
   position: sticky;
   top: var(--top);
   align-self: start;
+  width: auto;
+  max-width: none;
   max-height: calc(100vh - var(--top));
-  overflow-y: auto;
+  margin: 0;
   padding: var(--space-4) var(--space-3) var(--space-8);
+  overflow-y: auto;
+  background: transparent;
+  color: inherit;
+  border: 0;
   font-size: 14px;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
+}
+
+.drawer-head {
+  display: none;
 }
 
 .group {
@@ -64,24 +74,11 @@
   color: var(--accent-text);
 }
 
-.group-h .count {
-  margin-left: auto;
-  padding: 0 var(--space-2);
-  border-radius: 999px;
-  background: var(--muted);
-  line-height: 18px;
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--muted-fg);
-  font-variant-numeric: tabular-nums;
-}
-
 .group-h .chev {
   width: 14px;
   height: 14px;
   color: var(--muted-fg);
-  margin-left: var(--space-1);
+  margin-left: auto;
   transition: transform .15s;
 }
 
@@ -90,23 +87,9 @@ details[open] > .group-h .chev {
 }
 
 .group > .tree {
-  margin: var(--space-1) 0 var(--space-2) var(--space-4);
+  margin: var(--space-1) 0 var(--space-3) var(--space-4);
   padding-left: var(--space-2);
-  border-left: 1px solid var(--border);
-}
-
-/* The area label above each area inside a multi-area group. */
-.tree .area-h {
-  font-size: 11px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--muted-fg);
-  font-weight: 500;
-  padding: var(--space-2) var(--space-2) var(--space-1);
-}
-
-.tree .area-h:first-child {
-  padding-top: 0;
+  border-left: 1px solid var(--rail);
 }
 
 .tree a,
@@ -134,6 +117,7 @@ details[open] > .group-h .chev {
   color: var(--fg);
   font-weight: 500;
   position: relative;
+  scroll-margin-block: var(--space-4);
 }
 
 .tree a.on::before {
@@ -184,18 +168,37 @@ details[open] > .group-h .chev {
 }
 
 .tree .kids {
-  margin: var(--space-1) 0 var(--space-1) var(--space-4);
+  margin: var(--space-1) 0 var(--space-2) var(--space-3);
   padding-left: var(--space-2);
-  border-left: 1px solid var(--border);
+  border-left: 1px solid var(--rail);
 }
 
-/* Content column: the mobile browse control, the indexed header and body,
+/* An open folder's own row reads as the head of its block. */
+.tree details[open] > summary {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* The drawer filter hides non-matching links and empty folders; the hidden
+   attribute needs an author rule because the tree sets its own display. */
+.side-dialog .tree a[hidden],
+.side-dialog details[hidden] {
+  display: none;
+}
+
+/* Content column: the phone browse button, the indexed header and body,
    and the pager pinned to the bottom of the column. */
 .content {
   padding: var(--space-10) var(--space-12);
   min-width: 0;
   display: flex;
   flex-direction: column;
+}
+
+.docs-browse-btn {
+  display: none;
+  align-self: flex-start;
+  margin: 0 0 var(--space-5);
 }
 
 .docs-body {
@@ -206,17 +209,29 @@ details[open] > .group-h .chev {
 .crumb {
   font-size: 13px;
   color: var(--muted-fg);
+}
+
+.crumb ol {
   display: flex;
   align-items: center;
-  gap: var(--gap-inline);
   flex-wrap: wrap;
+  row-gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.crumb > span:not(.ver) {
+.crumb li {
+  display: inline;
+}
+
+.crumb li + li::before {
+  content: "/";
   color: var(--rail);
+  margin: 0 var(--gap-inline);
 }
 
-.crumb > span.crumb-text {
+.crumb .crumb-text {
   color: var(--muted-fg);
 }
 
@@ -234,7 +249,7 @@ details[open] > .group-h .chev {
   color: var(--fg);
 }
 
-.crumb b {
+.crumb .crumb-current {
   color: var(--fg);
   font-weight: 500;
   overflow-wrap: anywhere;
@@ -245,6 +260,35 @@ details[open] > .group-h .chev {
   letter-spacing: -.03em;
   font-weight: 600;
   margin: var(--space-3) 0 var(--space-2);
+}
+
+/* The page meta row under the title: the release version and the page scope
+   pairs, as small muted text. */
+.page-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--gap-inline);
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted-fg);
+}
+
+.page-meta > span + span::before {
+  content: "\00B7";
+  margin-right: var(--gap-inline);
+  color: var(--rail);
+}
+
+/* With the script running, "On this page" shows the H3 entries of the section
+   in view only, so a page with fifty provisions keeps a short list. Without the
+   script every entry stays visible. */
+nav[data-toc][data-enhanced] .toc-list > li > ul {
+  display: none;
+}
+
+nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
+  display: block;
 }
 
 /* The page introduction: the Intent or Purpose section, shown under the title. */
@@ -354,7 +398,14 @@ details[open] > .group-h .chev {
   margin-bottom: var(--space-2);
 }
 
-.toc a {
+.toc-list,
+.toc-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-list a {
   display: block;
   padding: var(--space-1) 0 var(--space-1) var(--space-3);
   color: var(--muted-fg);
@@ -362,25 +413,26 @@ details[open] > .group-h .chev {
   overflow-wrap: anywhere;
 }
 
-.toc a:hover {
+.toc-list a:hover {
   color: var(--fg);
 }
 
-.toc a[aria-current="true"] {
+.toc-list a[aria-current="location"] {
   color: var(--fg);
   border-left: 2px solid var(--accent);
   padding-left: calc(var(--space-3) - 1px);
 }
 
-.toc a.toc-sub {
+.toc-list a.toc-sub {
   padding-left: var(--space-6);
 }
 
-.toc a.toc-sub[aria-current="true"] {
+.toc-list a.toc-sub[aria-current="location"] {
   padding-left: calc(var(--space-6) - 1px);
 }
 
-.toc .links {
+.toc .links,
+.toc-mobile .links {
   margin-top: var(--space-6);
   padding-top: var(--space-4);
   border-top: 1px solid var(--border);
@@ -388,85 +440,193 @@ details[open] > .group-h .chev {
   gap: var(--gap-stack);
 }
 
-.toc .links a {
+.toc .links a,
+.toc-mobile .links a {
   border: 0;
   padding: 0;
   display: flex;
   gap: var(--gap-inline);
   align-items: center;
+  color: var(--muted-fg);
+  font-size: 13px;
 }
 
-.toc .links a:hover {
+.toc .links a:hover,
+.toc-mobile .links a:hover {
   color: var(--accent-text);
 }
 
-/* Phone widths show a Browse control above the breadcrumb instead of the
-   inline sidebar. It stays hidden on wider screens. */
-.docs-browse {
+/* Narrow screens collapse "On this page" into a disclosure above the body. */
+.toc-mobile {
   display: none;
   margin: 0 0 var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
-.docs-browse > summary {
+.toc-mobile > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-inline);
+  cursor: pointer;
   list-style: none;
+  padding: var(--pad-box-y) var(--pad-box-x);
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.docs-browse > summary::-webkit-details-marker {
+.toc-mobile > summary::-webkit-details-marker {
   display: none;
 }
 
-.docs-browse > summary .chev {
+.toc-mobile > summary .chev {
+  margin-left: auto;
   transition: transform .15s;
 }
 
-.docs-browse[open] > summary .chev {
+.toc-mobile[open] > summary .chev {
   transform: rotate(180deg);
 }
 
-.docs-browse-panel {
-  margin-top: var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  max-height: 60vh;
-  overflow-y: auto;
+.toc-mobile nav {
+  padding: 0 var(--pad-box-x) var(--pad-box-y);
 }
 
-.docs-browse-panel .side {
-  position: static;
-  max-height: none;
-  overflow: visible;
-  padding: var(--space-3);
+.toc-mobile .links {
+  margin: 0 var(--pad-box-x) var(--pad-box-y);
+  padding-top: var(--pad-box-y);
+}
+
+/* The generated Standard overview: one card per area and stack, two to a row. */
+.std-index > h2:first-child {
+  margin-top: var(--space-10);
+}
+
+.prose .std-list {
+  list-style: none;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--gap-cards);
+}
+
+.prose .std-list > li {
+  position: relative;
+  margin: 0;
+  padding: var(--pad-card-y) var(--pad-card-x);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  transition: border-color .15s, background-color .15s;
+}
+
+.std-list > li:hover {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.std-list > li > a {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  text-decoration: none;
+}
+
+/* The whole card is the link target. */
+.std-list > li > a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.std-list > li > p {
+  margin: var(--space-1) 0 0;
+  font-size: 14px;
+  color: var(--fg-2);
 }
 
 @media (max-width: 1180px) {
-  .doc3,
-  .doc3--full {
-    grid-template-columns: 260px minmax(0, 1fr);
-    background-position: 259px 0;
+  .doc3 {
+    --side: 260px;
+    grid-template-columns: var(--side) minmax(0, 1fr);
   }
 
   .doc3 > .toc {
     display: none;
   }
+
+  .toc-mobile {
+    display: block;
+  }
 }
 
 @media (max-width: 760px) {
-  .doc3,
-  .doc3--full {
+  .doc3 {
     grid-template-columns: minmax(0, 1fr);
     background: none;
   }
 
-  .doc3 > .side {
+  .side-dialog:not([open]) {
     display: none;
+  }
+
+  .side-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(340px, 92vw);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--fg);
+    border: 0;
+    border-right: 1px solid var(--border);
+  }
+
+  .side-dialog::backdrop {
+    background: color-mix(in srgb, var(--outside) 80%, transparent);
+  }
+
+  .drawer-head {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-inline);
+    padding: var(--pad-box-y) var(--pad-box-x);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drawer-head input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 13px;
+  }
+
+  .side-dialog .side {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-3);
   }
 
   .content {
     padding: var(--space-6) var(--space-4) var(--space-12);
   }
 
-  .docs-browse {
-    display: block;
+  .docs-browse-btn {
+    display: inline-flex;
   }
 
   .pager {
@@ -483,3 +643,29 @@ details[open] > .group-h .chev {
     justify-content: flex-start;
   }
 }
+
+/* Wide screens: wider side columns and one step larger type, matching the
+   wider frame in site.css. */
+@media (min-width: 100rem) {
+  .doc3 { --side: 296px; --toc: 248px; }
+  .side-dialog { font-size: 15px; }
+  .tree a, .tree summary { font-size: 14.5px; min-height: 32px; }
+  .group-h { font-size: 14px; }
+  .content { padding: var(--space-12) var(--space-16); }
+  .content h1 { font-size: 42px; }
+  .content .page-intro { font-size: 16.5px; }
+  .crumb, .page-meta { font-size: 14px; }
+  .toc { font-size: 14px; }
+  .pager b { font-size: 16px; }
+}
+
+/* Motion: the page body settles in on load, and the phone drawer slides in
+   from the left edge. */
+@media (prefers-reduced-motion: no-preference) {
+  .content > .docs-body { animation: rise .32s ease-out both; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: no-preference) {
+  .side-dialog[open] { animation: drawer-in .24s cubic-bezier(.2, .7, .2, 1) both; }
+  .side-dialog[open]::backdrop { animation: fade .24s ease-out both; }
+}
+@keyframes drawer-in { from { translate: -100% 0; } }

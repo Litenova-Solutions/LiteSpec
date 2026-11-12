@@ -1,9 +1,10 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Authoring;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.CommandLine;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Rules;
+namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or
@@ -29,7 +30,7 @@ static class RulesCommand
     {
         if (args.Length == 0 || args is ["--help"] or ["-h"] or ["help"])
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return args.Length == 0 ? 2 : 0;
         }
 
@@ -37,18 +38,18 @@ static class RulesCommand
 
         if (parsed.Help)
         {
-            Console.WriteLine(Usage);
+            CliHost.Out.WriteLine(Usage);
             return 0;
         }
 
         if (parsed.Error is { } error)
         {
-            return LastResort.UsageError(error, Usage, json: false);
+            return CommandFailure.UsageError(error, Usage, json: false);
         }
 
         if (parsed.Positionals is not [var target])
         {
-            return LastResort.UsageError("Rules needs a path or record id.", Usage, json: false);
+            return CommandFailure.UsageError("Rules needs a path or record id.", Usage, json: false);
         }
 
         var config = ConsumerRoot.Open(parsed.Value("--root"), json: false, out var openExit);
@@ -68,15 +69,15 @@ static class RulesCommand
         }
         catch (InvalidOperationException exception)
         {
-            return LastResort.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
+            return CommandFailure.Fail($"Cannot find the carried LiteSpec release: {exception.Message}", json: false, code: 2);
         }
 
         if (LoadManifest(home) is not { } manifest)
         {
-            return LastResort.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
+            return CommandFailure.Fail($"The LiteSpec manifest '{LiteSpecHome.ManifestFile}' could not be read.", json: false, code: 2);
         }
 
-        var backendStack = LiteSpec.Authoring.Layout.Stacks(manifest)
+        var backendStack = StackSelection.Stacks(manifest)
             .FirstOrDefault(stack => stack.Kind == "backend" && config.Stacks.Contains(stack.Id, StringComparer.Ordinal))
             ?.Id ?? "";
 
@@ -84,13 +85,13 @@ static class RulesCommand
 
         if (context is null)
         {
-            return LastResort.Fail($"No file or record '{target}'.", json: false, code: 1);
+            return CommandFailure.Fail($"No file or record '{target}'.", json: false, code: 1);
         }
 
         var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
-        var conventions = ConventionStore.Load(config);
-        var departures = DepartureStore.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-        var results = RuleRetriever.Retrieve(catalog, conventions, departures, config, context);
+        var conventions = ConventionFiles.Load(config);
+        var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var results = ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context);
 
         Print(context, results, parsed.Has("--full"), config.Layers);
         return 0;
@@ -123,7 +124,7 @@ static class RulesCommand
     /// <param name="results">The retrieved provisions in print order.</param>
     /// <param name="full">Whether to print every provision with rationale and example.</param>
     /// <param name="claims">The record layers the project claims.</param>
-    static void Print(PathContext context, IReadOnlyList<RuleResult> results, bool full, LayerClaims claims)
+    static void Print(PathContext context, IReadOnlyList<ProvisionMatch> results, bool full, LayerClaims claims)
     {
         var parts = new List<string>();
 
@@ -142,13 +143,13 @@ static class RulesCommand
             parts.Add($"artifact: {context.Artifact}");
         }
 
-        Console.WriteLine(parts.Count > 0
+        CliHost.Out.WriteLine(parts.Count > 0
             ? $"Rules for {context.Display} ({string.Join(", ", parts)})"
             : $"Rules for {context.Display}");
 
         if (results.Count == 0)
         {
-            Console.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
+            CliHost.Out.WriteLine(context.IsCodePath && claims.Implementation is null && claims.Proof is null
                 ? "No provisions apply to a code path: the project claims neither the Implementation nor the Proof layer, so provisions about code do not apply. Query a record id for the provisions about records."
                 : "No provisions apply.");
             return;
@@ -171,11 +172,11 @@ static class RulesCommand
                 continue;
             }
 
-            Console.WriteLine($"{group}:");
+            CliHost.Out.WriteLine($"{group}:");
 
             foreach (var item in items)
             {
-                Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
             }
         }
 
@@ -186,11 +187,11 @@ static class RulesCommand
 
         if (checkedItems.Count > 0)
         {
-            Console.WriteLine("Checked by a tool:");
+            CliHost.Out.WriteLine("Checked by a tool:");
 
             foreach (var item in checkedItems)
             {
-                Console.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: checked by {CheckedDisplay(item.Entry)} [{string.Join("; ", item.Reasons)}]");
             }
         }
 
@@ -201,18 +202,18 @@ static class RulesCommand
 
         if (layerItems.Count > 0)
         {
-            Console.WriteLine("Concern-wide:");
+            CliHost.Out.WriteLine("Concern-wide:");
 
             foreach (var item in layerItems)
             {
-                Console.WriteLine($"- {item.Entry.Id}");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}");
             }
         }
     }
 
     /// <summary>Prints every retrieved provision as a statement grouped by strength, with rationale and example.</summary>
     /// <param name="results">The retrieved provisions in print order.</param>
-    static void PrintFull(IReadOnlyList<RuleResult> results)
+    static void PrintFull(IReadOnlyList<ProvisionMatch> results)
     {
         foreach (var group in ProvisionEntry.GroupOrder)
         {
@@ -223,29 +224,29 @@ static class RulesCommand
                 continue;
             }
 
-            Console.WriteLine($"{group}:");
+            CliHost.Out.WriteLine($"{group}:");
 
             foreach (var item in items)
             {
-                Console.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
+                CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
 
                 if (item.Departure is not null)
                 {
                     if (item.Rationale.Length > 0)
                     {
-                        Console.WriteLine($"    Consequences: {item.Rationale}");
+                        CliHost.Out.WriteLine($"    Consequences: {item.Rationale}");
                     }
                 }
                 else
                 {
                     if (item.Rationale.Length > 0)
                     {
-                        Console.WriteLine($"    Rationale: {item.Rationale}");
+                        CliHost.Out.WriteLine($"    Rationale: {item.Rationale}");
                     }
 
                     if (item.Example.Length > 0)
                     {
-                        Console.WriteLine($"    Example: {item.Example}");
+                        CliHost.Out.WriteLine($"    Example: {item.Example}");
                     }
                 }
             }

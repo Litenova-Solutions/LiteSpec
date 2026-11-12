@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Files;
 
-namespace LiteSpec.Model.Readers.Suppressions;
+namespace LiteSpec.Cli.Model.Readers.Suppressions;
 
 /// <summary>
 ///     Reads every lowering or suppression of a LiteSpec analyzer rule under the
@@ -14,13 +15,6 @@ namespace LiteSpec.Model.Readers.Suppressions;
 /// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
 static class SuppressionReader
 {
-    /// <summary>Directory names the walk leaves out: build output, installed packages and tool folders.</summary>
-    private static readonly HashSet<string> Skipped = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "bin", "obj", "TestResults", "node_modules", ".git",
-        ".svelte-kit", "build", "dist", "coverage",
-    };
-
     /// <summary>One analyzer rule identifier, such as LS1001.</summary>
     private static readonly Regex RuleId = new(@"LS\d{4}", RegexOptions.Compiled);
 
@@ -55,42 +49,18 @@ static class SuppressionReader
     /// <returns>Every lowering or suppression under the root, in file, line and rule order; empty when the root does not exist.</returns>
     public static IReadOnlyList<AnalyzerSuppression> Read(string root)
     {
-        var suppressions = new List<AnalyzerSuppression>();
+        // Files are read in parallel, each into its own list, and the lists join in file order.
+        var files = Files(root);
+        var found = new List<AnalyzerSuppression>[files.Count];
 
-        foreach (var file in Files(root))
+        Parallel.For(0, files.Count, index =>
         {
-            string text;
+            var own = new List<AnalyzerSuppression>();
+            ReadFile(files[index], own);
+            found[index] = own;
+        });
 
-            try
-            {
-                text = File.ReadAllText(file);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                continue;
-            }
-
-            var name = Path.GetFileName(file);
-
-            if (name.EndsWith(".editorconfig", StringComparison.OrdinalIgnoreCase)
-                || name.EndsWith(".globalconfig", StringComparison.OrdinalIgnoreCase))
-            {
-                ReadSeverityEntries(
-                    file,
-                    name.EndsWith(".globalconfig", StringComparison.OrdinalIgnoreCase) ? ".globalconfig" : ".editorconfig",
-                    text,
-                    suppressions);
-            }
-            else if (name.Equals("Directory.Build.props", StringComparison.OrdinalIgnoreCase)
-                || file.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
-            {
-                ReadNoWarn(file, text, suppressions);
-            }
-            else if (file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
-            {
-                ReadSource(file, text, suppressions);
-            }
-        }
+        var suppressions = found.SelectMany(own => own).ToList();
 
         suppressions.Sort((left, right) =>
         {
@@ -106,6 +76,46 @@ static class SuppressionReader
         });
 
         return suppressions;
+    }
+
+    /// <summary>Reads the lowerings or suppressions one candidate file states.</summary>
+    /// <param name="file">The configuration, project or source file to read.</param>
+    /// <param name="suppressions">The list that receives each lowering or suppression the file states.</param>
+    private static void ReadFile(string file, List<AnalyzerSuppression> suppressions)
+    {
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        var name = Path.GetFileName(file);
+
+        if (name.EndsWith(".editorconfig", StringComparison.OrdinalIgnoreCase)
+            || name.EndsWith(".globalconfig", StringComparison.OrdinalIgnoreCase))
+        {
+            ReadSeverityEntries(
+                file,
+                name.EndsWith(".globalconfig", StringComparison.OrdinalIgnoreCase) ? ".globalconfig" : ".editorconfig",
+                text,
+                suppressions);
+        }
+        else if (name.Equals("Directory.Build.props", StringComparison.OrdinalIgnoreCase)
+            || file.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
+        {
+            ReadNoWarn(file, text, suppressions);
+        }
+        else if (file.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)
+            && text.Contains("LS", StringComparison.Ordinal))
+        {
+            // A source suppression names its rule as LS and four digits, so a file without LS states none.
+            ReadSource(file, text, suppressions);
+        }
     }
 
     /// <summary>Every candidate file under the root: config, build and C# source files outside the skipped folders, in ordinal path order.</summary>
@@ -136,7 +146,7 @@ static class SuppressionReader
 
                 foreach (var child in Directory.EnumerateDirectories(folder, "*", options))
                 {
-                    if (!Skipped.Contains(Path.GetFileName(child)))
+                    if (!SourceTree.SkippedFolders.Contains(Path.GetFileName(child)))
                     {
                         pending.Push(child);
                     }

@@ -1,4 +1,5 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
@@ -21,7 +22,7 @@ public sealed class ProofInvalidCheckTests
             TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.TestRun = new TestRun();
         model.TestRun.Flaky.Add(TestName);
-        model.Tests.Add(new ScenarioInfo(
+        model.Tests.Add(new CodeScenarioTest(
             TestName,
             "ProofScenarios",
             file,
@@ -57,7 +58,7 @@ public sealed class ProofInvalidCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("scenario", Scenario, Path.Combine(temp.Path, "borrow-copy.yaml"), """{"given": "An available copy.", "when": "The reader borrows the copy.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
         model.TestRun = new TestRun();
-        model.Tests.Add(new ScenarioInfo(
+        model.Tests.Add(new CodeScenarioTest(
             TestName,
             "ProofScenarios",
             file,

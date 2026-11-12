@@ -1,8 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Schemas;
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Operations;
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>
 ///     Reads the check results the drills and measuring harnesses write under
@@ -39,7 +42,7 @@ static class CheckResultReader
                 continue;
             }
 
-            var found = JsonSchema.Problems(schema, node, PathText.Relative(config.Root, file), DataFile.Read);
+            var found = JsonSchema.Problems(schema, node, PathText.Relative(config.Root, file), RecordText.Read);
 
             if (found.Count > 0)
             {

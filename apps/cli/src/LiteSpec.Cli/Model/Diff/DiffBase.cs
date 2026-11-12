@@ -1,6 +1,8 @@
 using System.Formats.Tar;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Diff;
+namespace LiteSpec.Cli.Model.Diff;
 
 /// <summary>
 ///     One loaded comparison base: its model and its label. Disposing removes the
@@ -88,7 +90,7 @@ sealed class DiffBase : IDisposable
     {
         var direct = Path.IsPathRooted(baseArg)
             ? baseArg
-            : Path.Combine(Directory.GetCurrentDirectory(), baseArg);
+            : Path.Combine(CliHost.WorkingDirectory, baseArg);
 
         if (Directory.Exists(direct))
         {

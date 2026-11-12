@@ -111,6 +111,8 @@ The steps are in `SubmitExpenseSteps.cs` beside them. The refusal step asserts t
 
 ## What the Model Sees
 
+This section is the full worked showing that [How LiteSpec Works](../learn/how-litespec-works.md) summarizes in its use-case trace.
+
 Querying the use case shows the links the builder derived from these files. The output below comes from `dotnet run --project apps/cli/src/LiteSpec.Cli -- model query use-case/spending.submit-expense --root examples/claimwick`, shortened where it says so:
 
 ```json

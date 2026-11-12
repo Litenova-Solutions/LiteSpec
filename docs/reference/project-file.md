@@ -27,6 +27,7 @@ The [supported scope](../core/scope.md) page states which sizes, shapes, stacks,
 | `project` | object | yes | none |
 | `size` | string | yes | none |
 | `layers` | object | yes | none |
+| `explanations` | object | no | none |
 | `shape` | string | no | `"server"` |
 | `stacks` | array of string | when `implementation` or `proof` is claimed | none |
 | `proof` | object | no | none |
@@ -47,6 +48,7 @@ What each field means and what reads it:
 - `project` names the project. `litespec model check` checks it against the schema. See the `project` object below.
 - `size` is `small` or `large`. Small requires the core record types with Architecture and Integration test projects, and large adds goals, problems, features, journeys, and scenarios with the Acceptance project. `litespec model check` checks the value, and the model builder sizes the record set it expects.
 - `layers` names the record layers the project claims and the practice each follows. See the `layers` object below.
+- `explanations` names the record layers whose every record page carries an explanation file. See the `explanations` object below.
 - `shape` is `server` or `client-only`. A server names exactly one backend stack, and a client-only project names no backend stack. `litespec init` writes it from the preset, `litespec model check` checks the backend count, and the model builder applies the shape.
 - `stacks` lists the selected stack ids: `dotnet` for the backend and one entry per frontend from its platform. It is required when the project claims `implementation` or `proof`; otherwise a stack is informational. `litespec model check` refuses an id the pinned release does not ship.
 - `proof` tunes how the model builder confirms proof claims for the project. See the `proof` object below.
@@ -54,7 +56,7 @@ What each field means and what reads it:
 - `dependencies` names the dependency gate: the licenses every shipped package may carry without an admitting decision. See the `dependencies` object below.
 - `screenshots` names the screenshot galleries the model builder reads for screen captures. See the `screenshots` object below.
 - `refusals` names the codes the derived generic results carry. See the `refusals` object below.
-- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"5.0.0"`. `litespec model check` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
+- `reviewedLiteSpecVersion` records the LiteSpec release whose complete contract the project last reviewed, such as `"5.1.0"`. `litespec model check` compares it with the release of the installed `litespec` tool and fails the run when the two differ.
 - `paths` declares every location the tools read. See the `paths` object below.
 - `selectedExtensions` lists the extensions the project selected, each with its criterion. See the extension entry below.
 - `stackConfig` holds per-stack configuration keyed by a stack id the manifest ships. See the `stackConfig.dotnet` object below.
@@ -76,6 +78,17 @@ What each field means and what reads it:
 - `litespec` follows LiteSpec's practice for the layer. `own` keeps the project's own practice for `implementation` or `proof` and claims only that code and tests mark the records they serve.
 - A lower layer needs the one above it: `behavior` needs `intent`, and `implementation` and `proof` each need `behavior`. The schema refuses a file that breaks this.
 - `litespec model check`, the book, `litespec rules` and the analyzers report only the claimed layers.
+
+### The `explanations` Object
+
+| Field | Type | Required | Default |
+|:---|:---|:---|:---|
+| `layers` | array of string | yes | none |
+
+What each field means and what reads it:
+
+- `layers` lists the record layers whose every record page carries an explanation file: `intent`, `behavior` or both, each once: the layers that hold record pages, with each record type on the layer the [Project Model](../core/model.md) gives it. A page on a listed layer without its `<name>.md` beside its record file, or with a required H2 section missing, is an `explanation-missing` finding. A listed layer the project does not claim in `layers` is a `project-invalid` finding.
+- When the object is omitted, explanation files stay optional, except the article types, which always require one. `litespec model check` reads the list from the project file.
 
 ### The `project` Object
 
@@ -257,10 +270,10 @@ A preset without a controlled web frontend, such as `blazor-client` or `android-
 
 ### A Complete Example
 
-This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `5.0.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
+This example shows the file `litespec init --preset dotnet-react --size small --name shop` writes from the template and the `dotnet-react` preset. It ran against release `5.1.0`. The preset selects shape `server`, stacks `dotnet` and `react`, and one `react` frontend `web` at `apps/web`.
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: shop
@@ -274,7 +287,7 @@ layers:
   behavior: litespec
   implementation: litespec
   proof: litespec
-reviewedLiteSpecVersion: 5.0.0
+reviewedLiteSpecVersion: 5.1.0
 screenshots:
   galleries:
   - apps/web/test-results/gallery
@@ -315,8 +328,8 @@ The other three presets differ only in shape, stacks, frontends, and the shared 
 | Mistake | Message |
 |:---|:---|
 | A placeholder is left in the file | `.litespec/project.yaml: template placeholder '__PROJECT__' is not filled [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
-| The installed release and the reviewed release differ | `.litespec/project.yaml: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 5.0.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record 5.0.0` |
-| The reviewed release is missing | `.litespec/project.yaml: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 5.0.0` |
+| The installed release and the reviewed release differ | `.litespec/project.yaml: reviewedLiteSpecVersion '3.0.0' does not match the installed LiteSpec tool release 5.1.0; install the reviewed release with 'dotnet tool update LiteSpec.Cli --version 3.0.0' and 'dotnet tool restore' for the .NET tool, or rerun the install script in the project root for the standalone binary, or re-review the contract and record 5.1.0` |
+| The reviewed release is missing | `.litespec/project.yaml: missing 'reviewedLiteSpecVersion'; the installed LiteSpec tool release is 5.1.0` |
 | A stack id is unknown | `.litespec/project.yaml: stack 'rails' is not a stack the pinned LiteSpec release ships [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A client-only project names a backend stack | `.litespec/project.yaml: shape 'client-only' names backend stack 'dotnet'; a client-only project names no backend stack [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
 | A server names zero or two backend stacks | `.litespec/project.yaml: stacks name 0 backend stacks; name exactly one of dotnet [litespec/core/scope#select-a-size-a-shape-and-stacks]` |
@@ -330,4 +343,4 @@ The last row stands for every configured path: the message names the field, the 
 
 ## Notes
 
-The field lists follow `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs` and `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Glossary.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, and `templates/presets/android-client.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words; the project file carries no setting for the bound.
+The field lists follow `schemas/litespec-project.schema.yaml` and the consumer template. The init behavior follows `apps/cli/src/LiteSpec.Cli/Init/InitCommand.cs`. The validation messages follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs` and `apps/cli/src/LiteSpec.Cli/Model/Consumer/GlossaryChecks.cs`. The path defaults follow `apps/cli/src/LiteSpec.Cli/Model/Configuration/ConsumerConfig.cs`. The presets are `templates/presets/dotnet-react.yaml`, `templates/presets/dotnet-svelte.yaml`, `templates/presets/blazor-client.yaml`, and `templates/presets/android-client.yaml`, read with `templates/consumer/project.yaml`. Example sections stay within 120 words; the project file carries no setting for the bound.

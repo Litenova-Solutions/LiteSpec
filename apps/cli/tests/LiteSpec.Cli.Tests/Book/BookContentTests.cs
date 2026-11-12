@@ -120,11 +120,12 @@ public sealed class BookContentTests
             Assert.DoesNotContain(purged, script, StringComparison.Ordinal);
         }
 
+        // The writer words each missing mark in lacks ("scenarios not tested" among them),
+        // which BookContractTests checks; the client only shows them.
         foreach (var words in new[]
         {
             "not coded",
             "not tested",
-            "scenarios not tested",
             "Not implemented or not tested",
             "Has code",
             "Has tests",

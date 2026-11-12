@@ -19,7 +19,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -54,7 +54,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -89,7 +89,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "ListLoansHandler.cs"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -124,7 +124,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "Shop", "LegacyHandler.cs"),
             3,
             null);
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -159,7 +159,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "src", "Shop", "LegacyHandler.cs"),
             3,
             null);
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -194,7 +194,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -236,7 +236,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "use-case/lending.list-loans");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -271,7 +271,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "governance", "departures", "list-loans-unimplemented.md"),
             3,
             "departure/list-loans-unimplemented");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",
@@ -306,7 +306,7 @@ public sealed class SuppressionTests
             Path.Combine(root, "docs", "list-loans.md"),
             3,
             "scenario/list-loans.listing");
-        IReadOnlyList<IRecordFacts> records =
+        IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
                 "departure",

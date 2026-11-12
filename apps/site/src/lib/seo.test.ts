@@ -45,7 +45,7 @@ describe("metaDescription", () => {
 
 describe("absoluteUrl and buildDate", () => {
   it("builds an absolute URL with its trailing slash", () => {
-    assert.strictEqual(absoluteUrl("/5.0.0/learn/"), "https://litespec.dev/5.0.0/learn/");
+    assert.strictEqual(absoluteUrl("/5.1.0/learn/"), "https://litespec.dev/5.1.0/learn/");
   });
 
   it("writes the build date as YYYY-MM-DD", () => {
@@ -54,20 +54,35 @@ describe("absoluteUrl and buildDate", () => {
 });
 
 describe("breadcrumbs", () => {
-  it("numbers every crumb and links only the crumbs that have a path", () => {
+  it("gives every entry an item, leaving out an ancestor that is not a link", () => {
     const list = breadcrumbs([
       { name: "LiteSpec", path: "/" },
-      { name: "Backend", path: null },
-      { name: "Domain", path: "/5.0.0/backend/domain/" },
+      { name: "Learn", path: null },
+      { name: "Learn LiteSpec", path: "/5.1.0/learn/" },
     ]) as { itemListElement: Record<string, unknown>[] };
     assert.strictEqual(list["@type"], "BreadcrumbList");
     assert.deepStrictEqual(
-      list.itemListElement.map((item) => item.position),
-      [1, 2, 3],
+      list.itemListElement.map((item) => [item.position, item.name, item.item]),
+      [
+        [1, "LiteSpec", "https://litespec.dev/"],
+        [2, "Learn LiteSpec", "https://litespec.dev/5.1.0/learn/"],
+      ],
     );
-    assert.strictEqual(list.itemListElement[0].item, "https://litespec.dev/");
-    assert.strictEqual("item" in list.itemListElement[1], false);
-    assert.strictEqual(list.itemListElement[2].item, "https://litespec.dev/5.0.0/backend/domain/");
+  });
+
+  it("ends with the current page and its own URL", () => {
+    const list = breadcrumbs([
+      { name: "LiteSpec", path: "/" },
+      { name: "Standard", path: "/5.1.0/standard/" },
+      { name: "Backend", path: "/5.1.0/backend/" },
+      { name: "Domain Layer", path: "/5.1.0/backend/domain/" },
+    ]) as { itemListElement: Record<string, unknown>[] };
+    assert.deepStrictEqual(
+      list.itemListElement.map((item) => item.name),
+      ["LiteSpec", "Standard", "Backend", "Domain Layer"],
+    );
+    assert.ok(list.itemListElement.every((item) => typeof item.item === "string"));
+    assert.strictEqual(list.itemListElement[3].item, "https://litespec.dev/5.1.0/backend/domain/");
   });
 });
 
@@ -76,14 +91,14 @@ describe("techArticle", () => {
     const article = techArticle({
       title: "Domain",
       description: "The domain rules.",
-      path: "/5.0.0/backend/domain/",
+      path: "/5.1.0/backend/domain/",
       modified: "2026-10-31",
       section: "Backend",
     });
     assert.strictEqual(article["@type"], "TechArticle");
     assert.strictEqual(article.headline, "Domain");
     assert.strictEqual(article.dateModified, "2026-10-31");
-    assert.strictEqual(article.url, "https://litespec.dev/5.0.0/backend/domain/");
+    assert.strictEqual(article.url, "https://litespec.dev/5.1.0/backend/domain/");
     assert.deepStrictEqual(article.isPartOf, { "@id": "https://litespec.dev/#website" });
   });
 
@@ -91,7 +106,7 @@ describe("techArticle", () => {
     const article = techArticle({
       title: "Domain",
       description: "The domain rules.",
-      path: "/5.0.0/backend/domain/",
+      path: "/5.1.0/backend/domain/",
       section: "Backend",
     });
     assert.match(article.dateModified as string, /^\d{4}-\d{2}-\d{2}$/);
@@ -100,9 +115,9 @@ describe("techArticle", () => {
 
 describe("webPage and the site objects", () => {
   it("builds a WebPage that is part of the WebSite", () => {
-    const page = webPage({ title: "Use with Agents", description: "Set up an agent.", path: "/5.0.0/select/" });
+    const page = webPage({ title: "Use with Agents", description: "Set up an agent.", path: "/5.1.0/select/" });
     assert.strictEqual(page["@type"], "WebPage");
-    assert.strictEqual(page.url, "https://litespec.dev/5.0.0/select/");
+    assert.strictEqual(page.url, "https://litespec.dev/5.1.0/select/");
     assert.deepStrictEqual(page.isPartOf, { "@id": "https://litespec.dev/#website" });
   });
 

@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -23,7 +22,7 @@ public sealed class ExhaustiveSwitchAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer == ArchitectureLayer.Domain;
 
     /// <summary>
     ///     Registers the analysis actions for the exhaustive switch analyzer rule with the

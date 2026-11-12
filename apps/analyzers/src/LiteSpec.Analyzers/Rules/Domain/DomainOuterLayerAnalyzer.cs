@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Immutable;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -46,7 +46,7 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer == ArchitectureLayer.Domain;
 
     /// <summary>
     ///     Registers the analysis actions for the domain outer layer analyzer rule with the compilation
@@ -125,7 +125,7 @@ public sealed class DomainOuterLayerAnalyzer : LayerAnalyzer
     // A port or an integration event there stays outer.
     private static bool IsOuter(INamedTypeSymbol type, CodeMap map, Compilation compilation) =>
         IsOuterLayerNamespace(type.ContainingNamespace, out _)
-        || (map.ReferencedLayer(type, compilation) is Layer.Application or Layer.Infrastructure or Layer.WebApi
+        || (map.ReferencedLayer(type, compilation) is ArchitectureLayer.Application or ArchitectureLayer.Infrastructure or ArchitectureLayer.WebApi
             && !((type.IsValueType || IsException(type)) && CodeMap.IsContracts(CodeMap.SourceFileOf(type, compilation))));
 
     /// <summary>Whether the type derives from <see cref="System.Exception" />.</summary>

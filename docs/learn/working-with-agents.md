@@ -10,7 +10,7 @@ Without LiteSpec, an agent decides architecture, naming, and testing from its tr
 
 An agent gets three things:
 
-- **Rules it can cite.** Every provision has an ID and a strength, so the agent says exactly which rule a change follows, or why it stopped.
+- **Rules it can cite.** Every provision has an ID and a strength, so the agent cites exactly which rule a change follows; [Read the Standard](reading-the-standard.md#page-sections-and-provisions) shows the anatomy.
 - **Records it can trust.** The records in git say what to build. The specification is closed: the agent builds what they state and nothing more.
 - **Checks it can run.** `dotnet litespec model check` and the CI gates tell the agent whether its change holds before you review it.
 
@@ -32,17 +32,17 @@ The command lists the provisions grouped by strength, as one-line statements, wi
 
 ### The Published Site
 
-An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/5.0.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
+An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/5.1.0/select/) produces the block that `litespec init` writes into a new project's `AGENTS.md`:
 
 ```markdown
 ## LiteSpec
-This project follows LiteSpec 5.0.0: size small, shape server, stacks dotnet and react, extensions none.
-Before a task, read https://litespec.dev/5.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+This project follows LiteSpec 5.1.0: size small, shape server, stacks dotnet and react, extensions none.
+Before a task, read https://litespec.dev/5.1.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 Selected extensions: none
 UI work: the pattern pages listed in that index.
 ```
 
-That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/5.0.0/backend/domain.md`.
+That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/5.1.0/backend/domain.md`.
 
 ## The Agent Task Sequence
 

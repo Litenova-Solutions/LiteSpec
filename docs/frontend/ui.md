@@ -13,6 +13,18 @@ The shared UI package is a constrained construction language: the ready-made con
 
 A person records each design decision once, where the decision is made: the token set, each composite, each pattern option, and each floorplan. The route suite and the stack lint enforce each recorded decision on every route, so a route inside the contract needs no review of its own.
 
+### Three Layers of a Screen
+
+A screen answers three questions, and each has one owner.
+
+| Layer | It decides | Owner | Proof |
+|:---|:---|:---|:---|
+| Product | Which pattern option a screen draws, what it says, and which command is primary | The pattern pages and the product's pattern catalog | The catalog entry and the floorplan check |
+| Behavior | How each control answers the keyboard, focus, pointer, screen reader, motion setting, color scheme, and browser | The behavior Standards on the pattern pages and on [Frontend Components](components.md), drawn from WCAG 2.2 | The route suite and the component tests |
+| Parts | The components and their look | The pinned baseline in the shared UI package | The source lock and the component tests |
+
+The parts never lower the behavior. When a baseline component falls short of a behavior Standard, the shared package configures it, wraps it in a composite, or records a fork, and no route works around it. A dialog that closes on a press outside it, for example, is configured once in the shared form dialog so that `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal` holds on every route.
+
 ### The Floorplan Set
 
 A floorplan is a page component that fixes one page layout and exposes named slots for the domain to fill. The shared package holds the closed set, and a route composes exactly one of them. A closed set lets an author choose a known shape by rule rather than invent a layout. Each floorplan implements the chosen option of one page-frame pattern from the pattern catalog ([UI patterns](patterns.md)).
@@ -73,11 +85,14 @@ The route suite is one specification per frontend that visits every route. It as
 | Accessibility | The WCAG 2.2 AA check reports zero violations |
 | Heading | The route carries exactly one top-level heading |
 | Landmark | The route carries one main content region |
-| Reflow | At 320 pixels the route shows no clipped content; a data table scrolls inside its region |
+| Reflow | At 320 pixels the route shows no clipped content; a data table scrolls inside its region, which takes keyboard focus and carries a name |
 | Text spacing | The route still shows no clipped content under the WCAG text-spacing override |
 | Target size | Every pointer target meets the minimum size or spacing |
-| Keyboard | Every interactive element is reachable and shows a visible focus indicator |
-| Announcements | Asynchronous status changes announce through the platform live region |
+| Keyboard | Every interactive element is reachable and shows a focus indicator at 3:1 contrast against its surroundings |
+| Route change | Following a link moves focus to the new route's top-level heading |
+| Color scheme | The accessibility check passes in each color scheme the design contract declares |
+| Motion | Under the reduced-motion setting, no spatial, scaling, or looping animation runs |
+| Announcements | Asynchronous status changes announce through the platform's polite or assertive live region, both present when the route loads |
 
 The suite discovers its routes from the application route definition rather than from a list. A new route is therefore checked with no new specification. A dynamic segment resolves to a record the deployment holds, and falls back to an absent record when it holds none.
 
@@ -125,9 +140,9 @@ Result proof for routes follows `litespec/core/edges#show-every-refusal-a-screen
 
 **Applies to:** artifact: any
 
-**Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Brand, Tokens, Vocabulary, Patterns, Do, Do not, Motion, Voice.
+**Statement:** A workspace MUST publish one design contract with its shared UI package, carrying the required sections: Brand, Tokens, Patterns, Do, Do Not, Motion, Browser Support, Voice.
 
-**Rationale:** An author that has read no contract picks their own tokens, motion, and voice for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file, with the required sections Brand, Tokens, Vocabulary, Patterns, Do, Do not, Motion, Voice.
+**Rationale:** An author that has read no contract picks their own tokens, motion, browser features, and voice for each page. The picks differ on the next page, and the user sees the difference as clutter: same product, different looks. One design contract published with the shared UI package keeps every answer in one file. Motion states the durations and what each becomes under the reduced-motion setting, and Browser Support states the target every platform feature is judged against. A Vocabulary section naming the composites a page reaches for is optional.
 
 **Example:** The metadata block names the package and the floorplans it provides.
 
@@ -277,11 +292,25 @@ patterns:
 
 **Applies to:** artifact: any
 
-**Statement:** A structural separator or input border MUST NOT be darker than the border step the declared base color publishes.
+**Statement:** A structural separator MUST NOT be darker than the border step the declared base color publishes.
 
-**Rationale:** A separator darker than its neighbors reads as emphasis, so authors stop trusting the token and start picking weights by eye. The border step the declared base color publishes keeps every structural separator and input border at one weight, so weight carries no accidental meaning.
+**Rationale:** A separator darker than its neighbors reads as emphasis, so authors stop trusting the token and start picking weights by eye. The border step the declared base color publishes keeps every structural separator at one weight, so weight carries no accidental meaning. An input's boundary is not a separator: it shows where a control is, and `litespec/frontend/ui#give-every-input-a-visible-boundary` sets its contrast.
 
-**Reviewed for:** Which structural separators or input borders run darker than the published border step? Look in the token definitions and the rendered separators.
+**Reviewed for:** Which structural separators run darker than the published border step? Look in the token definitions and the rendered separators.
+
+### Give Every Input a Visible Boundary
+
+**ID:** `litespec/frontend/ui#give-every-input-a-visible-boundary`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** The boundary of a text field, select, checkbox, radio, or switch MUST reach 3:1 contrast against the surface it sits on.
+
+**Rationale:** WCAG 1.4.11 Non-text Contrast: a reader with low vision finds a field by its edge, and a field drawn at the faint separator step disappears into the page. Giving inputs their own boundary token keeps separators quiet and controls findable. For example, the amount field on the Claimwick expense form keeps a visible edge on the card behind it in both color schemes.
+
+**Reviewed for:** Which input boundary token falls below 3:1 against its surface in a declared color scheme? Look in the token definitions and the rendered form fields.
 
 ### Select a Command Surface by Size
 
@@ -321,7 +350,7 @@ patterns:
 
 **Statement:** Every route MUST pass each route suite check.
 
-**Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
+**Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, the focus move on a route change, each color scheme, reduced motion, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
 
 **Reviewed for:** Which discovered routes fail a route suite check? Look in the suite output and the CI job logs.
 

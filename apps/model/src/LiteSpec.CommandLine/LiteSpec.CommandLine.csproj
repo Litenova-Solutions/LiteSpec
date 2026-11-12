@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!--
+            How both LiteSpec tools talk on the command line: the options they parse and
+            the JSON they write. The CLI and the maintainer reference it instead of copying it.
+        -->
+        <RootNamespace>LiteSpec.CommandLine</RootNamespace>
+        <IsPackable>false</IsPackable>
+        <!-- The native CLI compiles this library ahead of time, so the trim and AOT analyzers check it in every build. -->
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
+
+</Project>

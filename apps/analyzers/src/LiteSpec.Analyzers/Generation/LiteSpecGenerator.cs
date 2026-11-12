@@ -1,5 +1,5 @@
-using LiteSpec.Analyzers.Layers;
-using LiteSpec.Model;
+using LiteSpec.Analyzers.Generation.Sources;
+using LiteSpec.Analyzers.LayerMap;
 using Microsoft.CodeAnalysis;
 
 namespace LiteSpec.Analyzers.Generation;
@@ -68,7 +68,7 @@ public sealed class LiteSpecGenerator : IIncrementalGenerator
                 return;
             }
 
-            Emitter.Execute(production, combined.Left.Left.Left, combined.Left.Left.Right, combined.Left.Right);
+            GeneratedSourceWriter.Execute(production, combined.Left.Left.Left, combined.Left.Left.Right, combined.Left.Right);
         });
     }
 }

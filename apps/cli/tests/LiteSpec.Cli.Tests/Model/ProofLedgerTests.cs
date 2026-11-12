@@ -1,4 +1,8 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Links;
+using LiteSpec.Cli.Model.Proof;
+using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Model;
@@ -59,7 +63,7 @@ public sealed class ProofLedgerTests
     {
         var model = new ProjectModel { Config = ConsumerConfig.Load(root) };
         model.Proves.Add(new ProvesLink(TestTitle, Scenario, true, true, false));
-        model.BrowserTests.Add(new BrowserTestInfo("web", TestTitle, TestFile, 1, [], null, [], [], []));
+        model.BrowserTests.Add(new CodeBrowserTest("web", TestTitle, TestFile, 1, [], null, [], [], []));
 
         return model;
     }

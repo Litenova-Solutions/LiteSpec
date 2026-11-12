@@ -1,10 +1,13 @@
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Settings;
+namespace LiteSpec.Cli.Model.Readers.Settings;
 
 /// <summary>
 ///     Reads the options classes that bind keyed settings: every class carrying an
@@ -27,11 +30,20 @@ static class OptionsClassReader
         }
 
         var found = new List<OptionsClass>();
+        var gate = new object();
 
-        foreach (var file in files)
+        Parallel.ForEach(files, file =>
         {
-            ReadFile(file, found);
-        }
+            var declared = ReadFile(file);
+
+            if (declared.Count > 0)
+            {
+                lock (gate)
+                {
+                    found.AddRange(declared);
+                }
+            }
+        });
 
         found.Sort((left, right) =>
         {
@@ -44,23 +56,34 @@ static class OptionsClassReader
     }
 
     /// <summary>
-    ///     Reads one source file into the options class collection, adding every marked options class it
-    ///     declares.
+    ///     Reads the marked options classes one source file declares. A mark names its setting in plain
+    ///     text, so a file that holds no <c>setting</c> and no character escape that could spell it is
+    ///     skipped without being parsed.
     /// </summary>
     /// <param name="file">The source file path to read.</param>
-    /// <param name="found">The options classes collected so far, added to in place.</param>
-    private static void ReadFile(string file, List<OptionsClass> found)
+    /// <returns>The marked options classes the file declares, or an empty list when it declares none.</returns>
+    private static List<OptionsClass> ReadFile(string file)
     {
-        SyntaxTree tree;
+        var found = new List<OptionsClass>();
+        string text;
 
         try
         {
-            tree = CSharpSyntaxTree.ParseText(File.ReadAllText(file), new CSharpParseOptions(LanguageVersion.Preview), file);
+            text = File.ReadAllText(file);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            return;
+            return found;
         }
+
+        if (!text.Contains("setting", StringComparison.Ordinal)
+            && !text.Contains(@"\u", StringComparison.OrdinalIgnoreCase)
+            && !text.Contains(@"\x", StringComparison.Ordinal))
+        {
+            return found;
+        }
+
+        var tree = CSharpSyntaxTree.ParseText(text, new CSharpParseOptions(LanguageVersion.Preview), file);
 
         foreach (var type in tree.GetRoot().DescendantNodes().OfType<TypeDeclarationSyntax>())
         {
@@ -86,6 +109,8 @@ static class OptionsClassReader
                 PropertiesOf(type),
                 settings));
         }
+
+        return found;
     }
 
     /// <summary>The <c>SectionName</c> constant value, or null when the class declares none.</summary>

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LiteSpec.Model.Readers.Dependencies;
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>
 ///     Reads the direct packages of a CycloneDX 1.x JSON bill of materials: the dependsOn of

@@ -1,0 +1,13 @@
+type: decision
+id: decision/0036-pin-third-party-packages-to-their-major
+title: Pin Third-Party Packages to Their Major
+options:
+  - name: "Pin the major of each third-party package, and exact versions only where a check depends on them"
+    pros: "A consumer takes a patch without waiting for a LiteSpec release, and the lockfile still records the exact version."
+    cons: "Two consumers on one LiteSpec release may resolve different patch versions of one package."
+  - name: "Pin every package to an exact version"
+    pros: "Every consumer on one LiteSpec release resolves identical versions."
+    cons: "A consumer waits for a LiteSpec release to take a patch, although its lockfile already holds the exact version."
+choice: "Pin the major of each third-party package, and exact versions only where a check depends on them"
+consequences: "The manifest states `N.x` for each third-party package. `LiteSpec.Analyzers`, the `shadcn` and `shadcn-svelte` CLIs, and the Node and pnpm toolchain entries stay exact, because a check or the release reads their exact output. `dependency-version-drift` reports a resolved version outside the pinned major, and the consumer central file or lockfile holds the exact version under `litespec/workspace/dependencies#pin-every-dependency-version-centrally`."
+reopenedWhen: "A patch inside a pinned major breaks a consumer that a LiteSpec check could have held back."

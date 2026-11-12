@@ -1,4 +1,4 @@
-namespace LiteSpec.Model.Readers.Operations;
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>One alert rule: its name, labels and own text.</summary>
 /// <param name="Name">The rule name from its alert or title key.</param>

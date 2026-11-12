@@ -1,7 +1,7 @@
 // The sitemap: every HTML page of the release, with its last change date from git.
 // Raw Markdown, llms.txt indexes, layer bundles and schemas are for agents and stay out.
 import type { APIRoute } from "astro";
-import { htmlPath, pages, pageUrl, version } from "../lib/spec";
+import { htmlPath, pages, pageUrl, standardUrl, version } from "../lib/spec";
 import { absoluteUrl, buildDate, lastModified } from "../lib/seo";
 
 export const GET: APIRoute = () => {
@@ -9,6 +9,7 @@ export const GET: APIRoute = () => {
   const entries: { path: string; modified: string }[] = [
     { path: "/", modified: lastModified("apps/site/src/pages/index.astro") ?? fallback },
     { path: `/${version}/select/`, modified: lastModified("apps/site/src/components/SelectForm.astro") ?? fallback },
+    { path: standardUrl(), modified: lastModified("apps/site/src/pages/[version]/standard/index.astro") ?? fallback },
     ...pages
       .filter((page) => htmlPath(page) !== "")
       .map((page) => ({ path: pageUrl(page), modified: lastModified(page.file) ?? fallback })),

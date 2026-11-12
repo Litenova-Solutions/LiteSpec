@@ -1,0 +1,37 @@
+<script lang="ts">
+  import { book } from "$lib/frame";
+  import { RecordIcon } from "$lib/record";
+  import RecordListRow from "./RecordListRow.svelte";
+  import type { SecurityGroup } from "./outline-rows";
+
+  // The Security view: cross-tenant access, outside calls and personal or
+  // sensitive data, grouped by kind.
+  type Props = { sgroups: SecurityGroup[] };
+  let { sgroups }: Props = $props();
+  const loaded = $derived.by(() => {
+    void book.rev;
+    return book.security !== null;
+  });
+</script>
+
+{#if !loaded}
+  <p class="mx-2 my-2 text-xs text-muted-foreground">Loading the security items.</p>
+{:else if !sgroups.length}
+  <p class="mx-2 my-2 text-xs text-muted-foreground">Nothing here reaches across tenants, calls outside, or holds personal or sensitive data.</p>
+{:else}
+  {#each sgroups as g (g.kind)}
+    <section aria-label={g.label} class="mb-2">
+      <div class="flex h-[30px] items-center gap-1.5 px-1.5 text-[0.71875rem] font-semibold text-subtle-foreground">
+        <span class="grid flex-none text-muted-foreground"><RecordIcon name={g.icon} class="size-3.5" /></span>
+        <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{g.label}</span>
+        <span class="flex-none font-mono text-[0.6875rem] font-normal text-muted-foreground">{g.items.length}</span>
+      </div>
+      <p class="px-1.5 pb-1 text-[0.71875rem] text-muted-foreground">{g.text}</p>
+      <ul>
+        {#each g.items as item (item.kind + "|" + item.id + "|" + item.text)}
+          <RecordListRow id={item.id} suffix={item.text} />
+        {/each}
+      </ul>
+    </section>
+  {/each}
+{/if}

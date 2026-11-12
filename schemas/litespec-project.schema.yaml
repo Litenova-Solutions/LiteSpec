@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.0.0/schemas/litespec-project.schema.yaml'
+$id: 'https://litespec.dev/5.1.0/schemas/litespec-project.schema.yaml'
 title: LiteSpec Consumer Project
 type: object
 additionalProperties: false
@@ -94,6 +94,22 @@ properties:
       - behavior
       proof:
       - behavior
+  explanations:
+    description: The record layers whose every record page carries an explanation file. Each entry is intent or behavior, the layers that hold record pages. A page on a listed layer without its explanation file, or with a required H2 section missing, is an explanation-missing finding. A layer left out keeps its explanation file optional, except the article types, which always require one.
+    type: object
+    additionalProperties: false
+    required:
+    - layers
+    properties:
+      layers:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          type: string
+          enum:
+          - intent
+          - behavior
   shape:
     description: 'The shape of this project: server for a project with a backend, client-only for a project with frontends and no backend. Defaults to server.'
     type: string

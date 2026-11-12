@@ -34,11 +34,7 @@ The standard tells everyone how to build. The records say what to build, top dow
 
 LiteSpec aims at one end goal: Intent so clear and structured that a person who is not a developer can read it, and exact enough that an agent builds from it without guessing.
 
-Work runs top down through four layers. People and agents write Intent first: why the product exists and what it promises. Agents write Behavior from Intent: how the system acts to keep the promises. Agents write code from Behavior, and tests prove each promised example through the public boundary. Nothing above code is computed from code: each layer is written from the layer above it, and code points up to the record it serves.
-
-Decisions live in git. Product people read Intent as journey detail: what each journey promises and what changes. Developers read Behavior: the modules, aggregates, use cases, reactions, jobs, notifications, and settings that carry the promises out. The tools prove that code matches Behavior and that every promised example passes.
-
-The same shape makes a specification easy to learn and easy to use: a reader always knows where they are, what sits above (why) and what sits below (how), and which records they are expected to read. [How LiteSpec Works](how-litespec-works.md) states the four layers and what the builder computes.
+Work runs top down through four layers: people and agents write Intent first, then Behavior from Intent, then code from Behavior, and tests prove each promised example through the public boundary. The [record layers](../core/layers.md) state the four layers and the translation rules between them, and [How LiteSpec Works](how-litespec-works.md) states what the model computes from them.
 
 ## Non-Goals
 

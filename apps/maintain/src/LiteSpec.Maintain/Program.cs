@@ -1,5 +1,7 @@
-using LiteSpec;
-using LiteSpec.Authoring;
+using LiteSpec.Maintain.Changelog;
+using LiteSpec.Maintain.ProvisionIndex;
+using LiteSpec.Maintain.Validate;
+using LiteSpec.Standards;
 
 // Messages quote page text verbatim, so the console must write UTF-8 rather
 // than the Windows code page, which turns a non-ASCII character into a control byte.
@@ -31,7 +33,7 @@ return args[0] switch
     "--version" => Version(),
     "validate" => StandardsValidator.Run(rest),
     "provisions" => ProvisionsCommand.Run(rest),
-    "changelog" => ProvisionDiffCommand.Run(rest),
+    "changelog" => ChangelogCommand.Run(rest),
     _ => Unknown(args[0]),
 };
 

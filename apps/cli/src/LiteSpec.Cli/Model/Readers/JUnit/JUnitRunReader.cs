@@ -1,7 +1,11 @@
 using System.Globalization;
 using System.Xml.Linq;
+using LiteSpec.Cli.Files;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Tests;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.JUnit;
+namespace LiteSpec.Cli.Model.Readers.JUnit;
 
 /// <summary>
 ///     Reads test outcomes from JUnit XML files. Absent when the folder holds none.

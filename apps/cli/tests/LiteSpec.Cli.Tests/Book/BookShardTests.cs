@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Book;
+using LiteSpec.Cli.Book.Outline;
+using LiteSpec.Cli.Book.Output;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Book;

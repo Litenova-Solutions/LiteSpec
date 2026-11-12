@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace LiteSpec.Model.Readers.Dotnet;
+namespace LiteSpec.Cli.Model.Readers.Dotnet;
 
 /// <summary>The names of .NET declarations, as the backend reader writes them.</summary>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>

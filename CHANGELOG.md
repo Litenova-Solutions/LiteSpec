@@ -1,5 +1,138 @@
 # Changelog
 
+## v5.1.0
+
+LiteSpec 5.1.0 lets a project require an explanation file for every record on the layers it names, and adds behavior Standards for keyboards, screen readers, reduced motion, color schemes and older browsers. It pins third-party packages to their major version, so a consumer takes patch and minor releases without waiting for LiteSpec. `model check` is several times faster on large projects. It is a minor release: no provision ID is removed or renamed. A consumer with a shared UI package adds a Browser Support section to its design contract, as Part H describes.
+
+### Part A: Explanation Files a Project Requires
+
+- `explanations.layers` in `.litespec/project.yaml` names the layers whose records must each carry an explanation file. It takes `intent`, `behavior` or both. Every page record on a named layer then needs its `<name>.md` beside its record file, with the sections its record type defines. Projects that leave the key out are unaffected.
+- `model check` reports `explanation-missing` for a missing file or a missing required section, and `project-invalid` when `explanations.layers` names a layer the project does not claim in `layers`.
+- `litespec new` writes the explanation file from `templates/consumer/<type>.md` when the new record's layer is listed, and from `templates/consumer/explanation.md` for a type with no template of its own.
+- `litespec new feature <module>.<name>` writes the record `feature/<name>` in the module's folder. In 5.0.0 it refused every name: without a module it asked for one, and with one it rejected the identifier.
+
+The rule is `litespec/core/model#require-explanation-files-on-the-layers-a-project-names`, and the [project file reference](docs/reference/project-file.md) lists the field.
+
+### Part B: How a Screen Behaves
+
+- Controlled UI Governance names three layers of a screen: product, behavior and parts. The parts never lower the behavior: a baseline component that closes a modal on an outside press, or traps Tab in a menu, is overridden.
+- The pattern and foundation pages gain behavior Standards drawn from WCAG 2.2. They cover overlay dismissal and initial focus, live regions by urgency, when a field error appears and how assistive technology reads it, one send in flight, sortable and scrolling tables, aligned figures, calendar dates without a time zone, sibling pages as links, 3:1 focus indicators and input boundaries, color schemes, reduced motion, pause controls, text sizes in `rem`, and focus on a route change.
+- The route suite checks focus after a route change, every declared color scheme and reduced motion.
+- The pattern pages state what they contradicted before:
+  - Amounts show the decimals each currency defines, and money fields are text inputs.
+  - The session warning no longer expires.
+  - The theme follows the device by default.
+  - Every Compact line states its pattern's narrow behavior.
+
+### Part C: Packages Pinned to Their Major
+
+- `litespec.manifest.yaml` pins each third-party package to its major, written `N.x`, such as `Marten: 9.x`. The consumer's central version file or lockfile holds the exact version, so a consumer takes a patch or minor release of a baseline package without waiting for a LiteSpec release.
+- Three packages stay exact: `LiteSpec.Analyzers`, which matches the CLI release, and the `shadcn` and `shadcn-svelte` CLIs, whose exact version the UI source lock records. The `node` and `pnpm` entries under `stack` stay exact too.
+- `dependency-version-drift` reports a direct package outside its pin: another major, or a prerelease inside the pinned major. Its message reads `... is outside its manifest pin '9.x'.` for a major pin and keeps `... differs from its manifest pin ...` for an exact pin.
+
+Decision 0036, Pin Third-Party Packages to Their Major, records why.
+
+### Part D: The Book
+
+- A use case shows its Kind once, and a scenario shows Given, When, Then and Result in their own sections only.
+- The `norun` proof state reads "Not run".
+- A page record no longer lists its own entries as links. In 5.0.0 they appeared under raw keys such as `use-case.records.id`.
+- The top bar carries the Litenova family mark.
+
+### Part E: Faster Model Check
+
+On a project of 3,142 records and 19,334 files, `litespec model check` took 195 s in 5.0.0 and takes about 18 s in 5.1.0, with the same output. The checks run in parallel, the schema evaluator stops at the first failing shape, and record lookups use indexes built once per run. A run also reads the release's provision pages and schemas once, where 5.0.0 read the provision pages three times and could parse a schema once per parallel worker.
+
+### Part F: The Documentation and litespec.dev
+
+- `learn/README.md` is the starting page: what LiteSpec is, a five-minute picture, then five pages in reading order. Each concept is explained on one page, and the others link to it.
+- `learn/reading-tracks.md` and `guide/folder-reference.md` are removed. Their content is in `learn/how-litespec-works.md` and the [folder reference](docs/reference/folders.md).
+- On litespec.dev:
+  - The sidebar is one tree in five groups, in reading order: Learn, Tutorial, Guides, Standard and Reference. Every area and folder opens and closes, starts open when it holds the current page, and lists its overview first.
+  - Breadcrumbs show every level, and every breadcrumb entry in the page's structured data links its page.
+  - A folder's overview page is titled by its folder, such as "CLI Commands Overview".
+  - The Standard has an index page of linked cards, and "On this page" opens the section in view.
+  - A pattern lists its facts with each label beside its value, and its Default links to the option it names.
+  - The landing page is the opening title and the release badge, which links to this changelog.
+  - Screens 1600px and wider get a wider column and larger type, and muted text reads at 6:1 or more in light mode.
+  - Pages animate only when the reader's system allows motion.
+  - On a phone, the page browser has a filter.
+
+### Part G: Provision Changes Since v5.0.0
+
+<!-- generated:provision-diff -->
+### Provision Changes Since v5.0.0
+
+Added (41):
+
+- `litespec/core/model#require-explanation-files-on-the-layers-a-project-names`
+- `litespec/frontend/components#make-touch-targets-fit-a-finger`
+- `litespec/frontend/components#show-a-focus-indicator-that-stands-out`
+- `litespec/frontend/data#keep-a-calendar-date-free-of-a-time-zone`
+- `litespec/frontend/patterns/create-edit-remove#refuse-a-second-send-while-one-is-in-flight`
+- `litespec/frontend/patterns/dialogs-and-overlays#hold-a-toast-while-a-modal-is-open`
+- `litespec/frontend/patterns/dialogs-and-overlays#keep-tab-free-to-leave-a-menu-or-popover`
+- `litespec/frontend/patterns/dialogs-and-overlays#keep-the-page-behind-a-modal-still`
+- `litespec/frontend/patterns/dialogs-and-overlays#keep-unsaved-input-through-a-dismissal`
+- `litespec/frontend/patterns/dialogs-and-overlays#pause-a-timed-toast-while-it-is-in-use`
+- `litespec/frontend/patterns/dialogs-and-overlays#place-initial-focus-on-the-safe-action`
+- `litespec/frontend/patterns/feedback-and-states#announce-each-status-by-its-urgency`
+- `litespec/frontend/patterns/feedback-and-states#keep-unsent-input-when-the-connection-drops`
+- `litespec/frontend/patterns/feedback-and-states#mark-a-loading-region-busy`
+- `litespec/frontend/patterns/feedback-and-states#move-focus-to-a-refusal`
+- `litespec/frontend/patterns/forms-and-fields#expose-a-field-error-to-assistive-technology`
+- `litespec/frontend/patterns/forms-and-fields#keep-submit-enabled-to-reveal-errors`
+- `litespec/frontend/patterns/forms-and-fields#mark-every-required-field`
+- `litespec/frontend/patterns/forms-and-fields#match-the-keyboard-to-the-value`
+- `litespec/frontend/patterns/forms-and-fields#refuse-enter-while-text-is-being-composed`
+- `litespec/frontend/patterns/forms-and-fields#show-a-field-error-after-the-field-is-left`
+- `litespec/frontend/patterns/forms-and-fields#state-each-fields-purpose`
+- `litespec/frontend/patterns/forms-and-fields#take-a-name-in-one-field-of-any-script`
+- `litespec/frontend/patterns/lists-and-tables#announce-a-lists-result-count`
+- `litespec/frontend/patterns/lists-and-tables#keep-the-header-row-in-view`
+- `litespec/frontend/patterns/lists-and-tables#make-a-scrolling-table-a-named-region`
+- `litespec/frontend/patterns/lists-and-tables#mark-the-sorted-column`
+- `litespec/frontend/patterns/lists-and-tables#shape-a-list-by-its-container`
+- `litespec/frontend/patterns/money-time-density#align-figures-in-a-column`
+- `litespec/frontend/patterns/money-time-density#mark-a-moment-with-its-machine-value`
+- `litespec/frontend/patterns/navigation#draw-sibling-pages-as-links-not-tabs`
+- `litespec/frontend/rendering#move-focus-on-a-route-change`
+- `litespec/frontend/rendering#split-long-client-work`
+- `litespec/frontend/ui#give-every-input-a-visible-boundary`
+- `litespec/frontend/web/components#enforce-trusted-types-on-raw-markup`
+- `litespec/frontend/web/ui#build-within-the-browser-support-target`
+- `litespec/frontend/web/ui#give-moving-content-a-pause-control`
+- `litespec/frontend/web/ui#honor-reduced-motion`
+- `litespec/frontend/web/ui#render-each-declared-color-scheme`
+- `litespec/frontend/web/ui#set-text-sizes-in-relative-units`
+- `litespec/quality/ci#assert-loading-stability-and-blocking-time-per-route`
+
+Removed (0):
+
+None.
+
+Renamed (0):
+
+None.
+
+Extensions added (0):
+
+None.
+
+Extensions removed (0):
+
+None.
+
+<!-- /generated:provision-diff -->
+
+### Part H: Upgrading a Consumer
+
+1. Install `LiteSpec.Cli` 5.1.0 (`dotnet tool update LiteSpec.Cli --version 5.1.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.1.0` in `.litespec/project.yaml`.
+2. A project with a shared UI package adds a `## Browser Support` section to its design contract, naming the browser target, as `templates/consumer/design-contract.md` shows. Without it, `model check` reports `ui-design-contract-invalid` with `missing required section 'Browser Support'`.
+3. A project that references `LiteSpec.Analyzers` updates it to 5.1.0.
+4. Run `litespec model check` and fix each finding.
+
+
 ## v5.0.0
 
 LiteSpec 5.0.0 lets a project claim only the record layers it uses, writes every file a person edits in YAML, replaces exceptions with departures, and ships the `litespec` command line as a native executable for Windows, Linux and macOS. It is a major release: a consumer upgrades by following the steps in Part H, then running `litespec model check` until it is clean.

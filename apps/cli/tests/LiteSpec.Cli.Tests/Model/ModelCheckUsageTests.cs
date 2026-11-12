@@ -31,6 +31,6 @@ public sealed class ModelCheckUsageTests
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--all");
 
         Assert.Equal(0, result.Status);
-        Assert.Contains("[--all]", LiteSpec.Model.ModelCommand.Usage, StringComparison.Ordinal);
+        Assert.Contains("[--all]", LiteSpec.Cli.Model.ModelCommand.Usage, StringComparison.Ordinal);
     }
 }

@@ -1,4 +1,7 @@
-namespace LiteSpec.Model.Readers;
+using LiteSpec.Cli.Model.Tests;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers;
 
 /// <summary>What the scenario read found: the test read and the files it could not read.</summary>
 /// <param name="Tests">The scenarios, elements and step facts the test roots declare.</param>

@@ -1,6 +1,8 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Book.Details;
+using LiteSpec.Cli.Book.Output;
 
-namespace LiteSpec.Book;
+namespace LiteSpec.Cli.Book;
 
 /// <summary>
 ///     The relationship readings over the index: one scenario's proof state, the
@@ -23,10 +25,10 @@ static class BookModelQueries
             link["passing"] is JsonValue scalar && scalar.TryGetValue<bool>(out var passing) ? passing : (bool?)null,
             BookRender.StrProp(link, "scenario") is { } scenario ? index.TestsByName.GetValueOrDefault(scenario) : null)).ToList();
         var confirmed = enriched.Where(link => link.Confirmed).ToList();
-        var state = "unproved";
+        var state = BookProofStates.Unproved;
         if (!BookModel.HasTestRun(index))
         {
-            state = "norun";
+            state = BookProofStates.Norun;
         }
         else if (confirmed.Count > 0)
         {
@@ -55,10 +57,10 @@ static class BookModelQueries
     /// <param name="index">The model index.</param>
     /// <param name="useCaseId">The use-case id.</param>
     /// <returns>The use case's results and scenarios.</returns>
-    public static UseCaseKids UseCaseChildren(BookIndex index, string useCaseId)
+    public static UseCaseEntries UseCaseChildren(BookIndex index, string useCaseId)
     {
         var name = BookModel.SplitId(useCaseId).Name;
-        return new UseCaseKids(
+        return new UseCaseEntries(
             index.ResultsOf.TryGetValue(name, out var results) ? results : [],
             index.ScenariosOf.TryGetValue(name, out var scenarios) ? scenarios : []);
     }

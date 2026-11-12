@@ -1,4 +1,4 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model.Tests;
 
 namespace LiteSpec.Cli.Tests.Model.Frontend;
 

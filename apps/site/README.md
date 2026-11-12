@@ -60,7 +60,8 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 | `src/lib/render-markdown.ts` | The Markdown to HTML pipeline with Shiki highlighting, provision cards, and wireframe option cards. |
 | `src/lib/code-blocks.ts` | The code block figure, header strip, language label, and copy button. |
 | `src/lib/agent-text.ts` | The plain-text builders for every agent endpoint, with `SITE_ORIGIN` set to `https://litespec.dev`. |
-| `src/lib/areas.ts` | The four docs groups, their labels and icons, and one label per docs area. |
+| `src/lib/areas.ts` | The five docs groups, their labels and icons, one label per docs area, and the folder overview lookups. |
+| `src/lib/nav.ts` | The one reading order the sidebar and the pager share, the breadcrumb trail, the group home URLs, and the reading time helper. |
 | `src/lib/icons.ts` | The fixed line icon set, drawn in the style of Lucide on a 24px grid. |
 | `src/lib/wireframe/parse.ts` | The wireframe language parser, a port of the CLI parser. |
 | `src/lib/wireframe/render.ts` | The wireframe SVG renderer, a port of the CLI renderer. |
@@ -70,7 +71,7 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 | `src/layouts/Base.astro` | The shared layout with the head, the frame, the header, the footer, and the copy behavior. |
 | `src/pages/` | The routes named under Routes. |
 | `src/styles/site.css` | The palette, the semantic tokens, the frame, the header, the footer, and the shared primitives. |
-| `src/styles/docs.css` | The three-column docs layout, the sidebar tree, the breadcrumb, the pager, and the `On this page` list. |
+| `src/styles/docs.css` | The three-column docs layout, the sidebar tree and its phone drawer, the breadcrumb, the page meta row, the pager, the `On this page` list and its narrow-screen disclosure, and the Standard overview list. |
 | `src/styles/prose.css` | The rendered page body: headings, provision cards, tables, code, and option cards. |
 | `src/styles/code.css` | The highlighted code blocks and the Shiki theme selection. |
 | `src/styles/select.css` | The selection page header block. The form carries its own styles in `SelectForm.astro`. |
@@ -79,13 +80,15 @@ The config files sit at the top of `apps/site/`. The source lives under `src/lib
 
 #### The Loader
 
-`src/lib/spec.ts` is the only module that reads the standard. It finds the repository root by walking up from the working directory for `litespec.manifest.yaml`, so a bundled build never relies on its own URL. It exports `root`, `manifest`, `version` (the manifest version), `pages`, `provisions`, `selections()`, `layers()`, `appliedPages()`, `selectionLayers()`, `selectionKey()`, `extensionStack()`, `backendStacks`, `frontendStacks`, `schemaFiles`, and the URL helpers `htmlPath()`, `pageUrl()`, `rawUrl()`, `layerUrl()`, and `selectionIndexUrl()`.
+`src/lib/spec.ts` is the only module that reads the standard. It finds the repository root by walking up from the working directory for `litespec.manifest.yaml`, so a bundled build never relies on its own URL. It exports `root`, `manifest`, `version` (the manifest version), `pages`, `provisions`, `selections()`, `layers()`, `appliedPages()`, `selectionLayers()`, `selectionKey()`, `extensionStack()`, `backendStacks`, `frontendStacks`, `schemaFiles`, and the URL helpers `htmlPath()`, `pageUrl()`, `rawUrl()`, `layerUrl()`, `standardUrl()`, and `selectionIndexUrl()`.
 
-It parses every `.md` file under `docs/` once. Each `Page` carries its repository-relative `file`, its `path` under `docs/` without `.md`, its `style`, its `area` (the first folder under `docs/`), its `title`, its `intent` (the first paragraph of `Intent`, `Purpose`, or `Name`), its `sections`, its `provisions`, and its raw `markdown`. The `slug()` helper matches the CLI heading slug, so heading IDs and provision IDs agree with the validator. The `learn/` pages keep the order their index lists; every other page sorts by path. Provisions come from the generated `docs/reference/provisions.json` index that `litespec-maintain provisions` writes, each with its `id`, `heading`, owning `page`, `anchor`, `kind`, `mark`, `evidence`, and `strength`, so the site reads one file instead of parsing every page for its provisions. Selection and layer logic mirrors the CLI layout rules: the always-applied `docs/core`, `docs/workspace`, and `docs/quality` pages, the chain of folders above each selected stack with their stack-free companion folders, the shape `backendPages`, and the selected extensions.
+It parses every `.md` file under `docs/` once. Each `Page` carries its repository-relative `file`, its `path` under `docs/` without `.md`, its `style`, its `area` (the first folder under `docs/`), its `title`, its `intent` (the first paragraph of `Intent`, `Purpose`, or `Name`), its `sections`, its `provisions`, and its raw `markdown`. The `slug()` helper matches the CLI heading slug, so heading IDs and provision IDs agree with the validator. The `pages` array keeps page index order; the sidebar and pager order comes from `src/lib/nav.ts`, never from this array. Provisions come from the generated `docs/reference/provisions.json` index that `litespec-maintain provisions` writes, each with its `id`, `heading`, owning `page`, `anchor`, `kind`, `mark`, `evidence`, and `strength`, so the site reads one file instead of parsing every page for its provisions. Selection and layer logic mirrors the CLI layout rules: the always-applied `docs/core`, `docs/workspace`, and `docs/quality` pages, the chain of folders above each selected stack with their stack-free companion folders, the shape `backendPages`, and the selected extensions.
+
+`src/lib/nav.ts` owns the one reading order the sidebar and the pager share. Inside each folder, pages follow the order in which that folder's README lists them: the first occurrence of each list-item link to a page of the folder, README first, then the pages the README does not list, by title. Folders follow their parent README the same way, else alphabetical; a folder with no README keeps path order. Only list items count as order: a prose link cites a page without placing it. The same file owns the breadcrumb trail (`crumbTrail()`), the group home URLs (`groupHomeUrl()`, with the Standard group pointing at the generated overview), the pager neighbors (`pageNeighbors()`, within the group, stepping to the next group's overview at the end), and the reading time (`readingTime()`, minutes at 220 words a minute, at least one).
 
 #### Rendering
 
-`src/lib/render-markdown.ts` renders one standard page to the HTML the site serves. It creates the Markdown processor from `@astrojs/markdown-remark` with Shiki highlighting that excludes `wireframe` blocks, the Shiki themes `github-light` and `github-dark` emitted as CSS variables, and `smartypants` off. It then post-processes the HTML in order: heading IDs from the loader slug with the `H1` dropped (the template shows the title), a `toc` of `H2` entries and provision `H3` entries, relative links between docs pages rewritten to site URLs, wireframe blocks replaced by option figures, option annotations merged into their cards, option `H4` IDs hoisted onto their cards, tables wrapped in `table-wrap` (with `table-provisions` when the first column holds provision IDs), code blocks decorated, and provisions wrapped in cards with kind, strength, and verification badges and an ID footer with a copy button. The `Strength` line stays out of the card body because the badge shows it; an `Applies to` line renders as a sub-line under the statement.
+`src/lib/render-markdown.ts` renders one standard page to the HTML the site serves. It creates the Markdown processor from `@astrojs/markdown-remark` with Shiki highlighting that excludes `wireframe` blocks, the Shiki themes `github-light` and `github-dark` emitted as CSS variables, and `smartypants` off. It then post-processes the HTML in order: heading IDs from the loader slug with the `H1` dropped (the template shows the title), a `toc` of `H2` entries with provision `H3` entries nested beneath (option `H4` entries on pattern pages, so their right column is an option index), relative links between docs pages rewritten to site URLs, wireframe blocks replaced by option figures, option annotations merged into their cards, option `H4` IDs hoisted onto their cards, tables wrapped in `table-wrap` (with `table-provisions` when the first column holds provision IDs), code blocks decorated, and provisions wrapped in cards with kind, strength, and verification badges and an ID footer with a copy button. The `Strength` line stays out of the card body because the badge shows it; an `Applies to` line renders as a sub-line under the statement. The `Stack` and `Concern` scope lines under the title leave the body as the `meta` pairs the template shows in its meta row.
 
 `src/lib/code-blocks.ts` wraps each Shiki-highlighted block in a `code-block` figure with a header strip that shows the language name and a copy button. The `languageLabel()` map names `Shell`, `PowerShell`, `JSON`, `TypeScript`, `YAML`, `Markdown`, and the other supported labels. Plain wireframe text blocks carry no `astro-code` class, so they pass through untouched.
 
@@ -97,10 +100,10 @@ It parses every `.md` file under `docs/` once. Each `Page` carries its repositor
 
 | Route file | URL | What it writes |
 |:---|:---|:---|
-| `src/pages/index.astro` | `/` | The landing page with the release badge, the `The spec your agents build from.` title, and the two calls to action to the selection page and the learning pages. |
+| `src/pages/index.astro` | `/` | The landing page: the hero with the headline and the two calls to action to the learning pages and the selection page, the `How It Works` steps with Claimwick artifacts, and the `Where to Go` entry list. |
 | `src/pages/llms.txt.ts` | `/llms.txt` | The root agent index: how to use the site, the release index, every selection, every layer bundle, and the `AGENTS.md` block. Content type `text/plain`. |
-| `src/pages/[version]/index.astro` | `/<version>/` | The release home: every page by area with its intent and provision count, plus the stack and extension counts. |
-| `src/pages/[version]/[...page].astro` | `/<version>/<path>/` | One HTML page per spec page: the sidebar tree, the breadcrumb, the title, the lead (the first sentence of the intent), the copy and Markdown tools, the rendered body, and the Previous and Next cards. Pattern pages use the full content width with no right column and add the pattern viewer. |
+| `src/pages/[version]/standard/index.astro` | `/<version>/standard/` | The generated Standard overview: the six standard areas in order, then the stack folders under backend and frontend, each with its title, its first sentence and a link. It uses the normal docs frame with the sidebar and the breadcrumb. |
+| `src/pages/[version]/[...page].astro` | `/<version>/<path>/` | One HTML page per spec page: the sidebar tree (a dialog drawer with a filter on phones), the breadcrumb, the title, the meta row with the version and the scope pairs, the lead (the first sentence of the intent), the copy and Markdown tools, the rendered body, and the Previous and Next cards within the group. Pattern pages keep the same frame with the right column and add the pattern viewer. |
 | `src/pages/[version]/[...page].md.ts` | `/<version>/<path>.md` | The raw Markdown of one page with links rewritten to absolute raw URLs. Content type `text/markdown`. |
 | `src/pages/[version]/llms.txt.ts` | `/<version>/llms.txt` | The version index: every page grouped by area with its raw Markdown link. Content type `text/plain`. |
 | `src/pages/[version]/llms-full.txt.ts` | `/<version>/llms-full.txt` | The whole release as one file, except the UI pattern pages. Content type `text/plain`. |
@@ -117,19 +120,20 @@ It parses every `.md` file under `docs/` once. Each `Page` carries its repositor
 
 Dark mode has two paths that set the same values: the `prefers-color-scheme` media query for `:root` without `data-theme="light"`, and the explicit `:root[data-theme="dark"]` override. `ThemeSwitcher.astro` cycles `auto`, `light`, and `dark` and stores the choice in `localStorage` under `litespec-theme`. `Base.astro` reads that store before first paint, so the theme applies without a flash.
 
-The frame is a centered column with visible side rails: `.frame` caps the width at `1280px`, fills at least the viewport height, and carries the header and the footer. The header `.site-top` holds the logo, the Docs, Patterns, and Use with agents links, the search trigger, the GitHub link, the theme switcher, and the phone menu. The footer shows the release version, the MIT license note, the Litenova Solutions link, and the `llms.txt`, GitHub, and Changelog links. Shared classes live in `site.css`: `.btn` with `.btn-outline`, `.btn-ghost`, `.btn-sm`, and `.btn-icon`; `.badge` with the kind badges `.badge-rule`, `.badge-convention`, and `.badge-pattern`, the strength badges `.badge-strength-required`, `.badge-strength-default`, and `.badge-strength-advisory`, and `.badge-warn`; `.ver`, `.dot`, `.kbd`, `.must`, and `.muted`; and `.icon` with `.icon-sm`. Type is Geist and Geist Mono, served from `public/fonts/` as Latin variable fonts under the SIL Open Font License (`public/fonts/OFL.txt`), with the body font preloaded.
+The frame is a centered column with visible side rails: `.frame` caps the width at `1280px`, fills at least the viewport height, and carries the header and the footer. The header `.site-top` holds the logo, the Learn, Guides, Standard, UI Patterns, and Reference links, the search trigger, the Use with Agents button, the GitHub link, the theme switcher, and the phone menu. The footer shows the release version, the MIT license note, the Litenova Solutions link, and the `llms.txt`, GitHub, Changelog, and Research and Decisions links. Shared classes live in `site.css`: `.btn` with `.btn-outline`, `.btn-ghost`, `.btn-sm`, and `.btn-icon`; `.badge` with the kind badges `.badge-rule`, `.badge-convention`, and `.badge-pattern`, the strength badges `.badge-strength-required`, `.badge-strength-default`, and `.badge-strength-advisory`, and `.badge-warn`; `.ver`, `.dot`, `.kbd`, `.must`, and `.muted`; and `.icon` with `.icon-sm`. Type is Geist and Geist Mono, served from `public/fonts/` as Latin variable fonts under the SIL Open Font License (`public/fonts/OFL.txt`), with the body font preloaded.
 
 `src/lib/icons.ts` owns the fixed line icon set in the style of Lucide on a 24px grid. Each entry holds the inner SVG markup per name, such as `start`, `core`, `folder`, `server`, `monitor`, `shield`, `plug`, `book`, and `terminal`, plus UI names such as `search`, `copy`, `check`, `eye`, `code`, and `expand`. `src/components/Icon.astro` draws one icon inline from that set. Icons stay decorative unless you pass a `label`, and the `github` name uses its own filled path.
 
-`src/lib/areas.ts` owns the four docs groups in display order, each with a label and an icon name: Standard (`core`, `backend`, `frontend`, `quality`, `workspace`, `ext`), Reference (`analyzers`, `reference`, `tools`, `maintain`), Learn (`learn`, `guide`, `tutorial`, `example`), and LiteSpec Own Records (`intent`). The folders stay where they are; only the navigation groups them. The same file owns one display label per docs area through `areaLabel()`.
+`src/lib/areas.ts` owns the five docs groups in display order, each with a label and an icon name: Learn (`learn`, `example`), Tutorial (`tutorial`), Guides (`guide`), Standard (`core`, `backend`, `frontend`, `quality`, `workspace`, `ext`), and Reference (`reference`, `tools`, `analyzers`, `maintain`). The folders stay where they are; only the navigation groups them. The same file owns one display label per docs area through `areaLabel()`. The `intent` folder sits outside the groups with a footer link; its pages still build and keep their URLs.
 
 #### Components
 
 | Component | What it owns |
 |:---|:---|
 | `src/layouts/Base.astro` | The shared layout: the head with the title from `pageTitle`, the description trimmed to 160 characters, the canonical URL (omitted on a `noindex` page), robots, theme color, Open Graph and Twitter cards with the social image and its alt text, icons, the manifest, the raw Markdown alternate link, the font preload, and one JSON-LD graph from `src/lib/seo.ts`; the theme script before first paint; the framed column with the header and the footer; and the `data-copy` click behavior that copies text and flashes `Copied`. |
-| `src/components/DocsSidebar.astro` | The left navigation: the full documentation tree grouped by docs group, with an area label above each area inside a multi-area group, collapsible folders, `stack` tags, and an `Overview` link per folder. The current page carries `aria-current="page"`. |
-| `src/components/PageToc.astro` | The right `On this page` list of `H2` headings with the section in view marked, plus the `View as Markdown` and `Edit on GitHub` links. |
+| `src/components/DocsSidebar.astro` | The left navigation: the full documentation tree grouped by docs group, in the reading order of `src/lib/nav.ts`, with an area label above each area inside a multi-area group, collapsible folders, `stack` tags, and an `Overview` link per folder. The current page carries `aria-current="page"` and scrolls into view. On phones the same markup opens as a dialog drawer with a filter input. |
+| `src/components/Breadcrumbs.astro` | The breadcrumb: the group, area and folders as an ordered list, each ancestor linked to its overview, with the current page as text. |
+| `src/components/PageToc.astro` | The right `On this page` list of `H2` headings with their `H3` entries nested beneath (options on pattern pages), with the section in view marked, plus the `View as Markdown` and `Edit on GitHub` links. On narrow screens it renders as a collapsed disclosure above the body instead. |
 | `src/components/Search.astro` | The search trigger and dialog. |
 | `src/components/SelectForm.astro` | The selection form with live outputs. It renders statically with the default size `small`, shape `server`, and stacks `dotnet` and `react`, then one inline script updates the tiles and the outputs as you answer. |
 | `src/components/ThemeSwitcher.astro` | The `auto`, `light`, and `dark` cycle button. |
@@ -155,9 +159,9 @@ Pattern pages render each option as a card with `Preview` and `Wireframe` tabs a
 #### Add a Docs Page
 
 1. Add the Markdown file under `docs/` in lowercase, with one `H1` and the sections of its page style.
-2. Rebuild the site. `[...page].astro` builds its paths from `pages`, so a new page needs no route file.
-3. Check that the sidebar shows it. `DocsSidebar.astro` builds the tree from `pages`, with a `stack.md` or `README.md` file as its folder `Overview`.
-4. Check that the release home lists it under its area.
+2. List it in its folder `README.md` where you want it in reading order. The sidebar and the pager follow the README lists; a page no README lists comes after, by title.
+3. Rebuild the site. `[...page].astro` builds its paths from `pages`, so a new page needs no route file.
+4. Check that the sidebar shows it in its folder's order, with a `stack.md` or `README.md` file as its folder `Overview`, and that the pager reaches it.
 
 #### Add a Site Route
 
@@ -175,9 +179,9 @@ Pattern pages render each option as a card with `Preview` and `Wireframe` tabs a
 
 #### Add a Docs Area
 
-1. Add the folder under `docs/` with its pages.
+1. Add the folder under `docs/` with its pages and a `README.md` that lists them in reading order.
 2. Add the area to its docs group in `groups` in `src/lib/areas.ts`, in display order, and its label to `AREA_LABELS` in the same file.
-3. Rebuild and check the sidebar group and the version index group.
+3. Rebuild and check the sidebar group, the breadcrumb, and the pager across the new pages.
 
 #### Change a Color
 
@@ -212,9 +216,9 @@ A diagram is an SVG in `docs/assets/diagrams/`, linked from its page as a Markdo
 
 ### Testing
 
-The site has no test suite. The build fails on a broken page, a broken link or a broken search index, and a visual check in a browser against the built output covers the layout, the wireframes and the theme in light and dark mode. The `web` job in `.github/workflows/ci.yml` runs the build in CI, after one `pnpm install --frozen-lockfile` at the repository root, on the Node and pnpm versions the repository names once: `.node-version` and the root `package.json`.
+The site tests its pure helpers with `node --test`: `src/lib/nav.test.ts` locks the reading order, the breadcrumb trail, the pager and the reading time; `spec.test.ts`, `seo.test.ts`, `trail.test.ts` and `pins.test.ts` cover the loader, the metadata, the trail fence and the pinned versions. The build fails on a broken page, a broken link or a broken search index, and a visual check in a browser against the built output covers the layout, the wireframes and the theme in light and dark mode. The `web` job in `.github/workflows/ci.yml` runs the build in CI, after one `pnpm install --frozen-lockfile` at the repository root, on the Node and pnpm versions the repository names once: `.node-version` and the root `package.json`.
 
 ## Limits
 
-The site renders the release it builds from and nothing else. It runs no server code of its own, migrates no data, and validates no consumer. Search works only on the built output, because Pagefind writes its index during `build`. JavaScript only improves the page: theme choice, copy buttons, search, the table of contents marker, and the pattern viewer. Every page stays complete without it. The `_redirects` file covers only the `/latest` alias. Agent endpoints serve the checked-in standard as plain text; they never compute a project model or draw a new wireframe.
+The site renders the release it builds from and nothing else. It runs no server code of its own, migrates no data, and validates no consumer. Search works only on the built output, because Pagefind writes its index during `build`. JavaScript only improves the page: theme choice, copy buttons, search, the table of contents marker, the docs drawer and its filter, and the pattern viewer. Every page stays complete without it. The `_redirects` file covers only the `/latest` alias. Agent endpoints serve the checked-in standard as plain text; they never compute a project model or draw a new wireframe.
 

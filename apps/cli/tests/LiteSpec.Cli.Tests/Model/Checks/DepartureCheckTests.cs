@@ -1,5 +1,7 @@
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -17,7 +19,7 @@ public sealed class DepartureCheckTests
     /// <param name="covers">The covers items as a JSON array.</param>
     /// <param name="extraFields">Further JSON members of the departure, each beginning with a comma.</param>
     /// <returns>The departure record and the model holding it.</returns>
-    private static (LiteSpec.Model.Record Departure, ProjectModel Model) ModelWithUnmarkedHandler(string temp, string covers, string extraFields)
+    private static (LiteSpec.Cli.Model.Records.Record Departure, ProjectModel Model) ModelWithUnmarkedHandler(string temp, string covers, string extraFields)
     {
         var departure = TestModel.Record(
             "departure",

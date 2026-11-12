@@ -168,5 +168,21 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground font-sans text-[15px] leading-relaxed antialiased; }
+  body { @apply bg-background text-foreground font-sans text-[0.9375rem] leading-relaxed antialiased; }
+  /* Keyboard focus stays visible on plain links and buttons; the vendored
+     components keep their own rings (utilities beat this base rule). */
+  :where(a, button, input, select, textarea, [role="button"]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Readers who ask for reduced motion get none of the book's transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

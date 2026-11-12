@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/5.0.0/schemas/ui-source-lock.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/ui-source-lock.schema.yaml
 schemaVersion: 2
 generator: shadcn/ui
 cli: 4.21.5

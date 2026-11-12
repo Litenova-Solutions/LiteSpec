@@ -1,8 +1,9 @@
 ---
 import Base from "../layouts/Base.astro";
-import Icon from "../components/Icon.astro";
+import "../styles/home.css";
 import { version } from "../lib/spec";
 import { softwareSource, website } from "../lib/seo";
+import Icon from "../components/Icon.astro";
 
 const description =
   "LiteSpec is a versioned specification for building business applications with AI coding agents: architecture, code, records, and tests, in a form agents can read and tools can verify.";
@@ -11,83 +12,13 @@ const description =
 <Base title="LiteSpec - Standard for Agent-Built Apps" description={description} jsonLd={[website, softwareSource]}>
   <section class="hero">
     <div class="hero-body">
-      <a class="badge" href="https://github.com/Litenova-Solutions/LiteSpec/blob/main/CHANGELOG.md"><span class="dot"></span>v{version} <Icon name="arrow" class="icon-sm" /></a>
+      <a class="hero-ver" href="https://github.com/Litenova-Solutions/LiteSpec/blob/main/CHANGELOG.md"><span class="dot" aria-hidden="true"></span>LiteSpec v{version}<span class="hero-ver-more">What is new</span><Icon name="arrow" class="icon-sm" /></a>
       <h1>The Specification Standard for Building Business Applications with AI Agents</h1>
       <p class="tagline">LiteSpec is a versioned specification standard for building one bounded-context business application with AI coding agents. Agents load the rules that apply to your stack; tools check that the code follows them.</p>
       <div class="actions">
-        <a class="btn" href={`/${version}/learn/`}>Get started</a>
-        <a class="btn btn-outline" href={`/${version}/select/`}>Connect your agent</a>
-      </div>
-      <div class="actions">
-        <a class="btn btn-ghost" href={`/${version}/tutorial/getting-started/`}>Getting-started tutorial</a>
-        <a class="btn btn-ghost" href="https://github.com/Litenova-Solutions/LiteSpec">GitHub repository</a>
-        <a class="btn btn-ghost" href={`/${version}/tools/#install-the-cli`}>Install the CLI</a>
+        <a class="btn btn-lg" href={`/${version}/learn/`}>Start learning</a>
+        <a class="btn btn-outline btn-lg" href={`/${version}/select/`}>Connect your agent</a>
       </div>
     </div>
   </section>
 </Base>
-
-<style>
-  .hero {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    position: relative;
-    isolation: isolate;
-    padding: var(--space-24) 0;
-  }
-  .hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 64px 64px;
-    background-position: 63px 63px;
-    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
-    mask-image: radial-gradient(ellipse 70% 70% at 70% 50%, black 0%, transparent 75%);
-    opacity: 0.7;
-  }
-  .hero-body {
-    width: 100%;
-    padding: 0 var(--space-16);
-  }
-  .hero h1 {
-    font-size: 52px;
-    line-height: 1.08;
-    letter-spacing: -0.04em;
-    font-weight: 600;
-    max-width: 22ch;
-    margin: var(--space-5) 0 var(--space-heading);
-  }
-  .tagline {
-    font-size: 18px;
-    color: var(--muted-fg);
-    max-width: 62ch;
-  }
-  .actions {
-    display: flex;
-    gap: var(--gap-inline);
-    margin-top: var(--space-8);
-  }
-  .hero a.badge:hover {
-    border-color: var(--rail);
-    color: var(--fg);
-  }
-  @media (max-width: 760px) {
-    .hero {
-      padding: var(--space-16) 0;
-    }
-    .hero-body {
-      padding: 0 var(--space-4);
-    }
-    .hero h1 {
-      font-size: 32px;
-    }
-    .actions {
-      flex-wrap: wrap;
-    }
-  }
-</style>

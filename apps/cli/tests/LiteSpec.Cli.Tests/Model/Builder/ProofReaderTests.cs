@@ -1,8 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LiteSpec.Model;
-using LiteSpec.Cli.Tests.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Model.Builder;
 
@@ -181,7 +184,7 @@ public sealed class ProofReaderTests
     static void WriteRefusals(string root, string statuses)
     {
         var path = Path.Combine(root, ".litespec/project.yaml");
-        var project = DataFile.Read(path)!.AsObject();
+        var project = RecordText.Read(path)!.AsObject();
         project["refusals"] = JsonNode.Parse($$"""
             {
               "forbidden": "authorization.forbidden",

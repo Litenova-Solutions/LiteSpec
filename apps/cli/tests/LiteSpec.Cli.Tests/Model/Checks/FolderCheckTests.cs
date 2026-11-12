@@ -1,7 +1,8 @@
 using System.Text.Json;
-using LiteSpec.Model;
-using LiteSpec.Model.Checks;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Checks.RecordShape;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Checks;
 
@@ -679,7 +680,7 @@ public sealed class FolderCheckTests
         Assert.Empty(Run(model));
     }
 
-    /// <summary>Valid Layout Passes.</summary>
+    /// <summary>Valid BackendLayout Passes.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
     public void ValidLayoutPasses()
@@ -784,7 +785,7 @@ public sealed class FolderCheckTests
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "proof", "register.yaml");
         using var document = JsonDocument.Parse("{}");
-        var derived = new LiteSpec.Model.Record
+        var derived = new LiteSpec.Cli.Model.Records.Record
         {
             Type = "result",
             Id = "result/borrow-copy.forbidden",

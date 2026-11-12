@@ -12,7 +12,7 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <PackageId>LiteSpec.Analyzers</PackageId>
-        <Version>5.0.0</Version>
+        <Version>5.1.0</Version>
         <Authors>Litenova Solutions</Authors>
         <Description>Roslyn analyzers that check a .NET application against the LiteSpec standard: layer boundaries, Domain modeling and naming. Every diagnostic links to the provision it enforces.</Description>
         <PackageTags>litespec;analyzers;roslyn;ddd;architecture</PackageTags>
@@ -41,7 +41,7 @@
 
     <ItemGroup>
         <!-- The shared rule library and the mark reader load beside the analyzers, so they ship in the analyzer folder. -->
-        <ProjectReference Include="../../../model/src/LiteSpec.Model.Core/LiteSpec.Model.Core.csproj" PrivateAssets="all" />
+        <ProjectReference Include="../../../model/src/LiteSpec.Model/LiteSpec.Model.csproj" PrivateAssets="all" />
         <ProjectReference Include="../../../model/src/LiteSpec.Model.Roslyn/LiteSpec.Model.Roslyn.csproj" PrivateAssets="all" />
     </ItemGroup>
 
@@ -63,7 +63,7 @@
 
     <ItemGroup>
         <None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-        <None Include="$(OutputPath)LiteSpec.Model.Core.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)LiteSpec.Model.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)LiteSpec.Model.Roslyn.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(PkgYamlDotNet)/lib/netstandard2.0/YamlDotNet.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <!-- The code fixes build in their own project, which references this one; pack the solution build of it. -->

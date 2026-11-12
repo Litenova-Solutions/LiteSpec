@@ -14,10 +14,10 @@ A consumer selects from this manifest: the [supported scope](../core/scope.md) p
 |:---|:---|
 | Path | `litespec.manifest.yaml` at the repository root |
 | Schema | `schemas/litespec-manifest.schema.yaml` |
-| Current version | `5.0.0` |
+| Current version | `5.1.0` |
 | Schema version | `6` |
 
-The current release is `5.0.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
+The current release is `5.1.0`. Each release is a complete contract that states every active provision, so a consumer pins one release and adopts a later one by accepting that release as a whole.
 
 ### Top-Level Fields
 
@@ -40,7 +40,7 @@ What each field means and what reads it:
 
 - `$schema` holds the editor hint that points at the manifest schema. Only the editor reads it.
 - `schemaVersion` is the constant `6`. It names the exact manifest shape this release uses, so a consumer adopting a later release absorbs every difference at that moment.
-- `version` is the release version, currently `"5.0.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
+- `version` is the release version, currently `"5.1.0"`. `litespec init` stamps it into a new `.litespec/project.yaml` as `reviewedLiteSpecVersion`, and `litespec model check` compares the two and fails the run when they differ.
 - `name` is the distribution name, currently `"litespec"`.
 - `agentsEntry` points at the agent entry page, currently `"AGENTS.md"`. The authoring validator checks that the path exists.
 - `stacks` lists the stacks the release ships, by stack id. See the stacks table below.
@@ -125,142 +125,142 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | toolchain | `postgresql` | `18` |
 | toolchain | `node` | `24.22.0` |
 | toolchain | `pnpm` | `11.28.5` |
-| nuget | `Aspire.Hosting.AppHost` | `13.6.1` |
-| nuget | `Aspire.Hosting.JavaScript` | `13.6.1` |
-| nuget | `Aspire.Hosting.PostgreSQL` | `13.6.1` |
-| nuget | `AwesomeAssertions` | `9.6.0` |
-| nuget | `dotnet-stryker` | `5.0.0` |
-| nuget | `EFCore.NamingConventions` | `10.0.1` |
-| nuget | `FsCheck` | `3.6.0` |
-| nuget | `LightBDD.XUnit3` | `3.12.1` |
-| nuget | `LiteBus.Analyzers` | `7.0.0` |
-| nuget | `LiteBus.Commands` | `7.0.0` |
-| nuget | `LiteBus.Commands.Abstractions` | `7.0.0` |
-| nuget | `LiteBus.Commands.Recurring` | `7.0.0` |
-| nuget | `LiteBus.Events` | `7.0.0` |
-| nuget | `LiteBus.Events.Abstractions` | `7.0.0` |
-| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `7.0.0` |
-| nuget | `LiteBus.Messaging` | `7.0.0` |
-| nuget | `LiteBus.Messaging.Abstractions` | `7.0.0` |
-| nuget | `LiteBus.Outbox` | `7.0.0` |
-| nuget | `LiteBus.Outbox.Abstractions` | `7.0.0` |
-| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `7.0.0` |
-| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `7.0.0` |
-| nuget | `LiteBus.Queries` | `7.0.0` |
-| nuget | `LiteBus.Queries.Abstractions` | `7.0.0` |
-| nuget | `LiteBus.Storage.PostgreSql` | `7.0.0` |
-| nuget | `LiteBus.Testing.Mediation` | `7.0.0` |
-| nuget | `LiteSpec.Analyzers` | `5.0.0` |
-| nuget | `Marten` | `9.50.1` |
-| nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.0.13` |
-| nuget | `Microsoft.AspNetCore.DataProtection` | `10.0.13` |
-| nuget | `Microsoft.AspNetCore.Mvc.Testing` | `10.0.13` |
-| nuget | `Microsoft.AspNetCore.OpenApi` | `10.0.13` |
-| nuget | `Microsoft.EntityFrameworkCore` | `10.0.13` |
-| nuget | `Microsoft.Extensions.ApiDescription.Server` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Configuration.Abstractions` | `10.0.13` |
-| nuget | `Microsoft.Extensions.DependencyInjection.Abstractions` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Diagnostics.HealthChecks` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Hosting.Abstractions` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Http` | `10.0.13` |
-| nuget | `Microsoft.Extensions.Http.Resilience` | `10.11.0` |
-| nuget | `Microsoft.Extensions.Logging.Abstractions` | `10.0.13` |
-| nuget | `Microsoft.Extensions.ServiceDiscovery` | `10.11.0` |
-| nuget | `Microsoft.NET.Test.Sdk` | `18.11.0` |
-| nuget | `Microsoft.OpenApi` | `2.12.2` |
-| nuget | `Microsoft.Testing.Extensions.CodeCoverage` | `18.12.0` |
-| nuget | `Microsoft.Testing.Extensions.TrxReport` | `2.5.1` |
-| nuget | `NSubstitute` | `6.2.0` |
-| nuget | `Npgsql` | `10.0.3` |
-| nuget | `Npgsql.EntityFrameworkCore.PostgreSQL` | `10.0.3` |
-| nuget | `OpenTelemetry.Exporter.OpenTelemetryProtocol` | `1.19.1` |
-| nuget | `OpenTelemetry.Extensions.Hosting` | `1.19.1` |
-| nuget | `OpenTelemetry.Instrumentation.AspNetCore` | `1.19.0` |
-| nuget | `OpenTelemetry.Instrumentation.Http` | `1.19.0` |
-| nuget | `OpenTelemetry.Instrumentation.Runtime` | `1.19.0` |
-| nuget | `Scalar.AspNetCore` | `2.18.0` |
-| nuget | `Testcontainers.PostgreSql` | `4.16.0` |
-| nuget | `WireMock.Net` | `2.19.0` |
-| nuget | `YamlDotNet` | `18.1.0` |
-| nuget | `xunit.runner.visualstudio` | `4.0.1` |
-| nuget | `xunit.v3` | `4.0.2` |
-| nuget | `xunit.v3.mtp-v2` | `3.2.2` |
-| npm | `@astrojs/svelte` | `9.0.1` |
-| npm | `@axe-core/playwright` | `4.13.0` |
-| npm | `@base-ui/react` | `1.9.0` |
-| npm | `@eslint/js` | `10.0.1` |
-| npm | `@fontsource-variable/geist` | `5.3.0` |
-| npm | `@fontsource-variable/inter` | `5.3.0` |
-| npm | `@fontsource-variable/source-serif-4` | `5.3.1` |
-| npm | `@hey-api/openapi-ts` | `0.99.0` |
-| npm | `@lucide/svelte` | `1.67.0` |
-| npm | `@modelcontextprotocol/server` | `2.3.1` |
-| npm | `@playwright/test` | `1.64.1` |
-| npm | `@stryker-mutator/core` | `10.1.1` |
-| npm | `@stryker-mutator/vitest-runner` | `10.1.1` |
-| npm | `@sveltejs/adapter-node` | `6.0.0` |
-| npm | `@sveltejs/adapter-static` | `4.1.0` |
-| npm | `@sveltejs/kit` | `3.0.1` |
-| npm | `@sveltejs/vite-plugin-svelte` | `7.3.1` |
-| npm | `@tailwindcss/cli` | `4.3.3` |
-| npm | `@tailwindcss/vite` | `4.3.4` |
-| npm | `@tanstack/eslint-plugin-query` | `5.104.2` |
-| npm | `@tanstack/eslint-plugin-router` | `1.162.0` |
-| npm | `@tanstack/react-form` | `1.33.5` |
-| npm | `@tanstack/react-query` | `5.104.2` |
-| npm | `@tanstack/react-query-devtools` | `5.104.2` |
-| npm | `@tanstack/react-router` | `1.170.44` |
-| npm | `@tanstack/react-router-devtools` | `1.167.2` |
-| npm | `@tanstack/react-start` | `1.169.2` |
-| npm | `@tanstack/react-table` | `9.3.1` |
-| npm | `@tanstack/router-cli` | `1.167.44` |
-| npm | `@tanstack/router-plugin` | `1.168.46` |
-| npm | `@tanstack/svelte-form` | `1.33.5` |
-| npm | `@tanstack/svelte-query` | `6.3.2` |
-| npm | `@tanstack/svelte-query-devtools` | `6.3.2` |
-| npm | `@tanstack/svelte-table` | `9.3.1` |
-| npm | `@testing-library/react` | `16.3.3` |
-| npm | `@testing-library/svelte` | `5.4.2` |
-| npm | `@types/node` | `26.6.5` |
-| npm | `@types/react` | `19.3.0` |
-| npm | `@types/react-dom` | `19.3.0` |
-| npm | `@vitejs/plugin-react` | `6.1.2` |
-| npm | `bits-ui` | `2.20.3` |
-| npm | `class-variance-authority` | `0.7.1` |
-| npm | `clsx` | `2.1.1` |
-| npm | `cmdk` | `1.1.1` |
-| npm | `date-fns` | `4.4.0` |
-| npm | `eslint` | `10.12.0` |
-| npm | `eslint-plugin-jsx-a11y` | `6.10.2` |
-| npm | `eslint-plugin-react` | `7.37.5` |
-| npm | `eslint-plugin-react-hooks` | `7.1.1` |
-| npm | `eslint-plugin-svelte` | `3.23.1` |
-| npm | `globals` | `17.13.0` |
-| npm | `jsdom` | `30.1.3` |
-| npm | `jsqr` | `1.4.0` |
-| npm | `lucide-react` | `1.57.0` |
-| npm | `msw` | `3.0.3` |
-| npm | `react` | `19.3.0` |
-| npm | `react-day-picker` | `10.0.2` |
-| npm | `react-dom` | `19.3.0` |
-| npm | `recharts` | `3.10.1` |
+| nuget | `Aspire.Hosting.AppHost` | `13.x` |
+| nuget | `Aspire.Hosting.JavaScript` | `13.x` |
+| nuget | `Aspire.Hosting.PostgreSQL` | `13.x` |
+| nuget | `AwesomeAssertions` | `9.x` |
+| nuget | `dotnet-stryker` | `5.x` |
+| nuget | `EFCore.NamingConventions` | `10.x` |
+| nuget | `FsCheck` | `3.x` |
+| nuget | `LightBDD.XUnit3` | `3.x` |
+| nuget | `LiteBus.Analyzers` | `7.x` |
+| nuget | `LiteBus.Commands` | `7.x` |
+| nuget | `LiteBus.Commands.Abstractions` | `7.x` |
+| nuget | `LiteBus.Commands.Recurring` | `7.x` |
+| nuget | `LiteBus.Events` | `7.x` |
+| nuget | `LiteBus.Events.Abstractions` | `7.x` |
+| nuget | `LiteBus.Extensions.Microsoft.DependencyInjection` | `7.x` |
+| nuget | `LiteBus.Messaging` | `7.x` |
+| nuget | `LiteBus.Messaging.Abstractions` | `7.x` |
+| nuget | `LiteBus.Outbox` | `7.x` |
+| nuget | `LiteBus.Outbox.Abstractions` | `7.x` |
+| nuget | `LiteBus.Outbox.Dispatch.InProcess` | `7.x` |
+| nuget | `LiteBus.Outbox.Storage.PostgreSql` | `7.x` |
+| nuget | `LiteBus.Queries` | `7.x` |
+| nuget | `LiteBus.Queries.Abstractions` | `7.x` |
+| nuget | `LiteBus.Storage.PostgreSql` | `7.x` |
+| nuget | `LiteBus.Testing.Mediation` | `7.x` |
+| nuget | `LiteSpec.Analyzers` | `5.1.0` |
+| nuget | `Marten` | `9.x` |
+| nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.x` |
+| nuget | `Microsoft.AspNetCore.DataProtection` | `10.x` |
+| nuget | `Microsoft.AspNetCore.Mvc.Testing` | `10.x` |
+| nuget | `Microsoft.AspNetCore.OpenApi` | `10.x` |
+| nuget | `Microsoft.EntityFrameworkCore` | `10.x` |
+| nuget | `Microsoft.Extensions.ApiDescription.Server` | `10.x` |
+| nuget | `Microsoft.Extensions.Configuration.Abstractions` | `10.x` |
+| nuget | `Microsoft.Extensions.DependencyInjection.Abstractions` | `10.x` |
+| nuget | `Microsoft.Extensions.Diagnostics.HealthChecks` | `10.x` |
+| nuget | `Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions` | `10.x` |
+| nuget | `Microsoft.Extensions.Hosting.Abstractions` | `10.x` |
+| nuget | `Microsoft.Extensions.Http` | `10.x` |
+| nuget | `Microsoft.Extensions.Http.Resilience` | `10.x` |
+| nuget | `Microsoft.Extensions.Logging.Abstractions` | `10.x` |
+| nuget | `Microsoft.Extensions.ServiceDiscovery` | `10.x` |
+| nuget | `Microsoft.NET.Test.Sdk` | `18.x` |
+| nuget | `Microsoft.OpenApi` | `2.x` |
+| nuget | `Microsoft.Testing.Extensions.CodeCoverage` | `18.x` |
+| nuget | `Microsoft.Testing.Extensions.TrxReport` | `2.x` |
+| nuget | `NSubstitute` | `6.x` |
+| nuget | `Npgsql` | `10.x` |
+| nuget | `Npgsql.EntityFrameworkCore.PostgreSQL` | `10.x` |
+| nuget | `OpenTelemetry.Exporter.OpenTelemetryProtocol` | `1.x` |
+| nuget | `OpenTelemetry.Extensions.Hosting` | `1.x` |
+| nuget | `OpenTelemetry.Instrumentation.AspNetCore` | `1.x` |
+| nuget | `OpenTelemetry.Instrumentation.Http` | `1.x` |
+| nuget | `OpenTelemetry.Instrumentation.Runtime` | `1.x` |
+| nuget | `Scalar.AspNetCore` | `2.x` |
+| nuget | `Testcontainers.PostgreSql` | `4.x` |
+| nuget | `WireMock.Net` | `2.x` |
+| nuget | `YamlDotNet` | `18.x` |
+| nuget | `xunit.runner.visualstudio` | `4.x` |
+| nuget | `xunit.v3` | `4.x` |
+| nuget | `xunit.v3.mtp-v2` | `3.x` |
+| npm | `@astrojs/svelte` | `9.x` |
+| npm | `@axe-core/playwright` | `4.x` |
+| npm | `@base-ui/react` | `1.x` |
+| npm | `@eslint/js` | `10.x` |
+| npm | `@fontsource-variable/geist` | `5.x` |
+| npm | `@fontsource-variable/inter` | `5.x` |
+| npm | `@fontsource-variable/source-serif-4` | `5.x` |
+| npm | `@hey-api/openapi-ts` | `0.x` |
+| npm | `@lucide/svelte` | `1.x` |
+| npm | `@modelcontextprotocol/server` | `2.x` |
+| npm | `@playwright/test` | `1.x` |
+| npm | `@stryker-mutator/core` | `10.x` |
+| npm | `@stryker-mutator/vitest-runner` | `10.x` |
+| npm | `@sveltejs/adapter-node` | `6.x` |
+| npm | `@sveltejs/adapter-static` | `4.x` |
+| npm | `@sveltejs/kit` | `3.x` |
+| npm | `@sveltejs/vite-plugin-svelte` | `7.x` |
+| npm | `@tailwindcss/cli` | `4.x` |
+| npm | `@tailwindcss/vite` | `4.x` |
+| npm | `@tanstack/eslint-plugin-query` | `5.x` |
+| npm | `@tanstack/eslint-plugin-router` | `1.x` |
+| npm | `@tanstack/react-form` | `1.x` |
+| npm | `@tanstack/react-query` | `5.x` |
+| npm | `@tanstack/react-query-devtools` | `5.x` |
+| npm | `@tanstack/react-router` | `1.x` |
+| npm | `@tanstack/react-router-devtools` | `1.x` |
+| npm | `@tanstack/react-start` | `1.x` |
+| npm | `@tanstack/react-table` | `9.x` |
+| npm | `@tanstack/router-cli` | `1.x` |
+| npm | `@tanstack/router-plugin` | `1.x` |
+| npm | `@tanstack/svelte-form` | `1.x` |
+| npm | `@tanstack/svelte-query` | `6.x` |
+| npm | `@tanstack/svelte-query-devtools` | `6.x` |
+| npm | `@tanstack/svelte-table` | `9.x` |
+| npm | `@testing-library/react` | `16.x` |
+| npm | `@testing-library/svelte` | `5.x` |
+| npm | `@types/node` | `26.x` |
+| npm | `@types/react` | `19.x` |
+| npm | `@types/react-dom` | `19.x` |
+| npm | `@vitejs/plugin-react` | `6.x` |
+| npm | `bits-ui` | `2.x` |
+| npm | `class-variance-authority` | `0.x` |
+| npm | `clsx` | `2.x` |
+| npm | `cmdk` | `1.x` |
+| npm | `date-fns` | `4.x` |
+| npm | `eslint` | `10.x` |
+| npm | `eslint-plugin-jsx-a11y` | `6.x` |
+| npm | `eslint-plugin-react` | `7.x` |
+| npm | `eslint-plugin-react-hooks` | `7.x` |
+| npm | `eslint-plugin-svelte` | `3.x` |
+| npm | `globals` | `17.x` |
+| npm | `jsdom` | `30.x` |
+| npm | `jsqr` | `1.x` |
+| npm | `lucide-react` | `1.x` |
+| npm | `msw` | `3.x` |
+| npm | `react` | `19.x` |
+| npm | `react-day-picker` | `10.x` |
+| npm | `react-dom` | `19.x` |
+| npm | `recharts` | `3.x` |
 | npm | `shadcn` | `4.21.5` |
 | npm | `shadcn-svelte` | `1.7.0` |
-| npm | `sonner` | `2.0.8` |
-| npm | `svelte` | `5.57.2` |
-| npm | `svelte-check` | `4.7.8` |
-| npm | `svelte-i18n` | `4.0.1` |
-| npm | `tailwind-merge` | `3.7.0` |
-| npm | `tailwindcss` | `4.3.4` |
-| npm | `tw-animate-css` | `1.4.0` |
-| npm | `typescript` | `6.0.3` |
-| npm | `typescript-eslint` | `8.71.2` |
-| npm | `vaul` | `1.1.2` |
-| npm | `vite` | `8.3.5` |
-| npm | `vitest` | `5.1.0` |
-| npm | `yaml` | `2.9.1` |
-| npm | `zod` | `4.6.7` |
+| npm | `sonner` | `2.x` |
+| npm | `svelte` | `5.x` |
+| npm | `svelte-check` | `4.x` |
+| npm | `svelte-i18n` | `4.x` |
+| npm | `tailwind-merge` | `3.x` |
+| npm | `tailwindcss` | `4.x` |
+| npm | `tw-animate-css` | `1.x` |
+| npm | `typescript` | `6.x` |
+| npm | `typescript-eslint` | `8.x` |
+| npm | `vaul` | `1.x` |
+| npm | `vite` | `8.x` |
+| npm | `vitest` | `5.x` |
+| npm | `yaml` | `2.x` |
+| npm | `zod` | `4.x` |
 <!-- /generated:manifest-pins -->
 
 What the pins drive:
@@ -306,4 +306,4 @@ The `registry` block names the component source:
 
 ## Notes
 
-The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `5.0.0`. The selection behavior follows `apps/model/src/LiteSpec.Shared/Authoring/Layout.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Authoring/StandardsValidator.Manifest.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Consumer/ConsumerValidator.Project.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.
+The field lists follow `schemas/litespec-manifest.schema.yaml` and the values follow `litespec.manifest.yaml` at version `5.1.0`. The selection behavior follows `apps/model/src/LiteSpec.Standards/Pages/StackSelection.cs`. The manifest checks follow `apps/maintain/src/LiteSpec.Maintain/Validate/Repository/ManifestValidator.cs`. The consumer checks follow `apps/cli/src/LiteSpec.Cli/Model/Consumer/ProjectFileChecks.cs`. The baseline checks follow `apps/cli/src/LiteSpec.Cli/Model/Ui/UiValidator.cs`. The [cache extension](../ext/cache.md) and the [bdd extension](../backend/dotnet/ext/bdd.md) show the two extension paths: a shared page under `docs/ext/` and a stack page under `<stack folder>/ext/`.

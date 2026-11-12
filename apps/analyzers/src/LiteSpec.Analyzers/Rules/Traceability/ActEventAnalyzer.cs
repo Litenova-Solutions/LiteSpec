@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using LiteSpec.Model.Roslyn;
 using Microsoft.CodeAnalysis;
@@ -27,7 +27,7 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
     /// <summary>Returns true when this analyzer applies to the layer; otherwise false.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected override bool AppliesTo(Layer layer) => layer == Layer.Domain;
+    private protected override bool AppliesTo(ArchitectureLayer layer) => layer == ArchitectureLayer.Domain;
 
     /// <summary>Registers the analysis actions for the act event analyzer rule with the compilation context.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>
@@ -101,7 +101,7 @@ public sealed class ActEventAnalyzer : TraceabilityAnalyzer
         {
             if (mark.HasRecordId
                 && mark.RecordId.StartsWith("use-case/", System.StringComparison.Ordinal)
-                && state.Store.Index.ById(mark.RecordId) is IRecordFacts record
+                && state.Store.Index.ById(mark.RecordId) is IRecordFields record
                 && record.Type == "use-case"
                 && !useCases.Contains(mark.RecordId))
             {

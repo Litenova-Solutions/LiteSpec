@@ -1,6 +1,10 @@
-using LiteSpec.Model;
-using LiteSpec.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Dotnet;
+using LiteSpec.Cli.Model.Readers.Dotnet.Backend;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Model.Readers;
 
@@ -164,7 +168,7 @@ public sealed class ModuleLayoutReaderTests
     /// <summary>Reads the backend of the module-layout project.</summary>
     /// <param name="root">The fixture root folder.</param>
     /// <returns>The code model the backend reader reads.</returns>
-    static CodeModel ReadBackend(string root) =>
+    static CodeFacts ReadBackend(string root) =>
         new DotnetBackendReader().Read(ConsumerConfig.Load(root));
 
     /// <summary>Writes a module-layout consumer: the modules root with a use case, contracts and layer folders.</summary>

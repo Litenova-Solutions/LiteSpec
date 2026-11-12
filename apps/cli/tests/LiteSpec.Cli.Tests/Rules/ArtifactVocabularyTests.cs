@@ -1,5 +1,5 @@
-using LiteSpec.Authoring;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Rules;
 

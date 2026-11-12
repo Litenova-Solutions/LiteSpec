@@ -1,0 +1,320 @@
+using System.Text.Json;
+using LiteSpec.Cli.Model.Readers.Dependencies;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Checks.Implementation;
+
+/// <summary>
+///     The dependency checks, kept in one class so the partial checker holds only the entry point.
+/// </summary>
+/// <follows>litespec/workspace/dependencies#approve-new-packages-explicitly</follows>
+/// <follows>litespec/ext/delivery#match-every-shipped-package-to-its-pin</follows>
+/// <follows>litespec/ext/delivery#accept-every-shipped-package-license-explicitly</follows>
+internal static class DependencyChecks
+{
+    /// <summary>The four facts every admits entry names.</summary>
+    private static readonly string[] AdmissionFacts =
+    [
+        "layer", "license", "location", "failureBehavior",
+    ];
+
+    /// <summary>SPDX expression operators: every other token is a license identifier.</summary>
+    private static readonly HashSet<string> ExpressionOperators = new(StringComparer.Ordinal)
+    {
+        "AND", "OR", "WITH",
+    };
+
+    /// <summary>
+    ///     Runs admission-invalid, which always runs, and the three bill checks, which stay
+    ///     silent when the project names no bill of materials in paths.sbom.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every decision record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    public static void Run(ProjectModel model, List<Finding> findings)
+    {
+        CheckAdmissionsComplete(model, findings);
+
+        if (model.Config.Sboms.Count == 0)
+        {
+            return;
+        }
+
+        var sbom = SbomReader.Read(model.Config);
+
+        findings.AddRange(sbom.Problems);
+
+        var packages = sbom.Packages;
+
+        if (packages.Count == 0)
+        {
+            return;
+        }
+
+        var pins = ManifestPins.Read();
+        var admissions = AdmissionsOf(model);
+
+        foreach (var package in packages)
+        {
+            var admitted = AdmissionFor(admissions, package);
+            var pin = PinOf(pins, package);
+
+            if (pin is null && admitted is null)
+            {
+                findings.Add(new Finding(
+                    "dependency-undeclared",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} is pinned by no manifest entry and admitted by no decision.",
+                    package.File,
+                    1,
+                    null));
+            }
+
+            if (pin is not null && !SatisfiesPin(pin, package.Version))
+            {
+                var relation = pin.EndsWith(".x", StringComparison.Ordinal)
+                    ? "is outside its manifest pin"
+                    : "differs from its manifest pin";
+
+                findings.Add(new Finding(
+                    "dependency-version-drift",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} with license {LicenseText(package.License)} {relation} '{pin}'.",
+                    package.File,
+                    1,
+                    null));
+            }
+
+            if (!LicenseAccepted(model.Config.AcceptedLicenses, admitted?.License, package.License))
+            {
+                findings.Add(new Finding(
+                    "dependency-license-unknown",
+                    $"Direct package '{package.Id}' version {VersionText(package.Version)} carries license {LicenseText(package.License)}, which the project does not accept.",
+                    package.File,
+                    1,
+                    null));
+            }
+        }
+    }
+
+
+    /// <summary>
+    ///     Every admission: the admits entries of the technical decisions.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every technical decision record.</param>
+    /// <returns>Each admitted package with its ecosystem, name and admitted license where one is named.</returns>
+    private static List<Admission> AdmissionsOf(ProjectModel model)
+    {
+        var admissions = new List<Admission>();
+
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.Decision
+                || !MarkChecks.UnderImplementationDecisions(model.Config, record.File)
+                || record.Raw.ValueKind != JsonValueKind.Object
+                || !record.Raw.TryGetProperty(RecordFields.Admits, out var admits)
+                || admits.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in admits.EnumerateArray())
+            {
+                if (entry.ValueKind != JsonValueKind.Object
+                    || !entry.TryGetProperty(RecordFields.Package, out var package)
+                    || package.ValueKind != JsonValueKind.String
+                    || package.GetString() is not { Length: > 0 } id)
+                {
+                    continue;
+                }
+
+                var separator = id.IndexOf(':');
+
+                if (separator <= 0 || separator == id.Length - 1)
+                {
+                    continue;
+                }
+
+                admissions.Add(new Admission(
+                    id[..separator],
+                    id[(separator + 1)..],
+                    entry.TryGetProperty(RecordFields.License, out var license)
+                        && license.ValueKind == JsonValueKind.String
+                        && license.GetString() is { Length: > 0 } text
+                            ? text
+                            : null));
+            }
+        }
+
+        return admissions;
+    }
+
+    /// <summary>
+    ///     The admission naming the package, or null when none does. NuGet names compare
+    ///     case-insensitively, npm names case-sensitively.
+    /// </summary>
+    /// <param name="admissions">The admitted packages read from the technical decisions.</param>
+    /// <param name="package">The shipped direct package whose admission is wanted.</param>
+    /// <returns>The admission naming the package, or null when none does.</returns>
+    private static Admission? AdmissionFor(List<Admission> admissions, DirectPackage package)
+    {
+        foreach (var admission in admissions)
+        {
+            if (!admission.Ecosystem.Equals(package.Ecosystem, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var namesEqual = package.Ecosystem.Equals("nuget", StringComparison.OrdinalIgnoreCase)
+                ? admission.Name.Equals(package.Name, StringComparison.OrdinalIgnoreCase)
+                : admission.Name.Equals(package.Name, StringComparison.Ordinal);
+
+            if (namesEqual)
+            {
+                return admission;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The manifest pin for the package, or null when the manifest pins no such package.</summary>
+    /// <param name="pins">The manifest pins by ecosystem and package name.</param>
+    /// <param name="package">The shipped direct package whose pin is wanted.</param>
+    /// <returns>The pinned version text, or null when the manifest pins no such package.</returns>
+    private static string? PinOf(ManifestPins pins, DirectPackage package)
+    {
+        if (package.Ecosystem.Equals("nuget", StringComparison.OrdinalIgnoreCase)
+            && pins.NuGet.TryGetValue(package.Name, out var nuget))
+        {
+            return nuget;
+        }
+
+        if (package.Ecosystem.Equals("npm", StringComparison.OrdinalIgnoreCase)
+            && pins.Npm.TryGetValue(package.Name, out var npm))
+        {
+            return npm;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Whether a resolved version satisfies a manifest pin: an exact pin needs
+    ///     ordinal equality, and a major pin needs the same major with no prerelease
+    ///     suffix, because the baseline names stable releases.
+    /// </summary>
+    /// <param name="pin">The manifest pin, either an exact version or a major stated as N.x.</param>
+    /// <param name="version">The resolved package version text, empty when the bill of materials names none.</param>
+    /// <returns>True when the version is inside the pin; otherwise false.</returns>
+    private static bool SatisfiesPin(string pin, string version)
+    {
+        if (!pin.EndsWith(".x", StringComparison.Ordinal)
+            || !int.TryParse(pin[..^2], out var pinnedMajor))
+        {
+            return pin.Equals(version, StringComparison.Ordinal);
+        }
+
+        if (version.Length == 0 || version.Contains('-'))
+        {
+            return false;
+        }
+
+        var dot = version.IndexOf('.');
+        var majorText = dot < 0 ? version : version[..dot];
+
+        return int.TryParse(majorText, out var major) && major == pinnedMajor;
+    }
+
+    /// <summary>
+    ///     Whether the shipped license is accepted: it equals the license the admission names,
+    ///     or every identifier in the SPDX expression is accepted.
+    /// </summary>
+    /// <param name="accepted">The license identifiers the project accepts explicitly.</param>
+    /// <param name="admitsLicense">The license the admission names, or null when it names none.</param>
+    /// <param name="shipped">The license expression the shipped package carries.</param>
+    /// <returns>True when the shipped license equals the admitted license or each identifier in its SPDX expression is accepted; otherwise false.</returns>
+    private static bool LicenseAccepted(IReadOnlySet<string> accepted, string? admitsLicense, string shipped)
+    {
+        if (shipped.Length == 0)
+        {
+            return false;
+        }
+
+        if (admitsLicense is not null && shipped.Equals(admitsLicense, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var identifiers = shipped
+            .Split([' ', '\t', '\r', '\n', '(', ')'], StringSplitOptions.RemoveEmptyEntries)
+            .Where(token => !ExpressionOperators.Contains(token))
+            .ToList();
+
+        return identifiers.Count > 0 && identifiers.All(accepted.Contains);
+    }
+
+    /// <summary>Reports every admits entry missing any of its four facts.</summary>
+    /// <param name="model">The loaded project model that holds every technical decision record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckAdmissionsComplete(ProjectModel model, List<Finding> findings)
+    {
+        foreach (var record in model.Records)
+        {
+            if (record.Type != RecordTypes.Decision
+                || !MarkChecks.UnderImplementationDecisions(model.Config, record.File)
+                || record.Raw.ValueKind != JsonValueKind.Object
+                || !record.Raw.TryGetProperty(RecordFields.Admits, out var admits)
+                || admits.ValueKind != JsonValueKind.Array)
+            {
+                continue;
+            }
+
+            foreach (var entry in admits.EnumerateArray())
+            {
+                if (entry.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                var missing = AdmissionFacts.Where(fact => !HasText(entry, fact)).ToList();
+
+                if (missing.Count == 0)
+                {
+                    continue;
+                }
+
+                var package = entry.TryGetProperty(RecordFields.Package, out var id)
+                    && id.ValueKind == JsonValueKind.String
+                    && id.GetString() is { Length: > 0 } text
+                        ? $"'{text}'"
+                        : "a package with no name";
+
+                findings.Add(new Finding(
+                    "admission-invalid",
+                    $"Decision '{record.Id}' admits {package} with no {string.Join(", ", missing)}.",
+                    record.File,
+                    record.Line,
+                    record.Id.Length > 0 ? record.Id : null));
+            }
+        }
+    }
+
+    /// <summary>Whether the entry names the fact with a non-blank string.</summary>
+    /// <param name="entry">The admits entry under inspection.</param>
+    /// <param name="fact">The fact name whose presence is tested.</param>
+    /// <returns>True when the entry names the fact with a non-blank string; otherwise false.</returns>
+    private static bool HasText(JsonElement entry, string fact) =>
+        entry.TryGetProperty(fact, out var value)
+        && value.ValueKind == JsonValueKind.String
+        && !string.IsNullOrWhiteSpace(value.GetString());
+
+    /// <summary>The version as the message names it.</summary>
+    /// <param name="version">The package version text, empty when the bill of materials names none.</param>
+    /// <returns>The version in quotes, or the words no version when empty.</returns>
+    private static string VersionText(string version) =>
+        version.Length > 0 ? $"'{version}'" : "no version";
+
+    /// <summary>The license as the message names it.</summary>
+    /// <param name="license">The package license text, empty when the bill of materials names none.</param>
+    /// <returns>The license in quotes, or the words no license when empty.</returns>
+    private static string LicenseText(string license) =>
+        license.Length > 0 ? $"'{license}'" : "no license";
+}

@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers.Dependencies;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers.Dependencies;
 
 /// <summary>What the bill of materials read found: direct packages and the configured paths it could not read.</summary>
 /// <param name="Packages">Every direct package of every readable bill of materials.</param>

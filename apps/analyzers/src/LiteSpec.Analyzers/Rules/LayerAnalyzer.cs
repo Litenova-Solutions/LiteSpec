@@ -1,4 +1,4 @@
-using LiteSpec.Analyzers.Layers;
+using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -31,8 +31,8 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
             var declared = FileScope.DeclaredLayer(start.Options);
             if (declared is not null)
             {
-                var layer = LayerResolver.Parse(declared);
-                if (layer == Layer.None || !AppliesTo(layer))
+                var layer = ArchitectureLayerResolver.Parse(declared);
+                if (layer == ArchitectureLayer.None || !AppliesTo(layer))
                 {
                     return;
                 }
@@ -41,10 +41,10 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
                 return;
             }
 
-            if (FileScope.DeclaredLayout(start.Options) == Layout.LayerProjects)
+            if (FileScope.DeclaredLayout(start.Options) == BackendLayout.LayerProjects)
             {
-                var layer = LayerResolver.FromAssemblyName(start.Compilation.AssemblyName ?? string.Empty);
-                if (layer == Layer.None || !AppliesTo(layer))
+                var layer = ArchitectureLayerResolver.FromAssemblyName(start.Compilation.AssemblyName ?? string.Empty);
+                if (layer == ArchitectureLayer.None || !AppliesTo(layer))
                 {
                     return;
                 }
@@ -60,7 +60,7 @@ public abstract class LayerAnalyzer : DiagnosticAnalyzer
     /// <summary>Whether the rule runs on files of this layer.</summary>
     /// <param name="layer">The architecture layer the file belongs to.</param>
     /// <returns>True when this analyzer applies to the layer; otherwise false.</returns>
-    private protected abstract bool AppliesTo(Layer layer);
+    private protected abstract bool AppliesTo(ArchitectureLayer layer);
 
     /// <summary>Registers the rule's actions for one compilation.</summary>
     /// <param name="context">The analysis context supplied by the analyzer host for the current element or compilation.</param>

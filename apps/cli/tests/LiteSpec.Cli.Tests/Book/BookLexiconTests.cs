@@ -1,6 +1,6 @@
-using LiteSpec.Book;
-using LiteSpec.Model;
+using LiteSpec.Cli.Book.Lexicon;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Tests.Book;
 

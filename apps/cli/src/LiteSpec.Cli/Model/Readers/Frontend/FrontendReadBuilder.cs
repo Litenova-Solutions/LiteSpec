@@ -1,6 +1,11 @@
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 
-namespace LiteSpec.Model.Readers.Frontend;
+namespace LiteSpec.Cli.Model.Readers.Frontend;
 
 /// <summary>
 ///     Turns one frontend's facts into screens, mark elements and browser tests:
@@ -19,7 +24,7 @@ static class FrontendReadBuilder
     /// <param name="facts">The frontend facts the result is built from.</param>
     /// <param name="code">The code model the screens are checked against.</param>
     /// <returns>The screen read built from the frontend facts.</returns>
-    public static ScreenRead Build(ConsumerConfig config, FrontendConfig frontend, FrontendFacts facts, CodeModel code)
+    public static ScreenRead Build(ConsumerConfig config, FrontendConfig frontend, FrontendFacts facts, CodeFacts code)
     {
         code.Elements.AddRange(ModuleElements(config, frontend, facts));
         code.Elements.AddRange(RouteElements(config, frontend, facts));
@@ -42,7 +47,7 @@ static class FrontendReadBuilder
             useCases.Add(endpoint.UseCaseId);
         }
 
-        var screens = new List<ScreenInfo>();
+        var screens = new List<CodeScreen>();
         var findings = new List<Finding>();
 
         foreach (var route in facts.Routes)
@@ -83,7 +88,7 @@ static class FrontendReadBuilder
                 }
             }
 
-            screens.Add(new ScreenInfo(
+            screens.Add(new CodeScreen(
                 frontend.Name,
                 route.Address,
                 PathText.Relative(config.Root, file),
@@ -118,7 +123,7 @@ static class FrontendReadBuilder
         {
             BrowserTests =
             [
-                .. facts.Tests.Select(test => new BrowserTestInfo(
+                .. facts.Tests.Select(test => new CodeBrowserTest(
                     frontend.Name, test.Title, Absolute(frontend, test.File), test.Line,
                     test.Proves, test.Journey, test.Gotos, test.Codes, test.Texts, facts.Reader)),
             ],

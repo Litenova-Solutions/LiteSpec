@@ -1,4 +1,6 @@
-namespace LiteSpec.Model.Readers.Operations;
+using LiteSpec.Model;
+
+namespace LiteSpec.Cli.Model.Readers.Operations;
 
 /// <summary>One follows mark in an operations file.</summary>
 /// <param name="File">The absolute file path.</param>

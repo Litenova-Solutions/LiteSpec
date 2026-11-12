@@ -1,7 +1,8 @@
 using System.Text.Json.Nodes;
-using LiteSpec.Book;
-using LiteSpec.Model;
+using LiteSpec.Cli.Book.Outline;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -41,7 +42,7 @@ public sealed class BookOutlineTests
     [Fact]
     public void FixtureModelPlacesEveryRecordExactlyOnce()
     {
-        var root = DataFile.Read(TestCli.Fixture("Book/review.json"))!;
+        var root = RecordText.Read(TestCli.Fixture("Book/review.json"))!;
         var model = root.AsObject();
         var outline = BookOutline.Build(model);
 

@@ -1,7 +1,13 @@
-using Record = LiteSpec.Model.Record;
 using System.Text.Json;
-using LiteSpec.Model;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Code;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Screens;
+using LiteSpec.Cli.Model.Tests;
 using LiteSpec.Cli.Tests.Support;
+using LiteSpec.Model;
+using LiteSpec.Standards;
+using Record = LiteSpec.Cli.Model.Records.Record;
 
 namespace LiteSpec.Cli.Tests.Model.Screens;
 
@@ -170,7 +176,7 @@ public sealed class ScreenCheckTests
         var model = BaseModel(temp.Path);
         model.Records.Add(Screen("screen/app.loans", "/loans", ["use-case/lending.list-loans"], []));
         AddRoute(model, "screen/app.loans", "/loans", ["use-case/lending.list-loans"]);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "shows the refusal", Path.Combine(temp.Path, "tests", "loans.spec.ts"), 3,
             [], null, [], ["lending.refused"], []));
 
@@ -236,7 +242,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             [], null, [], [], []));
 
@@ -251,7 +257,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             ["litespec/frontend/ui#check-every-route"], null, [], [], []));
 
@@ -267,7 +273,7 @@ public sealed class ScreenCheckTests
         using var temp = TestCli.Temp("screens");
         WriteRouteSuiteProject(temp.Path);
         var model = BaseModel(temp.Path);
-        model.BrowserTests.Add(new BrowserTestInfo(
+        model.BrowserTests.Add(new CodeBrowserTest(
             "web", "every route", Path.Combine(temp.Path, "apps", "web", "tests", "routes", "every-route.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [], [], []));
 
@@ -334,10 +340,10 @@ public sealed class ScreenCheckTests
     [Fact]
     public void AddressMatchingTreatsParametersAsAnySegment()
     {
-        Assert.True(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42"));
-        Assert.True(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/{}", "/loans/42"));
-        Assert.False(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42/edit"));
-        Assert.False(LiteSpec.Model.Readers.FrontendFactsRules.AddressMatches("/loans", "/cards"));
+        Assert.True(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42"));
+        Assert.True(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/{}", "/loans/42"));
+        Assert.False(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans/[id]", "/loans/42/edit"));
+        Assert.False(LiteSpec.Cli.Model.Readers.FrontendFactsRules.AddressMatches("/loans", "/cards"));
     }
 
     /// <summary>Severity Uses The Producing Readers Qualification.</summary>
@@ -363,7 +369,7 @@ public sealed class ScreenCheckTests
     static List<Finding> WithCode(ProjectModel model, string code) =>
         Checker.Check(model).Findings.Where(finding => finding.Code == code).ToList();
 
-    static BrowserTestInfo BrowserProof(string root, string title, string target) =>
+    static CodeBrowserTest BrowserProof(string root, string title, string target) =>
         new(
             "web", title, Path.Combine(root, "tests", $"{title}.spec.ts"), 3,
             ["scenario/list-loans.listing-succeeds"], null, [target], [], ["The loans are listed."]);
@@ -378,7 +384,7 @@ public sealed class ScreenCheckTests
         model.Code.Endpoints.Add(new EndpointOperation(
             "ListLoans", "use-case/lending.list-loans", "", "",
             Path.Combine(model.Config.Root, "ListLoansEndpoint.cs"), 3));
-        model.Screens.Add(new ScreenInfo(
+        model.Screens.Add(new CodeScreen(
             "web", address, PathText.Relative(model.Config.Root, file),
             [new GeneratedOperation("listLoans", "", "")], useCases, screenId));
     }
