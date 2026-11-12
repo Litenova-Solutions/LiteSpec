@@ -41,16 +41,21 @@ Decision 0036, Pin Third-Party Packages to Their Major, records why.
 
 ### Part E: Faster Model Check
 
-On a project of 3,142 records and 19,334 files, `litespec model check` took 195 s in 5.0.0 and takes about 18 s in 5.1.0, with the same output. The checks run in parallel, the schema evaluator stops at the first failing shape, and record lookups use indexes built once per run.
+On a project of 3,142 records and 19,334 files, `litespec model check` took 195 s in 5.0.0 and takes about 18 s in 5.1.0, with the same output. The checks run in parallel, the schema evaluator stops at the first failing shape, and record lookups use indexes built once per run. A run also reads the release's provision pages and schemas once, where 5.0.0 read the provision pages three times and could parse a schema once per parallel worker.
 
 ### Part F: The Documentation and litespec.dev
 
 - `learn/README.md` is the starting page: what LiteSpec is, a five-minute picture, then five pages in reading order. Each concept is explained on one page, and the others link to it.
 - `learn/reading-tracks.md` and `guide/folder-reference.md` are removed. Their content is in `learn/how-litespec-works.md` and the [folder reference](docs/reference/folders.md).
 - On litespec.dev:
-  - The sidebar has five groups in reading order: Learn, Tutorial, Guides, Standard and Reference.
-  - Breadcrumbs show every level.
-  - The Standard has an index page, and "On this page" opens the section in view.
+  - The sidebar is one tree in five groups, in reading order: Learn, Tutorial, Guides, Standard and Reference. Every area and folder opens and closes, starts open when it holds the current page, and lists its overview first.
+  - Breadcrumbs show every level, and every breadcrumb entry in the page's structured data links its page.
+  - A folder's overview page is titled by its folder, such as "CLI Commands Overview".
+  - The Standard has an index page of linked cards, and "On this page" opens the section in view.
+  - A pattern lists its facts with each label beside its value, and its Default links to the option it names.
+  - The landing page is the opening title and the release badge, which links to this changelog.
+  - Screens 1600px and wider get a wider column and larger type, and muted text reads at 6:1 or more in light mode.
+  - Pages animate only when the reader's system allows motion.
   - On a phone, the page browser has a filter.
 
 ### Part G: Provision Changes Since v5.0.0
