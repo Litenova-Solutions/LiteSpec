@@ -148,7 +148,7 @@ static class RulesCommand
 
             foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context))
             {
-                if (!match.IsChecked && !match.IsConcernWide && !union.ContainsKey(match.Entry.Id))
+                if (!match.IsChecked && !union.ContainsKey(match.Entry.Id))
                 {
                     union[match.Entry.Id] = match;
                 }
@@ -375,7 +375,7 @@ static class RulesCommand
         }
     }
 
-    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with an empty How judged line.</summary>
+    /// <summary>Prints the change-set report skeleton: one judgment provision per entry with its Reviewed for question, or its Default sentence when it states no verification line, and an empty How judged line.</summary>
     /// <param name="sinceRef">The git revision the change set was read from.</param>
     /// <param name="files">How many changed files were queried.</param>
     /// <param name="union">The judgment provisions in print order.</param>
@@ -391,7 +391,8 @@ static class RulesCommand
 
         foreach (var match in union)
         {
-            CliHost.Out.WriteLine($"- {match.Entry.Id}: {match.Entry.ReviewedFor}");
+            var question = match.Entry.ReviewedFor.Length > 0 ? match.Entry.ReviewedFor : match.Entry.Statement;
+            CliHost.Out.WriteLine($"- {match.Entry.Id}: {question}");
             CliHost.Out.WriteLine("  How judged:");
         }
     }

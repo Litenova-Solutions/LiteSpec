@@ -125,6 +125,11 @@ describe("agent protocol region", () => {
     assert.strictEqual(bare.extensions, "none");
   });
 
+  it("renders none for an empty stack list", () => {
+    const bare = selectionValues({ size: "small", shape: "client-only", stacks: [], extensions: [], selectionKey: "client-only" });
+    assert.strictEqual(bare.stacks, "none");
+  });
+
   it("joins a selection key from its shape and stacks", () => {
     assert.strictEqual(formatSelectionKey("server", ["dotnet", "react"]), "server.dotnet.react");
     assert.strictEqual(formatSelectionKey("server", []), "server");

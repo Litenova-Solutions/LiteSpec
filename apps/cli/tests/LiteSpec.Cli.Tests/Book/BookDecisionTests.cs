@@ -1,6 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Details;
 using LiteSpec.Cli.Book.Outline;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Book;
 
@@ -161,6 +163,64 @@ public sealed class BookDecisionTests
         Assert.Single(ins);
         Assert.Equal("decision/0004-use-postgres", ins[0].Id);
         Assert.Equal("decision.decides", ins[0].Key);
+    }
+
+    /// <summary>A decision detail carries the concerns the book command wrote beside its record.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void DecisionDetailCarriesComputedConcerns()
+    {
+        var decision = Record("decision", "decision/0004-use-postgres", "Use Postgres", "approved");
+        decision["concerns"] = new JsonArray("application", "tests");
+        var model = Model(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                decision,
+            ]);
+
+        var details = BookRecordDetails.Build(model, BookOutline.Build(model));
+
+        var concerns = Assert.IsType<JsonArray>(details["decision/0004-use-postgres"]["concerns"]);
+        Assert.Equal(["application", "tests"], concerns.Select(node => node!.GetValue<string>()));
+    }
+
+    /// <summary>Decision concerns come from the one classification rules applies, reading the configured roots.</summary>
+    /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
+    [Fact]
+    public void DecisionConcernsReadTheConfiguredRoots()
+    {
+        using var temp = TestCli.Temp("book-decision-concerns");
+        File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), """
+            {"paths": {"docs": ".litespec", "testRoots": ["apps/api/qa"], "operations": ["apps/api/deploy"]}, "frontends": [{"name": "shop", "path": "apps/shop"}]}
+            """);
+        Directory.CreateDirectory(Path.Combine(temp.Path, "apps/api/deploy"));
+        File.WriteAllText(
+            Path.Combine(temp.Path, "apps/api/deploy/compose.yaml"),
+            "# <follows>decision/0005-use-compose</follows>\n");
+
+        var config = ConsumerConfig.Load(temp.Path);
+        var code = Record("decision", "decision/0004-use-postgres", "Use Postgres", "approved");
+        var ops = Record("decision", "decision/0005-use-compose", "Use Compose", "approved");
+        var model = Model(
+            [
+                Record("product", "product/library", "Library", "approved"),
+                code,
+                ops,
+            ],
+            follows: Links(
+                Link("apps/api/qa/Loans.cs", "decision/0004-use-postgres"),
+                Link("apps/api/deploy/compose.yaml", "decision/0004-use-postgres"),
+                Link("apps/shop/src/routes/Home.ts", "decision/0004-use-postgres"),
+                Link("apps/api/src/Library.Domain/Lending/Loan.cs", "decision/0004-use-postgres")));
+
+        BookDecisionDetail.AddDecisionConcerns(model, config);
+
+        var codeConcerns = Assert.IsType<JsonArray>(code["concerns"]);
+        Assert.Equal(
+            ["domain", "frontend-ui", "operations", "tests"],
+            codeConcerns.Select(node => node!.GetValue<string>()));
+        var opsConcerns = Assert.IsType<JsonArray>(ops["concerns"]);
+        Assert.Equal(["operations"], opsConcerns.Select(node => node!.GetValue<string>()));
     }
 
     static JsonObject Record(

@@ -344,7 +344,7 @@ static partial class GeneratedRegions
     /// <param name="config">The consumer configuration holding the roots and frontends.</param>
     /// <param name="file">The follower file path.</param>
     /// <returns>The concern, or empty when the path names none.</returns>
-    private static string ConcernOf(ConsumerConfig config, string file)
+    internal static string ConcernOf(ConsumerConfig config, string file)
     {
         var relative = PathText.Relative(config.Root, file);
         var segments = relative.Split('/', StringSplitOptions.RemoveEmptyEntries);

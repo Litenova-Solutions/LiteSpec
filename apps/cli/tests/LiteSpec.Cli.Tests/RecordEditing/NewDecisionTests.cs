@@ -29,6 +29,25 @@ public sealed class NewDecisionTests
             $"Expected the explanation file beside '{page}'.");
     }
 
+    /// <summary>New decision writes a product decision with no kind.</summary>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
+    [Fact(DisplayName = "new decision writes a product decision with no kind")]
+    public void NewDecisionWritesAProductDecisionWithNoKind()
+    {
+        using var consumer = TestCli.Temp("new-decision");
+        File.WriteAllText(Path.Combine(consumer.Path, ".litespec/project.yaml"), "{}");
+
+        var result = TestCli.Run(
+            "new", "decision", "receipt-threshold", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+        Assert.DoesNotContain(
+            "kind:",
+            File.ReadAllText(Path.Combine(
+                consumer.Path, ".litespec", "intent", "decisions", "0001-receipt-threshold.yaml")),
+            StringComparison.Ordinal);
+    }
+
     /// <summary>New decision takes the next free number after the decisions in use.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new decision takes the next free number after the decisions in use")]

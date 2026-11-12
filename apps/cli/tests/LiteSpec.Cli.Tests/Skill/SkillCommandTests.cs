@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Skill;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Skill;
@@ -102,6 +103,70 @@ public sealed class SkillCommandTests
         Assert.Contains($"Updated {folder}.", result.Stdout, StringComparison.Ordinal);
         Assert.DoesNotContain("tampered", File.ReadAllText(Path.Combine(folder, "SKILL.md")), StringComparison.Ordinal);
         Assert.False(File.Exists(Path.Combine(folder, "stale.md")));
+    }
+
+    /// <summary>Add leaves the previous copy intact when the write fails, and a retry succeeds.</summary>
+    /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
+    [Fact(DisplayName = "add leaves the previous copy intact when the write fails, and a retry succeeds")]
+    public void AddLeavesThePreviousCopyIntactOnFailure()
+    {
+        using var home = TestCli.Temp("skill-home");
+        using var consumer = TestCli.Temp("skill-consumer");
+        SkillFixture.FixtureHome(home.Path);
+        Assert.Equal(0, TestCli.Run("init", "--preset", "records", "--size", "small", "--root", consumer.Path).Status);
+        var environment = new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path };
+        Assert.Equal(0, TestCli.Run(["skill", "add", "--agent", "agents", "--root", consumer.Path], environment: environment).Status);
+        var folder = SkillFixture.Join(consumer.Path, ".agents/skills/litespec");
+        var entry = Path.Combine(folder, "SKILL.md");
+        File.WriteAllText(entry, File.ReadAllText(entry) + "tampered\n");
+        File.WriteAllText(Path.Combine(folder, "stale.md"), "stale\n");
+        var tampered = File.ReadAllText(entry);
+        var staging = SkillFiles.StagingFolder(folder);
+        File.WriteAllText(staging, "blocker\n");
+
+        var failed = TestCli.Run(["skill", "add", "--agent", "agents", "--root", consumer.Path], environment: environment);
+
+        Assert.Equal(1, failed.Status);
+        Assert.Contains($"Failed to write '{folder}'", failed.Stderr, StringComparison.Ordinal);
+        Assert.Equal(tampered, File.ReadAllText(entry));
+        Assert.True(File.Exists(Path.Combine(folder, "stale.md")));
+        Assert.True(File.Exists(Path.Combine(folder, "references", "commands.md")));
+        File.Delete(staging);
+
+        var retried = TestCli.Run(["skill", "add", "--agent", "agents", "--root", consumer.Path], environment: environment);
+
+        Assert.Equal(0, retried.Status);
+        Assert.Contains($"Updated {folder}.", retried.Stdout, StringComparison.Ordinal);
+        Assert.DoesNotContain("tampered", File.ReadAllText(entry), StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(folder, "stale.md")));
+        Assert.False(Directory.Exists(staging));
+        Assert.False(File.Exists(staging));
+    }
+
+    /// <summary>Add removes a leftover staging folder from a crashed run.</summary>
+    /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
+    [Fact(DisplayName = "add removes a leftover staging folder from a crashed run")]
+    public void AddRemovesALeftoverStagingFolder()
+    {
+        using var home = TestCli.Temp("skill-home");
+        using var consumer = TestCli.Temp("skill-consumer");
+        SkillFixture.FixtureHome(home.Path);
+        Assert.Equal(0, TestCli.Run("init", "--preset", "records", "--size", "small", "--root", consumer.Path).Status);
+        var environment = new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path };
+        Assert.Equal(0, TestCli.Run(["skill", "add", "--agent", "agents", "--root", consumer.Path], environment: environment).Status);
+        var folder = SkillFixture.Join(consumer.Path, ".agents/skills/litespec");
+        var staging = SkillFiles.StagingFolder(folder);
+        Directory.CreateDirectory(staging);
+        File.WriteAllText(Path.Combine(staging, "junk.md"), "junk\n");
+
+        var result = TestCli.Run(["skill", "add", "--agent", "agents", "--root", consumer.Path], environment: environment);
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains($"Updated {folder}.", result.Stdout, StringComparison.Ordinal);
+        Assert.False(Directory.Exists(staging));
+        Assert.False(File.Exists(Path.Combine(folder, "junk.md")));
+        Assert.True(File.Exists(Path.Combine(folder, "SKILL.md")));
+        Assert.True(File.Exists(Path.Combine(folder, "references", "commands.md")));
     }
 
     /// <summary>Add refuses a folder without its marker and writes nothing elsewhere.</summary>

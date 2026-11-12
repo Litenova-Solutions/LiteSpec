@@ -139,6 +139,8 @@ export interface BookRecord {
   events?: string[];
   screens?: string[];
   shownBy?: string[];
+  /** The concerns of a decision's followers, computed by the book command from the classification rules applies. */
+  concerns?: string[];
 }
 
 /** One outline node: a record, a group, or the code, test or finding under its subject. */

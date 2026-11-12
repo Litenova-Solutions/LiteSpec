@@ -39,6 +39,22 @@ public sealed class RulesSinceTests
         Assert.Equal(1, Occurrences(result.Output, "litespec/backend/api#keep-one-name-for-a-use-case-across-layers"));
     }
 
+    /// <summary>A convention without a verification line asks its Default sentence in the skeleton.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void SinceConventionWithoutVerificationAsksItsDefault()
+    {
+        using var root = CopyFixture("rules-basic", "rules-since");
+        WriteUnverifiedConvention(root.Path);
+        CommitAll(root.Path);
+        Touch(root.Path, "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+        var result = TestCli.Run("rules", "--root", root.Path, "--since", "HEAD");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("- demo/conventions#unstated-verification: Every invoice render keeps one layout.", result.Output);
+        Assert.Contains("  How judged:", result.Output);
+    }
+
     /// <summary>A revision naming no commit exits 2.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
@@ -81,6 +97,27 @@ public sealed class RulesSinceTests
     {
         var file = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
         File.AppendAllText(file, "\n// change\n");
+    }
+
+    /// <summary>Writes one convention without a verification line into the fixture.</summary>
+    /// <param name="root">The temporary consumer root.</param>
+    static void WriteUnverifiedConvention(string root)
+    {
+        var file = Path.Combine(root, ".litespec", "governance", "conventions", "unverified.md");
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, """
+            # Keep One Invoice Layout
+
+            **ID:** `demo/conventions#unstated-verification`
+
+            **Strength:** default
+
+            **Applies to:** `apps/api/src/**`
+
+            **Default:** Every invoice render keeps one layout.
+
+            **Rationale:** One layout keeps invoices comparable.
+            """);
     }
 
     /// <summary>Copies one fixture to a temporary root.</summary>

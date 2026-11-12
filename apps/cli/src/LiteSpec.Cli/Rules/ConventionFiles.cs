@@ -79,9 +79,9 @@ internal sealed class ConventionFiles
         return true;
     }
 
-    /// <summary>Whether the Applies to text is a path glob: one token rules matches against paths.</summary>
+    /// <summary>Whether the Applies to text is a path glob: one token holding a path mark rules matches against paths.</summary>
     /// <param name="appliesTo">The convention Applies to text.</param>
-    /// <returns>True when the text is one token with no scope separator; otherwise false.</returns>
+    /// <returns>True when the text is one token with no scope separator holding a slash, star, question mark or dot; otherwise false.</returns>
     public static bool IsGlobForm(string appliesTo)
     {
         var text = appliesTo.Trim();
@@ -99,7 +99,7 @@ internal sealed class ConventionFiles
             }
         }
 
-        return true;
+        return text.Contains('/') || text.Contains('*') || text.Contains('?') || text.Contains('.');
     }
 
     /// <summary>

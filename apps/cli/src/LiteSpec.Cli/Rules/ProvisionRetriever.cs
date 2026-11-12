@@ -7,7 +7,7 @@ namespace LiteSpec.Cli.Rules;
 ///     Retrieves the provisions that govern a target: artifact-scoped provisions match
 ///     the target artifact and the marked records, a provision naming the artifact
 ///     <c>any</c> and page-scope provisions match the target concern, and conventions
-///     match their scope glob. A live departure whose subject or paths cover the
+///     match their scope glob or the scope vocabulary against the target. A live departure whose subject or paths cover the
 ///     target replaces the provision its covers names. Only provisions whose record
 ///     layer the project claims are retrieved, and a code path in a project that claims
 ///     neither Implementation nor Proof retrieves none.
@@ -61,7 +61,19 @@ internal static class ProvisionRetriever
 
         foreach (var convention in conventions)
         {
-            if (convention.AppliesTo.Length > 0 && candidates.Any(candidate => Glob.Matches(convention.AppliesTo, candidate)))
+            if (convention.AppliesTo.Length == 0)
+            {
+                continue;
+            }
+
+            if (ConventionFiles.IsScopeForm(convention.AppliesTo))
+            {
+                if (ConventionFiles.MatchesScope(convention.AppliesTo, target.Stack, target.Concern, target.Artifact, target.Marked))
+                {
+                    found[convention.Id] = (convention, [$"scope match ({convention.AppliesTo})"]);
+                }
+            }
+            else if (candidates.Any(candidate => Glob.Matches(convention.AppliesTo, candidate)))
             {
                 found[convention.Id] = (convention, [$"path match ({convention.AppliesTo})"]);
             }

@@ -80,6 +80,34 @@ public sealed class ConventionMarkTests
         Assert.Equal("demo/conventions#no-such-rule", finding.Subject);
     }
 
+    /// <summary>A follows naming an unknown id names conventions among the targets it takes.</summary>
+    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
+    [Fact(DisplayName = "A follows naming an unknown id names conventions among the targets it takes")]
+    public void FollowsUnknownIdNamesConventions()
+    {
+        using var temp = WriteConsumer();
+
+        var finding = Assert.Single(
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
+            finding => FileName(finding) == "FollowsStrayStep.cs" && finding.Subject == "use-case/lending.no-such-use-case");
+
+        Assert.Contains("which matches no provision, decision, departure, or convention.", finding.Message);
+    }
+
+    /// <summary>A follows naming a record of another type names conventions among the targets it takes.</summary>
+    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
+    [Fact(DisplayName = "A follows naming a record of another type names conventions among the targets it takes")]
+    public void FollowsWrongTypeRecordNamesConventions()
+    {
+        using var temp = WriteConsumer();
+
+        var finding = Assert.Single(
+            MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
+            finding => FileName(finding) == "FollowsStrayStep.cs" && finding.Subject == "use-case/lending.borrow-copy");
+
+        Assert.Contains("which is a use-case record, not a provision, decision, departure, or convention.", finding.Message);
+    }
+
     /// <summary>No other mark-unknown fires in the convention consumer.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
     [Fact(DisplayName = "No other mark-unknown fires in the convention consumer")]
@@ -89,7 +117,7 @@ public sealed class ConventionMarkTests
 
         var unresolved = MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown");
 
-        Assert.Equal(3, unresolved.Count);
+        Assert.Equal(5, unresolved.Count);
     }
 
     static TempFolder WriteConsumer()
@@ -109,7 +137,7 @@ public sealed class ConventionMarkTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "5.1.0",
+                  "reviewedLiteSpecVersion": "5.2.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -216,6 +244,16 @@ public sealed class ConventionMarkTests
 
                 /// <implements>demo/conventions#confirm-large-payouts</implements>
                 internal sealed class ImplementsConventionStep
+                {
+                    public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+                }
+                """);
+            Write(temp.Path, "apps/api/src/Library.Application/Lending/Technical/FollowsStrayStep.cs", """
+                namespace Library.Application.Lending.Technical;
+
+                /// <follows>use-case/lending.no-such-use-case</follows>
+                /// <follows>use-case/lending.borrow-copy</follows>
+                internal sealed class FollowsStrayStep
                 {
                     public Task ConfirmAsync(CancellationToken cancellationToken) => Task.CompletedTask;
                 }

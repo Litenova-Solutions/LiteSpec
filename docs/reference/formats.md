@@ -38,7 +38,7 @@ The release manifest opens with these fields:
 ```yaml
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 5.1.0
+version: 5.2.0
 name: litespec
 agentsEntry: AGENTS.md
 ```
@@ -57,7 +57,7 @@ The top-level properties describe the project. `schemaVersion` is the constant `
 The consumer template opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.2.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: __PROJECT__
@@ -155,7 +155,7 @@ The top-level properties hold one decision per recurring UI question. `schemaVer
 The consumer template catalog opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/ui-pattern-catalog.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.2.0/schemas/ui-pattern-catalog.schema.yaml
 schemaVersion: 2
 breakpoints:
   compact: 768
@@ -175,7 +175,7 @@ The team records each primitive it installs or changes in `components`, with its
 The consumer template lock opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.1.0/schemas/ui-source-lock.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/5.2.0/schemas/ui-source-lock.schema.yaml
 schemaVersion: 2
 generator: shadcn/ui
 ```

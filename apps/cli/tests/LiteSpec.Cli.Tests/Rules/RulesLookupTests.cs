@@ -21,6 +21,9 @@ public sealed class RulesLookupTests
         Assert.Contains("Page: docs/backend/application.md", result.Output);
         Assert.Contains("Strength: required", result.Output);
         Assert.Contains("Statement: ", result.Output);
+        Assert.Contains("Rationale: ", result.Output);
+        Assert.Contains("Example: ", result.Output);
+        Assert.Contains("Reviewed for: ", result.Output);
     }
 
     /// <summary>An unknown provision identifier exits 1.</summary>

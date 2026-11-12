@@ -642,6 +642,46 @@ public sealed class MarkLinkTests
             [ProjectFile(), Decision()],
             assemblyName: "Shop.Application");
 
+    /// <summary>LS5002 accepts a follows naming a project convention, which model check resolves.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
+    [Fact(DisplayName = "LS5002 accepts a follows naming a project convention")]
+    public Task AcceptsAFollowsNamingAProjectConvention() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>shop/conventions#confirm-large-payouts</follows>
+                internal sealed class PayoutStep
+                {
+                    public void Pay()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
+    /// <summary>LS5002 reports a follows naming an identifier of no known form.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
+    [Fact(DisplayName = "LS5002 reports a follows naming an identifier of no known form")]
+    public Task ReportsAFollowsNamingAnUnknownForm() =>
+        Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
+            [("Source.cs", """
+                namespace Shop.Spending;
+
+                /// <follows>{|LS5002:shop/rules#confirm-large-payouts|}</follows>
+                internal sealed class PayoutStep
+                {
+                    public void Pay()
+                    {
+                    }
+                }
+                """)],
+            [ProjectFile(), Decision()],
+            assemblyName: "Shop.Application");
+
     /// <summary>LS5002 accepts a follows naming a decision or departure.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>

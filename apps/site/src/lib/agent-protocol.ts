@@ -21,7 +21,7 @@ export interface AgentProtocolValues {
   size: string;
   /** server or client-only. */
   shape: string;
-  /** The selected stack keys, comma and space separated. */
+  /** The selected stack keys, comma and space separated, or none. */
   stacks: string;
   /** The selected extension keys, comma and space separated, or none. */
   extensions: string;
@@ -38,7 +38,7 @@ export const AGENT_PROTOCOL_PLACEHOLDERS: { placeholder: string; field: keyof Ag
   { placeholder: "__LITESPEC_VERSION__", field: "version", takes: "the release the project follows" },
   { placeholder: "__SIZE__", field: "size", takes: "small or large" },
   { placeholder: "__SHAPE__", field: "shape", takes: "server or client-only" },
-  { placeholder: "__STACKS__", field: "stacks", takes: "the selected stack keys, comma and space separated" },
+  { placeholder: "__STACKS__", field: "stacks", takes: "the selected stack keys, comma and space separated, or none" },
   { placeholder: "__EXTENSIONS__", field: "extensions", takes: "the selected extension keys, comma and space separated, or none" },
   { placeholder: "__LAYERS__", field: "layers", takes: "the claimed layers, such as intent and behavior: litespec, implementation and proof: own" },
   { placeholder: "__SELECTION_KEY__", field: "selectionKey", takes: "the selection key of the shape and stacks, such as server.dotnet.react" },
@@ -107,7 +107,7 @@ export function selectionValues(input: {
     version,
     size: input.size,
     shape: input.shape,
-    stacks: input.stacks.join(", "),
+    stacks: input.stacks.length === 0 ? "none" : input.stacks.join(", "),
     extensions: input.extensions.length === 0 ? "none" : input.extensions.join(", "),
     layers: SITE_DEFAULT_LAYERS,
     selectionKey: input.selectionKey,

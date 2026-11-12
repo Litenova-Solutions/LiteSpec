@@ -121,6 +121,10 @@ static class BookCommand
 
         store["intentCoverage"] = BookIntentCoverage.ToJson(IntentCoverage.Compute(model));
 
+        // The book groups decisions by the concerns the one classification gives
+        // their followers, computed once here so the client reads one field.
+        BookDecisionDetail.AddDecisionConcerns(store, config);
+
         var editor = parsed.Editor ?? DefaultEditor;
         var outDir = parsed.Out ?? Path.Combine(root, ConsumerRoot.FolderName, "book");
 

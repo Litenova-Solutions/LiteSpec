@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Skill;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Init;
@@ -154,6 +155,35 @@ public sealed class InitSkillTests
         Assert.Contains($"'{folder}' holds a skill this tool did not write; left alone.", result.Stderr, StringComparison.Ordinal);
         Assert.Equal("---\nname: litespec\ndescription: Mine.\n---\n\n# Mine\n", File.ReadAllText(Path.Combine(folder, "SKILL.md")));
         Assert.False(Directory.Exists(Join(consumer.Path, ".claude/skills/litespec")));
+    }
+
+    /// <summary>Init with --skill leaves the previous copy intact when the write fails.</summary>
+    /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
+    [Fact(DisplayName = "init with --skill leaves the previous copy intact when the write fails")]
+    public void InitSkillLeavesThePreviousCopyIntactOnFailure()
+    {
+        using var consumer = TestCli.Temp("init-skill-failure");
+        var folder = Join(consumer.Path, ".agents/skills/litespec");
+        Directory.CreateDirectory(folder);
+        var previous = "---\nname: litespec\ndescription: Old.\nmetadata:\n  generated-by: litespec\n---\n\n# Old\n";
+        File.WriteAllText(Path.Combine(folder, "SKILL.md"), previous);
+        var staging = SkillFiles.StagingFolder(folder);
+        File.WriteAllText(staging, "blocker\n");
+
+        var failed = TestCli.Run("init", "--preset", "records", "--size", "small", "--root", consumer.Path, "--skill", "agents");
+
+        Assert.Equal(1, failed.Status);
+        Assert.Contains($"Failed to write '{folder}'", failed.Stderr, StringComparison.Ordinal);
+        Assert.Equal(previous, File.ReadAllText(Path.Combine(folder, "SKILL.md")));
+        Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec", "project.yaml")));
+        File.Delete(staging);
+
+        var retried = TestCli.Run("skill", "add", "--agent", "agents", "--root", consumer.Path);
+
+        Assert.Equal(0, retried.Status);
+        Assert.Contains($"Updated {folder}.", retried.Stdout, StringComparison.Ordinal);
+        Assert.False(Directory.Exists(staging));
+        Assert.False(File.Exists(staging));
     }
 
     /// <summary>Init notices a CLAUDE.md that does not import AGENTS.md, before the skill hint.</summary>

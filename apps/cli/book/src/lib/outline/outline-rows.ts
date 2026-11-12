@@ -107,89 +107,20 @@ function groupFieldOf(book: Book, id: string): [string, string] | null {
   return null;
 }
 
-/** The concerns in display order, as the computed decision concern lists them. */
+/** The decision concerns in display order. */
 const DECISION_CONCERN_ORDER: readonly string[] = [
   "domain", "application", "infrastructure", "web-api",
   "frontend-ui", "frontend-data", "tests", "workspace", "operations",
 ];
 
-/** The concerns of a decision's followers in display order, from the classification rules applies. */
+/** The concerns of a decision's followers in display order, as the book command computed them. */
 function decisionConcerns(book: Book, id: string): string[] {
   const found = new Set<string>();
-  for (const target of book.ins(id, "follows")) {
-    const path = target.startsWith("code/") ? target.slice("code/".length) : target;
-    const concern = concernOfPath(path);
-    if (concern) found.add(concern);
+  const concerns = book.get(id)?.concerns;
+  if (Array.isArray(concerns)) {
+    for (const concern of concerns) found.add(concern);
   }
   return DECISION_CONCERN_ORDER.filter((concern) => found.has(concern));
-}
-
-/** Whether a C# file name carries a WebApi role suffix. */
-function isWebApiName(name: string): boolean {
-  return (
-    name.endsWith("Endpoint.cs") ||
-    name.endsWith("RequestModel.cs") ||
-    name.endsWith("ResponseModel.cs") ||
-    name.endsWith("ResponseItemModel.cs") ||
-    name.endsWith("PaginationModel.cs") ||
-    (name.endsWith("Model.cs") && !name.endsWith("ViewModel.cs"))
-  );
-}
-
-/** The concern one follower path belongs to, following the classification rules applies, or nothing when no rule names it. */
-function concernOfPath(path: string): string {
-  const segments = path.split("/");
-  const name = segments[segments.length - 1] ?? "";
-  const dot = name.lastIndexOf(".");
-  const extension = dot >= 0 ? name.slice(dot).toLowerCase() : "";
-  if (
-    segments.includes("tests") ||
-    segments.includes("test") ||
-    segments.includes("__tests__") ||
-    name.includes(".Tests.") ||
-    (extension !== "" && (name.endsWith("Test" + extension) || name.endsWith("Tests" + extension))) ||
-    ((extension === ".ts" || extension === ".tsx" || extension === ".js" || extension === ".svelte") && name.includes(".spec."))
-  ) {
-    return "tests";
-  }
-  if (name === "Caddyfile" || name.startsWith("Dockerfile")) {
-    return "operations";
-  }
-  if (segments.some((segment) => segment.toLowerCase() === "api-client")) {
-    return "frontend-data";
-  }
-  if (extension === ".svelte" || extension === ".razor" || extension === ".kt") {
-    return "frontend-ui";
-  }
-  if (
-    extension === ".csproj" ||
-    extension === ".props" ||
-    extension === ".targets" ||
-    extension === ".sln" ||
-    extension === ".slnx"
-  ) {
-    return "workspace";
-  }
-  if (segments.includes("Migrations") || name.endsWith("Migration.cs") || name.endsWith("Snapshot.cs")) {
-    return "infrastructure";
-  }
-  for (const segment of segments) {
-    if (segment === "Domain") return "domain";
-    if (segment === "Application" || segment === "Composition" || segment === "Contracts" || segment === "Jobs") {
-      return "application";
-    }
-    if (segment === "Infrastructure") return "infrastructure";
-    if (segment === "WebApi") return "web-api";
-  }
-  for (const segment of segments) {
-    const lower = segment.toLowerCase();
-    if (lower.endsWith(".domain")) return "domain";
-    if (lower.endsWith(".application") || lower.endsWith(".worker")) return "application";
-    if (lower.endsWith(".infrastructure")) return "infrastructure";
-    if (lower.endsWith(".webapi")) return "web-api";
-  }
-  if (extension !== ".cs") return "";
-  return isWebApiName(name) ? "web-api" : "application";
 }
 
 /** The comparator for the active sort; the table holds every sort key, so the last arm never runs. */

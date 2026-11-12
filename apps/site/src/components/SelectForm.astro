@@ -533,7 +533,7 @@ const initialAgents = renderAgentProtocol(
       "__LITESPEC_VERSION__": data.version,
       "__SIZE__": size,
       "__SHAPE__": shape,
-      "__STACKS__": stacks.join(", "),
+      "__STACKS__": stacks.length ? stacks.join(", ") : "none",
       "__EXTENSIONS__": chosen.length ? chosen.join(", ") : "none",
       "__LAYERS__": data.agentProtocolLayers,
       "__SELECTION_KEY__": selection ? selection.key : (stacks.length > 0 ? shape + "." + stacks.join(".") : shape),

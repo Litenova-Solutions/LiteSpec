@@ -1,3 +1,4 @@
+using System.Text.Json;
 using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Rules;
@@ -20,6 +21,40 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/api#bound-every-file-upload", result.Output);
         Assert.DoesNotContain("litespec/backend/api#store-every-upload-through-infrastructure", result.Output);
         Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
+    }
+
+    /// <summary>A plain command prints no provision conditioned on another kind and keeps its judgment list short.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesPlainCommandOmitsEveryOtherKindCondition()
+    {
+        var root = Path.Combine(TestCli.Repository, "examples", "claimwick");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root,
+            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/ApproveExpense/ApproveExpenseCommandHandler.cs");
+
+        Assert.Equal(0, result.Status);
+
+        var conditional = ConditionalIds("query", "upload", "document-number", "erasure");
+
+        Assert.NotEmpty(conditional);
+
+        var returned = result.Output.Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => line.StartsWith("- ", StringComparison.Ordinal))
+            .Select(line => line[2..(line.IndexOf(':') > 2 ? line.IndexOf(':') : line.Length)].Trim())
+            .Where(id => id.Length > 0)
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var id in conditional)
+        {
+            Assert.DoesNotContain(id, returned);
+        }
+
+        Assert.True(
+            JudgmentLines(result.Output) <= 30,
+            "The judgment groups hold more than 30 lines.");
     }
 
     /// <summary>A use case taking a receipt keeps the upload provisions.</summary>
@@ -329,6 +364,82 @@ public sealed class ProvisionWhenTests
 
         return -1;
     }
+
+    /// <summary>How many statement lines the judgment groups hold.</summary>
+    /// <param name="output">The rules output.</param>
+    /// <returns>The count of provision lines under Required, Defaults, Advisory and Patterns.</returns>
+    static int JudgmentLines(string output)
+    {
+        var count = 0;
+        var judging = false;
+
+        foreach (var line in output.Split('\n').Select(entry => entry.Trim()))
+        {
+            if (line is "Required:" or "Defaults:" or "Advisory:" or "Patterns:")
+            {
+                judging = true;
+                continue;
+            }
+
+            if (line is "Checked by a tool:" or "Concern-wide:" or "Decided:")
+            {
+                judging = false;
+                continue;
+            }
+
+            if (judging && line.StartsWith("- ", StringComparison.Ordinal))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /// <summary>The identifiers of every provision carrying one of the conditions.</summary>
+    /// <param name="conditions">The applicability conditions.</param>
+    /// <returns>The provision identifiers.</returns>
+    static IReadOnlyList<string> ConditionalIds(params string[] conditions)
+    {
+        var wanted = conditions.ToHashSet(StringComparer.Ordinal);
+        var ids = new List<string>();
+        var file = Path.Combine(TestCli.Repository, "docs", "reference", "provisions.json");
+
+        using var document = JsonDocument.Parse(File.ReadAllText(file));
+        var root = document.RootElement;
+        var items = root.ValueKind == JsonValueKind.Object
+            && root.TryGetProperty("provisions", out var list)
+            && list.ValueKind == JsonValueKind.Array
+                ? list.EnumerateArray()
+                : Enumerable.Empty<JsonElement>();
+
+        foreach (var item in items)
+        {
+            if (item.ValueKind != JsonValueKind.Object)
+            {
+                continue;
+            }
+
+            var id = Field(item, "id");
+            var when = Field(item, "when");
+
+            if (id.Length > 0 && wanted.Contains(when))
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids;
+    }
+
+    /// <summary>One string property of a JSON object, or empty when it holds none.</summary>
+    /// <param name="item">The JSON object.</param>
+    /// <param name="name">The property name.</param>
+    /// <returns>The property text, or empty.</returns>
+    static string Field(JsonElement item, string name) =>
+        item.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString() ?? ""
+            : "";
 
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
     /// <param name="relative">The added file path, with forward-slash segments.</param>

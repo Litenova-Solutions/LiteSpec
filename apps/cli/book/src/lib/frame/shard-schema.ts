@@ -527,6 +527,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
     events: optStringArray(raw, "events", what),
     screens: optStringArray(raw, "screens", what),
     shownBy: optStringArray(raw, "shownBy", what),
+    concerns: optStringArray(raw, "concerns", what),
   };
 }
 

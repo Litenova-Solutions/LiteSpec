@@ -515,18 +515,7 @@ static class InitCommand
 
             try
             {
-                // A marked copy is removed first, so a re-add holds exactly the carried files.
-                if (update)
-                {
-                    Directory.Delete(folder, recursive: true);
-                }
-
-                foreach (var (relative, text) in files)
-                {
-                    var target = Path.Combine(folder, relative.Replace('/', Path.DirectorySeparatorChar));
-                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    File.WriteAllText(target, text);
-                }
+                SkillFiles.WriteCopy(folder, files);
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {

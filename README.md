@@ -3,7 +3,7 @@
 [![CI](https://github.com/Litenova-Solutions/LiteSpec/actions/workflows/litespec.yml/badge.svg)](https://github.com/Litenova-Solutions/LiteSpec/actions/workflows/litespec.yml)
 [![NuGet](https://img.shields.io/nuget/v/LiteSpec.Cli)](https://www.nuget.org/packages/LiteSpec.Cli)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-litespec.dev-blue.svg)](https://litespec.dev/5.1.0/)
+[![Documentation](https://img.shields.io/badge/docs-litespec.dev-blue.svg)](https://litespec.dev/5.2.0/)
 
 ## Intent
 
@@ -57,7 +57,7 @@ The `litespec` command line is a native executable for Windows, Linux and macOS 
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 5.1.0
+dotnet tool install LiteSpec.Cli --version 5.2.0
 dotnet litespec init --preset dotnet-react --size small
 ```
 
@@ -118,7 +118,7 @@ Selecting a stack applies its folder, every folder above it, and their subfolder
 
 ## Documentation
 
-The documentation for this release is at [litespec.dev/5.1.0](https://litespec.dev/5.1.0/). The same pages live in this repository at [docs/README.md](docs/README.md), which indexes every page a project applies. The command pages are under [docs/tools/](docs/tools/README.md).
+The documentation for this release is at [litespec.dev/5.2.0](https://litespec.dev/5.2.0/). The same pages live in this repository at [docs/README.md](docs/README.md), which indexes every page a project applies. The command pages are under [docs/tools/](docs/tools/README.md).
 
 ## Repository Layout
 

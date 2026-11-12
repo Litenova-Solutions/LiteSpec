@@ -4,7 +4,7 @@ using LiteSpec.Cli.Tests.Support;
 
 namespace LiteSpec.Cli.Tests.Rules;
 
-/// <summary>Proves the project convention reader: identifier order, skipped files, scope forms and scope matching.</summary>
+/// <summary>Proves the project convention reader: identifier order, skipped files, scope forms, scope matching, and rules retrieval of a scope-form convention.</summary>
 public sealed class ConventionFilesTests
 {
     /// <summary>Load returns the conventions in identifier order and skips files without an identifier or default.</summary>
@@ -73,19 +73,18 @@ public sealed class ConventionFilesTests
         Assert.False(ConventionFiles.IsScopeForm("hello, artifact: command-handler"));
     }
 
-    /// <summary>IsGlobForm takes one path token.</summary>
+    /// <summary>IsGlobForm takes one path token holding a path mark.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void IsGlobFormTakesPathTokens()
     {
         Assert.True(ConventionFiles.IsGlobForm("apps/api/src/**"));
         Assert.True(ConventionFiles.IsGlobForm("*.cs"));
-        Assert.True(ConventionFiles.IsGlobForm("Dockerfile"));
+        Assert.True(ConventionFiles.IsGlobForm("SendInvoice?.cs"));
         Assert.True(ConventionFiles.IsGlobForm("behavior/entry-points/claimwick-app/screens/*"));
-        Assert.True(ConventionFiles.IsGlobForm("sometime"));
     }
 
-    /// <summary>IsGlobForm rejects scope forms, lists and free text.</summary>
+    /// <summary>IsGlobForm rejects scope forms, lists, free text and bare words.</summary>
     /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
     [Fact]
     public void IsGlobFormRejectsOtherText()
@@ -96,6 +95,8 @@ public sealed class ConventionFilesTests
         Assert.False(ConventionFiles.IsGlobForm("stack: dotnet"));
         Assert.False(ConventionFiles.IsGlobForm("apps/a,apps/b"));
         Assert.False(ConventionFiles.IsGlobForm("apps/a;apps/b"));
+        Assert.False(ConventionFiles.IsGlobForm("sometime"));
+        Assert.False(ConventionFiles.IsGlobForm("Dockerfile"));
     }
 
     /// <summary>MatchesScope matches when every stated field holds the target.</summary>
@@ -133,6 +134,64 @@ public sealed class ConventionFilesTests
         Assert.False(ConventionFiles.MatchesScope("apps/api/src/**", "dotnet", "application", "command-handler", []));
         Assert.False(ConventionFiles.MatchesScope("", "dotnet", "application", "command-handler", []));
         Assert.True(ConventionFiles.MatchesScope("layer: implementation; trace: yes", "dotnet", "application", "command-handler", []));
+    }
+
+    /// <summary>Rules returns a scope-form convention for a command handler and not for an endpoint.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesReturnsScopeFormConventionForCommandHandlerOnly()
+    {
+        using var root = CopyFixtureWithConvention(
+            "demo/conventions#review-command-handlers",
+            "stack: dotnet; artifact: command-handler");
+        var handler = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
+        var endpoint = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceEndpoint.cs");
+
+        Assert.Equal(0, handler.Status);
+        Assert.Equal(0, endpoint.Status);
+        Assert.Contains("- demo/conventions#review-command-handlers: Every command handler logs its outcome. [scope match (stack: dotnet; artifact: command-handler)]", handler.Output);
+        Assert.DoesNotContain("demo/conventions#review-command-handlers", endpoint.Output);
+    }
+
+    /// <summary>Copies the rules-basic fixture to a temporary root and adds one scope-form convention.</summary>
+    /// <param name="id">The convention identifier.</param>
+    /// <param name="appliesTo">The convention Applies to text in scope form.</param>
+    /// <returns>The temporary consumer root.</returns>
+    static TempFolder CopyFixtureWithConvention(string id, string appliesTo)
+    {
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-convention-scope");
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(temp.Path, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+
+        Write(temp.Path, ".litespec/governance/conventions/scope-rule.md", $"""
+            # Review Command Handlers
+
+            **ID:** `{id}`
+
+            **Strength:** default
+
+            **Applies to:** `{appliesTo}`
+
+            **Default:** Every command handler logs its outcome.
+
+            **Rationale:** Logged outcomes make failures traceable.
+
+            **Reviewed for:** Which command handlers run without logging their outcome? Look at the command handlers.
+            """);
+
+        return temp;
     }
 
     static TempFolder WriteConsumer()

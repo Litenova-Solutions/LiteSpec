@@ -1,5 +1,8 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Output;
+using LiteSpec.Cli.Model;
+using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Readers.Operations;
 
 namespace LiteSpec.Cli.Book.Details;
 
@@ -118,4 +121,98 @@ static class BookDecisionDetail
     /// <returns>True for the bare computed key and any dotted written key ending in the decides field.</returns>
     static bool IsDecides(string key) =>
         string.Equals(key, "decides", StringComparison.Ordinal) || key.EndsWith(".decides", StringComparison.Ordinal);
+
+    /// <summary>
+    ///     Writes the concerns of each decision's followers onto its record: the
+    ///     set of concerns the one classification <c>rules</c> applies gives the
+    ///     follower paths, in ordinal order, so the book groups decisions the same
+    ///     way the decision index does without classifying paths itself.
+    /// </summary>
+    /// <param name="model">The parsed model object holding the records and the follows links.</param>
+    /// <param name="config">The consumer configuration holding the roots the classifier reads.</param>
+    public static void AddDecisionConcerns(JsonObject model, ConsumerConfig config)
+    {
+        var records = model["records"] as JsonArray ?? [];
+        var decisions = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var record in records.OfType<JsonObject>())
+        {
+            if (string.Equals(BookRender.StrProp(record, "type"), "decision", StringComparison.Ordinal)
+                && BookRender.StrProp(record, "id") is { Length: > 0 } id)
+            {
+                decisions.Add(id);
+            }
+        }
+
+        if (decisions.Count == 0)
+        {
+            return;
+        }
+
+        var paths = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        void Add(string id, string file)
+        {
+            if (!decisions.Contains(id))
+            {
+                return;
+            }
+
+            if (!paths.TryGetValue(id, out var list))
+            {
+                list = new List<string>();
+                paths[id] = list;
+            }
+
+            list.Add(file);
+        }
+
+        var links = model["links"] as JsonObject;
+        foreach (var entry in links?["follows"] as JsonArray ?? [])
+        {
+            if (entry is not JsonObject follow)
+            {
+                continue;
+            }
+
+            if (BookRender.StrProp(follow, "to") is not { Length: > 0 } to
+                || BookRender.StrProp(follow, "path") is not { Length: > 0 } path)
+            {
+                continue;
+            }
+
+            Add(to, Path.IsPathFullyQualified(path)
+                ? path
+                : Path.GetFullPath(Path.Combine(config.Root, path.Replace('/', Path.DirectorySeparatorChar))));
+        }
+
+        foreach (var mark in OperationsMarkReader.Read(config))
+        {
+            if (mark.Id.Length > 0)
+            {
+                Add(mark.Id, mark.File);
+            }
+        }
+
+        foreach (var record in records.OfType<JsonObject>())
+        {
+            if (BookRender.StrProp(record, "id") is not { Length: > 0 } decision || !decisions.Contains(decision))
+            {
+                continue;
+            }
+
+            var concerns = (paths.TryGetValue(decision, out var files) ? files : new List<string>())
+                .Select(file => GeneratedRegions.ConcernOf(config, file))
+                .Where(concern => concern.Length > 0)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal)
+                .ToList();
+
+            var array = new JsonArray();
+            foreach (var concern in concerns)
+            {
+                array.Add((JsonNode)concern);
+            }
+
+            record["concerns"] = array;
+        }
+    }
 }

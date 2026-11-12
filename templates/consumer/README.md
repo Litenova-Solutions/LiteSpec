@@ -2,7 +2,7 @@
 
 ## Intent
 
-These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `## LiteSpec` block in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
+These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
 
 A record file carries its record in YAML, with the entries in `records`. An article type (research, decision) also keeps an explanation file beside its record file, and so does every record page on a layer the project lists in `explanations.layers`. A document holds no record. Requirements sit on a feature file. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record with its screens beside it. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
 
@@ -11,7 +11,7 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | Template | Target | Purpose |
 |:---|:---|:---|
 | `project.yaml` | `.litespec/project.yaml` | Selects the size, shape, stacks, reviewed LiteSpec release, paths, and selected extensions. |
-| `project-agents.md` | `AGENTS.md` | Provides the short consumer agent entry point with the `## LiteSpec` block. |
+| `project-agents.md` | `AGENTS.md` | Provides the short consumer agent entry point with the generated `agent-protocol` region above the project-owned `## Project Commands` section. |
 | `glossary.yaml` | `.litespec/glossary.yaml` | Holds the Term entries prose is checked against, with layers, aliases, rejected words, and mannered terms. |
 | `example-cast.md` | `.litespec/example-cast.md` | Fixes the people, place, dates, and amounts every `Example` section draws from. |
 

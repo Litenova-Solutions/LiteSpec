@@ -27,6 +27,9 @@ static class SkillFiles
     /// <summary>The marker value: every generated copy carries it as metadata.generated-by.</summary>
     internal const string GeneratedBy = "litespec";
 
+    /// <summary>The suffix of the sibling staging folder a copy is written to before it replaces the target.</summary>
+    internal const string StagingSuffix = ".new";
+
     /// <summary>The template files of one copy, as forward-slash paths under templates/skill/litespec/.</summary>
     static readonly string[] Sources = ["SKILL.md", "references/commands.md", "references/report.md"];
 
@@ -87,6 +90,50 @@ static class SkillFiles
         }
 
         return files;
+    }
+
+    /// <summary>The sibling staging folder the copy is written to before it replaces the target.</summary>
+    /// <param name="folder">The skill folder the staging folder stands beside.</param>
+    /// <returns>The staging folder path.</returns>
+    public static string StagingFolder(string folder) => folder + StagingSuffix;
+
+    /// <summary>
+    ///     Writes one skill copy to the folder through its staging folder, so a failure
+    ///     never leaves a partial target: the copy is written complete to the staging
+    ///     folder first, then the old folder is deleted and the staging folder is moved
+    ///     into place. A leftover staging folder from a crashed run is removed first.
+    /// </summary>
+    /// <param name="folder">The skill folder to write.</param>
+    /// <param name="files">Every file of the copy: its forward-slash path under the skill folder and its text.</param>
+    /// <exception cref="IOException">A file cannot be written, or the target cannot be replaced.</exception>
+    /// <exception cref="UnauthorizedAccessException">Access to a file or the target folder is denied.</exception>
+    public static void WriteCopy(string folder, IReadOnlyList<(string RelativePath, string Text)> files)
+    {
+        var staging = StagingFolder(folder);
+
+        // A leftover staging folder from a crashed run is removed first, so the
+        // fresh copy starts empty. A file at the staging path is left alone, so
+        // the write below fails with the target untouched.
+        if (Directory.Exists(staging))
+        {
+            Directory.Delete(staging, recursive: true);
+        }
+
+        foreach (var (relative, text) in files)
+        {
+            var target = Path.Combine(staging, relative.Replace('/', Path.DirectorySeparatorChar));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.WriteAllText(target, text);
+        }
+
+        // The old copy is deleted only after the new copy is complete, then the
+        // staging folder moves into place, so a failure never leaves a partial target.
+        if (Directory.Exists(folder))
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+
+        Directory.Move(staging, folder);
     }
 
     /// <summary>The skill folder of the agent at project scope.</summary>

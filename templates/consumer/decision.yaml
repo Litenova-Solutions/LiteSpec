@@ -1,7 +1,6 @@
 type: decision
 id: decision/0001-receipt-threshold
 title: Receipt Threshold
-kind: package
 options:
   - name: Threshold at 25 euros
     pros: Most expenses pass untouched.
