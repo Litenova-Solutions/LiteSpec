@@ -98,7 +98,7 @@ None.
 ### Part H: Upgrading a Consumer
 
 1. Install `LiteSpec.Cli` 5.2.0 (`dotnet tool update LiteSpec.Cli --version 5.2.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.2.0` in `.litespec/project.yaml`.
-2. Run `litespec model render`. It inserts or rewrites the `agent-protocol` region in `AGENTS.md` and rewrites each project-scope skill copy. Without it, `model check` reports `agent-protocol-missing`, `agent-protocol-drift`, or `skill-drift`.
+2. Run `litespec model render`. It inserts or rewrites the `agent-protocol` region in `AGENTS.md` and rewrites each project-scope skill copy. Without it, `model check` reports `agent-protocol-missing`, `agent-protocol-drift`, or `skill-drift`. `render` leaves text outside the region alone, so delete the `## LiteSpec` section an earlier `init` wrote into `AGENTS.md`: the region replaces it.
 3. Move each provision-shaped convention to `.litespec/governance/conventions/`, where `rules` reads it. A convention-shaped file anywhere else under `.litespec/` reports `convention-folder-invalid`.
 4. Add the `decision-index` fence to the README of each decisions folder to index, and the `departure-index` fence to the README of each departures folder, then run `litespec model render` to fill them.
 5. A project that selects the `audit` extension names its audit adoption decision in the selection's `decision` field. A project holding a `CLAUDE.md` adds the line `@AGENTS.md`, so Claude Code reads the protocol.
