@@ -11,6 +11,7 @@ import SelectForm from "../../../components/SelectForm.astro";
 import Icon from "../../../components/Icon.astro";
 import "../../../styles/select.css";
 import {
+  SITE_DEFAULT_COMMAND,
   SITE_DEFAULT_SHAPE,
   SITE_DEFAULT_SIZE,
   loadAgentProtocolRegion,
@@ -93,6 +94,8 @@ const starterPrompt = [
   `Read ${siteOrigin}/llms.txt. Pick the selection index that matches this project's shape and stacks,`,
   "then fetch only the pages each task touches.",
 ].join("\n");
+
+const skillCommand = `${SITE_DEFAULT_COMMAND} skill add`;
 
 const title = pageTitle("Use with Agents");
 const description =
@@ -177,6 +180,29 @@ const description =
                 </button>
               </div>
               <pre class="select-output-body"><code>{starterPrompt}</code></pre>
+            </section>
+          </div>
+        </li>
+        <li class="step">
+          <span class="step-n" aria-hidden="true">3</span>
+          <div class="step-body">
+            <div class="step-head">
+              <h2>Install the Skill</h2>
+              <p>
+                Install the LiteSpec skill so the agent loads the LiteSpec procedure on demand when it works in a
+                repository that holds a <code>.litespec/project.yaml</code> file. With no flags the command covers
+                Claude Code and OpenCode; the <a href={`/${version}/tools/skill/`}>skill command</a> lists the agent
+                and scope options.
+              </p>
+            </div>
+            <section class="select-output" aria-labelledby="select-skill-heading">
+              <div class="select-output-head">
+                <h3 id="select-skill-heading">Skill Command</h3>
+                <button class="btn btn-outline btn-sm" type="button" data-copy={skillCommand}>
+                  <Icon name="copy" class="icon-sm" /><span class="copy-label">Copy</span>
+                </button>
+              </div>
+              <pre class="select-output-body"><code>{skillCommand}</code></pre>
             </section>
           </div>
         </li>

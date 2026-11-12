@@ -121,6 +121,7 @@ static class BookRecordDetails
 
         var outs = BookEdges.OutEdges(index, details, calls, routes);
         var ins = BookEdges.InEdges(model, index, outs);
+        BookDecisionDetail.AddDecidesEdges(model, index, outs, ins);
         foreach (var id in order)
         {
             details[id]["out"] = BookEdges.EdgeList(outs.TryGetValue(id, out var from) ? from : []);

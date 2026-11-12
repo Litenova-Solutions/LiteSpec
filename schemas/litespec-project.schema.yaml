@@ -419,6 +419,10 @@ properties:
           enum:
           - pre-production
           - production
+        decision:
+          description: The identifier of the audit adoption decision the audit extension names.
+          type: string
+          pattern: '^decision/'
       allOf:
       - if:
           required:
@@ -427,6 +431,13 @@ properties:
           properties:
             id:
               const: stage
+      - if:
+          required:
+          - decision
+        then:
+          properties:
+            id:
+              const: audit
       - if:
           properties:
             id:

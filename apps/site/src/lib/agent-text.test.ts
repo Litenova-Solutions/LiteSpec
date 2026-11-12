@@ -1,8 +1,10 @@
 // Tests for the agent-facing text: page descriptions keep the first sentence
 // of the Intent with page links rewritten, the agent protocol region loads
 // from the consumer template and fills every placeholder, the root index
-// embeds the filled block with each placeholder explained, and no llms.txt
-// output keeps a relative link.
+// embeds the filled block with each placeholder explained, no llms.txt
+// output keeps a relative link, and every selection index leaves out the
+// maintainer page, lists the tool pages, groups pages by artifact kind, and
+// stays under 25 KB.
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { describe as describePage, rootLlmsText, selectionLlmsText, versionLlmsText } from "./agent-text.ts";
@@ -163,6 +165,50 @@ function assertNoRelativeLinks(text: string, name: string): void {
     assert.ok(/^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/|\/|#)/.test(target) || target === "", `${name} keeps relative link ${target}`);
   }
 }
+
+describe("selection index", () => {
+  it("lists no maintainer page in any selection", () => {
+    for (const selection of selections()) {
+      const text = selectionLlmsText(selection);
+      assert.ok(!text.includes("/core/maintaining.md"), selectionKey(selection));
+      assert.ok(!text.includes("Maintaining the Standards"), selectionKey(selection));
+    }
+  });
+
+  it("keeps the authoring page in every selection", () => {
+    for (const selection of selections()) {
+      assert.ok(selectionLlmsText(selection).includes("Authoring Standard"), selectionKey(selection));
+    }
+  });
+
+  it("lists the tool pages and the published urls page in every selection", () => {
+    const files = ["tools/rules", "tools/model", "tools/new", "tools/skill", "reference/published-urls"];
+    for (const selection of selections()) {
+      const text = selectionLlmsText(selection);
+      for (const file of files) {
+        assert.ok(text.includes(`${SITE_ORIGIN}/${version}/${file}.md`), `${selectionKey(selection)} misses ${file}`);
+      }
+    }
+  });
+
+  it("groups the selection pages by artifact kind", () => {
+    const selection = selections().find((entry) => selectionKey(entry) === "server.dotnet.react")!;
+    const text = selectionLlmsText(selection);
+    assert.ok(text.includes("## By Artifact"), text);
+    assert.ok(!text.includes("- any:"), "an any line is listed");
+    const line = text.split("\n").find((entry) => entry.startsWith("- endpoint:"));
+    assert.ok(line, "no endpoint line");
+    assert.ok(line.includes("HTTP API"), line);
+    assert.ok(!line.includes("Maintaining the Standards"), line);
+  });
+
+  it("keeps every selection index under 25 KB", () => {
+    for (const selection of selections()) {
+      const bytes = Buffer.byteLength(selectionLlmsText(selection), "utf8");
+      assert.ok(bytes < 25 * 1024, `${selectionKey(selection)} is ${bytes} bytes`);
+    }
+  });
+});
 
 describe("relative links", () => {
   it("keeps no relative link in the release index", () => {

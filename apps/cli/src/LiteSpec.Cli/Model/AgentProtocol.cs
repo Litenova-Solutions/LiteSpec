@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using LiteSpec.Cli.Skill;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 
@@ -15,6 +16,12 @@ static partial class AgentProtocol
 
     /// <summary>The agent context file name at the consumer root.</summary>
     internal const string FileName = "AGENTS.md";
+
+    /// <summary>The entry file a Claude Code project holds beside the agent context.</summary>
+    internal const string ClaudeFileName = "CLAUDE.md";
+
+    /// <summary>The agents a project-scope skill copy is checked for, in name order.</summary>
+    internal static readonly string[] SkillAgents = ["agents", "claude", "opencode"];
 
     /// <summary>
     ///     Writes the agent-protocol region: it rewrites the region in an AGENTS.md that holds one, inserts the region
@@ -82,6 +89,127 @@ static partial class AgentProtocol
 
         return [PathText.Relative(config.Root, file)];
     }
+
+    /// <summary>Rewrites every marked project-scope skill copy that differs from what the carried release generates.</summary>
+    /// <param name="model">The built project model the copies render from.</param>
+    /// <returns>The rewritten skill files, relative to the root, or nothing when every copy is current or the release carries no skill.</returns>
+    public static IReadOnlyList<string> WriteSkills(ProjectModel model)
+    {
+        if (ExpectedSkills() is not { } expected)
+        {
+            return [];
+        }
+
+        var changed = new List<string>();
+
+        foreach (var agent in SkillAgents)
+        {
+            var folder = SkillFiles.ProjectFolder(model.Config.Root, agent);
+
+            if (!Directory.Exists(folder) || !SkillFiles.CarriesMarker(folder) || !SkillDrifted(folder, expected))
+            {
+                continue;
+            }
+
+            Directory.Delete(folder, recursive: true);
+
+            foreach (var (relative, text) in expected)
+            {
+                var target = Path.Combine(folder, relative.Replace('/', Path.DirectorySeparatorChar));
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                File.WriteAllText(target, text);
+                changed.Add(PathText.Relative(model.Config.Root, target));
+            }
+        }
+
+        return changed;
+    }
+
+    /// <summary>The expected project-scope skill files from the carried release, or null when the release carries none.</summary>
+    /// <returns>Every file of the copy with its forward-slash path and text, or null.</returns>
+    internal static IReadOnlyList<(string RelativePath, string Text)>? ExpectedSkills()
+    {
+        var home = LiteSpecHome.Root;
+        var version = LiteSpecHome.Version;
+
+        if (home is null || version is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return SkillFiles.Render(Path.Combine(home, "templates"), version);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Whether a marked project-scope skill copy differs from the generated files.</summary>
+    /// <param name="folder">The skill folder.</param>
+    /// <param name="expected">Every generated file with its forward-slash path and text.</param>
+    /// <returns>True when a file is missing, differs, or an extra file stands.</returns>
+    internal static bool SkillDrifted(string folder, IReadOnlyList<(string RelativePath, string Text)> expected)
+    {
+        var wanted = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        foreach (var (relative, text) in expected)
+        {
+            wanted[relative] = text;
+        }
+
+        string[] actual;
+
+        try
+        {
+            actual = Directory.GetFiles(folder, "*", SearchOption.AllDirectories);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return true;
+        }
+
+        if (actual.Length != wanted.Count)
+        {
+            return true;
+        }
+
+        foreach (var file in actual)
+        {
+            var relative = Path.GetRelativePath(folder, file).Replace(Path.DirectorySeparatorChar, '/');
+
+            if (!wanted.TryGetValue(relative, out var want))
+            {
+                return true;
+            }
+
+            string have;
+
+            try
+            {
+                have = File.ReadAllText(file);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                return true;
+            }
+
+            if (!string.Equals(have, want, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Whether a CLAUDE.md text imports the agent context.</summary>
+    /// <param name="text">The CLAUDE.md text.</param>
+    /// <returns>True when the text names @AGENTS.md.</returns>
+    internal static bool ImportsAgents(string text) =>
+        text.Contains("@AGENTS.md", StringComparison.Ordinal);
 
     /// <summary>The region text the check compares against: the template region filled for the project, with LF line endings.</summary>
     /// <param name="model">The built project model the region renders from.</param>

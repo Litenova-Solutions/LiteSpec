@@ -168,6 +168,8 @@ A provision that holds only in some situations states its condition as a `when` 
 | `upload` | is a use case that takes a file from the caller |
 | `document-number` | is a use case that issues a legal document number |
 | `erasure` | is a use case or job that erases, pseudonymizes or anonymizes personal data |
+| `project` | is never a single record: the provision applies to the project once, so a code path never returns it |
+| `audit-adoption` | is the decision the `audit` selection names in its `decision` field in `.litespec/project.yaml` |
 
 `rules` reads the condition from the provision index and returns the provision for a code path only when the condition holds for the record the file marks. A record path or record ID prints the provision with its condition shown, and a path that marks no record leaves it out.
 

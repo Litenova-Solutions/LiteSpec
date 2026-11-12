@@ -127,6 +127,185 @@ public sealed class ProvisionWhenTests
         Assert.DoesNotContain("litespec/backend/persistence#assign-document-numbers-from-a-sequence", result.Output);
     }
 
+    /// <summary>A code path marking a decision never returns the project provision.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesProjectProvisionNeverReturnsOnACodePath()
+    {
+        using var withStage = CopyDecisionsFixture(StageBlock);
+        using var withoutStage = CopyDecisionsFixture(null);
+        var marked = "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs";
+        var withResult = TestCli.Run("rules", "--root", withStage.Path, marked);
+        var withoutResult = TestCli.Run("rules", "--root", withoutStage.Path, marked);
+
+        Assert.Equal(0, withResult.Status);
+        Assert.Equal(0, withoutResult.Status);
+        Assert.Equal(
+            CollapsedCount(withoutResult.Output, "decision/0008-render-invoices-as-pdf"),
+            CollapsedCount(withResult.Output, "decision/0008-render-invoices-as-pdf"));
+    }
+
+    /// <summary>A decision record prints the project provision with its condition shown.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesDecisionRecordShowsProjectCondition()
+    {
+        using var root = CopyDecisionsFixture(StageBlock);
+        var result = TestCli.Run("rules", "--root", root.Path, "decision/0008-render-invoices-as-pdf");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("- litespec/ext/stage#promote-through-a-recorded-decision:", result.Output);
+        Assert.Contains("when project", result.Output);
+    }
+
+    /// <summary>A code path marking the named adoption decision keeps the audit-adoption provision.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesNamedDecisionKeepsAuditAdoption()
+    {
+        using var root = CopyDecisionsFixture(AuditBlock("decision/0007-adopt-audit-trail"));
+        var named = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/Audit/AuditTrailRenderer.cs");
+        var other = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs");
+
+        Assert.Equal(0, named.Status);
+        Assert.Equal(0, other.Status);
+        Assert.Equal(
+            CollapsedCount(other.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(named.Output, "decision/0007-adopt-audit-trail"));
+    }
+
+    /// <summary>The audit-adoption provision follows the decision the audit selection names.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesAuditAdoptionFollowsTheNamedDecision()
+    {
+        using var named = CopyDecisionsFixture(AuditBlock("decision/0008-render-invoices-as-pdf"));
+        using var other = CopyDecisionsFixture(AuditBlock("decision/0007-adopt-audit-trail"));
+        var marked = "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs";
+        var namedResult = TestCli.Run("rules", "--root", named.Path, marked);
+        var otherResult = TestCli.Run("rules", "--root", other.Path, marked);
+
+        Assert.Equal(0, namedResult.Status);
+        Assert.Equal(0, otherResult.Status);
+        Assert.Equal(
+            CollapsedCount(otherResult.Output, "decision/0008-render-invoices-as-pdf") + 1,
+            CollapsedCount(namedResult.Output, "decision/0008-render-invoices-as-pdf"));
+    }
+
+    /// <summary>A decision record prints the audit-adoption provision with its condition shown, even unnamed.</summary>
+    /// <proves>litespec/core/agent#load-applicable-provisions-before-editing</proves>
+    [Fact]
+    public void RulesDecisionRecordShowsAuditAdoptionCondition()
+    {
+        using var root = CopyDecisionsFixture(AuditBlock("decision/0007-adopt-audit-trail"));
+        var result = TestCli.Run("rules", "--root", root.Path, "decision/0008-render-invoices-as-pdf");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("- litespec/ext/audit#record-the-audit-adoption-decision:", result.Output);
+        Assert.Contains("when audit-adoption", result.Output);
+    }
+
+    /// <summary>The stage extension selection, as YAML under selectedExtensions.</summary>
+    const string StageBlock = """
+        - id: stage
+          criterion: no deployment holds customer data
+          releaseStage: pre-production
+        """;
+
+    /// <summary>The audit extension selection naming the adoption decision, as YAML under selectedExtensions.</summary>
+    /// <param name="decision">The adoption decision identifier.</param>
+    /// <returns>The selection block.</returns>
+    static string AuditBlock(string decision) => $"""
+        - id: audit
+          criterion: customer data needs an audit trail
+          decision: {decision}
+        """;
+
+    /// <summary>Copies the rules-basic fixture with two decisions and two files marking them.</summary>
+    /// <param name="extensions">The selectedExtensions block, or null to leave the selection empty.</param>
+    /// <returns>The temporary consumer root.</returns>
+    static TempFolder CopyDecisionsFixture(string? extensions)
+    {
+        var source = TestCli.Fixture("rules-basic");
+        var temp = TestCli.Temp("rules-decided-when");
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(temp.Path, Path.GetRelativePath(source, file));
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+
+        if (extensions is not null)
+        {
+            var project = Path.Combine(temp.Path, ".litespec", "project.yaml");
+            File.WriteAllText(project, File.ReadAllText(project).Replace(
+                "selectedExtensions: []",
+                "selectedExtensions:\n" + extensions,
+                StringComparison.Ordinal));
+        }
+
+        AddFixtureFile(
+            temp,
+            ".litespec/implementation/decisions/0007-adopt-audit-trail.yaml",
+            """
+            type: decision
+            id: decision/0007-adopt-audit-trail
+            title: Adopt Audit Trail
+            choice: Pipeline producer
+            reopenedWhen: The trail outgrows one store.
+            """);
+        AddFixtureFile(
+            temp,
+            ".litespec/implementation/decisions/0008-render-invoices-as-pdf.yaml",
+            """
+            type: decision
+            id: decision/0008-render-invoices-as-pdf
+            title: Render Invoices as PDF
+            choice: PDF library
+            reopenedWhen: Invoices stop needing a downloadable file.
+            """);
+        AddFixtureFile(
+            temp,
+            "apps/api/src/Demo/Billing/Invoicing/Audit/AuditTrailRenderer.cs",
+            """
+            namespace Demo.Billing.Invoicing.Audit;
+
+            /// <summary>Renders the audit choice.</summary>
+            /// <follows>decision/0007-adopt-audit-trail</follows>
+            internal sealed class AuditTrailRenderer;
+            """);
+        AddFixtureFile(
+            temp,
+            "apps/api/src/Demo/Billing/Invoicing/Audit/InvoiceRenderer.cs",
+            """
+            namespace Demo.Billing.Invoicing.Audit;
+
+            /// <summary>Renders the invoice choice.</summary>
+            /// <follows>decision/0008-render-invoices-as-pdf</follows>
+            internal sealed class InvoiceRenderer;
+            """);
+
+        return temp;
+    }
+
+    /// <summary>Adds one file to a temporary consumer root.</summary>
+    /// <param name="root">The temporary consumer root.</param>
+    /// <param name="relative">The file path, with forward-slash segments.</param>
+    /// <param name="contents">The file contents.</param>
+    static void AddFixtureFile(TempFolder root, string relative, string contents)
+    {
+        var file = Path.Combine(root.Path, relative.Replace('/', Path.DirectorySeparatorChar));
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, contents);
+    }
+
     /// <summary>How many provisions the collapsed line counts for the record.</summary>
     /// <param name="output">The rules output.</param>
     /// <param name="record">The record identifier.</param>

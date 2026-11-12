@@ -40,6 +40,7 @@ dotnet litespec model check
 | `new` | Scaffolds a record page and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning page. |
 | `rename` | Renames a record identifier and rewrites every link. |
 | `rules` | Lists the provisions that govern a path or record identifier, grouped by strength. |
+| `skill` | Installs or removes the litespec skill. |
 
 Every command accepts `--help`, and the checks accept `--format json`.
 

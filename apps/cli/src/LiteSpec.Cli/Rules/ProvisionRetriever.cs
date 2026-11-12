@@ -92,7 +92,7 @@ internal static class ProvisionRetriever
     /// <param name="target">The rules target.</param>
     /// <param name="config">The consumer configuration.</param>
     /// <param name="reasons">The reasons, with the condition added for a record target.</param>
-    /// <returns>True when a record target names it, a code target marks it directly, or its condition holds for a marked record.</returns>
+    /// <returns>True when a record target names it, a code target marks it directly, or its condition holds for a marked record. A project condition holds for no record, and an audit-adoption condition holds for the named decision only.</returns>
     static bool ApplyWhen(ProvisionEntry entry, PathContext target, ConsumerConfig config, List<string> reasons)
     {
         if (!target.IsCodePath)
@@ -108,7 +108,7 @@ internal static class ProvisionRetriever
 
         var records = ProvisionWhen.LoadMarked(config, target);
 
-        return records.Count > 0 && ProvisionWhen.Holds(entry.When, records);
+        return records.Count > 0 && ProvisionWhen.Holds(entry.When, records, config);
     }
 
     /// <summary>Why the provision governs the target, or empty when it does not.</summary>

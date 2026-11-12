@@ -5656,16 +5656,16 @@
       "anchor": "keep-the-agent-protocol-current",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060agent-protocol-drift\u0060 (level S) when the region differs from what \u0060render\u0060 would write, and \u0060agent-protocol-missing\u0060 (level S) when \u0060AGENTS.md\u0060 holds no region.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060agent-protocol-drift\u0060 (level S) when the region differs from what \u0060render\u0060 would write, \u0060agent-protocol-missing\u0060 (level S) when \u0060AGENTS.md\u0060 holds no region, and \u0060skill-drift\u0060 (level S) when a project-scope skill copy differs from what the carried release generates.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A project MUST keep its agent protocol region equal to what its LiteSpec release generates.",
-      "rationale": "The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The release template plus the project file regenerate the region in one command, so drift is always fixable.",
-      "example": "Claimwick upgrades its LiteSpec release and runs \u0060litespec model render\u0060; the region in its \u0060AGENTS.md\u0060 matches what the new release generates."
+      "statement": "A project MUST keep its agent protocol region and its project-scope skill copies equal to what its LiteSpec release generates.",
+      "rationale": "The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand. A stale copy points at the same old release. The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).",
+      "example": "Claimwick upgrades its LiteSpec release and runs \u0060litespec model render\u0060; the region in its \u0060AGENTS.md\u0060 and its project-scope skill copies match what the new release generates."
     },
     {
       "id": "litespec/core/agent#load-applicable-extensions",
@@ -5700,7 +5700,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An agent MUST run \u0060litespec rules \u003Cpath\u003E\u0060 before editing a file and answer each judgment provision \u0060litespec rules --since \u003Cbase\u003E\u0060 lists before reporting done.",
-      "rationale": "Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. \u0060litespec rules \u003C...\u003E --full\u0060 adds rationale and example when a statement is not enough.",
+      "rationale": "Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. \u0060litespec rules \u003C...\u003E --full\u0060 adds rationale and example when a statement is not enough. Settled by [decision/0038-retrieve-rules-for-the-edit-and-the-change](decision/0038-retrieve-rules-for-the-edit-and-the-change).",
       "example": "\u0060litespec rules use-case/spending.submit-expense\u0060 returns the provisions that govern the change, grouped by strength."
     },
     {
@@ -9796,7 +9796,7 @@
       "anchor": "record-each-technical-choice-as-a-decision",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-unimplemented\u0060 (level S) for a technical decision that no code element follows. It reports \u0060decision-kind-missing\u0060 (level A) for a technical decision with no \u0060kind\u0060, and \u0060decision-scope-invalid\u0060 (level A) for a technical decision whose followers all sit in one module and each already carry an \u0060implements\u0060 mark. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060decision-unimplemented\u0060 (level S) for a technical decision that no code element follows. It reports \u0060decision-kind-missing\u0060 (level A) for a technical decision with no \u0060kind\u0060, \u0060decision-scope-invalid\u0060 (level A) for a technical decision whose followers all sit in one module and each already carry an \u0060implements\u0060 mark, and \u0060decision-home-drift\u0060 (level A) for a technical decision kept at a level its followers do not match. The check runs in the CLI only, with no analyzer rule: whether any code follows a decision is known only across every project, and one compilation sees one project.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:decision",
@@ -9804,7 +9804,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A technical choice of one of the six kinds that code follows and no LiteSpec provision makes MUST be a decision under \u0060.litespec/implementation/decisions/\u0060 that at least one code element follows.",
-      "rationale": "Why a pattern, a library, or a configuration value was chosen is the first thing a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a \u0060follows\u0060 mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. The six kinds are provider, package, format, boundary, topology, and replacement, as the [decision records page](../reference/decision-records.md) states: a choice of no kind is not a decision. A choice of no kind states its reason in the class documentation, and the mark on the class names the record the class serves. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space.",
+      "rationale": "Why a pattern, a library, or a configuration value was chosen is the first thing a maintainer asks before changing it. Written in a comment, the answer drifts and no tool finds it. Written as a decision, it carries its options, what speaks for and against each, and what would reopen it, and every code element shaped by it names it in a \u0060follows\u0060 mark. A choice a LiteSpec provision already makes needs no decision, because the provision is the record. The six kinds are provider, package, format, boundary, topology, and replacement, as the [decision records page](../reference/decision-records.md) states: a choice of no kind is not a decision. A choice of no kind states its reason in the class documentation, and the mark on the class names the record the class serves. Technical decisions sit under Implementation because they name technologies and code, which Intent never holds, and they share the numbered sequence of product decisions, so all decisions share one identifier space. Settled by [decision/0040-record-only-technical-choices-of-a-kind](decision/0040-record-only-technical-choices-of-a-kind).",
       "example": "Claimwick renders each receipt as a PDF file. \u0060decision/0005-render-receipts-as-pdf\u0060 weighs a PDF library against an HTML-to-PDF browser, chooses the PDF library, and names what reopens the choice: receipts no longer needing a downloadable file. The decision carries \u0060kind: package\u0060. The receipt PDF renderer carries \u0060/// \u003Cfollows\u003Edecision/0005-render-receipts-as-pdf\u003C/follows\u003E\u0060."
     },
     {
@@ -9814,15 +9814,15 @@
       "anchor": "render-generated-regions-from-the-model",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Which generated regions render code-computed facts? Look inside the generated fences beside the book and the model output.",
+      "evidence": "Which generated regions outside an index region render code-computed facts? Look inside the generated fences beside the book and the model output.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "default",
-      "statement": "A generated region renders only facts derived from records.",
-      "rationale": "A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed.",
+      "statement": "A generated region renders only facts derived from records, and a \u0060decision-index\u0060 or \u0060departure-index\u0060 region also renders the computed follower facts its rows name.",
+      "rationale": "A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed. An index region is the exception: it lists the records beside it, so each row names the computed followers, concerns and flags the reader needs to read the list.",
       "example": ""
     },
     {
@@ -13536,6 +13536,7 @@
       "artifact": "record:decision",
       "layer": "implementation",
       "trace": false,
+      "when": "audit-adoption",
       "strength": "required",
       "statement": "An audit adoption decision MUST record its audited categories, threshold, access model, integrity method, and records entry.",
       "rationale": "Which actions to audit, how long to keep them, and how to protect them are policy choices, so the project declares them once in the adoption decision. A reviewer reads the declared policy before reading the implementation instead of reconstructing it from the code, which would give two reviewers two different policies.",
@@ -20160,6 +20161,7 @@
       "artifact": "record:decision",
       "layer": "implementation",
       "trace": false,
+      "when": "project",
       "strength": "required",
       "statement": "A consumer MUST record its promotion to \u0060production\u0060 as a decision before its first deployment holds customer data, ending every deferred provision.",
       "rationale": "Promotion is the moment relaxed provisions end, and an unrecorded moment never arrives: the relaxed provisions last until somebody notices they never ended. The decision stands in git before the first deployment holds customer data, so the data sits under full rules from day one. The decision also covers the migration and cutover work that moves customer data into production.",

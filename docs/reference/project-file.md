@@ -251,12 +251,14 @@ What each field means and what reads it:
 | `id` | string | yes | none |
 | `criterion` | string | yes | none |
 | `releaseStage` | string | for `stage` | none |
+| `decision` | string | no, only on `audit` | none |
 
 What each field means and what reads it:
 
 - `id` is the extension id in the pinned manifest, such as `"locale"`. `litespec model check` refuses an id the pinned release does not ship and lists the known ids.
 - `criterion` states the criterion that was met, such as `"The product ships in English and Dutch."`. `litespec/core/scope#record-selected-extensions` requires the entry, and `litespec/core/scope#select-conditional-extensions-explicitly` requires selecting an extension only when its criteria apply.
 - `releaseStage` is `pre-production` or `production`, and only the `stage` extension carries it, which the schema enforces.
+- `decision` names the audit adoption decision by its identifier, and only the `audit` extension carries it. `litespec rules` returns `litespec/ext/audit#record-the-audit-adoption-decision` for that decision alone.
 
 ### Placeholders and the Init Fill
 

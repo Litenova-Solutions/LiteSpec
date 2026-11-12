@@ -1,3 +1,4 @@
+using LiteSpec.Cli.Skill;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.ProseText;
 
@@ -15,6 +16,12 @@ internal static class AgentProtocolChecks
 
     /// <summary>The finding code for a region that differs from the rendered one.</summary>
     internal const string DriftCode = "agent-protocol-drift";
+
+    /// <summary>The finding code for a project skill copy that differs from the generated one.</summary>
+    internal const string SkillDriftCode = "skill-drift";
+
+    /// <summary>The finding code for a <c>CLAUDE.md</c> that does not import <c>AGENTS.md</c>.</summary>
+    internal const string UnreachedCode = "agent-protocol-unreached";
 
     /// <summary>Reports agent-protocol-missing and agent-protocol-drift for the project's <c>AGENTS.md</c>.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
@@ -60,5 +67,65 @@ internal static class AgentProtocolChecks
         {
             findings.Add(new Finding(DriftCode, "The agent-protocol region in AGENTS.md differs from what model render writes.", file, LineOf(LineStarts(text), match.Index), null));
         }
+    }
+
+    /// <summary>Reports skill-drift for each project-scope skill copy that differs from what the carried release generates.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunSkill(ProjectModel model, List<Finding> findings)
+    {
+        if (AgentProtocol.ExpectedSkills() is not { } expected)
+        {
+            return;
+        }
+
+        foreach (var agent in AgentProtocol.SkillAgents)
+        {
+            var folder = SkillFiles.ProjectFolder(model.Config.Root, agent);
+
+            if (!Directory.Exists(folder) || !SkillFiles.CarriesMarker(folder))
+            {
+                continue;
+            }
+
+            if (!AgentProtocol.SkillDrifted(folder, expected))
+            {
+                continue;
+            }
+
+            var entry = Path.Combine(folder, SkillFiles.FileName);
+            findings.Add(new Finding(SkillDriftCode, $"The project-scope skill copy for '{agent}' differs from what the carried release generates.", entry, 1, null));
+        }
+    }
+
+    /// <summary>Reports agent-protocol-unreached for a <c>CLAUDE.md</c> that does not import <c>AGENTS.md</c>.</summary>
+    /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    internal static void RunUnreached(ProjectModel model, List<Finding> findings)
+    {
+        var file = Path.Combine(model.Config.Root, AgentProtocol.ClaudeFileName);
+
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if (AgentProtocol.ImportsAgents(text))
+        {
+            return;
+        }
+
+        findings.Add(new Finding(UnreachedCode, "CLAUDE.md does not import AGENTS.md, so Claude Code never reads the agent protocol.", file, 1, null));
     }
 }

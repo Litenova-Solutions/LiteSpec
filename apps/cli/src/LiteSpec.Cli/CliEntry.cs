@@ -3,6 +3,7 @@ using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.RecordEditing;
 using LiteSpec.Cli.Rules;
+using LiteSpec.Cli.Skill;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli;
@@ -22,6 +23,7 @@ static class CliEntry
           model         Check, format, render or query the project model.
           book          Generate the project book from the records.
           rules         List the provisions that govern a path or record.
+          skill         Install or remove the litespec skill.
 
         Run 'litespec <command> --help' for a command's options.
         'litespec --version' prints the LiteSpec release this tool ships in.
@@ -51,6 +53,7 @@ static class CliEntry
                 "model" => ModelCommand.Run(rest),
                 "book" => BookCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),
+                "skill" => SkillCommand.Run(rest),
                 _ => Unknown(args[0]),
             },
             args);

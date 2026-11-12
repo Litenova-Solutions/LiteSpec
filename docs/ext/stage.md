@@ -82,7 +82,7 @@ expiresOn: 2026-12-01
 
 **Strength:** required
 
-**Applies to:** artifact: record:decision
+**Applies to:** artifact: record:decision; when: project
 
 **Statement:** A consumer MUST record its promotion to `production` as a decision before its first deployment holds customer data, ending every deferred provision.
 

@@ -1,0 +1,16 @@
+type: decision
+id: decision/0038-retrieve-rules-for-the-edit-and-the-change
+title: Retrieve Rules for the Edit and the Change
+options:
+  - name: "Retrieve at the moment of the edit: collapse record provisions on code paths, add a change-set skeleton, look up one provision or page by ID, gate conditional provisions on a when key, and print a Decided group first"
+    pros: "An agent sees only the judgment provisions its file and its change set need, answers each one in the completion report, and reads the decision behind the code where the code stands."
+    cons: "The rules command gains modes and a condition vocabulary that each provision author must apply."
+  - name: "Keep the full output and rank it by relevance"
+    pros: "One output mode, and nothing new to learn."
+    cons: "137 provisions stay unread in any order, and the completion report still cannot name what was judged."
+  - name: "Split retrieval into one command per target: code, records and change sets"
+    pros: "Each output stays small."
+    cons: "Three commands to learn and to keep, and the agent runs the wrong one for the edit it makes."
+choice: "Retrieve at the moment of the edit: collapse record provisions on code paths, add a change-set skeleton, look up one provision or page by ID, gate conditional provisions on a when key, and print a Decided group first"
+consequences: "On a code path, provisions matched only through a marked record print as one line per record, and a record path or record ID still prints them in full. `rules --since <ref>` reads the files changed since the revision and prints a report skeleton with one `How judged:` line per judgment provision. `rules <provision-id>` prints one provision in full and `rules <page-id>` prints the page list, both from the carried provisions file. A provision states its condition as a `when` key on its `Applies to` line: `query`, `command`, `upload`, `document-number`, `erasure`, `project` and `audit-adoption`; a code path returns it only when the marked record meets the condition. `litespec/core/agent#load-applicable-provisions-before-editing` runs `rules <path>` before each edit and answers each skeleton provision before reporting done. A `Decided` group prints first on a code path, with each followed decision's `choice` and `reopenedWhen` and each covering departure's `reason` and `expiresOn`. The stage provision carries `when: project` and the audit adoption provision carries `when: audit-adoption`, so neither matches every decision. The site serves the provision index as JSON, and the published URLs page states the ID-to-URL rule."
+reopenedWhen: "A code path again returns provisions its file cannot judge, or an agent cannot answer the change-set skeleton from the output alone."

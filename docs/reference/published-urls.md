@@ -23,9 +23,8 @@ The site is generated from the standard at the repository root, so the site and 
 |:---|:---|:---|
 | `https://litespec.dev/llms.txt` | `https://litespec.dev/llms.txt` | The root index for agents |
 | `https://litespec.dev/5.1.0/llms.txt` | `https://litespec.dev/5.1.0/llms.txt` | Every page of the release |
-| `https://litespec.dev/5.1.0/llms-full.txt` | `https://litespec.dev/5.1.0/llms-full.txt` | The whole release as one file |
 
-Each index answers with `Content-Type: text/plain`. The root index explains how to use the site, lists every selection index and every layer bundle, and ends with the agent protocol block: the generated agent protocol region of the consumer template, filled for the default selection and preceded by what each placeholder takes. The release index groups every page by area with its raw Markdown URL and a one-line description. The full text concatenates every page except the UI pattern pages in index order: each page opens with a comment naming its raw source URL, and pages are separated by a line holding `---`.
+Each index answers with `Content-Type: text/plain`. The root index explains how to use the site, lists every selection index and every layer bundle, and ends with the agent protocol block: the generated agent protocol region of the consumer template, filled for the default selection and preceded by what each placeholder takes. The release index groups every page by area with its raw Markdown URL and a one-line description.
 
 ### Selection Indexes
 
@@ -36,7 +35,7 @@ Each index answers with `Content-Type: text/plain`. The root index explains how 
 
 A selection key joins the shape and the stacks with dots: `server.dotnet.react` names a server project using the `dotnet` backend stack and the `react` frontend stack. A server selection names one backend stack and zero or one frontend stack. A client-only selection names no backend stack and one frontend stack, such as `client-only.react`. Extensions never enter the key; the `AGENTS.md` block names the chosen extensions.
 
-A selection index answers with `Content-Type: text/plain`. It groups the pages the selection applies by layer, with each page linking its raw Markdown. It then lists the extensions the selection may add, the UI pattern groups when the selection holds a frontend stack, and a note that says to fetch only the pages a task touches.
+A selection index answers with `Content-Type: text/plain`. It groups the pages the selection applies by layer, with each page linking its raw Markdown. The maintainer-only page stays out, and the authoring page stays because it holds consumer provisions. A Tools and Reference group lists the `rules`, `model`, `new` and `skill` tool pages with the Published URLs page. A By Artifact group names, for each artifact kind the release provisions state, the pages of the selection that carry provisions for it, for the selection's stacks. It then lists the extensions the selection may add and, when the selection holds a frontend stack, the UI pattern groups, each as a bare link, and ends with a note that says to fetch only the pages a task touches.
 
 The selection page renders the `AGENTS.md` block from the consumer protocol template: the generated agent protocol region with each placeholder filled for the chosen answers. `litespec init` writes the same region into a new consumer, and an owner pastes the page's block when adopting an existing project. With size `small`, shape `server`, stacks `dotnet` and `react`, and no extensions, the block opens with the region fence and the precedence sentence, carries the protocol lines with the selection's values, and closes with the region fence:
 
@@ -55,7 +54,7 @@ The middle lines state the protocol with the release, size, shape, stacks, exten
 |:---|:---|:---|
 | `https://litespec.dev/5.1.0/layers/<key>.md` | `https://litespec.dev/5.1.0/layers/backend/dotnet.md` | The layer as plain Markdown |
 
-A layer is one folder's pages, concatenated in the same format as the full text. A layer answers with `Content-Type: text/markdown`. The keys are:
+A layer is one folder's pages, concatenated in reading order: each page opens with a comment naming its raw source URL, and pages are separated by a line holding `---`. A layer answers with `Content-Type: text/markdown`. The keys are:
 
 - `core` for the always-applied areas.
 - `backend` and `frontend` for the principles.

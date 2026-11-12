@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Skill;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -42,7 +43,7 @@ static class InitCommand
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--help]
+        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
@@ -61,24 +62,32 @@ static class InitCommand
         no frontends writes a project with none. --size and --name complete the
         project record. The command never overwrites an existing file: it writes
         each missing file and leaves existing ones alone, except for the region it
-        inserts into an existing AGENTS.md.
+        inserts into an existing AGENTS.md. With --skill, the command also installs
+        the litespec skill at project scope for the named agents, one generated copy
+        per agent from the carried release, stamped with the release. With
+        --skill-global, the copies are written under the user's home instead and name
+        no release. Without --skill and without --skill-global, the command prints the
+        skill add command as its last line instead of installing. When the root holds
+        a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
 
           --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
           --size     The project size: small or large.
           --install  How the project installs the CLI: tool, a local .NET tool (the default), or standalone, the native binary.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.
+          --skill    The agents to install the skill for at project scope: one or more of claude, opencode, agents, comma separated. With --skill-global the copies are written at global scope instead.
+          --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, or scaffold file is unreadable, 2 the project file exists or an option is invalid.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
-    /// <param name="args">The arguments after the init command name, holding the preset, size, root and project name options.</param>
-    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, and 2 when the project file exists or an option is invalid.</returns>
+    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name and skill options.</param>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written or a skill target holds a folder this tool did not write, and 2 when the project file exists or an option or agent is invalid.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--preset", "--size", "--install", "--root", "--name"]);
+        var parsed = CliArgs.Parse(args, ["--skill-global"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
 
         if (parsed.Help)
         {
@@ -111,6 +120,45 @@ static class InitCommand
         {
             return CommandFailure.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
         }
+
+        var skillGlobal = parsed.Has("--skill-global");
+        var skillOption = parsed.Value("--skill");
+        IReadOnlyList<string> skillAgents;
+
+        if (skillOption is not null)
+        {
+            if (string.IsNullOrWhiteSpace(skillOption))
+            {
+                return CommandFailure.UsageError("Option --skill needs a value.", Usage, json: false);
+            }
+
+            var names = skillOption.Split(',').Select(name => name.Trim()).ToList();
+
+            if (names.Any(name => name.Length == 0))
+            {
+                return CommandFailure.UsageError("Option --skill needs a value.", Usage, json: false);
+            }
+
+            foreach (var agent in names)
+            {
+                if (!SkillFiles.IsAgent(agent))
+                {
+                    return CommandFailure.UsageError($"Unknown agent '{agent}'; use agents, claude, or opencode.", Usage, json: false);
+                }
+            }
+
+            skillAgents = names.Distinct(StringComparer.Ordinal).ToList();
+        }
+        else if (skillGlobal)
+        {
+            skillAgents = SkillFiles.DefaultAgents;
+        }
+        else
+        {
+            skillAgents = [];
+        }
+
+        var wantsSkill = skillOption is not null || skillGlobal;
 
         // init creates the project, so its root is the folder named, never a parent consumer.
         var root = ConsumerRoot.Locate(parsed.Value("--root"), requireProject: false, json: false, out var rootExit);
@@ -388,6 +436,16 @@ static class InitCommand
             }
         }
 
+        if (wantsSkill)
+        {
+            var skillExit = InstallSkills(root, home, version, skillAgents, skillGlobal);
+
+            if (skillExit != 0)
+            {
+                return skillExit;
+            }
+        }
+
         if (unfilled.Count > 0)
         {
             CliHost.Out.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
@@ -399,7 +457,117 @@ static class InitCommand
         }
 
         CliHost.Out.WriteLine($"Next step: {command} model check");
+        NoticeClaudeImport(root);
+
+        if (!wantsSkill)
+        {
+            CliHost.Out.WriteLine($"To install the LiteSpec skill, run: {command} skill add");
+        }
+
         return 0;
+    }
+
+    /// <summary>Installs the skill copies init requested, one generated copy per agent.</summary>
+    /// <param name="root">The consumer root the project scope writes under.</param>
+    /// <param name="home">The LiteSpec release root the skill templates are read from.</param>
+    /// <param name="version">The carried release the project copies are stamped with.</param>
+    /// <param name="agents">The selected agent names.</param>
+    /// <param name="global">Whether the copies live under the home folder rather than the consumer.</param>
+    /// <returns>The process exit code: 0 when every copy is written, 1 when a target is refused or a file cannot be read or written.</returns>
+    static int InstallSkills(string root, string home, string version, IReadOnlyList<string> agents, bool global)
+    {
+        IReadOnlyList<(string RelativePath, string Text)> files;
+
+        try
+        {
+            files = SkillFiles.Render(Path.Combine(home, "templates"), global ? null : version);
+        }
+        catch (IOException exception)
+        {
+            CliHost.Error.WriteLine(exception.Message);
+            return 1;
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            CliHost.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
+            return 1;
+        }
+
+        var baseFolder = global ? SkillFiles.HomeFolder() : root;
+        var folders = agents.Select(agent => global ? SkillFiles.GlobalFolder(baseFolder, agent) : SkillFiles.ProjectFolder(baseFolder, agent)).ToList();
+
+        // Every target is checked before any is written, so a refused target leaves the rest untouched.
+        var refused = folders.Where(folder => Directory.Exists(folder) && !SkillFiles.CarriesMarker(folder)).ToList();
+
+        if (refused.Count > 0)
+        {
+            foreach (var folder in refused)
+            {
+                CliHost.Error.WriteLine($"'{folder}' holds a skill this tool did not write; left alone.");
+            }
+
+            return 1;
+        }
+
+        foreach (var folder in folders)
+        {
+            var update = Directory.Exists(folder);
+
+            try
+            {
+                // A marked copy is removed first, so a re-add holds exactly the carried files.
+                if (update)
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
+
+                foreach (var (relative, text) in files)
+                {
+                    var target = Path.Combine(folder, relative.Replace('/', Path.DirectorySeparatorChar));
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    File.WriteAllText(target, text);
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                CliHost.Error.WriteLine($"Failed to write '{folder}': {exception.Message}");
+                return 1;
+            }
+
+            CliHost.Out.WriteLine(update ? $"Updated {folder}." : $"Wrote {folder}.");
+        }
+
+        return 0;
+    }
+
+    /// <summary>Prints a line when the root holds a CLAUDE.md that does not import AGENTS.md.</summary>
+    /// <param name="root">The consumer root.</param>
+    static void NoticeClaudeImport(string root)
+    {
+        var file = Path.Combine(root, AgentProtocol.ClaudeFileName);
+
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if (AgentProtocol.ImportsAgents(text))
+        {
+            return;
+        }
+
+        CliHost.Out.WriteLine($"'{file}' does not import AGENTS.md; add '@AGENTS.md' so Claude Code reads the agent protocol.");
     }
 
     /// <summary>Inserts the agent-protocol region into an existing agent context that holds none.</summary>

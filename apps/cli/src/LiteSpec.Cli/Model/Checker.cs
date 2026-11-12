@@ -125,6 +125,8 @@ static class Checker
         ContractChecks.RunDoors,
         ScopeChecks.Run,
         AgentProtocolChecks.RunRegion,
+        AgentProtocolChecks.RunSkill,
+        AgentProtocolChecks.RunUnreached,
         DecisionChecks.RunKind,
         DecisionChecks.RunScope,
         DecisionChecks.RunHome,

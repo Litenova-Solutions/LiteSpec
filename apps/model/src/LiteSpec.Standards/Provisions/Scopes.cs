@@ -36,7 +36,7 @@ public sealed class Scopes
 
     /// <summary>Gets the when values an Applies to line names: the applicability conditions of a provision.</summary>
     public static readonly IReadOnlySet<string> WhenValues = new HashSet<string>(
-        ["command", "document-number", "erasure", "query", "upload"],
+        ["audit-adoption", "command", "document-number", "erasure", "project", "query", "upload"],
         StringComparer.Ordinal);
 
     /// <summary>The pattern of one backticked span.</summary>

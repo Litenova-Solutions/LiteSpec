@@ -117,7 +117,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each judgment provision `litespec rules --since <base>` lists before reporting done.
 
-**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough.
+**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. Settled by [decision/0038-retrieve-rules-for-the-edit-and-the-change](decision/0038-retrieve-rules-for-the-edit-and-the-change).
 
 **Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
 
@@ -131,13 +131,13 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** A project MUST keep its agent protocol region equal to what its LiteSpec release generates.
+**Statement:** A project MUST keep its agent protocol region and its project-scope skill copies equal to what its LiteSpec release generates.
 
-**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The release template plus the project file regenerate the region in one command, so drift is always fixable.
+**Rationale:** The region carries the commands and rules every session loads first. A stale region points agents at an old release, an old selection, or commands that changed, while the tool output stays current. The project-scope skill copies carry the same procedure to tools that load skills on demand. A stale copy points at the same old release. The release template plus the project file regenerate the region and the project-scope skill copies in one command, so drift is always fixable. Global copies live outside the project and stay outside the check. Settled by [decision/0037-generate-the-agent-protocol](decision/0037-generate-the-agent-protocol) and [decision/0039-ship-a-litespec-skill](decision/0039-ship-a-litespec-skill).
 
-**Example:** Claimwick upgrades its LiteSpec release and runs `litespec model render`; the region in its `AGENTS.md` matches what the new release generates.
+**Example:** Claimwick upgrades its LiteSpec release and runs `litespec model render`; the region in its `AGENTS.md` and its project-scope skill copies match what the new release generates.
 
-**Checked by:** `litespec model check` reports `agent-protocol-drift` (level S) when the region differs from what `render` would write, and `agent-protocol-missing` (level S) when `AGENTS.md` holds no region.
+**Checked by:** `litespec model check` reports `agent-protocol-drift` (level S) when the region differs from what `render` would write, `agent-protocol-missing` (level S) when `AGENTS.md` holds no region, and `skill-drift` (level S) when a project-scope skill copy differs from what the carried release generates.
 
 ### Apply Guidance Precedence
 

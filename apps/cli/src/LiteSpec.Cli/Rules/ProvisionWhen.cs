@@ -1,13 +1,17 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Model;
+using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     Evaluates a provision's applicability condition against the records a rules target marks.
 ///     Query and command read the use-case kind, upload reads a caller file input, document-number
-///     reads a legal number signal, and erasure reads an erase, pseudonymize or anonymize signal.
+///     reads a legal number signal, erasure reads an erase, pseudonymize or anonymize signal,
+///     project holds for no record, and audit-adoption reads the decision the audit selection names.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal static class ProvisionWhen
@@ -46,9 +50,18 @@ internal static class ProvisionWhen
     /// <summary>Whether the condition holds for any marked record.</summary>
     /// <param name="when">The normalized condition, such as query or upload.</param>
     /// <param name="records">The marked records' fields.</param>
-    /// <returns>True when any record meets the condition; false for an unknown condition.</returns>
-    public static bool Holds(string when, IReadOnlyList<RecordFields> records) =>
-        when switch
+    /// <param name="config">The consumer configuration holding the project root.</param>
+    /// <returns>True when any record meets the condition; false for a project condition, an unnamed decision, or an unknown condition.</returns>
+    public static bool Holds(string when, IReadOnlyList<RecordFields> records, ConsumerConfig config)
+    {
+        if (string.Equals(when, "audit-adoption", StringComparison.Ordinal))
+        {
+            var named = AuditDecisions(config);
+            return records.Any(record =>
+                record.Type == "decision" && named.Contains(record.Id, StringComparer.Ordinal));
+        }
+
+        return when switch
         {
             "query" => records.Any(record =>
                 record.Type == "use-case" && record.Kind == "query"),
@@ -60,8 +73,66 @@ internal static class ProvisionWhen
                 record.Type == "use-case" && IssuesDocumentNumber(record)),
             "erasure" => records.Any(record =>
                 (record.Type == "use-case" || record.Type == "job") && ErasesPersonalData(record)),
+            "project" => false,
             _ => false,
         };
+    }
+
+    /// <summary>The decisions the audit extension selection names in its records entry.</summary>
+    /// <param name="config">The consumer configuration holding the project root.</param>
+    /// <returns>The named decision identifiers, or empty when the selection names none.</returns>
+    public static IReadOnlyList<string> AuditDecisions(ConsumerConfig config)
+    {
+        var file = ConsumerRoot.ProjectFile(config.Root);
+        string text;
+
+        try
+        {
+            if (!File.Exists(file))
+            {
+                return [];
+            }
+
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return [];
+        }
+
+        JsonNode? project;
+
+        try
+        {
+            project = RecordText.Parse(text, RecordText.IsYaml(file));
+        }
+        catch (Exception exception) when (exception is JsonTextException or IOException)
+        {
+            return [];
+        }
+
+        if (project is not JsonObject root || root["selectedExtensions"] is not JsonArray extensions)
+        {
+            return [];
+        }
+
+        foreach (var entry in extensions)
+        {
+            if (entry is JsonObject selection
+                && string.Equals(JsonValues.PropString(selection, "id"), "audit", StringComparison.Ordinal))
+            {
+                return AdoptionDecisionOf(selection);
+            }
+        }
+
+        return [];
+    }
+
+    /// <summary>The adoption decision the audit selection names in its <c>decision</c> field.</summary>
+    /// <param name="selection">The audit extension selection.</param>
+    /// <returns>The decision identifier, or none when the selection names none.</returns>
+    static List<string> AdoptionDecisionOf(JsonObject selection) =>
+        JsonValues.AsString(selection["decision"]) is { Length: > 0 } decision ? [decision] : [];
 
     /// <summary>Loads the marked records' fields from the consumer's record roots.</summary>
     /// <param name="config">The consumer configuration holding the record roots.</param>

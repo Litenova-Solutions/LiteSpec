@@ -52,6 +52,14 @@ Each technical decision takes one kind, which is the category and the filter at 
 
 A technical choice of none of these kinds states its reason in the class documentation, and the mark on the class names the record the class serves. A technical decision whose followers all sit in one module, and each already carry an `implements` mark, is reported as `decision-scope-invalid`: the reason belongs in the class documentation instead.
 
+### Computed Concern
+
+A technical decision takes no written category. Its concern is the set of concerns of its followers' paths, using the classification `rules` applies: `domain`, `application`, `infrastructure`, `web-api`, `frontend-ui`, `frontend-data`, `tests`, `workspace` and `operations`. Nobody writes the concern, so it cannot drift. Claimwick follows `decision/0005-render-receipts-as-pdf` from its receipt renderer, so the decision carries concern `application`.
+
+### The Decision Index
+
+`litespec model render` writes a `decision-index` region into the README of each decisions folder that carries the fence. The region holds one table grouped by `kind`, then by concern. Each row holds the number and title, the choice in one line, the follower count with the modules the followers sit in, `reopenedWhen`, and a marker for `decision-unimplemented`, `decision-basis-missing` and `decision-scope-invalid`. The region lists only the decisions in its own folder. Claimwick reads its topology choice in `.litespec/implementation/decisions/README.md` and its package choice, which only the Spending module follows, in `.litespec/implementation/modules/spending/decisions/README.md`.
+
 ### Decisions and Conventions
 
 A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question names how a reviewer finds a breach. A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.

@@ -49,6 +49,29 @@ The region opens with a precedence sentence: when the file disagrees with tool o
 
 That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/5.1.0/backend/domain.md`.
 
+## The LiteSpec Skill
+
+A LiteSpec skill teaches Claude Code and OpenCode the LiteSpec procedure: read the protocol region and the project file, query the model, run `rules` for each file, and report with the checks.
+
+`litespec skill add` installs the skill from the carried release, at project scope or with `--global` at global scope. `litespec init --skill <agent>` installs it during setup. Without `--agent` it installs for `agents` and `claude`, which together reach both tools.
+
+`litespec model render` rewrites project-scope copies, and `litespec model check` reports `skill-drift` when a project copy differs from what the carried release generates. Global copies live outside the project and stay outside the check.
+
+## Entry Files per Agent
+
+Each agent reads its own entry file. The table names the file and how to bridge it to the shared `AGENTS.md` protocol.
+
+| Agent | Reads | Bridge |
+|:---|:---|:---|
+| Claude Code | `CLAUDE.md`, else the nearest `AGENTS.md` | Import the protocol with `@AGENTS.md` in `CLAUDE.md` |
+| OpenCode | The nearest `AGENTS.md` | None; it reads the file directly |
+| Codex | The nearest `AGENTS.md` | None; it reads the file directly |
+| Copilot | The nearest `AGENTS.md` | None; it reads the file directly |
+| Cursor | The nearest `AGENTS.md` | None; it reads the file directly |
+| Gemini CLI | `GEMINI.md` | Point `context.fileName` at `AGENTS.md` |
+
+`litespec init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `litespec model check` reports `agent-protocol-unreached` as advisory for the same gap.
+
 ## The Agent Task Sequence
 
 Adding new intent to a running project follows the one sequence under [New Intent in a Running Project](../core/agent.md#new-intent-in-a-running-project) on the agent page. This page states no second order.

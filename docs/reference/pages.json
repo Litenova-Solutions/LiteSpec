@@ -2302,6 +2302,20 @@
       ]
     },
     {
+      "file": "docs/guide/reinforce-rules-at-edit-time.md",
+      "path": "guide/reinforce-rules-at-edit-time",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Reinforce Rules at Edit Time",
+      "intent": "An agent that loads the governing provisions once at the start of a task works from memory by its later edits, and memory drifts from the standard as the session grows. This guide brings the provisions back at the moment they matter: after each file edit the agent sees the short \u0060rules\u0060 output for that file, and before it stops it faces the model check over its change set. It covers Claude Code hooks and an OpenCode plugin. \u0060skill add\u0060 writes Markdown files only and installs no hooks, so each recipe below is installed by hand. The guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
       "file": "docs/guide/start-with-records-only.md",
       "path": "guide/start-with-records-only",
       "style": "how-to",
@@ -2763,6 +2777,54 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0037-generate-the-agent-protocol.md",
+      "path": "intent/decisions/0037-generate-the-agent-protocol",
+      "style": "decision",
+      "area": "intent",
+      "title": "Generate the Agent Protocol",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0038-retrieve-rules-for-the-edit-and-the-change.md",
+      "path": "intent/decisions/0038-retrieve-rules-for-the-edit-and-the-change",
+      "style": "decision",
+      "area": "intent",
+      "title": "Retrieve Rules for the Edit and the Change",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0039-ship-a-litespec-skill.md",
+      "path": "intent/decisions/0039-ship-a-litespec-skill",
+      "style": "decision",
+      "area": "intent",
+      "title": "Ship a LiteSpec Skill",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0040-record-only-technical-choices-of-a-kind.md",
+      "path": "intent/decisions/0040-record-only-technical-choices-of-a-kind",
+      "style": "decision",
+      "area": "intent",
+      "title": "Record Only Technical Choices of a Kind",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Decision"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence",
       "style": "research",
@@ -3039,6 +3101,8 @@
         "Intent",
         "Rules, Records, and Checks",
         "Rule Sources",
+        "The LiteSpec Skill",
+        "Entry Files per Agent",
         "The Agent Task Sequence",
         "Agent Decisions and the Closed Specification",
         "Next Steps"
@@ -3302,7 +3366,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Record Folders",
-      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A record in any other folder is a \u0060record-placement-invalid\u0060 finding. The Flat module column marks a home that applies only to a module that keeps its records flat.",
+      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A record in any other folder is a \u0060record-placement-invalid\u0060 finding. The Flat module column marks a home that applies only to a module that keeps its records flat. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
       "sections": [
         "Intent",
         "Reference",
@@ -3501,6 +3565,24 @@
       "area": "tools",
       "title": "Rules Query",
       "intent": "\u0060litespec rules\u0060 lists the provisions that govern a path, a record identifier, a change set, or one provision or page identifier, at the record layers the project claims in [layers](../core/scope.md#layer-claims).",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/skill.md",
+      "path": "tools/skill",
+      "style": "command",
+      "area": "tools",
+      "title": "Skill",
+      "intent": "\u0060litespec skill\u0060 installs or removes the litespec skill, the folder of guidance a coding agent loads when its description matches the task.",
       "sections": [
         "Name",
         "Synopsis",

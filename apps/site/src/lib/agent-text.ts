@@ -18,6 +18,7 @@ import {
   manifest,
   pageByFile,
   pages,
+  provisions,
   rawUrl,
   selectionIndexUrl,
   selectionKey,
@@ -127,12 +128,7 @@ export function concatenatedMarkdown(entries: Page[]): string {
   return `${body.replace(/\s+$/, "")}\n`;
 }
 
-/** Every page of the release concatenated in index order, without the UI pattern pages. */
-export function fullLlmsText(): string {
-  return concatenatedMarkdown(pages.filter((page) => page.style !== "pattern"));
-}
-
-/** The concatenated Markdown of one layer, in the same format as llms-full.txt. */
+/** The concatenated Markdown of one layer. */
 export function layerText(layer: Layer): string {
   const entries = layer.files
     .map((file) => pageByFile(file))
@@ -152,7 +148,7 @@ export function versionLlmsText(): string {
     "",
     "This index lists every page of the release in docs group order. Fetch a page's raw Markdown link to read it as plain text.",
     "",
-    `To read the whole release as one file, fetch ${absoluteUrl(`/${version}/llms-full.txt`)}. It holds every page except the UI pattern pages. To read only what one project applies, start from the selection index in ${absoluteUrl("/llms.txt")} that matches the project's shape and stacks.`,
+    `To read only what one project applies, start from the selection index in ${absoluteUrl("/llms.txt")} that matches the project's shape and stacks.`,
     "",
   );
   const rootIndex = pageByFile("docs/README.md");
@@ -204,6 +200,64 @@ export function selectionLine(selection: Selection): string {
   return `${shape} using ${list}.`;
 }
 
+/** The maintainer-only pages, listed in no selection index. */
+const MAINTAINER_PAGES = new Set(["docs/core/maintaining.md"]);
+
+/** The tool and reference pages every selection index lists after its layer groups. */
+const SELECTION_TOOL_PAGES = [
+  "docs/tools/rules.md",
+  "docs/tools/model.md",
+  "docs/tools/new.md",
+  "docs/tools/skill.md",
+  "docs/reference/published-urls.md",
+];
+
+/** The selection's applied pages without the maintainer-only page, in ordinal order. */
+function selectionPages(selection: Selection): string[] {
+  return appliedPages(selection).filter((file) => !MAINTAINER_PAGES.has(file));
+}
+
+/** Split a comma-separated provision scope from the provision index into its kinds. */
+function scopeKinds(value: string): string[] {
+  return value
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part !== "");
+}
+
+/** Whether a provision stack scope applies to a selection: an empty scope or any applies everywhere, else one stack must match. */
+function stackApplies(stack: string, stacks: string[]): boolean {
+  const kinds = scopeKinds(stack);
+  return kinds.length === 0 || kinds.includes("any") || kinds.some((kind) => stacks.includes(kind));
+}
+
+/**
+ * The By Artifact lines of a selection: one line per artifact kind with the
+ * selection pages that carry provisions for it, for the selection's stacks.
+ * Kinds sort alphabetically and pages keep ordinal order. The any scope names
+ * no kind, so it has no line.
+ */
+function artifactLines(selection: Selection): string[] {
+  const covered = selectionPages(selection);
+  const rank = new Map(covered.map((file, index) => [file, index] as const));
+  const groups = new Map<string, Page[]>();
+  for (const { provision, page } of provisions.values()) {
+    if (!rank.has(page.file) || !stackApplies(provision.stack, selection.stacks)) continue;
+    for (const kind of scopeKinds(provision.artifact)) {
+      if (kind === "any") continue;
+      const list = groups.get(kind) ?? [];
+      if (!list.includes(page)) list.push(page);
+      groups.set(kind, list);
+    }
+  }
+  return [...groups.keys()].sort().map((kind) => {
+    const titles = (groups.get(kind) ?? [])
+      .sort((a, b) => (rank.get(a.file) ?? 0) - (rank.get(b.file) ?? 0))
+      .map((page) => page.title);
+    return `- ${kind}: ${titles.join(", ")}`;
+  });
+}
+
 /** The /<version>/select/<key>/llms.txt index of one selection. */
 export function selectionLlmsText(selection: Selection): string {
   const key = selectionKey(selection);
@@ -214,7 +268,7 @@ export function selectionLlmsText(selection: Selection): string {
     `This index lists the pages the ${key} selection applies, grouped by layer. Each entry links the page's raw Markdown.`,
     "",
   );
-  const applied = new Set(appliedPages(selection));
+  const applied = new Set(selectionPages(selection));
   for (const layerKey of selectionLayers(selection)) {
     const layer = layers().find((entry) => entry.key === layerKey);
     if (!layer) continue;
@@ -228,6 +282,21 @@ export function selectionLlmsText(selection: Selection): string {
     }
     lines.push("");
   }
+  lines.push("## Tools and Reference", "");
+  for (const file of SELECTION_TOOL_PAGES) {
+    const page = pageByFile(file);
+    if (!page) continue;
+    lines.push(`- [${page.title}](${absoluteUrl(rawUrl(page))}): ${describe(page)}`);
+  }
+  lines.push("");
+  lines.push(
+    "## By Artifact",
+    "",
+    "Each line names the pages of this selection that carry provisions for one artifact kind. Every page also appears with its raw Markdown URL in the layer groups above.",
+    "",
+    ...artifactLines(selection),
+    "",
+  );
   lines.push("## Extensions This Selection May Add", "");
   const addable = Object.entries(manifest.extensions).filter(([id]) => {
     const owner = extensionStack(id);
@@ -235,18 +304,13 @@ export function selectionLlmsText(selection: Selection): string {
   });
   for (const [id, extension] of addable) {
     const page = pageByFile(extension.path);
-    lines.push(
-      `- [${page?.title ?? id}](${absoluteUrl(layerUrl(`ext/${id}`))}): ${page ? describe(page) : `The ${id} extension.`}`,
-    );
+    lines.push(`- [${page?.title ?? id}](${absoluteUrl(layerUrl(`ext/${id}`))})`);
   }
   lines.push("");
   if (selection.stacks.some((stack) => frontendStacks.includes(stack))) {
     lines.push("## UI Pattern Groups", "");
     for (const layer of layers().filter((entry) => entry.key.startsWith("patterns/"))) {
-      const page = pageByFile(layer.files[0]);
-      lines.push(
-        `- [${layer.title}](${absoluteUrl(layerUrl(layer.key))}): ${page ? describe(page) : layer.title}`,
-      );
+      lines.push(`- [${layer.title}](${absoluteUrl(layerUrl(layer.key))})`);
     }
     lines.push("");
   }
