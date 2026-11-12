@@ -1,4 +1,4 @@
-# Reinforce Rules at Edit Time
+# Run Rules After Every Edit
 
 ## Purpose
 
@@ -56,7 +56,7 @@ After an edit to the Claimwick SubmitExpense command handler, the hook returns t
 
 ### Gate the Stop in Claude Code
 
-Add a `Stop` hook that runs `model check --since <base>` over the change set. When the check reports a blocking finding, the hook returns the output as added context so the turn continues with the findings in view. When the check is clean, the hook exits silently and the turn ends.
+Add a `Stop` hook that runs `model check --since <base>` over the change set. When the check reports a blocking finding, the hook returns the output as added context so the agent continues the turn and reads the findings. When the check is clean, the hook exits silently and the turn ends.
 
 ```json
 {

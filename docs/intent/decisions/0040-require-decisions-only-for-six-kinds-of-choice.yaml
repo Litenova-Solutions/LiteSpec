@@ -1,6 +1,6 @@
 type: decision
-id: decision/0040-record-only-technical-choices-of-a-kind
-title: Record Only Technical Choices of a Kind
+id: decision/0040-require-decisions-only-for-six-kinds-of-choice
+title: Require Decisions Only for Six Kinds of Choice
 options:
   - name: "Record a technical decision only for a choice of one of six kinds, and carry standing rules as conventions"
     pros: "A reader meets only expensive-to-reverse choices, each with its kind, its followers, and what would reopen it."

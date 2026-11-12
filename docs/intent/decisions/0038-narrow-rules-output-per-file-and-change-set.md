@@ -1,4 +1,4 @@
-# Retrieve Rules for the Edit and the Change
+# Narrow Rules Output per File and Change Set
 
 ## Context
 

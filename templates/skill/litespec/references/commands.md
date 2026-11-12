@@ -31,6 +31,6 @@ litespec model check --since origin/main
 litespec rules --since origin/main
 ```
 
-## Reinforce Rules at Edit Time
+## Run Rules After Every Edit
 
-The guide [Reinforce Rules at Edit Time](https://litespec.dev/latest/guide/reinforce-rules-at-edit-time/) shows how to run `rules <path>` after every edit and `model check --since <base>` at the end of a session, with one recipe for Claude Code hooks and one for an OpenCode plugin. The same page as plain Markdown lives at `https://litespec.dev/latest/guide/reinforce-rules-at-edit-time.md`.
+The guide [Run Rules After Every Edit](https://litespec.dev/latest/guide/run-rules-after-every-edit/) shows how to run `rules <path>` after every edit and `model check --since <base>` at the end of a session, with one recipe for Claude Code hooks and one for an OpenCode plugin. The same page as plain Markdown lives at `https://litespec.dev/latest/guide/run-rules-after-every-edit.md`.

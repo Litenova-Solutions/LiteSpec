@@ -2302,11 +2302,11 @@
       ]
     },
     {
-      "file": "docs/guide/reinforce-rules-at-edit-time.md",
-      "path": "guide/reinforce-rules-at-edit-time",
+      "file": "docs/guide/run-rules-after-every-edit.md",
+      "path": "guide/run-rules-after-every-edit",
       "style": "how-to",
       "area": "guide",
-      "title": "Reinforce Rules at Edit Time",
+      "title": "Run Rules After Every Edit",
       "intent": "An agent that loads the governing provisions once at the start of a task works from memory by its later edits, and memory drifts from the standard as the session grows. This guide brings the provisions back at the moment they matter: after each file edit the agent sees the short \u0060rules\u0060 output for that file, and before it stops it faces the model check over its change set. It covers Claude Code hooks and an OpenCode plugin. \u0060skill add\u0060 writes Markdown files only and installs no hooks, so each recipe below is installed by hand. The guide adds no rule of its own.",
       "sections": [
         "Purpose",
@@ -2789,11 +2789,11 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0038-retrieve-rules-for-the-edit-and-the-change.md",
-      "path": "intent/decisions/0038-retrieve-rules-for-the-edit-and-the-change",
+      "file": "docs/intent/decisions/0038-narrow-rules-output-per-file-and-change-set.md",
+      "path": "intent/decisions/0038-narrow-rules-output-per-file-and-change-set",
       "style": "decision",
       "area": "intent",
-      "title": "Retrieve Rules for the Edit and the Change",
+      "title": "Narrow Rules Output per File and Change Set",
       "intent": "",
       "sections": [
         "Context",
@@ -2813,11 +2813,11 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0040-record-only-technical-choices-of-a-kind.md",
-      "path": "intent/decisions/0040-record-only-technical-choices-of-a-kind",
+      "file": "docs/intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice.md",
+      "path": "intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice",
       "style": "decision",
       "area": "intent",
-      "title": "Record Only Technical Choices of a Kind",
+      "title": "Require Decisions Only for Six Kinds of Choice",
       "intent": "",
       "sections": [
         "Context",

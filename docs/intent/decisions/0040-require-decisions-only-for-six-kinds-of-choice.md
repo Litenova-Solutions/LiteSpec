@@ -1,4 +1,4 @@
-# Record Only Technical Choices of a Kind
+# Require Decisions Only for Six Kinds of Choice
 
 ## Context
 

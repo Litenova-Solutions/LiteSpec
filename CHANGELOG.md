@@ -2,9 +2,9 @@
 
 ## v5.2.0
 
-LiteSpec 5.2.0 generates the consumer agent protocol from one template, answers `rules` for the file being edited and for the change set, ships a LiteSpec skill for Claude Code and OpenCode, and asks each technical decision to earn its place with a kind. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.
+LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.
 
-### Part A: One Generated Agent Protocol
+### Part A: Generated Agent Protocol in AGENTS.md
 
 - `templates/consumer/project-agents.md` is the only source of the consumer protocol. Its LiteSpec part sits inside a generated region, `<!-- generated:agent-protocol -->` ... `<!-- /generated:agent-protocol -->`, opening with the precedence sentence: when the file disagrees with tool output or a record, the tool output and the record win. The `## Project Commands` part stays outside the region, written by the project.
 - `init` writes the region into a fresh `AGENTS.md`, and inserts it into an existing one that holds none, after the first heading or at the end. It never touches text outside the region, and it never rewrites a region that is already there.
@@ -15,7 +15,7 @@ LiteSpec 5.2.0 generates the consumer agent protocol from one template, answers 
 
 The rule is `litespec/core/agent#keep-the-agent-protocol-current`. Decision 0037, Generate the Agent Protocol, records why.
 
-### Part B: Rules for the Edit and the Change
+### Part B: Narrower Rules Output, Change Sets and Lookup by ID
 
 - When the target is code, provisions matched only through a marked record print as one line per record: `use-case/spending.approve-expense: <n> provisions about the record; model check checks <m>; run rules use-case/spending.approve-expense for the rest`. A record path or record ID still prints them in full.
 - `rules --since <ref>` takes every file changed since `<ref>`, returns the union with duplicates removed, leaves out the tool-checked provisions, and prints a report skeleton: one line per judgment provision with its Reviewed for question and an empty `How judged:` line.
@@ -26,7 +26,7 @@ The rule is `litespec/core/agent#keep-the-agent-protocol-current`. Decision 0037
 - The stage provision carries `when: project`, so it applies once to the project and never per record. The audit adoption provision carries `when: audit-adoption`, so it applies only to the decision the `audit` extension selection names in its new `decision` field in `.litespec/project.yaml`.
 - The site serves `/5.2.0/provisions.json`, one object per provision, outside search results. The [published URLs](docs/reference/published-urls.md) page states the ID-to-URL rule: `litespec/<page>#<slug>` is `https://litespec.dev/<release>/<page>/#<slug>` as HTML and `<page>.md` as Markdown.
 
-Decision 0038, Retrieve Rules for the Edit and the Change, records why.
+Decision 0038, Narrow Rules Output per File and Change Set, records why.
 
 ### Part C: The LiteSpec Skill
 
@@ -38,7 +38,7 @@ Decision 0038, Retrieve Rules for the Edit and the Change, records why.
 
 The rule is `litespec/core/agent#keep-the-agent-protocol-current`, which also names the skill. The [skill page](docs/tools/skill.md) states the full syntax. Decision 0039, Ship a LiteSpec Skill, records why.
 
-### Part D: Decisions That Earn Their Place
+### Part D: Decision Kinds, Convention Marks and Decision Indexes
 
 - A technical decision carries an optional `kind`: `provider`, `package`, `format`, `boundary`, `topology`, or `replacement`. A product decision takes none. `litespec/core/model#record-each-technical-choice-as-a-decision` requires a decision only for a choice of one of the six kinds; otherwise the class documentation states the reason, and the mark names the record the class serves. Claimwick's `0005-render-receipts-as-pdf` reads `package`.
 - `model check` reports `decision-kind-missing` for a technical decision with no `kind`, and `decision-scope-invalid` for a technical decision whose followers all sit in one module and each already carry an `implements` mark. Both are advisory.
@@ -48,9 +48,9 @@ The rule is `litespec/core/agent#keep-the-agent-protocol-current`, which also na
 - Folders carry ownership and layer only. A decision's concern is computed from its followers' paths, so it cannot drift. `model render` writes a `decision-index` region into the README of each decisions folder that carries the fence, grouped by `kind`, then by concern, with the choice, follower count and modules, `reopenedWhen`, and markers for `decision-unimplemented`, `decision-basis-missing` and `decision-scope-invalid`. It writes a `departure-index` region grouped by gap or permanent, ordered by `expiresOn`, with the provisions each departure covers.
 - The book's decision chapter groups by kind, then by concern; each decision page lists its followers by module; and an external-system page shows the decision that chooses its provider. `model check` reports `decision-home-drift` for a module-level decision followed from more than one module, or a product-level decision followed only from one module. It is advisory.
 
-Decision 0040, Record Only Technical Choices of a Kind, records why.
+Decision 0040, Require Decisions Only for Six Kinds of Choice, records why.
 
-### Part E: Strength That Matches the Modal
+### Part E: Strength and Modal Word Agree
 
 - The rule is `litespec/core/authoring#match-strength-to-the-modal`: a `required` statement holds MUST or MUST NOT, an `advisory` statement holds neither, and a permission on its own joins the provision it relaxes or becomes an obligation. `litespec-maintain validate` enforces it as `STANDARD_STRENGTH_MODAL`, and reports `TEMPLATE_CITATION_UNKNOWN` for a `litespec/...` citation in `templates/` that resolves to no provision.
 - Nine provisions are reworded, each keeping its ID:
@@ -63,7 +63,7 @@ Decision 0040, Record Only Technical Choices of a Kind, records why.
 - Selection indexes describe each page with its Intent's first sentence, with links rewritten the way page bodies are. They leave out the maintainer-only `core/maintaining` page and list the `rules`, `model`, `new` and `skill` tool pages with the Published URLs page. A "By Artifact" section names, for each artifact kind, the pages of the selection that carry provisions for it. Each index stays under 25 KB.
 - `/<version>/llms-full.txt` is removed: Cloudflare analytics recorded no request for it in the 29 days before this release, while the indexes kept their readers. The layer bundles stay, and each section heading of a selection index links the bundle that carries the same text.
 - The "Use with Agents" page shows the full generated block and a third step, "Install the Skill", with the `skill add` command.
-- The [reinforce guide](docs/guide/reinforce-rules-at-edit-time.md) brings `rules` back at edit time: a Claude Code `PostToolUse` hook on `Edit|Write` that returns the short `rules` output as added context, a `Stop` hook running `model check --since <base>`, and an OpenCode plugin doing the same after each edit. `skill add` writes Markdown files only and installs no hooks.
+- The guide [Run Rules After Every Edit](docs/guide/run-rules-after-every-edit.md) runs `rules` after every file edit: a Claude Code `PostToolUse` hook on `Edit|Write` that returns the short `rules` output as added context, a `Stop` hook running `model check --since <base>`, and an OpenCode plugin doing the same after each edit. `skill add` writes Markdown files only and installs no hooks.
 - [Work with agents](docs/learn/working-with-agents.md) names the entry file each agent reads: Claude Code reads `CLAUDE.md` else the nearest `AGENTS.md`, and the rest read the nearest `AGENTS.md` except Gemini CLI with `GEMINI.md`. `init` prints a line when a `CLAUDE.md` does not import `AGENTS.md`, and `model check` reports `agent-protocol-unreached` as advisory for the same gap.
 
 ### Part G: Provision Changes Since v5.1.0

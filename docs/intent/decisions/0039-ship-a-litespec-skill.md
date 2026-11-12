@@ -2,7 +2,7 @@
 
 ## Context
 
-An agent in a consumer project learns the LiteSpec task order from the protocol region in `AGENTS.md`. Claude Code and OpenCode each read their own skill folders, and a global skill can shadow the project's copy. A link would share one folder, but links need Developer Mode or admin rights on Windows. Claude Code reads `CLAUDE.md` before the nearest `AGENTS.md`, so a project with a bare `CLAUDE.md` never shows its protocol. An agent that loads its rules once works from memory by its later edits.
+An agent in a consumer project learns the LiteSpec task order from the protocol region in `AGENTS.md`. Claude Code and OpenCode each read their own skill folders, and a global skill takes precedence over the project's copy. A link would share one folder, but links need Developer Mode or admin rights on Windows. Claude Code reads `CLAUDE.md` before the nearest `AGENTS.md`, so a project with a bare `CLAUDE.md` never shows its protocol. An agent that loads its rules once works from memory by its later edits.
 
 ## Decision
 
