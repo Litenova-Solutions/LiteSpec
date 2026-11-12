@@ -6,8 +6,8 @@ namespace LiteSpec.Maintain.ProvisionIndex;
 /// <summary>
 ///     The <c>litespec-maintain provisions</c> command: writes <c>docs/reference/provisions.md</c>,
 ///     <c>docs/reference/provisions.json</c> and the site's <c>docs/reference/pages.json</c> from the active standards, with each provision's
-///     inline verification mark, scope, record layer, trace, and strength, and the checked share
-///     of rules for each page in the index.
+///     inline verification mark, scope, record layer, trace, applicability condition, and strength,
+///     and the checked share of rules for each page in the index.
 /// </summary>
 /// <follows>litespec/core/authoring#regenerate-the-provision-index</follows>
 static class ProvisionsCommand
@@ -18,8 +18,9 @@ static class ProvisionsCommand
 
         Writes docs/reference/provisions.md, docs/reference/provisions.json and the site's page
         index docs/reference/pages.json from the active standards in root, which defaults to the
-        LiteSpec checkout this tool belongs to. Each provision carries its record layer and trace,
-        and the index states the checked share of rules for each page. It also writes the finding
+        LiteSpec checkout this tool belongs to. Each provision carries its record layer, trace,
+        and applicability condition, and the index states the checked share of rules for each page.
+        It also writes the finding
         code table docs/reference/finding-codes.md, the record folder table docs/reference/folders.md,
         and the pin table inside docs/reference/manifest.md.
 

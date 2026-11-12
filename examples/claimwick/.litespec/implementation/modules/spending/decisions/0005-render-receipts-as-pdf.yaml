@@ -2,6 +2,7 @@ type: decision
 id: decision/0005-render-receipts-as-pdf
 title: Render Receipts as PDF
 summary: Finance keeps each receipt as a file next to the expense.
+kind: package
 options:
 - name: PDF library
   pros: Receipts download as files finance keeps.

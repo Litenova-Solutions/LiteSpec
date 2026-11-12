@@ -4,7 +4,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 5.1.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
+LiteSpec 5.2.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
@@ -43,7 +43,7 @@ In this repository, run the CLI with `dotnet run --project apps/cli/src/LiteSpec
 In a consumer:
 
 1. Read the consumer's `AGENTS.md` and `.litespec/project.yaml`.
-2. Find the records the task touches with `litespec model query <id>`, read their generated context, then the YAML record files themselves with their explanation files.
+2. Find the records the task touches with `litespec model query <id>`, read the query output, then the YAML record files themselves with their explanation files.
 3. Before you generate files or change a public boundary, read the full standards pages those records cite.
 4. Before you edit inside an extension's boundary, read the extension.
 5. Then look at neighboring files and follow a local pattern that complies.

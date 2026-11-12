@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.1.0/schemas/litespec-project.schema.yaml'
+$id: 'https://litespec.dev/5.2.0/schemas/litespec-project.schema.yaml'
 title: LiteSpec Consumer Project
 type: object
 additionalProperties: false
@@ -419,6 +419,10 @@ properties:
           enum:
           - pre-production
           - production
+        decision:
+          description: The identifier of the audit adoption decision the audit extension names.
+          type: string
+          pattern: '^decision/'
       allOf:
       - if:
           required:
@@ -427,6 +431,13 @@ properties:
           properties:
             id:
               const: stage
+      - if:
+          required:
+          - decision
+        then:
+          properties:
+            id:
+              const: audit
       - if:
           properties:
             id:

@@ -42,7 +42,7 @@ A domain event cannot substitute for an audit record. A domain event carries dom
 
 **Strength:** required
 
-**Applies to:** artifact: record:decision
+**Applies to:** artifact: record:decision; when: audit-adoption
 
 **Statement:** An audit adoption decision MUST record its audited categories, threshold, access model, integrity method, and records entry.
 

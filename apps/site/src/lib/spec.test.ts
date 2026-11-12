@@ -76,7 +76,7 @@ describe("provision index", () => {
   const indexFile = path.join(root, "docs/reference/provisions.json");
   const index = JSON.parse(fs.readFileSync(indexFile, "utf8")) as { version: string; provisions: ProvisionIndexEntry[] };
 
-  it("lists every provision with its kind, mark and strength", () => {
+  it("lists every provision with its kind, mark, strength, artifact and stack", () => {
     assert.ok(index.provisions.length > 0);
     for (const entry of index.provisions) {
       assert.match(entry.id, /^litespec\//, entry.id);
@@ -84,6 +84,8 @@ describe("provision index", () => {
       assert.ok(["rule", "convention", "pattern"].includes(entry.kind), entry.id);
       assert.ok(["", "checkable", "guidance"].includes(entry.mark ?? ""), entry.id);
       assert.ok(["", "required", "default", "advisory"].includes(entry.strength ?? ""), entry.id);
+      assert.strictEqual(typeof entry.artifact, "string", entry.id);
+      assert.strictEqual(typeof entry.stack, "string", entry.id);
     }
   });
 

@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.1.0/schemas/record.schema.yaml'
+$id: 'https://litespec.dev/5.2.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
 description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
 oneOf:
@@ -2006,6 +2006,14 @@ $defs:
         $ref: '#/$defs/termIdArray'
       records:
         $ref: '#/$defs/recordsArray'
+      kind:
+        enum:
+        - provider
+        - package
+        - format
+        - boundary
+        - topology
+        - replacement
       options:
         type: array
         uniqueItems: true

@@ -65,6 +65,13 @@ internal sealed partial class RepositoryValidator
         var add = Context.Add;
         foreach (var page in parsedPages)
         {
+            // Templates carry placeholders and generated regions the template
+            // citation check reads, so they are its pages, not this check's.
+            if (page.Relative.StartsWith("templates/", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             var prose = string.Join('\n', page.Reader.Lines.Select((line, index) =>
                 page.Reader.FencedLines.Contains(index + 1) || page.Reader.GeneratedLines.Contains(index + 1) ? "" : line));
             foreach (Match match in CitationPattern.Matches(prose))

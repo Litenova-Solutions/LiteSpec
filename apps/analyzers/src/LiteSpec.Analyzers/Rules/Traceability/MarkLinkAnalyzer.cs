@@ -342,6 +342,13 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             return;
         }
 
+        // A project convention lives in Markdown the compilation cannot read, so the analyzer
+        // accepts its form and litespec model check resolves the identifier.
+        if (ConventionIds.IsConventionId(id))
+        {
+            return;
+        }
+
         TraceabilityReporter.Report(
             state,
             context.ReportDiagnostic,
@@ -351,7 +358,7 @@ public sealed class MarkLinkAnalyzer : TraceabilityAnalyzer
             location,
             symbol.Name,
             id,
-            "matches no provision, decision, or departure");
+            "matches no provision, decision, departure, or convention");
     }
 
     /// <summary>Reports LS5004 when the mark uses a style other than the declared one.</summary>

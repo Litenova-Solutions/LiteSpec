@@ -15,6 +15,7 @@ namespace LiteSpec.Standards;
 /// <param name="Artifact">The narrowed artifact values, comma-separated, or empty when the provision carries none.</param>
 /// <param name="Layer">The record layer the provision governs: <c>any</c>, <c>intent</c>, <c>behavior</c>, <c>implementation</c>, or <c>proof</c>.</param>
 /// <param name="Trace">Whether the provision ties its layer to the records, rather than stating LiteSpec's practice for it.</param>
+/// <param name="When">The applicability condition from the Applies to line, or empty when the provision states none.</param>
 /// <param name="Strength">The named strength, or empty when the provision carries none.</param>
 /// <param name="Statement">The assertive line: the Statement, or the Default of a convention or pattern.</param>
 /// <param name="Rationale">The Rationale paragraph, or empty when the provision carries none.</param>
@@ -32,6 +33,7 @@ public sealed record ProvisionRow(
     string Artifact,
     string Layer,
     bool Trace,
+    string When,
     string Strength,
     string Statement,
     string Rationale,

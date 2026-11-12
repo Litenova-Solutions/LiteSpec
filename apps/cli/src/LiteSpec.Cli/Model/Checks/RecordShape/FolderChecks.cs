@@ -252,6 +252,12 @@ internal static class FolderChecks
             return true;
         }
 
+        // Project conventions are provision-shaped Markdown that rules reads; no record type lives there.
+        if (full is ["governance", "conventions", ..])
+        {
+            return true;
+        }
+
         // Documents and contracts nest freely: no record type lives there.
         if (full[0] == "implementation" && full.Length >= 3 && ImplementationDocumentFolders.Contains(full[1]))
         {

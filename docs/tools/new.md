@@ -20,7 +20,7 @@ This command creates one record file from the template for its type, with every 
 
 `<type>` is the record type or page style, such as `reaction`, `job`, or `use-case`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The file is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder with its explanation file beside it. A module file is `modules/<module>/module.yaml`; an aggregate file is `modules/<module>/<aggregate>/aggregate.yaml`. A use-case file starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
 
-`new decision` takes only the kebab-case `<name>` and allocates the next decision number from the one decision sequence, so decision numbers stay unique without coordination. The full identifier is `decision/<number>-<name>`, and the file is written under the decisions folder with its explanation file beside it.
+`new decision` takes only the kebab-case `<name>` and allocates the next decision number from the one decision sequence, so decision numbers stay unique without coordination. The full identifier is `decision/<number>-<name>`, and the file is written under the decisions folder with its explanation file beside it. Before it writes, it prints the provisions whose statement matches the name's words, so a choice the standard already makes is followed instead of recorded.
 
 Run it before writing any new record, as `litespec/core/model#scaffold-pages-and-reserve-identifiers` states. Validate the new file before committing it.
 
@@ -78,6 +78,12 @@ Scaffold a decision with the next number:
 litespec new decision receipt-kept-once
 ```
 
+Print the provisions whose statement matches the name before scaffolding the decision:
+
+```bash
+litespec new decision render-receipts
+```
+
 Append a refusal result to the cancel-order page:
 
 ```bash
@@ -122,4 +128,4 @@ litespec new entry .litespec/behavior/modules/spending/settings.yaml setting rec
 
 ## Underneath
 
-This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; for an article type or for a type on a layer listed in `explanations.layers` it also reads `templates/consumer/<type>.md`, or the generic `templates/consumer/explanation.md` when the release carries no template for the type, and writes the explanation file, and for a document style it reads `templates/consumer/<type>.md` and writes the document. The `decision` path allocates the next number from the one decision sequence before writing. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.
+This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; for an article type or for a type on a layer listed in `explanations.layers` it also reads `templates/consumer/<type>.md`, or the generic `templates/consumer/explanation.md` when the release carries no template for the type, and writes the explanation file, and for a document style it reads `templates/consumer/<type>.md` and writes the document. The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes. It splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular; it prints nothing when no statement matches or the carried release cannot be read. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.

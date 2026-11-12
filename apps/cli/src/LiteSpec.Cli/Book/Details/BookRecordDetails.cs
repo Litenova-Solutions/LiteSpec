@@ -121,6 +121,7 @@ static class BookRecordDetails
 
         var outs = BookEdges.OutEdges(index, details, calls, routes);
         var ins = BookEdges.InEdges(model, index, outs);
+        BookDecisionDetail.AddDecidesEdges(model, index, outs, ins);
         foreach (var id in order)
         {
             details[id]["out"] = BookEdges.EdgeList(outs.TryGetValue(id, out var from) ? from : []);
@@ -156,11 +157,12 @@ static class BookRecordDetails
             },
         };
 
-        // The computed facts the model builder states beside the record: the
-        // screen captures and the problem evidence strength. The book reads only
-        // these names; it computes none of them itself. A carried capture state
-        // is always a member of BookCaptureStates.
-        foreach (var key in new[] { "captures", "captureState", "evidenceStrength" })
+        // The computed facts stated beside the record: the screen captures and
+        // the problem evidence strength from the model builder, and the decision
+        // concerns from the book command. The book reads only these names; it
+        // computes none of them itself. A carried capture state is always a
+        // member of BookCaptureStates.
+        foreach (var key in new[] { "captures", "captureState", "evidenceStrength", "concerns" })
         {
             if (record[key] is { } node)
             {

@@ -1,6 +1,7 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
+using LiteSpec.Cli.Rules;
 using LiteSpec.Model;
 using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -56,8 +57,8 @@ internal static class ExplanationChecks
 
                 // A file opening with a frontmatter fence is a document, and a file
                 // with a record file beside it is an explanation. Anything else is
-                // an orphaned explanation.
-                if (HasFrontmatterFence(text) || File.Exists(RecordFile.RecordPathOf(file)))
+                // an orphaned explanation, except a project convention, which rules reads.
+                if (HasFrontmatterFence(text) || File.Exists(RecordFile.RecordPathOf(file)) || ConventionFiles.InConventionsFolder(file))
                 {
                     continue;
                 }

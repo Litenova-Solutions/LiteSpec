@@ -37,7 +37,7 @@
   X-Robots-Tag: noindex
 /:version/llms.txt
   X-Robots-Tag: noindex
-/:version/llms-full.txt
+/:version/provisions.json
   X-Robots-Tag: noindex
 /llms.txt
   X-Robots-Tag: noindex

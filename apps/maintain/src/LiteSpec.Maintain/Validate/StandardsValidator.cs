@@ -102,6 +102,7 @@ internal static class StandardsValidator
         context.Marks.CheckMarks(activeIds);
 
         context.Templates.CheckAuthoringTemplates();
+        context.Templates.CheckProvisionCitations(activeIds);
         context.Links.CheckLinks(current);
         // The docs cite the tools, the templates and the example, so each citation is a lookup
         // against data the tools already hold. (litespec/core/authoring#run-repeatable-authoring-checks)

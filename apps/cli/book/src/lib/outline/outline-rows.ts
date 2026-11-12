@@ -97,7 +97,30 @@ function groupFieldOf(book: Book, id: string): [string, string] | null {
     const kind = fields.kind;
     return [kind ? capitalize(kind) : "No kind", ""];
   }
+  if (t === "decision") {
+    const kind = fields.kind;
+    const concerns = decisionConcerns(book, id)
+      .map((concern) => capitalize(formatLabel(concern)))
+      .join(", ");
+    return [kind ? capitalize(kind) : "No kind", concerns];
+  }
   return null;
+}
+
+/** The decision concerns in display order. */
+const DECISION_CONCERN_ORDER: readonly string[] = [
+  "domain", "application", "infrastructure", "web-api",
+  "frontend-ui", "frontend-data", "tests", "workspace", "operations",
+];
+
+/** The concerns of a decision's followers in display order, as the book command computed them. */
+function decisionConcerns(book: Book, id: string): string[] {
+  const found = new Set<string>();
+  const concerns = book.get(id)?.concerns;
+  if (Array.isArray(concerns)) {
+    for (const concern of concerns) found.add(concern);
+  }
+  return DECISION_CONCERN_ORDER.filter((concern) => found.has(concern));
 }
 
 /** The comparator for the active sort; the table holds every sort key, so the last arm never runs. */

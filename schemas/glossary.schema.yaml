@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.1.0/schemas/glossary.schema.yaml'
+$id: 'https://litespec.dev/5.2.0/schemas/glossary.schema.yaml'
 title: LiteSpec Project Glossary
 description: 'The closed vocabulary a project''s prose is checked against: one Term entry per concept, with its meaning, labels per language, rejected synonyms, broader and narrower terms, and closed-set values, plus the mannered terms no page may use.'
 type: object

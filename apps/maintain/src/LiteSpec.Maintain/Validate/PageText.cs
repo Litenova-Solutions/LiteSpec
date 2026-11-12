@@ -37,7 +37,7 @@ internal static class PageText
         "Restrict Retain Retire Retry Return Revalidate Review Rotate Route Run Scan Scope Select Separate Serialize Set Shape " +
         "Show Signal Simulate Specify Split Stage Start State Stop Store Subscribe Supply Support Tabulate Tag Test Tolerate Trace " +
         "Track Translate Treat Trigger Update Use Validate Verify Version Wait Write " +
-        "Admit Comment Grade Open Perform Put Advise Carry Close Confine Draw Enter File Flag Freeze Guard Honor Host Issue Justify Leave Pause Qualify Request Restore Resume Rewrite Sample Scaffold Schedule Send Serve Trust").Split(' '),
+        "Admit Comment Grade Open Perform Put Advise Carry Close Confine Draw Enter File Flag Freeze Guard Honor Host Issue Justify Leave Pause Qualify Request Restore Resume Rewrite Sample Scaffold Schedule Search Send Serve Trust").Split(' '),
         StringComparer.Ordinal);
 
     // Naming the codepoint tells an author which character to hunt for. Naming the

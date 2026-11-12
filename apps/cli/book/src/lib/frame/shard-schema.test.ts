@@ -56,6 +56,18 @@ describe("shard-schema", () => {
     ).toThrow();
   });
 
+  it("parses decision concerns when the book command wrote them", () => {
+    const record = parseBookRecord(
+      "decision/0001-a",
+      { type: "decision", title: "A", fields: {}, concerns: ["tests", "application"] },
+    );
+    expect(record.concerns).toEqual(["tests", "application"]);
+    expect(parseBookRecord("decision/0001-a", { type: "decision", title: "A", fields: {} }).concerns).toBeUndefined();
+    expect(() =>
+      parseBookRecord("decision/0001-a", { type: "decision", title: "A", fields: {}, concerns: "tests" }),
+    ).toThrow();
+  });
+
   it("parses a records pack by id", () => {
     const pack = parseRecordPack({
       "feature/a": { type: "feature", title: "A", fields: {} },

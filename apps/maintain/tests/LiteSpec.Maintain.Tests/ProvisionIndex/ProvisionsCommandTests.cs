@@ -183,6 +183,36 @@ public sealed class ProvisionsCommandTests
     }
 
 
+    /// <summary>Provision when condition parses and emits only when stated.</summary>
+    /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
+    [Fact(DisplayName = "provision when condition parses and emits only when stated")]
+    public void ProvisionWhenConditionParsesAndEmitsOnlyWhenStated()
+    {
+        using var temp = Cli.Temp("provisions");
+        StandardsFixture.Base(temp.Path);
+        StandardsFixture.Write(temp.Path, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Strength:** required\n\n**Statement:**", "**Strength:** required\n\n**Applies to:** artifact: aggregate; when: query\n\n**Statement:**"));
+
+        var rows = Provisions.Collect(temp.Path);
+        var row = Assert.Single(rows, item => item.Id == "litespec/core/topic#keep-the-topic-bounded");
+        Assert.Equal("aggregate", row.Artifact);
+        Assert.Equal("query", row.When);
+        var plain = Assert.Single(rows, item => item.Id == "litespec/core/topic#use-the-default-location");
+        Assert.Equal("", plain.When);
+
+        var json = Provisions.BuildJson(temp.Path);
+        var idAt = json.IndexOf("litespec/core/topic#keep-the-topic-bounded", StringComparison.Ordinal);
+        var traceAt = json.IndexOf("\"trace\"", idAt, StringComparison.Ordinal);
+        var whenAt = json.IndexOf("\"when\"", idAt, StringComparison.Ordinal);
+        var strengthAt = json.IndexOf("\"strength\"", idAt, StringComparison.Ordinal);
+        Assert.True(traceAt > idAt && whenAt > traceAt && strengthAt > whenAt);
+        using var document = JsonDocument.Parse(json);
+        var provisions = document.RootElement.GetProperty("provisions");
+        var stated = provisions.EnumerateArray().Single(item => item.GetProperty("id").GetString() == "litespec/core/topic#keep-the-topic-bounded");
+        Assert.Equal("query", stated.GetProperty("when").GetString());
+        var unstated = provisions.EnumerateArray().Single(item => item.GetProperty("id").GetString() == "litespec/core/topic#use-the-default-location");
+        Assert.False(unstated.TryGetProperty("when", out _));
+    }
+
     /// <summary>Checked share counts only rules with a Checked by line.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "checked share counts only rules with a Checked by line")]

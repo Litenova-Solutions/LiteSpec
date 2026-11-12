@@ -81,7 +81,10 @@ public sealed class RulesCommandTests
         Assert.Contains("Concern-wide:", result.Output);
         Assert.Contains("- litespec/backend/application#organize-application-by-use-case", result.Output);
         Assert.Contains("path match (artifact command-handler)", result.Output);
-        Assert.Contains("record use-case/spending.submit-expense", result.Output);
+        Assert.Contains("use-case/spending.submit-expense: ", result.Output);
+        Assert.Contains(" provisions about the record; model check checks ", result.Output);
+        Assert.Contains("run rules use-case/spending.submit-expense for the rest", result.Output);
+        Assert.DoesNotContain("[record use-case/spending.submit-expense]", result.Output);
     }
 
     /// <summary>A checked provision prints as one line with its analyzer ID and without its statement.</summary>

@@ -179,7 +179,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: upload
 
 **Statement:** A file upload operation MUST accept no file larger than the size its use-case record declares and no media type outside the media types its use-case record declares.
 
@@ -195,7 +195,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: upload
 
 **Statement:** A file upload operation MUST determine the file type from the file content rather than the media type or file name the client claims.
 
@@ -211,7 +211,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** required
 
-**Applies to:** artifact: command-handler, endpoint
+**Applies to:** artifact: command-handler, endpoint; when: upload
 
 **Statement:** File storage for an upload MUST live in Infrastructure.
 
@@ -227,7 +227,7 @@ The endpoint catches no failure. The diagram shows how a domain failure or a val
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: upload
 
 **Statement:** A caller MUST reach a stored file only through a download use case authorized from the access that use case declares.
 
@@ -275,7 +275,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: command
 
 **Statement:** A WebApi operation MUST apply a partial update with PATCH and the `application/merge-patch+json` media type.
 
@@ -291,7 +291,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: query
 
 **Statement:** A collection endpoint MUST apply deterministic ordering, its record's declared default limit, and its record's declared maximum limit of 100 or lower.
 
@@ -318,7 +318,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: query
 
 **Statement:** A collection endpoint MUST page with an opaque cursor and refuse a malformed cursor with 400 and code `invalid-cursor`.
 
@@ -332,7 +332,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Strength:** required
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: query
 
 **Statement:** A paging cursor MUST carry a version and the last stable sort values, including a unique tie-breaker, and no sensitive value in readable form.
 
@@ -629,7 +629,7 @@ GET    /api/posts?after={cursor}&limit=20
 
 **Strength:** default
 
-**Applies to:** artifact: endpoint
+**Applies to:** artifact: endpoint; when: command
 
 **Default:** A command route carries the aggregate plural, and a custom action ends with the use-case verb as its last segment; a POST to the collection, a PUT, PATCH or DELETE on one resource, and a verb the HTTP method already says (POST for create, add and register; PUT or PATCH for change; DELETE for remove) keep the plain resource route.
 
@@ -792,7 +792,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Default:** A use case with stricter needs declares its smaller maximum in its record's `paging` and states the reason on its use-case record.
 
@@ -808,7 +808,7 @@ POST   /api/holds/{holdId}/cancel
 
 **Strength:** default
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: query
 
 **Default:** A collection over a proven bounded dataset declares offset paging in its record while the public contract stays cursor-shaped.
 

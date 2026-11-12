@@ -253,11 +253,11 @@ internal static class OperationsChecks
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, or departure.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, departure, or convention.", mark.File, mark.Line, id));
         }
         else
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, or departure.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, departure, or convention.", mark.File, mark.Line, id));
         }
     }
 

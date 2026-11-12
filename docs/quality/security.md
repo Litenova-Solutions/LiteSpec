@@ -185,7 +185,7 @@ Personal data spreads further than the database: logs, search indexes, outboxes,
 
 **Strength:** required
 
-**Applies to:** artifact: use-case
+**Applies to:** artifact: use-case; when: erasure
 
 **Statement:** Erasure and export MUST reach every store holding personal data, with backups expiring inside the retention bound the retention schedule states.
 

@@ -299,6 +299,7 @@ public static class Provisions
                     body.Artifact,
                     body.Layer.Length > 0 ? body.Layer : PageLayer(relative, pageConcerns),
                     body.Trace == "yes",
+                    body.When,
                     body.Strength,
                     body.Statement,
                     body.Rationale,
@@ -404,7 +405,7 @@ public static class Provisions
 
         foreach (var row in Collect(root))
         {
-            provisions.Add((JsonNode)new JsonObject
+            var entry = new JsonObject
             {
                 ["id"] = row.Id,
                 ["heading"] = row.Heading,
@@ -418,11 +419,17 @@ public static class Provisions
                 ["artifact"] = row.Artifact,
                 ["layer"] = row.Layer,
                 ["trace"] = row.Trace,
-                ["strength"] = row.Strength,
-                ["statement"] = row.Statement,
-                ["rationale"] = row.Rationale,
-                ["example"] = row.Example,
-            });
+            };
+            if (row.When.Length > 0)
+            {
+                entry["when"] = row.When;
+            }
+
+            entry["strength"] = row.Strength;
+            entry["statement"] = row.Statement;
+            entry["rationale"] = row.Rationale;
+            entry["example"] = row.Example;
+            provisions.Add((JsonNode)entry);
         }
 
         return new JsonObject { ["provisions"] = provisions }.ToJsonString(JsonOptions);
@@ -474,10 +481,11 @@ public static class Provisions
     /// <param name="Artifact">The narrowed artifact values, or empty.</param>
     /// <param name="Layer">The record layer the provision states, or empty when it takes its page layer.</param>
     /// <param name="Trace">The trace the provision states, <c>yes</c> or <c>no</c>, or empty when it takes its page trace.</param>
+    /// <param name="When">The applicability condition the provision states, or empty when it states none.</param>
     /// <param name="Statement">The assertive line, or empty.</param>
     /// <param name="Rationale">The Rationale paragraph, or empty.</param>
     /// <param name="Example">The Example block, or empty.</param>
-    sealed record ProvisionBody(string Strength, string Stacks, string Artifact, string Layer, string Trace, string Statement, string Rationale, string Example);
+    sealed record ProvisionBody(string Strength, string Stacks, string Artifact, string Layer, string Trace, string When, string Statement, string Rationale, string Example);
 
     // One provision body: the lines between its heading and the next heading. The Strength and
     // Applies to lines read as frame; the Statement, or the Default of a convention or pattern,
@@ -496,6 +504,7 @@ public static class Provisions
         var artifact = "";
         var layer = "";
         var trace = "";
+        var when = "";
         var statement = "";
         var rationale = "";
         var example = "";
@@ -517,6 +526,7 @@ public static class Provisions
                 artifact = JoinScope(fields, "artifact");
                 layer = JoinScope(fields, "layer");
                 trace = JoinScope(fields, "trace");
+                when = JoinScope(fields, "when");
             }
 
             if (statement.Length == 0 && line.StartsWith(assertion, StringComparison.Ordinal))
@@ -535,7 +545,7 @@ public static class Provisions
             }
         }
 
-        return new ProvisionBody(strength, stacks, artifact, layer, trace, statement, rationale, example);
+        return new ProvisionBody(strength, stacks, artifact, layer, trace, when, statement, rationale, example);
     }
 
     // One labeled field: its label line rest with the lines below it, until the next label, frame

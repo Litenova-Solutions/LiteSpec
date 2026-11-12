@@ -36,4 +36,18 @@ internal sealed record ProvisionMatch(
         && (Entry.AppliesTo.Length == 0 || Scopes.ArtifactValues(Entry.AppliesTo).All(value => Scopes.IsConcernWide(value)))
         && Reasons.Count > 0
         && Reasons.All(reason => reason.StartsWith("concern ", StringComparison.Ordinal));
+
+    /// <summary>Gets a value indicating whether the provision matches only through marked records, so a code path collapses it into one line per record.</summary>
+    public bool MatchesOnlyThroughMarkedRecord =>
+        Reasons.Count > 0
+        && Reasons.All(reason => reason.StartsWith("record ", StringComparison.Ordinal)
+            && !Provisions.IsProvisionId(reason["record ".Length..]));
+
+    /// <summary>Gets the marked record identifiers the match came through.</summary>
+    public IReadOnlyList<string> RecordIds => Reasons
+        .Where(reason => reason.StartsWith("record ", StringComparison.Ordinal))
+        .Select(reason => reason["record ".Length..])
+        .Where(id => !Provisions.IsProvisionId(id))
+        .Distinct(StringComparer.Ordinal)
+        .ToList();
 }

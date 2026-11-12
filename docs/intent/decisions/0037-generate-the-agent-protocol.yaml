@@ -1,0 +1,13 @@
+type: decision
+id: decision/0037-generate-the-agent-protocol
+title: Generate the Agent Protocol
+options:
+  - name: "Generate the agent protocol from one template, and report drift from what the release generates"
+    pros: "One template change shows up in a fresh project, an existing project, the selection page and llms.txt, and a hand edit inside the region fails the check."
+    cons: "Every renderer fills the same placeholders, and the region stays within a line budget."
+  - name: "Keep a hand-written protocol in each place"
+    pros: "Each place words its own copy."
+    cons: "The copies drift apart, and a stale file beats working code."
+choice: "Generate the agent protocol from one template, and report drift from what the release generates"
+consequences: "`templates/consumer/project-agents.md` is the only source of the consumer protocol. Its LiteSpec part sits between `<!-- generated:agent-protocol -->` fences, opens with the precedence sentence that tool output and the record win over the file, and holds 40 lines or fewer of commands and rules an agent cannot guess. The `## Project Commands` part stays outside the region. `init` writes the region into a fresh `AGENTS.md` and inserts it into an existing one that holds none, and never touches text outside the region. `model render` rewrites the region from the carried release and the project file. `model check` reports `agent-protocol-drift` when the region differs from what `render` would write and `agent-protocol-missing` when `AGENTS.md` holds no region, both at level S. The site renders the same template for the chosen selection, and `llms.txt` embeds the filled template under Agent Protocol. `litespec/core/agent#keep-the-agent-protocol-current` holds the obligation. `litespec/core/agent#select-task-context` states that the agent queries the model for the records and reads the query output. The order is one: `model query` for the records, `rules` for each file to edit, the pages `rules` cites, then neighboring code. The `rules` lines cite `litespec/core/agent#load-applicable-provisions-before-editing`, every citation in `templates/` resolves to a provision, and `validate` reports `TEMPLATE_CITATION_UNKNOWN` for one that does not."
+reopenedWhen: "A selection the project file holds cannot be expressed in the template, or a renderer needs a placeholder no other renderer can fill."

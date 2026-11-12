@@ -474,7 +474,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** required
 
-**Applies to:** artifact: use-case
+**Applies to:** artifact: use-case; when: command
 
 **Statement:** Each audited command MUST declare beside the message the audit target and reason that the message carries, leaving the handler to add only the values it learns while running.
 
@@ -506,7 +506,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** required
 
-**Applies to:** artifact: use-case
+**Applies to:** artifact: use-case; when: command
 
 **Statement:** Each command needing exclusive access MUST declare its hold beside the message, with its key and its patience.
 
@@ -570,7 +570,7 @@ You review a port declared beside its aggregate with that aggregate's specificat
 
 **Strength:** required
 
-**Applies to:** artifact: use-case
+**Applies to:** artifact: use-case; when: query
 
 **Statement:** Each query carrying paging, filters, or ranges MUST declare a query validator run by the pipeline.
 

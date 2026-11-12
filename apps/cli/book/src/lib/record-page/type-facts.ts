@@ -49,9 +49,13 @@ const facts: Record<string, FactFn> = {
     if (t) out.push(t);
     return out;
   },
-  decision: (_f, r) => {
+  decision: (f, r) => {
+    const out: Fact[] = [];
+    const kind = kindFact(f);
+    if (kind) out.push(kind);
     const t = testedFact(r);
-    return t ? [t] : [];
+    if (t) out.push(t);
+    return out;
   },
   constraint: (f) => {
     const out: Fact[] = [];

@@ -189,6 +189,15 @@ internal sealed partial class ProvisionValidator
         return ModalsPattern().Count(visible) > 0 || OtherNormativePattern().IsMatch(visible);
     }
 
+    /// <summary>Reports whether a Statement holds one modal, or one MUST beside one folded MAY.</summary>
+    /// <param name="modals">The modals the Statement holds, in order.</param>
+    /// <returns>True when the Statement holds one modal or a folded permission.</returns>
+    private static bool HasSingleModal(List<string> modals) =>
+        modals.Count == 1
+        || (modals.Count == 2
+            && modals.Count(modal => modal is "MUST" or "MUST NOT") == 1
+            && modals.Count(modal => modal == "MAY") == 1);
+
     /// <summary>Checks the Statement assertion of one Standard provision.</summary>
     /// <param name="relative">The repository-relative path.</param>
     /// <param name="provision">The provision to check.</param>
@@ -211,10 +220,12 @@ internal sealed partial class ProvisionValidator
         var assertion = statements[0];
         var statement = assertion.Line["**Statement:**".Length..].Trim();
         var visibleStatement = PageReader.VisibleText(statement);
-        var modalCount = ModalsPattern().Count(visibleStatement);
-        if (modalCount != 1)
+        // A permission is not a provision on its own: it is folded into the
+        // provision it relaxes, so one MAY may stand beside one MUST or MUST NOT.
+        var modals = ModalsPattern().Matches(visibleStatement).Cast<Match>().Select(match => match.Value).ToList();
+        if (!HasSingleModal(modals))
         {
-            add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardModalCount, $"Statement for '{provision.Id}' has {modalCount} normative modals");
+            add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardModalCount, $"Statement for '{provision.Id}' has {modals.Count} normative modals");
         }
 
         if (OtherNormativePattern().IsMatch(visibleStatement))
@@ -279,6 +290,56 @@ internal sealed partial class ProvisionValidator
         if (replacements.Count > 0 && DeviationMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
             add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementDeviation, $"Replacement for '{provision.Id}' names an exception or deviation; name the local convention instead");
+        }
+    }
+
+    // Strength grades how binding a provision is, and the wording carries the
+    // grade: a required Statement obliges with MUST or MUST NOT, an advisory
+    // Statement holds neither, and a default holds a Default line.
+    /// <summary>Checks that the Strength line of every provision agrees with its wording.</summary>
+    /// <param name="relative">The repository-relative path.</param>
+    /// <param name="provisions">The provisions to check.</param>
+    internal void CheckStrengthAgreement(string relative, List<ProvisionSection> provisions)
+    {
+        var add = Context.Add;
+        foreach (var provision in provisions)
+        {
+            var strengths = provision.Body.Where(item => PageReader.TryParseStrengthLine(item.Line, out _)).ToList();
+            if (strengths.Count == 0
+                || !PageReader.TryParseStrengthLine(strengths[0].Line, out var named)
+                || !Scopes.StrengthValues.Contains(Scopes.Unquote(named)))
+            {
+                // A missing or invalid Strength line is the Strength line check's own defect.
+                continue;
+            }
+
+            var strength = Scopes.Unquote(named);
+            if (strength == "default")
+            {
+                if (!provision.Body.Any(item => item.Line.StartsWith("**Default:**", StringComparison.Ordinal)))
+                {
+                    add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardStrengthModal, $"provision '{provision.Id}' carries Strength default but holds no Default line");
+                }
+
+                continue;
+            }
+
+            var statements = provision.Body.Where(item => item.Line.StartsWith("**Statement:**", StringComparison.Ordinal)).ToList();
+            if (statements.Count == 0)
+            {
+                // A missing Statement is the provision contract's own defect.
+                continue;
+            }
+
+            var holdsMust = MustPattern().IsMatch(PageReader.VisibleText(statements[0].Line["**Statement:**".Length..].Trim()));
+            if (strength == "required" && !holdsMust)
+            {
+                add(relative, statements[0].Number, MaintainerDiagnostics.Codes.StandardStrengthModal, $"Statement for '{provision.Id}' carries Strength required but holds no MUST or MUST NOT");
+            }
+            else if (strength == "advisory" && holdsMust)
+            {
+                add(relative, statements[0].Number, MaintainerDiagnostics.Codes.StandardStrengthModal, $"Statement for '{provision.Id}' carries Strength advisory but holds MUST or MUST NOT");
+            }
         }
     }
 
@@ -461,10 +522,10 @@ internal sealed partial class ProvisionValidator
                 continue;
             }
 
-            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name is not ("stack" or "artifact" or "layer" or "trace"));
+            var unknown = narrowed.Select(field => field.Name).Distinct().FirstOrDefault(name => name is not ("stack" or "artifact" or "layer" or "trace" or "when"));
             if (unknown is not null)
             {
-                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, artifact, layer, or trace");
+                add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names unknown field '{unknown}'; name stack, artifact, layer, trace, or when");
                 continue;
             }
 
@@ -478,7 +539,7 @@ internal sealed partial class ProvisionValidator
                     continue;
                 }
 
-                if (field.Name is "layer" or "trace")
+                if (field.Name is "layer" or "trace" or "when")
                 {
                     if (field.Values.Count != 1)
                     {
@@ -487,7 +548,12 @@ internal sealed partial class ProvisionValidator
                         continue;
                     }
 
-                    if (field.Name == "trace" && !Scopes.TraceValues.Contains(field.Values[0]))
+                    if (field.Name == "when" && !Scopes.WhenValues.Contains(field.Values[0]))
+                    {
+                        add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `when` value '{field.Values[0]}', which is outside {string.Join(", ", Scopes.WhenValues.Order(StringComparer.Ordinal).Select(value => $"`{value}`"))}");
+                        clean = false;
+                    }
+                    else if (field.Name == "trace" && !Scopes.TraceValues.Contains(field.Values[0]))
                     {
                         add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeValue, $"Applies to line for '{provision.Id}' names `trace` value '{field.Values[0]}', which is outside `yes` and `no`");
                         clean = false;
@@ -545,7 +611,8 @@ internal sealed partial class ProvisionValidator
             {
                 if (repeated.Count > 0
                     && ScopeValues(narrowed, "stack").Count == 0
-                    && ScopeValues(narrowed, "artifact").Count == 0)
+                    && ScopeValues(narrowed, "artifact").Count == 0
+                    && ScopeValues(narrowed, "when").Count == 0)
                 {
                     add(relative, applies[0].Number, MaintainerDiagnostics.Codes.ScopeNarrow, repeats);
                 }
@@ -555,7 +622,8 @@ internal sealed partial class ProvisionValidator
 
             var stacks = ScopeValues(narrowed, "stack");
             var widened = false;
-            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0 || layerDiffers || traceDiffers;
+            // A when condition always narrows: it limits the provision to the records that meet it.
+            var strictlyNarrower = ScopeValues(narrowed, "artifact").Count > 0 || ScopeValues(narrowed, "when").Count > 0 || layerDiffers || traceDiffers;
             if (stacks.Count > 0 && pageStacks.Count > 0)
             {
                 if (pageStacks.Contains("any"))
@@ -890,6 +958,11 @@ internal sealed partial class ProvisionValidator
     /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"\bSHOULD(?: NOT)?\b")]
     private static partial Regex ShouldPattern();
+
+    /// <summary>Gets the pattern that matches a MUST modal.</summary>
+    /// <returns>The compiled pattern.</returns>
+    [GeneratedRegex(@"\bMUST(?: NOT)?\b")]
+    private static partial Regex MustPattern();
 
     /// <summary>Gets the pattern that captures the command in verification evidence.</summary>
     /// <returns>The compiled pattern.</returns>

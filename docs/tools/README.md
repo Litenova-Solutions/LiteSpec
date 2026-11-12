@@ -26,3 +26,4 @@ Every command accepts `--help`, and `model check` accepts `--format json` for a 
 - [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, and answers record queries.
 - [Book](book.md): generates the project book from the consumer root: one offline shell with the outline and security views.
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
+- [Skill](skill.md): installs or removes the litespec skill.

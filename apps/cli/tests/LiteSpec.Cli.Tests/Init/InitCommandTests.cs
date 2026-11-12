@@ -9,6 +9,20 @@ public sealed class InitCommandTests
 {
     const string FixtureVersion = "9.9.9";
 
+    /// <summary>A minimal agent context template with the region and every placeholder, for exact fill assertions.</summary>
+    const string RegionTemplate = """
+        # <Project> Agent Context
+
+        <!-- generated:agent-protocol -->
+        When __LITESPEC_COMMAND__ disagrees, the tool wins.
+        Release __LITESPEC_VERSION__ size __SIZE__ shape __SHAPE__ stacks __STACKS__ extensions __EXTENSIONS__ layers __LAYERS__ key __SELECTION_KEY__ command __LITESPEC_COMMAND__.
+        <!-- /generated:agent-protocol -->
+
+        ## Project Commands
+
+        Run things.
+        """ + "\n";
+
     /// <summary>
     ///     The project schema, loaded once for every preset case. The JSON schema
     ///     registry is process-wide and the evaluator caches its compilation per
@@ -80,8 +94,14 @@ public sealed class InitCommandTests
         Assert.False(project.ContainsKey("ui"));
         Assert.False(paths.ContainsKey("uiPatterns"));
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
-        Assert.Contains("stacks none", agents, StringComparison.Ordinal);
-        Assert.Contains("/select/server/llms.txt", agents, StringComparison.Ordinal);
+        Assert.Contains("<!-- generated:agent-protocol -->", agents, StringComparison.Ordinal);
+        Assert.Contains("<!-- /generated:agent-protocol -->", agents, StringComparison.Ordinal);
+        Assert.Contains(
+            "When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.",
+            agents,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
     }
 
     /// <summary>Init fills the project name and leaves no placeholder to fill.</summary>
@@ -200,7 +220,10 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
-        Assert.Contains("Run `dotnet litespec rules <path>` before editing a file.", agents, StringComparison.Ordinal);
+        Assert.Contains(
+            "When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.",
+            agents,
+            StringComparison.Ordinal);
         Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(consumer.Path, ".config", "dotnet-tools.json")));
         Assert.Contains("Next step: dotnet litespec model check", result.Stdout, StringComparison.Ordinal);
@@ -221,9 +244,12 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
-        Assert.Contains("Run `litespec rules <path>` before editing a file.", agents, StringComparison.Ordinal);
-        Assert.Contains("`litespec model query <record-id>` returns one record with its links.", agents, StringComparison.Ordinal);
+        Assert.Contains(
+            "When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them.",
+            agents,
+            StringComparison.Ordinal);
         Assert.DoesNotContain("dotnet litespec", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
         Assert.False(File.Exists(Path.Combine(consumer.Path, ".config", "dotnet-tools.json")));
         Assert.Contains("Next step: litespec model check", result.Stdout, StringComparison.Ordinal);
 
@@ -267,11 +293,11 @@ public sealed class InitCommandTests
         Assert.Contains($"'{tools}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
     }
 
-    /// <summary>Init fills the LiteSpec block of a fresh agent context.</summary>
+    /// <summary>Init fills the agent-protocol region of a fresh agent context.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
     /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
-    [Fact(DisplayName = "init fills the LiteSpec block of a fresh agent context")]
-    public void FillsTheLiteSpecBlock()
+    [Fact(DisplayName = "init fills the agent-protocol region of a fresh agent context")]
+    public void FillsTheAgentProtocolRegion()
     {
         using var home = TestCli.Temp("init-home");
         using var consumer = TestCli.Temp("init-consumer");
@@ -283,39 +309,165 @@ public sealed class InitCommandTests
 
         Assert.Equal(0, result.Status);
         var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
-        Assert.Contains("## LiteSpec", agents, StringComparison.Ordinal);
+        Assert.Contains("<!-- generated:agent-protocol -->", agents, StringComparison.Ordinal);
+        Assert.Contains("<!-- /generated:agent-protocol -->", agents, StringComparison.Ordinal);
         Assert.Contains(
-            $"This project follows LiteSpec {FixtureVersion}: size small, shape server, stacks dotnet and react, extensions none.",
+            "When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.",
             agents,
             StringComparison.Ordinal);
-        Assert.Contains(
-            $"https://litespec.dev/{FixtureVersion}/select/server.dotnet.react/llms.txt",
-            agents,
-            StringComparison.Ordinal);
+        Assert.Contains(FixtureVersion, agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__LITESPEC_VERSION__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__SIZE__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__SHAPE__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__STACKS__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__EXTENSIONS__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LAYERS__", agents, StringComparison.Ordinal);
         Assert.DoesNotContain("__SELECTION_KEY__", agents, StringComparison.Ordinal);
+        Assert.DoesNotContain("__LITESPEC_COMMAND__", agents, StringComparison.Ordinal);
     }
 
-    /// <summary>Init leaves existing scaffold files alone and still exits zero.</summary>
+    /// <summary>Init inserts the region into an existing agent context and leaves the other scaffold files alone.</summary>
     /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
-    [Fact(DisplayName = "init leaves existing scaffold files alone and still exits zero")]
-    public void LeavesExistingScaffoldFilesAlone()
+    [Fact(DisplayName = "init inserts the region into an existing agent context and leaves the other scaffold files alone")]
+    public void InsertsTheRegionIntoAnExistingAgentContext()
     {
         using var home = TestCli.Temp("init-home");
         using var consumer = TestCli.Temp("init-consumer");
         FixtureHome(home.Path);
 
         var agents = Path.Combine(consumer.Path, "AGENTS.md");
-        File.WriteAllText(agents, "# Ours\n");
+        File.WriteAllText(agents, "# Ours\n\nOur notes.\n");
 
         var result = TestCli.Run(
             ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
 
         Assert.Equal(0, result.Status);
-        Assert.Equal("# Ours\n", File.ReadAllText(agents));
-        Assert.Contains($"'{agents}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
+        var text = File.ReadAllText(agents);
+        Assert.Contains("# Ours\n", text, StringComparison.Ordinal);
+        Assert.Contains("Our notes.\n", text, StringComparison.Ordinal);
+        Assert.Contains("<!-- generated:agent-protocol -->", text, StringComparison.Ordinal);
+        Assert.Contains("<!-- /generated:agent-protocol -->", text, StringComparison.Ordinal);
+        Assert.Contains($"Updated {agents}.", result.Stdout, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(consumer.Path, ".litespec", "glossary.yaml")));
+    }
+
+    /// <summary>Init leaves an existing agent context that already holds the region alone.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init leaves an existing agent context that already holds the region alone")]
+    public void LeavesAnExistingRegionAlone()
+    {
+        using var home = TestCli.Temp("init-home");
+        using var consumer = TestCli.Temp("init-consumer");
+        FixtureHome(home.Path);
+
+        var agents = Path.Combine(consumer.Path, "AGENTS.md");
+        var existing = "# Ours\n\n<!-- generated:agent-protocol -->\nstale\n<!-- /generated:agent-protocol -->\n";
+        File.WriteAllText(agents, existing);
+
+        var result = TestCli.Run(
+            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        Assert.Equal(existing, File.ReadAllText(agents));
+        Assert.Contains($"'{agents}' already exists; left alone.", result.Stdout, StringComparison.Ordinal);
+    }
+
+    /// <summary>Init fills every region placeholder with the new project's selection.</summary>
+    /// <proves>litespec/core/scope#select-a-size-a-shape-and-stacks</proves>
+    [Fact(DisplayName = "init fills every region placeholder with the new project's selection")]
+    public void FillsEveryRegionPlaceholder()
+    {
+        using var home = TestCli.Temp("init-home");
+        using var consumer = TestCli.Temp("init-consumer");
+        FixtureHome(home.Path);
+        File.WriteAllText(Path.Combine(home.Path, "templates", "consumer", "project-agents.md"), RegionTemplate);
+
+        var result = TestCli.Run(
+            ["init", "--preset", "dotnet-react", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
+        Assert.Contains("When dotnet litespec disagrees, the tool wins.", agents, StringComparison.Ordinal);
+        Assert.Contains(
+            "Release 9.9.9 size small shape server stacks dotnet, react extensions none layers intent and behavior: litespec, implementation and proof: litespec key server.dotnet.react command dotnet litespec.",
+            agents,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>Init fills the records selection with no stacks and the intent and behavior layers.</summary>
+    /// <proves>litespec/core/scope#claim-the-record-layers-the-project-uses</proves>
+    [Fact(DisplayName = "init fills the records selection with no stacks and the intent and behavior layers")]
+    public void FillsTheRecordsSelection()
+    {
+        using var home = TestCli.Temp("init-home");
+        using var consumer = TestCli.Temp("init-consumer");
+        FixtureHome(home.Path);
+        File.WriteAllText(Path.Combine(home.Path, "templates", "consumer", "project-agents.md"), RegionTemplate);
+
+        var result = TestCli.Run(
+            ["init", "--preset", "records", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        var agents = File.ReadAllText(Path.Combine(consumer.Path, "AGENTS.md"));
+        Assert.Contains(
+            "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.",
+            agents,
+            StringComparison.Ordinal);
+    }
+
+    /// <summary>Init inserts the region after the first heading, leaving the text around it untouched.</summary>
+    /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
+    [Fact(DisplayName = "init inserts the region after the first heading, leaving the text around it untouched")]
+    public void InsertsTheRegionAfterTheFirstHeading()
+    {
+        using var home = TestCli.Temp("init-home");
+        using var consumer = TestCli.Temp("init-consumer");
+        FixtureHome(home.Path);
+        File.WriteAllText(Path.Combine(home.Path, "templates", "consumer", "project-agents.md"), RegionTemplate);
+
+        var agents = Path.Combine(consumer.Path, "AGENTS.md");
+        File.WriteAllText(agents, "# Ours\n\nOur notes.\n");
+
+        var result = TestCli.Run(
+            ["init", "--preset", "records", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        Assert.Equal(
+            "# Ours\n\n"
+            + "<!-- generated:agent-protocol -->\n"
+            + "When dotnet litespec disagrees, the tool wins.\n"
+            + "Release 9.9.9 size small shape server stacks none extensions none layers intent and behavior: litespec key server command dotnet litespec.\n"
+            + "<!-- /generated:agent-protocol -->\n"
+            + "\nOur notes.\n",
+            File.ReadAllText(agents));
+    }
+
+    /// <summary>Init inserts the region at the end when the agent context holds no heading.</summary>
+    /// <proves>litespec/core/agent#keep-the-agent-protocol-current</proves>
+    [Fact(DisplayName = "init inserts the region at the end when the agent context holds no heading")]
+    public void InsertsTheRegionAtTheEndWhenNoHeadingExists()
+    {
+        using var home = TestCli.Temp("init-home");
+        using var consumer = TestCli.Temp("init-consumer");
+        FixtureHome(home.Path);
+        File.WriteAllText(Path.Combine(home.Path, "templates", "consumer", "project-agents.md"), RegionTemplate);
+
+        var agents = Path.Combine(consumer.Path, "AGENTS.md");
+        File.WriteAllText(agents, "Our notes without a heading.\n");
+
+        var result = TestCli.Run(
+            ["init", "--preset", "records", "--size", "small", "--root", consumer.Path],
+            environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });
+
+        Assert.Equal(0, result.Status);
+        var text = File.ReadAllText(agents);
+        Assert.StartsWith("Our notes without a heading.\n\n<!-- generated:agent-protocol -->\n", text, StringComparison.Ordinal);
+        Assert.Contains("stacks none extensions none layers intent and behavior: litespec", text, StringComparison.Ordinal);
     }
 
     /// <summary>Init with a missing scaffold template names the checkout file and writes nothing.</summary>

@@ -49,7 +49,7 @@ public static class ReferenceTables
     {
         var text = new StringBuilder();
         text.Append("# Record Folders\n\n## Intent\n\n");
-        text.Append("Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A record in any other folder is a `record-placement-invalid` finding. The Flat module column marks a home that applies only to a module that keeps its records flat.\n\n");
+        text.Append("Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A record in any other folder is a `record-placement-invalid` finding. The Flat module column marks a home that applies only to a module that keeps its records flat. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.\n\n");
         text.Append("## Reference\n\n");
         text.Append("| Type | Folder | File | Flat module |\n|:---|:---|:---|:---|\n");
         foreach (var (type, folder, file, flat) in RecordFolders.Homes())

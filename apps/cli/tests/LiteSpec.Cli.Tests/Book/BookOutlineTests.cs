@@ -566,6 +566,62 @@ public sealed class BookOutlineTests
         Assert.Contains(module!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
     }
 
+    /// <summary>A technical decision tops the implementation layer at product and module level alike, and a product decision sits under the product or its module.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void TechnicalDecisionsTopTheImplementationLayer()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/lending", "Lending", "reviewed"),
+            Record(
+                "decision",
+                "decision/0004-serve-receipts",
+                "Serve Receipts",
+                "approved",
+                file: ".litespec/implementation/decisions/0004-serve-receipts.yaml"),
+            Record(
+                "decision",
+                "decision/0005-render-receipts",
+                "Render Receipts",
+                "approved",
+                file: ".litespec/implementation/modules/lending/decisions/0005-render-receipts.yaml"),
+            Record(
+                "decision",
+                "decision/library-pick-a-format",
+                "Pick A Format",
+                "approved",
+                file: ".litespec/intent/decisions/library-pick-a-format.yaml"),
+            Record(
+                "decision",
+                "decision/lending-pick-a-queue",
+                "Pick A Queue",
+                "approved",
+                file: ".litespec/intent/modules/lending/decisions/lending-pick-a-queue.yaml"));
+
+        Assert.Equal("product/library", BookParents.ParentOf(model, "decision/0004-serve-receipts"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/0005-render-receipts"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "decision/library-pick-a-format"));
+        Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/lending-pick-a-queue"));
+
+        var outline = BookOutline.Build(model);
+        Assert.Empty(outline.Unplaced);
+
+        var implementation = Find(outline.Layers, "implementation");
+        Assert.NotNull(implementation);
+        Assert.Contains(implementation!.Children, child => string.Equals(child.Id, "decision/0004-serve-receipts", StringComparison.Ordinal));
+        Assert.Contains(implementation.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
+
+        var product = Find(outline.Layers, "product/library");
+        Assert.NotNull(product);
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/library-pick-a-format", StringComparison.Ordinal));
+
+        var module = Find(outline.Layers, "module/lending");
+        Assert.NotNull(module);
+        Assert.Contains(module!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
+        Assert.DoesNotContain(module.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
+    }
+
     /// <summary>A rule whose home names no aggregate or module parents the product as a product-level invariant.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]

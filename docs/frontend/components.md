@@ -119,7 +119,7 @@ Each stack page names the class and style bindings this rule covers for its stac
 
 **Applies to:** artifact: component
 
-**Statement:** An exception file MAY declare custom styling only with semantic theme tokens.
+**Statement:** An exception file MUST declare custom styling only with semantic theme tokens.
 
 **Rationale:** Some drawings have no composite: a budget treemap, a receipt-scan preview, or a public marketing frame. Refusing them entirely would push the drawing into arbitrary values that no token governs, which is harder to find and restyle than a declared exception. The exception file keeps the drawing visible: its name says this page draws outside the composites, and semantic tokens keep it inside the product palette. Each stack page names the file pattern that marks an exception for its stack.
 

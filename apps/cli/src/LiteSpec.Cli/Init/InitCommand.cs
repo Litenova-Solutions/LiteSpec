@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
+using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Skill;
 using LiteSpec.CommandLine;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -8,8 +10,9 @@ namespace LiteSpec.Cli.Init;
 
 /// <summary>
 ///     The <c>litespec init</c> command: writes a consumer's <c>.litespec/project.yaml</c>
-///     from one of the ready-made presets in <c>templates/presets/</c>, and copies the
-///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>.
+///     from one of the ready-made presets in <c>templates/presets/</c>, copies the
+///     starting agent context, glossary, and example cast from <c>templates/consumer/</c>,
+///     and inserts the agent-protocol region into an existing <c>AGENTS.md</c> that holds none.
 /// </summary>
 /// <follows>litespec/core/scope#select-a-size-a-shape-and-stacks</follows>
 /// <follows>litespec/core/scope#claim-the-record-layers-the-project-uses</follows>
@@ -40,13 +43,16 @@ static class InitCommand
 
     /// <summary>The command's usage text.</summary>
     public const string Usage = """
-        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--help]
+        Usage: litespec init --preset <name> --size <small|large> [--install <tool|standalone>] [--root <path>] [--name <project>] [--skill <agent>[,<agent>]] [--skill-global] [--help]
 
         Writes .litespec/project.yaml into root from the named preset, stamped with the
         LiteSpec release this tool carries, and copies the starting agent context,
-        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the LiteSpec
-        block filled with the release, size, shape, stacks, and selection index of the
-        new project, and names the command that runs the CLI. With --install tool, the
+        glossary, and example cast into .litespec/ beside it. A fresh AGENTS.md carries the
+        agent-protocol region filled with the release, size, shape, stacks, layers,
+        extensions, and selection index of the new project, and names the command that
+        runs the CLI. An existing AGENTS.md that holds no region gains the region after
+        its first heading, or at the end; text outside the region is never touched, and a
+        region that is already there is never rewritten. With --install tool, the
         command also writes .config/dotnet-tools.json pinning the LiteSpec.Cli tool at
         the release, and the agent context runs the CLI as dotnet litespec. With
         --install standalone, the project runs the native binary as litespec, and
@@ -55,24 +61,33 @@ static class InitCommand
         instead of the template claim, and a preset that names no stacks or
         no frontends writes a project with none. --size and --name complete the
         project record. The command never overwrites an existing file: it writes
-        each missing file and leaves existing ones alone.
+        each missing file and leaves existing ones alone, except for the region it
+        inserts into an existing AGENTS.md. With --skill, the command also installs
+        the litespec skill at project scope for the named agents, one generated copy
+        per agent from the carried release, stamped with the release. With
+        --skill-global, the copies are written under the user's home instead and name
+        no release. Without --skill and without --skill-global, the command prints the
+        skill add command as its last line instead of installing. When the root holds
+        a CLAUDE.md that does not import AGENTS.md, the command prints a line saying so.
 
           --preset   One of: android-client, blazor-client, dotnet-react, dotnet-svelte, records.
           --size     The project size: small or large.
           --install  How the project installs the CLI: tool, a local .NET tool (the default), or standalone, the native binary.
           --root     The consumer repository to write into. Defaults to the working directory.
           --name     The project name. Defaults to the root folder's name.
+          --skill    The agents to install the skill for at project scope: one or more of claude, opencode, agents, comma separated. With --skill-global the copies are written at global scope instead.
+          --skill-global  Write the skill copies under the user's home instead of the consumer. Without --skill it installs the default agents.
           --help     Print this text and exit.
 
-        Exit codes: 0 written, 1 the release's template, preset, or scaffold file is unreadable, 2 the project file exists or an option is invalid.
+        Exit codes: 0 written, 1 the release's template, preset, scaffold, or skill file is unreadable or a skill target holds a folder this tool did not write, 2 the project file exists or an option or agent is invalid.
         """;
 
     /// <summary>Runs the command and returns its exit code.</summary>
-    /// <param name="args">The arguments after the init command name, holding the preset, size, root and project name options.</param>
-    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written, and 2 when the project file exists or an option is invalid.</returns>
+    /// <param name="args">The arguments after the init command name, holding the preset, size, root, project name and skill options.</param>
+    /// <returns>The process exit code: 0 when the project is written, 1 when a release file cannot be read or written or a skill target holds a folder this tool did not write, and 2 when the project file exists or an option or agent is invalid.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--preset", "--size", "--install", "--root", "--name"]);
+        var parsed = CliArgs.Parse(args, ["--skill-global"], ["--preset", "--size", "--install", "--root", "--name", "--skill"]);
 
         if (parsed.Help)
         {
@@ -105,6 +120,45 @@ static class InitCommand
         {
             return CommandFailure.UsageError($"Unknown install '{install}'; use tool or standalone.", Usage, json: false);
         }
+
+        var skillGlobal = parsed.Has("--skill-global");
+        var skillOption = parsed.Value("--skill");
+        IReadOnlyList<string> skillAgents;
+
+        if (skillOption is not null)
+        {
+            if (string.IsNullOrWhiteSpace(skillOption))
+            {
+                return CommandFailure.UsageError("Option --skill needs a value.", Usage, json: false);
+            }
+
+            var names = skillOption.Split(',').Select(name => name.Trim()).ToList();
+
+            if (names.Any(name => name.Length == 0))
+            {
+                return CommandFailure.UsageError("Option --skill needs a value.", Usage, json: false);
+            }
+
+            foreach (var agent in names)
+            {
+                if (!SkillFiles.IsAgent(agent))
+                {
+                    return CommandFailure.UsageError($"Unknown agent '{agent}'; use agents, claude, or opencode.", Usage, json: false);
+                }
+            }
+
+            skillAgents = names.Distinct(StringComparer.Ordinal).ToList();
+        }
+        else if (skillGlobal)
+        {
+            skillAgents = SkillFiles.DefaultAgents;
+        }
+        else
+        {
+            skillAgents = [];
+        }
+
+        var wantsSkill = skillOption is not null || skillGlobal;
 
         // init creates the project, so its root is the folder named, never a parent consumer.
         var root = ConsumerRoot.Locate(parsed.Value("--root"), requireProject: false, json: false, out var rootExit);
@@ -281,10 +335,35 @@ static class InitCommand
             .Select(entry => (string?)entry)
             .OfType<string>()
             .ToList() ?? [];
+        var extensionNames = ExtensionNames(project);
+        var layerClaims = LayerClaimsOf(project);
+        var filledAgents = AgentProtocol.Fill(
+            scaffold["project-agents.md"],
+            version,
+            size,
+            shapeText,
+            AgentProtocol.FormatStacks(stackNames),
+            AgentProtocol.FormatExtensions(extensionNames),
+            AgentProtocol.FormatLayers(layerClaims),
+            AgentProtocol.SelectionKey(shapeText, stackNames),
+            command);
 
         foreach (var (file, relative) in Scaffold)
         {
             var destination = Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+
+            if (file == "project-agents.md" && File.Exists(destination))
+            {
+                // An existing agent context keeps its own text; init only inserts the region it lacks.
+                var insertion = InsertAgentsRegion(destination, filledAgents);
+
+                if (insertion != 0)
+                {
+                    return insertion;
+                }
+
+                continue;
+            }
 
             if (File.Exists(destination))
             {
@@ -292,9 +371,7 @@ static class InitCommand
                 continue;
             }
 
-            var contents = file == "project-agents.md"
-                ? FillAgents(scaffold[file], version, size, shapeText, stackNames, command)
-                : scaffold[file];
+            var contents = file == "project-agents.md" ? filledAgents : scaffold[file];
 
             try
             {
@@ -359,6 +436,16 @@ static class InitCommand
             }
         }
 
+        if (wantsSkill)
+        {
+            var skillExit = InstallSkills(root, home, version, skillAgents, skillGlobal);
+
+            if (skillExit != 0)
+            {
+                return skillExit;
+            }
+        }
+
         if (unfilled.Count > 0)
         {
             CliHost.Out.WriteLine($"Fill these placeholders before validating: {string.Join(", ", unfilled)}.");
@@ -370,35 +457,208 @@ static class InitCommand
         }
 
         CliHost.Out.WriteLine($"Next step: {command} model check");
+        NoticeClaudeImport(root);
+
+        if (!wantsSkill)
+        {
+            CliHost.Out.WriteLine($"To install the LiteSpec skill, run: {command} skill add");
+        }
+
         return 0;
     }
 
-    /// <summary>Fills the LiteSpec block of a fresh agent context with the new project's selection.</summary>
-    /// <param name="text">The agent context template text with placeholders for the project selection.</param>
-    /// <param name="version">The LiteSpec release version the new project records.</param>
-    /// <param name="size">The project size, small or large.</param>
-    /// <param name="shape">The project shape, server or client-only.</param>
-    /// <param name="stacks">The stack identifiers the preset selects, in list order.</param>
-    /// <param name="command">The command that runs the CLI in the project: <c>dotnet litespec</c> or <c>litespec</c>.</param>
-    /// <returns>The template text with each selection placeholder replaced by its value.</returns>
-    static string FillAgents(string text, string version, string size, string shape, List<string> stacks, string command) =>
-        text.Replace("__LITESPEC_COMMAND__", command, StringComparison.Ordinal)
-            .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
-            .Replace("__SIZE__", size, StringComparison.Ordinal)
-            .Replace("__SHAPE__", shape, StringComparison.Ordinal)
-            .Replace("__STACKS__", JoinList(stacks), StringComparison.Ordinal)
-            .Replace("__SELECTION_KEY__", stacks.Count == 0 ? shape : $"{shape}.{string.Join(".", stacks)}", StringComparison.Ordinal);
-
-    /// <summary>The stacks as prose, the way the selection page joins them: none, one, or joined with commas and and.</summary>
-    /// <param name="items">The stack names to join as prose.</param>
-    /// <returns>The prose form of the list: none for an empty list, the single name alone, two names joined with and, or a comma list ending with and.</returns>
-    static string JoinList(List<string> items) => items.Count switch
+    /// <summary>Installs the skill copies init requested, one generated copy per agent.</summary>
+    /// <param name="root">The consumer root the project scope writes under.</param>
+    /// <param name="home">The LiteSpec release root the skill templates are read from.</param>
+    /// <param name="version">The carried release the project copies are stamped with.</param>
+    /// <param name="agents">The selected agent names.</param>
+    /// <param name="global">Whether the copies live under the home folder rather than the consumer.</param>
+    /// <returns>The process exit code: 0 when every copy is written, 1 when a target is refused or a file cannot be read or written.</returns>
+    static int InstallSkills(string root, string home, string version, IReadOnlyList<string> agents, bool global)
     {
-        0 => "none",
-        1 => items[0],
-        2 => $"{items[0]} and {items[1]}",
-        _ => $"{string.Join(", ", items.Take(items.Count - 1))} and {items[^1]}",
-    };
+        IReadOnlyList<(string RelativePath, string Text)> files;
+
+        try
+        {
+            files = SkillFiles.Render(Path.Combine(home, "templates"), global ? null : version);
+        }
+        catch (IOException exception)
+        {
+            CliHost.Error.WriteLine(exception.Message);
+            return 1;
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            CliHost.Error.WriteLine($"Failed to read the LiteSpec release: {exception.Message}");
+            return 1;
+        }
+
+        var baseFolder = global ? SkillFiles.HomeFolder() : root;
+        var folders = agents.Select(agent => global ? SkillFiles.GlobalFolder(baseFolder, agent) : SkillFiles.ProjectFolder(baseFolder, agent)).ToList();
+
+        // Every target is checked before any is written, so a refused target leaves the rest untouched.
+        var refused = folders.Where(folder => Directory.Exists(folder) && !SkillFiles.CarriesMarker(folder)).ToList();
+
+        if (refused.Count > 0)
+        {
+            foreach (var folder in refused)
+            {
+                CliHost.Error.WriteLine($"'{folder}' holds a skill this tool did not write; left alone.");
+            }
+
+            return 1;
+        }
+
+        foreach (var folder in folders)
+        {
+            var update = Directory.Exists(folder);
+
+            try
+            {
+                SkillFiles.WriteCopy(folder, files);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                CliHost.Error.WriteLine($"Failed to write '{folder}': {exception.Message}");
+                return 1;
+            }
+
+            CliHost.Out.WriteLine(update ? $"Updated {folder}." : $"Wrote {folder}.");
+        }
+
+        return 0;
+    }
+
+    /// <summary>Prints a line when the root holds a CLAUDE.md that does not import AGENTS.md.</summary>
+    /// <param name="root">The consumer root.</param>
+    static void NoticeClaudeImport(string root)
+    {
+        var file = Path.Combine(root, AgentProtocol.ClaudeFileName);
+
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = File.ReadAllText(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        if (AgentProtocol.ImportsAgents(text))
+        {
+            return;
+        }
+
+        CliHost.Out.WriteLine($"'{file}' does not import AGENTS.md; add '@AGENTS.md' so Claude Code reads the agent protocol.");
+    }
+
+    /// <summary>Inserts the agent-protocol region into an existing agent context that holds none.</summary>
+    /// <param name="destination">The existing AGENTS.md path.</param>
+    /// <param name="filledTemplate">The filled agent context template the region is read from.</param>
+    /// <returns>0 when the region was inserted or the file already holds one, 1 when the file cannot be read or written.</returns>
+    static int InsertAgentsRegion(string destination, string filledTemplate)
+    {
+        string existing;
+
+        try
+        {
+            existing = File.ReadAllText(destination);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to read '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        if (AgentProtocol.ContainsRegion(existing) || AgentProtocol.TemplateBody(filledTemplate) is not { } body)
+        {
+            CliHost.Out.WriteLine($"'{destination}' already exists; left alone.");
+            return 0;
+        }
+
+        var newline = existing.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        var rewritten = AgentProtocol.Insert(existing, AgentProtocol.BuildRegion(body, newline), newline);
+
+        try
+        {
+            File.WriteAllText(destination, rewritten);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            CliHost.Error.WriteLine($"Failed to write '{destination}': {exception.Message}");
+            return 1;
+        }
+
+        CliHost.Out.WriteLine($"Updated {destination}.");
+        return 0;
+    }
+
+    /// <summary>The extension ids the project selects in selectedExtensions, in declaration order.</summary>
+    /// <param name="project">The project document the preset overlay produced.</param>
+    /// <returns>The selected extension ids.</returns>
+    static List<string> ExtensionNames(JsonObject project)
+    {
+        var names = new List<string>();
+
+        if (project["selectedExtensions"] is not JsonArray selected)
+        {
+            return names;
+        }
+
+        foreach (var entry in selected)
+        {
+            if (entry is JsonValue value && value.TryGetValue<string>(out var id) && id.Length > 0)
+            {
+                names.Add(id);
+            }
+            else if (entry is JsonObject container
+                && container["id"] is JsonValue contained
+                && contained.TryGetValue<string>(out var objectId)
+                && objectId.Length > 0)
+            {
+                names.Add(objectId);
+            }
+        }
+
+        return names;
+    }
+
+    /// <summary>The layer claims the project declares in layers.</summary>
+    /// <param name="project">The project document the preset overlay produced.</param>
+    /// <returns>The claimed layers with their practices.</returns>
+    static LayerClaims LayerClaimsOf(JsonObject project)
+    {
+        var layers = project["layers"] as JsonObject;
+
+        return new LayerClaims(
+            layers?.ContainsKey("intent") == true,
+            layers?.ContainsKey("behavior") == true,
+            PracticeOf(layers, "implementation"),
+            PracticeOf(layers, "proof"));
+    }
+
+    /// <summary>The practice a layer claims, or null when the layer is not claimed.</summary>
+    /// <param name="layers">The layers mapping, or null when the project names none.</param>
+    /// <param name="name">The layer name.</param>
+    /// <returns>The practice, or null.</returns>
+    static LayerPractice? PracticeOf(JsonObject? layers, string name)
+    {
+        if (layers is null || !layers.ContainsKey(name))
+        {
+            return null;
+        }
+
+        return layers[name] is JsonValue value && value.TryGetValue<string>(out var text) && text == "own"
+            ? LayerPractice.Own
+            : LayerPractice.LiteSpec;
+    }
 
     /// <summary>The local tool manifest pinning the LiteSpec.Cli tool at the release.</summary>
     /// <param name="version">The LiteSpec release version to pin in the tool manifest.</param>

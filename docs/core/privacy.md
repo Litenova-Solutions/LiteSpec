@@ -170,7 +170,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case
+**Applies to:** artifact: record:use-case; when: erasure
 
 **Statement:** Erasure that answers a subject request MUST use `reach: requested` and touch only the data the request names.
 
@@ -284,7 +284,7 @@ The `onErasure` field carries one of nine positions. Five cover the common fates
 
 **Strength:** default
 
-**Applies to:** artifact: job
+**Applies to:** artifact: job; when: erasure
 
 **Default:** Each sweep job covers one data class.
 

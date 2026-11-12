@@ -160,6 +160,15 @@ static class BookOutline
             var parent = parents[id]!;
             var parentType = StrProp(byId[parent], "type") ?? "";
             var ownLayer = OwnLayer(record, type);
+            if (string.Equals(type, "decision", StringComparison.Ordinal) && string.Equals(ownLayer, "implementation", StringComparison.Ordinal))
+            {
+                // A technical decision tops the implementation layer at product
+                // and module level alike, so the decision chapter holds every
+                // technical decision in one place.
+                PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
+                continue;
+            }
+
             if (string.Equals(parentType, "product", StringComparison.Ordinal) && !string.Equals(ownLayer, "intent", StringComparison.Ordinal))
             {
                 PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
@@ -531,7 +540,7 @@ static class BookOutline
         }
     }
 
-    /// <summary>Selects the layer a record tops when its parent is the product.</summary>
+    /// <summary>Selects the layer a record tops when placement lifts it out of its parent.</summary>
     /// <param name="record">The record object, whose file path marks a technical decision.</param>
     /// <param name="type">The record type.</param>
     /// <returns>The layer key for the record type, with technical decisions in implementation and unknown types in intent.</returns>
@@ -548,11 +557,37 @@ static class BookOutline
 
     /// <summary>Determines whether a decision record is a technical decision from its file path.</summary>
     /// <param name="record">The record object that holds the file path.</param>
-    /// <returns>True when the file path contains the implementation decisions segment; otherwise false.</returns>
+    /// <returns>True when the file sits under an implementation decisions folder, at product level or under a module; otherwise false.</returns>
     static bool IsTechnical(JsonObject record)
     {
         var file = StrProp(record, "file");
-        return file is not null && file.Contains("implementation/decisions", StringComparison.Ordinal);
+        if (file is not { Length: > 0 })
+        {
+            return false;
+        }
+
+        var segments = file.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        for (var at = 0; at < segments.Length; at++)
+        {
+            if (!string.Equals(segments[at], "implementation", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (at + 1 < segments.Length && string.Equals(segments[at + 1], "decisions", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (at + 3 < segments.Length
+                && string.Equals(segments[at + 1], "modules", StringComparison.Ordinal)
+                && string.Equals(segments[at + 3], "decisions", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Maps one layer key to its display label.</summary>

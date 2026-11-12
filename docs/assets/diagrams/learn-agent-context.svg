@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="630" viewBox="0 0 720 630" role="img" aria-labelledby="learn-agent-context-title learn-agent-context-desc" font-family="Geist, ui-sans-serif, system-ui, sans-serif">
   <title id="learn-agent-context-title">The order an agent loads context, and where it stops</title>
-  <desc id="learn-agent-context-desc">The agent reads eight steps in order: the project agents file and project file, the selection index, the records the task touches, the full standards pages, the selected extensions, the neighboring code, then the change itself, and finally the checks and the report. When blocked by a conflict, a draft, or a product call, it stops for a person instead, which can happen at any step.</desc>
+  <desc id="learn-agent-context-desc">The agent reads eight steps in order: the project agents file and project file, the records the task touches, the rules for each file to edit, the full standards pages the rules cite, the selected extensions, the neighboring code, then the change itself, and finally the checks and the report. When blocked by a conflict, a draft, or a product call, it stops for a person instead, which can happen at any step.</desc>
   <defs>
     <marker id="learn-agent-context-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 10 5 0 10z" style="fill: var(--muted-fg, #77706a)" />
@@ -32,8 +32,8 @@
 
   <g style="fill: var(--fg, #19151c)" font-size="14" font-weight="600" text-anchor="middle">
     <text x="210" y="42">1. Project agents file and project file</text>
-    <text x="210" y="114">2. Selection index</text>
-    <text x="210" y="186">3. Records the task touches</text>
+    <text x="210" y="114">2. Records the task touches</text>
+    <text x="210" y="186">3. Rules for each file to edit</text>
     <text x="210" y="258">4. Full standards pages</text>
     <text x="210" y="330">5. Selected extensions</text>
     <text x="210" y="402">6. Neighboring code</text>
@@ -43,9 +43,9 @@
   </g>
   <g style="fill: var(--muted-fg, #77706a)" font-size="12" text-anchor="middle">
     <text x="210" y="60">AGENTS.md and .litespec/project.yaml</text>
-    <text x="210" y="132">only the pages the task touches</text>
-    <text x="210" y="204">litespec model query &lt;id&gt;</text>
-    <text x="210" y="276">the pages the records cite</text>
+    <text x="210" y="132">litespec model query &lt;id&gt;</text>
+    <text x="210" y="204">litespec rules &lt;path&gt;</text>
+    <text x="210" y="276">the pages rules cites</text>
     <text x="210" y="348">only inside their boundary</text>
     <text x="210" y="420">follow a complying pattern</text>
     <text x="210" y="492">what belongs together, in one change</text>

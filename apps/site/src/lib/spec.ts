@@ -29,7 +29,7 @@ export interface Manifest {
 
 export const manifest: Manifest = parse(fs.readFileSync(path.join(root, "litespec.manifest.yaml"), "utf8"));
 
-/** The release this build publishes, such as 5.1.0. */
+/** The release this build publishes, such as 5.2.0. */
 export const version = manifest.version;
 
 /** The heading slug LiteSpec uses for provision IDs and anchors (Provisions.HeadingSlug in the CLI). */
@@ -58,6 +58,10 @@ export interface Provision {
   evidence: string;
   /** How binding the provision is: required, default or advisory. Empty when the index states none. */
   strength: string;
+  /** The comma-separated artifact kinds the provision applies to, such as endpoint or record:use-case. Empty when the index states none. */
+  artifact: string;
+  /** The comma-separated stacks the provision applies to, or any. Empty when the index states none. */
+  stack: string;
 }
 
 export type PageStyle = "standard" | "stack" | "extension" | "pattern" | "reference" | "command" | "how-to" | "tutorial" | "explanation" | "index" | "glossary" | "research" | "decision";
@@ -130,7 +134,7 @@ const pageIndex: PageIndexFile = (() => {
   return JSON.parse(fs.readFileSync(file, "utf8")) as PageIndexFile;
 })();
 
-interface ProvisionIndexEntry {
+export interface ProvisionIndexEntry {
   id: string;
   heading: string;
   /** The owning page, relative to the repository root, such as docs/backend/api.md. */
@@ -141,6 +145,8 @@ interface ProvisionIndexEntry {
   mark?: string;
   evidence?: string;
   strength?: string;
+  artifact?: string;
+  stack?: string;
 }
 
 interface ProvisionIndexFile {
@@ -166,6 +172,8 @@ function loadProvisions(): Map<string, Provision[]> {
       mark: entry.mark ?? "",
       evidence: entry.evidence ?? "",
       strength: entry.strength ?? "",
+      artifact: entry.artifact ?? "",
+      stack: entry.stack ?? "",
     });
     out.set(entry.page, list);
   }
@@ -223,13 +231,13 @@ export const selectionLayers = (selection: Selection) => selection.layers;
 /** A page's path in HTML URLs: a folder index is served at its folder, so learn/README is learn. */
 export const htmlPath = (page: Page | string) => (typeof page === "string" ? page : page.path).replace(/(^|\/)README$/, "");
 
-/** The HTML URL of a page: /5.1.0/backend/domain/ */
+/** The HTML URL of a page: /5.2.0/backend/domain/ */
 export const pageUrl = (page: Page | string) => `/${version}/${htmlPath(page)}/`.replace(/\/\/$/, "/");
 
-/** The raw Markdown URL of a page: /5.1.0/backend/domain.md */
+/** The raw Markdown URL of a page: /5.2.0/backend/domain.md */
 export const rawUrl = (page: Page | string) => `/${version}/${typeof page === "string" ? page : page.path}.md`;
 
-/** The generated Standard overview URL: /5.1.0/standard/ */
+/** The generated Standard overview URL: /5.2.0/standard/ */
 export const standardUrl = () => `/${version}/standard/`;
 
 /** Every layer the site publishes, in the order the page index gives them. */
@@ -237,10 +245,10 @@ export function layers(): Layer[] {
   return pageIndex.layers;
 }
 
-/** The bundle URL of a layer: /5.1.0/layers/backend/dotnet.md */
+/** The bundle URL of a layer: /5.2.0/layers/backend/dotnet.md */
 export const layerUrl = (key: string) => `/${version}/layers/${key}.md`;
 
-/** The index URL of a selection: /5.1.0/select/server.dotnet.react/llms.txt */
+/** The index URL of a selection: /5.2.0/select/server.dotnet.react/llms.txt */
 export const selectionIndexUrl = (selection: Selection | string) => `/${version}/select/${typeof selection === "string" ? selection : selectionKey(selection)}/llms.txt`;
 
 /** The schema files the release ships, from schemas/. */
