@@ -93,7 +93,7 @@ public sealed class NewExplanationTests
 
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Capabilities", "Success Criteria", "Limits", "Example"]);
+        AssertSections(explanation, ["Capabilities", "Success Criteria", "Boundaries", "Example"]);
     }
 
     /// <summary>One explanation template per record type with a section table, as the writing standard gives the sections in order.</summary>
@@ -110,7 +110,8 @@ public sealed class NewExplanationTests
         { "research", ["Findings", "Source Notes"] },
         { "decision", ["Context", "Options", "Decision", "Consequences", "Evidence", "Revisit Conditions"] },
         { "module", ["Responsibilities", "Boundaries", "Example"] },
-        { "feature", ["Capabilities", "Success Criteria", "Limits", "Example"] },
+        { "feature", ["Capabilities", "Success Criteria", "Boundaries", "Example"] },
+        { "requirement", ["Example"] },
         { "journey", ["Preconditions", "Example", "Variations"] },
         { "aggregate", ["Lifecycle", "Data and Retention", "Example", "Limits"] },
         { "use-case", ["Flow", "Example", "Edge Cases"] },

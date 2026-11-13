@@ -43,7 +43,7 @@ public sealed class TestedAssertionTests
         Assert.False(link.GetProperty("confirmed").GetBoolean());
     }
 
-    const string RequirementPath = ".litespec/intent/lending/performance.yaml";
+    const string RequirementPath = ".litespec/intent/modules/lending/features/performance/borrow-latency/borrow-latency.yaml";
     const string ProofPath = "apps/api/tests/Library.Integration.Tests/Tested/TestedProofTests.cs";
 
     static void WriteTrx(string root, string testName)
@@ -90,20 +90,13 @@ public sealed class TestedAssertionTests
 
     const string RequirementJson = """
         {
-          "type": "feature",
-          "id": "feature/performance",
-          "title": "Borrowing performance",
-          "records": [
-            {
-              "type": "requirement",
-              "id": "requirement/performance.borrow-latency",
-              "title": "Borrow latency",
-              "kind": "quality",
-              "statement": "Borrowing answers fast.",
-              "rationale": "Readers leave when borrowing is slow.",
-              "cites": ["goal/more-borrowing"]
-            }
-          ]
+          "type": "requirement",
+          "id": "requirement/performance.borrow-latency",
+          "title": "Borrow latency",
+          "kind": "quality",
+          "statement": "Borrowing answers fast.",
+          "rationale": "Readers leave when borrowing is slow.",
+          "cites": ["goal/more-borrowing"]
         }
         """;
 

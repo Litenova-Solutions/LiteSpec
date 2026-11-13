@@ -100,13 +100,17 @@ internal static class ExplanationChecks
         }
     }
 
-    /// <summary>Whether a record type needs an explanation file: an article type, or a type on a layer the project requires.</summary>
+    /// <summary>
+    ///     Whether a record type needs an explanation file: an article type, or a type on a layer the project requires.
+    ///     A requirement's statement is its lead, so its explanation stays optional even on a required layer.
+    /// </summary>
     /// <param name="type">The record type.</param>
     /// <param name="required">The record layers whose every record page carries an explanation file.</param>
     /// <returns>True when the type needs an explanation file.</returns>
     private static bool NeedsExplanation(string type, HashSet<string> required) =>
-        RecordFile.ArticleTypes.Contains(type)
-        || (RecordTypes.LayerByType.TryGetValue(type, out var layer) && required.Contains(layer));
+        type != RecordTypes.Requirement
+        && (RecordFile.ArticleTypes.Contains(type)
+            || (RecordTypes.LayerByType.TryGetValue(type, out var layer) && required.Contains(layer)));
 
     /// <summary>
     ///     Reports each explanation that lacks a required section of its type's table, or holds its sections out of

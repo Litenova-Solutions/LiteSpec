@@ -1,0 +1,16 @@
+type: decision
+id: decision/0046-write-features-for-builders-and-testers
+title: Write Features for the Builder and the Tester
+options:
+  - name: "Keep Capabilities, Success Criteria, an optional Limits section and the existing writing rules"
+    pros: "No feature explanation is rewritten."
+    cons: "A feature reads as answering a whole problem, success criteria promise outcomes the feature cannot bring about, rationales name one cause, statements leave out the date or condition a tester needs, and behavior appears only in prose."
+  - name: "Require Boundaries, and state rules for success criteria, testable requirement statements, rationales, behavior kept to the requirements, loose verbs and intensifiers"
+    pros: "A developer can tell what to build and a tester can tell what passes, each feature states its edges and open questions in one place, and every behavior has one authoritative record."
+    cons: "Every feature explanation gains a Boundaries section, and reviewers judge more provisions."
+  - name: "Add a free Notes section for edges and open questions"
+    pros: "Authors write whatever the feature needs."
+    cons: "A reader finds the edges of each feature in a different place, and no reviewer knows what the section has to hold."
+choice: "Require Boundaries, and state rules for success criteria, testable requirement statements, rationales, behavior kept to the requirements, loose verbs and intensifiers"
+consequences: "A feature explanation carries Capabilities, Success Criteria, Boundaries and an optional Example, and `explanation-missing` reports one without Boundaries. New provisions: `litespec/core/intent#state-the-boundaries-of-every-feature`, `litespec/core/intent#state-success-criteria-the-feature-controls`, `litespec/core/intent#add-no-behavior-in-an-explanation-file`, `litespec/core/intent#state-one-testable-behavior-in-each-requirement`, `litespec/core/intent#keep-each-rationale-to-its-reason` and `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`. `litespec/core/writing#use-literal-words` also refuses loose verbs, and a requirement title names the specific behavior or fact it requires. The feature template and the Claimwick approval feature follow."
+reopenedWhen: "Consumers report that most features have nothing to say under Boundaries, or that the judgment provisions cost more review time than the defects they catch."

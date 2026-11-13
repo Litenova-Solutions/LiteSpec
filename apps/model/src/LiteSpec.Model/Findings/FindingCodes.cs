@@ -19,7 +19,7 @@ public static class FindingCodes
             "A record file fails to parse, or a record fails the shape its type requires.",
             "Correct the file so it parses and matches the shape its type requires."),
         new("identifier-invalid", "G", RecordLayer.Any, trace: false,
-            "An identifier breaks the form its type requires.",
+            "An identifier breaks the form its type requires, or a requirement names a feature other than the one whose folder holds it.",
             "Rename the identifier to the required form."),
         new("identifier-duplicate", "G", RecordLayer.Any, trace: false,
             "One identifier names two records.",

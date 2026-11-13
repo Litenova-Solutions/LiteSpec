@@ -274,7 +274,7 @@ public sealed class ExplanationCheckTests
                 1,
                 """{"summary": "Reminders nudge approvers."}""",
                 Path.Combine(temp.Path, "submit-an-expense-claim.md"),
-                "# Submit an Expense Claim\n\nEmployees submit claims and wait for an answer.\n\n## Capabilities\n\nReminders nudge approvers.\n"));
+                "# Submit an Expense Claim\n\nEmployees submit claims and wait for an answer.\n\n## Capabilities\n\nReminders nudge approvers.\n\n## Boundaries\n\nThe feature stops at the approval step.\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);

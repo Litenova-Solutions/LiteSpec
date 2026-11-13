@@ -97,6 +97,7 @@ public sealed class RenameMarksTests
         var result = TestCli.Run("rename", oldRequirement, newRequirement, "--root", temp.Path);
 
         Assert.True(result.Status == 0, result.Stderr);
+        Assert.True(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "features", "performance", "borrow-speed", "borrow-speed.yaml")), result.Output);
         Assert.Contains($"<proves>{newRequirement}</proves>", File.ReadAllText(ProvesTag(temp.Path)));
         Assert.DoesNotContain(oldRequirement, File.ReadAllText(ProvesTag(temp.Path)));
         Assert.Contains($"[Proves(\"{newRequirement}\")]", File.ReadAllText(ProvesAttribute(temp.Path)));
@@ -258,21 +259,22 @@ public sealed class RenameMarksTests
             [Follows("decision/0002-store-loans-as-documents")]
             internal sealed class LoanDocumentStore;
             """);
-        TestRecords.Write(root, ".litespec/intent/features/performance.yaml", """
+        TestRecords.Write(root, ".litespec/intent/features/performance/performance.yaml", """
             {
               "type": "feature",
               "id": "feature/performance",
               "title": "Borrowing performance",
-              "records": [
-                {
-                  "type": "requirement",
-                  "id": "requirement/performance.borrow-latency",
-                  "title": "Borrow latency",
-                  "kind": "quality",
-                  "statement": "Borrowing completes within two hundred milliseconds at p95.",
-                  "rationale": "Readers leave when borrowing is slow."
-                }
-              ]
+              "offering": "Readers borrow copies quickly."
+            }
+            """);
+        TestRecords.Write(root, ".litespec/intent/features/performance/borrow-latency/borrow-latency.yaml", """
+            {
+              "type": "requirement",
+              "id": "requirement/performance.borrow-latency",
+              "title": "Borrow latency",
+              "kind": "quality",
+              "statement": "Borrowing completes within two hundred milliseconds at p95.",
+              "rationale": "Readers leave when borrowing is slow."
             }
             """);
         TestRecords.Write(root, ".litespec/behavior/external-systems/text-gateway.yaml", """

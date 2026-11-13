@@ -10,7 +10,7 @@ The feature lets employees submit expenses with receipts, lets managers decide e
 |:---|:---|:---|
 | `requirement/approval.decided-within-five-days` | Each expense is decided within 5 business days. | Late decisions stall employees and payouts. |
 | `requirement/approval.receipt-over-threshold` | An expense above the receipt threshold carries a receipt. | Proof above the line keeps the tax file defensible. |
-| `requirement/approval.no-self-approval` | Nobody approves their own expense. | A second pair of eyes keeps approvals honest. |
+| `requirement/approval.no-self-approval` | Nobody approves their own expense. | A second person checks each expense before it is paid. |
 | `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. | A double payment is hard to take back. |
 | `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. | Past its need, personal data is a risk with no use. |
 
@@ -18,15 +18,20 @@ The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day tar
 
 ## Success Criteria
 
-The feature works when every expense is decided within 5 business days, and the employee sees the outcome without asking.
+- An expense above the 25 EUR threshold cannot be submitted without a receipt.
+- No manager can approve their own expense.
+- An approved expense is reimbursed at most once.
+- The employee sees the decision on each expense in their own list, without asking the manager.
 
-Employees learn the outcome within days instead of weeks, so they stop chasing managers by email. That chase is the problem in `problem/expenses-wait-weeks`. Finance pays from a file it can defend. The median time is measured in `goal/decided-in-days`, which sets a target of under 120 hours.
+The time to a decision depends on the managers as well as on the feature, so it is measured as a goal rather than listed here: `goal/decided-in-days` sets a median of under 120 hours.
 
-## Limits
+## Boundaries
 
-Reminders for late decisions are not part of this feature. They belong to `feature/approval-reminders`.
+Reminders for late decisions are not part of this feature. They belong to `feature/approval-reminders`, which advances the same goal.
 
-The goal names that feature as one that advances `goal/decided-in-days`, so the reminders serve the same target from their own feature.
+The feature depends on `decision/0001-receipt-threshold` for the 25 EUR threshold.
+
+One question is open for the owner: whether a manager on leave hands decisions to a deputy.
 
 ## Example
 

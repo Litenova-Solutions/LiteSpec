@@ -46,7 +46,9 @@ The model builder writes generated working files under `.litespec/model/` while 
           module.yaml
           goals/ problems/ constraints/ decisions/ research/
           features/
-            {feature}/{feature}.yaml    requirements as entries
+            {feature}/
+              {feature}.yaml
+              {requirement}/{requirement}.yaml    one requirement, in its own folder
     behavior/
       rules/                            cross-module invariants only
       external-systems/                 create with the first product-level external system
@@ -100,7 +102,9 @@ A backend stack binding names the files that realize the entries in angle bracke
 
 The example places neither the backend application nor a frontend application at the workspace root. Under `behavior/modules/`, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module's own name may stay flat.
 
-A named record lives in its own folder, `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. A record file lives at the home the [model page](../core/model.md) names for its type. An entry lives in its home file: requirements in their feature file, permissions in their module's permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
+A named record lives in its own folder, `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature's folder.
+
+An entry lives in its home file: permissions in their module's permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it.
 
 **Reviewed for:** The workspace tree matches the canonical tree in this section, with each record at its type's home under `.litespec/`.
 

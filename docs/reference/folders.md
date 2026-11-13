@@ -15,7 +15,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `problem` | `intent/problems/{name}` | `{name}.yaml` | - |
 | `problem` | `intent/modules/{module}/problems/{name}` | `{name}.yaml` | - |
 | `feature` | `intent/modules/{module}/features/{name}` | `{name}.yaml` | - |
-| `requirement` | `intent/modules/{module}/features/{name}` | `{name}.yaml` | - |
+| `requirement` | `intent/modules/{module}/features/{feature}/{name}` | `{name}.yaml` | - |
 | `constraint` | `intent/constraints/{name}` | `{name}.yaml` | - |
 | `constraint` | `intent/modules/{module}/constraints/{name}` | `{name}.yaml` | - |
 | `decision` | `intent/decisions/{name}` | `{name}.yaml` | - |

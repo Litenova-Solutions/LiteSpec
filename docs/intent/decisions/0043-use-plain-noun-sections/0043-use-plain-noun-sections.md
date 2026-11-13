@@ -30,7 +30,7 @@ The checks read the new lists. `explanation-missing` reports a missing section, 
 
 `litespec new` writes the template for every type that has one, with the title filled in. The generic explanation template is removed, because every type now has its own.
 
-The old headings are invalid in LiteSpec 5.3.0. No conversion tool ships, so each consumer rewrites its explanation files by hand, as the changelog's upgrade step describes.
+The old headings are invalid in LiteSpec 6.0.0. No conversion tool ships, so each consumer rewrites its explanation files by hand, as the changelog's upgrade step describes.
 
 ## Revisit Conditions
 

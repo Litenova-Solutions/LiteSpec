@@ -301,7 +301,7 @@ public sealed partial class StandardsValidatorTests
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"requirementEntry\":{\"type\":\"object\",\"properties\":{\"feature\":{\"$ref\":\"#/$defs/featureIdArray\"}}}," +
+                "\"requirementPage\":{\"type\":\"object\",\"properties\":{\"feature\":{\"$ref\":\"#/$defs/featureIdArray\"}}}," +
                 "\"featureId\":{\"type\":\"string\"}," +
                 "\"featureIdArray\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/featureId\"}}}}");
         },

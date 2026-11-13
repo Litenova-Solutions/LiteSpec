@@ -50,7 +50,7 @@ static class ConsumerFixture
             null),
         new(".litespec/product/pricing.yaml",
             """
-            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","solves":["problem/slow-checkout"],"advances":["goal/faster-delivery"],"records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}]}
+            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","solves":["problem/slow-checkout"],"advances":["goal/faster-delivery"]}
             """,
             """
             # Pricing
@@ -62,6 +62,11 @@ static class ConsumerFixture
             Alex orders two books on Monday and pays one fee at checkout.
 
             """),
+        new(".litespec/product/pricing/flat-fee/flat-fee.yaml",
+            """
+            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
+            """,
+            null),
         new(".litespec/product/decisions/0001-launch.yaml",
             """
             {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[]}

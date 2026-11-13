@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.3.0/schemas/record.schema.yaml'
+$id: 'https://litespec.dev/6.0.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
 description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
 oneOf:
@@ -11,6 +11,7 @@ oneOf:
 - $ref: '#/$defs/decisionPage'
 - $ref: '#/$defs/problemPage'
 - $ref: '#/$defs/featurePage'
+- $ref: '#/$defs/requirementPage'
 - $ref: '#/$defs/actorPage'
 - $ref: '#/$defs/rolePage'
 - $ref: '#/$defs/journeyPage'
@@ -1429,7 +1430,6 @@ $defs:
     uniqueItems: true
     items:
       oneOf:
-      - $ref: '#/$defs/requirementEntry'
       - $ref: '#/$defs/permissionEntry'
       - $ref: '#/$defs/ruleEntry'
       - $ref: '#/$defs/resultEntry'
@@ -1437,7 +1437,7 @@ $defs:
       - $ref: '#/$defs/eventEntry'
       - $ref: '#/$defs/entryPointEntry'
       - $ref: '#/$defs/settingEntry'
-  requirementEntry:
+  requirementPage:
     type: object
     additionalProperties: false
     required:
@@ -2118,8 +2118,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       terms:
         $ref: '#/$defs/termIdArray'
-      records:
-        $ref: '#/$defs/recordsArray'
       offering:
         $ref: '#/$defs/nonEmptyString'
       solves:

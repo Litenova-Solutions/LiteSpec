@@ -65,7 +65,7 @@ internal sealed class FieldValidator
     // cannot collide with record-level names.
     /// <summary>Gets the entry definition names in field-naming scope.</summary>
     private static readonly HashSet<string> FieldNamingEntries = new(
-        ["requirementEntry", "permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
+        ["permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the schemas whose fields face the naming rules.</summary>

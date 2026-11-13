@@ -27,7 +27,10 @@ static class RenameCommand
         record file and rewrites every citation of the old identifier, so no
         link points at the old name after the rename. Both arguments are full
         record identifiers, such as use-case/lending.borrow-copy. A record keeps
-        its container folder when its home does not change. The command refuses
+        its container folder when its home does not change. A requirement moves
+        into the folder of the feature its identifier names, so that feature must
+        exist. A feature folder moves whole, with its requirement folders, and every
+        requirement identifier of the feature takes the new feature name. The command refuses
         a new identifier a record already carries and an old identifier no record
         carries.
 
@@ -120,9 +123,19 @@ static class RenameCommand
             return 2;
         }
 
+        if (oldType == RecordTypes.Requirement && newHome != oldHome && RecordPages.FeatureFolder(records, newHome!) is null)
+        {
+            CliHost.Error.WriteLine($"No feature '{newHome}' holds the requirement; write feature/{newHome} first.");
+            return 2;
+        }
+
         // The move runs before any content changes, so a blocked move leaves
-        // the repository untouched.
-        if (!old.IsEntry && MovePage(config, oldType, oldHome, newHome, newName, old.File) is { } moved)
+        // the repository untouched. The requirements of a moved feature are
+        // renamed in the citations below, with the feature.
+        var renames = new List<(string From, string To)> { (oldId, newId) };
+        renames.AddRange(FeatureRequirementRenames(records, old, newName));
+
+        if (!old.IsEntry && MovePage(config, records, oldType, oldHome, newHome, newName, old.File) is { } moved)
         {
             if (!moved.Moved)
             {
@@ -158,19 +171,26 @@ static class RenameCommand
             }
 
             var code = IsCodeFile(Path.GetExtension(file));
-            int count;
-            string rewritten;
+            var rewritten = text;
+            var count = 0;
 
-            if (!code && IsRecordCandidate(config, file) && TryRewriteRecord(text, oldId, newId, out var recordText, out var recordCount))
+            foreach (var (from, to) in renames)
             {
-                rewritten = recordText;
-                count = recordCount;
-            }
-            else
-            {
-                rewritten = code
-                    ? ReplaceMarks(text, oldId, newId, Path.GetExtension(file), out count)
-                    : RecordPages.ReplaceCitations(text, oldId, newId, out count);
+                int found;
+
+                if (!code && IsRecordCandidate(config, file) && TryRewriteRecord(rewritten, from, to, out var recordText, out var recordCount))
+                {
+                    rewritten = recordText;
+                    found = recordCount;
+                }
+                else
+                {
+                    rewritten = code
+                        ? ReplaceMarks(rewritten, from, to, Path.GetExtension(file), out found)
+                        : RecordPages.ReplaceCitations(rewritten, from, to, out found);
+                }
+
+                count += found;
             }
 
             if (count == 0)
@@ -459,6 +479,7 @@ static class RenameCommand
     ///     Returns null when the file stays where it is.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="records">Every record the model read, which finds the feature a requirement moves into.</param>
     /// <param name="type">The record type that owns the file.</param>
     /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
@@ -466,8 +487,13 @@ static class RenameCommand
     /// <param name="oldFile">The current absolute path of the file.</param>
     /// <returns>The move outcome, or null when the file stays at its current path.</returns>
     static Move? MovePage(
-        ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
+        ConsumerConfig config, IReadOnlyList<Record> records, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
+        if (type == RecordTypes.Feature)
+        {
+            return MoveFeature(oldFile, newName);
+        }
+
         if (type is "module" or "aggregate")
         {
             var oldFolder = Path.GetDirectoryName(oldFile)!;
@@ -501,7 +527,23 @@ static class RenameCommand
             return new Move(true, oldFile, Path.Combine(newFolder, Path.GetFileName(oldFile)), "");
         }
 
-        var target = RecordPages.RenameTarget(config, type, oldHome, newHome, newName, oldFile);
+        string? target;
+
+        if (type == RecordTypes.Requirement)
+        {
+            // A requirement stays in its feature's folder, or moves to the folder of the feature it now names.
+            var container = newHome == oldHome ? RecordPages.ContainerOf(oldFile) : RecordPages.FeatureFolder(records, newHome!);
+            target = container is null ? null : RecordPages.PlaceIn(container, newName, Path.GetExtension(oldFile));
+
+            if (target is not null && string.Equals(target, oldFile, StringComparison.Ordinal))
+            {
+                target = null;
+            }
+        }
+        else
+        {
+            target = RecordPages.RenameTarget(config, type, oldHome, newHome, newName, oldFile);
+        }
 
         if (target is null)
         {
@@ -551,5 +593,92 @@ static class RenameCommand
         return hasExplanation
             ? new Move(true, oldFile, target, "", explanationFrom, explanationTo)
             : new Move(true, oldFile, target, "");
+    }
+
+    /// <summary>
+    ///     Moves a feature's whole folder to the name the new identifier gives, so its requirement folders
+    ///     move with it, then renames the feature's record file and explanation to the new name.
+    /// </summary>
+    /// <param name="oldFile">The current absolute path of the feature record file.</param>
+    /// <param name="newName">The feature name after the rename.</param>
+    /// <returns>The move outcome, or null when the folder already carries the new name.</returns>
+    static Move? MoveFeature(string oldFile, string newName)
+    {
+        var oldFolder = Path.GetDirectoryName(oldFile)!;
+        var newFolder = Path.Combine(Path.GetDirectoryName(oldFolder)!, newName);
+
+        if (string.Equals(oldFolder, newFolder, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var stem = Path.GetFileNameWithoutExtension(oldFile);
+        var extension = Path.GetExtension(oldFile);
+        var target = Path.Combine(newFolder, newName + extension);
+        var explanationFrom = RecordFile.ExplanationPathOf(oldFile);
+        var hasExplanation = File.Exists(explanationFrom);
+        var explanationTo = Path.Combine(newFolder, newName + RecordFile.ExplanationExtension);
+
+        if (!Directory.Exists(oldFolder))
+        {
+            return new Move(false, oldFolder, newFolder, $"Cannot move '{oldFolder}': the folder does not exist.");
+        }
+
+        if (Directory.Exists(newFolder) || File.Exists(newFolder))
+        {
+            return new Move(false, oldFolder, newFolder, $"Cannot move '{oldFolder}': '{newFolder}' already exists.");
+        }
+
+        try
+        {
+            Directory.Move(oldFolder, newFolder);
+            File.Move(Path.Combine(newFolder, stem + extension), target);
+
+            if (hasExplanation)
+            {
+                File.Move(Path.Combine(newFolder, stem + RecordFile.ExplanationExtension), explanationTo);
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return new Move(false, oldFolder, newFolder, $"Cannot move '{oldFolder}': {exception.Message}");
+        }
+
+        return hasExplanation
+            ? new Move(true, oldFile, target, "", explanationFrom, explanationTo)
+            : new Move(true, oldFile, target, "");
+    }
+
+    /// <summary>
+    ///     The identifier renames a feature rename carries to its requirements: each requirement in the feature's
+    ///     folder takes the new feature name in its identifier, keeping its own name.
+    /// </summary>
+    /// <param name="records">Every record the model read, before the move.</param>
+    /// <param name="feature">The record the rename names, which is a feature or any other record.</param>
+    /// <param name="newName">The feature name after the rename.</param>
+    /// <returns>The old and new identifier of each requirement the feature holds; empty for any other record.</returns>
+    static List<(string From, string To)> FeatureRequirementRenames(IReadOnlyList<Record> records, Record feature, string newName)
+    {
+        var renames = new List<(string From, string To)>();
+
+        if (feature.Type != RecordTypes.Feature)
+        {
+            return renames;
+        }
+
+        var folder = Path.GetDirectoryName(feature.File);
+
+        foreach (var requirement in records.Where(record =>
+            record.Type == RecordTypes.Requirement
+            && !record.Derived
+            && Path.GetDirectoryName(Path.GetDirectoryName(record.File)) == folder))
+        {
+            if (Identifiers.TrySplit(requirement.Id, out _, out _, out var requirementName))
+            {
+                renames.Add((requirement.Id, $"requirement/{newName}.{requirementName}"));
+            }
+        }
+
+        return renames;
     }
 }

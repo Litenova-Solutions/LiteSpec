@@ -321,7 +321,7 @@ internal static class ReachChecks
         }
     }
 
-    /// <summary>The requirements a feature holds, by carrying page or by identifier home.</summary>
+    /// <summary>The requirements a feature holds, by the feature folder that holds them or by identifier home.</summary>
     /// <param name="featureId">The feature identifier.</param>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The identifiers of the requirements the feature holds.</returns>
@@ -336,15 +336,12 @@ internal static class ReachChecks
 
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
-            if (string.Equals(requirement.PageId, featureId, StringComparison.Ordinal))
-            {
-                found.Add(requirement.Id);
-                continue;
-            }
+            // The feature whose folder holds the requirement's folder, or the identifier home when no folder names it.
+            var folder = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(requirement.File)) ?? "");
 
-            if (requirement.PageId is null
-                && Identifiers.TrySplit(requirement.Id, out _, out var home, out _)
-                && string.Equals(home, featureName, StringComparison.Ordinal))
+            if (string.Equals(folder, featureName, StringComparison.Ordinal)
+                || (Identifiers.TrySplit(requirement.Id, out _, out var home, out _)
+                    && string.Equals(home, featureName, StringComparison.Ordinal)))
             {
                 found.Add(requirement.Id);
             }

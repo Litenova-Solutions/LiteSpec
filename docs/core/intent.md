@@ -32,7 +32,7 @@ Intent is why the product exists and what it promises: the product, its modules,
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) states the boundary, and [The Software Test](#the-software-test) names what belongs for each record type.
 
-Intent reads module, then feature, then requirement. A module names one product area of the bounded context; each feature sits under one module and carries the offer against a problem; each requirement sits as an entry on its feature and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. A feature page keeps the offer with its commitments, while the book lists the requirement entries and the decisions behind them.
+Intent reads module, then feature, then requirement. A module names one product area of the bounded context; each feature sits under one module and carries the offer against a problem; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
 
 Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the product decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
 
@@ -77,8 +77,11 @@ The folder is the parent, at product level or under a module:
       goals/  problems/  constraints/  decisions/  research/
       features/
         payout/
-          payout.yaml          the feature with its requirements as entries
+          payout.yaml          the feature
           payout.md            its explanation, optional
+          paid-once/           requirement
+            paid-once.yaml
+            paid-once.md       its explanation, optional
 .litespec/behavior/
   modules/
     finance/
@@ -89,7 +92,7 @@ The folder is the parent, at product level or under a module:
           request-payout.md    its explanation, optional
 ```
 
-Product level holds only the product, visions, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features with their requirements. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
+Product level holds only the product, visions, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features, each with its requirements in folders inside the feature's folder. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
 
 A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
 
@@ -144,11 +147,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features, a feature's folder holds its requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and `module-undeclared` for a folder under `intent/modules/` naming no declared module or a module folder without its module.
 
@@ -435,7 +438,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 ### Explain Every Problem in Its Fixed Sections
 
-**ID:** `litespec/core/intent#explain-every-problem-in-four-sections`
+**ID:** `litespec/core/intent#explain-every-problem-in-its-fixed-sections`
 
 **Strength:** required
 
@@ -492,6 +495,54 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 **Rationale:** A feature names the problems it solves in `solves` and the goals it moves in `advances`, so each offer traces to a pain and an outcome. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Reviewed for:** Which features miss their offering, their solved problems, or their moved goals? Look at each feature record beside its problems and goals.
+
+### State the Boundaries of Every Feature
+
+**ID:** `litespec/core/intent#state-the-boundaries-of-every-feature`
+
+**Strength:** required
+
+**Applies to:** artifact: record:feature
+
+**Statement:** A feature explanation file MUST state under Boundaries what the feature leaves to other features, which features it depends on, and each open question its owner has not decided.
+
+**Rationale:** A feature that answers part of a problem reads as answering all of it unless its edges are written down, and a builder fills the gap with behavior nobody asked for. Naming the features it leaves work to and the features it depends on keeps each behavior in one feature. An open question written beside the feature reaches the owner as a question instead of reaching the code as a guess. Settled by [decision/0046-write-features-for-builders-and-testers](../intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md), which writes each feature for the people who build and test it.
+
+**Example:** The Claimwick approval feature leaves reminders for late decisions to the approval reminders feature, depends on the receipt threshold decision, and names one open question: whether a manager on leave hands decisions to a deputy.
+
+**Reviewed for:** Which feature explanations leave out what the feature leaves to other features, the features it depends on, or its open questions? Look at the Boundaries section of each feature explanation file.
+
+### State Success Criteria the Feature Controls
+
+**ID:** `litespec/core/intent#state-success-criteria-the-feature-controls`
+
+**Strength:** required
+
+**Applies to:** artifact: record:feature
+
+**Statement:** A feature explanation file MUST state under Success Criteria only outcomes that the feature brings about on its own and a tester can check.
+
+**Rationale:** A criterion the feature cannot guarantee sets a test nobody can pass: importing a bank statement does not make the book balance equal the statement balance, because an entry can be missing or wrong and a later entry moves the balance again. A criterion the feature controls, such as showing both balances for the same date, can be built and checked. An outcome that depends on people or on other features belongs to the goal the feature advances.
+
+**Example:** The library feature for due dates states that a reader sees the due date of every copy they hold, not that no reader pays a late fee, which depends on the reader returning the copy in time.
+
+**Reviewed for:** Which success criteria promise an outcome the feature cannot bring about on its own, or one no tester can check? Look at the Success Criteria section of each feature explanation file.
+
+### Add No Behavior in an Explanation File
+
+**ID:** `litespec/core/intent#add-no-behavior-in-an-explanation-file`
+
+**Strength:** required
+
+**Applies to:** artifact: record:feature, record:requirement
+
+**Statement:** A feature or requirement explanation file MUST describe only behavior that the feature's requirement records state.
+
+**Rationale:** A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose.
+
+**Example:** A library feature explanation that says renewed copies show their new date in bold states a behavior no requirement holds, so the sentence becomes a requirement or is removed.
+
+**Reviewed for:** Which behaviors in a feature or requirement explanation appear in no requirement statement? Compare each explanation file with the requirements of its feature.
 
 ### Keep Actors to People and Organizations
 
@@ -621,11 +672,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement entry MUST carry one identifier `requirement/<feature>.<name>` naming its own feature.
+**Statement:** Each requirement MUST carry one identifier `requirement/<feature>.<name>` whose feature segment names the feature whose folder holds it and whose name segment names its own folder.
 
-**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The feature segment names the feature holding the entry, and the feature is the parent by identifier containment. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The requirement's folder sits inside its feature's folder, so the folder names the parent, and the feature segment names the same feature wherever the identifier is cited. Settled by [decision/0045-keep-each-requirement-in-its-own-folder](../intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md), which gives each requirement one authoritative file with room for an explanation. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a requirement entry without identifier; `litespec model check` reports `identifier-invalid` for a feature segment differing from its feature.
+**Checked by:** `litespec model check` reports `record-invalid` for a requirement without identifier; `litespec model check` reports `identifier-invalid` for a feature segment differing from the feature whose folder holds it.
 
 ### State Requirement Kind and Statement
 
@@ -635,11 +686,43 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement entry MUST carry `kind` and `statement`.
+**Statement:** Each requirement MUST carry `kind` and `statement`.
 
 **Rationale:** The `kind` is functional, quality, or policy: what the product does, how well it does it, or what the business holds. A policy requirement carries its `values` with effective dates. The `statement` states the commitment in one testable sentence.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a requirement entry without `kind` or `statement`, or a policy requirement without dated values.
+**Checked by:** `litespec model check` reports `record-invalid` for a requirement without `kind` or `statement`, or a policy requirement without dated values.
+
+### State One Testable Behavior in Each Requirement
+
+**ID:** `litespec/core/intent#state-one-testable-behavior-in-each-requirement`
+
+**Strength:** required
+
+**Applies to:** artifact: record:requirement
+
+**Statement:** A requirement `statement` MUST state one behavior that a tester can pass or fail on its own, with each condition, date and amount its result depends on.
+
+**Rationale:** A statement that leaves out a condition passes in one reading and fails in another. "Each bank account shows its balance beside the closing balance of its last statement" names no date for the book balance, so today's balance meets last month's statement and correct books show a difference. Naming the date, the amount or the condition makes the result decidable. One behavior per requirement lets each one be fulfilled, proven and changed on its own. A requirement is complete when a developer can tell what to build and a tester can tell what passes and what fails.
+
+**Example:** `requirement/approval.receipt-over-threshold` states that an expense above the receipt threshold carries a receipt, and `decision/0001-receipt-threshold` sets the threshold at 25 EUR, so a tester knows which expense passes.
+
+**Reviewed for:** Which requirement statements join two behaviors, or leave out a condition, a date or an amount a tester needs? Look at the statements of each feature's requirements.
+
+### Keep Each Rationale to Its Reason
+
+**ID:** `litespec/core/intent#keep-each-rationale-to-its-reason`
+
+**Strength:** required
+
+**Applies to:** artifact: record:requirement
+
+**Statement:** A requirement `rationale` MUST state why the requirement exists, adding no behavior and claiming no more than the reason supports.
+
+**Rationale:** A rationale that adds a rule hides a second requirement where no check reads it. A rationale that names one cause where several exist, or claims a comparison nobody measured, misleads the reader who rejudges the requirement later. A difference between two balances can come from a missing entry, a wrong amount, a duplicate or a wrong opening balance, so "a difference means an entry is missing" is too narrow, and "the quickest sign" is unmeasured.
+
+**Example:** The Claimwick rationale for `requirement/approval.no-self-approval` reads "A second person checks each expense before it is paid": it states the reason and adds no rule.
+
+**Reviewed for:** Which rationales add a rule, name one cause where several exist, or claim a comparison nobody measured? Look at the `rationale` of each requirement.
 
 ### Cite the Reasons of Every Requirement
 
@@ -649,11 +732,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement entry MUST name its reasons in `cites`.
+**Statement:** Each requirement MUST name its reasons in `cites`.
 
-**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature holding the entry is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-cites-missing`.
+**Rationale:** The `cites` list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature whose folder holds the requirement is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as `requirement-cites-missing`.
 
-**Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement entry naming no reason in `cites`.
+**Checked by:** `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`.
 
 ### Cite Each Applying Constraint from a Requirement
 
@@ -677,11 +760,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Each requirement entry MUST explain its reason in a one-line `rationale`.
+**Statement:** Each requirement MUST explain its reason in a one-line `rationale`.
 
-**Rationale:** A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature carries the full story; the `rationale` carries the reason beside the commitment.
+**Rationale:** A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature explanation carries the full story, and an optional requirement explanation carries what the statement does not make obvious; the `rationale` carries the reason beside the commitment.
 
-**Reviewed for:** The one-line `rationale` on each requirement entry.
+**Reviewed for:** Which requirements carry no `rationale`, or one longer than one line? Look at the `rationale` of each requirement.
 
 ### State the Measure on a Counted Requirement
 
@@ -811,7 +894,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** A requirement that names an `except` condition MUST name its `fallback` requirement in the same entry.
+**Statement:** A requirement that names an `except` condition MUST name its `fallback` requirement in its own record.
 
 **Rationale:** An exception without a fallback leaves the reader at the exact moment the promise breaks: the product refuses with no stated alternative. The `condition` states in product words when the commitment does not hold, and `fallback` names the requirement that covers what happens then. The fallback carries no `except` of its own, so the chain stays one deep and every exception ends in a promise.
 
@@ -875,9 +958,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** default
 
-**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
+**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement
 
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`.
+**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
@@ -934,6 +1017,8 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
       features/
         <name>/
           <name>.yaml
+          <requirement>/
+            <requirement>.yaml
 ```
 
 **Reviewed for:** The `.litespec/intent/` layout beside the project's recorded layout.

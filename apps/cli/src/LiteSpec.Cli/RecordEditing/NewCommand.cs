@@ -22,6 +22,7 @@ static class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
+               litespec new requirement <feature>.<name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
                litespec new entry <page-id> <type> <name> [--root <path>]
@@ -48,6 +49,12 @@ static class NewCommand
         with the title filled in and the fixed sections of the type. The command
         refuses an identifier a record already carries.
 
+        new requirement <feature>.<name> writes a requirement file of its own in its
+        feature's folder: modules/<module>/features/<feature>/<name>/<name>.yaml. The
+        feature record <feature> must exist; the command refuses an unknown feature.
+        A requirement takes no explanation file, because its statement is its lead;
+        add <name>.md beside it only when the requirement needs an example.
+
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
         <name> is the kebab-case name without the number, such as
@@ -73,15 +80,13 @@ static class NewCommand
         on a success it becomes the first of codes. The command refuses a duplicate
         id and an unknown use case.
 
-        new entry appends one requirement, rule, permission, or setting entry
-        to its owning list file's records instead of scaffolding a file. <page-id>
-        is the file's consumer-relative path, because list files carry no record
-        identifier. The type must belong on the file: a requirement on a feature file,
-        a rule on a rule-set file, a permission on the permission list, a setting
-        on a setting set. The entry id is <type>/<home>.<name> from the file's home,
-        or permission/<name>; the home is the file's existing entries' home, else
-        the file stem for a requirement or rule and the parent modules folder
-        for a setting. The entry lands last with every required field filled
+        new entry appends one rule, permission, or setting entry to its owning list file's records
+        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because list
+        files carry no record identifier. The type must belong on the file: a rule on a rule-set file,
+        a permission on the permission list, a setting on a setting set. A requirement is a page of
+        its own: write it with new requirement. The entry id is <type>/<home>.<name> from the file's
+        home, or permission/<name>; the home is the file's existing entries' home, else the file stem
+        for a rule and the parent modules folder for a setting. The entry lands last with every required field filled
         with its template example value; the file is written back in canonical
         form. The command refuses a duplicate id and an unknown file.
 
@@ -181,6 +186,11 @@ static class NewCommand
                 return CommandFailure.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
             }
 
+            if (type == RecordTypes.Requirement && homeName is null)
+            {
+                return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
+            }
+
             // A feature lives in its module's folder, but its identifier carries no home:
             // the module picks the folder and the identifier is feature/<name>.
             var identifierHome = homeName;
@@ -268,6 +278,15 @@ static class NewCommand
             return 2;
         }
 
+        // A requirement lives in its feature's folder, so the feature record must exist first.
+        var requirementFolder = type == RecordTypes.Requirement ? RecordPages.FeatureFolder(records, homeName!) : null;
+
+        if (type == RecordTypes.Requirement && requirementFolder is null)
+        {
+            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <module>.{homeName}.");
+            return 2;
+        }
+
         var templateFile = $"{type}.yaml";
 
         if (ReadTemplate(templateFile) is not { } template)
@@ -289,14 +308,21 @@ static class NewCommand
 
         node["id"] = full;
 
+        if (type == RecordTypes.Requirement)
+        {
+            node["title"] = AppendEntry.TitleFrom(name);
+        }
+
         var filled = RecordFile.Write(node);
         string? explanation = null;
 
         // An article type, and a type on a layer the project lists, gets the explanation template for its own
-        // type, with the title filled in, so the record starts with its fixed sections.
-        if (RecordFile.ArticleTypes.Contains(type)
-            || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-                && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal)))
+        // type, with the title filled in, so the record starts with its fixed sections. A requirement takes none:
+        // its statement is its lead.
+        if (type != RecordTypes.Requirement
+            && (RecordFile.ArticleTypes.Contains(type)
+                || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+                    && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))))
         {
             if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {
@@ -306,7 +332,9 @@ static class NewCommand
             explanation = FillTitle(explanationTemplate, AppendEntry.TitleFrom(name));
         }
 
-        var target = RecordPages.PagePath(config, type, homeName, name);
+        var target = requirementFolder is null
+            ? RecordPages.PagePath(config, type, homeName, name)
+            : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {

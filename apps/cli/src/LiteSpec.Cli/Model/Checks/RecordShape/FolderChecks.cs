@@ -627,9 +627,9 @@ internal static class FolderChecks
 
     /// <summary>Where a record of the type lives, as a finding says it.</summary>
     /// <param name="type">The record type identifier.</param>
-    /// <returns>The phrase, from the folder map; a requirement lives in its feature file, which the phrase names.</returns>
+    /// <returns>The phrase, from the folder map; a requirement lives in its own folder inside its feature's folder.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their feature file under 'intent/modules/<m>/features/<name>/'"
+            ? "requirements live in their own folder inside their feature's folder, 'intent/modules/<m>/features/<feature>/<name>/<name>.yaml'"
             : RecordFolders.Phrase(type);
 }

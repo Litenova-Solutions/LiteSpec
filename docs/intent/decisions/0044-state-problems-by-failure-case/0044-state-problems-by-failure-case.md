@@ -20,7 +20,7 @@ LiteSpec compared 3 options for the shape of a problem explanation. The table se
 |:---|:---|:---|
 | Keep the five sections | No problem explanation is rewritten again. | Failures share a sentence, a resolution can end half the problem, and feasibility passes as evidence. |
 | Failure cases as bullets in the opening, an optional Example, and Resolution kept | A cold reader meets each failure first, and the change adds one optional section. | No check sees whether failure cases are listed, and nothing ties a resolution to each failure. |
-| A Failure Cases section, an optional Example, Resolution Criteria, and rules for the opening, claims, evidence and resolution | Each failure has its own entry and its own criterion, and the check sees the section. | Every problem explanation is rewritten in 5.3.0, and a problem with one failure carries a one-entry list. |
+| A Failure Cases section, an optional Example, Resolution Criteria, and rules for the opening, claims, evidence and resolution | Each failure has its own entry and its own criterion, and the check sees the section. | Every problem explanation is rewritten in 6.0.0, and a problem with one failure carries a one-entry list. |
 
 ## Decision
 
@@ -36,7 +36,7 @@ A problem title names the failure or its consequence, never a theme or a feature
 
 `explanation-missing` reports a problem explanation without the new sections in order. Five new provisions on the intent page state the opening, failure case, claim, evidence and resolution rules, and the cost and workaround provision now asks for the burden of the workaround and keeps time, money and risk apart.
 
-The provision that lists the sections keeps its ID, because a minor release renames no ID, and takes the heading Explain Every Problem in Its Fixed Sections.
+The provision that lists the sections takes the heading Explain Every Problem in Its Fixed Sections, and its ID follows the heading.
 
 The problem template and the Claimwick problem follow the new sections. Each consumer rewrites its problem explanations by hand, as the changelog's upgrade step describes.
 

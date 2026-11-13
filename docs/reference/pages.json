@@ -1,5 +1,5 @@
 {
-  "version": "5.3.0",
+  "version": "6.0.0",
   "pages": [
     {
       "file": "docs/README.md",
@@ -2335,7 +2335,7 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Feature Under a Module",
-      "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one record file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file \u0060\u003Cfeature\u003E.md\u0060 beside it in the same folder. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem. It lives under the module that holds the problem: one record file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder inside the feature\u0027s folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060 beside the feature file. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2983,6 +2983,36 @@
       "style": "decision",
       "area": "intent",
       "title": "State Each Problem by Its Failure Cases",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md",
+      "path": "intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Each Requirement in Its Own Folder",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md",
+      "path": "intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Write Features for the Builder and the Tester",
       "intent": "",
       "sections": [
         "Context",
@@ -3702,7 +3732,7 @@
       "style": "command",
       "area": "tools",
       "title": "Scaffold Record",
-      "intent": "\u0060litespec new\u0060 scaffolds a record file and reserves its identifier, appends a result or scenario entry to a use-case file, or appends a requirement, rule, permission, or setting entry to its owning list file.",
+      "intent": "\u0060litespec new\u0060 scaffolds a record file, including a requirement\u0027s folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or appends a rule, permission, or setting entry to its owning list file.",
       "sections": [
         "Name",
         "Synopsis",

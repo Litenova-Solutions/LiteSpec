@@ -1,0 +1,6 @@
+type: feature
+id: feature/borrowing
+title: Borrowing performance
+offering: Readers borrow available copies through the app with an answer that feels instant.
+solves:
+  - problem/slow-desk-borrowing

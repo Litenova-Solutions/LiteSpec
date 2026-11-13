@@ -1,0 +1,8 @@
+type: requirement
+id: requirement/borrowing.renewal-by-text-message
+title: Renewal by text message
+kind: functional
+statement: A member renews a loan by replying to a text message.
+rationale: Members renew without visiting the desk.
+cites:
+  - research/loan-period-benchmarks

@@ -7756,6 +7756,24 @@
       "example": "\u0060notification/spending.receipt-reminder\u0060 declares the parameter \u0060submitterName\u0060, and the \u0060receipt-reminder-manager\u0060 template uses \u0060{{SubmitterName}}\u0060."
     },
     {
+      "id": "litespec/core/intent#add-no-behavior-in-an-explanation-file",
+      "heading": "Add No Behavior in an Explanation File",
+      "page": "docs/core/intent.md",
+      "anchor": "add-no-behavior-in-an-explanation-file",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which behaviors in a feature or requirement explanation appear in no requirement statement? Compare each explanation file with the requirements of its feature.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:feature, record:requirement",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A feature or requirement explanation file MUST describe only behavior that the feature\u0027s requirement records state.",
+      "rationale": "A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose.",
+      "example": "A library feature explanation that says renewed copies show their new date in bold states a behavior no requirement holds, so the sentence becomes a requirement or is removed."
+    },
+    {
       "id": "litespec/core/intent#admit-only-outside-pains-as-problems",
       "heading": "Admit Only Outside Pains as Problems",
       "page": "docs/core/intent.md",
@@ -7834,15 +7852,15 @@
       "anchor": "cite-the-reasons-of-every-requirement",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060requirement-cites-missing\u0060 for a requirement entry naming no reason in \u0060cites\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060requirement-cites-missing\u0060 for a requirement naming no reason in \u0060cites\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each requirement entry MUST name its reasons in \u0060cites\u0060.",
-      "rationale": "The \u0060cites\u0060 list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature holding the entry is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as \u0060requirement-cites-missing\u0060.",
+      "statement": "Each requirement MUST name its reasons in \u0060cites\u0060.",
+      "rationale": "The \u0060cites\u0060 list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature whose folder holds the requirement is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as \u0060requirement-cites-missing\u0060.",
       "example": ""
     },
     {
@@ -7924,19 +7942,19 @@
       "anchor": "explain-each-requirement-in-one-line",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "The one-line \u0060rationale\u0060 on each requirement entry.",
+      "evidence": "Which requirements carry no \u0060rationale\u0060, or one longer than one line? Look at the \u0060rationale\u0060 of each requirement.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each requirement entry MUST explain its reason in a one-line \u0060rationale\u0060.",
-      "rationale": "A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature carries the full story; the \u0060rationale\u0060 carries the reason beside the commitment.",
+      "statement": "Each requirement MUST explain its reason in a one-line \u0060rationale\u0060.",
+      "rationale": "A commitment without its reason cannot be rejudged when the world moves: the reader finds what holds but not why. One line forces the reason into the open without inviting an essay. The feature explanation carries the full story, and an optional requirement explanation carries what the statement does not make obvious; the \u0060rationale\u0060 carries the reason beside the commitment.",
       "example": ""
     },
     {
-      "id": "litespec/core/intent#explain-every-problem-in-four-sections",
+      "id": "litespec/core/intent#explain-every-problem-in-its-fixed-sections",
       "heading": "Explain Every Problem in Its Fixed Sections",
       "page": "docs/core/intent.md",
       "anchor": "explain-every-problem-in-its-fixed-sections",
@@ -7981,13 +7999,13 @@
       "evidence": "The \u0060.litespec/intent/\u0060 layout beside the project\u0027s recorded layout.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature",
+      "artifact": "record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "default",
-      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, and each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060.",
+      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
       "rationale": "A module folder keeps related pages together, so the pages of one product area sit side by side. One folder per kind keeps each record findable: goals, problems, features, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module names a product area, never the company, and each module folder names a module declared in Behavior.",
-      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  modules/\n    spending/\n      module.yaml\n      goals/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      problems/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      constraints/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      decisions/\n        \u003Cnumber\u003E-\u003Cname\u003E/\n          \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      research/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n\u0060\u0060\u0060"
+      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  modules/\n    spending/\n      module.yaml\n      goals/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      problems/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      constraints/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      decisions/\n        \u003Cnumber\u003E-\u003Cname\u003E/\n          \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      research/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n          \u003Crequirement\u003E/\n            \u003Crequirement\u003E.yaml\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/intent#identify-every-requirement",
@@ -7996,15 +8014,15 @@
       "anchor": "identify-every-requirement",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a requirement entry without identifier; \u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for a feature segment differing from its feature.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a requirement without identifier; \u0060litespec model check\u0060 reports \u0060identifier-invalid\u0060 for a feature segment differing from the feature whose folder holds it.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each requirement entry MUST carry one identifier \u0060requirement/\u003Cfeature\u003E.\u003Cname\u003E\u0060 naming its own feature.",
-      "rationale": "An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The feature segment names the feature holding the entry, and the feature is the parent by identifier containment. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
+      "statement": "Each requirement MUST carry one identifier \u0060requirement/\u003Cfeature\u003E.\u003Cname\u003E\u0060 whose feature segment names the feature whose folder holds it and whose name segment names its own folder.",
+      "rationale": "An identifier lets a Behavior record name the commitment it fulfills and lets the model resolve the name. A commitment written only as prose cannot be traced from Intent to code. The requirement\u0027s folder sits inside its feature\u0027s folder, so the folder names the parent, and the feature segment names the same feature wherever the identifier is cited. Settled by [decision/0045-keep-each-requirement-in-its-own-folder](../intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md), which gives each requirement one authoritative file with room for an explanation. Proposed by [decision/0003-requirement-origin](decision/0003-requirement-origin) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
       "example": ""
     },
     {
@@ -8080,6 +8098,24 @@
       "example": "Claimwick\u0027s contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board."
     },
     {
+      "id": "litespec/core/intent#keep-each-rationale-to-its-reason",
+      "heading": "Keep Each Rationale to Its Reason",
+      "page": "docs/core/intent.md",
+      "anchor": "keep-each-rationale-to-its-reason",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which rationales add a rule, name one cause where several exist, or claim a comparison nobody measured? Look at the \u0060rationale\u0060 of each requirement.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:requirement",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A requirement \u0060rationale\u0060 MUST state why the requirement exists, adding no behavior and claiming no more than the reason supports.",
+      "rationale": "A rationale that adds a rule hides a second requirement where no check reads it. A rationale that names one cause where several exist, or claims a comparison nobody measured, misleads the reader who rejudges the requirement later. A difference between two balances can come from a missing entry, a wrong amount, a duplicate or a wrong opening balance, so \u0022a difference means an entry is missing\u0022 is too narrow, and \u0022the quickest sign\u0022 is unmeasured.",
+      "example": "The Claimwick rationale for \u0060requirement/approval.no-self-approval\u0060 reads \u0022A second person checks each expense before it is paid\u0022: it states the reason and adds no rule."
+    },
+    {
       "id": "litespec/core/intent#keep-feasibility-out-of-problem-evidence",
       "heading": "Keep Feasibility Out of Problem Evidence",
       "page": "docs/core/intent.md",
@@ -8107,12 +8143,12 @@
       "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and \u0060module-undeclared\u0060 for a folder under \u0060intent/modules/\u0060 naming no declared module or a module folder without its module.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature",
+      "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, and each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060.",
-      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.",
+      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
+      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features, a feature\u0027s folder holds its requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.",
       "example": ""
     },
     {
@@ -8399,7 +8435,7 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A requirement that names an \u0060except\u0060 condition MUST name its \u0060fallback\u0060 requirement in the same entry.",
+      "statement": "A requirement that names an \u0060except\u0060 condition MUST name its \u0060fallback\u0060 requirement in its own record.",
       "rationale": "An exception without a fallback leaves the reader at the exact moment the promise breaks: the product refuses with no stated alternative. The \u0060condition\u0060 states in product words when the commitment does not hold, and \u0060fallback\u0060 names the requirement that covers what happens then. The fallback carries no \u0060except\u0060 of its own, so the chain stays one deep and every exception ends in a promise.",
       "example": "A reimbursed expense lands in the employee\u0027s account, never more than they spent. Except when the payout bank\u0027s settlement window has closed for that batch, with \u0060fallback\u0060 naming the requirement that has finance repay the employee by other means."
     },
@@ -8530,22 +8566,76 @@
       "example": ""
     },
     {
-      "id": "litespec/core/intent#state-requirement-kind-and-statement",
-      "heading": "State Requirement Kind and Statement",
+      "id": "litespec/core/intent#state-one-testable-behavior-in-each-requirement",
+      "heading": "State One Testable Behavior in Each Requirement",
       "page": "docs/core/intent.md",
-      "anchor": "state-requirement-kind-and-statement",
+      "anchor": "state-one-testable-behavior-in-each-requirement",
       "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a requirement entry without \u0060kind\u0060 or \u0060statement\u0060, or a policy requirement without dated values.",
+      "mark": "guidance",
+      "evidence": "Which requirement statements join two behaviors, or leave out a condition, a date or an amount a tester needs? Look at the statements of each feature\u0027s requirements.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each requirement entry MUST carry \u0060kind\u0060 and \u0060statement\u0060.",
+      "statement": "A requirement \u0060statement\u0060 MUST state one behavior that a tester can pass or fail on its own, with each condition, date and amount its result depends on.",
+      "rationale": "A statement that leaves out a condition passes in one reading and fails in another. \u0022Each bank account shows its balance beside the closing balance of its last statement\u0022 names no date for the book balance, so today\u0027s balance meets last month\u0027s statement and correct books show a difference. Naming the date, the amount or the condition makes the result decidable. One behavior per requirement lets each one be fulfilled, proven and changed on its own. A requirement is complete when a developer can tell what to build and a tester can tell what passes and what fails.",
+      "example": "\u0060requirement/approval.receipt-over-threshold\u0060 states that an expense above the receipt threshold carries a receipt, and \u0060decision/0001-receipt-threshold\u0060 sets the threshold at 25 EUR, so a tester knows which expense passes."
+    },
+    {
+      "id": "litespec/core/intent#state-requirement-kind-and-statement",
+      "heading": "State Requirement Kind and Statement",
+      "page": "docs/core/intent.md",
+      "anchor": "state-requirement-kind-and-statement",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a requirement without \u0060kind\u0060 or \u0060statement\u0060, or a policy requirement without dated values.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:requirement",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each requirement MUST carry \u0060kind\u0060 and \u0060statement\u0060.",
       "rationale": "The \u0060kind\u0060 is functional, quality, or policy: what the product does, how well it does it, or what the business holds. A policy requirement carries its \u0060values\u0060 with effective dates. The \u0060statement\u0060 states the commitment in one testable sentence.",
       "example": ""
+    },
+    {
+      "id": "litespec/core/intent#state-success-criteria-the-feature-controls",
+      "heading": "State Success Criteria the Feature Controls",
+      "page": "docs/core/intent.md",
+      "anchor": "state-success-criteria-the-feature-controls",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which success criteria promise an outcome the feature cannot bring about on its own, or one no tester can check? Look at the Success Criteria section of each feature explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:feature",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A feature explanation file MUST state under Success Criteria only outcomes that the feature brings about on its own and a tester can check.",
+      "rationale": "A criterion the feature cannot guarantee sets a test nobody can pass: importing a bank statement does not make the book balance equal the statement balance, because an entry can be missing or wrong and a later entry moves the balance again. A criterion the feature controls, such as showing both balances for the same date, can be built and checked. An outcome that depends on people or on other features belongs to the goal the feature advances.",
+      "example": "The library feature for due dates states that a reader sees the due date of every copy they hold, not that no reader pays a late fee, which depends on the reader returning the copy in time."
+    },
+    {
+      "id": "litespec/core/intent#state-the-boundaries-of-every-feature",
+      "heading": "State the Boundaries of Every Feature",
+      "page": "docs/core/intent.md",
+      "anchor": "state-the-boundaries-of-every-feature",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which feature explanations leave out what the feature leaves to other features, the features it depends on, or its open questions? Look at the Boundaries section of each feature explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:feature",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A feature explanation file MUST state under Boundaries what the feature leaves to other features, which features it depends on, and each open question its owner has not decided.",
+      "rationale": "A feature that answers part of a problem reads as answering all of it unless its edges are written down, and a builder fills the gap with behavior nobody asked for. Naming the features it leaves work to and the features it depends on keeps each behavior in one feature. An open question written beside the feature reaches the owner as a question instead of reaching the code as a guess. Settled by [decision/0046-write-features-for-builders-and-testers](../intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md), which writes each feature for the people who build and test it.",
+      "example": "The Claimwick approval feature leaves reminders for late decisions to the approval reminders feature, depends on the receipt threshold decision, and names one open question: whether a manager on leave hands decisions to a deputy."
     },
     {
       "id": "litespec/core/intent#state-the-cost-and-workaround-of-every-problem",
@@ -9660,8 +9750,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Every record except the product MUST have exactly one parent from the Placement Table on this page.",
-      "rationale": "A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).",
-      "example": "In the Claimwick product, \u0060requirement/approval-reminders.receipt-over-threshold\u0060 sits on the \u0060feature/approval-reminders\u0060 page under \u0060intent/modules/spending/features/\u0060; \u0060use-case/spending.submit-expense\u0060 sits beside its aggregate; and \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060 sits under \u0060result/submit-expense.submitted\u0060."
+      "rationale": "A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits under its feature in its own folder, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).",
+      "example": "In the Claimwick product, \u0060requirement/approval-reminders.receipt-over-threshold\u0060 sits under \u0060feature/approval-reminders\u0060 in \u0060intent/modules/spending/features/approval-reminders/receipt-over-threshold/\u0060; \u0060use-case/spending.submit-expense\u0060 sits beside its aggregate; and \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060 sits under \u0060result/submit-expense.submitted\u0060."
     },
     {
       "id": "litespec/core/model#hold-module-rules-in-rule-sets",
@@ -12930,6 +13020,24 @@
       "example": "\u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 The sentence holds 11 words and one fact."
     },
     {
+      "id": "litespec/core/writing#name-observable-behavior-instead-of-intensifiers",
+      "heading": "Name Observable Behavior Instead of Intensifiers",
+      "page": "docs/core/writing.md",
+      "anchor": "name-observable-behavior-instead-of-intensifiers",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which sentences use an intensifier or claim an experience where the behavior or a measured target belongs? Look at the records and explanation files the change adds.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every record and explanation file MUST state the observable behavior or the measured target in place of an unsupported intensifier or experience claim, such as seamlessly, easily, instantly, at once or quickest.",
+      "rationale": "Records are read by someone who has to build or test what they say. An intensifier reads as a promise while hiding the criterion behind it: \u0022the owner sees at once which account differs\u0022 names no behavior a tester can check, and \u0022quickest sign\u0022 claims a comparison nobody measured. Stating what the product shows, or the number it meets, gives the builder something to build and the tester something to pass or fail.",
+      "example": "A Claimwick feature writes \u0022The approver sees each waiting expense with the number of business days it has waited\u0022, not \u0022The approver instantly spots late expenses\u0022."
+    },
+    {
       "id": "litespec/core/writing#open-each-explanation-file-with-a-paragraph",
       "heading": "Open Each Explanation File with a Paragraph",
       "page": "docs/core/writing.md",
@@ -13008,7 +13116,7 @@
       "anchor": "use-literal-words",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which titles or sentences use a metaphor, a stock phrase or an undefined term where a literal phrase exists? Look at the titles and first uses the change adds, beside the glossary.",
+      "evidence": "Which titles or sentences use a metaphor, a loose verb, a stock phrase or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
@@ -13016,7 +13124,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.",
-      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.",
+      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: \u0022one transfer entry touches both accounts\u0022 leaves open what happens to each balance, while \u0022one transfer entry reduces the sending account\u0027s balance and increases the receiving account\u0027s balance\u0022 states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.",
       "example": "A Claimwick problem is titled \u0022Expenses Wait Weeks for Reimbursement\u0022. The title names the wait and the delay literally, with no figure of speech to decode."
     },
     {
@@ -13071,7 +13179,7 @@
       "strength": "required",
       "statement": "Every record title MUST use Title Case, carry no final period, and hold at most eight words.",
       "rationale": "A title is the record\u0027s name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under \u0060litespec/core/authoring#use-controlled-capitalization\u0060.",
-      "example": "The Claimwick requirement title reads \u0022Expense Above Threshold Carries Receipt\u0022, five words in Title Case with no final period."
+      "example": "The Claimwick requirement title reads \u0022Expense Above Threshold Carries Receipt\u0022, five words in Title Case with no final period, naming the fact the requirement holds rather than a bare noun such as \u0022Receipts\u0022."
     },
     {
       "id": "litespec/core/writing#write-for-the-reader-who-arrives-cold",
@@ -30048,7 +30156,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    intent/\n      product.yaml\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}/{feature}.yaml    requirements as entries\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}/{use-case}.yaml  results and scenarios as entries\n            events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      departures/                       create with the first departure record\n      modules/\n        {module}/\n          departures/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module\u0027s own name may stay flat.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. An entry lives in its home file: requirements in their feature file, permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    intent/\n      product.yaml\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ journeys/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}/\n              {feature}.yaml\n              {requirement}/{requirement}.yaml    one requirement, in its own folder\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}/{use-case}.yaml  results and scenarios as entries\n            events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      departures/                       create with the first departure record\n      modules/\n        {module}/\n          departures/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module\u0027s own name may stay flat.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature\u0027s folder.\n\nAn entry lives in its home file: permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

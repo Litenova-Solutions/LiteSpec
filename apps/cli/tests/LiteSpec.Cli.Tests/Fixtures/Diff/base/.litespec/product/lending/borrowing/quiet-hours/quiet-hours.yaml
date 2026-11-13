@@ -1,0 +1,7 @@
+type: requirement
+id: requirement/borrowing.quiet-hours
+title: Quiet hours
+kind: functional
+statement: The library keeps quiet hours.
+rationale: Readers need guaranteed quiet time to study.
+cites: []

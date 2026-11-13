@@ -1,0 +1,9 @@
+type: requirement
+id: requirement/approval.receipt-over-threshold
+title: Expense Above Threshold Carries Receipt
+kind: functional
+statement: An expense above the receipt threshold carries a receipt.
+rationale: Proof above the line keeps the tax file defensible.
+cites:
+- feature/approval-reminders
+- constraint/tax-receipt-retention

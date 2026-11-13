@@ -21,6 +21,6 @@ When LiteSpec is new, install the command line first with [Install the CLI](inst
 - [Add a Blazor Frontend](add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write Code for a Use Case](write-code-for-a-use-case.md): where each code element of a use case goes, the mark it carries, and the check that watches it.
-- [Write a Feature Under a Module](write-a-feature-under-a-module.md): write one feature with its requirement entries under its module.
+- [Write a Feature Under a Module](write-a-feature-under-a-module.md): write one feature with its requirements under its module.
 - [Build an Audit Trail](audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 - [Run Rules After Every Edit](run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.

@@ -93,6 +93,18 @@ internal static class IdentifierChecks
             {
                 findings.Add(new Finding("identifier-invalid", $"Identifier '{record.Id}' breaks the name rules.", record.File, record.Line, SubjectOf(record)));
             }
+
+            // A requirement's home is the feature whose folder holds it, so the home must name that folder.
+            if (record.Type == RecordTypes.Requirement && home is not null && FeatureFolderOf(record.File) is { } feature
+                && !string.Equals(home, feature, StringComparison.Ordinal))
+            {
+                findings.Add(new Finding(
+                    "identifier-invalid",
+                    $"Requirement '{record.Id}' names feature '{home}', but its folder sits in feature '{feature}'.",
+                    record.File,
+                    record.Line,
+                    SubjectOf(record)));
+            }
         }
 
         CheckFolderDrift(model, findings);
@@ -241,6 +253,17 @@ internal static class IdentifierChecks
                     SubjectOf(record)));
             }
         }
+    }
+
+    /// <summary>The name of the feature whose folder holds a requirement's own folder, or null when the path holds none.</summary>
+    /// <param name="file">The requirement record file path, <c>features/&lt;feature&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
+    /// <returns>The feature folder name, or null when the file sits too shallow.</returns>
+    private static string? FeatureFolderOf(string file)
+    {
+        var feature = Path.GetDirectoryName(Path.GetDirectoryName(file));
+        var name = feature is null ? null : Path.GetFileName(feature);
+
+        return string.IsNullOrEmpty(name) ? null : name;
     }
 
     /// <summary>The module folder the file sits under, or null when its path holds no modules folder.</summary>

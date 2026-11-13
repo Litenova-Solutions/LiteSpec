@@ -39,7 +39,9 @@ public static class RecordFolders
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),
         At("problem", "intent/modules/{module}/problems/{name}", "{name}.yaml"),
         Scaffold("feature", "intent/modules/{module}/features/{name}", "{name}.yaml"),
-        At("requirement", "intent/modules/{module}/features/{name}", "{name}.yaml"),
+        // A requirement sits in its own folder inside its feature's folder. litespec new and rename place it
+        // from the feature record, since the identifier names the feature but not the module.
+        At("requirement", "intent/modules/{module}/features/{feature}/{name}", "{name}.yaml"),
         Scaffold("constraint", "intent/constraints/{name}", "{name}.yaml"),
         At("constraint", "intent/modules/{module}/constraints/{name}", "{name}.yaml"),
         Scaffold("decision", "intent/decisions/{name}", "{name}.yaml"),

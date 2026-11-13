@@ -1,8 +1,8 @@
 # Changelog
 
-## v5.3.0
+## v6.0.0
 
-LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders and rewrite its explanation files, as Part G describes.
+LiteSpec 6.0.0 adds the vision record, puts each named record and each requirement in its own folder, gives every explanation file plain sections behind an opening paragraph, states each problem by its failure cases, and has each feature state its boundaries for the people who build and test it. It is a major release: it changes the record layout and renames one provision ID, so a consumer moves its records and requirements into folders and rewrites its explanation files, as Part I describes.
 
 ### Part A: The Vision Record
 
@@ -26,9 +26,9 @@ The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `lite
 
 - Each named record lives in its own folder named for it, `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that folder beside the record file. The folder name equals the file stem. `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#explain-each-record-beside-its-record-file` state the rule.
 - A named record placed flat in its type's folder is a `record-placement-invalid` finding. A named record whose folder name differs from its file stem is a `record-folder-drift` finding, a level G finding.
-- Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A requirement sits in its feature file, and a result or scenario sits in its use-case file.
+- Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A result or scenario sits in its use-case file, and a requirement sits in its own folder inside its feature's folder, as Part F states.
 - `litespec new` writes a named record in the folder layout, and `litespec rename` moves a record with its folder.
-- No migration tool ships. Part G lists the move each consumer makes.
+- No migration tool ships. Part I lists the move each consumer makes.
 
 Decision 0042, Keep Each Named Record in Its Own Folder, records why.
 
@@ -37,7 +37,7 @@ Decision 0042, Keep Each Named Record in Its Own Folder, records why.
 - Each record type has one fixed list of plain noun sections, in the order the section table on the writing page gives. The table covers every type with an explanation file, including the container pages: permission lists, setting sets, rule sets, retention schedules, runbooks and departures. A section is named by one or two plain nouns, such as Cost, Evidence or Revisit Conditions.
 - Each explanation file opens with one paragraph of prose between its H1 and its first H2. `explanation-opening-missing` reports an explanation with no such paragraph, at level A.
 - `explanation-missing` reports a missing fixed section, and it now also reports sections that come out of order. Its message names the section.
-- The old headings, such as What It Means, Who Has It, Answer and Known Limits, are invalid in 5.3.0. The generic explanation template is removed. `litespec new` writes each type's own explanation template, with the title filled in.
+- The old headings, such as What It Means, Who Has It, Answer and Known Limits, are invalid in 6.0.0. The generic explanation template is removed. `litespec new` writes each type's own explanation template, with the title filled in.
 - The book shows the opening paragraph above the sections, and it sets Limits apart as risks, Example as an example and Open Points as questions. It no longer moves a Why section out of the body.
 
 Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
@@ -52,29 +52,58 @@ Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
 - A problem title names the failure or its consequence, never a theme or a feature.
 - `litespec new problem` writes the new sections, and the Claimwick problem follows them.
 
-The five new rules are `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#explain-every-problem-in-four-sections` keeps its ID under the heading Explain Every Problem in Its Fixed Sections. Decision 0044, State Each Problem by Its Failure Cases, records why.
+The five new rules are `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#explain-every-problem-in-four-sections` becomes `litespec/core/intent#explain-every-problem-in-its-fixed-sections`, under the heading Explain Every Problem in Its Fixed Sections. Decision 0044, State Each Problem by Its Failure Cases, records why.
 
-### Part F: Provision Changes Since v5.2.0
+### Part F: Requirements in Their Own Folders
+
+- Each requirement lives in its own folder inside its feature's folder: `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.yaml`. Its identifier stays `requirement/<feature>.<name>`, and its feature segment names the feature whose folder holds it; `identifier-invalid` reports one that differs.
+- A feature record file holds no requirement entries. A requirement entry left in a feature file is a `record-invalid` finding.
+- A requirement's explanation file `<name>.md` is optional on every layer, even when the project lists `intent` in `explanations.layers`. When it exists, it opens with a paragraph and may carry an Example; acceptance stays in the Behavior scenarios that fulfill the requirement.
+- `litespec new requirement <feature>.<name>` writes the requirement's folder inside the feature's folder, with no explanation file. `litespec new entry` no longer takes a requirement. `litespec rename` moves a requirement's folder, and renaming a feature moves its folder with the requirement folders inside.
+- The book brings a feature's requirements together on the feature's page, as before.
+- Claimwick, the templates and the test fixtures hold each requirement in its own folder.
+
+Decision 0045, Keep Each Requirement in Its Own Folder, records why.
+
+### Part G: Features Written for the Builder and the Tester
+
+- A feature explanation carries Capabilities, Success Criteria, Boundaries and an optional Example. Boundaries is required: what the feature leaves to other features, the features it depends on, and each open question its owner has not decided. `explanation-missing` reports a feature explanation without it, or one that still carries Limits.
+- Success Criteria lists only outcomes the feature brings about on its own and a tester can check.
+- A feature or requirement explanation describes only behavior that the feature's requirements state.
+- A requirement statement states one behavior a tester can pass or fail on its own, with each condition, date and amount its result depends on. A rationale states why the requirement exists, adds no behavior, and claims no more than its reason supports. A requirement title names the specific behavior or fact it requires.
+- Every record names the operation it describes instead of a loose verb such as handles, holds, touches or lands, and states the observable behavior or the measured target instead of an intensifier such as seamlessly, instantly or at once.
+- The feature template and the Claimwick approval feature follow.
+
+The six new rules are `litespec/core/intent#state-the-boundaries-of-every-feature`, `litespec/core/intent#state-success-criteria-the-feature-controls`, `litespec/core/intent#add-no-behavior-in-an-explanation-file`, `litespec/core/intent#state-one-testable-behavior-in-each-requirement`, `litespec/core/intent#keep-each-rationale-to-its-reason` and `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`. `litespec/core/writing#use-literal-words` also refuses loose verbs. Decision 0046, Write Features for the Builder and the Tester, records why.
+
+### Part H: Provision Changes Since v5.2.0
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v5.2.0
 
-Added (10):
+Added (17):
 
+- `litespec/core/intent#add-no-behavior-in-an-explanation-file`
 - `litespec/core/intent#build-nothing-from-a-vision`
 - `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
 - `litespec/core/intent#claim-no-more-than-the-evidence-shows`
+- `litespec/core/intent#explain-every-problem-in-its-fixed-sections`
 - `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+- `litespec/core/intent#keep-each-rationale-to-its-reason`
 - `litespec/core/intent#keep-feasibility-out-of-problem-evidence`
 - `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`
 - `litespec/core/intent#resolve-every-failure-case-with-an-outcome`
 - `litespec/core/intent#state-each-failure-case-on-its-own`
 - `litespec/core/intent#state-each-vision-in-its-fields`
+- `litespec/core/intent#state-one-testable-behavior-in-each-requirement`
+- `litespec/core/intent#state-success-criteria-the-feature-controls`
+- `litespec/core/intent#state-the-boundaries-of-every-feature`
+- `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`
 - `litespec/core/writing#open-each-explanation-file-with-a-paragraph`
 
-Removed (0):
+Removed (1):
 
-None.
+- `litespec/core/intent#explain-every-problem-in-four-sections`
 
 Renamed (0):
 
@@ -90,15 +119,17 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part G: Upgrading a Consumer
+### Part I: Upgrading a Consumer
 
-1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
-2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.
-3. A project that references `LiteSpec.Analyzers` updates it to 5.3.0.
-4. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`. No tool moves them, so move each pair by hand, and move a feature's requirements with it, since they stay in the feature file.
-5. Rewrite each explanation file to the sections of its record type, as Part D, Part E and the section table on the writing page state. Keep the H1, write one opening paragraph, rename each H2 to the fixed section its type gives, and remove each H2 the table does not list. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type. In a problem, give each failure its own entry under Failure Cases, give each failure case one outcome under Resolution Criteria, and move an evidence entry that only shows a solution can be built into research.
-6. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
-7. Run `litespec model check` and fix each finding, including each `record-placement-invalid`, `record-folder-drift`, `explanation-missing` and `explanation-opening-missing` finding.
+1. Install `LiteSpec.Cli` 6.0.0 (`dotnet tool update LiteSpec.Cli --version 6.0.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 6.0.0` in `.litespec/project.yaml`.
+2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 6.0.0.
+3. A project that references `LiteSpec.Analyzers` updates it to 6.0.0.
+4. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`. No tool moves them, so move each pair by hand.
+5. Move each requirement entry out of its feature file into its own folder inside the feature's folder: `requirement/approval.no-self-approval` in `features/approval/approval.yaml` becomes `features/approval/no-self-approval/no-self-approval.yaml`, with `type`, `id` and `title` first and the entry's other fields after them. Remove the moved entries from the feature file.
+6. Rewrite each explanation file to the sections of its record type, as Parts D, E and G and the section table on the writing page state. Keep the H1, write one opening paragraph, rename each H2 to the fixed section its type gives, and remove each H2 the table does not list. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type. In a problem, give each failure its own entry under Failure Cases, give each failure case one outcome under Resolution Criteria, and move an evidence entry that only shows a solution can be built into research. In a feature, replace Limits with Boundaries and add the features it depends on and its open questions.
+7. Replace each citation of `litespec/core/intent#explain-every-problem-in-four-sections` with `litespec/core/intent#explain-every-problem-in-its-fixed-sections`.
+8. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
+9. Run `litespec model check` and fix each finding, including each `record-placement-invalid`, `record-folder-drift`, `record-invalid`, `identifier-invalid`, `explanation-missing` and `explanation-opening-missing` finding.
 ## v5.2.0
 
 LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.

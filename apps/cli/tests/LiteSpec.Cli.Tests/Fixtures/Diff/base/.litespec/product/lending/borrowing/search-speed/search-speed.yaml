@@ -1,0 +1,9 @@
+type: requirement
+id: requirement/borrowing.search-speed
+title: Search speed
+kind: quality
+statement: Search answers quickly.
+rationale: Slow search sends readers to the desk queue.
+measure: p95 latency
+cites: []
+by: under 200 ms

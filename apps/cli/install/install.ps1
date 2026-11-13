@@ -21,7 +21,7 @@ v<version>/ with the release assets.
 irm https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.ps1 | iex
 
 .EXAMPLE
-$env:LITESPEC_VERSION = '5.3.0'; irm https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.ps1 | iex
+$env:LITESPEC_VERSION = '6.0.0'; irm https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.ps1 | iex
 #>
 [CmdletBinding()]
 param(

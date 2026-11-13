@@ -1,0 +1,9 @@
+type: requirement
+id: requirement/approval.decided-within-five-days
+title: Expense Decided Within Five Business Days
+kind: functional
+statement: Each submitted expense is decided within five business days.
+rationale: Late decisions stall employees and payouts.
+cites:
+- feature/approval-reminders
+- research/approval-time-benchmarks

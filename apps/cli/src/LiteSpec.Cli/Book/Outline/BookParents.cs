@@ -104,6 +104,8 @@ static class BookParents
         public Dictionary<string, string> AggregatesByDir { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the entry-point identifier for each entry-point file directory, first record winning.</summary>
         public Dictionary<string, string> EntryPointsByDir { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the feature identifier for each feature file directory, first record winning.</summary>
+        public Dictionary<string, string> FeaturesByDir { get; } = new(StringComparer.Ordinal);
     }
 
     /// <summary>Builds the parent lookup tables from the model records.</summary>
@@ -144,6 +146,11 @@ static class BookParents
                 && DirOf(StrProp(pair.Value, "file")) is { } entryDir)
             {
                 index.EntryPointsByDir.TryAdd(entryDir, pair.Key);
+            }
+            else if (string.Equals(type, "feature", StringComparison.Ordinal)
+                && DirOf(StrProp(pair.Value, "file")) is { } featureDir)
+            {
+                index.FeaturesByDir.TryAdd(featureDir, pair.Key);
             }
 
             if (!Identifiers.TrySplit(pair.Key, out _, out _, out var name) || name is not { Length: > 0 })
@@ -195,7 +202,7 @@ static class BookParents
             "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
             "vision" or "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
             "feature" or "permission" or "integration-event" => ModuleFromFile(index, record),
-            "requirement" => FeatureParent(index, id),
+            "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id),
             "aggregate" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
@@ -348,6 +355,24 @@ static class BookParents
     {
         var slash = dir.LastIndexOf('/');
         return slash < 0 ? null : dir[..slash];
+    }
+
+    /// <summary>Finds the feature parent of a requirement from its folder: the feature whose folder holds the requirement's own folder.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="record">The requirement record object that holds its file path.</param>
+    /// <returns>The feature identifier for the folder, or null when the requirement sits in no feature folder.</returns>
+    static string? FeatureFromFolder(ParentIndex index, JsonObject record)
+    {
+        var file = StrProp(record, "file");
+        if (file is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        // A requirement sits in <feature>/<name>/<name>.yaml, so the feature folder is two levels up.
+        var dir = DirOf(file);
+        var parent = dir is null ? null : ParentDirOf(dir);
+        return parent is not null && index.FeaturesByDir.TryGetValue(parent, out var feature) ? feature : null;
     }
 
     /// <summary>Finds the feature parent of a record from its identifier home.</summary>

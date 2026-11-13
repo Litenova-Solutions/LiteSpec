@@ -21,7 +21,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
 | journey | A verb plus its object: the walker's task | Submit an Expense Claim with Receipts |
 | actor | A role noun phrase | Approver |
-| requirement | A noun phrase naming the assertion | Per-Diem Meal Allowance |
+| requirement | A phrase naming the specific behavior or fact it requires, never a bare noun | Expense Above Threshold Carries Receipt |
 | constraint | A subject noun phrase; the authority stays in its field | Receipt Retention Period per Country |
 | decision | The chosen outcome as a noun phrase | One Approval Chain per Cost Center |
 | research | The question the record answers | How Long Employees Wait for Reimbursement |
@@ -47,7 +47,8 @@ An explanation file beside a record file opens with the record title as its one 
 | research | Findings, Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | module | Responsibilities, Boundaries, Example (optional) |
-| feature | Capabilities, Success Criteria, Limits (optional), Example (optional) |
+| feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
+| requirement | Example (optional); the explanation file itself is optional |
 | journey | Preconditions (optional), Example, Variations (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
@@ -126,11 +127,27 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.
 
-**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.
+**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.
 
 **Example:** A Claimwick problem is titled "Expenses Wait Weeks for Reimbursement". The title names the wait and the delay literally, with no figure of speech to decode.
 
-**Reviewed for:** Which titles or sentences use a metaphor, a stock phrase or an undefined term where a literal phrase exists? Look at the titles and first uses the change adds, beside the glossary.
+**Reviewed for:** Which titles or sentences use a metaphor, a loose verb, a stock phrase or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.
+
+### Name Observable Behavior Instead of Intensifiers
+
+**ID:** `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every record and explanation file MUST state the observable behavior or the measured target in place of an unsupported intensifier or experience claim, such as seamlessly, easily, instantly, at once or quickest.
+
+**Rationale:** Records are read by someone who has to build or test what they say. An intensifier reads as a promise while hiding the criterion behind it: "the owner sees at once which account differs" names no behavior a tester can check, and "quickest sign" claims a comparison nobody measured. Stating what the product shows, or the number it meets, gives the builder something to build and the tester something to pass or fail.
+
+**Example:** A Claimwick feature writes "The approver sees each waiting expense with the number of business days it has waited", not "The approver instantly spots late expenses".
+
+**Reviewed for:** Which sentences use an intensifier or claim an experience where the behavior or a measured target belongs? Look at the records and explanation files the change adds.
 
 ### Keep Each Record Sentence Within Twenty-Five Words
 
@@ -192,7 +209,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Rationale:** A title is the record's name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
 
-**Example:** The Claimwick requirement title reads "Expense Above Threshold Carries Receipt", five words in Title Case with no final period.
+**Example:** The Claimwick requirement title reads "Expense Above Threshold Carries Receipt", five words in Title Case with no final period, naming the fact the requirement holds rather than a bare noun such as "Receipts".
 
 **Reviewed for:** Which record titles fall outside Title Case, end in a period, or run past eight words? Look at the titles the change adds.
 

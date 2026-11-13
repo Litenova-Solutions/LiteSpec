@@ -381,7 +381,8 @@ public sealed class OperationsCheckTests
     // fulfills it, so the requirement reaches Behavior as every Intent record must.
     static void WriteLatencyRequirement(string root)
     {
-        WriteRecord(root, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(root, FeatureFile, FeatureJson, RequirementExplanation);
+        WriteRecord(root, RequirementFile, RequirementJson);
         WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
         var useCase = Path.Combine(root, ListLoansFile);
         var text = File.ReadAllText(useCase).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -452,7 +453,8 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string RequirementFile = ".litespec/intent/modules/lending/features/performance/performance.yaml";
+    const string FeatureFile = ".litespec/intent/modules/lending/features/performance/performance.yaml";
+    const string RequirementFile = ".litespec/intent/modules/lending/features/performance/list-loans-latency/list-loans-latency.yaml";
     const string ListLoansFile = ".litespec/behavior/modules/lending/loans/list-loans/list-loans.yaml";
     const string RunbookFile = ".litespec/implementation/runbooks/slow-listings/slow-listings.yaml";
     const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing/0003-term-start-listing.yaml";
@@ -466,28 +468,29 @@ public sealed class OperationsCheckTests
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
     const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
 
-    const string RequirementJson = """
+    const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/performance",
           "title": "Performance",
           "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
-          "solves": ["problem/slow-desk-loans"],
-          "records": [
-            {
-              "type": "requirement",
-              "id": "requirement/performance.list-loans-latency",
-              "title": "List loans latency",
-              "kind": "quality",
-              "statement": "Listing loans answers within 300 milliseconds at p95.",
-              "rationale": "Term start floods the listing.",
-              "stimulus": "Two hundred readers list their loans in the first hour of the term.",
-              "environment": "Normal operation, the search index warm.",
-              "response": "Each listing answers from the index.",
-              "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-              "check": "list-loans-load"
-            }
-          ]
+          "solves": ["problem/slow-desk-loans"]
+        }
+        """;
+
+    const string RequirementJson = """
+        {
+          "type": "requirement",
+          "id": "requirement/performance.list-loans-latency",
+          "title": "List loans latency",
+          "kind": "quality",
+          "statement": "Listing loans answers within 300 milliseconds at p95.",
+          "rationale": "Term start floods the listing.",
+          "stimulus": "Two hundred readers list their loans in the first hour of the term.",
+          "environment": "Normal operation, the search index warm.",
+          "response": "Each listing answers from the index.",
+          "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
+          "check": "list-loans-load"
         }
         """;
 

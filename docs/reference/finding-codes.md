@@ -9,7 +9,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | Code | Level | Layer | Trace | Extension | Meaning | Fix |
 |:---|:---|:---|:---|:---|:---|:---|
 | `record-invalid` | G | any | no | - | A record file fails to parse, or a record fails the shape its type requires. | Correct the file so it parses and matches the shape its type requires. |
-| `identifier-invalid` | G | any | no | - | An identifier breaks the form its type requires. | Rename the identifier to the required form. |
+| `identifier-invalid` | G | any | no | - | An identifier breaks the form its type requires, or a requirement names a feature other than the one whose folder holds it. | Rename the identifier to the required form. |
 | `identifier-duplicate` | G | any | no | - | One identifier names two records. | Give one of the records a new identifier. |
 | `identifier-folder-drift` | G | any | no | - | An identifier's module segment disagrees with its folder. | Rename the identifier to its folder's module and update every citation. |
 | `name-duplicate` | G | any | no | - | One name segment names two records in the product. | Give one of the records a new name. |

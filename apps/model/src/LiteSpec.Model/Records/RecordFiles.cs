@@ -114,6 +114,20 @@ public static class RecordFiles
                     continue;
                 }
 
+                // A requirement is a page of its own in its feature's folder, never an entry of a feature file.
+                if (entryType == RecordTypes.Requirement)
+                {
+                    var name = StringOf(entry, RecordFields.Id) ?? "requirement";
+
+                    problems.Add(new Finding(
+                        "record-invalid",
+                        $"Requirement '{name}' sits in the records of '{System.IO.Path.GetFileName(path)}'; a requirement is a record file of its own at <feature folder>/<name>/<name>.yaml.",
+                        path,
+                        entry.Line,
+                        pageId));
+                    continue;
+                }
+
                 records.Add(new IndexRecord(entry, path, entry.Line, true, pageId));
             }
         }

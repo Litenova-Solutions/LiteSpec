@@ -1,0 +1,16 @@
+type: decision
+id: decision/0045-keep-each-requirement-in-its-own-folder
+title: Keep Each Requirement in Its Own Folder
+options:
+  - name: "Keep each requirement as an entry in its feature's record file"
+    pros: "One file shows the offer with all its commitments, and nothing moves."
+    cons: "A requirement has no room for an explanation or an example, a change to one requirement rewrites the feature file, and a feature with many requirements grows into one long file."
+  - name: "Keep requirements in a separate requirements folder beside the features folder of each module"
+    pros: "Requirements stand apart from the features, one file each."
+    cons: "A second tree has to stay in step with the features, the folder no longer names the parent, and the module gains a folder outside its closed set."
+  - name: "Keep each requirement in its own folder inside its feature's folder, with an optional explanation file"
+    pros: "Each requirement has one authoritative file, the folder names its feature as a use case folder names its aggregate, an optional explanation holds what the statement does not make obvious, and the book still brings the requirements together on the feature's page."
+    cons: "Every consumer moves each requirement out of its feature file, and an author editing by hand opens more files."
+choice: "Keep each requirement in its own folder inside its feature's folder, with an optional explanation file"
+consequences: "A requirement lives at `<feature folder>/<name>/<name>.yaml`, and its identifier stays `requirement/<feature>.<name>`. A feature record file holds no requirement entries. `litespec new requirement <feature>.<name>` writes the folder, and `litespec rename` moves it. A requirement's explanation file is optional on every layer and holds an opening paragraph with an optional Example; acceptance stays in the Behavior scenarios that fulfill the requirement, so the explanation carries no acceptance criteria. The provisions that named a requirement entry name a requirement, and `litespec/core/intent#keep-intent-in-its-homes` places each requirement in its feature's folder. Each consumer moves its requirements under the changelog's upgrade step."
+reopenedWhen: "Consumers report that editing many small requirement files costs more than the separate history and explanation gain, or that readers need a combined feature file the book does not give them."

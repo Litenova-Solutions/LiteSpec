@@ -4,7 +4,7 @@
 
 These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
 
-A record file carries its record in YAML, with the entries in `records`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that same folder beside the record file. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Requirements sit on a feature file. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
+A record file carries its record in YAML, with the entries in `records`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that same folder beside the record file. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each requirement is a named record in its own folder inside its feature's folder. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
 
 ## Project Setup
 
@@ -33,8 +33,10 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `decision.md` | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` | Explains one decision beside its record file. |
 | `problem.yaml` | `.litespec/intent/problems/<name>/<name>.yaml` | Records one pain someone has today. |
 | `problem.md` | `.litespec/intent/problems/<name>/<name>.md` | Explains one problem beside its record file. |
-| `feature.yaml` | `.litespec/intent/modules/<module>/features/<name>/<name>.yaml` | Records what is offered against a problem, with its requirements as entries. |
+| `feature.yaml` | `.litespec/intent/modules/<module>/features/<name>/<name>.yaml` | Records what is offered against a problem. Its requirements sit beside it in their own folders. |
 | `feature.md` | `.litespec/intent/modules/<module>/features/<name>/<name>.md` | Explains one feature beside its record file. |
+| `requirement.yaml` | `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.yaml` | Records one commitment the feature makes, with its kind and statement. |
+| `requirement.md` | `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.md` | Explains one requirement beside its record file, when its statement needs prose. |
 | `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person, organization, or system. |
 | `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains one actor beside its record file. |
 | `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |
@@ -104,7 +106,8 @@ An explanation file sits in the record's folder beside its record file, with the
 | research | Findings, Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | module | Responsibilities, Boundaries, Example (optional) |
-| feature | Capabilities, Success Criteria, Limits (optional), Example (optional) |
+| feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
+| requirement | Example (optional); the explanation file itself is optional |
 | journey | Preconditions (optional), Example, Variations (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |

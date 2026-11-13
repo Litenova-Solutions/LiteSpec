@@ -1,18 +1,18 @@
 # Record Title
 
-Say what this feature offers, who it serves and why it matters. A reader who has read nothing else should understand the feature from this paragraph.
+Say what this feature is for and what it covers, for whom. A reader who has read nothing else should understand the feature from this paragraph.
 
 ## Capabilities
 
-Say how the requirements of the feature fit together for the user, in one or two sentences each.
+Group what the user can do by task, one short subsection or paragraph per task. Describe only behavior the feature's requirements state, and do not repeat the summary.
 
 ## Success Criteria
 
-Say what good looks like for the user, in terms the team can check.
+List the outcomes the feature brings about on its own, each one a tester can check.
 
-## Limits
+## Boundaries
 
-Optional. Say what the feature leaves out, and say why.
+Say what the feature leaves to other features, which features it depends on, and each open question the owner has not decided.
 
 ## Example
 

@@ -6,23 +6,23 @@ An agent (software that reads task context, changes files, and runs checks) wire
 
 ## Reference
 
-The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `5.3.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with that version. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
+The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `6.0.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with that version. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
 
 ### Page URLs
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/5.3.0/<path>/` | `https://litespec.dev/5.3.0/backend/domain/` | The page as HTML |
-| `https://litespec.dev/5.3.0/<path>.md` | `https://litespec.dev/5.3.0/backend/domain.md` | The page as plain Markdown |
+| `https://litespec.dev/6.0.0/<path>/` | `https://litespec.dev/6.0.0/backend/domain/` | The page as HTML |
+| `https://litespec.dev/6.0.0/<path>.md` | `https://litespec.dev/6.0.0/backend/domain.md` | The page as plain Markdown |
 
-`<path>` is the page path under `docs/` without the extension, such as `backend/domain`. A folder index is served at its folder, so `docs/learn/README.md` is served at `https://litespec.dev/5.3.0/learn/`. Raw Markdown answers with `Content-Type: text/markdown`. Relative links between pages are rewritten to absolute raw URLs, so an agent that fetches one page follows its links without a browser. Fenced code blocks keep every byte.
+`<path>` is the page path under `docs/` without the extension, such as `backend/domain`. A folder index is served at its folder, so `docs/learn/README.md` is served at `https://litespec.dev/6.0.0/learn/`. Raw Markdown answers with `Content-Type: text/markdown`. Relative links between pages are rewritten to absolute raw URLs, so an agent that fetches one page follows its links without a browser. Fenced code blocks keep every byte.
 
 ### Release Indexes
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
 | `https://litespec.dev/llms.txt` | `https://litespec.dev/llms.txt` | The root index for agents |
-| `https://litespec.dev/5.3.0/llms.txt` | `https://litespec.dev/5.3.0/llms.txt` | Every page of the release |
+| `https://litespec.dev/6.0.0/llms.txt` | `https://litespec.dev/6.0.0/llms.txt` | Every page of the release |
 
 Each index answers with `Content-Type: text/plain`. The root index explains how to use the site, lists every selection index and every layer bundle, and ends with the agent protocol block: the generated agent protocol region of the consumer template, filled for the default selection and preceded by what each placeholder takes. The release index groups every page by area with its raw Markdown URL and a one-line description.
 
@@ -30,8 +30,8 @@ Each index answers with `Content-Type: text/plain`. The root index explains how 
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/5.3.0/select/` | `https://litespec.dev/5.3.0/select/` | The selection page as HTML |
-| `https://litespec.dev/5.3.0/select/<key>/llms.txt` | `https://litespec.dev/5.3.0/select/server.dotnet.react/llms.txt` | The pages one selection applies |
+| `https://litespec.dev/6.0.0/select/` | `https://litespec.dev/6.0.0/select/` | The selection page as HTML |
+| `https://litespec.dev/6.0.0/select/<key>/llms.txt` | `https://litespec.dev/6.0.0/select/server.dotnet.react/llms.txt` | The pages one selection applies |
 
 A selection key joins the shape and the stacks with dots: `server.dotnet.react` names a server project using the `dotnet` backend stack and the `react` frontend stack. A server selection names one backend stack and zero or one frontend stack. A client-only selection names no backend stack and one frontend stack, such as `client-only.react`. Extensions never enter the key; the `AGENTS.md` block names the chosen extensions.
 
@@ -52,7 +52,7 @@ The middle lines state the protocol with the release, size, shape, stacks, exten
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/5.3.0/layers/<key>.md` | `https://litespec.dev/5.3.0/layers/backend/dotnet.md` | The layer as plain Markdown |
+| `https://litespec.dev/6.0.0/layers/<key>.md` | `https://litespec.dev/6.0.0/layers/backend/dotnet.md` | The layer as plain Markdown |
 
 A layer is one folder's pages, concatenated in reading order: each page opens with a comment naming its raw source URL, and pages are separated by a line holding `---`. A layer answers with `Content-Type: text/markdown`. The keys are:
 
@@ -69,7 +69,7 @@ The layers a selection applies, without extensions and pattern groups and in rea
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/5.3.0/schemas/<file>` | `https://litespec.dev/5.3.0/schemas/record.schema.yaml` | The schema as YAML |
+| `https://litespec.dev/6.0.0/schemas/<file>` | `https://litespec.dev/6.0.0/schemas/record.schema.yaml` | The schema as YAML |
 
 The eight files are the ones the [Formats](formats.md) page lists. Each answers with `Content-Type: application/yaml`. Each schema `$id` equals its published URL.
 
@@ -77,18 +77,18 @@ The eight files are the ones the [Formats](formats.md) page lists. Each answers 
 
 | Pattern | Example | Returns |
 |:---|:---|:---|
-| `https://litespec.dev/5.3.0/provisions.json` | `https://litespec.dev/5.3.0/provisions.json` | Every provision of the release |
+| `https://litespec.dev/6.0.0/provisions.json` | `https://litespec.dev/6.0.0/provisions.json` | Every provision of the release |
 
 The provision index answers with `Content-Type: application/json` and stays out of search results. It carries one object per provision with its ID, heading, owning page, anchor, kind, strength, statement, rationale, example, scope, and verification evidence, so an agent resolves any provision with one fetch instead of reading every page.
 
-A provision ID resolves to its page: `litespec/<page>#<slug>` is `https://litespec.dev/<release>/<page>/#<slug>` as HTML and `https://litespec.dev/<release>/<page>.md` as Markdown. For example, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` is `https://litespec.dev/5.3.0/backend/application/#keep-command-handlers-to-load-call-and-stage` as HTML and `https://litespec.dev/5.3.0/backend/application.md` as Markdown.
+A provision ID resolves to its page: `litespec/<page>#<slug>` is `https://litespec.dev/<release>/<page>/#<slug>` as HTML and `https://litespec.dev/<release>/<page>.md` as Markdown. For example, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage` is `https://litespec.dev/6.0.0/backend/application/#keep-command-handlers-to-load-call-and-stage` as HTML and `https://litespec.dev/6.0.0/backend/application.md` as Markdown.
 
 ### Latest Redirect
 
 | Pattern | Example | Result |
 |:---|:---|:---|
-| `https://litespec.dev/latest` | `https://litespec.dev/latest` | Redirect to `https://litespec.dev/5.3.0/` |
-| `https://litespec.dev/latest/*` | `https://litespec.dev/latest/backend/domain/` | Redirect to the same path under `5.3.0` |
+| `https://litespec.dev/latest` | `https://litespec.dev/latest` | Redirect to `https://litespec.dev/6.0.0/` |
+| `https://litespec.dev/latest/*` | `https://litespec.dev/latest/backend/domain/` | Redirect to the same path under `6.0.0` |
 
 Both redirects answer `302`. The build writes them to `_redirects` in the output root, which the hosting platform reads.
 

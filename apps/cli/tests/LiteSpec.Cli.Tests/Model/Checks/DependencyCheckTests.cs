@@ -161,7 +161,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "5.3.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@5.3.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "6.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@6.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -185,7 +185,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("nuget:LiteSpec.Analyzers", finding);
         Assert.Contains("5.1.1", finding);
         Assert.Contains("differs from its manifest pin", finding);
-        Assert.Contains("5.3.0", finding);
+        Assert.Contains("6.0.0", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }

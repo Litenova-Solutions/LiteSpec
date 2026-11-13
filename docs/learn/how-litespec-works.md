@@ -47,7 +47,9 @@ The folder is part of the record: it names the parent, and every other folder na
       module.yaml
       features/
         approval/
-          approval.yaml        the feature, with its requirements as entries
+          approval.yaml        the feature
+          decided-within-five-days/
+            decided-within-five-days.yaml   a requirement, in its own folder
 .litespec/behavior/
   modules/
     spending/

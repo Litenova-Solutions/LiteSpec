@@ -1,0 +1,12 @@
+type: requirement
+id: requirement/approval-reminders.decided-within-five-days
+title: Decided Within Five Days
+kind: functional
+statement: The product decides every expense within five working days.
+rationale: Approvers batch decisions monthly today.
+cites:
+  - goal/faster-reimbursement
+except:
+  - condition: The amount is under the threshold.
+    fallback: requirement/approval-reminders.auto-approved-under-threshold
+setBy: product

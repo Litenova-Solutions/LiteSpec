@@ -17,7 +17,8 @@ internal static class ProseChecks
             .Where(record => !record.Derived)
             .OrderBy(record => record.Id, StringComparer.Ordinal))
         {
-            if (!record.IsEntry && record.Field(RecordFields.Summary) is not { Length: > 0 })
+            // A requirement page carries no summary: its statement is its lead.
+            if (!record.IsEntry && record.Type != RecordTypes.Requirement && record.Field(RecordFields.Summary) is not { Length: > 0 })
             {
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no summary field.", record.File, record.Line, SubjectOf(record)));
             }

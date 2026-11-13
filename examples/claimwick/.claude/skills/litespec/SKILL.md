@@ -3,7 +3,7 @@ name: litespec
 description: Use when working in a repository that holds `.litespec/project.yaml`, for editing code, records, tests, or UI, for citing or looking up a LiteSpec provision, or for writing the completion report. Guides the agent through the LiteSpec task order, which reads the project agent protocol region, queries the model, asks the project tool for the provisions that govern each file, and reports how each was judged.
 metadata:
   generated-by: litespec
-  litespec-release: 5.3.0
+  litespec-release: 6.0.0
 ---
 
 # LiteSpec Skill

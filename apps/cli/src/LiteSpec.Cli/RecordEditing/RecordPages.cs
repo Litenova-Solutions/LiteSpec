@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.RecordEditing;
@@ -16,7 +17,7 @@ static class RecordPages
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "vision", "problem", "feature", "constraint", "research",
+        "product", "goal", "vision", "problem", "feature", "requirement", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
         "runbook", "departure",
@@ -32,7 +33,6 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a feature file under .litespec/intent/modules/<m>/features/<name>/",
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
@@ -171,12 +171,24 @@ static class RecordPages
         Path.Combine(container, name, name + extension);
 
     /// <summary>
+    ///     The folder of the feature a requirement belongs to: the folder of the feature record
+    ///     <c>feature/&lt;feature&gt;</c>. A requirement's own folder sits inside it.
+    /// </summary>
+    /// <param name="records">Every record the model read.</param>
+    /// <param name="feature">The feature name the requirement identifier names.</param>
+    /// <returns>The feature's folder, or null when no feature record holds that name.</returns>
+    public static string? FeatureFolder(IReadOnlyList<Record> records, string feature) =>
+        records.FirstOrDefault(record => !record.Derived && record.Id == $"feature/{feature}") is { } found
+            ? Path.GetDirectoryName(found.File)
+            : null;
+
+    /// <summary>
     ///     The folder that holds a record's own folder: the container a named record's folder sits in, or the
     ///     folder of a flat record file. A file whose folder carries its stem is a named record's file.
     /// </summary>
     /// <param name="file">The absolute record file path.</param>
     /// <returns>The container folder, or null when the file has no folder.</returns>
-    static string? ContainerOf(string file)
+    public static string? ContainerOf(string file)
     {
         var folder = Path.GetDirectoryName(file);
 

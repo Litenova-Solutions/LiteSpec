@@ -38,7 +38,7 @@ The release manifest opens with these fields:
 ```yaml
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 5.3.0
+version: 6.0.0
 name: litespec
 agentsEntry: AGENTS.md
 ```
@@ -57,7 +57,7 @@ The top-level properties describe the project. `schemaVersion` is the constant `
 The consumer template opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.3.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: __PROJECT__
@@ -84,7 +84,7 @@ layers:
 
 The schema holds no single property list. Instead it carries a `oneOf` across the page variants, one per record type and page style, so each record file and each document frontmatter matches exactly one variant, such as `productPage`, `useCasePage`, `screenPage`, `ruleSetPage` or `howToPage`. Each variant requires `type` plus its own fields, such as `id` and `title`. A record present in git is decided; no variant carries approval, status, or history fields.
 
-A list page carries its entries in `records`: requirement, permission, rule, result, scenario, event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `journeyStepId` for `journey/<name>#s1`, and `derivedResultId` for the derived generic results. Shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `runs`, `sends`, `emits`, or `calls`, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, and `dataClassEntry`.
+A list page carries its entries in `records`: permission, rule, result, scenario, event, entry-point, and setting entries. The identifier patterns sit beside the variants in `$defs`, such as `useCaseId` for `use-case/<module>.<name>`, `reactionId` for `reaction/<module>.<name>`, `jobId` for `job/<module>.<name>`, `journeyStepId` for `journey/<name>#s1`, and `derivedResultId` for the derived generic results. Shared shapes sit there too: the `access` object with `grant` and `tenant`, the query `output` groups, `paging`, `consistency`, `effectEntry` with exactly one verb of `runs`, `sends`, `emits`, or `calls`, the reaction trigger, the job kind and schedule, `idempotency`, `audit`, the one `onFailure` shape, and `dataClassEntry`.
 
 A use case requires `kind`, which is `command` or `query`, and the `access` object. The entry point the use case is reached through states the caller `auth`; the use case states only `grant` and `tenant`:
 
@@ -155,7 +155,7 @@ The top-level properties hold one decision per recurring UI question. `schemaVer
 The consumer template catalog opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.3.0/schemas/ui-pattern-catalog.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/ui-pattern-catalog.schema.yaml
 schemaVersion: 2
 breakpoints:
   compact: 768
@@ -175,7 +175,7 @@ The team records each primitive it installs or changes in `components`, with its
 The consumer template lock opens with these fields:
 
 ```yaml
-# yaml-language-server: $schema=https://litespec.dev/5.3.0/schemas/ui-source-lock.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/ui-source-lock.schema.yaml
 schemaVersion: 2
 generator: shadcn/ui
 ```
