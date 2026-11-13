@@ -94,6 +94,11 @@ export function downOf(book: Book, id: string): DownEntry[] {
     }
   };
   if (t === "product") add(book.order.filter((x) => book.typeOf(x) === "goal"), "a goal of the product");
+  if (t === "product") add(book.order.filter((x) => book.typeOf(x) === "vision"), "a vision of the product");
+  if (t === "vision") {
+    add(book.ins(id, "basedOn"), "is based on this vision");
+    add(book.ins(id, "cites"), "cites this vision");
+  }
   if (t === "goal") add(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "serves this goal");
   if (t === "problem") add(book.ins(id, "solves"), "solves this problem");
   if (t === "feature") add(book.ins(id, "cites"), "cites this feature");
