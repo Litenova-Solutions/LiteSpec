@@ -7,7 +7,7 @@ import type { Book } from "$lib/frame";
 
 /** An inline code span, as book.js rendered .code. */
 export const codeCls =
-  "inline-block rounded border border-border bg-muted px-1.5 py-px font-mono text-xs font-medium whitespace-nowrap text-subtle-foreground";
+  "inline-block rounded border border-border bg-muted px-1.5 py-px max-w-full font-mono text-xs font-medium break-all text-subtle-foreground";
 
 /** A record named inside a sentence: its title as a link, or the bare identifier. */
 export function inlineRefHtml(book: Book, id: string, label?: string) {

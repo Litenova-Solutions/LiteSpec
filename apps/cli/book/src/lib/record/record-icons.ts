@@ -3,7 +3,7 @@ import {
   Activity, ArrowRight, ArrowUp, Bell, BookA, BookOpen, Boxes, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown,
   Circle, CircleAlert, CircleCheck, CircleDot, CircleQuestionMark, CircleSlash, CircleX, Clock, Compass,
   Code, Copy, DoorOpen, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, Globe, Hourglass, IdCard, Info,
-  KeyRound, Keyboard, Layers, Link, ListChecks, ListTree, LocateFixed, Lock, Microscope, Minus, Monitor, Moon, Network, Package,
+  KeyRound, Keyboard, Layers, Link, ListChecks, ListTree, LocateFixed, Lock, Menu, Microscope, Minus, Monitor, Moon, Network, Package,
   Plug, Plus, Quote, Radio, Route, Scale, Search, Server, Settings, Shield, ShieldOff, Signpost, Sun, Table2, Target,
   Timer, TriangleAlert, User, Waypoints, Workflow, X, Zap,
 } from "@lucide/svelte";
@@ -23,7 +23,7 @@ const ICONS: Record<string, Component> = {
   up: ArrowUp, back: ChevronLeft, ext: ExternalLink, alert: TriangleAlert, info: Info, clock: Clock, quote: Quote, lock: Lock,
   globe: Globe, missing: CircleAlert, tree: ListTree, expand: ChevronsUpDown, collapse: ChevronsDownUp,
   copy: Copy, filter: Funnel, search: Search, keyboard: Keyboard, locate: LocateFixed, trace: Waypoints,
-  network: Network,
+  network: Network, menu: Menu,
 } satisfies Record<string, Component>;
 
 // The icon for a record type or mark. A name the table does not hold reads

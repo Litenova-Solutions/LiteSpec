@@ -27,7 +27,7 @@
     <tbody class="[&_tr:last-child_th]:border-b-0 [&_tr:last-child_td]:border-b-0">
       {#each rows as row, i (i)}
         <tr>
-          <th class="w-[180px] border-b border-border py-2 pr-4 text-left align-top font-medium text-muted-foreground">
+          <th class="w-[34%] border-b border-border py-2 pr-4 text-left align-top font-medium text-muted-foreground sm:w-[180px]">
             {row.label}
           </th>
           <td class="border-b border-border py-2 align-top break-words text-foreground">

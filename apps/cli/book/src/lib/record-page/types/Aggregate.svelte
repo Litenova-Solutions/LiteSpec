@@ -54,7 +54,7 @@
   <PageSection blockKey="states" heading="states" count={model.states.length}>
     <div class="border-t border-border">
       {#each model.states as s (s.name)}
-        <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-1 border-b border-border py-2.5">
+        <div class="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-1 sm:grid-cols-[180px_minmax(0,1fr)] border-b border-border py-2.5">
           <div class="flex items-start gap-2 text-sm font-semibold">
             {s.name}
             {#if s.created}
@@ -73,16 +73,16 @@
   <PageSection blockKey="flow" heading="transitions" count={af.transitions.length} aside="what moves the record from state to state">
     <div class="grid gap-1.5">
       {#each model.flows as flow (flow.from)}
-        <div class="grid grid-cols-[150px_minmax(0,1fr)] items-start gap-2.5 border-b border-border py-2.5 last:border-b-0">
+        <div class="grid grid-cols-[minmax(0,1fr)] items-start gap-x-2.5 gap-y-1 sm:grid-cols-[150px_minmax(0,1fr)] border-b border-border py-2.5 last:border-b-0">
           <div class="pt-1 text-sm {flow.created ? 'font-medium text-muted-foreground' : 'font-semibold'}">
             {flow.created ? "Created as" : flow.from}
           </div>
           <div>
             {#each flow.targets as t (t.to)}
-              <div class="grid grid-cols-[18px_150px_minmax(0,1fr)] items-baseline gap-2 py-1 text-[0.84375rem]">
+              <div class="grid grid-cols-[18px_minmax(0,1fr)] items-baseline gap-x-2 gap-y-0.5 py-1 text-[0.84375rem] sm:grid-cols-[18px_150px_minmax(0,1fr)]">
                 <span class="text-muted-foreground"><RecordIcon name="arrow" class="size-3.5" /></span>
                 <span class="font-medium">{t.to}</span>
-                <span class="flex flex-wrap gap-x-3.5 gap-y-1">
+                <span class="col-start-2 flex flex-wrap gap-x-3.5 gap-y-1 sm:col-start-auto">
                   {#each t.by as b, j (j)}
                     {#if b}
                       <RecordLink id={b} />

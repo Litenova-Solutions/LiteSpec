@@ -12,7 +12,7 @@
 </script>
 
 <dt class="text-muted-foreground">{book.fieldLabel(label)}</dt>
-<dd class="m-0 min-w-0">
+<dd class="m-0 min-w-0 max-sm:mb-1.5">
   {#if html !== null}
     {@html html}
   {:else}

@@ -14,10 +14,10 @@
 {#if src?.path}
   {#if href}
     <a
-      class="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:underline"
+      class="inline-flex max-w-full items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:underline"
       {href}
-      title={src.litespec ? "Open in LiteSpec" : "Open " + src.path + " in the editor"}><RecordIcon name={icon} class="size-3.5" /><span>{text}</span></a>
+      title={src.litespec ? "Open in LiteSpec" : "Open " + src.path + " in the editor"}><RecordIcon name={icon} class="size-3.5 shrink-0" /><span class="min-w-0 break-all">{text}</span></a>
   {:else}
-    <span class="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground"><RecordIcon name={icon} class="size-3.5" /><span>{text}</span></span>
+    <span class="inline-flex max-w-full items-center gap-1.5 font-mono text-xs text-muted-foreground"><RecordIcon name={icon} class="size-3.5 shrink-0" /><span class="min-w-0 break-all">{text}</span></span>
   {/if}
 {/if}

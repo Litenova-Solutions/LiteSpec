@@ -11,8 +11,11 @@
 
   // The top bar: the brand, the search box, the run and completion widgets and
   // the actions. App mounts it above the columns; it reads the store directly.
-  type Props = { onOpenIntentTree: () => void; onRevealRequest: () => void };
-  let { onOpenIntentTree, onRevealRequest }: Props = $props();
+  // Below lg it leads with the button that opens the navigation drawer, and the
+  // secondary parts give way as the width narrows: the widgets, then the button
+  // labels, the book label and the shortcut hints.
+  type Props = { onOpenIntentTree: () => void; onRevealRequest: () => void; navOpen: boolean; onToggleNav: () => void };
+  let { onOpenIntentTree, onRevealRequest, navOpen, onToggleNav }: Props = $props();
   let keysOpen = $state(false);
   let searchInput = $state<HTMLInputElement | null>(null);
 
@@ -22,22 +25,36 @@
   });
 </script>
 
-<header class="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-5">
-  <div class="flex items-center gap-2.5 whitespace-nowrap text-foreground">
-    <svg width="24" height="24" viewBox="0 0 240 240" aria-hidden="true"><path fill="var(--mark-ink)" fill-rule="evenodd" d="M0 0H240V240H0ZM14 14V226H226V14Z" /><path fill="var(--mark-ink)" d="M43.68 60L57.68 60L57.68 166L83.68 166L83.68 180L43.68 180Z" /><path fill="var(--mark-symbol)" d="M97.68 60L196.32 60L196.32 74L97.68 74ZM97.68 113L196.32 113L196.32 127L97.68 127ZM97.68 166L196.32 166L196.32 180L97.68 180Z" /></svg>
-    <b class="text-[0.9375rem] font-semibold tracking-tight">{projName}</b><span class="text-strong">/</span><span class="font-medium text-muted-foreground">Book</span>
+<header class="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-3 sm:gap-4 sm:px-5">
+  <Button
+    id="nav-toggle"
+    variant="ghost"
+    size="icon"
+    class="-ml-1 lg:hidden"
+    aria-label={navOpen ? "Close the navigation" : "Open the navigation"}
+    aria-expanded={navOpen}
+    aria-controls="book-nav"
+    onclick={onToggleNav}><RecordIcon name={navOpen ? "x" : "menu"} /></Button
+  >
+  <div class="flex shrink-0 items-center gap-2.5 whitespace-nowrap text-foreground">
+    <svg class="shrink-0" width="24" height="24" viewBox="0 0 240 240" aria-hidden="true"><path fill="var(--mark-ink)" fill-rule="evenodd" d="M0 0H240V240H0ZM14 14V226H226V14Z" /><path fill="var(--mark-ink)" d="M43.68 60L57.68 60L57.68 166L83.68 166L83.68 180L43.68 180Z" /><path fill="var(--mark-symbol)" d="M97.68 60L196.32 60L196.32 74L97.68 74ZM97.68 113L196.32 113L196.32 127L97.68 127ZM97.68 166L196.32 166L196.32 180L97.68 180Z" /></svg>
+    <b class="hidden max-w-[18ch] truncate text-[0.9375rem] font-semibold tracking-tight sm:inline" title={projName}>{projName}</b><span class="hidden text-strong md:inline">/</span><span class="hidden font-medium text-muted-foreground md:inline">Book</span>
   </div>
   <RecordSearch bind:input={searchInput} {onRevealRequest} />
-  <div class="flex-1"></div>
-  <RunWidgets />
-  <Button variant="outline" onclick={onOpenIntentTree}>Intent tree</Button>
+  <div class="hidden flex-1 sm:block"></div>
+  <div class="hidden items-center gap-4 xl:flex"><RunWidgets /></div>
+  <Button variant="outline" aria-label="Intent tree" title="Intent tree" class="max-md:size-9 max-md:px-0" onclick={onOpenIntentTree}
+    ><RecordIcon name="tree" class="md:hidden" /><span class="max-md:sr-only">Intent tree</span></Button
+  >
   <DropdownMenu.Root>
     <DropdownMenu.Trigger>
       {#snippet child({ props })}
-        <Button {...props} variant="outline">Recent</Button>
+        <Button {...props} variant="outline" aria-label="Recent" title="Recent" class="max-md:size-9 max-md:px-0"
+          ><RecordIcon name="clock" class="md:hidden" /><span class="max-md:sr-only">Recent</span></Button
+        >
       {/snippet}
     </DropdownMenu.Trigger>
-    <DropdownMenu.Content align="end" class="w-[340px]">
+    <DropdownMenu.Content align="end" class="w-[min(340px,calc(100vw-1.5rem))]">
       <DropdownMenu.Label>Recently opened</DropdownMenu.Label>
       {#if book.recent.length}
         {#each book.recent as id (id)}
@@ -52,7 +69,7 @@
       {/if}
     </DropdownMenu.Content>
   </DropdownMenu.Root>
-  <Button variant="ghost" size="icon" aria-label="Keyboard shortcuts" onclick={() => (keysOpen = true)}>?</Button>
+  <Button variant="ghost" size="icon" class="max-md:hidden" aria-label="Keyboard shortcuts" onclick={() => (keysOpen = true)}>?</Button>
   <Button
     variant="ghost"
     size="icon"

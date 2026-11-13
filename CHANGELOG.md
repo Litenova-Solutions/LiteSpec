@@ -15,7 +15,13 @@ LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what 
 
 The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `litespec/core/intent#keep-dates-and-priorities-out-of-visions`, `litespec/core/intent#build-nothing-from-a-vision`, and `litespec/core/intent#cite-the-vision-a-decision-keeps-open`. Decision 0041, Record Product Vision as a Vision Record, records why.
 
-### Part B: Provision Changes Since v5.2.0
+### Part B: The Book on Narrow Screens
+
+- Below 1024 pixels the navigation becomes a drawer: a menu button in the top bar opens it, and choosing a record, the backdrop or Escape closes it and returns focus to the button. The page behind an open drawer is inert. Above 1024 pixels the columns stand side by side as before.
+- The top bar drops the test run and completion widgets below 1280 pixels, and the button labels, the book label and the shortcut hint below 768 pixels. The search box placeholder reads "Find a record".
+- Record pages fit a 320-pixel screen with no sideways scroll: long identifiers, paths and refusal codes wrap, label and value grids stack, and wide tables scroll inside their own frame.
+- The Intent tree and the trace rail show visions under the product, each with the decisions based on it and the requirements citing it.
+### Part C: Provision Changes Since v5.2.0
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v5.2.0
@@ -45,7 +51,7 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part C: Upgrading a Consumer
+### Part D: Upgrading a Consumer
 
 1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
 2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.

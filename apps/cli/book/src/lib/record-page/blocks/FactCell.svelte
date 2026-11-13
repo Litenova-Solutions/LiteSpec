@@ -14,8 +14,8 @@
 </script>
 
 <div class="contents">
-  <div class="border-b border-border py-2 text-sm text-muted-foreground">{book.fieldLabel(k)}</div>
-  <div class="border-b border-border py-2 text-[0.90625rem] leading-snug {big ? 'text-base font-semibold tabular-nums' : ''}">
+  <div class="pt-2 text-sm text-muted-foreground sm:border-b sm:border-border sm:pb-2">{book.fieldLabel(k)}</div>
+  <div class="border-b border-border pt-0.5 pb-2 text-[0.90625rem] sm:pt-2 leading-snug {big ? 'text-base font-semibold tabular-nums' : ''}">
     {#if html !== null}
       {@html html}
     {:else}

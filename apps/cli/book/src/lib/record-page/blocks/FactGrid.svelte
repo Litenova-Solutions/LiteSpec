@@ -6,4 +6,4 @@
   let { children }: Props = $props();
 </script>
 
-<div class="mb-2 grid grid-cols-[180px_minmax(0,1fr)] gap-x-4">{@render children()}</div>
+<div class="mb-2 grid grid-cols-[minmax(0,1fr)] gap-x-4 sm:grid-cols-[180px_minmax(0,1fr)]">{@render children()}</div>
