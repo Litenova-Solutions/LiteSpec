@@ -2,11 +2,11 @@
 
 ## v5.3.0
 
-LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders, as Part E describes.
+LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders and rewrite its explanation files, as Part F describes.
 
 ### Part A: The Vision Record
 
-- A `vision` record lives at `.litespec/intent/visions/<name>/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries Why It Matters, What It Keeps Open and What Would Make It Concrete.
+- A `vision` record lives at `.litespec/intent/visions/<name>/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries the sections Direction, Effect on Current Design and Trigger.
 - A decision names a vision in `basedOn`, and a requirement names one in `cites`. Nothing else links to a vision, and a vision links to nothing.
 - A vision reaches no Behavior by design: no reach check reads it, so it raises no `intent-unreached` or other planned-Intent finding. `litespec/core/intent#reach-every-intent-record-with-behavior` now excepts it.
 - `litespec/core/principles#require-current-complexity-activation` states that a vision never justifies a package, project, wrapper, process, cache, queue or distributed pattern on its own. A vision may justify the shape of a record or model.
@@ -28,21 +28,32 @@ The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `lite
 - A named record placed flat in its type's folder is a `record-placement-invalid` finding. A named record whose folder name differs from its file stem is a `record-folder-drift` finding, a level G finding.
 - Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A requirement sits in its feature file, and a result or scenario sits in its use-case file.
 - `litespec new` writes a named record in the folder layout, and `litespec rename` moves a record with its folder.
-- No migration tool ships. Part E lists the move each consumer makes.
+- No migration tool ships. Part F lists the move each consumer makes.
 
 Decision 0042, Keep Each Named Record in Its Own Folder, records why.
 
-### Part D: Provision Changes Since v5.2.0
+### Part D: Explanation Files with Plain Sections
+
+- Each record type has one fixed list of plain noun sections, in the order the section table on the writing page gives. The table covers every type with an explanation file, including the container pages: permission lists, setting sets, rule sets, retention schedules, runbooks and departures. A section is named by one or two plain nouns, such as Cost, Evidence or Revisit Conditions.
+- Each explanation file opens with one paragraph of prose between its H1 and its first H2. `explanation-opening-missing` reports an explanation with no such paragraph, at level A.
+- `explanation-missing` reports a missing fixed section, and it now also reports sections that come out of order. Its message names the section.
+- The old headings, such as What It Means, Who Has It, Answer and Known Limits, are invalid in 5.3.0. The generic explanation template is removed. `litespec new` writes each type's own explanation template, with the title filled in.
+- The book shows the opening paragraph above the sections, and it sets Limits apart as risks, Example as an example and Open Points as questions. It no longer moves a Why section out of the body.
+
+Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
+
+### Part E: Provision Changes Since v5.2.0
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v5.2.0
 
-Added (4):
+Added (5):
 
 - `litespec/core/intent#build-nothing-from-a-vision`
 - `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
 - `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
 - `litespec/core/intent#state-each-vision-in-its-fields`
+- `litespec/core/writing#open-each-explanation-file-with-a-paragraph`
 
 Removed (0):
 
@@ -62,14 +73,15 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part E: Upgrading a Consumer
+### Part F: Upgrading a Consumer
 
 1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
 2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.
 3. A project that references `LiteSpec.Analyzers` updates it to 5.3.0.
 4. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`. No tool moves them, so move each pair by hand, and move a feature's requirements with it, since they stay in the feature file.
-5. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
-6. Run `litespec model check` and fix each finding, including each `record-placement-invalid` and `record-folder-drift` finding.
+5. Rewrite each explanation file to the sections of its record type, as Part D and the section table on the writing page state. Keep the H1, write one opening paragraph, rename each H2 to the fixed section its type gives, and remove each H2 the table does not list. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type.
+6. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
+7. Run `litespec model check` and fix each finding, including each `record-placement-invalid`, `record-folder-drift`, `explanation-missing` and `explanation-opening-missing` finding.
 ## v5.2.0
 
 LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.

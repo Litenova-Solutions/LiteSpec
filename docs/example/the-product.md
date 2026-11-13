@@ -93,7 +93,7 @@ question: How fast do small companies decide expenses?
 conclusion: Small companies decide expenses within one week, so five business days is a defensible target.
 ```
 
-Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.md`, has the required Answer and Notes on Sources sections.
+Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.md`, has the required Findings and Source Notes sections.
 
 ## The Decision
 
@@ -122,7 +122,7 @@ decides:
 basedOn: []
 ```
 
-The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md`, holds the Context, Decision and Evidence with Confidence sections. The `reopenedWhen` field carries the condition for reopening the choice.
+The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md`, holds the Context, Options, Decision, Consequences and Revisit Conditions sections, with Evidence optional. The `reopenedWhen` field carries the condition for reopening the choice.
 
 ## The Constraint
 
@@ -156,6 +156,6 @@ steps:
 
 Use cases point at these steps: the submit use case serves `journey/submit-and-reimburse#s1`, and the approve use case serves `#s3`. Steps name no use case themselves, so a step can change its handler without the journey changing.
 
-The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Before It Starts sections, with one worked week of a train fare.
+The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Preconditions and Example sections, with one worked week of a train fare.
 
 Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them.

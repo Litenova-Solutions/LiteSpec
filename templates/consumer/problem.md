@@ -1,17 +1,23 @@
-# Expenses Wait Weeks
+# Record Title
 
-## Who Has It
+Say what pain someone has today, who has it and why it matters. A reader who has read nothing else should understand the problem from this paragraph.
 
-Name the people who carry this pain, with the role or group each one belongs to.
+## Affected Users
 
-## What They Do Today
+Name who has this problem and how often they meet it.
 
-Describe the workaround they use today, with what it costs them in time or money.
+## Current Workaround
+
+Say what those users do today instead.
+
+## Cost
+
+Say what the problem costs them, in their own units such as hours, money or lost sales. Write "unknown" when the cost is not measured.
 
 ## Evidence
 
-State the observed facts behind this pain, with where each fact was read and when.
+Give the proof that the problem exists, with its source and its date.
 
-## What Would Retire It
+## Resolution
 
-Name the change that would retire this pain, or state that no known change retires it.
+Say what would end the problem, and which feature or decision would end it.

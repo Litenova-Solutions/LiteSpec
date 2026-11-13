@@ -1,5 +1,11 @@
 # Faster Pickup
 
-## Why It Matters
+Short waits keep readers coming back, so the pickup desk works to shorten them.
 
-Short waits keep readers coming back.
+## Target
+
+Pickup waits stay under ten minutes.
+
+## Measurement
+
+The pickup desk logs each wait.

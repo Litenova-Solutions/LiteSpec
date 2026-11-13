@@ -20,14 +20,16 @@ static class RenameCommand
     public const string Usage = """
         Usage: litespec rename <old> <new> [--root <path>] [--help]
 
-        Renames one record identifier across the consumer repository. It moves
-        the record file and its explanation file to the path the new identifier
-        owns, updates the record file, and rewrites every citation of the old
-        identifier, so no link points at the old name after the rename. Both
-        arguments are full record identifiers, such as use-case/lending.borrow-copy.
-        A use-case file that already sits beside its aggregate stays in its
-        folder and takes the new file name. The command refuses a new identifier
-        a record already carries and an old identifier no record carries.
+        Renames one record identifier across the consumer repository. A named
+        record moves with its own folder, which takes the new name, and its
+        explanation file moves beside the record file. A module or aggregate
+        folder moves whole, with every record in it. The command updates the
+        record file and rewrites every citation of the old identifier, so no
+        link points at the old name after the rename. Both arguments are full
+        record identifiers, such as use-case/lending.borrow-copy. A record keeps
+        its container folder when its home does not change. The command refuses
+        a new identifier a record already carries and an old identifier no record
+        carries.
 
           --root    The consumer repository to change. Defaults to the working directory.
           --help    Print this text and exit.

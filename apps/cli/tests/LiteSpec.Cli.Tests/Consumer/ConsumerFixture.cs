@@ -69,17 +69,31 @@ static class ConsumerFixture
             """
             # Launch with a Flat Fee
 
+            The shop opens with one flat fee that it can state on every page.
+
             ## Context
 
             The shop opens with one fee it can state on every page.
+
+            ## Options
+
+            A flat fee is simple, and a percentage fee follows the cost of delivery.
 
             ## Decision
 
             The shop charges a flat fee on every order.
 
-            ## Evidence with Confidence
+            ## Consequences
+
+            Every receipt shows the same fee line.
+
+            ## Evidence
 
             The launch plan states the fee on its first page.
+
+            ## Revisit Conditions
+
+            The fee changes when delivery costs move.
 
             """),
         new(".litespec/behavior/actors/customer.yaml",

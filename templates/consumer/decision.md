@@ -1,21 +1,27 @@
-# Receipt Threshold
+# Record Title
+
+Say what choice this record makes, in plain words, and why it had to be made. A reader who has read nothing else should understand the decision from this paragraph.
 
 ## Context
 
-State the situation that forced a choice, with the facts that bound it.
+Describe the situation that forced the choice, in the past tense. This is the one section that may describe history.
 
-## Options Considered
+## Options
 
-Compare each real option on the same points, with what speaks for it and against it.
+Compare each real option on the same points: what it gives, what it costs and what it risks.
 
 ## Decision
 
-State the selected option in one paragraph. A decision present in git is decided; to change it, edit this record in place, and git keeps the earlier text.
+State the choice and the date it was made, in one or two sentences.
 
-## Evidence with Confidence
+## Consequences
 
-Optional. State the confidence in each source named in basedOn, and where sources disagree. Remove this section when the decision rests on no outside source.
+Say what follows from the choice for the product, the team and the code.
 
-## What Would Reopen It
+## Evidence
 
-Name the condition that would reopen this choice, or state that no known condition reopens it.
+Optional. Name each source the choice rests on, with its confidence.
+
+## Revisit Conditions
+
+Say what would reopen this decision, in terms the team can observe.

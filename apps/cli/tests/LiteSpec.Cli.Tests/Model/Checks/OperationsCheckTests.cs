@@ -537,6 +537,8 @@ public sealed class OperationsCheckTests
     const string OriginExplanation = """
         # Term Start Listing
 
+        Term start is the busiest week of the loan listing.
+
         ## Context
 
         Term start floods the loan listing.
@@ -549,9 +551,17 @@ public sealed class OperationsCheckTests
 
         Listing loans answers within 300 milliseconds at p95.
 
+        ## Consequences
+
+        The listing keeps one warm index that the loan writes update.
+
         ## Evidence
 
         Term start drill, November 2026.
+
+        ## Revisit Conditions
+
+        Term start traffic grows past the drill's load.
         """;
 
     const string DecisionJson = """
@@ -599,6 +609,8 @@ public sealed class OperationsCheckTests
     const string DecisionExplanation = """
         # Loan Index
 
+        The loan index decides how listings find loans.
+
         ## Context
 
         Listings read loans one by one today.
@@ -611,9 +623,17 @@ public sealed class OperationsCheckTests
 
         Listings read from one warm search index.
 
+        ## Consequences
+
+        Listings read one index that the loan writes keep current.
+
         ## Evidence
 
         Term start drill, November 2026.
+
+        ## Revisit Conditions
+
+        Listings slow down past the index's size.
         """;
 
     const string AlertPassing = """

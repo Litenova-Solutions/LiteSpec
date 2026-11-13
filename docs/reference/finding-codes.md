@@ -123,7 +123,8 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `effect-undeclared` | S | implementation | yes | - | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
 | `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, vision, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | A | any | no | - | A `.md` file under a record root has no frontmatter and no record file beside it, and is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
-| `explanation-missing` | A | any | no | - | A research or decision record has no explanation file, or its explanation lacks a required section. | Write the explanation file with its required sections. |
+| `explanation-missing` | A | any | no | - | A record that needs an explanation file has none, or its explanation lacks a required section or holds its sections out of order. | Write the explanation file with its fixed sections, in the order the section table gives. |
+| `explanation-opening-missing` | A | any | no | - | An explanation file holds no paragraph between its H1 and its first H2. | Write the opening paragraph: what the record is, who it concerns and why it matters. |
 | `format-drift` | A | any | no | - | A record file differs from canonical form. | Run `litespec model format`. |
 | `source-link-bare` | A | any | no | - | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |
 | `source-key-unknown` | A | any | no | - | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |

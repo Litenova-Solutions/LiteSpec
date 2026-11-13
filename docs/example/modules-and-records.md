@@ -95,7 +95,7 @@ The journey steps run in the order the table gives them. Submit expense serves `
 
 ## The Entry Point and the Screen
 
-The product reaches the module through one entry point, `behavior/entry-points/claimwick-app/entry-point.yaml`, which the employee signs into with a session. The entry point holds one screen in `screens/expense-list/expense-list.yaml`:
+The product reaches the module through one entry point, `behavior/entry-points/claimwick-app/entry-point.yaml`, which the employee signs into with a session. The entry point holds one screen in `screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`:
 
 ```yaml
 type: screen

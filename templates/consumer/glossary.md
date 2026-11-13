@@ -1,8 +1,8 @@
 ---
 type: glossary
-title: Claimwick Glossary
+title: Glossary
 ---
-# Claimwick Glossary
+# Glossary
 
 This page renders from the Term entries in `.litespec/glossary.yaml`. Edit terms there, never here.
 

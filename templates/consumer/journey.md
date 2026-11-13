@@ -1,17 +1,15 @@
-# Submit and Reimburse
+# Record Title
 
-## Who Walks and Why
+Say what the actor does on this journey and which goal it serves. A reader who has read nothing else should understand the journey from this paragraph.
 
-Name the actor who walks this journey and the outcome they walk toward.
+## Preconditions
 
-## Before It Starts
-
-Optional. State what holds before the first step, and remove this section when the walk starts from nothing.
+Optional. Say what must hold before the journey starts.
 
 ## Example
 
-Walk one concrete pass through every step, with the people, dates, and amounts from the example cast.
+Walk every step of the journey once, with the example cast and the numbers worked through.
 
-## What It Connects To
+## Variations
 
-Name the records this journey advances or serves, with what each connection carries.
+Optional. Describe the other paths in prose, and say when the actor takes each one.

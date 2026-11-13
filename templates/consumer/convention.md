@@ -1,10 +1,10 @@
 # Confirm Large Payouts
 
-**ID:** `claimwick/conventions#confirm-large-payouts`
+**ID:** `project/conventions#confirm-large-payouts`
 
 **Strength:** default
 
-**Applies to:** `behavior/entry-points/claimwick-app/screens/*`
+**Applies to:** `behavior/entry-points/*/screens/*/*`
 
 **Default:** A payout above 1,000 euros asks for one confirmation step before it runs.
 

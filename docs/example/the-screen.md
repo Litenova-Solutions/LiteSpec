@@ -16,7 +16,7 @@ The screen is `apps/web/src/routes/expenses/+page.svelte`. The route folder name
 </script>
 ```
 
-The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/expense-list/expense-list.yaml`, with the address `/expenses` and the floorplan `list-page`. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
+The screen record is `.litespec/behavior/entry-points/claimwick-app/screens/claimwick-app.expense-list/claimwick-app.expense-list.yaml`, with the address `/expenses` and the floorplan `list-page`. The route file holds no reusable logic. It imports the client and the shared floorplan, and it renders the rows it gets back.
 
 ## The Use Case Code
 

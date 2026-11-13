@@ -1,9 +1,11 @@
-# Approval Time Benchmarks
+# Record Title
 
-## Answer
+Say what question this research answers and why the answer matters to a choice. A reader who has read nothing else should understand the research from this paragraph.
 
-Expand the conclusion: what the sources say, claim by claim, with the confidence behind each claim.
+## Findings
 
-## Notes on Sources
+Give each finding as its own short paragraph, with the confidence behind it, high, medium or low, and the reason for that confidence.
 
-Optional. State what each source covers and where one source disagrees with another. Remove this section when the answer stands on one source alone.
+## Source Notes
+
+Optional. Say what each source covers, where sources disagree, and what could not be confirmed.

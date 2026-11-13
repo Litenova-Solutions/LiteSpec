@@ -34,7 +34,7 @@ Each consistency mode defines its promise and the effect timings it permits:
 
 Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under What Happens in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
+`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under Flow in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
 
 ### Queries
 
@@ -668,9 +668,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST carry `summary`.
 
-**Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under What Happens in the explanation file beside a command, where they stay readable without a shape a check must parse.
+**Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse.
 
-**Example:** The submit-expense summary states that an employee files a work expense for approval, and its What Happens section walks validation, storage, and the approver notice in order.
+**Example:** The submit-expense summary states that an employee files a work expense for approval, and its Flow section walks validation, storage, and the approver notice in order.
 
 **Checked by:** `litespec model check` reports `prose-missing` for a use case without `summary`.
 

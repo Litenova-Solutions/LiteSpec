@@ -315,11 +315,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A problem MUST state what the pain costs its sufferer today and what the sufferer does instead, each in the sufferer's own units or the word `unknown`, in its explanation file.
 
-**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, `unknown` states the gap honestly. Who Has It states the cost and What They Do Today states the workaround, so the fields stay checkable and the context stays readable.
+**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, `unknown` states the gap honestly. The explanation file states who has the pain in Affected Users, what it costs in Cost and the workaround in Current Workaround, so the fields stay checkable and the context stays readable.
 
 **Example:** A reader who loses track of due dates pays late fees each month, and keeps a paper list of due dates, which fails when the list stays at home.
 
-**Reviewed for:** The cost and the workaround, each in the sufferer's own units or the word `unknown`, in Who Has It and What They Do Today of each problem explanation file.
+**Reviewed for:** The cost and the workaround, each in the sufferer's own units or the word `unknown`, in Cost and Current Workaround of each problem explanation file.
 
 ### Grade Problem Evidence by Kind
 
@@ -377,11 +377,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem explanation file MUST carry Who Has It, What They Do Today, Evidence, and What Would Retire It, in that order.
+**Statement:** A problem explanation file MUST carry Affected Users, Current Workaround, Cost, Evidence, and Resolution, in that order.
 
 **Rationale:** The fields state who suffers; the explanation carries the cost, the one concrete occasion, the workaround in use, the evidence behind each claim, and what change in the world would retire the pain. A fixed order means a reader who learned one problem page finds each part on every problem page.
 
-**Example:** The library problem on due dates opens Who Has It with one reader at the desk with three overdue copies, and closes with What Would Retire It: readers holding their due dates without a paper list.
+**Example:** The library problem on due dates opens Affected Users with one reader at the desk with three overdue copies, and closes with Resolution: readers holding their due dates without a paper list.
 
 **Reviewed for:** The four sections, in order, in each problem explanation file.
 
@@ -483,11 +483,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:research
 
-**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Answer in its explanation file.
+**Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Findings in its explanation file.
 
-**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its `key`, `url`, and `readOn`; the explanation cites a source with a reference link `[text][key]`, and a bare URL, an unknown key, or an unused source is a finding. Answer expands the `conclusion`: what the sources say, claim by claim, with the confidence behind each claim, and Notes on Sources holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).
+**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its `key`, `url`, and `readOn`; the explanation cites a source with a reference link `[text][key]`, and a bare URL, an unknown key, or an unused source is a finding. Findings expands the `conclusion`: what the sources say, claim by claim, with the confidence behind each claim, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Answer in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
+**Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
 
 ### Shape Each Decision Page
 
@@ -497,11 +497,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:decision
 
-**Statement:** A decision MUST state its `choice` and `consequences` in fields and carry Context in its explanation file.
+**Statement:** A decision MUST state its `choice` and `consequences` in fields and carry Context and Decision in its explanation file.
 
-**Rationale:** Context in the explanation file states the choice, `choice` names the chosen option, and `consequences` states what follows, so each decision reads the same way. Decision in the explanation file expands the chosen option, and Evidence with Confidence holds the supporting material with its confidence where the choice rests on it. The `reopenedWhen` condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
+**Rationale:** Context in the explanation file states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option. The `choice` field names the chosen option, and `consequences` states what follows, so each decision reads the same way. Evidence holds the supporting material with its confidence where the choice rests on it. The `reopenedWhen` condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The `basedOn` link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in `decides`.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Context in its explanation file.
+**Checked by:** `litespec model check` reports `record-invalid` for a decision record file missing a required field; `litespec model check` reports `explanation-missing` for a decision without Context or Decision in its explanation file.
 
 ### Record Each Decision Option with Pros and Cons
 

@@ -44,13 +44,14 @@ public sealed class CalculationCheckTests
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Calculation Governing An Aggregate Reads The Scenarios Beside It.</summary>
+    /// <summary>Calculation Governing An Aggregate Reads The Scenarios In Its Use Case Folders.</summary>
     /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
     [Fact]
-    public void CalculationGoverningAnAggregateReadsTheScenariosBesideIt()
+    public void CalculationGoverningAnAggregateReadsTheScenariosInItsUseCaseFolders()
     {
         using var temp = TestCli.Temp("checks");
         var folder = Path.Combine(temp.Path, "loan");
+        var useCaseFolder = Path.Combine(folder, "borrow-copy");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record(
@@ -63,14 +64,44 @@ public sealed class CalculationCheckTests
                 "aggregate/lending.loan",
                 Path.Combine(folder, "README.md"),
                 """{"states": [{"name": "Active", "meaning": "The loan is open."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(folder, "borrow.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(useCaseFolder, "borrow-copy.yaml"), """{"kind": "command"}"""),
             TestModel.Record(
                 "scenario",
                 "scenario/borrow-copy.late-fee-examples-hold",
-                Path.Combine(folder, "borrow.md"),
+                Path.Combine(useCaseFolder, "borrow-copy.md"),
                 """{"given": "A loan stands overdue.", "when": "The fee is totaled.", "then": "The fee matches the table.", "result": "result/borrow-copy.borrowed", "examples": [{"days": 3, "fee": 1.5}]}"""));
 
         Assert.DoesNotContain("calculation-table-missing", TestModel.Codes(model));
+    }
+
+    /// <summary>Calculation Governing An Aggregate Reports When Its Use Case Has No Examples Table.</summary>
+    /// <proves>litespec/core/domain-model#tabulate-every-calculation-with-examples</proves>
+    [Fact]
+    public void CalculationGoverningAnAggregateReportsWhenItsUseCaseHasNoExamplesTable()
+    {
+        using var temp = TestCli.Temp("checks");
+        var folder = Path.Combine(temp.Path, "loan");
+        var useCaseFolder = Path.Combine(folder, "borrow-copy");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record(
+                "rule",
+                "rule/loan.late-fee-totals",
+                Path.Combine(folder, "README.md"),
+                """{"kind": "calculation", "statement": "A late fee totals the days overdue times the daily rate.", "governs": ["aggregate/lending.loan"]}"""),
+            TestModel.Record(
+                "aggregate",
+                "aggregate/lending.loan",
+                Path.Combine(folder, "README.md"),
+                """{"states": [{"name": "Active", "meaning": "The loan is open."}]}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(useCaseFolder, "borrow-copy.yaml"), """{"kind": "command"}"""),
+            TestModel.Record(
+                "scenario",
+                "scenario/borrow-copy.borrowing-an-available-copy-succeeds",
+                Path.Combine(useCaseFolder, "borrow-copy.md"),
+                """{"given": "A copy sits available.", "when": "The reader borrows it.", "then": "The loan is active.", "result": "result/borrow-copy.borrowed"}"""));
+
+        Assert.Contains("calculation-table-missing", TestModel.Codes(model));
     }
 
     /// <summary>Invariant Without An Examples Table Passes.</summary>

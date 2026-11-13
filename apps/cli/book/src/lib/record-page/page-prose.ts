@@ -68,8 +68,6 @@ function stripHtml(html: string) {
     .replace(/\s+/g, " ");
 }
 
-export const WHY_SECTIONS = /^(Why.*|Rationale)$/;
-
 /** The explanation intro, unless it repeats the lead the page already shows. */
 export function bodyIntroOf(r: BookRecord) {
   const intro = secIntro(r).trim();
@@ -87,18 +85,18 @@ export interface BodySectionView {
   kind: "risk" | "example" | "questions" | "default";
 }
 
-/** The explanation sections, minus the Why sections the page places separately. */
+/** The explanation sections, in the order the explanation file gives them. */
 export function bodySectionsOf(r: BookRecord): BodySectionView[] {
   return secList(r)
     .map((s, i) => ({ key: "s" + i, h: s.h, html: s.html ?? "", kind: "default" as const }))
-    .filter((s) => (s.html || "").trim() && !WHY_SECTIONS.test(s.h))
+    .filter((s) => (s.html || "").trim())
     .map((s) => ({
       ...s,
-      kind: /^Known Limits$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /Open (Modeling )?Questions/.test(s.h) ? "questions" : "default",
+      kind: /^Limits$/.test(s.h) ? "risk" : /^Example$/.test(s.h) ? "example" : /^Open Points$/.test(s.h) ? "questions" : "default",
     }));
 }
 
-/** The Why rows: reason fields first, then the Why explanation sections. */
+/** The Why rows: the reason fields a record states. */
 export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
   const f: RecordFields = r.fields ?? {};
   const parts: WhyPart[] = [];
@@ -108,7 +106,6 @@ export function whyPartsOf(book: Book, r: BookRecord): WhyPart[] {
     ["appliesBecause", "Applies because"],
   ];
   for (const [field, label] of rows) if (f[field]) parts.push({ label, html: inline(book, String(f[field]), r.src ?? null) });
-  for (const s of secList(r)) if (WHY_SECTIONS.test(s.h) && (s.html || "").trim()) parts.push({ label: s.h, html: s.html });
   return parts;
 }
 

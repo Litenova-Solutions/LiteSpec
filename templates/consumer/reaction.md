@@ -1,0 +1,15 @@
+# Record Title
+
+Say what event starts this reaction, what it does and why it runs in the background. A reader who has read nothing else should understand the reaction from this paragraph.
+
+## Trigger and Effect
+
+Say what starts the reaction and what follows from it, in one or two sentences.
+
+## Failure Handling
+
+Say what happens on a retry, a duplicate and a dead letter, and why each one is handled that way.
+
+## Example
+
+Optional. Walk one concrete event through the reaction with the example cast.

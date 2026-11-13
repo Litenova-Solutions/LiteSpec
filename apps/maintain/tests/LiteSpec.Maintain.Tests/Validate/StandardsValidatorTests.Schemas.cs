@@ -493,7 +493,7 @@ public sealed partial class StandardsValidatorTests
         "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}";
 
     static string TemplateDocument(string json) =>
-        "---\n" + StandardsFixture.Yaml(json) + "---\n\n# <Sample Goal>\n\n## Why It Matters\n\nState why this outcome matters.\n";
+        "---\n" + StandardsFixture.Yaml(json) + "---\n\n# <Sample Goal>\n\n## Target\n\nState the target this outcome names.\n";
 
     /// <summary>Consumer template carrying only placeholders.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>

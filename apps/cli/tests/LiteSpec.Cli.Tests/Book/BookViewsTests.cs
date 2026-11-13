@@ -670,10 +670,10 @@ public sealed class BookViewsTests
         Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
     }
 
-    /// <summary>The Why block inputs split from the explanation: the intro stays prose and Why sections list by heading.</summary>
+    /// <summary>The explanation splits into its intro and its sections, and each section lists by its heading.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void WhyBlockPlacement()
+    public void ExplanationSectionsListByHeading()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
@@ -682,7 +682,7 @@ public sealed class BookViewsTests
         Assert.Equal("", Str(goal, "intro"));
         var why = goal["list"]!.AsArray();
         Assert.Single(why);
-        Assert.Equal("Why It Matters", Str(why[0]!.AsObject(), "h"));
+        Assert.Equal("Target", Str(why[0]!.AsObject(), "h"));
         Assert.Contains("Short waits bring members back.", Str(why[0]!.AsObject(), "html") ?? "", StringComparison.Ordinal);
 
         var useCase = Obj(details["use-case/lending.borrow-copy"], "sections");

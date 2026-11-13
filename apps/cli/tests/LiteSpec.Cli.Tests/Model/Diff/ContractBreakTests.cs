@@ -311,7 +311,7 @@ public sealed class ContractBreakTests
         using var folder = TestCli.Temp("contract-break");
         CopyBase(folder.Path);
         CommitAll(folder.Path);
-        var file = Path.Combine(folder.Path, ".litespec", "behavior", "modules", "lending", "loans", "loan-shipped.yaml");
+        var file = Path.Combine(folder.Path, ".litespec", "behavior", "modules", "lending", "loans", "loan-shipped", "loan-shipped.yaml");
         File.WriteAllText(file, File.ReadAllText(file).Replace("The lent loan.", "The shipped loan.", StringComparison.Ordinal));
 
         var json = TestCli.Run("model", "check", "--root", folder.Path, "--since", "HEAD", "--format", "json");

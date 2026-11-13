@@ -11,7 +11,7 @@ Domain Model states the words and things inside the bounded context: the modules
 
 ### Bounded Context and Module
 
-The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page at `intent/modules/<m>/module.yaml` carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. `behavior/modules/<m>/` holds the same module name, so Behavior folders follow Intent. Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. A module with one aggregate of the module's own name may stay flat. Example, Known Limits, and Notes live in the explanation file beside the record file.
+The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page at `intent/modules/<m>/module.yaml` carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. `behavior/modules/<m>/` holds the same module name, so Behavior folders follow Intent. Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. A module with one aggregate of the module's own name may stay flat. Responsibilities, Boundaries and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -40,7 +40,7 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 | `entity` | One thing kept consistent through its root, with states, transitions, and data. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
-An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Example, Known Limits, and Notes live in the explanation file beside the record file.
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Lifecycle, Data and Retention, Example and Limits live in the explanation file beside the record file.
 
 `transitions` lists every allowed change with the use case moving it: each entry names the state left in `from`, the state entered in `to`, and the moving use case in `by`. A creation, the change that brings an instance into being, writes `-` as the state left. `data` lists the fields the aggregate keeps, each with name, meaning, classification, and data class. Each data class declares how its fields erase:
 

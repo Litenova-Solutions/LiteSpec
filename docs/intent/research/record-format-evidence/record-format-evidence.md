@@ -1,13 +1,29 @@
 # Record Format Evidence
 
-## Answer
+A LiteSpec record is one file per page, and checks and people both read it. This research record asks which file format holds each fact once and validates against the record schema. It compares the candidate formats and measures the largest consumer's current pages, which are Markdown files with JSON frontmatter. A check reads the frontmatter and the tables, but not the prose. It matters because a format that holds each fact once keeps the checked data and the explanation apart.
 
-Measured over the largest consumer on 2026-10-31, `.litespec/behavior` holds 2,450 pages with 403k lines of JSON frontmatter against 32k non-blank body lines. Every body uses fixed sections: Goal (1,273), Example (1,211), Risk (1,022), What Happens (984), Notes (476), and Screen Summary (380). Aggregate transitions and data live only as body tables, 164 and 179 of them, so a Markdown table is the source of truth for every aggregate state set. Checks read the frontmatter and the merged tables but not the body prose, so Goal, Risk, and What Happens can change without any check noticing. Behavior bodies hold 1,551 Markdown links to `.md` file paths. Research pages are articles: 181 distinct headings, 160 subsections, 85 tables, 584 distinct cited URLs, and 486 of those URLs are missing from the dated `sources` list. A rough converter puts YAML at 78% of the JSON lines and 81% of its characters; the gain is mainly structural, not size.
+## Findings
 
-The format survey compared KDL, TOML, JSON5, JSONC, KSON, HUML, NestedText, MAML, TOON, Ziggy, RON, EDN, CUE, Pkl, Nickel, Dhall, Jsonnet, and HCL, and found nothing that beats a strict YAML subset. KSON is the closest by design but is in beta with no .NET implementation. Because KSON is a JSON superset with [JSON Schema][json-schema] support, converting from strict YAML to it later would be mechanical. The reader is YamlDotNet: it accepts the YAML YamlDotNet reads, except it refuses an empty document, a document that does not start at the first column, document markers, tabs in indentation, folded blocks, and duplicate keys, each with the line it sits on. Scalars resolve by the core schema of [the YAML 1.2 specification][yaml-spec-1-2]. Key order comes from [the record schema][record-schema], which validates the parsed YAML unchanged. A scalar that would resolve to a non-string where a string is meant is quoted, and multi-line text uses `|` block scalars.
+A strict subset of YAML holds each fact once and validates against the unchanged record schema. No format in the survey beats it. The closest alternative, KSON, is in beta and has no .NET implementation.
 
-Anything a check reads is a YAML field; anything that only helps someone understand goes in the explanation file. Research and decision require their explanation file. Prose cites records by identifier, and each research source carries a key the article cites.
+On 31 October 2026, the largest consumer's `.litespec/behavior` folder held 2,450 pages. Those pages carry 403 thousand lines of JSON frontmatter, against 32 thousand non-blank body lines. Every body uses fixed sections: Goal (1,273), Example (1,211), Risk (1,022), What Happens (984), Notes (476) and Screen Summary (380). The record gives no confidence for this measurement.
 
-## Notes on Sources
+Aggregate transitions and data live only in body tables, with 164 and 179 tables. So a Markdown table is the source of truth for every aggregate state set. Checks read the frontmatter and the merged tables, but not the body prose. So Goal, Risk and What Happens can change without any check noticing. The record gives no confidence for this claim.
 
-Three sources were read on 2026-10-31. `yaml-spec-1-2` is the YAML 1.2 specification, read for the core schema resolution rules behind the strict subset. `json-schema` is the JSON Schema site, read for the validation claim the subset relies on and the KSON superset claim behind later conversion. `record-schema` is the shipped record schema, read for the validation target and the key order. The eighteen-format survey and the consumer counts are the researcher's own comparison and measurement, carried in the Answer.
+Behavior bodies hold 1,551 Markdown links to `.md` file paths. Research pages are articles. They have 181 distinct headings, 160 subsections and 85 tables. They cite 584 distinct URLs, and 486 of those URLs are missing from the dated `sources` list. The record gives no confidence for these measurements.
+
+A rough converter puts YAML at 78 percent of the JSON lines and 81 percent of its characters. The gain is mainly structural, not a gain in size. The record gives no confidence for this claim.
+
+The survey compared 18 formats: KDL, TOML, JSON5, JSONC, KSON, HUML, NestedText, MAML, TOON, Ziggy, RON, EDN, CUE, Pkl, Nickel, Dhall, Jsonnet and HCL. None beats a strict YAML subset. KSON is the closest by design, but it is in beta and has no .NET implementation. KSON is a JSON superset with JSON Schema support. So a later conversion from strict YAML to KSON would be mechanical. The record gives no confidence for this claim.
+
+The reader is YamlDotNet. It accepts the YAML that YamlDotNet reads, except that it refuses an empty document. It also refuses a document that does not start at the first column, document markers, tabs in indentation, folded blocks and duplicate keys. Each refusal names the line where it sits. Scalars resolve by the YAML 1.2 core schema. Key order comes from the record schema, which validates the parsed YAML unchanged. The record gives no confidence for these claims.
+
+A scalar that would resolve to a non-string, where a string is meant, is quoted. Multi-line text uses `|` block scalars. The record gives no confidence for this rule.
+
+Anything that a check reads is a YAML field. Anything that only helps a person understand goes in the explanation file. Research and decision records require their explanation file. Prose cites records by identifier, and each research source carries a key that the article cites. The record gives no confidence for these rules.
+
+## Source Notes
+
+The record read 3 sources on 31 October 2026. The first is the YAML 1.2 specification, read for the core schema resolution rules behind the strict subset. The second is the JSON Schema site, read for the validation claim that the subset relies on, and for the KSON superset claim behind a later conversion. The third is the shipped record schema (`schemas/record.schema.yaml`), read as the validation target and for the key order.
+
+The 18-format survey and the consumer counts are the researcher's own comparison and measurement. The record names no disagreement between sources. It names no claim that it could not confirm.

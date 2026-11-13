@@ -33,18 +33,37 @@ Eight words is the bound because a title stands alone in book lists, outlines, t
 
 ### Explanation Sections
 
-An explanation file beside a record file uses the fixed sections of its record type, in this order, with the record title as its one H1. A section marked optional is removed when it has nothing to say; every other section stays, even when short.
+An explanation file beside a record file opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order. A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type.
 
 | Record type | Sections, in order |
 |:---|:---|
-| problem | Who Has It, What They Do Today, Evidence, What Would Retire It |
-| journey | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
-| feature | Who It Serves and Why, What It Offers, What Good Looks Like |
-| goal | Why It Matters, What Counts as Done, What It Connects To |
-| vision | Why It Matters, What It Keeps Open, What Would Make It Concrete |
-| actor | Who They Are, What They Do, What They Can Reach |
-| decision | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
-| research | Answer, Notes on Sources (optional) |
+| product | Scope, Users, Out of Scope, Direction |
+| actor | Responsibilities, Access, Example (optional) |
+| role | Access, Limits |
+| goal | Target, Measurement |
+| vision | Direction, Effect on Current Design, Trigger |
+| problem | Affected Users, Current Workaround, Cost, Evidence, Resolution |
+| constraint | Source, Effect on the Product, Open Points (optional) |
+| research | Findings, Source Notes (optional) |
+| decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
+| module | Responsibilities, Boundaries, Example (optional) |
+| feature | Capabilities, Success Criteria, Limits (optional), Example (optional) |
+| journey | Preconditions (optional), Example, Variations (optional) |
+| aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
+| use-case | Flow, Example (optional), Edge Cases (optional) |
+| rule-set | Rationale, Example (optional) |
+| reaction | Trigger and Effect, Failure Handling, Example (optional) |
+| job | Schedule, Failure Handling, Example (optional) |
+| notification | Content, Delivery, Example |
+| integration-event | Consumers, Compatibility, Example |
+| external-system | Use, Data Shared, Failure Handling |
+| entry-point | Audience, Authentication, Limits (optional) |
+| screen | Task, States, Example |
+| permission-list | Risk, Future Roles (optional) |
+| setting-set | Defaults, Changes (optional) |
+| retention-schedule | Legal Basis, Conflicts, Deletion |
+| runbook | Prerequisites, Steps, Verification, Recovery |
+| departure | Provision, Reason, Risk, Expiry |
 
 ### Documentation Kinds
 
@@ -141,7 +160,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Rationale:** A paragraph that holds a rule, an exception and a fallback in one block forces the reader hunting for one of them to untangle all three. One idea per paragraph puts each fact where a scanning reader finds it, and one line per paragraph keeps diffs readable, so a changed sentence shows as one changed line. A list drawn from prose that is not parallel hides the reasoning that connects its items; connected reasoning stays in prose, and only parallel items become a list.
 
-**Example:** The Claimwick decision explanation gives What Would Reopen It its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it.
+**Example:** The Claimwick decision explanation gives Revisit Conditions its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it.
 
 **Reviewed for:** Which paragraphs carry two ideas, wrap across hard line breaks, or list items that are not parallel? Look at the explanation files and documents the change adds.
 
@@ -219,11 +238,27 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, why it matters, what good looks like, and what the record connects to. A problem earns four sections because its reader judges a pain: who has it, what they do today, the evidence for it, and what would retire it. Free sections may follow the fixed ones; they never replace one.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns five sections because its reader judges a pain: who has it, what they do instead, what it costs them, the evidence for it, and what would end it. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
 
-**Example:** The Claimwick problem explanation for waiting expenses runs Who Has It, What They Do Today, Evidence, What Would Retire It. The evidence stands in its own section instead of inside a pointer to another page.
+**Example:** The Claimwick problem explanation for waiting expenses runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The evidence stands in its own section instead of inside a pointer to another page.
 
 **Reviewed for:** Which explanation files miss a fixed section, reorder the list, or open without their H1 title? Look at the explanation files beside the records the change adds, beside the explanation-section table.
+
+### Open Each Explanation File with a Paragraph
+
+**ID:** `litespec/core/writing#open-each-explanation-file-with-a-paragraph`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and why it matters.
+
+**Rationale:** A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet.
+
+**Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
+
+**Checked by:** `litespec model check` reports `explanation-opening-missing` for an explanation file with no prose between its H1 and its first H2.
 
 ### Write Each Documentation Page as One Kind
 
@@ -281,7 +316,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Applies to:** artifact: record:decision
 
-**Statement:** Every decision record MUST compare its real options on their merits in Context and Options Considered, then state the chosen outcome and what would reopen it.
+**Statement:** Every decision record MUST compare its real options on their merits in Options, then state the chosen outcome in Decision and what would reopen it in Revisit Conditions.
 
 **Rationale:** A decision record exists for a reader who was not there when the choice was made, and that reader needs the forces, the alternatives and the consequences, not the discussion that produced them. Options compared on the same points let a later reader rejudge the choice when the world moves; a record that names only the winner forces the whole argument to run again. What would reopen the choice belongs in the record beside the choice, so a stable decision stays stable until the named condition holds. Any option singled out from the decision carries its own sentence saying why it stands apart.
 
@@ -297,4 +332,4 @@ None.
 
 This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
 
-A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Who Has It, What They Do Today, Evidence, What Would Retire It. The record needs no other page open beside it: the sufferer, the workaround in use today, the evidence and the retirement condition each stand in their fixed place.
+A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The record needs no other page open beside it: the sufferer, the workaround in use today, the evidence and the retirement condition each stand in their fixed place.

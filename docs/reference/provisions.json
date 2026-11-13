@@ -7931,9 +7931,9 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem explanation file MUST carry Who Has It, What They Do Today, Evidence, and What Would Retire It, in that order.",
+      "statement": "A problem explanation file MUST carry Affected Users, Current Workaround, Cost, Evidence, and Resolution, in that order.",
       "rationale": "The fields state who suffers; the explanation carries the cost, the one concrete occasion, the workaround in use, the evidence behind each claim, and what change in the world would retire the pain. A fixed order means a reader who learned one problem page finds each part on every problem page.",
-      "example": "The library problem on due dates opens Who Has It with one reader at the desk with three overdue copies, and closes with What Would Retire It: readers holding their due dates without a paper list."
+      "example": "The library problem on due dates opens Affected Users with one reader at the desk with three overdue copies, and closes with Resolution: readers holding their due dates without a paper list."
     },
     {
       "id": "litespec/core/intent#grade-problem-evidence-by-kind",
@@ -8248,15 +8248,15 @@
       "anchor": "record-research-with-read-sources",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a research record file without \u0060question\u0060, \u0060conclusion\u0060, or \u0060sources\u0060; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a research record without Answer in its explanation file, \u0060source-link-bare\u0060 for a bare URL, \u0060source-key-unknown\u0060 for an unknown key, and \u0060source-unused\u0060 for an unused source.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a research record file without \u0060question\u0060, \u0060conclusion\u0060, or \u0060sources\u0060; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a research record without Findings in its explanation file, \u0060source-link-bare\u0060 for a bare URL, \u0060source-key-unknown\u0060 for an unknown key, and \u0060source-unused\u0060 for an unused source.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:research",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A research record MUST state its \u0060question\u0060, state its \u0060conclusion\u0060 in one sentence, list each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and carry Answer in its explanation file.",
-      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060; the explanation cites a source with a reference link \u0060[text][key]\u0060, and a bare URL, an unknown key, or an unused source is a finding. Answer expands the \u0060conclusion\u0060: what the sources say, claim by claim, with the confidence behind each claim, and Notes on Sources holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).",
+      "statement": "A research record MUST state its \u0060question\u0060, state its \u0060conclusion\u0060 in one sentence, list each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and carry Findings in its explanation file.",
+      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060; the explanation cites a source with a reference link \u0060[text][key]\u0060, and a bare URL, an unknown key, or an unused source is a finding. Findings expands the \u0060conclusion\u0060: what the sources say, claim by claim, with the confidence behind each claim, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).",
       "example": ""
     },
     {
@@ -8284,15 +8284,15 @@
       "anchor": "shape-each-decision-page",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a decision record file missing a required field; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a decision without Context in its explanation file.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a decision record file missing a required field; \u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a decision without Context or Decision in its explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:decision",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A decision MUST state its \u0060choice\u0060 and \u0060consequences\u0060 in fields and carry Context in its explanation file.",
-      "rationale": "Context in the explanation file states the choice, \u0060choice\u0060 names the chosen option, and \u0060consequences\u0060 states what follows, so each decision reads the same way. Decision in the explanation file expands the chosen option, and Evidence with Confidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
+      "statement": "A decision MUST state its \u0060choice\u0060 and \u0060consequences\u0060 in fields and carry Context and Decision in its explanation file.",
+      "rationale": "Context in the explanation file states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option. The \u0060choice\u0060 field names the chosen option, and \u0060consequences\u0060 states what follows, so each decision reads the same way. Evidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
       "example": ""
     },
     {
@@ -8464,7 +8464,7 @@
       "anchor": "state-the-cost-and-workaround-of-every-problem",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "The cost and the workaround, each in the sufferer\u0027s own units or the word \u0060unknown\u0060, in Who Has It and What They Do Today of each problem explanation file.",
+      "evidence": "The cost and the workaround, each in the sufferer\u0027s own units or the word \u0060unknown\u0060, in Cost and Current Workaround of each problem explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
@@ -8472,7 +8472,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A problem MUST state what the pain costs its sufferer today and what the sufferer does instead, each in the sufferer\u0027s own units or the word \u0060unknown\u0060, in its explanation file.",
-      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly. Who Has It states the cost and What They Do Today states the workaround, so the fields stay checkable and the context stays readable.",
+      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly. The explanation file states who has the pain in Affected Users, what it costs in Cost and the workaround in Current Workaround, so the fields stay checkable and the context stays readable.",
       "example": "A reader who loses track of due dates pays late fees each month, and keeps a paper list of due dates, which fails when the list stays at home."
     },
     {
@@ -9922,7 +9922,7 @@
       "anchor": "require-an-explanation-file-for-article-types",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for an article type with no explanation file or with a required H2 section missing.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for an article type with no explanation file or with a required H2 section missing or its sections out of order.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:research, record:decision",
@@ -9930,8 +9930,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A research or decision page MUST carry its explanation file with the required H2 sections.",
-      "rationale": "An article is read as prose: the Answer of a research and the Context of a decision are what the reader comes for. The required sections keep each article complete: Answer for research, and Context, Options Considered, Decision, and What Would Reopen It for decision.",
-      "example": "\u0060research/approval-time-benchmarks\u0060 carries its Answer in \u0060approval-time-benchmarks.md\u0060."
+      "rationale": "An article is read as prose: the Findings of a research and the Decision of a decision are what the reader comes for. The required sections keep each article complete: Findings for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.",
+      "example": "\u0060research/approval-time-benchmarks\u0060 carries its Findings in \u0060approval-time-benchmarks.md\u0060."
     },
     {
       "id": "litespec/core/model#require-explanation-files-on-the-layers-a-project-names",
@@ -9940,7 +9940,7 @@
       "anchor": "require-explanation-files-on-the-layers-a-project-names",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a record page on a listed layer with no explanation file or with a required H2 section missing.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-missing\u0060 for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -9949,7 +9949,7 @@
       "strength": "required",
       "statement": "A record page on a layer the project lists in \u0060explanations.layers\u0060 MUST carry its explanation file with the required H2 sections.",
       "rationale": "A complex product needs every record explained for people who did not write it. The setting makes the explanation a gate instead of a habit.",
-      "example": "Claimwick lists \u0060intent\u0060 and \u0060behavior\u0060 in \u0060explanations.layers\u0060, so its problem \u0060problem/expenses-wait-weeks\u0060 carries \u0060expenses-wait-weeks.md\u0060 with the sections Who Has It, What They Do Today, Evidence and What Would Retire It. A problem without that file, or without one of those sections, fails the check."
+      "example": "Claimwick lists \u0060intent\u0060 and \u0060behavior\u0060 in \u0060explanations.layers\u0060, so its problem \u0060problem/expenses-wait-weeks\u0060 carries \u0060expenses-wait-weeks.md\u0060 with the sections Affected Users, Current Workaround, Cost, Evidence and Resolution. A problem without that file, or without one of those sections, fails the check."
     },
     {
       "id": "litespec/core/model#resolve-every-page-link",
@@ -12728,8 +12728,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each use case MUST carry \u0060summary\u0060.",
-      "rationale": "A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under What Happens in the explanation file beside a command, where they stay readable without a shape a check must parse.",
-      "example": "The submit-expense summary states that an employee files a work expense for approval, and its What Happens section walks validation, storage, and the approver notice in order."
+      "rationale": "A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse.",
+      "example": "The submit-expense summary states that an employee files a work expense for approval, and its Flow section walks validation, storage, and the approver notice in order."
     },
     {
       "id": "litespec/core/writing#apply-plain-mechanics",
@@ -12781,7 +12781,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every decision record MUST compare its real options on their merits in Context and Options Considered, then state the chosen outcome and what would reopen it.",
+      "statement": "Every decision record MUST compare its real options on their merits in Options, then state the chosen outcome in Decision and what would reopen it in Revisit Conditions.",
       "rationale": "A decision record exists for a reader who was not there when the choice was made, and that reader needs the forces, the alternatives and the consequences, not the discussion that produced them. Options compared on the same points let a later reader rejudge the choice when the world moves; a record that names only the winner forces the whole argument to run again. What would reopen the choice belongs in the record beside the choice, so a stable decision stays stable until the named condition holds. Any option singled out from the decision carries its own sentence saying why it stands apart.",
       "example": "A Claimwick decision compares a receipt threshold of EUR 25 with EUR 50 on refusal rate and approver load, chooses EUR 25, and names a refusal rate above the stated bound as what would reopen it."
     },
@@ -12800,8 +12800,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.",
-      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, why it matters, what good looks like, and what the record connects to. A problem earns four sections because its reader judges a pain: who has it, what they do today, the evidence for it, and what would retire it. Free sections may follow the fixed ones; they never replace one.",
-      "example": "The Claimwick problem explanation for waiting expenses runs Who Has It, What They Do Today, Evidence, What Would Retire It. The evidence stands in its own section instead of inside a pointer to another page."
+      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns five sections because its reader judges a pain: who has it, what they do instead, what it costs them, the evidence for it, and what would end it. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.",
+      "example": "The Claimwick problem explanation for waiting expenses runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The evidence stands in its own section instead of inside a pointer to another page."
     },
     {
       "id": "litespec/core/writing#give-each-paragraph-one-idea",
@@ -12819,7 +12819,7 @@
       "strength": "required",
       "statement": "Every paragraph in an explanation file or document MUST carry one idea, on one line in Markdown, with a list only where the items are truly parallel.",
       "rationale": "A paragraph that holds a rule, an exception and a fallback in one block forces the reader hunting for one of them to untangle all three. One idea per paragraph puts each fact where a scanning reader finds it, and one line per paragraph keeps diffs readable, so a changed sentence shows as one changed line. A list drawn from prose that is not parallel hides the reasoning that connects its items; connected reasoning stays in prose, and only parallel items become a list.",
-      "example": "The Claimwick decision explanation gives What Would Reopen It its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it."
+      "example": "The Claimwick decision explanation gives Revisit Conditions its own paragraph. A reader looking for what would reopen the choice finds that paragraph without reading the example above it."
     },
     {
       "id": "litespec/core/writing#keep-each-record-sentence-within-twenty-five-words",
@@ -12838,6 +12838,24 @@
       "statement": "Every sentence in a record \u0060statement\u0060 or \u0060summary\u0060 MUST hold at most 25 words.",
       "rationale": "A record sentence carries one fact a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.",
       "example": "\u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 The sentence holds 11 words and one fact."
+    },
+    {
+      "id": "litespec/core/writing#open-each-explanation-file-with-a-paragraph",
+      "heading": "Open Each Explanation File with a Paragraph",
+      "page": "docs/core/writing.md",
+      "anchor": "open-each-explanation-file-with-a-paragraph",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060explanation-opening-missing\u0060 for an explanation file with no prose between its H1 and its first H2.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and why it matters.",
+      "rationale": "A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet.",
+      "example": "The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin."
     },
     {
       "id": "litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake",

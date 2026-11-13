@@ -63,13 +63,27 @@ public sealed partial class ConsumerValidatorTests
             """
             # Store Order Claims as Documents
 
+            The shop chooses how to store each order claim.
+
             ## Context
 
             Each claim reads as one record with no joins.
 
+            ## Options
+
+            Documents keep each claim whole, or rows split each claim across tables.
+
             ## Decision
 
             The shop stores each claim as one document.
+
+            ## Consequences
+
+            Cross-claim reports need an index.
+
+            ## Revisit Conditions
+
+            Reports across claims slow down past the index's size.
 
             """);
         AssertClean(RunConsumer(folder.Path));

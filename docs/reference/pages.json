@@ -2378,8 +2378,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2391,8 +2394,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2404,8 +2410,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2417,8 +2426,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2430,8 +2442,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2443,8 +2458,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2456,8 +2474,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2469,8 +2490,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2482,8 +2506,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2495,8 +2522,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2508,8 +2538,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2521,8 +2554,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2534,8 +2570,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2547,8 +2586,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2560,8 +2602,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2573,8 +2618,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2586,8 +2634,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2599,8 +2650,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2612,8 +2666,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2625,7 +2682,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2637,7 +2697,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2649,7 +2712,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2661,8 +2727,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2674,7 +2743,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2686,7 +2758,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2698,7 +2773,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2710,7 +2788,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2722,8 +2803,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2735,8 +2819,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2748,8 +2835,11 @@
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2761,7 +2851,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2773,7 +2866,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2785,7 +2881,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2797,7 +2896,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2809,7 +2911,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2821,7 +2926,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2833,7 +2941,10 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2845,7 +2956,25 @@
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md",
+      "path": "intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections",
+      "style": "decision",
+      "area": "intent",
+      "title": "Use Plain Noun Sections and an Opening Paragraph",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
@@ -2856,8 +2985,8 @@
       "title": "How Agent-Written Tests Fail and What Guards Them",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2868,7 +2997,8 @@
       "title": "Behavior Containment Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2879,7 +3009,8 @@
       "title": "Book Outline Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2890,7 +3021,8 @@
       "title": "Check Coverage Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2901,8 +3033,8 @@
       "title": "Comparable Rationale Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2913,7 +3045,8 @@
       "title": "Cross-Layer Trace Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2924,8 +3057,8 @@
       "title": "Established Traceability Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2936,7 +3069,8 @@
       "title": "Field Naming Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2947,8 +3081,8 @@
       "title": "Intent Hierarchy Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2959,8 +3093,8 @@
       "title": "Which Record Layers a Project Can Leave Out",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2971,8 +3105,8 @@
       "title": "Lower Layers Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2983,8 +3117,8 @@
       "title": "Naming Grammar Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -2995,8 +3129,8 @@
       "title": "Native Command Line Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -3007,8 +3141,8 @@
       "title": "Record Format Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -3019,7 +3153,8 @@
       "title": "Research Conclusion Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -3030,8 +3165,8 @@
       "title": "Schema Evaluator Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -3042,8 +3177,8 @@
       "title": "Can Editors Check YAML Against LiteSpec Schemas",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {

@@ -1,13 +1,15 @@
-# Contractor Expenses
+# Record Title
 
-## Why It Matters
+Say where the product is heading in plain words, why the direction matters and what it is not yet. A reader who has read nothing else should understand the vision from this paragraph.
 
-State who gains when the product reaches this vision, and why the owner wants the product to head there.
+## Direction
 
-## What It Keeps Open
+Describe the longer picture in one or two sentences.
 
-Name the choices made now so this vision stays reachable, such as a decision that cites it, and what each keeps open.
+## Effect on Current Design
 
-## What Would Make It Concrete
+Say what today's design keeps open for this direction, and what it does not block.
 
-Name the problem, evidence or event that would turn this vision into a feature with requirements.
+## Trigger
+
+Say when this vision becomes a feature, in terms the team can observe.

@@ -301,12 +301,12 @@ static partial class GeneratedRegions
     private static string CoversCell(Record departure) =>
         string.Join(", ", departure.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
 
-    /// <summary>Whether the record file sits in the folder.</summary>
+    /// <summary>Whether the named record sits in the folder: the folder holds the record's own folder.</summary>
     /// <param name="folder">The folder the page sits in.</param>
-    /// <param name="file">The record file path.</param>
-    /// <returns>True when the file sits directly in the folder.</returns>
+    /// <param name="file">The record file path, <c>&lt;folder&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>.</param>
+    /// <returns>True when the record's container is the folder.</returns>
     private static bool SameFolder(string folder, string file) =>
-        string.Equals(Path.GetDirectoryName(file), folder, StringComparison.OrdinalIgnoreCase);
+        string.Equals(RecordFile.ContainerOf(file), folder, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>The decision number of an identifier: the digits before the first dash.</summary>
     /// <param name="id">The decision identifier.</param>

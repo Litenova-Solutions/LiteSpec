@@ -25,15 +25,16 @@ The identifier is `decision/<number>-<name>`, such as `decision/0001-receipt-thr
 
 ### What a Record Contains
 
-The explanation file carries these sections, in order:
+The explanation file opens with one paragraph, then carries these sections, in order:
 
 | Section | What it states |
 |:---|:---|
-| Context | The concrete constraint or conflict forcing a choice. |
-| Options Considered | Each real option compared on the same points, with what speaks for it and against it. |
+| Context | The situation that forced a choice, in the past tense. |
+| Options | Each real option compared on the same points, with what speaks for it and against it. |
 | Decision | The selected option. |
-| Evidence with Confidence | The research and constraints the choice rests on, each with its confidence; the section is optional. |
-| What Would Reopen It | The condition that would reopen the choice, or that no known condition reopens it. |
+| Consequences | What follows from the choice for the product, the team and the code. |
+| Evidence | The research and constraints the choice rests on, each with its confidence; the section is optional. |
+| Revisit Conditions | The condition that would reopen the choice, or that no known condition reopens it. |
 
 The record file carries the fields tools read: `options` with one entry per weighed option (`name`, `pros`, `cons`), `choice` with the selected option, `reopenedWhen` with what would overturn the choice, and `consequences` with the required work and the accepted cost. It also carries `decides` with the records this choice sets and `basedOn` with the constraints and research behind it. A technical decision also carries `kind`, one of the six kinds the next section names. A product decision carries no `kind`. The field is optional: a technical decision with no `kind` is reported as `decision-kind-missing`, and a choice of no kind is not a decision. A record present in git is decided.
 

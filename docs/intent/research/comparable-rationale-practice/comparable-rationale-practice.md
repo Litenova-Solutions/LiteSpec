@@ -1,13 +1,31 @@
 # Comparable Rationale Practice
 
-## Answer
+A design rationale explains why a rule exists, what it costs and what remains open. This research record compares how 5 comparable templates and processes keep that rationale. The 5 are Python's PEP 1, the Rust RFC template, the Kubernetes KEP template, MADR and RFC 6855. LiteSpec uses the comparison to decide where its own rationale should live, beside the rules it produces. It matters because a rule read without its reasons is harder to judge.
 
-This record distils the comparable rationale practice investigation of 2026-10-30 into the claims this release relies on. Its web sources were read in full on 2026-10-30. Nygard's original ADR article is named here as LiteSpec's existing citation in `docs/reference/decision-records.md` and was not listed as read in this investigation.
+## Findings
 
-PEP 1 requires Rationale and Rejected Ideas sections and counts a draft's header among its parts, so the reasoning travels inside the proposal from its first draft. The Rust RFC template requires Motivation, Drawbacks, Rationale and Alternatives, and Unresolved Questions, and it states that a merged RFC is the shared-agreement text, not a final specification. The Kubernetes KEP template requires Risks and Mitigations and Drawbacks and keeps each KEP as one directory of record beside the process. MADR 4.0.0 (2024-09-17) records context, options with pros and cons, the chosen outcome, and its positive and negative consequences in one numbered file per decision. RFC 6855 (March 2013) keeps its design rationale in a non-normative appendix with alternatives considered, separate from the protocol text. Confidence is high: each claim was read from the template or document itself on the read date above.
+Comparable projects keep rationale in numbered, dated records that are never edited, and they keep it beside the normative text. Each record states its motivation, its drawbacks and its unresolved questions. The specification remains the only normative text.
 
-The pattern holds across all five: rationale lives in numbered, dated, never-edited records beside the normative text, each stating its motivation, its drawbacks, and its unresolved questions, while the specification itself remains the only normative surface. Two limits are carried rather than hidden. The skeptic search returned practitioner commentary on stale decision records that was not read in full, so the case against keeping rationale rests on the skeptic evidence gathered for the traceability practice record and on the templates' own required Drawbacks sections, not on that commentary. And the consumer's record bodies sit outside this repository; every consumer claim in the companion records comes from files read directly on 2026-10-30 or from counts measured over its model on the same date, marked as such where they appear.
+PEP 1 requires Rationale and Rejected Ideas sections. It also counts a draft's header among the parts of the proposal. So the reasoning travels inside the proposal from its first draft. The record gives high confidence for this claim, because it read each template or document on the read date.
 
-## Notes on Sources
+The Rust RFC template requires Motivation, Drawbacks, Rationale and Alternatives, and Unresolved Questions. It states that a merged RFC is the shared-agreement text, not a final specification. The record gives high confidence for this claim.
 
-The sources agree on the record shape and disagree on placement and finality. PEP, Rust, KEP, and MADR keep the rationale inside the proposal or decision record beside the normative text, while RFC 6855 separates it into a non-normative appendix, so LiteSpec follows the majority by keeping its research and decision records beside its provisions rather than inside them. A merged Rust RFC is explicitly shared agreement rather than a final specification, while a MADR file stands as the decision record itself; LiteSpec takes the Rust side of that split, since its provisions remain the only obligation and the records explain them. KEP keeps one directory of record per proposal while MADR keeps one file per decision; LiteSpec takes the MADR side, with one file per record in consumer-shaped homes. All five require the author to state drawbacks or rejected alternatives, which is the evidence that rationale records discipline their authors rather than merely documenting them.
+The Kubernetes KEP template requires Risks and Mitigations and Drawbacks. It keeps each KEP as one directory of record beside the process. The record gives high confidence for this claim.
+
+MADR 4.0.0, dated 17 September 2024, records the context, the options with their pros and cons, the chosen outcome, and the positive and negative consequences. It keeps all of them in one numbered file per decision. The record gives high confidence for this claim.
+
+RFC 6855, dated March 2013, keeps its design rationale in a non-normative appendix. The appendix lists the alternatives that were considered, and it stays separate from the protocol text. The record gives high confidence for this claim.
+
+The pattern holds across all 5 sources. Rationale lives in numbered, dated records beside the normative text. Each record states its motivation, its drawbacks and its unresolved questions. The specification stays the only normative surface. The record gives no confidence for this pattern, which it draws from the 5 sources.
+
+The record carries 2 limits. The skeptic search found practitioner commentary on stale decision records, and the record did not read that commentary in full. So the case against keeping rationale rests on the skeptic evidence in `research/established-traceability-practice` and on the drawbacks sections that the templates require. The consumer's record bodies sit outside this repository. Every consumer claim in the companion records comes from files read on 30 October 2026 or from counts measured over its model on the same date. The record gives no confidence for these limits.
+
+## Source Notes
+
+The 5 sources were read in full on 30 October 2026. They are PEP 1 (`peps-python-pep-0001`), the Rust RFC template (`raw-githubusercontent-rust-lang-rfcs-master`), the Kubernetes KEP template (`raw-githubusercontent-kubernetes-enhancements`), MADR (`adr-github-madr`) and RFC 6855 (`rfc-editor-rfc-rfc6855`).
+
+The sources agree on the record shape. They disagree on where the rationale sits and whether the record is final. PEP, Rust, KEP and MADR keep rationale inside the proposal or decision record. RFC 6855 moves it into a non-normative appendix. The record follows the majority and keeps its research and decision records beside its provisions, not inside them.
+
+The record takes the Rust position that a merged RFC is shared agreement, not a final specification. It takes the MADR position of one file per decision, not the KEP position of one directory per proposal. All 5 sources require the author to state drawbacks or rejected alternatives. The record reads that requirement as evidence that rationale records disciplines their authors.
+
+Nygard's original ADR article is LiteSpec's existing citation in `docs/reference/decision-records.md`. The record did not list it as read. It could not confirm the practitioner commentary on stale decision records, because it did not read that commentary in full.

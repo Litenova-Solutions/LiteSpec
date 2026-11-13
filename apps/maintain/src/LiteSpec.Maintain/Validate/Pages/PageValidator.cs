@@ -1,5 +1,7 @@
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 using static LiteSpec.Maintain.Validate.PageText;
 
@@ -194,17 +196,15 @@ internal sealed partial class PageValidator
         }
 
         // The explanation contracts name every section the explanation may hold, so
-        // an invented section fails. A research explanation states its Answer; a
-        // decision explanation keeps its Context beside the record, whose choice and
-        // consequences fields state what was chosen and what it costs.
-        if (kind == "research")
+        // an invented section fails. A research explanation states its Findings; a
+        // decision explanation states its Context and Decision beside the record, whose
+        // choice and consequences fields state what was chosen and what it costs.
+        if (kind is "research" or "decision")
         {
-            return new PageContract(["Answer"], ["Notes on Sources"]);
-        }
-
-        if (kind == "decision")
-        {
-            return new PageContract(["Context"], ["Decision", "Evidence with Confidence"]);
+            var sections = ExplanationSections.ByType[kind];
+            return new PageContract(
+                sections.Where(section => !section.Optional).Select(section => section.Name).ToList(),
+                sections.Where(section => section.Optional).Select(section => section.Name).ToList());
         }
 
         return null;
@@ -262,13 +262,9 @@ internal sealed partial class PageValidator
         {
             canonical = ["Intent", "Reference", "Notes"];
         }
-        else if (kind == "research")
+        else if (kind is "research" or "decision")
         {
-            canonical = ["Answer", "Notes on Sources"];
-        }
-        else if (kind == "decision")
-        {
-            canonical = ["Context", "Decision", "Evidence with Confidence"];
+            canonical = ExplanationSections.ByType[kind].Select(section => section.Name).ToList();
         }
         else
         {

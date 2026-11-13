@@ -1,13 +1,21 @@
 # Contractor Expenses
 
-## Why It Matters
+Contractors who work for the company pay work costs too, such as travel to a client, a test device or a conference ticket. Today they add these costs to their invoice by hand, and none of them reaches Claimwick's approval and reimbursement flow. This vision describes a possible future in which Claimwick takes contractor expenses the way it takes employees' expenses.
 
-Contractors who work for the company pay work costs too: travel to a client, a test device, a conference ticket. Today they add these to their invoice by hand, finance checks each line against a receipt sent by email, and none of it reaches Claimwick's approval and reimbursement flow. The owner wants Claimwick to take contractor expenses the same way it takes employees', so one flow and one tax file cover both.
+## Direction
 
-## What It Keeps Open
+Contractors submit and track their work expenses in Claimwick, as employees do.
 
-No decision cites this vision yet. A choice that would close it, such as tying every expense to an employee number, names it in `basedOn` when it is made, so the record of who submitted an expense stays open to a person who is not an employee.
+Today finance checks each contractor line against a receipt sent by email. The owner wants one flow and one tax file to cover contractors and employees alike.
 
-## What Would Make It Concrete
+## Effect on Current Design
 
-Finance reporting how many contractor costs it reconciles by hand each month, or a contractor asking to submit receipts the way employees do, turns this vision into a problem with evidence and a feature with requirements that cite it.
+No decision cites this vision yet.
+
+A later choice that would close it, such as tying every expense to an employee number, names this vision in its `basedOn` field when it is made. That keeps the record of who submitted an expense open to a person who is not an employee.
+
+## Trigger
+
+This vision becomes a problem and a feature when one of two events happens. Finance reports how many contractor costs it reconciles by hand each month, or a contractor asks to submit receipts the way employees do.
+
+Either event gives a problem record its evidence, and requirements can then cite this vision. The records hold no such count or request yet.

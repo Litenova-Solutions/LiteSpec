@@ -87,7 +87,7 @@ A requirement that bends in a named case carries that case in `except` with its 
 
 ### Add the Explanation File
 
-When the feature needs prose beyond its fields, add `<feature>.md` beside the record file in the same folder, with Who It Serves and Why, What It Offers, and What Good Looks Like. Keep checkable facts in the record file; the explanation file only helps a reader understand. This satisfies `litespec/core/model#split-record-fields-from-explanation` and `litespec/core/model#explain-each-record-beside-its-record-file`.
+When the feature needs prose beyond its fields, add `<feature>.md` beside the record file in the same folder, with Capabilities, Success Criteria, and an optional Example. Keep checkable facts in the record file; the explanation file only helps a reader understand. This satisfies `litespec/core/model#split-record-fields-from-explanation` and `litespec/core/model#explain-each-record-beside-its-record-file`.
 
 ## Check
 

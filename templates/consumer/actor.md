@@ -1,13 +1,15 @@
-# Employee
+# Record Title
 
-## Who They Are
+Say who or what this actor is in plain words, what it wants from the product and why it matters to the product. A reader who has read nothing else should know the actor from this paragraph.
 
-Name the people or systems this actor covers, with what sets them apart.
+## Responsibilities
 
-## What They Do
+Say what the actor does, in one or two sentences.
 
-State what this actor does in the product, in the order they do it.
+## Access
 
-## What They Can Reach
+Say what the actor may reach in the product and why that access is right.
 
-Name what this actor can reach, with the entry point each reach passes through.
+## Example
+
+Optional. Walk one concrete case from the example cast, with the numbers worked through.

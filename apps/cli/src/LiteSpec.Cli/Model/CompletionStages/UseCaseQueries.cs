@@ -93,7 +93,8 @@ static class UseCaseQueries
             return null;
         }
 
-        return model.AggregatesByFolder.TryGetValue(Path.GetDirectoryName(useCase.File) ?? "", out var aggregate)
+        // A use case sits in its own folder inside its aggregate's folder, so the aggregate's folder is its container.
+        return RecordFile.ContainerOf(useCase.File) is { } folder && model.AggregatesByFolder.TryGetValue(folder, out var aggregate)
             ? aggregate
             : null;
     }

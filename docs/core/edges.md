@@ -11,7 +11,7 @@ Edges and Screens states how the product meets the outside: the integration even
 
 ### Integration Events
 
-An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. An outbound event has exactly one publishing module. Notes live in the explanation file beside the record file.
+An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. An outbound event has exactly one publishing module. Consumers, Compatibility and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -26,7 +26,7 @@ An integration event is a published fact crossing the bounded context in CloudEv
 
 ### Notifications
 
-A notification is one person-facing message with its template, addresses, and channel. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios saying the message sends nothing are first class. It carries `summary`, and What Happens, Example and Notes live in the explanation file beside the record file.
+A notification is one person-facing message with its template, addresses, and channel. Suppression lives on the notification in `suppressedWhen`, and suppression scenarios saying the message sends nothing are first class. It carries `summary`, and Content, Delivery and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|

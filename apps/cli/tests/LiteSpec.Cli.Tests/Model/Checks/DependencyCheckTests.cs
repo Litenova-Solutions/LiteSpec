@@ -541,13 +541,27 @@ public sealed class DependencyCheckTests
     const string DecisionExplanation = """
         # Admit extra package
 
+        The project admits one package that the pins do not name.
+
         ## Context
 
         A technical choice needs a package the pins do not name.
 
+        ## Options
+
+        Admit the package, or write the small part of it by hand.
+
         ## Decision
 
         The project admits the package with its license and failure behavior.
+
+        ## Consequences
+
+        The project carries one more package to review on each update.
+
+        ## Revisit Conditions
+
+        The package stops receiving security fixes.
         """;
 
     static string DecisionJson(string id, string admitsJson) =>

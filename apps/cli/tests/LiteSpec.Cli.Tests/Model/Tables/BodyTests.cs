@@ -16,12 +16,15 @@ public sealed class BodyTests
 
         using var document = Build(temp.Path);
 
-        Assert.Equal(
+        // The explanations open with the paragraph the test names; their fixed sections follow it.
+        Assert.StartsWith(
             "A loan lends one copy to one reader.",
-            Record(document, "aggregate/lending.loan").GetProperty("explanation").GetString());
-        Assert.Equal(
+            Record(document, "aggregate/lending.loan").GetProperty("explanation").GetString(),
+            StringComparison.Ordinal);
+        Assert.StartsWith(
             "A reader borrows an available copy.",
-            Record(document, "use-case/lending.borrow-copy").GetProperty("explanation").GetString());
+            Record(document, "use-case/lending.borrow-copy").GetProperty("explanation").GetString(),
+            StringComparison.Ordinal);
         Assert.False(Record(document, "rule/loan.has-one-borrower").TryGetProperty("explanation", out _));
         Assert.False(Record(document, "result/borrow-copy.borrowed").TryGetProperty("explanation", out _));
     }

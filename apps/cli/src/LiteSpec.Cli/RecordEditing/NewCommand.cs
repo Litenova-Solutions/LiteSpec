@@ -41,12 +41,12 @@ static class NewCommand
         modules/<module>/module.yaml; an aggregate file is
         modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
         under use-cases/<name>/<name>.yaml beside its module; move the folder
-        beside its aggregate once the use case names one. For an article type (research or decision) or
-        for a type on a layer listed in explanations.layers, the command also
-        writes the explanation file from its explanation template, or from the
-        generic templates/consumer/explanation.md when the type carries no
-        fixed sections. The command refuses an identifier a record already
-        carries.
+        beside its aggregate once the use case names one. For an article type
+        (research or decision) or for a type on a layer listed in
+        explanations.layers, the command also writes the explanation file beside
+        the record, from the template for its type (templates/consumer/<type>.md),
+        with the title filled in and the fixed sections of the type. The command
+        refuses an identifier a record already carries.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -292,28 +292,18 @@ static class NewCommand
         var filled = RecordFile.Write(node);
         string? explanation = null;
 
-        if (RecordFile.ArticleTypes.Contains(type))
+        // An article type, and a type on a layer the project lists, gets the explanation template for its own
+        // type, with the title filled in, so the record starts with its fixed sections.
+        if (RecordFile.ArticleTypes.Contains(type)
+            || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+                && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal)))
         {
-            var explanationFile = $"{type}.md";
-
-            if (ReadTemplate(explanationFile) is not { } explanationTemplate)
+            if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {
                 return 1;
             }
 
-            explanation = explanationTemplate;
-        }
-        else if (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-            && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))
-        {
-            var explanationFile = TemplateExists($"{type}.md") ? $"{type}.md" : "explanation.md";
-
-            if (ReadTemplate(explanationFile) is not { } explanationTemplate)
-            {
-                return 1;
-            }
-
-            explanation = explanationTemplate;
+            explanation = FillTitle(explanationTemplate, AppendEntry.TitleFrom(name));
         }
 
         var target = RecordPages.PagePath(config, type, homeName, name);

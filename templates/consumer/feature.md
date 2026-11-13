@@ -1,13 +1,19 @@
-# Approval Reminders
+# Record Title
 
-## Who It Serves and Why
+Say what this feature offers, who it serves and why it matters. A reader who has read nothing else should understand the feature from this paragraph.
 
-Name the people this feature serves and the pain each one brings to it.
+## Capabilities
 
-## What It Offers
+Say how the requirements of the feature fit together for the user, in one or two sentences each.
 
-State what the feature does for them, in the order they meet it.
+## Success Criteria
 
-## What Good Looks Like
+Say what good looks like for the user, in terms the team can check.
 
-State the observable change that shows the feature works, with how it is measured.
+## Limits
+
+Optional. Say what the feature leaves out, and say why.
+
+## Example
+
+Optional. Walk one concrete use of the feature with the example cast, with the numbers worked through.

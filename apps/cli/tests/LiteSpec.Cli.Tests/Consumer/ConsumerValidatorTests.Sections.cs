@@ -198,10 +198,10 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
     }
 
-    /// <summary>Research that omits its answer.</summary>
+    /// <summary>Research that omits its findings.</summary>
     /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
-    [Fact(DisplayName = "research that omits its answer")]
-    public void ResearchThatOmitsItsAnswer()
+    [Fact(DisplayName = "research that omits its findings")]
+    public void ResearchThatOmitsItsFindings()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
@@ -209,7 +209,7 @@ public sealed partial class ConsumerValidatorTests
             ".litespec/research/delivery-benchmarks.yaml",
             """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01"}]}""");
         TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n");
-        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Answer'");
+        AssertProblem(RunConsumer(folder.Path), "requires an H2 'Findings'");
     }
 
     /// <summary>Journey that omits between the steps.</summary>
