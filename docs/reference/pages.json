@@ -2335,7 +2335,21 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Feature Under a Module",
-      "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem. It lives under the module that holds the problem: one record file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder inside the feature\u0027s folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060 beside the feature file. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem. It lives under the module that holds the problem: one record file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder inside the feature\u0027s folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-problem.md",
+      "path": "guide/write-a-problem",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Problem",
+      "intent": "A problem states a pain that people outside the team have today, before any feature answers it. This guide writes one problem record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",

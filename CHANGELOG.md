@@ -51,6 +51,7 @@ Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
 - Current Workaround names the burden of the workaround, and Cost keeps time, money and risk apart.
 - A problem title names the failure or its consequence, never a theme or a feature.
 - `litespec new problem` writes the new sections, and the Claimwick problem follows them.
+- The new how-to [Write a Problem](docs/guide/write-a-problem.md) walks through each section with a weak and a strong Claimwick example.
 
 The five new rules are `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#explain-every-problem-in-four-sections` becomes `litespec/core/intent#explain-every-problem-in-its-fixed-sections`, under the heading Explain Every Problem in Its Fixed Sections. Decision 0044, State Each Problem by Its Failure Cases, records why.
 
@@ -72,7 +73,7 @@ Decision 0045, Keep Each Requirement in Its Own Folder, records why.
 - A feature or requirement explanation describes only behavior that the feature's requirements state.
 - A requirement statement states one behavior a tester can pass or fail on its own, with each condition, date and amount its result depends on. A rationale states why the requirement exists, adds no behavior, and claims no more than its reason supports. A requirement title names the specific behavior or fact it requires.
 - Every record names the operation it describes instead of a loose verb such as handles, holds, touches or lands, and states the observable behavior or the measured target instead of an intensifier such as seamlessly, instantly or at once.
-- The feature template and the Claimwick approval feature follow.
+- The feature template and the Claimwick approval feature follow, and [Write a Feature Under a Module](docs/guide/write-a-feature-under-a-module.md) walks through the requirement and explanation steps with a weak and a strong Claimwick example.
 
 The six new rules are `litespec/core/intent#state-the-boundaries-of-every-feature`, `litespec/core/intent#state-success-criteria-the-feature-controls`, `litespec/core/intent#add-no-behavior-in-an-explanation-file`, `litespec/core/intent#state-one-testable-behavior-in-each-requirement`, `litespec/core/intent#keep-each-rationale-to-its-reason` and `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`. `litespec/core/writing#use-literal-words` also refuses loose verbs. Decision 0046, Write Features for the Builder and the Tester, records why.
 
