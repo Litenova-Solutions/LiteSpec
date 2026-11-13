@@ -2978,6 +2978,21 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md",
+      "path": "intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Each Problem by Its Failure Cases",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",

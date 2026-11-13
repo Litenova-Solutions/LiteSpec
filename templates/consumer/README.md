@@ -99,7 +99,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | role | Access, Limits |
 | goal | Target, Measurement |
 | vision | Direction, Effect on Current Design, Trigger |
-| problem | Affected Users, Current Workaround, Cost, Evidence, Resolution |
+| problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
 | constraint | Source, Effect on the Product, Open Points (optional) |
 | research | Findings, Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |

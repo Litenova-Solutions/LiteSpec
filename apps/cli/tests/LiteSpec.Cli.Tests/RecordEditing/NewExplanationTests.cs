@@ -5,9 +5,9 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for the explanation file <c>litespec new</c> writes, and for the explanation template each type carries.</summary>
 public sealed class NewExplanationTests
 {
-    /// <summary>New problem writes the record and the explanation with the five problem sections when intent is listed.</summary>
+    /// <summary>New problem writes the record and the explanation with the problem sections when intent is listed.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new problem writes the explanation with the five problem sections when intent is listed")]
+    [Fact(DisplayName = "new problem writes the explanation with the problem sections when intent is listed")]
     public void NewProblemWritesTheExplanationWhenIntentIsListed()
     {
         using var consumer = ConsumerWithLayers("intent");
@@ -25,7 +25,7 @@ public sealed class NewExplanationTests
 
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Affected Users", "Current Workaround", "Cost", "Evidence", "Resolution"]);
+        AssertSections(explanation, ["Affected Users", "Failure Cases", "Example", "Current Workaround", "Cost", "Evidence", "Resolution Criteria"]);
     }
 
     /// <summary>New goal writes the explanation with the two goal sections when intent is listed.</summary>
@@ -105,7 +105,7 @@ public sealed class NewExplanationTests
         { "role", ["Access", "Limits"] },
         { "goal", ["Target", "Measurement"] },
         { "vision", ["Direction", "Effect on Current Design", "Trigger"] },
-        { "problem", ["Affected Users", "Current Workaround", "Cost", "Evidence", "Resolution"] },
+        { "problem", ["Affected Users", "Failure Cases", "Example", "Current Workaround", "Cost", "Evidence", "Resolution Criteria"] },
         { "constraint", ["Source", "Effect on the Product", "Open Points"] },
         { "research", ["Findings", "Source Notes"] },
         { "decision", ["Context", "Options", "Decision", "Consequences", "Evidence", "Revisit Conditions"] },

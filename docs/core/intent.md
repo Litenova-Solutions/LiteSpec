@@ -305,6 +305,38 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `problem-sufferer-invalid` for a problem whose primary sufferer is no person or organization outside the team; `litespec model check` reports `record-invalid` for a problem record file missing `affects`, `summary` or `statement`.
 
+### Open Each Problem with Its Gap and Consequence
+
+**ID:** `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`
+
+**Strength:** required
+
+**Applies to:** artifact: record:problem
+
+**Statement:** A problem explanation file MUST open with a paragraph that states what the sufferer cannot reliably do, the gap that causes it, and what the sufferer loses or risks as a result.
+
+**Rationale:** The opening paragraph may be all a cold reader reads, so it carries the reason the problem matters. An opening that starts with the workaround tells the reader that a task is done by hand, never why the task is needed, and the reader supplies a cause of their own. The form "the sufferer cannot reliably do the task because of the gap, so they lose or risk the consequence" is a check on the paragraph, not a sentence to copy. The workaround follows in its own section.
+
+**Example:** The Claimwick problem explanation for waiting expenses opens: employees cannot get an expense paid back quickly, because nothing shows the approver how long an expense has waited, so employees carry the amount from their own account for weeks.
+
+**Reviewed for:** Which problem explanations open with the workaround, a feature or a theme instead of what fails, the gap behind it and its consequence? Look at the opening paragraph of each problem explanation file.
+
+### State Each Failure Case on Its Own
+
+**ID:** `litespec/core/intent#state-each-failure-case-on-its-own`
+
+**Strength:** required
+
+**Applies to:** artifact: record:problem
+
+**Statement:** A problem explanation file MUST list under Failure Cases each failure that can happen independently as its own entry, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.
+
+**Rationale:** Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. The direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, and a solution that runs only one check leaves the other failure in place. Naming how the sufferer finds each failure and what follows when they miss it shows what the failure costs and what a solution has to catch.
+
+**Example:** The library problem of readers losing due dates lists two failure cases. A loan missing from the reader's paper list goes overdue unnoticed, and the reader learns of it from the late fee. A renewed loan keeps its old date on the list, so the reader returns the copy early and loses the renewal.
+
+**Reviewed for:** Which problem explanations join two independent failures in one entry, or name a failure without how it is found and what follows when it is missed? Look at the Failure Cases section of each problem explanation file.
+
 ### State the Cost and Workaround of Every Problem
 
 **ID:** `litespec/core/intent#state-the-cost-and-workaround-of-every-problem`
@@ -313,13 +345,29 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem MUST state what the pain costs its sufferer today and what the sufferer does instead, each in the sufferer's own units or the word `unknown`, in its explanation file.
+**Statement:** A problem MUST state in its explanation file what the sufferer does instead today with the burden that workaround carries, and what the pain costs them, with time, money and risk each in the sufferer's own units or the word `unknown`.
 
-**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, `unknown` states the gap honestly. The explanation file states who has the pain in Affected Users, what it costs in Cost and the workaround in Current Workaround, so the fields stay checkable and the context stays readable.
+**Rationale:** A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses. Time, money and risk stay apart because each is judged in its own units, and a total that mixes them hides which one matters. Where nobody has priced the cost or named the workaround, `unknown` states the gap honestly.
 
-**Example:** A reader who loses track of due dates pays late fees each month, and keeps a paper list of due dates, which fails when the list stays at home.
+**Example:** A reader who loses track of due dates pays late fees, an amount nobody has measured. The reader keeps a paper list of due dates, updates it at every loan and renewal, and cannot check it when the list stays at home.
 
-**Reviewed for:** The cost and the workaround, each in the sufferer's own units or the word `unknown`, in Cost and Current Workaround of each problem explanation file.
+**Reviewed for:** Which problem explanations name a workaround without its burden, or mix time, money and risk in one cost? Look at Current Workaround and Cost in each problem explanation file.
+
+### Claim No More Than the Evidence Shows
+
+**ID:** `litespec/core/intent#claim-no-more-than-the-evidence-shows`
+
+**Strength:** required
+
+**Applies to:** artifact: record:problem
+
+**Statement:** A problem explanation file MUST state each claim about who suffers, how often and at what cost no wider than its evidence shows, naming an estimate as an estimate and a possible loss as possible.
+
+**Rationale:** One sufferer's estimate written as a fact about every sufferer reads as a measurement, and a feature gets sized for a pain nobody counted. A possible loss written as an observed one makes the problem look proven when nobody has seen the loss happen. A narrow claim keeps what is known apart from what is assumed, so a reader can judge how much the problem weighs and which evidence would settle it.
+
+**Example:** The library problem writes "One reader at the desk estimates a late fee each month; nobody has measured it", not "Readers pay a late fee each month".
+
+**Reviewed for:** Which problem claims state an estimate as a measurement, a possible loss as an observed one, or one sufferer's report as true of every sufferer? Look at Affected Users, Cost and Evidence in each problem explanation file, beside its evidence entries.
 
 ### Grade Problem Evidence by Kind
 
@@ -336,6 +384,22 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 **Example:** The library problem of readers losing due dates carries a reported entry from the desk log, read on its date, so its computed strength is reported.
 
 **Checked by:** `litespec model check` reports `problem-evidence-missing` for a problem with only assumed evidence or none. The builder writes `evidenceStrength` on each problem in the model.
+
+### Keep Feasibility Out of Problem Evidence
+
+**ID:** `litespec/core/intent#keep-feasibility-out-of-problem-evidence`
+
+**Strength:** required
+
+**Applies to:** artifact: record:problem
+
+**Statement:** A problem evidence entry MUST show that the sufferer has the pain, not only that a solution can be built.
+
+**Rationale:** A file format, an API, an integration or another product shows that a solution is possible, and says nothing about whether anyone loses time or money today. Feasibility kept in the evidence makes a problem look proven by the existence of its answer. It belongs in research that a feature cites. A request for a feature is evidence of the requested solution, and it supports the pain only for what the requester reports about their own work.
+
+**Example:** The Claimwick problem of waiting expenses cites employees reporting a three-week wait. A payment provider page showing same-day transfers is feasibility, and it belongs in research that a feature cites.
+
+**Reviewed for:** Which problem evidence entries show that a format, an API, an integration or another product exists, rather than that sufferers have the pain? Look at each problem's evidence entries and the sources they cite.
 
 ### Name No Solution in a Problem Statement
 
@@ -369,7 +433,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Reviewed for:** Which problems share a sufferer and a feature yet name neither each other nor a merge? Look at the problems cited from each feature.
 
-### Explain Every Problem in Four Sections
+### Explain Every Problem in Its Fixed Sections
 
 **ID:** `litespec/core/intent#explain-every-problem-in-four-sections`
 
@@ -377,13 +441,29 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:problem
 
-**Statement:** A problem explanation file MUST carry Affected Users, Current Workaround, Cost, Evidence, and Resolution, in that order.
+**Statement:** A problem explanation file MUST carry Affected Users, Failure Cases, Current Workaround, Cost, Evidence, and Resolution Criteria, in that order, with an optional Example after Failure Cases.
 
-**Rationale:** The fields state who suffers; the explanation carries the cost, the one concrete occasion, the workaround in use, the evidence behind each claim, and what change in the world would retire the pain. A fixed order means a reader who learned one problem page finds each part on every problem page.
+**Rationale:** The fields state who suffers and the pain in one sentence; the explanation carries the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page. A problem page is complete when a reader who arrives cold can understand the problem, judge its evidence and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.
 
-**Example:** The library problem on due dates opens Affected Users with one reader at the desk with three overdue copies, and closes with Resolution: readers holding their due dates without a paper list.
+**Example:** The library problem on due dates lists its two failure cases, shows one reader at the desk with three overdue copies in Example, and closes with Resolution Criteria: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date.
 
-**Reviewed for:** The four sections, in order, in each problem explanation file.
+**Reviewed for:** Which problem explanation files miss a section or reorder the list? Look at the H2 sections of each problem explanation file.
+
+### Resolve Every Failure Case with an Outcome
+
+**ID:** `litespec/core/intent#resolve-every-failure-case-with-an-outcome`
+
+**Strength:** required
+
+**Applies to:** artifact: record:problem
+
+**Statement:** A problem explanation file MUST state under Resolution Criteria, for each failure case, an observable outcome for the sufferer that shows the failure has ended, naming no feature or implementation.
+
+**Rationale:** Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome names the problem in `solves`, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.
+
+**Example:** The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks.
+
+**Reviewed for:** Which failure cases have no resolution criterion, and which criteria name a feature, a format or a screen instead of an outcome? Look at Failure Cases beside Resolution Criteria in each problem explanation file.
 
 ### State Each Problem with Its Evidence
 

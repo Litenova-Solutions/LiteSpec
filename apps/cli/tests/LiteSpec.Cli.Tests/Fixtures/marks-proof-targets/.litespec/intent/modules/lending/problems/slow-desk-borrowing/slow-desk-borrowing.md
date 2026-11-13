@@ -6,6 +6,10 @@ Desk queues slow every loan at busy hours.
 
 Fixture text for the Affected Users section.
 
+## Failure Cases
+
+Fixture text for the Failure Cases section.
+
 ## Current Workaround
 
 Fixture text for the Current Workaround section.
@@ -18,6 +22,6 @@ Fixture text for the Cost section.
 
 Fixture text for the Evidence section.
 
-## Resolution
+## Resolution Criteria
 
-Fixture text for the Resolution section.
+Fixture text for the Resolution Criteria section.

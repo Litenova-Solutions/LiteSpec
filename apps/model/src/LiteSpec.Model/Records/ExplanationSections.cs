@@ -27,7 +27,7 @@ public static class ExplanationSections
             [RecordTypes.Role] = Of(("Access", false), ("Limits", false)),
             [RecordTypes.Goal] = Of(("Target", false), ("Measurement", false)),
             [RecordTypes.Vision] = Of(("Direction", false), ("Effect on Current Design", false), ("Trigger", false)),
-            [RecordTypes.Problem] = Of(("Affected Users", false), ("Current Workaround", false), ("Cost", false), ("Evidence", false), ("Resolution", false)),
+            [RecordTypes.Problem] = Of(("Affected Users", false), ("Failure Cases", false), ("Example", true), ("Current Workaround", false), ("Cost", false), ("Evidence", false), ("Resolution Criteria", false)),
             [RecordTypes.Constraint] = Of(("Source", false), ("Effect on the Product", false), ("Open Points", true)),
             [RecordTypes.Research] = Of(("Findings", false), ("Source Notes", true)),
             [RecordTypes.Decision] = Of(("Context", false), ("Options", false), ("Decision", false), ("Consequences", false), ("Evidence", true), ("Revisit Conditions", false)),

@@ -15,7 +15,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 
 | Record type | Title form | Example |
 |:---|:---|:---|
-| problem | A clause naming who has the pain, then the pain | Employees Wait Weeks for Reimbursement |
+| problem | A clause naming the failure or its consequence, never a theme or a feature | Expenses Wait Weeks for Reimbursement |
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
 | vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
@@ -29,7 +29,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | rule | The assertion as a clause | A Claim Never Exceeds Its Policy Limit |
 | screen | The place name the user sees | Claim List |
 
-Eight words is the bound because a title stands alone in book lists, outlines, tabs and search results, where a longer title wraps and stops scanning as one line. The longest form, a problem clause naming who and the pain, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
+Eight words is the bound because a title stands alone in book lists, outlines, tabs and search results, where a longer title wraps and stops scanning as one line. The longest form, a problem clause naming the failure and its consequence, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
 
 ### Explanation Sections
 
@@ -42,7 +42,7 @@ An explanation file beside a record file opens with the record title as its one 
 | role | Access, Limits |
 | goal | Target, Measurement |
 | vision | Direction, Effect on Current Design, Trigger |
-| problem | Affected Users, Current Workaround, Cost, Evidence, Resolution |
+| problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
 | constraint | Source, Effect on the Product, Open Points (optional) |
 | research | Findings, Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
@@ -190,7 +190,7 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every record title MUST use Title Case, carry no final period, and hold at most eight words.
 
-**Rationale:** A title is the record's name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming who and the pain. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
+**Rationale:** A title is the record's name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under `litespec/core/authoring#use-controlled-capitalization`.
 
 **Example:** The Claimwick requirement title reads "Expense Above Threshold Carries Receipt", five words in Title Case with no final period.
 
@@ -238,9 +238,9 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.
 
-**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns five sections because its reader judges a pain: who has it, what they do instead, what it costs them, the evidence for it, and what would end it. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
+**Rationale:** A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.
 
-**Example:** The Claimwick problem explanation for waiting expenses runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The evidence stands in its own section instead of inside a pointer to another page.
+**Example:** The Claimwick problem explanation for waiting expenses runs Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page.
 
 **Reviewed for:** Which explanation files miss a fixed section, reorder the list, or open without their H1 title? Look at the explanation files beside the records the change adds, beside the explanation-section table.
 
@@ -332,4 +332,4 @@ None.
 
 This informative example demonstrates `litespec/core/writing#write-for-the-reader-who-arrives-cold`, `litespec/core/writing#use-literal-words`, `litespec/core/writing#give-each-explanation-file-its-fixed-sections`, and `litespec/core/writing#open-each-summary-with-who-and-what-is-at-stake`.
 
-A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The record needs no other page open beside it: the sufferer, the workaround in use today, the evidence and the retirement condition each stand in their fixed place.
+A Claimwick problem states the pain of waiting for reimbursement. Its title reads "Employees Wait Weeks for Reimbursement", its `summary` opens with who waits and what the wait costs, and its explanation file runs Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The record needs no other page open beside it: the sufferer, each failure, the workaround in use today, the evidence and the outcome that ends each failure stand in their fixed places.

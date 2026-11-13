@@ -572,7 +572,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A complex product needs every record explained for people who did not write it. The setting makes the explanation a gate instead of a habit.
 
-**Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Current Workaround, Cost, Evidence and Resolution. A problem without that file, or without one of those sections, fails the check.
+**Example:** Claimwick lists `intent` and `behavior` in `explanations.layers`, so its problem `problem/expenses-wait-weeks` carries `expenses-wait-weeks.md` with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check.
 
 **Checked by:** `litespec model check` reports `explanation-missing` for a record page on a listed layer with no explanation file or with a required H2 section missing or its sections out of order.
 

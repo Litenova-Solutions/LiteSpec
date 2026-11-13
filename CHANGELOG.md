@@ -2,7 +2,7 @@
 
 ## v5.3.0
 
-LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders and rewrite its explanation files, as Part F describes.
+LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders and rewrite its explanation files, as Part G describes.
 
 ### Part A: The Vision Record
 
@@ -28,7 +28,7 @@ The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `lite
 - A named record placed flat in its type's folder is a `record-placement-invalid` finding. A named record whose folder name differs from its file stem is a `record-folder-drift` finding, a level G finding.
 - Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A requirement sits in its feature file, and a result or scenario sits in its use-case file.
 - `litespec new` writes a named record in the folder layout, and `litespec rename` moves a record with its folder.
-- No migration tool ships. Part F lists the move each consumer makes.
+- No migration tool ships. Part G lists the move each consumer makes.
 
 Decision 0042, Keep Each Named Record in Its Own Folder, records why.
 
@@ -42,16 +42,33 @@ Decision 0042, Keep Each Named Record in Its Own Folder, records why.
 
 Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
 
-### Part E: Provision Changes Since v5.2.0
+### Part E: Problems Stated by Failure Case
+
+- A problem explanation carries Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence and Resolution Criteria, in that order. `explanation-missing` reports a problem explanation that still carries Resolution, or that has no Failure Cases.
+- The opening paragraph states what the sufferer cannot reliably do, the gap that causes it, and what they lose or risk. Failure Cases gives each failure that can happen on its own its own entry, with how the sufferer finds it and what follows when they do not.
+- Each claim stays within its evidence, and an estimate is named as an estimate. An evidence entry shows that the sufferer has the pain; a file format, an API or another product only shows that a solution can be built, and it belongs in research that a feature cites.
+- Resolution Criteria gives one observable outcome for each failure case and names no feature or implementation. The feature that delivers it names the problem in `solves`.
+- Current Workaround names the burden of the workaround, and Cost keeps time, money and risk apart.
+- A problem title names the failure or its consequence, never a theme or a feature.
+- `litespec new problem` writes the new sections, and the Claimwick problem follows them.
+
+The five new rules are `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#explain-every-problem-in-four-sections` keeps its ID under the heading Explain Every Problem in Its Fixed Sections. Decision 0044, State Each Problem by Its Failure Cases, records why.
+
+### Part F: Provision Changes Since v5.2.0
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v5.2.0
 
-Added (5):
+Added (10):
 
 - `litespec/core/intent#build-nothing-from-a-vision`
 - `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
+- `litespec/core/intent#claim-no-more-than-the-evidence-shows`
 - `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+- `litespec/core/intent#keep-feasibility-out-of-problem-evidence`
+- `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`
+- `litespec/core/intent#resolve-every-failure-case-with-an-outcome`
+- `litespec/core/intent#state-each-failure-case-on-its-own`
 - `litespec/core/intent#state-each-vision-in-its-fields`
 - `litespec/core/writing#open-each-explanation-file-with-a-paragraph`
 
@@ -73,13 +90,13 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part F: Upgrading a Consumer
+### Part G: Upgrading a Consumer
 
 1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
 2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.
 3. A project that references `LiteSpec.Analyzers` updates it to 5.3.0.
 4. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`. No tool moves them, so move each pair by hand, and move a feature's requirements with it, since they stay in the feature file.
-5. Rewrite each explanation file to the sections of its record type, as Part D and the section table on the writing page state. Keep the H1, write one opening paragraph, rename each H2 to the fixed section its type gives, and remove each H2 the table does not list. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type.
+5. Rewrite each explanation file to the sections of its record type, as Part D, Part E and the section table on the writing page state. Keep the H1, write one opening paragraph, rename each H2 to the fixed section its type gives, and remove each H2 the table does not list. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type. In a problem, give each failure its own entry under Failure Cases, give each failure case one outcome under Resolution Criteria, and move an evidence entry that only shows a solution can be built into research.
 6. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
 7. Run `litespec model check` and fix each finding, including each `record-placement-invalid`, `record-folder-drift`, `explanation-missing` and `explanation-opening-missing` finding.
 ## v5.2.0

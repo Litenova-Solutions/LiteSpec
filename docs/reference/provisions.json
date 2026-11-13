@@ -7864,6 +7864,24 @@
       "example": "A Claimwick decision to record who submitted each expense as a person rather than as an employee names \u0060vision/contractor-expenses\u0060 in \u0060basedOn\u0060, so a reader sees why the expense holds no employee number."
     },
     {
+      "id": "litespec/core/intent#claim-no-more-than-the-evidence-shows",
+      "heading": "Claim No More Than the Evidence Shows",
+      "page": "docs/core/intent.md",
+      "anchor": "claim-no-more-than-the-evidence-shows",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which problem claims state an estimate as a measurement, a possible loss as an observed one, or one sufferer\u0027s report as true of every sufferer? Look at Affected Users, Cost and Evidence in each problem explanation file, beside its evidence entries.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:problem",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A problem explanation file MUST state each claim about who suffers, how often and at what cost no wider than its evidence shows, naming an estimate as an estimate and a possible loss as possible.",
+      "rationale": "One sufferer\u0027s estimate written as a fact about every sufferer reads as a measurement, and a feature gets sized for a pain nobody counted. A possible loss written as an observed one makes the problem look proven when nobody has seen the loss happen. A narrow claim keeps what is known apart from what is assumed, so a reader can judge how much the problem weighs and which evidence would settle it.",
+      "example": "The library problem writes \u0022One reader at the desk estimates a late fee each month; nobody has measured it\u0022, not \u0022Readers pay a late fee each month\u0022."
+    },
+    {
       "id": "litespec/core/intent#define-each-recurring-capitalized-phrase",
       "heading": "Define Each Recurring Capitalized Phrase",
       "page": "docs/core/intent.md",
@@ -7919,21 +7937,21 @@
     },
     {
       "id": "litespec/core/intent#explain-every-problem-in-four-sections",
-      "heading": "Explain Every Problem in Four Sections",
+      "heading": "Explain Every Problem in Its Fixed Sections",
       "page": "docs/core/intent.md",
-      "anchor": "explain-every-problem-in-four-sections",
+      "anchor": "explain-every-problem-in-its-fixed-sections",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "The four sections, in order, in each problem explanation file.",
+      "evidence": "Which problem explanation files miss a section or reorder the list? Look at the H2 sections of each problem explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem explanation file MUST carry Affected Users, Current Workaround, Cost, Evidence, and Resolution, in that order.",
-      "rationale": "The fields state who suffers; the explanation carries the cost, the one concrete occasion, the workaround in use, the evidence behind each claim, and what change in the world would retire the pain. A fixed order means a reader who learned one problem page finds each part on every problem page.",
-      "example": "The library problem on due dates opens Affected Users with one reader at the desk with three overdue copies, and closes with Resolution: readers holding their due dates without a paper list."
+      "statement": "A problem explanation file MUST carry Affected Users, Failure Cases, Current Workaround, Cost, Evidence, and Resolution Criteria, in that order, with an optional Example after Failure Cases.",
+      "rationale": "The fields state who suffers and the pain in one sentence; the explanation carries the circumstances, each failure, one concrete case where the failures are hard to follow, the workaround in use, the cost, the evidence behind each claim, and the outcomes that would end each failure. A fixed order means a reader who learned one problem page finds each part on every problem page. A problem page is complete when a reader who arrives cold can understand the problem, judge its evidence and propose a different solution without asking its author. Settled by [decision/0044-state-problems-by-failure-case](../intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md), which gives each problem its failure cases and one resolution criterion for each.",
+      "example": "The library problem on due dates lists its two failure cases, shows one reader at the desk with three overdue copies in Example, and closes with Resolution Criteria: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date."
     },
     {
       "id": "litespec/core/intent#grade-problem-evidence-by-kind",
@@ -8062,6 +8080,24 @@
       "example": "Claimwick\u0027s contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board."
     },
     {
+      "id": "litespec/core/intent#keep-feasibility-out-of-problem-evidence",
+      "heading": "Keep Feasibility Out of Problem Evidence",
+      "page": "docs/core/intent.md",
+      "anchor": "keep-feasibility-out-of-problem-evidence",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which problem evidence entries show that a format, an API, an integration or another product exists, rather than that sufferers have the pain? Look at each problem\u0027s evidence entries and the sources they cite.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:problem",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A problem evidence entry MUST show that the sufferer has the pain, not only that a solution can be built.",
+      "rationale": "A file format, an API, an integration or another product shows that a solution is possible, and says nothing about whether anyone loses time or money today. Feasibility kept in the evidence makes a problem look proven by the existence of its answer. It belongs in research that a feature cites. A request for a feature is evidence of the requested solution, and it supports the pain only for what the requester reports about their own work.",
+      "example": "The Claimwick problem of waiting expenses cites employees reporting a three-week wait. A payment provider page showing same-day transfers is feasibility, and it belongs in research that a feature cites."
+    },
+    {
       "id": "litespec/core/intent#keep-intent-in-its-homes",
       "heading": "Keep Intent in Its Homes",
       "page": "docs/core/intent.md",
@@ -8170,6 +8206,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#open-each-problem-with-its-gap-and-consequence",
+      "heading": "Open Each Problem with Its Gap and Consequence",
+      "page": "docs/core/intent.md",
+      "anchor": "open-each-problem-with-its-gap-and-consequence",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which problem explanations open with the workaround, a feature or a theme instead of what fails, the gap behind it and its consequence? Look at the opening paragraph of each problem explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:problem",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A problem explanation file MUST open with a paragraph that states what the sufferer cannot reliably do, the gap that causes it, and what the sufferer loses or risks as a result.",
+      "rationale": "The opening paragraph may be all a cold reader reads, so it carries the reason the problem matters. An opening that starts with the workaround tells the reader that a task is done by hand, never why the task is needed, and the reader supplies a cause of their own. The form \u0022the sufferer cannot reliably do the task because of the gap, so they lose or risk the consequence\u0022 is a check on the paragraph, not a sentence to copy. The workaround follows in its own section.",
+      "example": "The Claimwick problem explanation for waiting expenses opens: employees cannot get an expense paid back quickly, because nothing shows the approver how long an expense has waited, so employees carry the amount from their own account for weeks."
+    },
+    {
       "id": "litespec/core/intent#order-each-journey-toward-one-goal",
       "heading": "Order Each Journey Toward One Goal",
       "page": "docs/core/intent.md",
@@ -8260,6 +8314,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#resolve-every-failure-case-with-an-outcome",
+      "heading": "Resolve Every Failure Case with an Outcome",
+      "page": "docs/core/intent.md",
+      "anchor": "resolve-every-failure-case-with-an-outcome",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which failure cases have no resolution criterion, and which criteria name a feature, a format or a screen instead of an outcome? Look at Failure Cases beside Resolution Criteria in each problem explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:problem",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A problem explanation file MUST state under Resolution Criteria, for each failure case, an observable outcome for the sufferer that shows the failure has ended, naming no feature or implementation.",
+      "rationale": "Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome names the problem in \u0060solves\u0060, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.",
+      "example": "The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks."
+    },
+    {
       "id": "litespec/core/intent#restrict-requirement-fulfillment-to-behavior",
       "heading": "Restrict Requirement Fulfillment to Behavior",
       "page": "docs/core/intent.md",
@@ -8330,6 +8402,24 @@
       "statement": "A requirement that names an \u0060except\u0060 condition MUST name its \u0060fallback\u0060 requirement in the same entry.",
       "rationale": "An exception without a fallback leaves the reader at the exact moment the promise breaks: the product refuses with no stated alternative. The \u0060condition\u0060 states in product words when the commitment does not hold, and \u0060fallback\u0060 names the requirement that covers what happens then. The fallback carries no \u0060except\u0060 of its own, so the chain stays one deep and every exception ends in a promise.",
       "example": "A reimbursed expense lands in the employee\u0027s account, never more than they spent. Except when the payout bank\u0027s settlement window has closed for that batch, with \u0060fallback\u0060 naming the requirement that has finance repay the employee by other means."
+    },
+    {
+      "id": "litespec/core/intent#state-each-failure-case-on-its-own",
+      "heading": "State Each Failure Case on Its Own",
+      "page": "docs/core/intent.md",
+      "anchor": "state-each-failure-case-on-its-own",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which problem explanations join two independent failures in one entry, or name a failure without how it is found and what follows when it is missed? Look at the Failure Cases section of each problem explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:problem",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A problem explanation file MUST list under Failure Cases each failure that can happen independently as its own entry, naming what is missing or wrong, how the sufferer finds it, and what follows when they do not.",
+      "rationale": "Two failures joined in one sentence read as one, and the reader cannot see that each needs its own check and its own resolution. The direction matters: when two records should agree, an entry missing from the first and an entry missing from the second are found by different checks, and a solution that runs only one check leaves the other failure in place. Naming how the sufferer finds each failure and what follows when they miss it shows what the failure costs and what a solution has to catch.",
+      "example": "The library problem of readers losing due dates lists two failure cases. A loan missing from the reader\u0027s paper list goes overdue unnoticed, and the reader learns of it from the late fee. A renewed loan keeps its old date on the list, so the reader returns the copy early and loses the renewal."
     },
     {
       "id": "litespec/core/intent#state-each-feature-with-its-offering",
@@ -8464,16 +8554,16 @@
       "anchor": "state-the-cost-and-workaround-of-every-problem",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "The cost and the workaround, each in the sufferer\u0027s own units or the word \u0060unknown\u0060, in Cost and Current Workaround of each problem explanation file.",
+      "evidence": "Which problem explanations name a workaround without its burden, or mix time, money and risk in one cost? Look at Current Workaround and Cost in each problem explanation file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:problem",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A problem MUST state what the pain costs its sufferer today and what the sufferer does instead, each in the sufferer\u0027s own units or the word \u0060unknown\u0060, in its explanation file.",
-      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around, and why that workaround fails. Where nobody has priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly. The explanation file states who has the pain in Affected Users, what it costs in Cost and the workaround in Current Workaround, so the fields stay checkable and the context stays readable.",
-      "example": "A reader who loses track of due dates pays late fees each month, and keeps a paper list of due dates, which fails when the list stays at home."
+      "statement": "A problem MUST state in its explanation file what the sufferer does instead today with the burden that workaround carries, and what the pain costs them, with time, money and risk each in the sufferer\u0027s own units or the word \u0060unknown\u0060.",
+      "rationale": "A pain with no cost and no workaround is a slogan: no reader can tell a daily loss from a passing annoyance, and no feature can be judged against the price of standing still. The workaround shows the pain is real enough to work around. Work done by hand is no burden on its own, so the workaround names the burden: the time it takes, what the sufferer repeats or has to remember, and what it still misses. Time, money and risk stay apart because each is judged in its own units, and a total that mixes them hides which one matters. Where nobody has priced the cost or named the workaround, \u0060unknown\u0060 states the gap honestly.",
+      "example": "A reader who loses track of due dates pays late fees, an amount nobody has measured. The reader keeps a paper list of due dates, updates it at every loan and renewal, and cannot check it when the list stays at home."
     },
     {
       "id": "litespec/core/intent#state-the-measure-on-a-counted-requirement",
@@ -9949,7 +10039,7 @@
       "strength": "required",
       "statement": "A record page on a layer the project lists in \u0060explanations.layers\u0060 MUST carry its explanation file with the required H2 sections.",
       "rationale": "A complex product needs every record explained for people who did not write it. The setting makes the explanation a gate instead of a habit.",
-      "example": "Claimwick lists \u0060intent\u0060 and \u0060behavior\u0060 in \u0060explanations.layers\u0060, so its problem \u0060problem/expenses-wait-weeks\u0060 carries \u0060expenses-wait-weeks.md\u0060 with the sections Affected Users, Current Workaround, Cost, Evidence and Resolution. A problem without that file, or without one of those sections, fails the check."
+      "example": "Claimwick lists \u0060intent\u0060 and \u0060behavior\u0060 in \u0060explanations.layers\u0060, so its problem \u0060problem/expenses-wait-weeks\u0060 carries \u0060expenses-wait-weeks.md\u0060 with the sections Affected Users, Failure Cases, Current Workaround, Cost, Evidence and Resolution Criteria. A problem without that file, or without one of those sections, fails the check."
     },
     {
       "id": "litespec/core/model#resolve-every-page-link",
@@ -12800,8 +12890,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Every explanation file MUST use the fixed sections of its record type, in the order the explanation-section table gives, with the record title as its one H1.",
-      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns five sections because its reader judges a pain: who has it, what they do instead, what it costs them, the evidence for it, and what would end it. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.",
-      "example": "The Claimwick problem explanation for waiting expenses runs Affected Users, Current Workaround, Cost, Evidence, Resolution. The evidence stands in its own section instead of inside a pointer to another page."
+      "rationale": "A fixed section list answers the same questions on every record of one type, so a reader who learned one problem page reads the next without relearning where the evidence sits. Each list answers what a cold reader needs: who has the need, what it costs, what the record connects to and what good looks like. A problem earns its sections because its reader judges a pain: who has it, each way it fails them, what they do instead, what it costs them, the evidence for it, and what shows each failure has ended. Each section is a plain noun, so the heading tells a reader what the section holds before they read it. Free sections may follow the fixed ones; they never replace one. Settled by [decision/0043-use-plain-noun-sections](../intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md), which gives each record type one list of plain noun sections.",
+      "example": "The Claimwick problem explanation for waiting expenses runs Affected Users, Failure Cases, Current Workaround, Cost, Evidence, Resolution Criteria. The evidence stands in its own section instead of inside a pointer to another page."
     },
     {
       "id": "litespec/core/writing#give-each-paragraph-one-idea",
@@ -12980,7 +13070,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every record title MUST use Title Case, carry no final period, and hold at most eight words.",
-      "rationale": "A title is the record\u0027s name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming who and the pain. LiteSpec headings follow the same casing under \u0060litespec/core/authoring#use-controlled-capitalization\u0060.",
+      "rationale": "A title is the record\u0027s name in book lists, outlines, tabs and search results, so it reads as a name, never as a sentence: Title Case capitalizes every major word and lowercases a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to, up, via, with, from, into, over and than unless the word stands first or last. One casing rule for every title is the only casing rule a check enforces the same way everywhere; mixed casing makes two records of one kind read as two kinds. Eight words keeps the whole title on one scannable line in a list while leaving room for the longest form, a problem clause naming the failure and its consequence. LiteSpec headings follow the same casing under \u0060litespec/core/authoring#use-controlled-capitalization\u0060.",
       "example": "The Claimwick requirement title reads \u0022Expense Above Threshold Carries Receipt\u0022, five words in Title Case with no final period."
     },
     {
