@@ -32,6 +32,7 @@ public static class RecordFolders
         Scaffold("product", "intent", "product.yaml"),
         Scaffold("goal", "intent/goals", "{name}.yaml"),
         At("goal", "intent/modules/{module}/goals", "{name}.yaml"),
+        Scaffold("vision", "intent/visions", "{name}.yaml"),
         Scaffold("problem", "intent/problems", "{name}.yaml"),
         At("problem", "intent/modules/{module}/problems", "{name}.yaml"),
         Scaffold("feature", "intent/modules/{module}/features", "{name}.yaml"),

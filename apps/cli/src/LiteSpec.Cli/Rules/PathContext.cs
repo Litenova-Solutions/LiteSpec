@@ -42,6 +42,7 @@ internal sealed record PathContext(
         ["decision"] = "decision",
         ["departure"] = "departure",
         ["goal"] = "goal",
+        ["vision"] = "vision",
         ["problem"] = "problem",
         ["feature"] = "feature",
         ["constraint"] = "constraint",

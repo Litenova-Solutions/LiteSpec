@@ -1,0 +1,19 @@
+type: decision
+id: decision/0041-record-product-vision
+title: Record Product Vision as a Vision Record
+options:
+  - name: "Add a vision record at product level that decisions and requirements cite, which reaches nothing by design"
+    pros: "A decision made to keep a later destination open names its reason as a record, the book shows the vision with the choices that keep it open, and no planned-Intent finding reports it."
+    cons: "One more Intent record type to learn, and a vision could grow into a wish list if dates and priorities creep in."
+  - name: "Keep the vision in the product explanation file"
+    pros: "No new record type, and the prose reads well."
+    cons: "No record can cite prose, so a decision made for a later destination shows an empty basedOn, and nothing notices when the prose is rewritten."
+  - name: "Write the vision as planned goals and features, parked by departures"
+    pros: "Uses existing record types and checks."
+    cons: "A goal needs a measure and a mover, a feature needs a problem with evidence, and a departure needs an expiry date, so each is either invented or misused for a destination with no date."
+  - name: "Keep the vision outside the repository, on the backlog"
+    pros: "Planning stays with planning, and the records hold only promises."
+    cons: "Agents and decisions in the repository never see it, so choices made for it read as over-engineering."
+choice: "Add a vision record at product level that decisions and requirements cite, which reaches nothing by design"
+consequences: "A `vision` record lives at `.litespec/intent/visions/<name>.yaml` with `summary` and `statement`, and an explanation file with Why It Matters, What It Keeps Open and What Would Make It Concrete when the project lists `intent` in `explanations.layers`. A decision names a vision in `basedOn`, and a requirement names one in `cites`; nothing else links to a vision. No reach check reads a vision. Four provisions on the intent page state its fields, keep dates and priorities out, forbid building from it, and require a decision kept open for it to cite it. `litespec/core/intent#reach-every-intent-record-with-behavior` excepts the vision, and `litespec/core/principles#require-current-complexity-activation` states that a vision activates no machinery. `litespec new vision <name>` scaffolds the record, the book lists visions beside goals, and Claimwick carries `vision/contractor-expenses`."
+reopenedWhen: "Visions start carrying dates or priorities in practice, or no consumer cites a vision from a decision within two releases."

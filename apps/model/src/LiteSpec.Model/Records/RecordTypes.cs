@@ -38,6 +38,9 @@ public static class RecordTypes
     /// <summary>Gets the `example-cast` record type name.</summary>
     public const string ExampleCast = "example-cast";
 
+    /// <summary>Gets the `vision` record type name.</summary>
+    public const string Vision = "vision";
+
     /// <summary>Gets the `departure` record type name.</summary>
     public const string Departure = "departure";
 
@@ -140,7 +143,7 @@ public static class RecordTypes
     /// <summary>Every written record type.</summary>
     public static readonly HashSet<string> All = new HashSet<string>(StringComparer.Ordinal)
     {
-        "product", "goal", "constraint", "research", "decision", "requirement", "problem",
+        "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
         "reaction", "job", "notification", "setting",
@@ -154,7 +157,7 @@ public static class RecordTypes
     public static readonly IReadOnlyDictionary<string, string> LayerByType =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["product"] = "intent", ["goal"] = "intent", ["constraint"] = "intent",
+            ["product"] = "intent", ["goal"] = "intent", ["vision"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["journey"] = "intent", ["term"] = "intent",
@@ -212,8 +215,8 @@ public static class RecordTypes
         new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
         {
             ["decides"] = new HashSet<string>(),
-            ["cites"] = new HashSet<string> { "goal", "problem", "feature", "constraint", "research", "decision", "requirement" },
-            ["basedOn"] = new HashSet<string> { "constraint", "research", "decision", "requirement" },
+            ["cites"] = new HashSet<string> { "goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement" },
+            ["basedOn"] = new HashSet<string> { "constraint", "research", "vision", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
             ["addresses"] = new HashSet<string> { "actor", "permission" },
             ["solves"] = new HashSet<string> { "problem" },

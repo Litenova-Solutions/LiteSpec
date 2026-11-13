@@ -11,6 +11,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `product` | `intent` | `product.yaml` | - |
 | `goal` | `intent/goals` | `{name}.yaml` | - |
 | `goal` | `intent/modules/{module}/goals` | `{name}.yaml` | - |
+| `vision` | `intent/visions` | `{name}.yaml` | - |
 | `problem` | `intent/problems` | `{name}.yaml` | - |
 | `problem` | `intent/modules/{module}/problems` | `{name}.yaml` | - |
 | `feature` | `intent/modules/{module}/features` | `{name}.yaml` | - |

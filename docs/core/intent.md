@@ -6,7 +6,7 @@
 
 ## Intent
 
-Intent is why the product exists and what it promises: the product, its modules, actors, goals, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
+Intent is why the product exists and what it promises: the product, its modules, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -18,6 +18,7 @@ Intent is why the product exists and what it promises: the product, its modules,
 | Which product area holds this work? | module | Always, one per product area | Never | Product area |
 | Who touches the product? | actor | A person or organization appears in a problem, a journey or an access position | The "actor" is a role or a system; roles are Behavior and systems stand alone | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
+| Where is the product heading beyond what it promises now? | vision | A choice made now keeps a later destination open | You can name the pain and the offer: write the problem and the feature | Product vision |
 | What pain do people outside the team have today? | problem | You can name who suffers, what it costs them and what they do instead, with evidence | Only one solution is imaginable: it is a feature | Pain point |
 | What do we offer against a problem? | feature | Scope needs tracking | The commitment is permanent and no offer carries it | Capability |
 | What exactly must hold? | requirement | Always | Never | User story |
@@ -42,6 +43,7 @@ Every record states something the software does, holds, refuses at runtime or ru
 | Type | Belongs when it is | Out when it is |
 |:---|:---|:---|
 | Goal | A software outcome: "Nights run without oversell or unreconciled money" | A business outcome: retention, revenue, market share |
+| Vision | Where the software heads: "Contractors submit expenses as employees do" | A roadmap entry with a date, a priority or a release |
 | Problem | A user pain the software answers | A sales or market problem |
 | Feature | A capability the software has | A marketing tactic, a launch plan, or a refusal |
 | Requirement | A commitment Behavior fulfills | (always software when it reaches Behavior) |
@@ -68,7 +70,7 @@ The folder is the parent, at product level or under a module:
 ```text
 .litespec/intent/
   product.yaml
-  goals/  problems/  constraints/  decisions/  research/  actors/  journeys/
+  goals/  visions/  problems/  constraints/  decisions/  research/  actors/  journeys/
   modules/
     finance/
       module.yaml
@@ -82,7 +84,7 @@ The folder is the parent, at product level or under a module:
         request-payout.yaml    use case
 ```
 
-Product level holds only the product, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features with their requirements. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
+Product level holds only the product, visions, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features with their requirements. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
 
 A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
 
@@ -94,7 +96,7 @@ A record's placement shows as its folder path and its `module`. The book and the
 
 ### How Intent Reaches Behavior
 
-The [model page](model.md) states the authority order that settles conflicts between records. Goals, problems, features, journeys, actors, research, and prose carry no authority, and decisions win between peers.
+The [model page](model.md) states the authority order that settles conflicts between records. Goals, visions, problems, features, journeys, actors, research, and prose carry no authority, and decisions win between peers.
 
 A decision wins its choice, and a feature states it as requirements. Behavior records name the requirements they fulfill and the journey steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision before any page or code moves.
 
@@ -118,6 +120,13 @@ A journey walks one actor toward one goal. A step names another actor only at a 
 
 Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, steps, and `betweenSteps`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
 
+### Visions
+
+A vision states where the product is heading beyond what it promises now: a destination the owner wants the product to reach, such as contractors submitting expenses the way employees do. It carries `summary` and `statement`, sits at product level under `.litespec/intent/visions/`, and holds no date, priority or status; the order and timing of work stay on the backlog, outside the records.
+
+A vision exists so a choice made now can name the future it keeps open. A decision that shapes a record or a model so a vision stays reachable names the vision in `basedOn`, and a requirement that takes a step toward it names it in `cites`. Nothing else links to a vision, and a vision links to nothing.
+
+A vision reaches no Behavior, by design. It is not a promise, so no reach check reads it and no planned-Intent finding reports it. An agent builds nothing from a vision: when the destination becomes concrete, someone writes the problem, the feature and its requirements, the requirements cite the vision, and the usual reach rules apply to them.
 ### What Intent Never Contains
 
 Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-intent` names what stays out.
@@ -130,11 +139,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, its visions and its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and `module-undeclared` for a folder under `intent/modules/` naming no declared module or a module folder without its module.
 
@@ -176,9 +185,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: any
 
-**Statement:** Each Intent record MUST reach Behavior through its stated path.
+**Statement:** Each Intent record other than a vision MUST reach Behavior through its stated path.
 
-**Rationale:** The folder fixes where a record sits. Reachability fixes that it leads to software. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.
+**Rationale:** The folder fixes where a record sits. Reachability fixes that it leads to software. A vision is the one exception, because it states where the product heads and promises nothing yet. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.
 
 **Checked by:** `litespec model check` reports `intent-unreached` for a record that reaches no Behavior.
 
@@ -212,6 +221,69 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `goal-mover-missing` for a goal moved by no journey and no quality requirement.
 
+### State Each Vision in Its Fields
+
+**ID:** `litespec/core/intent#state-each-vision-in-its-fields`
+
+**Strength:** required
+
+**Applies to:** artifact: record:vision
+
+**Statement:** A vision MUST state its `summary` and `statement` in fields and sit at product level under `.litespec/intent/visions/`.
+
+**Rationale:** A vision is read cold, often long after it was written, by someone deciding whether a choice still serves it. The `statement` names the destination as a fact about the product once it is there, and the `summary` says who wants it and why in one paragraph. A vision belongs to the whole product, so it sits at product level: a module-level vision would hide a destination that often crosses modules, such as contractors joining the employee flow. Settled by [decision/0041-record-product-vision](decision/0041-record-product-vision).
+
+**Example:** Claimwick's `vision/contractor-expenses` states "Contractors submit and track their work expenses in Claimwick as employees do." in `statement`, and its summary names the contractors who invoice their costs by hand today.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a vision record file missing `summary` or `statement`, and `record-placement-invalid` for a vision outside `intent/visions/`.
+
+### Keep Dates and Priorities Out of Visions
+
+**ID:** `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+
+**Strength:** required
+
+**Applies to:** artifact: record:vision
+
+**Statement:** A vision MUST name no date, release, priority, status, or order among visions.
+
+**Rationale:** A vision states where the product heads, which changes rarely. When and in which order the work happens is planning, which changes every week and belongs to the backlog outside the records, as running the company does. A date or a priority written into a vision goes stale without any check noticing, and a reader then takes a forgotten plan for a commitment.
+
+**Example:** Claimwick's contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board.
+
+**Reviewed for:** Which visions name a date, a release, a priority, a status, or an order among visions? Look at each vision's fields and explanation file.
+
+### Build Nothing from a Vision
+
+**ID:** `litespec/core/intent#build-nothing-from-a-vision`
+
+**Strength:** required
+
+**Applies to:** artifact: record:vision
+
+**Statement:** An agent MUST build no record below Intent, code, or test from a vision until a requirement that cites the vision exists.
+
+**Rationale:** The specification is closed: an agent builds what Intent promises and nothing more. A vision promises nothing, so building from it adds behavior no requirement asks for. When the destination becomes concrete, the owner's problem, feature and requirements state the promise, cite the vision, and the agent builds from them. Until then a vision may shape a decision that keeps it open, never the code itself.
+
+**Example:** An agent asked to add the approval reminders builds them from their requirements, and adds no contractor fields because Claimwick holds a contractor vision.
+
+**Reviewed for:** Which Behavior records, code, or tests serve only a vision, with no requirement citing it? Look at the change beside the requirements that cite each vision.
+
+### Cite the Vision a Decision Keeps Open
+
+**ID:** `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
+
+**Strength:** required
+
+**Applies to:** artifact: record:decision
+
+**Statement:** A decision chosen so that a vision stays reachable MUST name that vision in `basedOn`.
+
+**Rationale:** A choice made for a later destination looks like over-engineering to a reader who cannot see the destination. Naming the vision in `basedOn` gives the reason a record identifier: the reader follows it to the vision, the book shows the decision under it, and a later change to the vision shows which choices to revisit. A reason kept only in prose is lost the first time the prose is rewritten.
+
+**Example:** A Claimwick decision to record who submitted each expense as a person rather than as an employee names `vision/contractor-expenses` in `basedOn`, so a reader sees why the expense holds no employee number.
+
+**Reviewed for:** Which decisions made to keep a later destination open name no vision in `basedOn`? Look at each decision's options and consequences beside the visions.
 ### Admit Only Outside Pains as Problems
 
 **ID:** `litespec/core/intent#admit-only-outside-pains-as-problems`

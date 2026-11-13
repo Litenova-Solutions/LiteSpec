@@ -15,7 +15,7 @@ export const AGENT_PROTOCOL_CLOSE = "<!-- /generated:agent-protocol -->";
 
 /** The values one filled agent protocol block takes, one per template placeholder. */
 export interface AgentProtocolValues {
-  /** The release, such as 5.2.0. */
+  /** The release, such as 5.3.0. */
   version: string;
   /** small or large. */
   size: string;

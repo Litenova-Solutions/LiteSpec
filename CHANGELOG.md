@@ -1,5 +1,57 @@
 # Changelog
 
+## v5.3.0
+
+LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer needs no change unless it wants to record a vision.
+
+### Part A: The Vision Record
+
+- A `vision` record lives at `.litespec/intent/visions/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries Why It Matters, What It Keeps Open and What Would Make It Concrete.
+- A decision names a vision in `basedOn`, and a requirement names one in `cites`. Nothing else links to a vision, and a vision links to nothing.
+- A vision reaches no Behavior by design: no reach check reads it, so it raises no `intent-unreached` or other planned-Intent finding. `litespec/core/intent#reach-every-intent-record-with-behavior` now excepts it.
+- `litespec/core/principles#require-current-complexity-activation` states that a vision never justifies a package, project, wrapper, process, cache, queue or distributed pattern on its own. A vision may justify the shape of a record or model.
+- The book lists visions beside goals in the Why group, under the product. `prose-missing` covers a vision with no `statement`.
+- Claimwick carries `vision/contractor-expenses`.
+
+The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `litespec/core/intent#keep-dates-and-priorities-out-of-visions`, `litespec/core/intent#build-nothing-from-a-vision`, and `litespec/core/intent#cite-the-vision-a-decision-keeps-open`. Decision 0041, Record Product Vision as a Vision Record, records why.
+
+### Part B: Provision Changes Since v5.2.0
+
+<!-- generated:provision-diff -->
+### Provision Changes Since v5.2.0
+
+Added (4):
+
+- `litespec/core/intent#build-nothing-from-a-vision`
+- `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
+- `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+- `litespec/core/intent#state-each-vision-in-its-fields`
+
+Removed (0):
+
+None.
+
+Renamed (0):
+
+None.
+
+Extensions added (0):
+
+None.
+
+Extensions removed (0):
+
+None.
+
+<!-- /generated:provision-diff -->
+
+### Part C: Upgrading a Consumer
+
+1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
+2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.
+3. A project that references `LiteSpec.Analyzers` updates it to 5.3.0.
+4. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
+5. Run `litespec model check` and fix each finding.
 ## v5.2.0
 
 LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.

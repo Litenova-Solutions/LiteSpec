@@ -1,10 +1,11 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.2.0/schemas/record.schema.yaml'
+$id: 'https://litespec.dev/5.3.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
 description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
 oneOf:
 - $ref: '#/$defs/productPage'
 - $ref: '#/$defs/goalPage'
+- $ref: '#/$defs/visionPage'
 - $ref: '#/$defs/constraintPage'
 - $ref: '#/$defs/researchPage'
 - $ref: '#/$defs/decisionPage'
@@ -46,6 +47,9 @@ $defs:
   goalId:
     type: string
     pattern: '^goal/[a-z0-9][a-z0-9-]*$'
+  visionId:
+    type: string
+    pattern: '^vision/[a-z0-9][a-z0-9-]*$'
   constraintId:
     type: string
     pattern: '^constraint/[a-z0-9][a-z0-9-]*$'
@@ -283,6 +287,7 @@ $defs:
       anyOf:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
+      - $ref: '#/$defs/visionId'
       - $ref: '#/$defs/requirementId'
   citesArray:
     type: array
@@ -290,6 +295,7 @@ $defs:
     items:
       anyOf:
       - $ref: '#/$defs/goalId'
+      - $ref: '#/$defs/visionId'
       - $ref: '#/$defs/problemId'
       - $ref: '#/$defs/featureId'
       - $ref: '#/$defs/constraintId'
@@ -1911,6 +1917,28 @@ $defs:
       measure:
         $ref: '#/$defs/nonEmptyString'
       target:
+        $ref: '#/$defs/nonEmptyString'
+  visionPage:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - summary
+    - statement
+    properties:
+      type:
+        const: vision
+      id:
+        $ref: '#/$defs/visionId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      statement:
         $ref: '#/$defs/nonEmptyString'
   constraintPage:
     type: object

@@ -4,7 +4,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 5.2.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
+LiteSpec 5.3.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 

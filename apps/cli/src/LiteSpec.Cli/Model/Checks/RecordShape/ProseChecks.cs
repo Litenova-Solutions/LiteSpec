@@ -22,7 +22,7 @@ internal static class ProseChecks
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no summary field.", record.File, record.Line, SubjectOf(record)));
             }
 
-            if (record.Type is RecordTypes.Goal or RecordTypes.Problem or RecordTypes.Requirement or RecordTypes.Rule
+            if (record.Type is RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Requirement or RecordTypes.Rule
                 && record.Field(RecordFields.Statement) is not { Length: > 0 })
             {
                 findings.Add(new Finding("prose-missing", $"{ProseLabel(record.Type)} '{record.Id}' holds no statement field.", record.File, record.Line, SubjectOf(record)));

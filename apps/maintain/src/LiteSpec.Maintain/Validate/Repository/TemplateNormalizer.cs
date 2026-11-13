@@ -42,6 +42,7 @@ internal static class TemplateNormalizer
         ["nonEmptyString"] = "sample",
         ["productId"] = "product/sample",
         ["goalId"] = "goal/sample",
+        ["visionId"] = "vision/sample",
         ["constraintId"] = "constraint/sample",
         ["researchId"] = "research/sample",
         ["decisionId"] = "decision/0001-sample",

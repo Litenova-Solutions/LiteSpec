@@ -50,6 +50,29 @@ public sealed class NewExplanationTests
         AssertSections(explanation, ["Why It Matters", "What Counts as Done", "What It Connects To"]);
     }
 
+    /// <summary>New vision writes the record at product level and the explanation with the three vision sections when intent is listed.</summary>
+    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
+    [Fact(DisplayName = "new vision writes the explanation with the three vision sections when intent is listed")]
+    public void NewVisionWritesTheExplanationWhenIntentIsListed()
+    {
+        using var consumer = ConsumerWithLayers("intent");
+
+        var result = TestCli.Run(
+            "new", "vision", "contractor-expenses", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+
+        var page = Path.Combine(
+            consumer.Path, ".litespec", "intent", "visions", "contractor-expenses.yaml");
+
+        Assert.True(File.Exists(page), $"Expected the vision page at '{page}'.");
+        Assert.Contains("vision/contractor-expenses", File.ReadAllText(page));
+
+        var explanation = Path.ChangeExtension(page, ".md");
+        Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
+        AssertSections(explanation, ["Why It Matters", "What It Keeps Open", "What Would Make It Concrete"]);
+    }
+
     /// <summary>New feature takes its module for the folder, writes the identifier without a home, and writes the feature sections when intent is listed.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new feature writes feature/<name> under its module with the feature sections when intent is listed")]

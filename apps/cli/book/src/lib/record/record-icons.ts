@@ -1,7 +1,7 @@
 import type { Component } from "svelte";
 import {
   Activity, ArrowRight, ArrowUp, Bell, BookA, BookOpen, Boxes, ChevronLeft, ChevronRight, ChevronsDownUp, ChevronsUpDown,
-  Circle, CircleAlert, CircleCheck, CircleDot, CircleQuestionMark, CircleSlash, CircleX, Clock,
+  Circle, CircleAlert, CircleCheck, CircleDot, CircleQuestionMark, CircleSlash, CircleX, Clock, Compass,
   Code, Copy, DoorOpen, ExternalLink, Fence, FileCheck, FlaskConical, Folder, Funnel, Gauge, Globe, Hourglass, IdCard, Info,
   KeyRound, Keyboard, Layers, Link, ListChecks, ListTree, LocateFixed, Lock, Microscope, Minus, Monitor, Moon, Network, Package,
   Plug, Plus, Quote, Radio, Route, Scale, Search, Server, Settings, Shield, ShieldOff, Signpost, Sun, Table2, Target,
@@ -10,7 +10,7 @@ import {
 
 // One icon per record type and per mark.
 const ICONS: Record<string, Component> = {
-  product: Package, problem: TriangleAlert, goal: Target, feature: Boxes, requirement: FileCheck, decision: Scale,
+  product: Package, problem: TriangleAlert, goal: Target, vision: Compass, feature: Boxes, requirement: FileCheck, decision: Scale,
   constraint: Fence, research: Microscope, journey: Route, actor: User, module: Folder,
   aggregate: Table2, rule: Shield, event: Activity, "integration-event": Radio, "use-case": Zap, scenario: ListChecks,
   result: CircleDot, reaction: Workflow, job: Timer, notification: Bell, setting: Settings, screen: Monitor,

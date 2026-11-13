@@ -1,0 +1,7 @@
+type: vision
+id: vision/contractor-expenses
+title: Contractor Expenses
+summary: Contractors who work for the company pay work costs too, and today they invoice them by hand. Claimwick may later take their expenses the same way it takes employees'.
+statement: Contractors submit and track their work expenses in Claimwick as employees do.
+terms:
+  - term/expense

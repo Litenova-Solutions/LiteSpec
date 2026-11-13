@@ -790,6 +790,14 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Vision
+
+Where the product is heading beyond what it promises now, stated without a date or priority, which a decision keeping it open cites and nothing builds from.
+
+Layer: Intent.
+
+Source: product vision practice.
+
 ## Standard Terms
 
 These terms name the parts of the LiteSpec standard itself.

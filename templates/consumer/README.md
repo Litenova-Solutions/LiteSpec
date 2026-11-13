@@ -22,6 +22,8 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | `product.yaml` | `.litespec/intent/product.yaml` | Defines the product boundary and the actors it addresses. |
 | `goal.yaml` | `.litespec/intent/goals/<name>.yaml` | States one measurable outcome the product serves. |
 | `goal.md` | `.litespec/intent/goals/<name>.md` | Explains one goal beside its record file. |
+| `vision.yaml` | `.litespec/intent/visions/<name>.yaml` | States where the product is heading beyond what it promises now. |
+| `vision.md` | `.litespec/intent/visions/<name>.md` | Explains one vision beside its record file. |
 | `constraint.yaml` | `.litespec/intent/constraints/<name>.yaml` | Records one outside rule and whether it applies. |
 | `research.yaml` | `.litespec/intent/research/<name>.yaml` | Records one outside fact that informs a choice. |
 | `research.md` | `.litespec/intent/research/<name>.md` | Explains one research record beside its record file. |
@@ -78,6 +80,7 @@ An explanation file sits beside its record file with the same name. It opens wit
 | journey | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
 | feature | Who It Serves and Why, What It Offers, What Good Looks Like |
 | goal | Why It Matters, What Counts as Done, What It Connects To |
+| vision | Why It Matters, What It Keeps Open, What Would Make It Concrete |
 | actor | Who They Are, What They Do, What They Can Reach |
 | decision | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
 | research | Answer, Notes on Sources (optional) |

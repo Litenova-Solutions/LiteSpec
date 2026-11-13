@@ -310,7 +310,7 @@ public sealed class BookCommandTests
         using var consumer = ModelFixture.Prepare("small");
         using var temp = TestCli.Temp("book");
         using var home = TestCli.Temp("book-home");
-        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"5.2.0"}""");
+        File.WriteAllText(Path.Combine(home.Path, "litespec.manifest.yaml"), """{"version":"5.3.0"}""");
         var result = TestCli.Run(
             ["book", "--root", consumer.Path, "--out", temp.Path],
             environment: new Dictionary<string, string> { ["LITESPEC_HOME"] = home.Path });

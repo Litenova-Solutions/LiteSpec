@@ -7792,6 +7792,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#build-nothing-from-a-vision",
+      "heading": "Build Nothing from a Vision",
+      "page": "docs/core/intent.md",
+      "anchor": "build-nothing-from-a-vision",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which Behavior records, code, or tests serve only a vision, with no requirement citing it? Look at the change beside the requirements that cite each vision.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:vision",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "An agent MUST build no record below Intent, code, or test from a vision until a requirement that cites the vision exists.",
+      "rationale": "The specification is closed: an agent builds what Intent promises and nothing more. A vision promises nothing, so building from it adds behavior no requirement asks for. When the destination becomes concrete, the owner\u0027s problem, feature and requirements state the promise, cite the vision, and the agent builds from them. Until then a vision may shape a decision that keeps it open, never the code itself.",
+      "example": "An agent asked to add the approval reminders builds them from their requirements, and adds no contractor fields because Claimwick holds a contractor vision."
+    },
+    {
       "id": "litespec/core/intent#cite-each-applying-constraint-from-a-requirement",
       "heading": "Cite Each Applying Constraint from a Requirement",
       "page": "docs/core/intent.md",
@@ -7826,6 +7844,24 @@
       "statement": "Each requirement entry MUST name its reasons in \u0060cites\u0060.",
       "rationale": "The \u0060cites\u0060 list holds any of goal, problem, feature, constraint, research, and decision, in no order of precedence. The feature holding the entry is the parent; the cited reasons are connections that explain why the commitment exists. A requirement that cites nothing reports as \u0060requirement-cites-missing\u0060.",
       "example": ""
+    },
+    {
+      "id": "litespec/core/intent#cite-the-vision-a-decision-keeps-open",
+      "heading": "Cite the Vision a Decision Keeps Open",
+      "page": "docs/core/intent.md",
+      "anchor": "cite-the-vision-a-decision-keeps-open",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which decisions made to keep a later destination open name no vision in \u0060basedOn\u0060? Look at each decision\u0027s options and consequences beside the visions.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:decision",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A decision chosen so that a vision stays reachable MUST name that vision in \u0060basedOn\u0060.",
+      "rationale": "A choice made for a later destination looks like over-engineering to a reader who cannot see the destination. Naming the vision in \u0060basedOn\u0060 gives the reason a record identifier: the reader follows it to the vision, the book shows the decision under it, and a later change to the vision shows which choices to revisit. A reason kept only in prose is lost the first time the prose is rewritten.",
+      "example": "A Claimwick decision to record who submitted each expense as a person rather than as an employee names \u0060vision/contractor-expenses\u0060 in \u0060basedOn\u0060, so a reader sees why the expense holds no employee number."
     },
     {
       "id": "litespec/core/intent#define-each-recurring-capitalized-phrase",
@@ -8008,6 +8044,24 @@
       "example": "A library holds its lending limit as a setting the application enforces, so the limit stays as Behavior. The membership price the library charges as an offer is a company fact: it enters only as dated research behind the decision that sets the limit."
     },
     {
+      "id": "litespec/core/intent#keep-dates-and-priorities-out-of-visions",
+      "heading": "Keep Dates and Priorities Out of Visions",
+      "page": "docs/core/intent.md",
+      "anchor": "keep-dates-and-priorities-out-of-visions",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which visions name a date, a release, a priority, a status, or an order among visions? Look at each vision\u0027s fields and explanation file.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:vision",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A vision MUST name no date, release, priority, status, or order among visions.",
+      "rationale": "A vision states where the product heads, which changes rarely. When and in which order the work happens is planning, which changes every week and belongs to the backlog outside the records, as running the company does. A date or a priority written into a vision goes stale without any check noticing, and a reader then takes a forgotten plan for a commitment.",
+      "example": "Claimwick\u0027s contractor vision names the destination only. That the team may start on it after the approval reminders ship is a backlog fact, kept on the board."
+    },
+    {
       "id": "litespec/core/intent#keep-intent-in-its-homes",
       "heading": "Keep Intent in Its Homes",
       "page": "docs/core/intent.md",
@@ -8017,12 +8071,12 @@
       "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and \u0060module-undeclared\u0060 for a folder under \u0060intent/modules/\u0060 naming no declared module or a module folder without its module.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature",
+      "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under \u0060.litespec/intent/\u0060, and each module with its goals, problems, constraints, decisions, research and features under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060.",
-      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.",
+      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, its visions and its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under \u0060.litespec/intent/\u0060, and each module with its goals, problems, constraints, decisions, research and features under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060.",
+      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.",
       "example": ""
     },
     {
@@ -8165,8 +8219,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "Each Intent record MUST reach Behavior through its stated path.",
-      "rationale": "The folder fixes where a record sits. Reachability fixes that it leads to software. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.",
+      "statement": "Each Intent record other than a vision MUST reach Behavior through its stated path.",
+      "rationale": "The folder fixes where a record sits. Reachability fixes that it leads to software. A vision is the one exception, because it states where the product heads and promises nothing yet. A goal reaches a journey or a quality requirement. A problem reaches a feature or a requirement that addresses it. A feature or a requirement reaches a use case, a journey or a quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A record that reaches no Behavior is either unfinished work for the backlog or not software.",
       "example": ""
     },
     {
@@ -8348,6 +8402,24 @@
       "statement": "A quality requirement MUST state the moment it holds for in \u0060stimulus\u0060 and \u0060environment\u0060, what the product does in \u0060response\u0060, how that is measured in \u0060measure\u0060, and how that is confirmed in \u0060check\u0060, with \u0060target\u0060, \u0060conditions\u0060, \u0060runsOn\u0060, and \u0060evidence\u0060 where they apply.",
       "rationale": "\u0022Fast\u0022, \u0022secure\u0022, or \u0022always available\u0022 cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another. The \u0060check\u0060 names the probe or test that confirms the measure, and it is required where the requirement carries \u0060measure\u0060. The \u0060target\u0060 names the number aimed for, \u0060conditions\u0060 names what holds while measuring, \u0060runsOn\u0060 names where the check runs, and \u0060evidence\u0060 names what the run leaves behind; each applies where the confirmation needs it.",
       "example": "\u0060requirement/expense-submission.month-end-submissions\u0060 has \u0060kind: quality\u0060, \u0060stimulus\u0060 \u0022Five hundred employees submit expenses in the last hour of the month\u0022, \u0060environment\u0060 \u0022Normal operation, one application instance down\u0022, \u0060response\u0060 \u0022Each submission is stored and acknowledged\u0022, \u0060measure\u0060 \u0022Share of submissions acknowledged within two seconds: at least 99 percent\u0022, and \u0060check\u0060 \u0022month-end acknowledgement probe\u0022."
+    },
+    {
+      "id": "litespec/core/intent#state-each-vision-in-its-fields",
+      "heading": "State Each Vision in Its Fields",
+      "page": "docs/core/intent.md",
+      "anchor": "state-each-vision-in-its-fields",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a vision record file missing \u0060summary\u0060 or \u0060statement\u0060, and \u0060record-placement-invalid\u0060 for a vision outside \u0060intent/visions/\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:vision",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A vision MUST state its \u0060summary\u0060 and \u0060statement\u0060 in fields and sit at product level under \u0060.litespec/intent/visions/\u0060.",
+      "rationale": "A vision is read cold, often long after it was written, by someone deciding whether a choice still serves it. The \u0060statement\u0060 names the destination as a fact about the product once it is there, and the \u0060summary\u0060 says who wants it and why in one paragraph. A vision belongs to the whole product, so it sits at product level: a module-level vision would hide a destination that often crosses modules, such as contractors joining the employee flow. Settled by [decision/0041-record-product-vision](decision/0041-record-product-vision).",
+      "example": "Claimwick\u0027s \u0060vision/contractor-expenses\u0060 states \u0022Contractors submit and track their work expenses in Claimwick as employees do.\u0022 in \u0060statement\u0060, and its summary names the contractors who invoice their costs by hand today."
     },
     {
       "id": "litespec/core/intent#state-one-product",
@@ -10505,8 +10577,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement.",
-      "rationale": "Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader must learn. A current use case, decision, or requirement names the activation criterion that justifies that cost. Preference and possible future need justify nothing, so speculative machinery stays out.",
+      "statement": "A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a vision alone.",
+      "rationale": "Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader must learn. A current use case, decision, or requirement names the activation criterion that justifies that cost. Preference and possible future need justify nothing, so speculative machinery stays out. A vision may justify the shape of a record or a model, such as a field that keeps a later destination reachable, but it activates no machinery: that cost waits for the requirement that cites the vision.",
       "example": ""
     },
     {

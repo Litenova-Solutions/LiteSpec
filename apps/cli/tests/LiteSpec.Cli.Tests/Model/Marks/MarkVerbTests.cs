@@ -68,7 +68,7 @@ public sealed class MarkVerbTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "5.2.0",
+                  "reviewedLiteSpecVersion": "5.3.0",
                   "owners": [
                     "lending-team"
                   ],

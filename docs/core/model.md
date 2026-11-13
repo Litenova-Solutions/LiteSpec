@@ -16,7 +16,7 @@ Each record layer answers one question, is written from the record layer above i
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | people and agents | product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role, module, term (`layer: intent`) |
+| Intent | Why build it, and what do we promise? | people and agents | product, goal, vision, problem, feature, requirement, constraint, decision, research, journey, actor, role, module, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
@@ -33,6 +33,7 @@ Each type answers one question.
 |:--|:--|:--|
 | `product` | intent | What is built, and for whom? |
 | `goal` | intent | Which measurable outcome does the product serve? |
+| `vision` | intent | Where is the product heading beyond what it promises now? |
 | `problem` | intent | Which pain does someone have today? |
 | `feature` | intent | What is offered against a problem? |
 | `constraint` | intent | Which outside rules hold? |
@@ -90,6 +91,7 @@ The table is frozen: it gives each type its layer, levels, folder, parent and id
 |:--|:--|:--|:--|:--|:--|
 | `product` | Intent | product | `intent/product.yaml` | none | `product/<name>` |
 | `goal` | Intent | product, module | `intent/goals/`, `intent/modules/<m>/goals/` | product or module | `goal/<name>` |
+| `vision` | Intent | product | `intent/visions/` | product | `vision/<name>` |
 | `problem` | Intent | product, module | `intent/problems/`, `intent/modules/<m>/problems/` | product or module | `problem/<name>` |
 | `feature` | Intent | module | `intent/modules/<m>/features/<feature>.yaml` | module | `feature/<name>` |
 | `requirement` | Intent | entry | in its feature file | feature | `requirement/<feature>.<name>` |
@@ -151,7 +153,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | The product, goals, problems, features with their requirements under modules, constraints, decisions, roles, journeys, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/intent/` | Intent | The product, goals, visions, problems, features with their requirements under modules, constraints, decisions, roles, journeys, actors, research, and the product documents the business publishes, such as legal texts |
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, events, reactions, jobs, notifications, settings, integration events and permissions; entry points with their screens; external systems; the retention schedule |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
@@ -211,6 +213,7 @@ An identifier names its record type first, then the record name, with the owning
 |:---|:---|:---|
 | `product` | `product/<name>` | `product/claimwick` |
 | `goal` | `goal/<name>` | `goal/faster-reimbursement` |
+| `vision` | `vision/<name>` | `vision/contractor-expenses` |
 | `problem` | `problem/<name>` | `problem/expenses-wait-weeks` |
 | `feature` | `feature/<name>` | `feature/approval-reminders` |
 | `constraint` | `constraint/<name>` | `constraint/tax-receipt-retention` |
@@ -269,14 +272,14 @@ Each written link lives as a field on the record it starts from: a decision carr
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, departures, entry points, settings, or decisions an engineering choice settles | decides | is decided by |
-| `basedOn` | decision, rule, data class, retention processor, external system | Constraints, research, and on a technical decision the requirements it serves | is based on | is a basis for |
+| `basedOn` | decision, rule, data class, retention processor, external system | Constraints, research, on a decision the visions it keeps open, and on a technical decision the requirements it serves | is based on | is a basis for |
 | `addresses` | product | Actors | addresses | is addressed by |
 | `affects` | problem | Actors | affects | is affected by |
 | `solves` | feature | Problems | solves | is solved by |
 | `advances` | feature | Goals | advances | is advanced by |
 | `serves` | use case, reaction, job | Journey steps | serves | is served by |
 | `serves` | journey | The goal it walks toward | serves | is served by |
-| `cites` | requirement | Goals, problems, features, constraints, research, and decisions | cites | is cited by |
+| `cites` | requirement | Goals, visions, problems, features, constraints, research, and decisions | cites | is cited by |
 | `cites` | journey | Requirements it shows | cites | is cited by |
 | `fulfills` | rule, use case, reaction, job, notification, setting | Requirements | fulfills | is fulfilled by |
 | `governs` | rule | Aggregates, use cases | governs | is governed by |
@@ -389,7 +392,7 @@ Records are authored top-down, one slice at a time: one feature from problem to 
 
 The folder fixes where a record sits. Reachability fixes that it leads to software.
 
-A goal reaches a journey or a quality requirement. A problem reaches a feature or requirement that addresses it. A feature or requirement reaches a use case, journey or quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior.
+A goal reaches a journey or a quality requirement. A problem reaches a feature or requirement that addresses it. A feature or requirement reaches a use case, journey or quality scenario in Behavior. A constraint is answered by a requirement. Research is cited by a record that reaches Behavior. A decision decides a record that reaches Behavior. A vision reaches nothing by design: decisions and requirements cite it, and no reach check reads it, as the [intent page](intent.md#visions) states.
 
 A record that reaches no Behavior gets an `intent-unreached` finding: it is either unfinished work, which belongs on the backlog, or not software.
 

@@ -18,6 +18,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | problem | A clause naming who has the pain, then the pain | Employees Wait Weeks for Reimbursement |
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
+| vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
 | journey | A verb plus its object: the walker's task | Submit an Expense Claim with Receipts |
 | actor | A role noun phrase | Approver |
 | requirement | A noun phrase naming the assertion | Per-Diem Meal Allowance |
@@ -40,6 +41,7 @@ An explanation file beside a record file uses the fixed sections of its record t
 | journey | Who Walks and Why, Before It Starts (optional), Example, What It Connects To |
 | feature | Who It Serves and Why, What It Offers, What Good Looks Like |
 | goal | Why It Matters, What Counts as Done, What It Connects To |
+| vision | Why It Matters, What It Keeps Open, What Would Make It Concrete |
 | actor | Who They Are, What They Do, What They Can Reach |
 | decision | Context, Options Considered, Decision, Evidence with Confidence (optional), What Would Reopen It |
 | research | Answer, Notes on Sources (optional) |

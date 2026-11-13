@@ -22,7 +22,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `requirement-measure-missing` | G | proof | yes | - | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
 | `requirement-cites-missing` | A | any | no | - | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | any | no | - | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
-| `intent-unreached` | G | behavior | no | - | An Intent record reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
+| `intent-unreached` | G | behavior | no | - | An Intent record other than a vision reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
 | `decision-decides-missing` | G | any | no | - | A product decision names nothing it decides. | Name the records the decision decides. |
 | `decision-number-duplicate` | G | any | no | - | Two decisions share one number. | Give one decision the next free number. |
 | `decision-decides-duplicate` | G | any | no | - | Two decisions decide one record. | Keep one decision on the record and move the other. |
@@ -120,7 +120,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `write-undeclared` | S | implementation | yes | - | The code writes an aggregate outside `changes`. | Declare the aggregate in `changes`, or stop writing it. |
 | `result-undeclared` | S | implementation | yes | - | The code returns an outcome no result declares. | Declare the outcome in a result, or stop returning it. |
 | `effect-undeclared` | S | implementation | yes | - | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
-| `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
+| `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, vision, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | A | any | no | - | A `.md` file under a record root has no frontmatter and no record file beside it, and is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
 | `explanation-missing` | A | any | no | - | A research or decision record has no explanation file, or its explanation lacks a required section. | Write the explanation file with its required sections. |
 | `format-drift` | A | any | no | - | A record file differs from canonical form. | Run `litespec model format`. |

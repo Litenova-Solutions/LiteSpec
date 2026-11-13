@@ -195,6 +195,7 @@ internal static class ExplanationChecks
         [RecordTypes.Journey] = [("Who Walks and Why", false), ("Before It Starts", true), ("Example", false), ("What It Connects To", false)],
         [RecordTypes.Feature] = [("Who It Serves and Why", false), ("What It Offers", false), ("What Good Looks Like", false)],
         [RecordTypes.Goal] = [("Why It Matters", false), ("What Counts as Done", false), ("What It Connects To", false)],
+        [RecordTypes.Vision] = [("Why It Matters", false), ("What It Keeps Open", false), ("What Would Make It Concrete", false)],
         [RecordTypes.Actor] = [("Who They Are", false), ("What They Do", false), ("What They Can Reach", false)],
         [RecordTypes.Research] = [("Answer", false)],
         [RecordTypes.Decision] = [("Context", false)],

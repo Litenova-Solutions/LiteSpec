@@ -15,7 +15,7 @@ static class BookModel
     /// <summary>The navigation layers, in display order.</summary>
     public static readonly IReadOnlyList<BookLayer> Layers =
     [
-        new("Why", ["product", "goal", "constraint", "research", "decision", "requirement"]),
+        new("Why", ["product", "goal", "vision", "constraint", "research", "decision", "requirement"]),
         new("Problems and Features", ["problem", "feature"]),
         new("People", ["actor", "role", "permission"]),
         new("Journeys", ["journey"]),
@@ -32,6 +32,7 @@ static class BookModel
         {
             ["product"] = ("Product", "Product"),
             ["goal"] = ("Goal", "Goals"),
+            ["vision"] = ("Vision", "Visions"),
             ["constraint"] = ("Constraint", "Constraints"),
             ["research"] = ("Research", "Research"),
             ["decision"] = ("Decision", "Decisions"),

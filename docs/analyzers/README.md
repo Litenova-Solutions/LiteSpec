@@ -32,7 +32,7 @@ Third, a rule runs only on the files whose layer its provision covers. Domain ru
 
 Fourth, most rules decide as the compiler reads each declaration. Rules `LS1003`, `LS1004`, `LS3004`, `LS5007`, and `LS5008` decide at the end of compilation, after every type is known.
 
-Each diagnostic carries a help link of the form `https://litespec.dev/5.2.0/<page>/#<slug>`, which opens the provision the rule enforces.
+Each diagnostic carries a help link of the form `https://litespec.dev/5.3.0/<page>/#<slug>`, which opens the provision the rule enforces.
 
 ## How a Rule Reads Records
 

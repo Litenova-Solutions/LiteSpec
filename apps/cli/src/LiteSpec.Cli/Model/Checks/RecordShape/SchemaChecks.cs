@@ -112,6 +112,10 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Target, findings);
                 break;
 
+            case RecordTypes.Vision:
+                RequireString(record, RecordFields.Statement, findings);
+                break;
+
             case RecordTypes.Constraint:
                 RequireString(record, RecordFields.Authority, findings);
                 RequireEnum(record, RecordFields.Kind, ["technical", "organizational", "convention", "legal"], findings);

@@ -57,6 +57,7 @@ Each value below takes the written form its row gives. The last column names the
 |:---|:---|:---|
 | `statement` (requirement, rule) | One present-tense declarative sentence, third person, product words, ending in a period | Ends in a period; no modal word in lower case such as "should" |
 | `statement` (goal) | The outcome as a present-tense fact about the world | Ends in a period |
+| `statement` (vision) | Where the product heads, as a present-tense fact about the product once it is there | Ends in a period |
 | `statement` (problem) | The pain as it happens today, present tense | Ends in a period |
 | step `statement` | Actor first, present tense: "The traveller pays for the booking." | Starts with "The" or an actor title; ends in a period |
 | `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words | Starts with A, An or The; word count |
@@ -72,6 +73,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | Type | Name form | Example |
 |:---|:---|:---|
 | goal | outcome noun phrase | `more-completed-bookings` |
+| vision | the destination as a noun phrase | `group-bookings` |
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
 | requirement | the assertion | `room-held-during-checkout` |
