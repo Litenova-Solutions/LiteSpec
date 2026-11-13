@@ -134,7 +134,7 @@ public sealed class ProofReaderTests
         {
             PatchRecord(
                 temp.Path,
-                ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+                ".litespec/behavior/modules/lending/loans/borrow-copy/borrow-copy.yaml",
                 front => front["effects"] = new JsonArray(
                     new JsonObject
                     {

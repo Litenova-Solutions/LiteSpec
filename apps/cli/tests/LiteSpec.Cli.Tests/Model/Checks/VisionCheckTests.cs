@@ -15,7 +15,7 @@ public sealed class VisionCheckTests
     public void VisionInItsFolderPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var file = PathAt(temp.Path, ".litespec", "intent", "visions", "contractor-expenses.yaml");
+        var file = PathAt(temp.Path, ".litespec", "intent", "visions", "contractor-expenses", "contractor-expenses.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             Vision(file, """{"summary": "Contractors pay work costs too.", "statement": "Contractors submit expenses as employees do."}"""));

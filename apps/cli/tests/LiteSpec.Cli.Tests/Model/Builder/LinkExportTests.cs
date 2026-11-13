@@ -51,7 +51,7 @@ public sealed class LinkExportTests
         TestRecords.Write(temp.Path, ".litespec/operations/reading.yaml", SettingJson);
         PatchRecord(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+            ".litespec/behavior/modules/lending/loans/borrow-copy/borrow-copy.yaml",
             front => front["reads"] = new JsonArray("setting/lending.loan-days"));
 
         using var document = Build(temp.Path);

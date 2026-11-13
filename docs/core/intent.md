@@ -76,12 +76,17 @@ The folder is the parent, at product level or under a module:
       module.yaml
       goals/  problems/  constraints/  decisions/  research/
       features/
-        payout.yaml            the feature with its requirements as entries
+        payout/
+          payout.yaml          the feature with its requirements as entries
+          payout.md            its explanation, optional
 .litespec/behavior/
   modules/
     finance/
       payout/                  aggregate
-        request-payout.yaml    use case
+        aggregate.yaml
+        request-payout/        use case
+          request-payout.yaml
+          request-payout.md    its explanation, optional
 ```
 
 Product level holds only the product, visions, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features with their requirements. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
@@ -141,7 +146,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, its visions and its product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`.
 
 **Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features with their requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
 
@@ -792,7 +797,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature
 
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, product-level goals, problems, constraints, decisions, research, actors and journeys in their folders under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features under `.litespec/intent/modules/<module>/`.
+**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, and each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
@@ -804,34 +809,51 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 .litespec/intent/
   product.yaml
   goals/
-    <name>.yaml
+    <name>/
+      <name>.yaml
+      <name>.md
   problems/
-    <name>.yaml
+    <name>/
+      <name>.yaml
+      <name>.md
   constraints/
-    <name>.yaml
+    <name>/
+      <name>.yaml
   decisions/
-    <number>-<name>.yaml
+    <number>-<name>/
+      <number>-<name>.yaml
+      <number>-<name>.md
   research/
-    <name>.yaml
+    <name>/
+      <name>.yaml
+      <name>.md
   actors/
-    <name>.yaml
+    <name>/
+      <name>.yaml
   journeys/
-    <name>.yaml
+    <name>/
+      <name>.yaml
   modules/
     spending/
       module.yaml
       goals/
-        <name>.yaml
+        <name>/
+          <name>.yaml
       problems/
-        <name>.yaml
+        <name>/
+          <name>.yaml
       constraints/
-        <name>.yaml
+        <name>/
+          <name>.yaml
       decisions/
-        <number>-<name>.yaml
+        <number>-<name>/
+          <number>-<name>.yaml
       research/
-        <name>.yaml
+        <name>/
+          <name>.yaml
       features/
-        <name>.yaml
+        <name>/
+          <name>.yaml
 ```
 
 **Reviewed for:** The `.litespec/intent/` layout beside the project's recorded layout.
@@ -844,13 +866,13 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:decision
 
-**Default:** Name each product decision `<four-digit number>-<name>.yaml` and use `decision/<four-digit number>-<name>` as its identifier.
+**Default:** Name each product decision folder `<four-digit number>-<name>/`, holding its record file `<four-digit number>-<name>.yaml`, and use `decision/<four-digit number>-<name>` as its identifier.
 
 **Replacement:** A project records its own decision naming in its documentation index.
 
 **Rationale:** One numbered sequence orders each decision by when the choice was proposed, giving every record a short stable name. The number counts as a word, so digits never stand alone in the identifier. Scattered names would force every citation to carry the full path.
 
-**Reviewed for:** Each decision file named `<number>-<name>.yaml` beside its matching identifier.
+**Reviewed for:** Each decision folder named `<number>-<name>/` holding `<number>-<name>.yaml`, with the number and name matching its identifier.
 
 ## Reference Example
 

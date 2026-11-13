@@ -18,9 +18,9 @@ litespec new entry <page-id> <type> <name> [--root <path>]
 
 This command creates one record file from the template for its type, with every required field already filled. For an article type (research or decision) or for a type on a layer the project lists in `explanations.layers`, it also writes the explanation file from its explanation template, or from the generic `templates/consumer/explanation.md` when the type carries no fixed sections. For a document style it writes the `.md` document from its template. It reserves the identifier before any prose exists, so two authors working in parallel never mint the same identifier twice. The second author learns the clash at creation and picks another name.
 
-`<type>` is the record type or page style, such as `reaction`, `job`, or `use-case`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. The file is written at the home its type owns: a reaction under `modules/<module>/reactions/`, a job under `modules/<module>/jobs/`, a notification under `modules/<module>/notifications/`, a decision under the decisions folder with its explanation file beside it. A module file is `modules/<module>/module.yaml`; an aggregate file is `modules/<module>/<aggregate>/aggregate.yaml`. A use-case file starts under `reads/` beside its module; move the file beside its aggregate once the use case names one. The command refuses an identifier a record already carries.
+`<type>` is the record type or page style, such as `reaction`, `job`, or `use-case`. `<id>` is the `home.name` part of the identifier, such as `spending.send-approver-reminder-on-expense-submitted`; the command composes the full identifier as `<type>/<id>`. `new <type> <id>` writes a named record in its own folder named for it, as `<name>/<name>.yaml`, with its explanation `<name>.md` beside the record file. The command writes this folder layout only. The folder sits where its type's home is: a reaction under `.litespec/behavior/modules/<module>/reactions/<name>/`, a job under `.litespec/behavior/modules/<module>/jobs/<name>/`, a notification under `.litespec/behavior/modules/<module>/notifications/<name>/`, and a decision under `.litespec/intent/decisions/<number>-<name>/`. A module file is `.litespec/intent/modules/<module>/module.yaml`; an aggregate file is `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml`. A use-case folder starts under `.litespec/behavior/modules/<module>/use-cases/<name>/`; move it under its aggregate's folder once the use case names one. The command refuses an identifier a record already carries.
 
-`new decision` takes only the kebab-case `<name>` and allocates the next decision number from the one decision sequence, so decision numbers stay unique without coordination. The full identifier is `decision/<number>-<name>`, and the file is written under the decisions folder with its explanation file beside it. Before it writes, it prints the provisions whose statement matches the name's words, so a choice the standard already makes is followed instead of recorded.
+`new decision` takes only the kebab-case `<name>` and allocates the next decision number from the one decision sequence, so decision numbers stay unique without coordination. The full identifier is `decision/<number>-<name>`, and the file is written as `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with its explanation file beside it. Before it writes, it prints the provisions whose statement matches the name's words, so a choice the standard already makes is followed instead of recorded.
 
 Run it before writing any new record, as `litespec/core/model#scaffold-pages-and-reserve-identifiers` states. Validate the new file before committing it.
 
@@ -105,7 +105,7 @@ litespec new scenario use-case/orders.cancel-order cancelling-a-shipped-order-is
 Append a requirement to its page:
 
 ```bash
-litespec new entry .litespec/intent/features/approval.yaml requirement decided-within-five-days
+litespec new entry .litespec/intent/modules/spending/features/approval/approval.yaml requirement decided-within-five-days
 ```
 
 Append a rule under the page's home:
@@ -117,13 +117,13 @@ litespec new entry .litespec/behavior/rules/spending-rules.yaml rule receipt-fil
 Append a permission to the permission list:
 
 ```bash
-litespec new entry .litespec/behavior/access/permissions.yaml permission approve-expense
+litespec new entry .litespec/behavior/modules/spending/permissions.yaml permission approve-expense
 ```
 
 Append a setting under its module:
 
 ```bash
-litespec new entry .litespec/behavior/modules/spending/settings.yaml setting receipt-threshold
+litespec new entry .litespec/behavior/modules/spending/settings/receipt-settings.yaml setting receipt-threshold
 ```
 
 ## Underneath

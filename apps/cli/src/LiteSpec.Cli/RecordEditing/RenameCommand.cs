@@ -531,6 +531,15 @@ static class RenameCommand
                 Directory.CreateDirectory(Path.GetDirectoryName(explanationTo)!);
                 File.Move(explanationFrom, explanationTo);
             }
+
+            // A named record's folder holds nothing else, so the folder the record left goes with it.
+            var left = Path.GetDirectoryName(oldFile)!;
+
+            if (string.Equals(Path.GetFileName(left), Path.GetFileNameWithoutExtension(oldFile), StringComparison.Ordinal)
+                && !Directory.EnumerateFileSystemEntries(left).Any())
+            {
+                Directory.Delete(left);
+            }
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {

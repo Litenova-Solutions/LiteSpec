@@ -104,7 +104,7 @@ The standard expects departures and gives each one a home:
 
 When guidance overlaps, the most specific source wins: your departure or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the departure in place of the original.
 
-The Claimwick example carries six departures under `.litespec/governance/departures/`. One of them, `examples/claimwick/.litespec/governance/departures/export-review-bypass.yaml`, reads:
+The Claimwick example carries six departures under `.litespec/governance/departures/`. One of them, `examples/claimwick/.litespec/governance/departures/export-review-bypass/export-review-bypass.yaml`, reads:
 
 ```yaml
 type: departure

@@ -35,11 +35,13 @@ static class NewCommand
         written at the home its type owns: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
-        the decisions folder with its explanation file beside it. A module file
-        is modules/<module>/module.yaml; an aggregate file is
+        the decisions folder. A named record is written in its own folder beside
+        its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
+        modules/<module>/reactions/<name>/<name>.md. A module file is
+        modules/<module>/module.yaml; an aggregate file is
         modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
-        under reads/ beside its module; move the file beside its aggregate once
-        the use case names one. For an article type (research or decision) or
+        under use-cases/<name>/<name>.yaml beside its module; move the folder
+        beside its aggregate once the use case names one. For an article type (research or decision) or
         for a type on a layer listed in explanations.layers, the command also
         writes the explanation file from its explanation template, or from the
         generic templates/consumer/explanation.md when the type carries no

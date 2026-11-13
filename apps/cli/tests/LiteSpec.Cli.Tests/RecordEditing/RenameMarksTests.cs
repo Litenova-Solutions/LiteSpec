@@ -71,16 +71,16 @@ public sealed class RenameMarksTests
 
         using var temp = TestCli.Temp("rename-marks");
         WriteConsumer(temp.Path);
-        var intentPage = Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-documents.yaml");
+        var intentPage = Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-documents", "0002-store-loans-as-documents.yaml");
         var technicalFolder = Path.Combine(temp.Path, ".litespec", "implementation", "decisions");
         Directory.CreateDirectory(technicalFolder);
-        File.Move(intentPage, Path.Combine(technicalFolder, "0002-store-loans-as-documents.yaml"));
+        Directory.Move(Path.GetDirectoryName(intentPage)!, Path.Combine(technicalFolder, "0002-store-loans-as-documents"));
 
         var result = TestCli.Run("rename", oldDecision, newDecision, "--root", temp.Path);
 
         Assert.True(result.Status == 0, result.Output);
-        Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files.yaml")), result.Output);
-        Assert.False(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-files.yaml")));
+        Assert.True(File.Exists(Path.Combine(technicalFolder, "0002-store-loans-as-files", "0002-store-loans-as-files.yaml")), result.Output);
+        Assert.False(File.Exists(Path.Combine(temp.Path, ".litespec", "intent", "decisions", "0002-store-loans-as-files", "0002-store-loans-as-files.yaml")));
     }
 
     /// <summary>Rename Rewrites A Requirement Id Inside Proves Marks In Both Styles.</summary>
@@ -199,7 +199,7 @@ public sealed class RenameMarksTests
               "mannered": []
             }
             """);
-        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy/borrow-copy.yaml", """
             {
               "type": "use-case",
               "id": "use-case/lending.borrow-copy",
@@ -207,7 +207,7 @@ public sealed class RenameMarksTests
               "kind": "command"
             }
             """);
-        TestRecords.Write(root, ".litespec/intent/decisions/0002-store-loans-as-documents.yaml", """
+        TestRecords.Write(root, ".litespec/intent/decisions/0002-store-loans-as-documents/0002-store-loans-as-documents.yaml", """
             {
               "type": "decision",
               "id": "decision/0002-store-loans-as-documents",

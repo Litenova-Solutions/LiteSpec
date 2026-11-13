@@ -4,7 +4,7 @@
 
 These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
 
-A record file carries its record in YAML, with the entries in `records`. An article type (research, decision) also keeps an explanation file beside its record file, and so does every record page on a layer the project lists in `explanations.layers`. A document holds no record. Requirements sit on a feature file. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record with its screens beside it. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
+A record file carries its record in YAML, with the entries in `records`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that same folder beside the record file. An article type (research, decision) keeps an explanation file, and so does every record page on a layer the project lists in `explanations.layers`. A document holds no record. Requirements sit on a feature file. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
 
 ## Project Setup
 
@@ -20,38 +20,38 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 | Template | Target | Purpose |
 |:---|:---|:---|
 | `product.yaml` | `.litespec/intent/product.yaml` | Defines the product boundary and the actors it addresses. |
-| `goal.yaml` | `.litespec/intent/goals/<name>.yaml` | States one measurable outcome the product serves. |
-| `goal.md` | `.litespec/intent/goals/<name>.md` | Explains one goal beside its record file. |
-| `vision.yaml` | `.litespec/intent/visions/<name>.yaml` | States where the product is heading beyond what it promises now. |
-| `vision.md` | `.litespec/intent/visions/<name>.md` | Explains one vision beside its record file. |
-| `constraint.yaml` | `.litespec/intent/constraints/<name>.yaml` | Records one outside rule and whether it applies. |
-| `research.yaml` | `.litespec/intent/research/<name>.yaml` | Records one outside fact that informs a choice. |
-| `research.md` | `.litespec/intent/research/<name>.md` | Explains one research record beside its record file. |
-| `decision.yaml` | `.litespec/intent/decisions/<number>-<name>.yaml` | Records one dated choice with its options and evidence. A technical decision lives under `.litespec/implementation/decisions/` instead. |
-| `decision.md` | `.litespec/intent/decisions/<number>-<name>.md` | Explains one decision beside its record file. |
-| `problem.yaml` | `.litespec/intent/problems/<name>.yaml` | Records one pain someone has today. |
-| `problem.md` | `.litespec/intent/problems/<name>.md` | Explains one problem beside its record file. |
-| `feature.yaml` | `.litespec/intent/modules/<module>/features/<name>.yaml` | Records what is offered against a problem, with its requirements as entries. |
-| `feature.md` | `.litespec/intent/modules/<module>/features/<name>.md` | Explains one feature beside its record file. |
-| `actor.yaml` | `.litespec/intent/actors/<name>.yaml` | Records one person, organization, or system. |
-| `actor.md` | `.litespec/intent/actors/<name>.md` | Explains one actor beside its record file. |
-| `role.yaml` | `.litespec/intent/roles/<name>.yaml` | Records one named set of permissions at a scope. |
-| `external-system.yaml` | `.litespec/behavior/external-systems/<name>.yaml` | Records one outside system, its operations, what crosses its boundary, and its failure and erasure behavior. |
-| `journey.yaml` | `.litespec/intent/journeys/<name>.yaml` | Records the ordered steps an actor takes toward one goal. |
-| `journey.md` | `.litespec/intent/journeys/<name>.md` | Explains one journey beside its record file. |
-| `explanation.md` | `.litespec/<layer>/<folder>/<name>.md` | Explains a record whose type carries no fixed sections, beside its record file. |
+| `goal.yaml` | `.litespec/intent/goals/<name>/<name>.yaml` | States one measurable outcome the product serves. |
+| `goal.md` | `.litespec/intent/goals/<name>/<name>.md` | Explains one goal beside its record file. |
+| `vision.yaml` | `.litespec/intent/visions/<name>/<name>.yaml` | States where the product is heading beyond what it promises now. |
+| `vision.md` | `.litespec/intent/visions/<name>/<name>.md` | Explains one vision beside its record file. |
+| `constraint.yaml` | `.litespec/intent/constraints/<name>/<name>.yaml` | Records one outside rule and whether it applies. |
+| `research.yaml` | `.litespec/intent/research/<name>/<name>.yaml` | Records one outside fact that informs a choice. |
+| `research.md` | `.litespec/intent/research/<name>/<name>.md` | Explains one research record beside its record file. |
+| `decision.yaml` | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` | Records one dated choice with its options and evidence. A technical decision lives under `.litespec/implementation/decisions/` instead. |
+| `decision.md` | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` | Explains one decision beside its record file. |
+| `problem.yaml` | `.litespec/intent/problems/<name>/<name>.yaml` | Records one pain someone has today. |
+| `problem.md` | `.litespec/intent/problems/<name>/<name>.md` | Explains one problem beside its record file. |
+| `feature.yaml` | `.litespec/intent/modules/<module>/features/<name>/<name>.yaml` | Records what is offered against a problem, with its requirements as entries. |
+| `feature.md` | `.litespec/intent/modules/<module>/features/<name>/<name>.md` | Explains one feature beside its record file. |
+| `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person, organization, or system. |
+| `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains one actor beside its record file. |
+| `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |
+| `external-system.yaml` | `.litespec/behavior/external-systems/<name>/<name>.yaml` | Records one outside system, its operations, what crosses its boundary, and its failure and erasure behavior. |
+| `journey.yaml` | `.litespec/intent/journeys/<name>/<name>.yaml` | Records the ordered steps an actor takes toward one goal. |
+| `journey.md` | `.litespec/intent/journeys/<name>/<name>.md` | Explains one journey beside its record file. |
+| `explanation.md` | `.litespec/<layer>/<folder>/<name>/<name>.md` | Explains a record whose type carries no fixed sections, beside its record file. |
 | `module.yaml` | `.litespec/intent/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
 | `aggregate.yaml` | `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml` | Defines one aggregate, with its kind, states, data classes, and its rule and event entries. |
-| `use-case.yaml` | `.litespec/behavior/modules/<module>/<aggregate>/<use-case>.yaml` | Defines one command or query, with its result and scenario entries. |
-| `reaction.yaml` | `.litespec/behavior/modules/<module>/reactions/<name>.yaml` | Defines one reaction an event triggers. |
-| `job.yaml` | `.litespec/behavior/modules/<module>/jobs/<name>.yaml` | Defines one scheduled, one-off, or manual job. |
-| `notification.yaml` | `.litespec/behavior/modules/<module>/notifications/<name>.yaml` | Defines one person-facing message and its claims. |
-| `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>.yaml` | Defines one published or consumed integration event. |
+| `use-case.yaml` | `.litespec/behavior/modules/<module>/<aggregate>/<use-case>/<use-case>.yaml` | Defines one command or query, with its result and scenario entries. |
+| `reaction.yaml` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml` | Defines one reaction an event triggers. |
+| `job.yaml` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml` | Defines one scheduled, one-off, or manual job. |
+| `notification.yaml` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.yaml` | Defines one person-facing message and its claims. |
+| `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event. |
 | `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one door into the system: its kind and auth. |
-| `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<name>.yaml` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
+| `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
-| `runbook.yaml` | `.litespec/implementation/runbooks/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
-| `departure.yaml` | `.litespec/governance/departures/<name>.yaml` | Records one departure from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
+| `runbook.yaml` | `.litespec/implementation/runbooks/<name>/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
+| `departure.yaml` | `.litespec/governance/departures/<name>/<name>.yaml` | Records one departure from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
 
 ## Entry Lists and Page Styles
 
@@ -72,7 +72,7 @@ A record file carries its record in YAML, with the entries in `records`. An arti
 
 ## Explanation Files
 
-An explanation file sits beside its record file with the same name. It opens with the record title as its one H1 and uses the fixed sections of its record type, in order. Each section holds one line of guidance in its template; replace the guidance with the record's own prose and remove a section whose guidance opens with `Optional.` when it has nothing to say.
+An explanation file sits in the record's folder beside its record file, with the same stem. It opens with the record title as its one H1 and uses the fixed sections of its record type, in order. Each section holds one line of guidance in its template; replace the guidance with the record's own prose and remove a section whose guidance opens with `Optional.` when it has nothing to say.
 
 | Record | Sections, in order |
 |:---|:---|

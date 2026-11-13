@@ -46,6 +46,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `folder-invalid` | G | any | no | - | A folder sits outside the closed set of its layer and level. | Move the folder into the closed set its layer and level allow, or remove it. |
 | `module-undeclared` | G | any | no | - | A `modules/<m>/` folder names no declared module. | Declare the module with a module record, or remove the folder. |
 | `record-placement-invalid` | G | any | no | - | A record sits outside the folder and level its type allows, or a `module.yaml` holds rules. | Move the record to its home, or move the rules to a rule-set file. |
+| `record-folder-drift` | G | any | no | - | A record's folder name differs from the stem of its record file. | Rename the folder or the file so both carry the record's name. |
 | `role-orphaned` | G | any | no | - | A role is held by no actor. | Hold the role from an actor, or remove the role. |
 | `permission-orphaned` | G | any | no | - | A permission is allowed by no role. | Allow the permission from a role, or remove the permission. |
 | `problem-sufferer-invalid` | G | any | no | - | A problem names a sufferer outside the actors. | Name a sufferer the actors hold. |

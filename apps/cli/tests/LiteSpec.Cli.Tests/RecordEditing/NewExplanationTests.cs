@@ -18,7 +18,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "problems", "expenses-wait-weeks.yaml");
+            consumer.Path, ".litespec", "intent", "problems", "expenses-wait-weeks", "expenses-wait-weeks.yaml");
 
         Assert.True(File.Exists(page), $"Expected the problem page at '{page}'.");
         Assert.Contains("problem/expenses-wait-weeks", File.ReadAllText(page));
@@ -41,7 +41,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "goals", "faster-reimbursement.yaml");
+            consumer.Path, ".litespec", "intent", "goals", "faster-reimbursement", "faster-reimbursement.yaml");
 
         Assert.True(File.Exists(page), $"Expected the goal page at '{page}'.");
 
@@ -63,7 +63,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "visions", "contractor-expenses.yaml");
+            consumer.Path, ".litespec", "intent", "visions", "contractor-expenses", "contractor-expenses.yaml");
 
         Assert.True(File.Exists(page), $"Expected the vision page at '{page}'.");
         Assert.Contains("vision/contractor-expenses", File.ReadAllText(page));
@@ -86,7 +86,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "modules", "spending", "features", "approval-reminders.yaml");
+            consumer.Path, ".litespec", "intent", "modules", "spending", "features", "approval-reminders", "approval-reminders.yaml");
 
         Assert.True(File.Exists(page), $"Expected the feature page at '{page}'.");
         Assert.Contains("id: feature/approval-reminders", File.ReadAllText(page));
@@ -127,7 +127,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "behavior", "modules", "spending", "reactions", "notify-approver.yaml");
+            consumer.Path, ".litespec", "behavior", "modules", "spending", "reactions", "notify-approver", "notify-approver.yaml");
 
         Assert.True(File.Exists(page), $"Expected the reaction page at '{page}'.");
         Assert.False(
@@ -148,7 +148,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "behavior", "modules", "spending", "reactions", "notify-approver.yaml");
+            consumer.Path, ".litespec", "behavior", "modules", "spending", "reactions", "notify-approver", "notify-approver.yaml");
 
         Assert.True(File.Exists(page), $"Expected the reaction page at '{page}'.");
 
@@ -170,7 +170,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "constraints", "tax-receipt-retention.yaml");
+            consumer.Path, ".litespec", "intent", "constraints", "tax-receipt-retention", "tax-receipt-retention.yaml");
 
         Assert.True(File.Exists(page), $"Expected the constraint page at '{page}'.");
 
@@ -193,7 +193,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "problems", "expenses-wait-weeks.yaml");
+            consumer.Path, ".litespec", "intent", "problems", "expenses-wait-weeks", "expenses-wait-weeks.yaml");
 
         Assert.True(File.Exists(page), $"Expected the problem page at '{page}'.");
         Assert.False(
@@ -215,7 +215,7 @@ public sealed class NewExplanationTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "research", "approval-time-benchmarks.yaml");
+            consumer.Path, ".litespec", "intent", "research", "approval-time-benchmarks", "approval-time-benchmarks.yaml");
 
         Assert.True(File.Exists(page), $"Expected the research page at '{page}'.");
 

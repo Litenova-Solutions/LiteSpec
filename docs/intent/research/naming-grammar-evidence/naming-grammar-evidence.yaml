@@ -11,7 +11,7 @@ sources:
   - path: schemas/record.schema.yaml
     readOn: 2026-10-31
     key: record-schema
-  - path: docs/intent/research/field-naming-evidence.md
+  - path: docs/intent/research/field-naming-evidence/field-naming-evidence.md
     readOn: 2026-10-31
     key: field-naming-evidence
   - path: docs/core/model.md

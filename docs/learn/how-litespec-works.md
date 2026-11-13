@@ -46,13 +46,15 @@ The folder is part of the record: it names the parent, and every other folder na
     spending/
       module.yaml
       features/
-        approval.yaml            the feature, with its requirements as entries
+        approval/
+          approval.yaml        the feature, with its requirements as entries
 .litespec/behavior/
   modules/
     spending/
       expenses/                  an aggregate's folder
         aggregate.yaml
-        submit-expense.yaml      a use case
+        submit-expense/
+          submit-expense.yaml  a use case
       rules/
         ...
 ```
@@ -64,17 +66,17 @@ Each record has one identifier, short and unique in the product, such as `use-ca
 Access runs through three records and one grant: the actor holds a role, the role allows permissions, and the use case declares one grant:
 
 ```yaml
-# intent/actors/employee.yaml
+# intent/actors/employee/employee.yaml
 holds:
 - role: role/employee
   scope: self
 
-# intent/roles/employee.yaml
+# intent/roles/employee/employee.yaml
 allows:
 - permission/submit-expense
 - permission/list-expenses
 
-# behavior/.../submit-expense.yaml
+# behavior/.../submit-expense/submit-expense.yaml
 access:
   grant: permission/submit-expense
   tenant: own
@@ -82,7 +84,7 @@ access:
 
 ## A Use Case from Record to Code
 
-Claimwick lets employees submit work expenses with receipts. The record `.litespec/behavior/modules/spending/expenses/submit-expense.yaml` states the use case, its access grant, the requirement it fulfills, and the results and scenarios that end and prove it. The handler `SubmitExpenseCommandHandler.cs` sits in a folder ordered by module, aggregate, `UseCases/` and use case, and carries the mark `<implements>use-case/spending.submit-expense</implements>` naming the record it serves. Running `dotnet litespec model check` from the project root reports each gap as a finding, and `dotnet litespec model query use-case/spending.submit-expense` shows the record with its links. The model computes one completion stage for the use case from the marks, as [Completion Stages](../core/model.md#completion-stages) defines: `coded` when the handler exists, `verified` only when every scenario has a passing proof. [A Use Case in Code](../example/a-use-case-in-code.md) walks the same record line by line, with the rule, the endpoint, the handler, and the tests.
+Claimwick lets employees submit work expenses with receipts. The record `.litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml` states the use case, its access grant, the requirement it fulfills, and the results and scenarios that end and prove it. The handler `SubmitExpenseCommandHandler.cs` sits in a folder ordered by module, aggregate, `UseCases/` and use case, and carries the mark `<implements>use-case/spending.submit-expense</implements>` naming the record it serves. Running `dotnet litespec model check` from the project root reports each gap as a finding, and `dotnet litespec model query use-case/spending.submit-expense` shows the record with its links. The model computes one completion stage for the use case from the marks, as [Completion Stages](../core/model.md#completion-stages) defines: `coded` when the handler exists, `verified` only when every scenario has a passing proof. [A Use Case in Code](../example/a-use-case-in-code.md) walks the same record line by line, with the rule, the endpoint, the handler, and the tests.
 
 Each finding carries a level: level G findings read records only and always block, level S findings read code through a stack reader, and level A findings are advisory. The [Model Builder](../tools/model.md) states the levels, and [The Model and Its Checks](../example/model-and-checks.md) shows the full Claimwick output.
 

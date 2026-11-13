@@ -95,7 +95,7 @@ The journey steps run in the order the table gives them. Submit expense serves `
 
 ## The Entry Point and the Screen
 
-The product reaches the module through one entry point, `behavior/entry-points/claimwick-app/entry-point.yaml`, which the employee signs into with a session. The entry point holds one screen in `screens/expense-list.yaml`:
+The product reaches the module through one entry point, `behavior/entry-points/claimwick-app/entry-point.yaml`, which the employee signs into with a session. The entry point holds one screen in `screens/expense-list/expense-list.yaml`:
 
 ```yaml
 type: screen
@@ -127,7 +127,7 @@ The permission list in `behavior/modules/spending/permissions.yaml` names seven 
 
 ## The External System
 
-The payout bank is the one external system the module talks to. It is in `behavior/external-systems/payout-bank.yaml`. Claimwick sends one bank file per payout batch and reads back a settlement report. When the bank rejects a file, finance fixes the entry and sends the batch again, which the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements.yaml` describes.
+The payout bank is the one external system the module talks to. It is in `behavior/external-systems/payout-bank/payout-bank.yaml`. Claimwick sends one bank file per payout batch and reads back a settlement report. When the bank rejects a file, finance fixes the entry and sends the batch again, which the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements/clear-stuck-reimbursements.yaml` describes.
 
 ## Counting the Records
 

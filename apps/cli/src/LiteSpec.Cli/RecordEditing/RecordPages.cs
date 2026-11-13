@@ -32,7 +32,7 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a feature file under .litespec/intent/modules/<m>/features/",
+        ["requirement"] = "a feature file under .litespec/intent/modules/<m>/features/<name>/",
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
@@ -120,48 +120,76 @@ static class RecordPages
     public static string? RenameTarget(
         ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
     {
-        // A type whose identifier carries no home, such as an integration event, which lives under a
-        // module folder its id does not name, stays in the folder it already sits in.
-        if (newHome is null && RecordFolders.NeedsHome(type))
-        {
-            var folder = Path.GetDirectoryName(oldFile);
+        var oldContainer = ContainerOf(oldFile);
 
-            if (string.IsNullOrEmpty(folder))
-            {
-                return null;
-            }
-
-            var renamed = Path.Combine(folder, newName + Path.GetExtension(oldFile));
-
-            return string.Equals(renamed, oldFile, StringComparison.Ordinal) ? null : renamed;
-        }
-
-        var placed = PagePath(config, type, newHome, newName);
-
-        // A technical decision lives under Implementation and stays there when renamed.
-        if (type == "decision" && IsTechnicalDecision(config, oldFile))
-        {
-            placed = Path.Combine(DocsRoot(config), "implementation", "decisions", Path.GetFileName(placed));
-        }
-
-        if (string.Equals(placed, oldFile, StringComparison.Ordinal))
+        if (oldContainer is null)
         {
             return null;
         }
 
-        var oldFolder = Path.GetDirectoryName(oldFile);
-        var placedFolder = Path.GetDirectoryName(placed);
+        string container;
+        var stem = newName;
 
-        if (oldFolder is null
-            || string.Equals(oldFolder, placedFolder, StringComparison.Ordinal)
-            || !StaysInFolder(config, type, oldHome, newHome, oldFolder))
+        // A type whose identifier carries no home, such as an integration event, which lives under a
+        // module folder its id does not name, stays in the container it already sits in.
+        if (newHome is null && RecordFolders.NeedsHome(type))
         {
-            return placed;
+            container = oldContainer;
+        }
+        else
+        {
+            // The placed path is <container>/<stem>/<stem>.yaml, so the container is two folders up. The
+            // stem is the name the home rule gives the file: a screen's is <home>.<name>, other types use the name.
+            var placed = PagePath(config, type, newHome, newName);
+            container = Path.GetDirectoryName(Path.GetDirectoryName(placed))!;
+            stem = Path.GetFileNameWithoutExtension(placed);
+
+            // A technical decision lives under Implementation and stays there when renamed.
+            if (type == "decision" && IsTechnicalDecision(config, oldFile))
+            {
+                container = Path.Combine(DocsRoot(config), "implementation", "decisions");
+            }
+
+            if (!string.Equals(container, oldContainer, StringComparison.Ordinal)
+                && StaysInFolder(config, type, oldHome, newHome, oldContainer))
+            {
+                container = oldContainer;
+            }
         }
 
-        var stayed = Path.Combine(oldFolder, Path.GetFileName(placed));
+        var target = PlaceIn(container, stem, Path.GetExtension(oldFile));
 
-        return string.Equals(stayed, oldFile, StringComparison.Ordinal) ? null : stayed;
+        return string.Equals(target, oldFile, StringComparison.Ordinal) ? null : target;
+    }
+
+    /// <summary>The path of a named record's file: its own folder under the container, holding the file that carries the name.</summary>
+    /// <param name="container">The folder the record's own folder sits in.</param>
+    /// <param name="name">The record name, which names the folder and the file.</param>
+    /// <param name="extension">The file extension, including the dot.</param>
+    /// <returns>The path <c>&lt;container&gt;/&lt;name&gt;/&lt;name&gt;&lt;extension&gt;</c>.</returns>
+    public static string PlaceIn(string container, string name, string extension) =>
+        Path.Combine(container, name, name + extension);
+
+    /// <summary>
+    ///     The folder that holds a record's own folder: the container a named record's folder sits in, or the
+    ///     folder of a flat record file. A file whose folder carries its stem is a named record's file.
+    /// </summary>
+    /// <param name="file">The absolute record file path.</param>
+    /// <returns>The container folder, or null when the file has no folder.</returns>
+    static string? ContainerOf(string file)
+    {
+        var folder = Path.GetDirectoryName(file);
+
+        if (string.IsNullOrEmpty(folder))
+        {
+            return null;
+        }
+
+        var stem = Path.GetFileNameWithoutExtension(file);
+
+        return string.Equals(Path.GetFileName(folder), stem, StringComparison.Ordinal)
+            ? Path.GetDirectoryName(folder)
+            : folder;
     }
 
     /// <summary>Whether a decision file sits under the implementation decisions folder.</summary>

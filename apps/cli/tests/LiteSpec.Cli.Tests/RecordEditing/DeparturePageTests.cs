@@ -19,7 +19,7 @@ public sealed class DeparturePageTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            fixture.Path, ".litespec", "governance", "departures", "payment-retries-later.yaml");
+            fixture.Path, ".litespec", "governance", "departures", "payment-retries-later", "payment-retries-later.yaml");
 
         Assert.True(File.Exists(page), $"Expected the departure page at '{page}'.");
         Assert.Contains("departure/payment-retries-later", File.ReadAllText(page));

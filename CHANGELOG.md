@@ -2,11 +2,11 @@
 
 ## v5.3.0
 
-LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer needs no change unless it wants to record a vision.
+LiteSpec 5.3.0 adds the vision record: where the product is heading beyond what it promises now, which a decision made to keep it open cites and nothing builds from. It is a minor release: no provision ID is removed or renamed, and a consumer must move its named records into folders, as Part E describes.
 
 ### Part A: The Vision Record
 
-- A `vision` record lives at `.litespec/intent/visions/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries Why It Matters, What It Keeps Open and What Would Make It Concrete.
+- A `vision` record lives at `.litespec/intent/visions/<name>/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries Why It Matters, What It Keeps Open and What Would Make It Concrete.
 - A decision names a vision in `basedOn`, and a requirement names one in `cites`. Nothing else links to a vision, and a vision links to nothing.
 - A vision reaches no Behavior by design: no reach check reads it, so it raises no `intent-unreached` or other planned-Intent finding. `litespec/core/intent#reach-every-intent-record-with-behavior` now excepts it.
 - `litespec/core/principles#require-current-complexity-activation` states that a vision never justifies a package, project, wrapper, process, cache, queue or distributed pattern on its own. A vision may justify the shape of a record or model.
@@ -21,7 +21,18 @@ The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `lite
 - The top bar drops the test run and completion widgets below 1280 pixels, and the button labels, the book label and the shortcut hint below 768 pixels. The search box placeholder reads "Find a record".
 - Record pages fit a 320-pixel screen with no sideways scroll: long identifiers, paths and refusal codes wrap, label and value grids stack, and wide tables scroll inside their own frame.
 - The Intent tree and the trace rail show visions under the product, each with the decisions based on it and the requirements citing it.
-### Part C: Provision Changes Since v5.2.0
+
+### Part C: Named Records in Their Own Folders
+
+- Each named record lives in its own folder named for it, `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that folder beside the record file. The folder name equals the file stem. `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#explain-each-record-beside-its-record-file` state the rule.
+- A named record placed flat in its type's folder is a `record-placement-invalid` finding. A named record whose folder name differs from its file stem is a `record-folder-drift` finding, a level G finding.
+- Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A requirement sits in its feature file, and a result or scenario sits in its use-case file.
+- `litespec new` writes a named record in the folder layout, and `litespec rename` moves a record with its folder.
+- No migration tool ships. Part E lists the move each consumer makes.
+
+Decision 0042, Keep Each Named Record in Its Own Folder, records why.
+
+### Part D: Provision Changes Since v5.2.0
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v5.2.0
@@ -51,13 +62,14 @@ None.
 
 <!-- /generated:provision-diff -->
 
-### Part D: Upgrading a Consumer
+### Part E: Upgrading a Consumer
 
 1. Install `LiteSpec.Cli` 5.3.0 (`dotnet tool update LiteSpec.Cli --version 5.3.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 5.3.0` in `.litespec/project.yaml`.
 2. Run `litespec model render` to rewrite the `agent-protocol` region and each project-scope skill copy for 5.3.0.
 3. A project that references `LiteSpec.Analyzers` updates it to 5.3.0.
-4. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
-5. Run `litespec model check` and fix each finding.
+4. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`. No tool moves them, so move each pair by hand, and move a feature's requirements with it, since they stay in the feature file.
+5. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
+6. Run `litespec model check` and fix each finding, including each `record-placement-invalid` and `record-folder-drift` finding.
 ## v5.2.0
 
 LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.

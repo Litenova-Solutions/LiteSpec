@@ -452,19 +452,19 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string RequirementFile = ".litespec/intent/modules/lending/features/performance.yaml";
-    const string ListLoansFile = ".litespec/behavior/modules/lending/loans/list-loans.yaml";
-    const string RunbookFile = ".litespec/implementation/runbooks/slow-listings.yaml";
-    const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing.yaml";
+    const string RequirementFile = ".litespec/intent/modules/lending/features/performance/performance.yaml";
+    const string ListLoansFile = ".litespec/behavior/modules/lending/loans/list-loans/list-loans.yaml";
+    const string RunbookFile = ".litespec/implementation/runbooks/slow-listings/slow-listings.yaml";
+    const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing/0003-term-start-listing.yaml";
 
-    const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index.yaml";
+    const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index/0002-loan-index.yaml";
     const string AlertFile = "deploy/alerts/lending.yaml";
     const string AlertDir = "deploy/alerts";
     const string ResultFile = ".litespec/proof/checks/2026-11-20-list-loans-load.json";
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched.yaml";
+    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
 
     const string RequirementJson = """
         {

@@ -280,6 +280,13 @@ internal static class FolderChecks
             return true;
         }
 
+        // A named record's own folder, such as intent/goals/<name> or a use-case folder inside an
+        // aggregate. It holds the record beside its explanation, and the record check reads its name.
+        if (RecordFolders.IsRecordFolder(full, flat))
+        {
+            return true;
+        }
+
         return full[0] switch
         {
             "intent" => IsIntentFolder(full),
@@ -490,7 +497,7 @@ internal static class FolderChecks
     /// <param name="file">The absolute record file path.</param>
     /// <param name="segments">The segments from the record layer down.</param>
     /// <returns>True when the file sits under a record root; otherwise false.</returns>
-    private static bool UnderRoot(ConsumerConfig config, string file, out string[] segments)
+    internal static bool UnderRoot(ConsumerConfig config, string file, out string[] segments)
     {
         foreach (var root in config.RecordRoots)
         {
@@ -567,6 +574,16 @@ internal static class FolderChecks
                 "record-placement-invalid",
                 $"{Label(record.Type)} '{record.Id}' sits in '{Display(folders)}', but {Expected(record.Type)}.",
                 record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        // The entries of a file share its page's file, so the folder finding names the page once.
+        if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName, flat))
+        {
+            findings.Add(new Finding(
+                "record-folder-drift",
+                $"{Label(record.Type)} '{record.Id}' sits in folder '{folders[folders.Length - 1]}', but its file is '{fileName}'; the folder must carry the file's name.",
+                record.File, record.Line, SubjectOf(record)));
         }
     }
 
@@ -613,6 +630,6 @@ internal static class FolderChecks
     /// <returns>The phrase, from the folder map; a requirement lives in its feature file, which the phrase names.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their feature file under 'intent/modules/<m>/features/'"
+            ? "requirements live in their feature file under 'intent/modules/<m>/features/<name>/'"
             : RecordFolders.Phrase(type);
 }

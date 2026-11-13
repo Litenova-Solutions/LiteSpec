@@ -45,7 +45,7 @@ public sealed class RulesCollapseTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            ".litespec/behavior/modules/spending/expenses/submit-expense.yaml");
+            ".litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml");
 
         Assert.Equal(0, result.Status);
         Assert.Contains("- litespec/core/use-cases#connect-each-use-case-to-intent:", result.Output);

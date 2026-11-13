@@ -151,10 +151,10 @@ Every rule is an error by default, so `dotnet build` already fails on a finding 
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>.yaml`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred.yaml
+#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```

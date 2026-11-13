@@ -10,11 +10,11 @@ The [Intent layer](../core/intent.md) states what a decision record means. The [
 
 ### Where a Record Lives
 
-Each record is one record file with its explanation file beside it in the consumer repository. `litespec new decision <name>` scaffolds both files and reserves the identifier; it takes a kebab-case name without a number and allocates the next free number from the one decision sequence. Before it writes the files, it prints the provisions whose statement matches the name's words, so a choice a provision already makes follows that provision instead of becoming a decision. Before recording a decision, query `rules` for its subject; where a provision makes the choice, the code follows that provision instead, as `litespec/core/agent#search-the-provisions-before-recording-a-decision` states. A technical decision lives under `.litespec/implementation/decisions/` or `.litespec/implementation/modules/<m>/decisions/` instead, as the [model page](../core/model.md) states.
+Each record is one record file in its own folder, with its explanation file beside it in that folder, in the consumer repository. `litespec new decision <name>` scaffolds both files in that folder and reserves the identifier; it takes a kebab-case name without a number and allocates the next free number from the one decision sequence. Before it writes the files, it prints the provisions whose statement matches the name's words, so a choice a provision already makes follows that provision instead of becoming a decision. Before recording a decision, query `rules` for its subject; where a provision makes the choice, the code follows that provision instead, as `litespec/core/agent#search-the-provisions-before-recording-a-decision` states. A technical decision lives under `.litespec/implementation/decisions/` or `.litespec/implementation/modules/<m>/decisions/` instead, as the [model page](../core/model.md) states.
 
 | Item | Value |
 |:---|:---|
-| Path | `.litespec/intent/decisions/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>.md` beside it in the consumer repository |
+| Path | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.yaml` with `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` beside it in the consumer repository |
 | Record template | `templates/consumer/decision.yaml` |
 | Explanation template | `templates/consumer/decision.md` |
 | Record type | `decision` |

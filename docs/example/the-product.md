@@ -41,7 +41,7 @@ Only features live under the module folder in this example, as `.litespec/intent
 
 ## The Goal
 
-A goal record states one measurable outcome that features advance. Claimwick keeps one, in `.litespec/intent/goals/decided-in-days.yaml`:
+A goal record states one measurable outcome that features advance. Claimwick keeps one, in `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`:
 
 ```yaml
 type: goal
@@ -56,13 +56,13 @@ The statement names the target, and the measure says how the team reads it. The 
 
 ## The Problem
 
-A problem record states one pain that a person outside the team has today. Claimwick keeps one, in `.litespec/intent/problems/expenses-wait-weeks.yaml`. Submitted expenses wait weeks for a decision, so employees chase managers by email. The `affects` field names the employee as the person who suffers it, and the `evidence` list cites the research below with its grade, `reported`.
+A problem record states one pain that a person outside the team has today. Claimwick keeps one, in `.litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.yaml`. Submitted expenses wait weeks for a decision, so employees chase managers by email. The `affects` field names the employee as the person who suffers it, and the `evidence` list cites the research below with its grade, `reported`.
 
 ## The Features and Their Requirements
 
 A feature record states what the product offers against a problem. Claimwick has two features.
 
-The Approval feature, in `.litespec/intent/modules/spending/features/approval.yaml`, solves the waiting problem and holds five functional requirements:
+The Approval feature, in `.litespec/intent/modules/spending/features/approval/approval.yaml`, solves the waiting problem and holds five functional requirements:
 
 | Requirement ID | Statement |
 |:---|:---|
@@ -72,13 +72,13 @@ The Approval feature, in `.litespec/intent/modules/spending/features/approval.ya
 | `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. |
 | `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. |
 
-The Approval Reminders feature, in `.litespec/intent/modules/spending/features/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/modules/spending/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 Each requirement carries its identifier, title, kind, statement, rationale and the records it cites in `cites`. The `cites` list is how the tax file traces back to the constraint below.
 
 ## The Research
 
-A research record states one outside fact that informs a choice. Claimwick keeps one, in `.litespec/intent/research/approval-time-benchmarks.yaml`. Its sources carry a `key`, a `url` and the day they were read, and the explanation cites each key:
+A research record states one outside fact that informs a choice. Claimwick keeps one, in `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.yaml`. Its sources carry a `key`, a `url` and the day they were read, and the explanation cites each key:
 
 ```yaml
 type: research
@@ -93,11 +93,11 @@ question: How fast do small companies decide expenses?
 conclusion: Small companies decide expenses within one week, so five business days is a defensible target.
 ```
 
-Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks.md`, has the required Answer and Notes on Sources sections.
+Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.md`, has the required Answer and Notes on Sources sections.
 
 ## The Decision
 
-A decision record states one choice with the options it weighed. Claimwick chose a 25 EUR receipt threshold, recorded in `.litespec/intent/decisions/0001-receipt-threshold.yaml`. The record lists three options, each with its pros and cons, and its `decides` field names the receipt requirement it settles:
+A decision record states one choice with the options it weighed. Claimwick chose a 25 EUR receipt threshold, recorded in `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`. The record lists three options, each with its pros and cons, and its `decides` field names the receipt requirement it settles:
 
 ```yaml
 type: decision
@@ -122,15 +122,15 @@ decides:
 basedOn: []
 ```
 
-The explanation file, `.litespec/intent/decisions/0001-receipt-threshold.md`, holds the Context, Decision and Evidence with Confidence sections. The `reopenedWhen` field carries the condition for reopening the choice.
+The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.md`, holds the Context, Decision and Evidence with Confidence sections. The `reopenedWhen` field carries the condition for reopening the choice.
 
 ## The Constraint
 
-A constraint states one outside rule and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention.yaml`. The law keeps business receipts for seven years, and the product applies because it stores receipts for reimbursed expenses. The receipt requirement cites this constraint, so the retention rule traces to the outside law that demands it.
+A constraint states one outside rule and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years, and the product applies because it stores receipts for reimbursed expenses. The receipt requirement cites this constraint, so the retention rule traces to the outside law that demands it.
 
 ## The Journey
 
-A journey record holds the steps one actor takes toward one goal. Claimwick keeps one, in `.litespec/intent/journeys/submit-and-reimburse.yaml`. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey has eight steps with IDs `s1` to `s8`, and each step names the actor who takes it:
+A journey record holds the steps one actor takes toward one goal. Claimwick keeps one, in `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml`. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey has eight steps with IDs `s1` to `s8`, and each step names the actor who takes it:
 
 ```yaml
 type: journey
@@ -156,6 +156,6 @@ steps:
 
 Use cases point at these steps: the submit use case serves `journey/submit-and-reimburse#s1`, and the approve use case serves `#s3`. Steps name no use case themselves, so a step can change its handler without the journey changing.
 
-The explanation file, `.litespec/intent/journeys/submit-and-reimburse.md`, holds the Example and Before It Starts sections, with one worked week of a train fare.
+The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Before It Starts sections, with one worked week of a train fare.
 
 Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them.

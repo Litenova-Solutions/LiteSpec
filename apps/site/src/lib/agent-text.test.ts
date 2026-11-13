@@ -60,7 +60,7 @@ describe("page description", () => {
   });
 
   it("falls back for a page with no intent", () => {
-    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records.md")!;
+    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records.md")!;
     assert.strictEqual(describePage(page), `The ${page.title} page of the LiteSpec ${version} release.`);
   });
 });

@@ -152,7 +152,7 @@ describe("crumbTrail", () => {
   });
 
   it("keeps pages outside the groups under their area label", () => {
-    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records.md");
+    const page = pageByFile("docs/intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records.md");
     assert.deepStrictEqual(crumbTrail(page!), [
       { name: "Research and Decisions", url: `/${version}/intent/` },
       { name: "Decisions", url: null },

@@ -36,9 +36,9 @@ public sealed class RenameCommandTests
         var result = TestCli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(loans, "borrow-item.yaml")));
-        Assert.False(File.Exists(Path.Combine(loans, "borrow-copy.yaml")));
-        Assert.True(File.Exists(Path.Combine(loans, "borrow-item.md")));
+        Assert.True(File.Exists(Path.Combine(loans, "borrow-item", "borrow-item.yaml")));
+        Assert.False(File.Exists(Path.Combine(loans, "borrow-copy", "borrow-copy.yaml")));
+        Assert.True(File.Exists(Path.Combine(loans, "borrow-item", "borrow-item.md")));
         Assert.Contains("[borrowing](use-case/lending.borrow-item)", File.ReadAllText(linking));
     }
 }

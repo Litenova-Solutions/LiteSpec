@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one file at `.litespec/intent/modules/<module>/features/<feature>.yaml` carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file beside it. Each step names the standard it satisfies, and the guide adds no rule of its own.
+A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one record file at `.litespec/intent/modules/<module>/features/<feature>/<feature>.yaml` carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file `<feature>.md` beside it in the same folder. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ Read the [Intent](../core/intent.md) page before this guide: it states the oblig
 
 ### Scaffold the Feature File
 
-Run `litespec new feature <name>` to scaffold the feature and reserve the identifier `feature/<name>`. Give the name in kebab-case, such as `expense-submission`, and the title in plain words. The command writes the file under `.litespec/intent/features/`. Move it to `.litespec/intent/modules/<module>/features/<name>.yaml`, where the module holds it. This satisfies `litespec/core/model#write-every-record-in-its-record-file` and `litespec/core/intent#keep-intent-in-its-homes`.
+Run `litespec new feature <name>` to scaffold the feature and reserve the identifier `feature/<name>`. Give the name in kebab-case, such as `expense-submission`, and the title in plain words. The command writes the folder `<name>/` with `<name>.yaml` inside it under `.litespec/intent/features/`. Move that folder to `.litespec/intent/modules/<module>/features/<name>/`, so the record file ends at `.litespec/intent/modules/<module>/features/<name>/<name>.yaml`, where the module holds it. This satisfies `litespec/core/model#write-every-record-in-its-record-file` and `litespec/core/intent#keep-intent-in-its-homes`.
 
 ### State the Offering and Its Links
 
@@ -38,7 +38,7 @@ Write each link on the feature, the record that points. This satisfies `litespec
 
 ### Write One Entry per Requirement
 
-Append each commitment the feature makes with `litespec new entry .litespec/intent/modules/<module>/features/<feature>.yaml requirement <name>`, then fill the entry's fields. Give each entry an identifier of the form `requirement/<feature>.<name>`, such as `requirement/expense-submission.receipt-over-threshold`, with its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
+Append each commitment the feature makes with `litespec new entry .litespec/intent/modules/<module>/features/<feature>/<feature>.yaml requirement <name>`, then fill the entry's fields. Give each entry an identifier of the form `requirement/<feature>.<name>`, such as `requirement/expense-submission.receipt-over-threshold`, with its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
 
 ```yaml
 records:
@@ -87,7 +87,7 @@ A requirement that bends in a named case carries that case in `except` with its 
 
 ### Add the Explanation File
 
-When the feature needs prose beyond its fields, add `<feature>.md` beside the record file with Who It Serves and Why, What It Offers, and What Good Looks Like. Keep checkable facts in the record file; the explanation file only helps a reader understand. This satisfies `litespec/core/model#split-record-fields-from-explanation` and `litespec/core/model#explain-each-record-beside-its-record-file`.
+When the feature needs prose beyond its fields, add `<feature>.md` beside the record file in the same folder, with Who It Serves and Why, What It Offers, and What Good Looks Like. Keep checkable facts in the record file; the explanation file only helps a reader understand. This satisfies `litespec/core/model#split-record-fields-from-explanation` and `litespec/core/model#explain-each-record-beside-its-record-file`.
 
 ## Check
 

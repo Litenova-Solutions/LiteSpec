@@ -85,45 +85,45 @@ The placement of every record follows nine principles, from the product root dow
 
 ### The Placement Table
 
-The table is frozen: it gives each type its layer, levels, folder, parent and identifier, and a record type gains a home only by changing this table. Folders are relative to `.litespec/`.
+The table is frozen: it gives each type its layer, levels, folder, parent and identifier, and a record type gains a home only by changing this table. Folders are relative to `.litespec/`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, with its explanation file `<name>.md` beside the record file. The fixed-name files (`product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml` and `glossary.yaml`), the list files and the child records (requirements, results and scenarios) keep the places the table gives.
 
 | Type | Layer | Levels | Folder | Parent | Identifier |
 |:--|:--|:--|:--|:--|:--|
 | `product` | Intent | product | `intent/product.yaml` | none | `product/<name>` |
-| `goal` | Intent | product, module | `intent/goals/`, `intent/modules/<m>/goals/` | product or module | `goal/<name>` |
-| `vision` | Intent | product | `intent/visions/` | product | `vision/<name>` |
-| `problem` | Intent | product, module | `intent/problems/`, `intent/modules/<m>/problems/` | product or module | `problem/<name>` |
-| `feature` | Intent | module | `intent/modules/<m>/features/<feature>.yaml` | module | `feature/<name>` |
+| `goal` | Intent | product, module | `intent/goals/<name>/<name>.yaml`, `intent/modules/<m>/goals/<name>/<name>.yaml` | product or module | `goal/<name>` |
+| `vision` | Intent | product | `intent/visions/<name>/<name>.yaml` | product | `vision/<name>` |
+| `problem` | Intent | product, module | `intent/problems/<name>/<name>.yaml`, `intent/modules/<m>/problems/<name>/<name>.yaml` | product or module | `problem/<name>` |
+| `feature` | Intent | module | `intent/modules/<m>/features/<name>/<name>.yaml` | module | `feature/<name>` |
 | `requirement` | Intent | entry | in its feature file | feature | `requirement/<feature>.<name>` |
-| `constraint` | Intent | product, module | `intent/constraints/`, `intent/modules/<m>/constraints/` | product or module | `constraint/<name>` |
-| `decision` | Intent, Implementation | product, module | `intent/decisions/`, `intent/modules/<m>/decisions/`, `implementation/decisions/`, `implementation/modules/<m>/decisions/` | product or module | `decision/<number>-<name>` |
-| `research` | Intent | product, module | `intent/research/`, `intent/modules/<m>/research/` | product or module | `research/<name>` |
-| `journey` | Intent | product | `intent/journeys/` | product | `journey/<name>` |
-| `actor` | Intent | product | `intent/actors/` | product | `actor/<name>` |
-| `role` | Intent | product | `intent/roles/` | product | `role/<name>` |
+| `constraint` | Intent | product, module | `intent/constraints/<name>/<name>.yaml`, `intent/modules/<m>/constraints/<name>/<name>.yaml` | product or module | `constraint/<name>` |
+| `decision` | Intent, Implementation | product, module | `intent/decisions/<number>-<name>/<number>-<name>.yaml`, `intent/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml` | product or module | `decision/<number>-<name>` |
+| `research` | Intent | product, module | `intent/research/<name>/<name>.yaml`, `intent/modules/<m>/research/<name>/<name>.yaml` | product or module | `research/<name>` |
+| `journey` | Intent | product | `intent/journeys/<name>/<name>.yaml` | product | `journey/<name>` |
+| `actor` | Intent | product | `intent/actors/<name>/<name>.yaml` | product | `actor/<name>` |
+| `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
 | `module` | Intent | module | `intent/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
 | `aggregate` | Behavior | module | `behavior/modules/<m>/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
-| `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/<aggregate>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
+| `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/<aggregate>/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
 | `result` | Behavior | entry | in its use case file | use case | `result/<use-case>.<name>` |
 | `scenario` | Behavior | entry | in its use case file | result | `scenario/<use-case>.<name>` |
 | `event` | Behavior | aggregate | in `aggregate.yaml` or in `<aggregate>/events/` | aggregate | `event/<aggregate>.<name>` |
 | `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/<aggregate>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its folder node | `rule/<home>.<name>` |
-| `reaction` | Behavior | module | `behavior/modules/<m>/reactions/` | module | `reaction/<module>.<name>` |
-| `job` | Behavior | module | `behavior/modules/<m>/jobs/` | module | `job/<module>.<name>` |
-| `notification` | Behavior | module | `behavior/modules/<m>/notifications/` | module | `notification/<module>.<name>` |
+| `reaction` | Behavior | module | `behavior/modules/<m>/reactions/<name>/<name>.yaml` | module | `reaction/<module>.<name>` |
+| `job` | Behavior | module | `behavior/modules/<m>/jobs/<name>/<name>.yaml` | module | `job/<module>.<name>` |
+| `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
-| `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/` | module | `integration-event/<name>` |
+| `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/<name>/<name>.yaml` | module | `integration-event/<name>` |
 | `permission` | Behavior | module | `behavior/modules/<m>/permissions.yaml` | module | `permission/<name>` |
 | `entry-point` | Behavior | product | `behavior/entry-points/<entry-point>/entry-point.yaml` | product | `entry-point/<name>` |
-| `screen` | Behavior | entry point | `behavior/entry-points/<entry-point>/screens/` | entry point | `screen/<entry-point>.<name>` |
-| `external-system` | Behavior | product, module | `behavior/external-systems/`, `behavior/modules/<m>/external-systems/` | its folder node | `external-system/<name>` |
-| `runbook` | Implementation | product, module | `implementation/runbooks/`, `implementation/modules/<m>/runbooks/` | product or module | `runbook/<name>` |
-| `departure` | Governance | product, module | `governance/departures/`, `governance/modules/<m>/departures/` | product or module | `departure/<name>` |
+| `screen` | Behavior | entry point | `behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | entry point | `screen/<entry-point>.<name>` |
+| `external-system` | Behavior | product, module | `behavior/external-systems/<name>/<name>.yaml`, `behavior/modules/<m>/external-systems/<name>/<name>.yaml` | its folder node | `external-system/<name>` |
+| `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
+| `departure` | Governance | product, module | `governance/departures/<name>/<name>.yaml`, `governance/modules/<m>/departures/<name>/<name>.yaml` | product or module | `departure/<name>` |
 
 Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. Anything else is a `folder-invalid` finding. A module with one aggregate of the module's own name may stay flat.
 
-`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules. A folder under either that names no declared module, and a module folder without its module, get a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings.
+`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules. A folder under either that names no declared module, and a module folder without its module, get a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A named record placed flat, directly in its type's folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
 A module, an aggregate, and an entry point is a folder node, and the folder path of each record under it names that node. Placement is the folder path and the module, never a second name.
 
@@ -159,7 +159,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
 | `.litespec/governance/` | Governance | Departures at product level or under modules, and project conventions under `conventions/` |
 
-A record lives in its record file, an explanation file may sit beside it, and a document holds no record. The file name joins a record file to its explanation file: `<name>.yaml` with `<name>.md` in the same folder.
+A named record lives in its record file `<name>.yaml` inside its own folder `<name>/`, and an explanation file `<name>.md` may sit in that folder beside it. A document holds no record. The folder name equals the file stem, so the folder and the file join into one pair that the tools find together.
 
 The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/`, because every record layer uses them.
 
@@ -179,7 +179,7 @@ A record file is one file `<name>.yaml` holding one YAML mapping: the page recor
 
 ### Explanation Files
 
-An explanation file is the optional `<name>.md` beside its record file, with the same name in the same folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only. It stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
+An explanation file is the optional `<name>.md` beside its record file, with the same name in the record's own folder. It is plain Markdown with no frontmatter. It opens with `# <record title>` and uses H2 sections. It explains the record for people and agents, and it states no field value a check reads. One explanation file serves one page; entries have no file of their own, and the page explanation cites them by identifier. Inside Intent and Behavior records, a generated region derives from other records only. It stays optional unless the project lists the record's layer in `explanations.layers` in [the project file](../reference/project-file.md).
 
 ### Documents
 
@@ -476,9 +476,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A project MUST keep every record in the home its type names.
 
-**Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it.
+**Rationale:** One home per type tells a reader where to open a record and tells the builder where to read it. A record kept anywhere else is invisible to the checks that scan its home, so it looks sound while nothing validates it. Settled by [decision/0042-record-named-folders](../intent/decisions/0042-record-named-folders/0042-record-named-folders.md), which puts each named record in its own folder beside its explanation.
 
-**Example:** A decision lives at `.litespec/intent/decisions/0001-receipt-threshold.yaml`.
+**Example:** A decision lives at `.litespec/intent/decisions/0001-receipt-threshold/0001-receipt-threshold.yaml`.
 
 **Checked by:** `litespec model check` reports `folder-invalid` for a folder outside the closed set of its layer and level, `module-undeclared` for a `modules` folder naming no declared module, and `record-placement-invalid` for a record outside its home.
 
@@ -508,7 +508,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** One file per page tells a reader where to open a record and tells the builder where to read it. The mapping holds exactly the fields the schema defines for its type, with entries in `records`, so every record has one shape and the checks read every record the same way. A record kept anywhere else is invisible to the checks that scan its home. Settled by [decision/0020-records-in-yaml](decision/0020-records-in-yaml) on the evidence in [research/record-format-evidence](research/record-format-evidence).
 
-**Example:** Claimwick keeps `use-case/spending.submit-expense` in `.litespec/behavior/modules/spending/expense/submit-expense.yaml`, with its results and scenarios in `records`.
+**Example:** Claimwick keeps `use-case/spending.submit-expense` in `.litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml`, with its results and scenarios in `records`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a record file that does not parse or whose top level names no record type or container page style.
 
@@ -520,7 +520,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Applies to:** artifact: any
 
-**Statement:** An explanation file MUST sit beside its record file with the same name and hold plain Markdown with no frontmatter.
+**Statement:** An explanation file MUST sit beside its record file in the record's own folder, with the same name, and hold plain Markdown with no frontmatter.
 
 **Rationale:** The file name is the link: no field joins the two files, so a rename moves both and nothing else. Plain Markdown with no frontmatter keeps the explanation readable in any reader and tells every check to read fields from the record file only. The file opens with the record title and uses H2 sections, so each explanation has one shape.
 
@@ -602,7 +602,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every record except the product MUST have exactly one parent from the Placement Table on this page.
 
-**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits on its feature page, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
 **Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits on the `feature/approval-reminders` page under `intent/modules/spending/features/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits under `result/submit-expense.submitted`.
 
@@ -666,7 +666,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A link MUST live as a field on the record it starts from, with the Links table stating how it reads in both directions.
 
-**Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md).
+**Rationale:** One writing site keeps a link and its source in one edit: changing the source updates the link in the same change. Links written on the target instead would scatter each relationship across every page it touches. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
 **Checked by:** `litespec model check` reports `reference-unknown` for a link whose target no record carries.
 
@@ -1020,7 +1020,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name.
 
-**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` sits under Behavior, its module and its aggregate; its results under it; each scenario under the result it shows; and the handler that carries its mark under Implementation.
 
@@ -1036,7 +1036,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every label in the book MUST be a record type, a field name, a computed state, a glossary term, or the reads-as phrase the Links table states for a connection.
 
-**Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records and the checks, and has to translate. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** LiteSpec already names every concept once, for people and agents alike. A friendlier synonym in the book, such as promise for requirement, is a second word for one concept: the reader learns it, then meets the real word in the records and the checks, and has to translate. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** A use case page heads its results "Results" and its scenarios "Scenarios", never "Endings" and "Examples".
 
@@ -1052,7 +1052,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.
 
-**Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** The book explains a departure with the glossary definition of Departure.
 
@@ -1068,7 +1068,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every status, count, order and finding the book shows MUST be one the builder or a check computes.
 
-**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** The book is a view of the model, not a second authority. A judgement only the book makes, such as its own idea of what to do next, cannot be checked, cannot fail a build, and cannot be found by an agent reading the model output. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** The book orders features by the completion the builder computes.
 
@@ -1084,7 +1084,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A fact the book needs that LiteSpec does not define MUST become a record field, a computed status, or a check in LiteSpec before the book shows it.
 
-**Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** Rendering the book is a probe: what it cannot show is a gap in the specification. Closing the gap in LiteSpec gives every project the fact, checked; closing it in the book gives one view an unchecked fact. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
 **Example:** The book needs to say that a refusal has no scenario, so LiteSpec gains a check for it, and the book shows that check's findings.
 
@@ -1100,9 +1100,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every record, code element, test and finding the book shows MUST link to the file and line it comes from.
 
-**Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence.md).
+**Rationale:** The book is where a reader notices what to change, and the source is where the change is made. A link to the file and line makes the next step one click, and it shows that every entry comes from a written record or from code, not from the book. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md).
 
-**Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/expense/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
+**Example:** The submit-expense use case page links to `.litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml` at its first line, and its handler to the handler file at the class.
 
 **Reviewed for:** Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries.
 
