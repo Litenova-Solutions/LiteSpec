@@ -69,7 +69,9 @@
 
   --radius: 8px; --radius-sm: 6px; --radius-lg: 12px;
   --frame: 1280px; --top: 56px;
-  --measure: 52ch;                   /* the article measure: about 80 characters a line of body text */
+  /* Article body text: fluid from 17px to 20px, so a full-width line of the article
+     column holds about 70 to 80 characters at 1280px and wider (the Web Guidance limit). */
+  --text: clamp(1.0625rem, 0.9rem + 0.5vw, 1.25rem);
   --sans: "Geist", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
   color-scheme: light;

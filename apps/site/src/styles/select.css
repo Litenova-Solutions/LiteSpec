@@ -15,7 +15,7 @@
 
 .select-page {
   width: 100%;
-  max-width: var(--measure);
+  max-width: 46rem;
   margin: 0 auto;
   padding: var(--space-10) var(--gutter) var(--space-16);
 }
@@ -30,7 +30,7 @@
 
 .select-lead {
   color: var(--muted-fg);
-  font-size: 1rem;
+  font-size: var(--text);
   text-wrap: pretty;
   margin: 0;
 }
@@ -120,7 +120,7 @@
 
 .step-head p {
   color: var(--muted-fg);
-  font-size: 0.875rem;
+  font-size: calc(var(--text) * 0.85);
 }
 
 /* The reading list: numbered in reading order, with a reading time each. */

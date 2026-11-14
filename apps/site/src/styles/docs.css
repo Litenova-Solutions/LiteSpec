@@ -190,12 +190,11 @@ details[open] > .group-h .chev {
 }
 
 /* Content column: the phone browse button, the indexed header and body, and the
-   pager pinned to the bottom of the column. The article has one measure, 52ch of
-   the body font (about 80 characters a line, the Web Guidance limit for running
-   text). Every block in the article takes that width, from the title and the
-   intro through tables, provision cards, code and diagrams, so they share one
-   left edge and one right edge. A table wider than the measure scrolls inside
-   its own wrapper. */
+   pager pinned to the bottom of the column. The article fills the column between the
+   sidebar and the on-page list, and every block in it (title, intro, paragraphs,
+   lists, tables, provision cards, callouts, code and diagrams) takes that full width,
+   so they share one left edge and one right edge. A table wider than the column
+   scrolls inside its own wrapper. */
 .content {
   padding: var(--space-10) var(--space-12);
   min-width: 0;
@@ -211,7 +210,6 @@ details[open] > .group-h .chev {
 
 .docs-body {
   min-width: 0;
-  max-width: var(--measure);
   margin-bottom: var(--space-8);
 }
 
@@ -277,7 +275,7 @@ details[open] > .group-h .chev {
 }
 
 .content h1 {
-  font-size: 2.25rem;
+  font-size: calc(var(--text) * 2.2);
   letter-spacing: -.03em;
   font-weight: 600;
   margin: var(--space-3) 0 var(--space-2);
@@ -314,11 +312,11 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 /* The page introduction: the Intent or Purpose section, shown under the title.
    Body size in the secondary text color: the intro gives context, and the title
-   above it carries the weight. It takes the article measure, like every block. */
+   above it carries the weight. It takes the full article column, like every block. */
 .content .page-intro {
   margin-top: var(--space-3);
   margin-bottom: var(--space-2);
-  font-size: 0.9375rem;
+  font-size: var(--text);
   line-height: 1.5;
   color: var(--fg-2);
 }
@@ -343,7 +341,6 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-cards);
-  max-width: var(--measure);
   margin-top: auto;
   padding-top: var(--space-8);
   border-top: 1px solid var(--border);
@@ -674,8 +671,6 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   .tree a, .tree summary { font-size: 0.90625rem; min-height: 32px; }
   .group-h { font-size: 0.875rem; }
   .content { padding: var(--space-12) var(--space-16); }
-  .content h1 { font-size: 2.625rem; }
-  .content .page-intro { font-size: 1.03125rem; }
   .crumb, .page-meta { font-size: 0.875rem; }
   .toc { font-size: 0.875rem; }
   .pager b { font-size: 1rem; }
