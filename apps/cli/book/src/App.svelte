@@ -7,6 +7,7 @@
   import { IntentTree, RecordRail } from "$lib/trace";
   import {
     delegatedRecordId,
+    NavDrawer,
     openRecord,
     reassertFromHash,
     reassertFromHistory,
@@ -22,33 +23,34 @@
   // away; above it the columns stand side by side.
   const NARROW = "(max-width: 1023.98px)";
   let wide = $state(false);
-  // The drawer stays open only while the record it was opened on stays selected,
-  // so choosing a record anywhere closes it.
-  let navOpenedOn = $state<string | null | undefined>(undefined);
-  const navOpen = $derived(navOpenedOn !== undefined && navOpenedOn === book.selected);
-  let narrow = $state(typeof matchMedia === "function" && matchMedia(NARROW).matches);
+  // The drawer's open and close rules live in NavDrawer: it stays open only while
+  // the record it opened on stays selected, so any choice of a record closes it.
+  const nav = new NavDrawer(() => book.selected, typeof matchMedia === "function" && matchMedia(NARROW).matches);
+  const navOpen = $derived(nav.open);
+  const drawer = $derived(nav.drawer);
   let navEl = $state<HTMLElement | null>(null);
-  const drawer = $derived(narrow && navOpen);
 
   $effect(() => {
     if (typeof matchMedia !== "function") return;
     const query = matchMedia(NARROW);
-    const changed = () => {
-      narrow = query.matches;
-      if (!query.matches) navOpenedOn = undefined;
-    };
+    const changed = () => nav.setNarrow(query.matches);
     query.addEventListener("change", changed);
     return () => query.removeEventListener("change", changed);
   });
 
+  // A record chosen in the outline closes the drawer through closeNav, the record
+  // already selected included, so focus returns to the menu button.
+  outlineState.onChoose = () => {
+    if (nav.drawer) closeNav(true);
+  };
+
   function openNav(): void {
-    navOpenedOn = book.selected;
+    nav.openOn();
     void tick().then(() => navEl?.focus());
   }
 
   function closeNav(returnFocus: boolean): void {
-    if (!navOpen) return;
-    navOpenedOn = undefined;
+    if (!nav.close()) return;
     if (returnFocus) document.getElementById("nav-toggle")?.focus();
   }
 
@@ -71,6 +73,7 @@
     if (!id) return;
     event.preventDefault();
     wide = false;
+    if (nav.drawer) closeNav(true);
     openRecord(id);
   }
 
