@@ -31,7 +31,7 @@ public static class FindingCodes
             "One name segment names two records in the product.",
             "Give one of the records a new name."),
         new("record-key-duplicate", "G", RecordLayer.Any, trace: false,
-            "Two entries of one record share a key, such as a source key, a step id, an operation name or a field name.",
+            "Two entries of one record share a key, such as a source key, a step id, a branch, an operation name or a field name.",
             "Give one of the entries a new key."),
         new("field-invalid", "G", RecordLayer.Any, trace: false,
             "A field holds a value outside its shape.",

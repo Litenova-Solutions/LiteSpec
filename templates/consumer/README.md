@@ -108,7 +108,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | module | Responsibilities, Boundaries, Example (optional) |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional); the explanation file itself is optional |
-| journey | Preconditions (optional), Example, Variations (optional) |
+| journey | Example, Branches (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |

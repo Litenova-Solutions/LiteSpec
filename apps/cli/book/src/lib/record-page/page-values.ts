@@ -113,13 +113,35 @@ export function requirementFields(f: RecordFields): RequirementFields {
 
 /** The fields the journey renderer reads. */
 export interface JourneyFields {
+  startedWhen?: string;
   steps: RecordFields[];
+  branches: RecordFields[];
   finishedWhen?: string;
 }
 
 /** The fields the journey renderer reads, through the typed readers. */
 export function journeyFields(f: RecordFields): JourneyFields {
-  return { steps: objectList(f, "steps"), finishedWhen: stringField(f, "finishedWhen") };
+  return {
+    startedWhen: stringField(f, "startedWhen"),
+    steps: objectList(f, "steps"),
+    branches: objectList(f, "branches"),
+    finishedWhen: stringField(f, "finishedWhen"),
+  };
+}
+
+/**
+ * One journey branch as the sentence the book shows after the steps. The step
+ * it leaves is named by its position, so a reader finds it in the list above.
+ */
+export function journeyBranchSentence(steps: RecordFields[], branch: RecordFields): string {
+  const position = (id: string) => {
+    const at = steps.findIndex((step) => String(step.id ?? "") === id);
+    return at < 0 ? "step " + id : "step " + (at + 1);
+  };
+  const from = position(String(branch.step ?? ""));
+  const next = String(branch.nextStep ?? "");
+  const then = next === "end" ? "the journey ends" : "the journey continues at " + position(next);
+  return "At " + from + ", when " + String(branch.condition ?? "") + ", " + then + ".";
 }
 
 /** The fields the screen renderer reads. */

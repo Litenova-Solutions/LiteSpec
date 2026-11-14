@@ -34,6 +34,7 @@ internal static class DuplicateKeyChecks
 
                 case RecordTypes.Journey:
                     CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Steps), RecordFields.Id, "step id", null, findings);
+                    CheckBranchKeys(record, findings);
                     break;
 
                 case RecordTypes.ExternalSystem:
@@ -92,6 +93,45 @@ internal static class DuplicateKeyChecks
         && value.ValueKind == JsonValueKind.Array
             ? value
             : null;
+
+    /// <summary>
+    ///     Reports each path that two branches of one journey name twice. A branch is keyed by the
+    ///     step it leaves and the step it continues at, so one step may hold several branches with
+    ///     different targets, and two branches to the same target are one path named twice.
+    /// </summary>
+    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckBranchKeys(Record record, List<Finding> findings)
+    {
+        if (ArrayProperty(record.Raw, RecordFields.Branches) is not { } list)
+        {
+            return;
+        }
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var reported = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var entry in list.EnumerateArray())
+        {
+            if (Str(entry, RecordFields.Step) is not { Length: > 0 } step
+                || Str(entry, RecordFields.NextStep) is not { Length: > 0 } next)
+            {
+                continue;
+            }
+
+            var path = $"{step} to {next}";
+
+            if (!seen.Add(path) && reported.Add(path))
+            {
+                findings.Add(new Finding(
+                    "record-key-duplicate",
+                    $"Record '{record.Id}' names the branch '{path}' twice.",
+                    record.File,
+                    record.Line,
+                    SubjectOf(record)));
+            }
+        }
+    }
 
     /// <summary>Reports each key that two or more entries of one list share, once per key.</summary>
     /// <param name="record">The record that holds the list.</param>

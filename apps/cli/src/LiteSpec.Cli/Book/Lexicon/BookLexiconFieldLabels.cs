@@ -19,7 +19,7 @@ static class BookLexiconFieldLabels
             ["conditions"] = "Conditions", ["check"] = "Check", ["runsOn"] = "Runs on", ["evidence"] = "Evidence",
             ["except"] = "Except", ["condition"] = "Condition", ["fallback"] = "Fallback", ["setBy"] = "Set by", ["risk"] = "Risk",
             ["scope"] = "Scope", ["selection"] = "Selection", ["code"] = "Code", ["codes"] = "Codes", ["meaning"] = "Meaning", ["recorded"] = "Recorded",
-            ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on",
+            ["startedWhen"] = "Started when", ["finishedWhen"] = "Finished when", ["actor"] = "Actor", ["dependsOn"] = "Depends on", ["branches"] = "Branches",
             ["summary"] = "Summary", ["states"] = "States", ["transitions"] = "Transitions", ["data"] = "Data",
             ["dataClasses"] = "Data classes", ["steps"] = "Steps", ["cursor"] = "Cursor",
             ["binds"] = "Binds",
@@ -59,7 +59,7 @@ static class BookLexiconFieldLabels
             ["evidenceStrength"] = "Evidence strength", ["claim"] = "Claim", ["system"] = "System", ["captures"] = "Captures", ["captureState"] = "Capture state", ["completion"] = "Completion",
             ["exposure"] = "Exposure", ["offering"] = "Offering",
             ["consequences"] = "Consequences",
-            ["refusals"] = "Refusals", ["betweenSteps"] = "Between steps", ["delivery"] = "Delivery",
+            ["refusals"] = "Refusals", ["delivery"] = "Delivery",
             ["impact"] = "Impact", ["prerequisites"] = "Prerequisites", ["procedure"] = "Procedure", ["verification"] = "Verification",
             ["recovery"] = "Recovery", ["escalation"] = "Escalation", ["exit"] = "Exit", ["key"] = "Key",
         };

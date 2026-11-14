@@ -33,7 +33,7 @@ public static class ExplanationSections
             [RecordTypes.Decision] = Of(("Context", false), ("Options", false), ("Decision", false), ("Consequences", false), ("Evidence", true), ("Revisit Conditions", false)),
             [RecordTypes.Feature] = Of(("Capabilities", false), ("Success Criteria", false), ("Boundaries", false), ("Example", true)),
             [RecordTypes.Requirement] = Of(("Example", true)),
-            [RecordTypes.Journey] = Of(("Preconditions", true), ("Example", false), ("Variations", true)),
+            [RecordTypes.Journey] = Of(("Example", false), ("Branches", true)),
 
             // Behavior
             [RecordTypes.Module] = Of(("Responsibilities", false), ("Boundaries", false), ("Example", true)),

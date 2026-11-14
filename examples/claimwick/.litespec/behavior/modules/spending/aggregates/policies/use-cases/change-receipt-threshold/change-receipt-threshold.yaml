@@ -7,7 +7,7 @@ access:
   grant: permission/manage-policy
   tenant: own
 serves:
-- journey/submit-and-reimburse#s6
+- journey/set-receipt-threshold#s1
 fulfills:
 - requirement/approval.receipt-over-threshold
 reachedThrough:

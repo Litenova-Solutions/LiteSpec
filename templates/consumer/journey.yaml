@@ -4,14 +4,18 @@ title: Submit and Reimburse
 actor: actor/employee
 serves:
   - goal/faster-reimbursement
-summary: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
+summary: An employee who paid a work cost submits the expense and waits for a decision. The journey starts at the paid cost and ends when the reimbursement lands in the employee account. A good journey decides each expense within five business days, because the employee plans around the money.
+startedWhen: The employee has paid a work cost and has not yet submitted it.
 finishedWhen: The employee receives the reimbursement.
 steps:
   - id: s1
     statement: The employee submits the expense with its receipt.
     actor: actor/employee
     failure: The submission is refused for a missing receipt.
-betweenSteps: A refused expense returns to the employee for correction, and an approved one waits for payout.
+branches:
+  - step: s1
+    condition: the submission is refused
+    nextStep: end
 cites:
   - requirement/approval-reminders.decided-within-five-days
 terms:

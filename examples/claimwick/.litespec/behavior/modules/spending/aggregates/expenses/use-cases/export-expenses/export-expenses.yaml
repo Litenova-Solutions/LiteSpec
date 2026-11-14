@@ -7,7 +7,7 @@ access:
   grant: permission/export-expenses
   tenant: own
 serves:
-- journey/submit-and-reimburse#s7
+- journey/export-approved-expenses#s1
 fulfills:
 - requirement/approval.decided-within-five-days
 reachedThrough:

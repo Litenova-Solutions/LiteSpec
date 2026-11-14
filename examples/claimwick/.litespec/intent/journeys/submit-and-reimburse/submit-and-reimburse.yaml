@@ -2,10 +2,11 @@ type: journey
 id: journey/submit-and-reimburse
 title: Submit and Reimburse
 actor: actor/employee
-summary: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
+summary: An employee who paid a work cost submits the expense and waits for a decision. The journey starts at the paid cost and ends when the reimbursement lands in the employee account. A good journey decides each expense within five business days, because the employee plans around the money.
 serves:
 - goal/decided-in-days
-finishedWhen: The employee holds the reimbursement, and the personal data of old expenses is erased past retention.
+startedWhen: The employee has paid a work cost and has not yet submitted it.
+finishedWhen: The employee holds the reimbursement.
 steps:
 - id: s1
   statement: The employee submits the expense with its amount and currency.
@@ -20,19 +21,14 @@ steps:
 - id: s4
   statement: Finance reimburses the approved expense.
   actor: actor/finance
+  failure: The expense is not approved, so it waits and no payout is made.
 - id: s5
   statement: The employee watches each expense in their own list.
   actor: actor/employee
-- id: s6
-  statement: The manager sets the receipt threshold for the policy.
-  actor: actor/manager
-- id: s7
-  statement: Finance exports the approved expenses in one batch.
-  actor: actor/finance
-- id: s8
-  statement: Finance erases the personal data of expenses past retention.
-  actor: actor/finance
-betweenSteps: Ben may reject instead of approve; then the journey ends with the rejection and no payout. Cara reimburses only approved expenses, and anything else waits. Finance exports approved expenses in one batch and erases personal data past its retention.
+branches:
+- step: s3
+  condition: the manager rejects the expense
+  nextStep: end
 cites:
 - requirement/approval.decided-within-five-days
 - requirement/approval-reminders.month-end-submissions

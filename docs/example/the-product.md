@@ -130,7 +130,7 @@ A constraint states one outside rule, the source it rests on and whether it appl
 
 ## The Journey
 
-A journey record holds the steps one actor takes toward one goal. Claimwick keeps one, in `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml`. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey has eight steps with IDs `s1` to `s8`, and each step names the actor who takes it:
+A journey record holds the steps one actor takes toward one goal. Claimwick keeps one, in `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml`. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey starts when the employee has paid a work cost and ends when the employee holds the reimbursement. Its steps carry IDs `s1` to `s5`, each names the actor who takes it, and a branch takes the journey to its end when the manager rejects the expense:
 
 ```yaml
 type: journey
@@ -139,7 +139,8 @@ title: Submit and Reimburse
 actor: actor/employee
 serves:
 - goal/decided-in-days
-finishedWhen: The employee holds the reimbursement, and the personal data of old expenses is erased past retention.
+startedWhen: The employee has paid a work cost and has not yet submitted it.
+finishedWhen: The employee holds the reimbursement.
 steps:
 - id: s1
   statement: The employee submits the expense with its amount and currency.
@@ -151,11 +152,15 @@ steps:
   statement: The manager approves or rejects the expense within five business days.
   actor: actor/manager
   failure: The expense waits past three business days, and the approver is reminded.
-# s4 to s8 follow the same shape; the file holds them all.
+# s4 and s5 follow the same shape; the file holds them all.
+branches:
+- step: s3
+  condition: the manager rejects the expense
+  nextStep: end
 ```
 
-Use cases point at these steps: the submit use case serves `journey/submit-and-reimburse#s1`, and the approve use case serves `#s3`. Steps name no use case themselves, so a step can change its handler without the journey changing.
+Use cases point at these steps: the submit use case serves `journey/submit-and-reimburse#s1`, and the approve use case serves `#s3`. A branch names the step where the path differs and the step it continues at, so the order of steps changes only through `branches`. Steps name no use case themselves, so a step can change its handler without the journey changing.
 
-The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Preconditions and Example sections, with one worked week of a train fare.
+The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Branches sections, with one worked week of a train fare. The journey starts in `startedWhen`, so the Example begins from that state and does not repeat it as a precondition.
 
 Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them.

@@ -5,6 +5,7 @@ actor: actor/reader
 summary: A reader borrows a copy from the shelf and returns it to the desk. The walk starts when the reader takes the copy and ends with the copy back on its shelf. A good walk keeps each loan inside its due date, because overdue loans block the next reader.
 serves:
 - goal/faster-pickup
+startedWhen: The reader stands at the shelf with the copy in view.
 finishedWhen: The reader holds the copy, then the copy sits back on its shelf.
 steps:
 - id: s1
@@ -34,6 +35,12 @@ steps:
 - id: s8
   statement: The librarian retires a worn copy.
   actor: actor/librarian
-betweenSteps: A lent copy sends the reader to a hold instead of a loan. A damaged copy sends the librarian to retire it.
+branches:
+- step: s2
+  condition: the copy is lent out
+  nextStep: s6
+- step: s5
+  condition: the copy is damaged
+  nextStep: s8
 cites:
 - requirement/borrowing.max-active-loans

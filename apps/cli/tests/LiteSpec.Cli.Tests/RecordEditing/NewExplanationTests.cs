@@ -112,7 +112,7 @@ public sealed class NewExplanationTests
         { "module", ["Responsibilities", "Boundaries", "Example"] },
         { "feature", ["Capabilities", "Success Criteria", "Boundaries", "Example"] },
         { "requirement", ["Example"] },
-        { "journey", ["Preconditions", "Example", "Variations"] },
+        { "journey", ["Example", "Branches"] },
         { "aggregate", ["Lifecycle", "Data and Retention", "Example", "Limits"] },
         { "use-case", ["Flow", "Example", "Edge Cases"] },
         { "rule-set", ["Rationale", "Example"] },

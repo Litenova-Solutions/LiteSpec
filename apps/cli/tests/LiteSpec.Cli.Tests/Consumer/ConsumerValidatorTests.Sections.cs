@@ -239,17 +239,17 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(RunConsumer(folder.Path), "requires an H2 'Findings'");
     }
 
-    /// <summary>Journey that omits between the steps.</summary>
-    /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "journey that omits between the steps")]
-    public void JourneyThatOmitsBetweenTheSteps()
+    /// <summary>Journey that omits where it starts.</summary>
+    /// <proves>litespec/core/intent#state-when-each-journey-starts</proves>
+    [Fact(DisplayName = "journey that omits where it starts")]
+    public void JourneyThatOmitsWhereItStarts()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
             """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'betweenSteps'");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'startedWhen'");
     }
 
     /// <summary>Rule set that omits its summary.</summary>

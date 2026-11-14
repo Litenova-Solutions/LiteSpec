@@ -464,6 +464,14 @@ Layer: Intent.
 
 Source: plain English.
 
+### Journey Branch
+
+A path that leaves the order of a journey's steps at one step, named by the step it leaves, the condition under which it leaves, and the step it continues at, or end. A branch states no action of its own; an action is always a step.
+
+Layer: Intent.
+
+Source: plain English.
+
 ### Measured Requirement
 
 One quality requirement carrying a measure, a target, and a check that confirms them.

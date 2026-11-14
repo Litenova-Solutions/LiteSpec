@@ -16,6 +16,9 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 internal static class SchemaChecks
 {
+    /// <summary>The journey field that a journey no longer carries; its paths are branches now.</summary>
+    const string RemovedJourneyBranchField = "betweenSteps";
+
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -186,7 +189,17 @@ internal static class SchemaChecks
             case RecordTypes.Journey:
                 RequireIds(record, RecordFields.Actor, 1, findings);
                 RequireIds(record, RecordFields.Serves, 1, findings);
+                RequireString(record, RecordFields.StartedWhen, findings);
+                RequireString(record, RecordFields.FinishedWhen, findings);
                 RequireArray(record, RecordFields.Steps, 1, findings);
+
+                // The order of steps changes only through branches; the removed betweenSteps prose is refused.
+                if (record.Has(RemovedJourneyBranchField))
+                {
+                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' holds {RemovedJourneyBranchField}; state each path in {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                CheckJourneyBranches(record, findings);
                 break;
 
             case RecordTypes.Module:
@@ -483,6 +496,61 @@ internal static class SchemaChecks
     private static bool ValidDate(string text) =>
         IsoDate(text, out _)
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
+
+    /// <summary>
+    ///     Reports a journey branch that lacks its step, condition or nextStep, and a branch whose
+    ///     step or nextStep names no step of the journey. The end of a path is written as end.
+    /// </summary>
+    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckJourneyBranches(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Branches, out var branches))
+        {
+            return;
+        }
+
+        if (branches.ValueKind != JsonValueKind.Array)
+        {
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (branches.GetArrayLength() == 0)
+        {
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var stepTargets = record.StepIds().ToHashSet(StringComparer.Ordinal);
+
+        foreach (var branch in branches.EnumerateArray())
+        {
+            if (branch.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            foreach (var field in new[] { RecordFields.Step, RecordFields.Condition, RecordFields.NextStep })
+            {
+                if (Str(branch, field) is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' has a branch with no {field}.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+
+            if (Str(branch, RecordFields.Step) is { Length: > 0 } step && !stepTargets.Contains($"{record.Id}#{step}"))
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (Str(branch, RecordFields.NextStep) is { Length: > 0 } next && next != "end" && !stepTargets.Contains($"{record.Id}#{next}"))
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
 
     /// <summary>Reports the record when the named field holds no non-empty string.</summary>
     /// <param name="record">The record whose field is required.</param>

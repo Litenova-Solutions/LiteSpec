@@ -1249,6 +1249,22 @@ $defs:
       required:
       - actor
       - system
+  journeyBranch:
+    type: object
+    additionalProperties: false
+    required:
+    - step
+    - condition
+    - nextStep
+    properties:
+      step:
+        type: string
+        pattern: '^s[0-9]+$'
+      condition:
+        $ref: '#/$defs/nonEmptyString'
+      nextStep:
+        type: string
+        pattern: '^(s[0-9]+|end)$'
   problemEvidence:
     type: object
     additionalProperties: false
@@ -2205,9 +2221,9 @@ $defs:
     - actor
     - serves
     - summary
+    - startedWhen
     - finishedWhen
     - steps
-    - betweenSteps
     properties:
       type:
         const: journey
@@ -2225,6 +2241,8 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       serves:
         $ref: '#/$defs/journeyServesArray'
+      startedWhen:
+        $ref: '#/$defs/nonEmptyString'
       finishedWhen:
         $ref: '#/$defs/nonEmptyString'
       steps:
@@ -2232,8 +2250,11 @@ $defs:
         minItems: 1
         items:
           $ref: '#/$defs/journeyStep'
-      betweenSteps:
-        $ref: '#/$defs/nonEmptyString'
+      branches:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/journeyBranch'
       cites:
         $ref: '#/$defs/requirementIdArray'
   modulePage:

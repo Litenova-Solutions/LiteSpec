@@ -7,8 +7,6 @@ kind: command
 access:
   grant: permission/erase-personal-data
   tenant: own
-serves:
-- journey/submit-and-reimburse#s8
 fulfills:
 - requirement/approval.erase-after-retention
 reachedThrough:

@@ -4,6 +4,7 @@ title: Borrow and return
 actor: actor/reader
 serves:
   - goal/faster-pickup
+startedWhen: The reader stands at the shelf with the copy in view.
 finishedWhen: The reader holds the copy, then the copy sits back on its shelf.
 steps:
   - id: s1

@@ -98,15 +98,15 @@ An `except` entry states in product words when the commitment does not hold, and
 
 ### Journeys as Product Sentences
 
-A journey carries `actor`, `serves`, `summary`, `finishedWhen`, ordered `steps`, `betweenSteps`, and `cites`. `serves` names the goal record. `summary` states in up to four sentences who walks, what starts the walk, what good looks like, and why it matters, and the book renders it first on the page. `finishedWhen` states the observable end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the walk can fail. A step carries exactly one of `actor` and `system`, or neither when the walking actor performs it. `betweenSteps` states the branch order between the steps. A step id reads `journey/<name>#s1`.
+A journey carries `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and `cites`. `serves` names the goal record. `summary` states in up to four sentences who walks, what starts the walk, what good looks like, and why it matters, and the book renders it first on the page. `startedWhen` states the observable state in which the journey starts in one sentence, as `finishedWhen` states the end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the walk can fail. A step carries exactly one of `actor` and `system`, or neither when the walking actor performs it. `branches` states each path that leaves the order of the steps: the step it leaves, its condition and the step it continues at, or `end`. A step id reads `journey/<name>#s1`.
 
-Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `finishedWhen`, the steps as sentences with `failure`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, and the Then clauses of their scenarios as context. Field names never render literally in journey detail.
+Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `startedWhen`, the steps as sentences with `failure`, each branch as a sentence after the steps, `finishedWhen`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, and the Then clauses of their scenarios as context. Field names never render literally in journey detail.
 
 A journey walks one actor toward one goal. A step names another actor only at a handoff, and a walk with several goals splits into several journeys.
 
 ### Staff Journeys
 
-Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `finishedWhen`, steps, and `betweenSteps`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
+Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
 
 ### Visions
 
@@ -824,13 +824,13 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:journey
 
-**Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and stating `betweenSteps` in fields.
+**Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and stating each path off that order in `branches`.
 
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `betweenSteps` holds branch order only, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing its `actor`, `serves`, `summary`, `finishedWhen`, `steps`, or `betweenSteps`.
+**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing its `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, or `steps`.
 
 ### Describe Every Journey
 
@@ -916,13 +916,77 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:journey
 
-**Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, and name no use case.
+**Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, naming one act of its performer and no use case.
 
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the walking actor only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the walk can fail.
+**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the walking actor only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the walk can fail.
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a journey step missing `id` or `statement`, or naming a use case.
+
+### State When Each Journey Starts
+
+**ID:** `litespec/core/intent#state-when-each-journey-starts`
+
+**Strength:** required
+
+**Applies to:** artifact: record:journey
+
+**Statement:** A journey MUST state the observable state in which it starts in `startedWhen`, in one sentence.
+
+**Rationale:** A journey whose start sits in its summary, its Example and its first step has three starting points, and a reader cannot tell where the path begins. `startedWhen` gives the start one home beside `finishedWhen`, which states the end, and a check reads it. The detail of one occasion belongs in the Example, not in the field. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+
+**Example:** `startedWhen`: the employee has paid a work cost and has not yet submitted it.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a journey record file missing `startedWhen`.
+
+### Branch a Journey Only Between Its Steps
+
+**ID:** `litespec/core/intent#branch-a-journey-only-between-its-steps`
+
+**Strength:** required
+
+**Applies to:** artifact: record:journey
+
+**Statement:** A journey MUST leave the order of its steps only through `branches`, each naming the `step` it leaves, its `condition`, and the `nextStep` it continues at or `end`.
+
+**Rationale:** A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The `step` and `nextStep` name steps of the journey, so a branch that leaves a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+
+**Example:** A branch with `step` s3, `condition` the manager rejects the expense, and `nextStep` end ends the journey at the rejection; the act of rejecting stays the step s3.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a branch missing `step`, `condition` or `nextStep` and for a journey still holding `betweenSteps`, and `field-invalid` for a branch whose `step` or `nextStep` names no step of the journey.
+
+### Reach Each Finish Condition Through a Step
+
+**ID:** `litespec/core/intent#reach-each-finish-condition-through-a-step`
+
+**Strength:** required
+
+**Applies to:** artifact: record:journey
+
+**Statement:** A journey MUST reach each clause of `finishedWhen` through a step, with each step performable once `startedWhen` and the steps before it hold, and its Example starting from `startedWhen` and performing the steps in order.
+
+**Rationale:** A journey whose end no step reaches states a finish the path never gets to, and a step that needs a state no earlier step or start provides cannot be performed. An Example that skips a step, or that starts from a state other than `startedWhen`, teaches a path the journey does not hold. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+
+**Example:** The journey to reimburse an expense ends in `finishedWhen` with the employee holding the money, which step 4 reaches; its Example starts at the paid cost and performs the submission, the approval and the payout in that order.
+
+**Reviewed for:** Which clause of `finishedWhen` no step reaches, which step needs a state that no start or earlier step gives, and which Example starts elsewhere or skips a step? Compare the Example with `startedWhen`, `finishedWhen` and the steps.
+
+### State Each Journey Blocker as a Step Failure
+
+**ID:** `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`
+
+**Strength:** required
+
+**Applies to:** artifact: record:journey
+
+**Statement:** A condition that stops a journey MUST be the `failure` of the step it blocks, with the requirement that holds it cited in `cites`, and never stated only in a branch or in the explanation.
+
+**Rationale:** A blocker stated in a branch or in the Example reads as a path the journey takes, and a blocker stated only in prose has no step a reader can find. The `failure` of the step keeps each blocker where the step fails, and `cites` names the requirement that holds the rule, so the rule is not restated in the journey. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+
+**Example:** The submission of an expense above the receipt threshold without a receipt is the `failure` of the step that submits it, and the requirement that holds the receipt rule is cited in `cites`.
+
+**Reviewed for:** Which condition that stops the journey sits in a branch or in the explanation rather than as a `failure`, and which cited requirement holds the rule? Read each branch and each Example sentence that names a refusal or a wait.
 
 ### State When Each Journey Finishes
 
@@ -1030,7 +1094,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 ## Reference Example
 
-This informative example demonstrates `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-journey-finishes`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
+This informative example demonstrates `litespec/core/intent#order-each-journey-toward-one-goal`, `litespec/core/intent#write-journey-steps-as-sentences-with-ids`, `litespec/core/intent#state-when-each-journey-starts`, `litespec/core/intent#state-when-each-journey-finishes`, `litespec/core/intent#branch-a-journey-only-between-its-steps`, `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-each-exception-with-its-fallback`, and `litespec/core/intent#treat-tenant-set-values-as-data`.
 
 The book shows journey `journey/submit-and-reimburse` as record detail. No field name, YAML, or Behavior page appears.
 
@@ -1039,12 +1103,17 @@ Submit and reimburse
 
 An employee submits an expense and is reimbursed after approval.
 
+Started when: the employee has paid a work cost and has not yet submitted it.
+
 Finished when: the employee holds the reimbursement.
 
 1. The employee submits the expense with its amount and currency.
 2. The employee attaches the receipt to the expense.
 3. The manager approves or rejects the expense within five business days.
 4. Finance reimburses the approved expense.
+
+At step 3, when the manager rejects the expense, the journey ends.
+
 If it goes wrong: an expense that waits past three business days earns
 its approver a reminder; an expense above the threshold with no receipt
 cannot be submitted; an expense nobody approves is never reimbursed.

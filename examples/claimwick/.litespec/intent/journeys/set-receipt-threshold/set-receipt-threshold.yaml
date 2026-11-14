@@ -1,0 +1,14 @@
+type: journey
+id: journey/set-receipt-threshold
+title: Set Receipt Threshold
+actor: actor/manager
+summary: A manager sets the receipt threshold that finance agreed with the managers, so small expenses stay light to submit. The journey starts when the agreed threshold is ready to set and ends when the policy holds it. A good journey leaves the policy with one threshold for every expense.
+serves:
+- goal/decided-in-days
+startedWhen: Finance has agreed a new receipt threshold with the managers.
+finishedWhen: The policy holds the new receipt threshold.
+steps:
+- id: s1
+  statement: The manager sets the receipt threshold for the policy.
+  actor: actor/manager
+  failure: The threshold is negative, so the change is refused.

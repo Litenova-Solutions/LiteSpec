@@ -48,7 +48,7 @@ An explanation file beside a record file opens with the record title as its one 
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional); the explanation file itself is optional |
-| journey | Preconditions (optional), Example, Variations (optional) |
+| journey | Example, Branches (optional) |
 | module | Responsibilities, Boundaries, Example (optional) |
 | aggregate | Lifecycle, Data and Retention, Example (optional), Limits (optional) |
 | use-case | Flow, Example (optional), Edge Cases (optional) |

@@ -460,7 +460,7 @@ Two flags tune blocking without changing the levels. `litespec model check --rel
 
 ### The Book
 
-The book lives in the Proof record layer. The book shows each journey as record detail: its `finishedWhen`, the steps with their `statement` and `failure`; the requirements it cites, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; and the Then clauses of its scenarios, as context.
+The book lives in the Proof record layer. The book shows each journey as record detail: its `startedWhen`, the steps with their `statement` and `failure`, each branch as a sentence after the steps, its `finishedWhen`; the requirements it cites, with their statements and their `except` and fallback inline; for each step, the serving use case `goal` in one line; and the Then clauses of its scenarios, as context.
 
 Field tables render as tables. Scenarios group under their result. Field names never render literally in journey detail. The book renders each record's explanation file under its fields, anchored at the record. The book leads with completion.
 

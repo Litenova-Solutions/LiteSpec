@@ -14,7 +14,7 @@ static class BookProseFields
     public static IReadOnlyList<string> Prose { get; } =
     [
         "summary", "statement", "offering", "consequences",
-        "refusals", "betweenSteps", "delivery", "impact",
+        "refusals", "delivery", "impact",
         "prerequisites", "procedure", "verification", "recovery", "escalation",
         "exposure", "exit",
     ];
