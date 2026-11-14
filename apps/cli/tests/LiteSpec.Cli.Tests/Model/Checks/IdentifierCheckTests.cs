@@ -148,8 +148,8 @@ public sealed class IdentifierCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{}"""),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{}"""));
 
         Assert.DoesNotContain("name-duplicate", TestModel.Codes(model));
     }

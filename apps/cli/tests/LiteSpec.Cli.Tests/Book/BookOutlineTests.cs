@@ -86,14 +86,13 @@ public sealed class BookOutlineTests
             outline.Layers.Select(layer => layer.Id).ToArray());
     }
 
-    /// <summary>A feature parents its module by file; its solves and advances entries never move it, and a feature with no module file stays unplaced.</summary>
-    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    /// <summary>A feature parents the problem whose features folder holds it; its advances entries never move it, and a feature outside a problem folder stays unplaced.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureParentsItsModuleByFile()
+    public void FeatureParentsItsProblemByFile()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
@@ -102,31 +101,30 @@ public sealed class BookOutlineTests
                 "approved",
                 new JsonObject
                 {
-                    ["solves"] = Links("problem/slow-queues"),
                     ["advances"] = Links("goal/faster-borrowing"),
                 },
-                file: ".litespec/intent/modules/lending/features/self-checkout.yaml"));
+                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Equal("module/lending", outline.ParentOf["feature/self-checkout"]);
+        Assert.Equal("problem/slow-queues", outline.ParentOf["feature/self-checkout"]);
         var placed = RecordIds(outline.Layers);
         Assert.Equal(1, placed.Count(id => string.Equals(id, "feature/self-checkout", StringComparison.Ordinal)));
         Assert.DoesNotContain("feature/self-checkout", outline.Unplaced);
 
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
+        var problem = Find(outline.Layers, "problem/slow-queues");
+        Assert.NotNull(problem);
+        Assert.Contains(problem!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
 
         var homeless = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                new JsonObject { ["solves"] = Links("problem/slow-queues") }));
+                new JsonObject { ["advances"] = Links("goal/faster-borrowing") }));
 
         Assert.Null(BookParents.ParentOf(homeless, "feature/self-checkout"));
         Assert.Contains("feature/self-checkout", BookOutline.Build(homeless).Unplaced);
@@ -194,12 +192,13 @@ public sealed class BookOutlineTests
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
+            Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                file: ".litespec/intent/modules/lending/features/self-checkout.yaml"),
+                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"),
             Record(
                 "requirement",
                 "requirement/self-checkout.max-wait",

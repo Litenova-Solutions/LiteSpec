@@ -368,7 +368,7 @@ Source: LiteSpec.
 
 ### Feature
 
-One answer to a problem under a module, advancing a goal and solving a problem.
+One answer to a problem, advancing a goal. It sits in the features folder of the one problem it answers.
 
 Layer: Intent.
 

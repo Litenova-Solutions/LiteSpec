@@ -27,12 +27,12 @@ The five Behavior pages hold the records; this page holds the overview, the mapp
 A module names one product area of the bounded context. It is declared here, at `.litespec/behavior/modules/<module>/module.yaml`, beside the aggregates it groups, because a module is a code boundary with its dependencies. Intent holds the product reasons for the area, so one name runs through every layer:
 
 ```text
-.litespec/intent/modules/<module>/features/    features with their requirements
+.litespec/intent/problems/<problem>/features/  features with their requirements
 .litespec/behavior/modules/<module>/...        module, aggregates and use cases
 src/<Layer>/<Module>/<Aggregate>/<UseCase>     code
 ```
 
-The reader finds a use case by module, then aggregate, then use case, and the requirements behind it under the same module name in Intent. The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `intent/modules/` that names no declared module gets a blocking finding.
+The reader finds a use case by module, then aggregate, then use case. Intent holds no module folder: a feature sits under the problem it answers, and the Behavior records that fulfill its requirements name the module. The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `behavior/modules/` that names no declared module gets a blocking finding.
 
 A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
 

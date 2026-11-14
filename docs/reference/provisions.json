@@ -7828,6 +7828,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#answer-one-problem-with-each-feature",
+      "heading": "Answer One Problem with Each Feature",
+      "page": "docs/core/intent.md",
+      "anchor": "answer-one-problem-with-each-feature",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a feature outside a problem\u0027s \u0060features\u0060 folder, and \u0060record-parent-missing\u0060 for a feature whose problem folder holds no problem record.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:feature",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A feature MUST sit in the features folder of the one problem it answers, \u0060intent/problems/\u003Cproblem\u003E/features/\u0060, and an offer that answers two pains is two features.",
+      "rationale": "The folder names the problem, so a reader of a problem sees every answer to it beside the problem. A feature that answered two problems would be filed under two pains, and each pain would be written twice. Two pains that one offer answers are one problem. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).",
+      "example": "The approval feature and the approval reminders feature both answer the expense wait problem, so both sit in \u0060problems/expenses-wait-weeks/features/\u0060."
+    },
+    {
       "id": "litespec/core/intent#build-nothing-from-a-vision",
       "heading": "Build Nothing from a Vision",
       "page": "docs/core/intent.md",
@@ -8008,10 +8026,10 @@
       "example": "The library problem of readers losing due dates carries a reported entry from the desk log, read on its date, so its computed strength is reported."
     },
     {
-      "id": "litespec/core/intent#group-product-records-by-module",
-      "heading": "Group Product Records by Module",
+      "id": "litespec/core/intent#group-product-records-by-problem",
+      "heading": "Group Product Records by Problem",
       "page": "docs/core/intent.md",
-      "anchor": "group-product-records-by-module",
+      "anchor": "group-product-records-by-problem",
       "kind": "convention",
       "mark": "guidance",
       "evidence": "The \u0060.litespec/intent/\u0060 layout beside the project\u0027s recorded layout.",
@@ -8021,9 +8039,9 @@
       "layer": "intent",
       "trace": false,
       "strength": "default",
-      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in its module\u0027s \u0060features/\u0060 folder under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
-      "rationale": "A module folder keeps the features of one product area side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module is declared in Behavior, so each module folder names a module declared there. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
-      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  modules/\n    spending/\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n          \u003Crequirement\u003E/\n            \u003Crequirement\u003E.yaml\n\u0060\u0060\u0060"
+      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in the \u0060features/\u0060 folder of the problem it answers, \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
+      "rationale": "A problem folder keeps the features that answer it side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A feature names no module, because it answers a problem and Intent groups by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).",
+      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n          \u003Crequirement\u003E/\n            \u003Crequirement\u003E.yaml\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/intent#identify-every-requirement",
@@ -8158,15 +8176,15 @@
       "anchor": "keep-intent-in-its-homes",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and \u0060module-undeclared\u0060 for a folder under \u0060intent/modules/\u0060 naming no declared module.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and \u0060folder-invalid\u0060 for any folder under \u0060intent/modules/\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in its module\u0027s \u0060features/\u0060 folder under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
-      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, module level holds only features, and a feature\u0027s folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
+      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in the \u0060features/\u0060 folder of the problem it answers, \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
+      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem\u0027s folder holds the features that answer it, and a feature\u0027s folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
       "example": ""
     },
     {
@@ -8186,24 +8204,6 @@
       "statement": "A goal MUST be moved by a journey serving it or by a quality requirement citing it.",
       "rationale": "A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the walk that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all.",
       "example": "The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal."
-    },
-    {
-      "id": "litespec/core/intent#name-each-sibling-problem-or-merge-it",
-      "heading": "Name Each Sibling Problem or Merge It",
-      "page": "docs/core/intent.md",
-      "anchor": "name-each-sibling-problem-or-merge-it",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which problems share a sufferer and a feature yet name neither each other nor a merge? Look at the problems cited from each feature.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:problem",
-      "layer": "intent",
-      "trace": false,
-      "strength": "required",
-      "statement": "Two problems with the same primary sufferer cited from the same feature MUST name each other or merge into one problem.",
-      "rationale": "Two pains of one sufferer under one feature, written in different words, hide that they are one pain or two: one feature solves both halves, and the book lists the sufferer twice with no sign of the overlap. Naming the sibling states the split where a reader meets it; merging keeps one pain with one sufferer.",
-      "example": "Two library problems of the reader cited from the borrowing feature, one on due dates and one on renewals, name each other, so a reader sees both before the feature solves either."
     },
     {
       "id": "litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position",
@@ -8464,15 +8464,15 @@
       "anchor": "state-each-feature-with-its-offering",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which features miss their offering, their solved problems, or their moved goals? Look at each feature record beside its problems and goals.",
+      "evidence": "Which features miss their offering or their moved goals? Look at each feature record beside its goals.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:feature",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A feature MUST state its \u0060offering\u0060, name the problems it solves in \u0060solves\u0060, and name the goals it moves in \u0060advances\u0060.",
-      "rationale": "A feature names the problems it solves in \u0060solves\u0060 and the goals it moves in \u0060advances\u0060, so each offer traces to a pain and an outcome. \u0060offering\u0060 states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
+      "statement": "A feature MUST state its \u0060offering\u0060 and name the goals it moves in \u0060advances\u0060.",
+      "rationale": "A feature names the goals it moves in \u0060advances\u0060, so each offer traces to an outcome. The problem it answers is the folder it sits in, as [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) states, so the offer traces to a pain without a second link. \u0060offering\u0060 states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).",
       "example": ""
     },
     {
@@ -9751,7 +9751,7 @@
       "strength": "required",
       "statement": "Every record except the product MUST have exactly one parent from the Placement Table on this page.",
       "rationale": "A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits under its feature in its own folder, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).",
-      "example": "In the Claimwick product, \u0060requirement/approval-reminders.receipt-over-threshold\u0060 sits under \u0060feature/approval-reminders\u0060 in \u0060intent/modules/spending/features/approval-reminders/receipt-over-threshold/\u0060; \u0060use-case/spending.submit-expense\u0060 sits beside its aggregate; and \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060 sits under \u0060result/submit-expense.submitted\u0060."
+      "example": "In the Claimwick product, \u0060requirement/approval-reminders.receipt-over-threshold\u0060 sits under \u0060feature/approval-reminders\u0060 in \u0060intent/problems/expenses-wait-weeks/features/approval-reminders/receipt-over-threshold/\u0060; \u0060use-case/spending.submit-expense\u0060 sits beside its aggregate; and \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060 sits under \u0060result/submit-expense.submitted\u0060."
     },
     {
       "id": "litespec/core/model#hold-module-rules-in-rule-sets",
@@ -9822,8 +9822,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Each name segment MUST stay unique in the product.",
-      "rationale": "Short identifiers resolve with no lookup table only when each name means one record. Folders do not narrow uniqueness: two features with one name in two modules still collide everywhere the identifier is read.",
-      "example": "Claimwick names one feature \u0060approval-reminders\u0060; a second feature with that name in another module is reported even though the folders differ."
+      "rationale": "Short identifiers resolve with no lookup table only when each name means one record. Folders do not narrow uniqueness: two features with one name under two problems still collide everywhere the identifier is read.",
+      "example": "Claimwick names one feature \u0060approval-reminders\u0060; a second feature with that name under another problem is reported even though the folders differ."
     },
     {
       "id": "litespec/core/model#keep-module-dependencies-free-of-cycles",

@@ -100,7 +100,7 @@ export function downOf(book: Book, id: string): DownEntry[] {
     add(book.ins(id, "cites"), "cites this vision");
   }
   if (t === "goal") add(book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature"), "serves this goal");
-  if (t === "problem") add(book.ins(id, "solves"), "solves this problem");
+  if (t === "problem") add(book.kids(id).filter((child) => book.typeOf(child) === "feature"), "answers this problem");
   if (t === "feature") add(book.ins(id, "cites"), "cites this feature");
   if (t === "requirement") add(book.ins(id, "fulfills"), "fulfills this requirement");
   if (t === "journey") add(book.ins(id, "serves"), "serves a step");

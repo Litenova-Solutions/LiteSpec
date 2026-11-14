@@ -31,7 +31,7 @@ Intent is why the product exists and what it promises: the product, actors, goal
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) states the boundary, and [The Software Test](#the-software-test) names what belongs for each record type.
 
-Intent reads problem, then feature, then requirement. A problem names one outside pain with its evidence; each feature carries the offer against a problem; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
+Intent reads problem, then feature, then requirement. A problem names one outside pain with its evidence; each feature sits in the folder of the one problem it answers and carries the offer; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
 
 Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the product decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
 
@@ -58,9 +58,10 @@ Each record sits in the folder of its parent, and the folder names that parent:
 ```text
 .litespec/intent/
   product.yaml
-  goals/  visions/  problems/  constraints/  decisions/  research/  actors/  roles/  journeys/
-  modules/
-    finance/
+  goals/  visions/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  problems/
+    payouts-wait/
+      payouts-wait.yaml
       features/
         payout/
           payout.yaml          the feature
@@ -70,13 +71,13 @@ Each record sits in the folder of its parent, and the folder names that parent:
             paid-once.md       its explanation, optional
 ```
 
-Product level holds the product, visions, goals, problems, constraints, decisions, research, actors, roles and journeys. Journeys cross modules through their steps. Module level holds only features, each with its requirements in folders inside the feature's folder. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
+Product level holds the product, visions, goals, constraints, decisions, research, actors, roles and journeys. Each problem's folder holds the problem and the features that answer it, and each feature's folder holds its requirements. Journeys cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
 
-Modules are not declared here. A module is a code boundary, so it is declared in Behavior, and [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Intent, Behavior and code.
+Modules are not declared here. A module is a code boundary, so it is declared in Behavior, and [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
 ### Identifiers and Placement
 
-The identifier stays as it is: `problem/organizers-wait-for-ticket-money`, unique in the product, and what every link and citation uses. Moving a record between product and module level does not change it, so no citation changes.
+The identifier stays as it is: `problem/organizers-wait-for-ticket-money`, unique in the product, and what every link and citation uses. Moving a feature to another problem moves its folder and changes no citation, because the identifier names no problem.
 
 A record's placement shows as its folder path and its `module`. The book and the CLI show the identifier with that placement, so a reader can tell where the record sits without a second identifier.
 
@@ -127,11 +128,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in its module's `features/` folder under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder inside its feature's folder.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, module level holds only features, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem's folder holds the features that answer it, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
-**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and `module-undeclared` for a folder under `intent/modules/` naming no declared module.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and `folder-invalid` for any folder under `intent/modules/`.
 
 ### State One Product
 
@@ -398,21 +399,21 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Reviewed for:** Which problem statements name a product, a feature, or a solution? Look at the problem statements beside their sufferers.
 
-### Name Each Sibling Problem or Merge It
+### Answer One Problem with Each Feature
 
-**ID:** `litespec/core/intent#name-each-sibling-problem-or-merge-it`
+**ID:** `litespec/core/intent#answer-one-problem-with-each-feature`
 
 **Strength:** required
 
-**Applies to:** artifact: record:problem
+**Applies to:** artifact: record:feature
 
-**Statement:** Two problems with the same primary sufferer cited from the same feature MUST name each other or merge into one problem.
+**Statement:** A feature MUST sit in the features folder of the one problem it answers, `intent/problems/<problem>/features/`, and an offer that answers two pains is two features.
 
-**Rationale:** Two pains of one sufferer under one feature, written in different words, hide that they are one pain or two: one feature solves both halves, and the book lists the sufferer twice with no sign of the overlap. Naming the sibling states the split where a reader meets it; merging keeps one pain with one sufferer.
+**Rationale:** The folder names the problem, so a reader of a problem sees every answer to it beside the problem. A feature that answered two problems would be filed under two pains, and each pain would be written twice. Two pains that one offer answers are one problem. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).
 
-**Example:** Two library problems of the reader cited from the borrowing feature, one on due dates and one on renewals, name each other, so a reader sees both before the feature solves either.
+**Example:** The approval feature and the approval reminders feature both answer the expense wait problem, so both sit in `problems/expenses-wait-weeks/features/`.
 
-**Reviewed for:** Which problems share a sufferer and a feature yet name neither each other nor a merge? Look at the problems cited from each feature.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a feature outside a problem's `features` folder, and `record-parent-missing` for a feature whose problem folder holds no problem record.
 
 ### Explain Every Problem in Its Fixed Sections
 
@@ -468,11 +469,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:feature
 
-**Statement:** A feature MUST state its `offering`, name the problems it solves in `solves`, and name the goals it moves in `advances`.
+**Statement:** A feature MUST state its `offering` and name the goals it moves in `advances`.
 
-**Rationale:** A feature names the problems it solves in `solves` and the goals it moves in `advances`, so each offer traces to a pain and an outcome. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature names the goals it moves in `advances`, so each offer traces to an outcome. The problem it answers is the folder it sits in, as [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) states, so the offer traces to a pain without a second link. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
-**Reviewed for:** Which features miss their offering, their solved problems, or their moved goals? Look at each feature record beside its problems and goals.
+**Reviewed for:** Which features miss their offering or their moved goals? Look at each feature record beside its goals.
 
 ### State the Boundaries of Every Feature
 
@@ -914,19 +915,19 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 ## Conventions
 
-### Group Product Records by Module
+### Group Product Records by Problem
 
-**ID:** `litespec/core/intent#group-product-records-by-module`
+**ID:** `litespec/core/intent#group-product-records-by-problem`
 
 **Strength:** default
 
 **Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in its module's `features/` folder under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
+**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder inside its feature's folder.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
-**Rationale:** A module folder keeps the features of one product area side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module is declared in Behavior, so each module folder names a module declared there. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** A problem folder keeps the features that answer it side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A feature names no module, because it answers a problem and Intent groups by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).
 
 **Example:**
 
@@ -941,6 +942,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
     <name>/
       <name>.yaml
       <name>.md
+      features/
+        <name>/
+          <name>.yaml
+          <requirement>/
+            <requirement>.yaml
   constraints/
     <name>/
       <name>.yaml
@@ -958,13 +964,6 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
   journeys/
     <name>/
       <name>.yaml
-  modules/
-    spending/
-      features/
-        <name>/
-          <name>.yaml
-          <requirement>/
-            <requirement>.yaml
 ```
 
 **Reviewed for:** The `.litespec/intent/` layout beside the project's recorded layout.

@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = ".litespec/intent/modules/spending/features/approval/approval.yaml";
+    const string RequirementPage = ".litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml";
     const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
     const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
     const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
@@ -364,7 +364,7 @@ public sealed class NewEntryTests
         var temp = TestCli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, FeatureJson);
-        TestRecords.Write(temp.Path, ".litespec/intent/modules/spending/features/approval/no-self-approval/no-self-approval.yaml", """
+        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/no-self-approval/no-self-approval.yaml", """
             {
               "type": "requirement",
               "id": "requirement/approval.no-self-approval",

@@ -30,12 +30,12 @@ public sealed class PlacementTests
             id: module/finance
             title: Finance
             """);
-        Write(temp.Path, ".litespec/intent/modules/finance/features/payout/payout.yaml", """
+        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/payout.yaml", """
             type: feature
             id: feature/payout
             title: Payout
             """);
-        Write(temp.Path, ".litespec/intent/modules/finance/features/payout/request-payout/request-payout.yaml", """
+        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/request-payout/request-payout.yaml", """
             type: requirement
             id: requirement/payout.request-payout
             title: Request payout
@@ -84,8 +84,8 @@ public sealed class PlacementTests
         AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
         AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
-        AssertPlaced(model, "feature/payout", ".litespec/intent/modules/finance/features/payout", "finance");
-        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/modules/finance/features/payout/request-payout", "finance");
+        AssertPlaced(model, "feature/payout", ".litespec/intent/problems/payouts-wait/features/payout", null);
+        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/payouts-wait/features/payout/request-payout", null);
         AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/payouts", "finance");
         AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/payouts", "finance");
         AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/payouts", "finance");

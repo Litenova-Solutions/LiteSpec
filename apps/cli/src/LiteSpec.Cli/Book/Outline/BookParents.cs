@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Output;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Book.Outline;
@@ -38,7 +39,7 @@ static class BookParents
             ["role"] = new("role", ["product"], "product"),
             ["journey"] = new("journey", ["product"], "product"),
             ["entry-point"] = new("entry-point", ["product"], "product"),
-            ["feature"] = new("feature", ["module"], "module"),
+            ["feature"] = new("feature", ["problem"], "problem"),
             ["permission"] = new("permission", ["module"], "module"),
             ["integration-event"] = new("integration-event", ["module"], "module"),
             ["external-system"] = new("external-system", ["product", "module"], "its folder node"),
@@ -199,9 +200,11 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "goal" or "problem" or "constraint" or "research" => index.ProductId,
+            "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
             "vision" or "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
-            "feature" or "permission" or "integration-event" => ModuleFromFile(index, record),
+            "feature" => ProblemFromFile(record),
+            "permission" or "integration-event" => ModuleFromFile(index, record),
             "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id),
             "aggregate" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
@@ -217,6 +220,14 @@ static class BookParents
         // A record never parents itself.
         return string.Equals(parent, id, StringComparison.Ordinal) ? null : parent;
     }
+
+    /// <summary>Finds the problem parent of a feature from its file: the problem whose features folder holds it.</summary>
+    /// <param name="record">The feature record object that holds the file path.</param>
+    /// <returns>The problem identifier for the folder, or null when the file sits in no problem's features folder.</returns>
+    static string? ProblemFromFile(JsonObject record) =>
+        RecordPlacement.ProblemOf(StrProp(record, "file") ?? string.Empty) is { Length: > 0 } problem
+            ? $"problem/{problem}"
+            : null;
 
     /// <summary>Finds the module parent of a record from its file: the module its folder sits under.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>

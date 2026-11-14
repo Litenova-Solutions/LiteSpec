@@ -2,8 +2,6 @@ type: feature
 id: feature/approval-reminders
 title: Approval Reminders
 offering: Claimwick reminds approvers daily until each expense is decided.
-solves:
-  - problem/expenses-wait-weeks
 advances:
   - goal/faster-reimbursement
 terms:

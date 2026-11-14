@@ -79,7 +79,7 @@ The placement of every record follows nine principles, from the product root dow
 4. **The lowest node that holds every user.** A record sits under the lowest node that holds every record linking to it within its layer. The author places it, and the tool validates it.
 5. **Locality.** Within one layer, a record under a module is linked from another module only along a declared module dependency or through an integration event. Links from one layer down to the next may cross modules, because that is how one capability spans modules.
 6. **One identifier.** The identifier is short, unique in the product, and what every link and citation uses. Placement shows as the folder path and the `module` field, never as a second name.
-7. **One name per module in every layer and in code.** `intent/modules/finance/`, `behavior/modules/finance/`, the backend source trees, the test projects and the frontend modules all use the declared module name.
+7. **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects and the frontend modules all use the declared module name.
 8. **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
 9. **Computed stays computed.** Proof and the generated folders hold no authored records.
 
@@ -93,8 +93,8 @@ The table is frozen: it gives each type its layer, levels, folder, parent and id
 | `goal` | Intent | product | `intent/goals/<name>/<name>.yaml` | product | `goal/<name>` |
 | `vision` | Intent | product | `intent/visions/<name>/<name>.yaml` | product | `vision/<name>` |
 | `problem` | Intent | product | `intent/problems/<name>/<name>.yaml` | product | `problem/<name>` |
-| `feature` | Intent | module | `intent/modules/<m>/features/<name>/<name>.yaml` | module | `feature/<name>` |
-| `requirement` | Intent | module | `intent/modules/<m>/features/<feature>/<name>/<name>.yaml` | feature | `requirement/<feature>.<name>` |
+| `feature` | Intent | product | `intent/problems/<problem>/features/<name>/<name>.yaml` | problem | `feature/<name>` |
+| `requirement` | Intent | product | `intent/problems/<problem>/features/<feature>/<name>/<name>.yaml` | feature | `requirement/<feature>.<name>` |
 | `constraint` | Intent | product | `intent/constraints/<name>/<name>.yaml` | product | `constraint/<name>` |
 | `decision` | Intent, Implementation | product, module | `intent/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml` | product or module | `decision/<number>-<name>` |
 | `research` | Intent | product | `intent/research/<name>/<name>.yaml` | product | `research/<name>` |
@@ -123,7 +123,7 @@ The table is frozen: it gives each type its layer, levels, folder, parent and id
 
 Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. Anything else is a `folder-invalid` finding. A module with one aggregate of the module's own name may stay flat.
 
-`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules, which are declared in Behavior. A folder under either that names no declared module, and a module folder without its module, get a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A named record placed flat, directly in its type's folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
+`behavior/modules/<m>/` declares a module, and a feature answers a problem through the folder it sits in. A folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A named record placed flat, directly in its type's folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
 A module, an aggregate, and an entry point is a folder node, and the folder path of each record under it names that node. Placement is the folder path and the module, never a second name.
 
@@ -153,7 +153,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | The product, goals, visions, problems, features with their requirements under modules, constraints, decisions, roles, journeys, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/intent/` | Intent | The product, goals, visions, problems, features with their requirements under problems, constraints, decisions, roles, journeys, actors, research, and the product documents the business publishes, such as legal texts |
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, events, reactions, jobs, notifications, settings, integration events and permissions; entry points with their screens; external systems; the retention schedule |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, and operating logs. No person writes a fact here that a tool can compute |
@@ -267,7 +267,7 @@ A field that records the history of the record is gone, because git holds it. A 
 
 ### Links
 
-Each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. The table names every written link field, the record that carries it, and what it points at. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
+Each written link lives as a field on the record it starts from: a decision carries `decides`, a rule carries `fulfills`, and so on. The table names every written link field, the record that carries it, and what it points at. A feature answers its problem through the folder that holds it, so the table names the folder in place of a field. Each link states how it reads in both directions, and the book takes its connection labels from those two phrases.
 
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
@@ -275,7 +275,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `basedOn` | decision, rule, data class, retention processor, external system | Constraints, research, on a decision the visions it keeps open, and on a technical decision the requirements it serves | is based on | is a basis for |
 | `addresses` | product | Actors | addresses | is addressed by |
 | `affects` | problem | Actors | affects | is affected by |
-| `solves` | feature | Problems | solves | is solved by |
+| folder | feature | Problems | answers | is answered by |
 | `advances` | feature | Goals | advances | is advanced by |
 | `serves` | use case, reaction, job | Journey steps | serves | is served by |
 | `serves` | journey | The goal it walks toward | serves | is served by |
@@ -315,7 +315,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 
 Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
 
-Placement needs no link field: it follows the folder. The folder node is the parent, and `solves` on a feature and `serves` on a journey remain connections that carry meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, departure, or project convention that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
+Placement needs no link field: it follows the folder. The folder node is the parent, so a feature answers the problem whose folder holds it, and `serves` on a journey remains a connection that carries meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, departure, or project convention that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
 
 ### Parents
 
@@ -620,7 +620,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its result, and a record file sits under its folder node. A requirement sits under its feature in its own folder, and types at product level sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
-**Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/modules/spending/features/approval-reminders/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits under `result/submit-expense.submitted`.
+**Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/problems/expenses-wait-weeks/features/approval-reminders/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits under `result/submit-expense.submitted`.
 
 **Checked by:** `litespec model check` reports `record-parent-missing` (level G) for a record whose required parent is missing.
 
@@ -650,9 +650,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Each name segment MUST stay unique in the product.
 
-**Rationale:** Short identifiers resolve with no lookup table only when each name means one record. Folders do not narrow uniqueness: two features with one name in two modules still collide everywhere the identifier is read.
+**Rationale:** Short identifiers resolve with no lookup table only when each name means one record. Folders do not narrow uniqueness: two features with one name under two problems still collide everywhere the identifier is read.
 
-**Example:** Claimwick names one feature `approval-reminders`; a second feature with that name in another module is reported even though the folders differ.
+**Example:** Claimwick names one feature `approval-reminders`; a second feature with that name under another problem is reported even though the folders differ.
 
 **Checked by:** `litespec model check` reports `name-duplicate` for a name segment that occurs twice in the product.
 

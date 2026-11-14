@@ -88,11 +88,11 @@ public sealed class RequirementPageTests
     public void RequirementInItsFeatureFolderReachesBehavior()
     {
         using var temp = TestCli.Temp("requirement-reach");
-        var features = Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "features", "borrowing");
+        var features = Path.Combine(temp.Path, ".litespec", "intent", "problems", "ghost-pain", "features", "borrowing");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(features, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(features, "borrowing.yaml"), """{}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(features, "max-loans", "max-loans.yaml"), """{"kind": "functional", "statement": "A reader borrows a limited number of copies."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -109,8 +109,8 @@ public sealed class RequirementPageTests
         var model = JsonNode.Parse("""
             {
               "records": [
-                { "type": "feature", "id": "feature/borrowing", "file": ".litespec/intent/modules/lending/features/borrowing/borrowing.yaml" },
-                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/modules/lending/features/borrowing/max-loans/max-loans.yaml" }
+                { "type": "feature", "id": "feature/borrowing", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/borrowing.yaml" },
+                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/max-loans/max-loans.yaml" }
               ]
             }
             """)!.AsObject();

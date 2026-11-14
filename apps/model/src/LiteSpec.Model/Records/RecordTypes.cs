@@ -219,7 +219,6 @@ public static class RecordTypes
             ["basedOn"] = new HashSet<string> { "constraint", "research", "vision", "decision", "requirement" },
             ["affects"] = new HashSet<string> { "actor" },
             ["addresses"] = new HashSet<string> { "actor", "permission" },
-            ["solves"] = new HashSet<string> { "problem" },
             ["advances"] = new HashSet<string> { "goal" },
             ["serves"] = new HashSet<string> { "goal", "journey" },
             ["fulfills"] = new HashSet<string> { "requirement" },

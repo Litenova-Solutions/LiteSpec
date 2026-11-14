@@ -834,7 +834,9 @@
         "title": "Shelf check bypass",
         "owner": "lending-team",
         "status": "approved",
-        "covers": ["litespec/backend/application#enforce-target-authorization-in-the-pipeline"],
+        "covers": [
+          "litespec/backend/application#enforce-target-authorization-in-the-pipeline"
+        ],
         "subject": [
           "use-case/lending.register-copy"
         ],
@@ -859,7 +861,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/intent/modules/lending/features/hold-queue.yaml",
+      "file": ".litespec/intent/problems/overdue-loans-pile-up/features/hold-queue/hold-queue.yaml",
       "line": 3,
       "fields": {
         "type": "feature",
@@ -867,10 +869,7 @@
         "title": "Hold queue",
         "owner": "lending-team",
         "status": "approved",
-        "lifecycle": "shipped",
-        "solves": [
-          "problem/overdue-loans-pile-up"
-        ]
+        "lifecycle": "shipped"
       },
       "links": {
         "solves": [

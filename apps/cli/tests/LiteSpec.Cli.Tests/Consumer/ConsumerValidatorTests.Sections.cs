@@ -181,7 +181,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'offering'");
     }
 

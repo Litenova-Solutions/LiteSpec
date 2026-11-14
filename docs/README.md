@@ -246,7 +246,7 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Add a Blazor Frontend](guide/add-a-blazor-frontend.md): declare a Blazor frontend outside the controlled UI contract.
 - [Add an Android Frontend](guide/add-an-android-frontend.md): declare a native Android app built with .NET for Android.
 - [Write a Problem](guide/write-a-problem.md): write one problem with its failure cases, evidence and resolution criteria.
-- [Write a Feature Under a Module](guide/write-a-feature-under-a-module.md): write one feature with its requirements under its module.
+- [Write a Feature Under a Problem](guide/write-a-feature-under-a-problem.md): write one feature with its requirements under the problem it answers.
 - [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 

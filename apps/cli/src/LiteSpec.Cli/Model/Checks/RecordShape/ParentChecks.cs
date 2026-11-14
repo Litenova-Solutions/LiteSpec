@@ -46,7 +46,7 @@ internal static class ParentChecks
             switch (record.Type)
             {
                 case "feature":
-                    CheckFeatureParent(record, findings);
+                    CheckFeatureParent(model, record, findings);
                     break;
                 case "journey":
                     CheckJourneyParent(model, record, findings);
@@ -80,16 +80,24 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a feature solving no problem.</summary>
-    /// <param name="record">The feature record whose solves field is inspected.</param>
+    /// <summary>Reports a feature outside a problem's features folder, or in a folder whose problem record is missing.</summary>
+    /// <param name="model">The loaded project model that holds the problem records.</param>
+    /// <param name="record">The feature record whose folder names its problem.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFeatureParent(Record record, List<Finding> findings)
+    private static void CheckFeatureParent(ProjectModel model, Record record, List<Finding> findings)
     {
-        if (record.Ids(RecordFields.Solves).Count == 0)
+        if (RecordPlacement.ProblemOf(record.File) is not { } problem)
         {
             findings.Add(new Finding(
                 "record-parent-missing",
-                $"Feature '{record.Id}' has no parent and 'solves' names no problem.",
+                $"Feature '{record.Id}' sits outside a problem's features folder, so it has no parent problem.",
+                record.File, record.Line, SubjectOf(record)));
+        }
+        else if (!model.ById.ContainsKey($"problem/{problem}"))
+        {
+            findings.Add(new Finding(
+                "record-parent-missing",
+                $"Feature '{record.Id}' sits in the folder of problem '{problem}', which holds no problem record.",
                 record.File, record.Line, SubjectOf(record)));
         }
     }

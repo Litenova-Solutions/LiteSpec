@@ -17,7 +17,7 @@
 
   const LINKS_IN_RAIL = new Set([
     "based on", "depends on", "governs", "raised by", "fulfilled by", "governed by", "fulfills",
-    "fulfills and serves", "solves and advances", "basedOn", "addresses", "actor", "dependsOn",
+    "fulfills and serves", "advances", "basedOn", "addresses", "actor", "dependsOn",
     "decides", "raises", "subject", "affects", "replaces", "implements", "calls", "proves",
     "serves", "advances", "cites",
   ]);

@@ -33,10 +33,10 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `decision.md` | `.litespec/intent/decisions/<number>-<name>/<number>-<name>.md` | Explains one decision beside its record file. |
 | `problem.yaml` | `.litespec/intent/problems/<name>/<name>.yaml` | Records one pain someone has today. |
 | `problem.md` | `.litespec/intent/problems/<name>/<name>.md` | Explains one problem beside its record file. |
-| `feature.yaml` | `.litespec/intent/modules/<module>/features/<name>/<name>.yaml` | Records what is offered against a problem. Its requirements sit beside it in their own folders. |
-| `feature.md` | `.litespec/intent/modules/<module>/features/<name>/<name>.md` | Explains one feature beside its record file. |
-| `requirement.yaml` | `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.yaml` | Records one commitment the feature makes, with its kind and statement. |
-| `requirement.md` | `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.md` | Explains one requirement beside its record file, when its statement needs prose. |
+| `feature.yaml` | `.litespec/intent/problems/<problem>/features/<name>/<name>.yaml` | Records the offer against the problem whose folder holds it. Its requirements sit beside it in their own folders. |
+| `feature.md` | `.litespec/intent/problems/<problem>/features/<name>/<name>.md` | Explains one feature beside its record file. |
+| `requirement.yaml` | `.litespec/intent/problems/<problem>/features/<feature>/<name>/<name>.yaml` | Records one commitment the feature makes, with its kind and statement. |
+| `requirement.md` | `.litespec/intent/problems/<problem>/features/<feature>/<name>/<name>.md` | Explains one requirement beside its record file, when its statement needs prose. |
 | `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person, organization, or system. |
 | `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains one actor beside its record file. |
 | `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |

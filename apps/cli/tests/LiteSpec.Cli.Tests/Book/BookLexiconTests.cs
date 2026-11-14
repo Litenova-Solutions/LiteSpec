@@ -15,12 +15,12 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var links = lexicon.ToJson()["links"]!.AsArray();
-        var solves = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "solves")!.AsObject();
-        Assert.Equal("solves", solves["forward"]!.GetValue<string>());
-        Assert.Equal("is solved by", solves["inverse"]!.GetValue<string>());
+        var answers = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "folder")!.AsObject();
+        Assert.Equal("answers", answers["forward"]!.GetValue<string>());
+        Assert.Equal("is answered by", answers["inverse"]!.GetValue<string>());
         Assert.Equal(
             new List<string> { "feature" },
-            solves["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+            answers["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
     /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
@@ -491,7 +491,7 @@ public sealed class BookLexiconTests
 
         | Field | Written on | Points at | Reads as | Read back as |
         |:---|:---|:---|:---|:---|
-        | `solves` | feature | Problems | solves | is solved by |
+        | folder | feature | Problems | answers | is answered by |
         | `serves` | use case, reaction, job | Journey steps | serves | is served by |
         | `serves` | journey | The goal it walks toward | serves | is served by |
         | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |

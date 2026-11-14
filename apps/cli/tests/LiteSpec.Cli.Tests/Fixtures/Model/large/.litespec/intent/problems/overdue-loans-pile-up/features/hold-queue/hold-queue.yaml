@@ -1,0 +1,6 @@
+type: feature
+id: feature/hold-queue
+title: Hold queue
+offering: Waiting readers queue for busy copies and pick them up when ready.
+advances:
+- goal/faster-pickup

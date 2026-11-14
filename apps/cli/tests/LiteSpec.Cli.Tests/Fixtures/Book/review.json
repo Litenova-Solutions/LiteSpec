@@ -125,7 +125,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": ".litespec/intent/modules/lending/features/self-checkout.yaml",
+      "file": ".litespec/intent/problems/slow-desk-queues/features/self-checkout/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -138,9 +138,6 @@
         "decideBy": "2026-11-15",
         "lifecycle": "planned",
         "plannedFor": "2026-12-31",
-        "solves": [
-          "problem/slow-desk-queues"
-        ],
         "advances": [
           "goal/faster-borrowing"
         ],
@@ -1117,7 +1114,9 @@
         "title": "Kiosk Cache",
         "owner": "lending-team",
         "status": "approved",
-        "covers": ["litespec/ext/cache#define-cache-invalidation"],
+        "covers": [
+          "litespec/ext/cache#define-cache-invalidation"
+        ],
         "subject": [
           "feature/self-checkout"
         ],

@@ -13,16 +13,10 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/model#hold-module-rules-in-rule-sets</follows>
 internal static class FolderChecks
 {
-    /// <summary>Type folders directly under <c>intent/</c>, beside <c>modules/</c>.</summary>
+    /// <summary>Type folders directly under <c>intent/</c>.</summary>
     private static readonly HashSet<string> IntentRootFolders = new(StringComparer.Ordinal)
     {
         "goals", "visions", "problems", "constraints", "decisions", "research", "actors", "journeys", "roles",
-    };
-
-    /// <summary>Type folders under <c>intent/modules/&lt;m&gt;/</c>: features only.</summary>
-    private static readonly HashSet<string> IntentModuleFolders = new(StringComparer.Ordinal)
-    {
-        "features",
     };
 
     /// <summary>Type folders under <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>.</summary>
@@ -308,14 +302,10 @@ internal static class FolderChecks
             return true;
         }
 
-        if (full[1] == "modules")
+        // A problem's features sit in its features folder; each feature is a named record folder inside it.
+        if (full[1] == "problems" && full.Length > 2)
         {
-            if (full.Length <= 3)
-            {
-                return true;
-            }
-
-            return full.Length == 4 && IntentModuleFolders.Contains(full[3]);
+            return full.Length == 4 && full[3] == "features";
         }
 
         return full.Length == 2 && IntentRootFolders.Contains(full[1]);
@@ -459,7 +449,7 @@ internal static class FolderChecks
     private static void CollectModule(string[] full, string directory, List<(string Directory, string Name)> modules)
     {
         if (full is [var layer, "modules", var name]
-            && (layer == "intent" || layer == "behavior" || layer == "implementation" || layer == "governance"))
+            && (layer == "behavior" || layer == "implementation" || layer == "governance"))
         {
             modules.Add((directory, name));
         }
@@ -630,6 +620,6 @@ internal static class FolderChecks
     /// <returns>The phrase, from the folder map; a requirement lives in its own folder inside its feature's folder.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their own folder inside their feature's folder, 'intent/modules/<m>/features/<feature>/<name>/<name>.yaml'"
+            ? "requirements live in their own folder inside their feature's folder, 'intent/problems/<problem>/features/<feature>/<name>/<name>.yaml'"
             : RecordFolders.Phrase(type);
 }

@@ -87,7 +87,7 @@ public sealed class VisionCheckTests
                 """{"summary": "Contractors pay work costs too.", "statement": "Contractors submit expenses as employees do."}"""),
             TestModel.Record("decision", "decision/0001-submitter-as-person", PathAt(temp.Path, ".litespec", "intent", "decisions", "0001-submitter-as-person.yaml"),
                 """{"basedOn": ["vision/contractor-expenses"], "decides": ["requirement/approval.submitter-named"]}"""),
-            TestModel.Record("requirement", "requirement/approval.submitter-named", PathAt(temp.Path, ".litespec", "intent", "modules", "spending", "features", "approval.yaml"),
+            TestModel.Record("requirement", "requirement/approval.submitter-named", PathAt(temp.Path, ".litespec", "intent", "problems", "expenses-wait-weeks", "features", "approval.yaml"),
                 """{"kind": "functional", "statement": "Each expense names the person who submitted it.", "cites": ["vision/contractor-expenses"]}"""));
 
         Assert.DoesNotContain(Checker.Check(model).Findings, found =>

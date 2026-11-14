@@ -76,7 +76,7 @@ public sealed class IntentFindingMessageFormatTests
             TestModel.Config(root),
             TestModel.Record("requirement", "requirement/borrowing.max-5-loans", Path.Combine(root, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""),
             TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(root, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.yaml"), """{"solves": ["problem/hold-delays"], "serves": ["goal/faster-checkout"]}"""),
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.yaml"), """{"serves": ["goal/faster-checkout"]}"""),
             TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
             TestModel.Record("use-case", "use-case/lending.fetch-volume", Path.Combine(root, "fetch.yaml"), """{"kind": "command"}"""),
             TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(root, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),

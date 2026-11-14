@@ -2103,7 +2103,6 @@ $defs:
     - id
     - title
     - offering
-    - solves
     properties:
       type:
         const: feature
@@ -2117,8 +2116,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
       offering:
         $ref: '#/$defs/nonEmptyString'
-      solves:
-        $ref: '#/$defs/problemIdArray'
       advances:
         $ref: '#/$defs/goalIdArray'
   actorPage:

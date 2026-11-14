@@ -188,7 +188,7 @@ export interface FieldTableEnv extends FactEnv {
 /** The fields the table never shows as plain rows: prose, relations, and record care. */
 export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "statement", "summary", "description", "offering", "meaning", "situation", "whyItMatters",
-  "purpose", "whatHappens", "affects", "affectsSegment", "actor", "solves", "advances",
+  "purpose", "whatHappens", "affects", "affectsSegment", "actor", "advances",
   "serves", "risk", "costToday", "workaroundToday", "finishedWhen",
   "address", "host", "entryPoint", "floorplan",
   "questions", "evidence", "lifecycle", "plannedFor", "refusedBecause", "provenance",
@@ -215,7 +215,7 @@ export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): Fie
     const team = teamValue(f);
     if (team !== undefined) add("Team", team ? "Yes" : "No");
   }
-  if (f.solves) add("Solves", linkList(flat(f.solves)));
+
   if (f.advances) add("Advances", linkList(flat(f.advances)));
   if (f.serves) add("Serves", linkList(flat(f.serves).map((x) => String(x).split("#")[0])));
   if (env.parent) add("Parent", inlineRefHtml(book, env.parent));

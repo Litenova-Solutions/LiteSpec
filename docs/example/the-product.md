@@ -37,7 +37,7 @@ summary: Spending submits, decides, reimburses and exports work expenses.
 dependsOn: []
 ```
 
-Only features live under the module folder in this example, as `.litespec/intent/modules/spending/features/`, and each requirement sits in its own folder inside its feature's folder. The goal, problem, research, decision and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The Behavior records of the module sit under `.litespec/behavior/modules/spending/`, as [Modules and Records](modules-and-records.md) shows.
+The one problem, `problem/expenses-wait-weeks`, sits at product level, and its two features sit in the problem's folder, `.litespec/intent/problems/expenses-wait-weeks/features/`. Each requirement sits in its own folder inside its feature's folder. The goal, research, decision and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The Behavior records of the module sit under `.litespec/behavior/modules/spending/`, as [Modules and Records](modules-and-records.md) shows.
 
 ## The Goal
 
@@ -62,7 +62,7 @@ A problem record states one pain that a person outside the team has today. Claim
 
 A feature record states what the product offers against a problem. Claimwick has two features.
 
-The Approval feature, in `.litespec/intent/modules/spending/features/approval/approval.yaml`, solves the waiting problem and holds five functional requirements, each in its own folder inside the feature's folder:
+The Approval feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml`, answers the waiting problem and holds five functional requirements, each in its own folder inside the feature's folder:
 
 | Requirement ID | Statement |
 |:---|:---|
@@ -72,7 +72,7 @@ The Approval feature, in `.litespec/intent/modules/spending/features/approval/ap
 | `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. |
 | `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. |
 
-The Approval Reminders feature, in `.litespec/intent/modules/spending/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, in `.litespec/intent/modules/spending/features/approval-reminders/month-end-submissions/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and answers the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, in `.litespec/intent/modules/spending/features/approval-reminders/month-end-submissions/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 Each requirement carries its identifier, title, kind, statement, rationale and the records it cites in `cites`. The `cites` list is how the tax file traces back to the constraint below.
 

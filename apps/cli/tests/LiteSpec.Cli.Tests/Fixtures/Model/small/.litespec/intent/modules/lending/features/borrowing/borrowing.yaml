@@ -1,6 +1,0 @@
-type: feature
-id: feature/borrowing
-title: Borrowing
-offering: Readers borrow and return copies and place holds, and every copy keeps one home shelf.
-solves:
-- problem/slow-desk-loans

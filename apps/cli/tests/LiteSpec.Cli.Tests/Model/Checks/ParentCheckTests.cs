@@ -6,23 +6,24 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves the parent check: every record with a required written parent names it, at tier G.</summary>
 public sealed class ParentCheckTests
 {
-    /// <summary>Feature With Solves Passes.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    /// <summary>Feature In Its Problem Folder Passes.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureWithSolvesPasses()
+    public void FeatureInItsProblemFolderPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "holds.yaml"), """{"solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("problem", "problem/overdue-loans", Path.Combine(temp.Path, "problems", "overdue-loans", "overdue-loans.yaml"), "{}"),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "problems", "overdue-loans", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
 
         Assert.DoesNotContain("record-parent-missing", TestModel.Codes(model));
     }
 
-    /// <summary>Feature Without Solves Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
+    /// <summary>Feature Outside A Problem Folder Reports.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureWithoutSolvesReports()
+    public void FeatureOutsideAProblemFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -31,7 +32,23 @@ public sealed class ParentCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/hold-queue' has no parent and 'solves' names no problem.", finding.Message);
+        Assert.Equal("Feature 'feature/hold-queue' sits outside a problem's features folder, so it has no parent problem.", finding.Message);
+        Assert.Equal("feature/hold-queue", finding.Subject);
+    }
+
+    /// <summary>Feature In A Problem Folder Without Its Problem Reports.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
+    [Fact]
+    public void FeatureInAProblemFolderWithoutItsProblemReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("feature", "feature/hold-queue", Path.Combine(temp.Path, "problems", "ghost", "features", "hold-queue", "hold-queue.yaml"), """{}"""));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "record-parent-missing");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Feature 'feature/hold-queue' sits in the folder of problem 'ghost', which holds no problem record.", finding.Message);
         Assert.Equal("feature/hold-queue", finding.Subject);
     }
 

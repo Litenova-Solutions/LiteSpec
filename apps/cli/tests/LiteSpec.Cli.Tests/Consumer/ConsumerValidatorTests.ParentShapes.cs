@@ -45,7 +45,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","advances":["goal/faster-delivery"]}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -58,7 +58,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 

@@ -161,7 +161,6 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Feature:
-                RequireIds(record, RecordFields.Solves, 1, findings);
 
                 if (record.Has(RecordFields.Serves))
                 {

@@ -121,7 +121,7 @@ public static class FindingCodes
             "A use case, reaction, job, notification or setting names neither `serves` nor `fulfills`.",
             "Link the record with `serves` or `fulfills`."),
         new("record-parent-missing", "G", RecordLayer.Any, trace: false,
-            "A feature `solves` names no problem, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds.",
+            "A feature sits outside a problem's `features` folder or in the folder of no problem record, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds.",
             "Name the missing parent."),
         new("folder-invalid", "G", RecordLayer.Any, trace: false,
             "A folder sits outside the closed set of its layer and level.",

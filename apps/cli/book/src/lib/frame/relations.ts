@@ -102,7 +102,7 @@ export function upOneFor(
   if (type === "journey") return known(outsFor(readers, id, "cites")) ?? known(outsFor(readers, id, "serves"));
   if (type === "decision") return known(outsFor(readers, id, "decides"));
   if (type === "requirement") return known(outsFor(readers, id, "cites"));
-  if (type === "feature") return known(outsFor(readers, id, "advances")) ?? known(outsFor(readers, id, "solves"));
+  if (type === "feature") return known(outsFor(readers, id, "advances"));
   if (type === "event") {
     const first = insFor(readers, id, "raises")[0];
     return first ?? null;

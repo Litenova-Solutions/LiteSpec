@@ -36,10 +36,11 @@ public static class RecordFolders
         Scaffold("goal", "intent/goals/{name}", "{name}.yaml"),
         Scaffold("vision", "intent/visions/{name}", "{name}.yaml"),
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),
-        Scaffold("feature", "intent/modules/{module}/features/{name}", "{name}.yaml"),
+        // A feature sits in the folder of the one problem it answers; its identifier carries no problem.
+        Scaffold("feature", "intent/problems/{problem}/features/{name}", "{name}.yaml"),
         // A requirement sits in its own folder inside its feature's folder. litespec new and rename place it
-        // from the feature record, since the identifier names the feature but not the module.
-        At("requirement", "intent/modules/{module}/features/{feature}/{name}", "{name}.yaml"),
+        // from the feature record, since the identifier names the feature but not the problem.
+        At("requirement", "intent/problems/{problem}/features/{feature}/{name}", "{name}.yaml"),
         Scaffold("constraint", "intent/constraints/{name}", "{name}.yaml"),
         Scaffold("decision", "intent/decisions/{name}", "{name}.yaml"),
         At("decision", "implementation/decisions/{name}", "{name}.yaml"),
@@ -284,6 +285,7 @@ public static class RecordFolders
     /// <returns>The text with each token replaced.</returns>
     private static string Fill(string text, string? home, string name) =>
         text.Replace("{module}", home ?? string.Empty)
+            .Replace("{problem}", home ?? string.Empty)
             .Replace("{entry-point}", home ?? string.Empty)
             .Replace("{home}", home ?? string.Empty)
             .Replace("{aggregate}", name)
@@ -351,7 +353,7 @@ public static class RecordFolders
     /// <param name="home">The home entry.</param>
     /// <returns>True when the path needs the home.</returns>
     private static bool NeedsHome(Home home) =>
-        home.Folder.Contains("{module}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
+        home.Folder.Contains("{module}") || home.Folder.Contains("{problem}") || home.Folder.Contains("{entry-point}") || home.File.Contains("{home}");
 
     /// <summary>
     ///     One home of a record type: the folder pattern below the record layer and the file rule.

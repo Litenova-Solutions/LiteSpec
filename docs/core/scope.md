@@ -63,7 +63,7 @@ Every record states something the software does, holds, refuses at runtime or ru
 | Research | Evidence a software record cites | Market sizing, viability, acquisition, pricing strategy |
 | Module | A product area of the bounded context | A company function |
 
-Each module is declared under `behavior/modules/<module>/`, and its features sit under `intent/modules/<module>/`, so one name runs through Intent, Behavior, and code. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `intent/modules/` or `behavior/modules/` that names no declared module gets a blocking finding.
+Each module is declared under `behavior/modules/<module>/`, so one name runs through Behavior and code, and each feature sits under the problem it answers in `intent/problems/<problem>/features/`. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `behavior/modules/` that names no declared module gets a blocking finding.
 
 Some architectures fall outside what LiteSpec supports: microservices, multiple contexts, native clients on a platform with no mobile stack, other platforms, event sourcing, active-active regions, and large pipelines. A project that considers one records a separate project decision naming it. Projects outside the boundary can still use individual ideas without claiming conformance.
 

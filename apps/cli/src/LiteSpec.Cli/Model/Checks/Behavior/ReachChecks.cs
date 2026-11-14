@@ -118,7 +118,9 @@ internal static class ReachChecks
 
         var solvedProblems = model.Records
             .Where(record => record.Type == RecordTypes.Feature && reachingFeatures.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Solves))
+            .Select(record => RecordPlacement.ProblemOf(record.File))
+            .OfType<string>()
+            .Select(name => $"problem/{name}")
             .ToHashSet(StringComparer.Ordinal);
 
         var citedProblems = model.Records

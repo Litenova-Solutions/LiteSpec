@@ -183,7 +183,7 @@ static class NewCommand
 
             if (type == "feature" && homeName is null)
             {
-                return CommandFailure.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
+                return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
             }
 
             if (type == RecordTypes.Requirement && homeName is null)
@@ -191,15 +191,15 @@ static class NewCommand
                 return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
             }
 
-            // A feature lives in its module's folder, but its identifier carries no home:
-            // the module picks the folder and the identifier is feature/<name>.
+            // A feature lives in its problem's folder, but its identifier carries no home:
+            // the problem picks the folder and the identifier is feature/<name>.
             var identifierHome = homeName;
 
             if (type == "feature")
             {
                 if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
                 {
-                    CliHost.Error.WriteLine($"'{homeName}' is not a valid module name.");
+                    CliHost.Error.WriteLine($"'{homeName}' is not a valid problem name.");
                     return 2;
                 }
 
@@ -283,7 +283,7 @@ static class NewCommand
 
         if (type == RecordTypes.Requirement && requirementFolder is null)
         {
-            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <module>.{homeName}.");
+            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
             return 2;
         }
 

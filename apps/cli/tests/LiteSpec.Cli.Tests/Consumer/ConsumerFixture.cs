@@ -50,7 +50,7 @@ static class ConsumerFixture
             null),
         new(".litespec/product/pricing.yaml",
             """
-            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","solves":["problem/slow-checkout"],"advances":["goal/faster-delivery"]}
+            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"]}
             """,
             """
             # Pricing

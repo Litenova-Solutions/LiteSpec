@@ -25,7 +25,7 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Records |
 |:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Product, module, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
+| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
 | Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, permission, entry point, screen, external system |
 | Implementation | How is it built? | Code, technical decisions, runbooks |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
@@ -41,10 +41,10 @@ The folder is part of the record: it names the parent, and every other folder na
 ```text
 .litespec/intent/
   product.yaml
-  goals/  problems/  constraints/  decisions/  research/  actors/  roles/  journeys/
-  modules/
-    spending/
-      module.yaml
+  goals/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  problems/
+    expenses-wait-weeks/
+      expenses-wait-weeks.yaml
       features/
         approval/
           approval.yaml        the feature

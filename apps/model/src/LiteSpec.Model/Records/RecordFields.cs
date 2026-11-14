@@ -615,9 +615,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `skippedWhen` field.</summary>
     public const string SkippedWhen = "skippedWhen";
 
-    /// <summary>Gets the name of the `solves` field.</summary>
-    public const string Solves = "solves";
-
     /// <summary>Gets the name of the `source` field.</summary>
     public const string Source = "source";
 

@@ -71,7 +71,7 @@ static class BookModel
         ("decides", "Decides"),
         ("basedOn", "Based On"),
         ("affects", "Affects"),
-        ("solves", "Solves"),
+
         ("serves", "Serves"),
         ("cites", "Cites"),
         ("fulfills", "Fulfills"),
@@ -109,7 +109,7 @@ static class BookModel
             ["decides"] = "Decided By",
             ["basedOn"] = "Basis For",
             ["affects"] = "Problems Affecting This",
-            ["solves"] = "Solved By",
+
             ["serves"] = "Served By",
             ["cites"] = "Cited By",
             ["fulfills"] = "Fulfilled By",

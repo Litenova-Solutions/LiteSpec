@@ -5,7 +5,7 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for <c>litespec rename</c> on requirements: a requirement moves its folder, and a feature moves its requirement folders with it.</summary>
 public sealed class RenameRequirementTests
 {
-    const string Feature = ".litespec/intent/modules/spending/features/approval";
+    const string Feature = ".litespec/intent/problems/expenses-wait-weeks/features/approval";
 
     /// <summary>Renaming a requirement moves its own folder and rewrites its identifier.</summary>
     /// <proves>litespec/core/model#rewrite-every-link-on-a-rename</proves>
@@ -37,7 +37,7 @@ public sealed class RenameRequirementTests
             "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var features = Path.Combine(consumer.Path, ".litespec/intent/modules/spending/features");
+        var features = Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features");
         var feature = Path.Combine(features, "expense-approval", "expense-approval.yaml");
         Assert.True(File.Exists(feature), result.Output);
         Assert.Contains("id: feature/expense-approval", File.ReadAllText(feature));

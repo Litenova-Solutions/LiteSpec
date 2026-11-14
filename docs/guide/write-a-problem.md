@@ -18,7 +18,7 @@ Read the [Intent](../core/intent.md) page and the [Writing](../core/writing.md) 
 
 ### Scaffold the Problem
 
-Run `litespec new problem <name>` to write `.litespec/intent/problems/<name>/<name>.yaml` and reserve the identifier `problem/<name>`. A problem that belongs to one module moves to `.litespec/intent/modules/<module>/problems/<name>/`. When the project lists `intent` in `explanations.layers`, the command also writes `<name>.md` from the problem template. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
+Run `litespec new problem <name>` to write `.litespec/intent/problems/<name>/<name>.yaml` and reserve the identifier `problem/<name>`. When the project lists `intent` in `explanations.layers`, the command also writes `<name>.md` from the problem template. This satisfies `litespec/core/intent#keep-intent-in-its-homes` and `litespec/core/model#scaffold-pages-and-reserve-identifiers`.
 
 ### Name the Failure in the Title
 

@@ -16,7 +16,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "goals");
-        DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "features");
+        DirAt(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features");
         var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -245,10 +245,10 @@ public sealed class FolderCheckTests
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>Intent Module Actors Folder Reports.</summary>
+    /// <summary>Intent Modules Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void IntentModuleActorsFolderReports()
+    public void IntentModulesFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "actors");
@@ -259,7 +259,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Folder '.litespec/intent/modules/lending/actors' sits outside the closed folder set of its layer and level.", finding.Message);
+        Assert.Equal("Folder '.litespec/intent/modules' sits outside the closed folder set of its layer and level.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -339,21 +339,6 @@ public sealed class FolderCheckTests
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>Undeclared Intent Module Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void UndeclaredIntentModuleReports()
-    {
-        using var temp = TestCli.Temp("checks");
-        DirAt(temp.Path, ".litespec", "intent", "modules", "ghost");
-        var model = TestModel.Model(TestModel.Config(temp.Path));
-
-        var finding = Assert.Single(Run(model), found => found.Code == "module-undeclared");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module folder '.litespec/intent/modules/ghost' names no declared module.", finding.Message);
-        Assert.Null(finding.Subject);
-    }
-
     /// <summary>Undeclared Modules Report Per Folder.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
@@ -376,11 +361,11 @@ public sealed class FolderCheckTests
         var file = PathAt(temp.Path, ".litespec", "intent", "goals", "stray-feature.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/stray-feature", file, """{"solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("feature", "feature/stray-feature", file, """{}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/stray-feature' sits in 'intent/goals', but features live in 'intent/modules/<m>/features/<name>/<name>.yaml'.", finding.Message);
+        Assert.Equal("Feature 'feature/stray-feature' sits in 'intent/goals', but features live in 'intent/problems/<problem>/features/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("feature/stray-feature", finding.Subject);
@@ -456,7 +441,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/hold-queue.max-active-holds' sits in 'intent/problems', but requirements live in their own folder inside their feature's folder, 'intent/modules/<m>/features/<feature>/<name>/<name>.yaml'.", finding.Message);
+        Assert.Equal("Requirement 'requirement/hold-queue.max-active-holds' sits in 'intent/problems', but requirements live in their own folder inside their feature's folder, 'intent/problems/<problem>/features/<feature>/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("requirement/hold-queue.max-active-holds", finding.Subject);
     }
 
@@ -708,8 +693,8 @@ public sealed class FolderCheckTests
             TestModel.Record("product", "product/library", PathAt(root, ".litespec", "intent", "product.yaml"), """{}"""),
             TestModel.Record("goal", "goal/faster-pickup", PathAt(root, ".litespec", "intent", "goals", "faster-pickup", "faster-pickup.yaml"), """{}"""),
             TestModel.Record("problem", "problem/overdue-loans-pile-up", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "overdue-loans-pile-up.yaml"), """{}"""),
-            TestModel.Record("feature", "feature/hold-queue", PathAt(root, ".litespec", "intent", "modules", "lending", "features", "hold-queue", "hold-queue.yaml"), """{}"""),
-            TestModel.Record("requirement", "requirement/hold-queue.max-active-holds", PathAt(root, ".litespec", "intent", "modules", "lending", "features", "hold-queue", "max-active-holds", "max-active-holds.yaml"), """{}"""),
+            TestModel.Record("feature", "feature/hold-queue", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "hold-queue.yaml"), """{}"""),
+            TestModel.Record("requirement", "requirement/hold-queue.max-active-holds", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "max-active-holds", "max-active-holds.yaml"), """{}"""),
             TestModel.Record("constraint", "constraint/library-privacy-law", PathAt(root, ".litespec", "intent", "constraints", "library-privacy-law", "library-privacy-law.yaml"), """{}"""),
             TestModel.Record("decision", "decision/0001-loan-period", PathAt(root, ".litespec", "intent", "decisions", "0001-loan-period", "0001-loan-period.yaml"), """{}"""),
             TestModel.Record("decision", "decision/0002-render-engine", PathAt(root, ".litespec", "implementation", "decisions", "0002-render-engine", "0002-render-engine.yaml"), """{}"""),
