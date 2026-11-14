@@ -96,6 +96,7 @@ internal static class StandardsValidator
         }
 
         context.Repository.CheckPageIdentity(parsedPages);
+        context.Repository.CheckPackagedPathLength();
 
         var activeIds = new HashSet<string>(context.GlobalIds.Keys, StringComparer.Ordinal);
         context.Repository.CheckCitations(parsedPages, activeIds);

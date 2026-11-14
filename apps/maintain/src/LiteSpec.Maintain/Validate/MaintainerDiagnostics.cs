@@ -118,6 +118,7 @@ internal static class MaintainerDiagnostics
         Codes.FindingCodeUnknown,
         Codes.IndexPageMissing,
         Codes.PatternOptionCount,
+        Codes.PackagedPathLong,
         Codes.TemplateCitedUnknown,
         Codes.TemplateCitationUnknown,
         Codes.StandardStrengthModal,
@@ -452,6 +453,9 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A pattern that offers more than three options.</summary>
         public const string PatternOptionCount = "PATTERN_OPTION_COUNT";
+
+        /// <summary>A file the tool package carries whose path is too long for NuGet to pack.</summary>
+        public const string PackagedPathLong = "PACKAGED_PATH_LONG";
 
         /// <summary>A docs page that cites a template path the templates folder lacks.</summary>
         public const string TemplateCitedUnknown = "TEMPLATE_CITED_UNKNOWN";

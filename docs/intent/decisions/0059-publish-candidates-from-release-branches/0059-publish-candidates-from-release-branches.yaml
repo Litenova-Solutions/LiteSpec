@@ -1,5 +1,5 @@
 type: decision
-id: decision/0059-publish-release-candidates-from-release-branches
+id: decision/0059-publish-candidates-from-release-branches
 title: Publish Release Candidates from Release Branches
 options:
   - name: "Candidate tags on the release branch publish prerelease packages"

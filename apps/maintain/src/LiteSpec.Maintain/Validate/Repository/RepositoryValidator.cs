@@ -57,6 +57,31 @@ internal sealed partial class RepositoryValidator
         }
     }
 
+    /// <summary>The longest repository path a packaged file may have; NuGet refuses longer ones inside the tool package (NU5123).</summary>
+    private const int MaxPackagedPathLength = 128;
+
+    /// <summary>Checks that every file the tool package carries has a path NuGet can pack.</summary>
+    internal void CheckPackagedPathLength()
+    {
+        foreach (var folder in new[] { "docs", "schemas", "templates" })
+        {
+            var full = Path.Combine(Context.Root, folder);
+            if (!Directory.Exists(full))
+            {
+                continue;
+            }
+
+            foreach (var file in Directory.EnumerateFiles(full, "*", SearchOption.AllDirectories))
+            {
+                var relative = Path.GetRelativePath(Context.Root, file).Replace('\\', '/');
+                if (relative.Length > MaxPackagedPathLength)
+                {
+                    Context.Add(relative, 1, MaintainerDiagnostics.Codes.PackagedPathLong, $"path is {relative.Length} characters, longer than the {MaxPackagedPathLength} the tool package can carry");
+                }
+            }
+        }
+    }
+
     /// <summary>Checks that every provision citation in active content names an active provision.</summary>
     /// <param name="parsedPages">The parsed pages.</param>
     /// <param name="activeIds">The active provision identifiers.</param>

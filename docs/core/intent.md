@@ -131,7 +131,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder in its feature's `requirements/` folder.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem's folder holds the features that answer it, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem's folder holds the features that answer it, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and any file under `intent/modules/`.
 
@@ -189,7 +189,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A goal MUST state its `summary`, `statement`, `measure`, and `target` in fields.
 
-**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `summary` states what the goal is in one paragraph, the `statement` names the outcome and the consequence at stake, and `measure` and `target` name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `summary` states what the goal is in one paragraph, the `statement` names the outcome and the consequence at stake, and `measure` and `target` name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Checked by:** `litespec model check` reports `record-invalid` for a goal record file missing a required field.
 
@@ -203,7 +203,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A goal MUST be moved by a journey serving it or by a quality requirement citing it.
 
-**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the journey that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the journey that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal.
 
@@ -410,7 +410,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A feature MUST sit in the features folder of the one problem it answers, `intent/problems/<problem>/features/`, and an offer that answers two pains is two features.
 
-**Rationale:** The folder names the problem, so a reader of a problem sees every answer to it beside the problem. A feature that answered two problems would be filed under two pains, and each pain would be written twice. Two pains that one offer answers are one problem. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).
+**Rationale:** The folder names the problem, so a reader of a problem sees every answer to it beside the problem. A feature that answered two problems would be filed under two pains, and each pain would be written twice. Two pains that one offer answers are one problem. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers).
 
 **Example:** The approval feature and the approval reminders feature both answer the expense wait problem, so both sit in `problems/expenses-wait-weeks/features/`.
 
@@ -472,7 +472,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A feature MUST state its `offering` and name the goals it moves in `advances`.
 
-**Rationale:** A feature names the goals it moves in `advances`, so each offer traces to an outcome. The problem it answers is the folder it sits in, as [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) states, so the offer traces to a pain without a second link. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
+**Rationale:** A feature names the goals it moves in `advances`, so each offer traces to an outcome. The problem it answers is the folder it sits in, as [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers) states, so the offer traces to a pain without a second link. `offering` states what is in and what is out, so the scope of the offer is written where the links are. Proposed by [decision/0004-features-advance-goals](decision/0004-features-advance-goals) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice).
 
 **Reviewed for:** Which features miss their offering or their moved goals? Look at each feature record beside its goals.
 
@@ -550,7 +550,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** An actor MUST carry a `kind` of person or organization and state in `belongsToTeam` whether it belongs to the team building and running the product.
 
-**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system and no actor.
 
@@ -566,7 +566,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** An actor explanation MUST state what the product assumes the actor knows in its Knowledge section, as an assumption of the product, and states no user's knowledge as a fact about every user.
 
-**Rationale:** What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as "has no training in accounting" written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Writing it as "Claimwick does not assume the employee knows the expense policy" names the product's assumption and the actor it applies to. Proposed by [decision/0053-describe-actors-by-responsibility-and-knowledge](decision/0053-describe-actors-by-responsibility-and-knowledge).
+**Rationale:** What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as "has no training in accounting" written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Writing it as "Claimwick does not assume the employee knows the expense policy" names the product's assumption and the actor it applies to. Proposed by [decision/0053-actors-by-responsibility-and-knowledge](decision/0053-actors-by-responsibility-and-knowledge).
 
 **Example:** Claimwick's employee actor states in its Knowledge section that Claimwick does not assume the employee knows the expense policy.
 
@@ -582,7 +582,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Every actor MUST be named by a journey, by a problem in `affects`, or by an access position in `holds`.
 
-**Rationale:** An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the journey it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the journey it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The library reader is named by the borrow-and-return journey and by the due-date problem; the librarian is named by the holds of the librarian role.
 
@@ -858,7 +858,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A journey MUST lead one actor toward one goal through ordered steps, naming the goal record in `serves` and stating each path off that order in `branches`.
 
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a journey with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a journey with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
@@ -874,7 +874,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A journey MUST state in `summary`, in up to four sentences, who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom.
 
-**Rationale:** A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the journey in the actor's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the journey in the actor's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The library journey to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
 
@@ -950,7 +950,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, naming one act of its performer and no use case.
 
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the journey only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the journey can fail. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the journey only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the journey can fail. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 
@@ -1030,7 +1030,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A journey MUST state its observable end in `finishedWhen`.
 
-**Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished journey from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished journey from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** `finishedWhen`: the employee holds the reimbursement.
 
@@ -1066,7 +1066,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Replacement:** A project records its own product layout in its documentation index.
 
-**Rationale:** A problem folder keeps the features that answer it side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A feature names no module, because it answers a problem and Intent groups by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers).
+**Rationale:** A problem folder keeps the features that answer it side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A feature names no module, because it answers a problem and Intent groups by reason. Proposed by [decision/0050-feature-inside-the-problem-it-answers](decision/0050-feature-inside-the-problem-it-answers).
 
 **Example:**
 

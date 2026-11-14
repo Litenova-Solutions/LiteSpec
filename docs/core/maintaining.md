@@ -42,6 +42,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 |:---|:---|:---|
 | `MANIFEST_*` | The manifest is not valid YAML, names a path or anchor that does not exist, lists a shape page twice, or pins an analyzer release that differs from the analyzer project version; a page cites an analyzer rule the pinned release does not ship. | `MANIFEST_YAML`, `MANIFEST_PATH`, `MANIFEST_ANCHOR`, `MANIFEST_DUPLICATE_PATH`, `MANIFEST_ANALYZER_PIN`, `MANIFEST_ANALYZER_RULE` |
 | Documentation bindings | A page cites a finding code, template, or example record that does not exist, a `Checked by` line for `litespec model check` names no finding code, the documentation index reaches no path to a page, or a pattern offers more than three options. | `FINDING_CODE_UNKNOWN`, `CHECKED_BY_FINDING_MISSING`, `TEMPLATE_CITED_UNKNOWN`, `EXAMPLE_RECORD_UNKNOWN`, `INDEX_PAGE_MISSING`, `PATTERN_OPTION_COUNT` |
+| Package paths | A file under `docs/`, `schemas/` or `templates/` has a repository path longer than 128 characters, which NuGet refuses to pack inside the tool package (NU5123). | `PACKAGED_PATH_LONG` |
 | Command pages | A command page shows in its Synopsis or Options section an option its command does not parse, or names a LiteSpec command that no usage text in source declares. | `COMMAND_OPTION_UNKNOWN` |
 | `SCHEMA_*` | A schema carries the wrong release `$id`, is not valid YAML, rejects its values, or uses a keyword the evaluator does not implement. | `SCHEMA_ID`, `SCHEMA_YAML`, `SCHEMA_INVALID`, `SCHEMA_UNSUPPORTED_KEYWORD` |
 
@@ -109,7 +110,7 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Statement:** Every release candidate MUST publish from its release branch, `release/<version>`, and no candidate publishes from `main`.
 
-**Rationale:** A consumer validates a candidate before the final release reaches `main`, so the candidate must hold the release branch's commit and nothing newer on `main`. Publishing from the branch keeps the packages a consumer tests the packages the release will publish, and the release's final tag still comes from `main`. Proposed by [decision/0059-publish-release-candidates-from-release-branches](decision/0059-publish-release-candidates-from-release-branches).
+**Rationale:** A consumer validates a candidate before the final release reaches `main`, so the candidate must hold the release branch's commit and nothing newer on `main`. Publishing from the branch keeps the packages a consumer tests the packages the release will publish, and the release's final tag still comes from `main`. Proposed by [decision/0059-publish-candidates-from-release-branches](decision/0059-publish-candidates-from-release-branches).
 
 **Reviewed for:** Which release candidate tags name a commit that is not on `release/<version>`, or publish packages from `main`? Look at the candidate tags and the release workflow runs that published them.
 

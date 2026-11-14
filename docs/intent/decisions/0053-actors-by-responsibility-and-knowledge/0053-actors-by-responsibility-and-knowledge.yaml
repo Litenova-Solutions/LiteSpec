@@ -1,5 +1,5 @@
 type: decision
-id: decision/0053-describe-actors-by-responsibility-and-knowledge
+id: decision/0053-actors-by-responsibility-and-knowledge
 title: Describe Actors by Responsibility and Knowledge
 options:
   - name: "Responsibilities, Knowledge and Example, with Access removed"

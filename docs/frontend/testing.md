@@ -133,7 +133,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that drives several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which journey the test rehearses without claiming that the journey itself is proven. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
+**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which journey the test rehearses without claiming that the journey itself is proven. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
 
 **Example:** The submit-and-reimburse journey test carries `journey: journey/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
 

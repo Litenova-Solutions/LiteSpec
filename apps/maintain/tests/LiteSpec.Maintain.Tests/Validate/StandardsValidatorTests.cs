@@ -386,6 +386,7 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.IndexMissingRouting,
             MaintainerDiagnostics.Codes.IndexPageMissing,
             MaintainerDiagnostics.Codes.PatternOptionCount,
+            MaintainerDiagnostics.Codes.PackagedPathLong,
             MaintainerDiagnostics.Codes.TemplateCitedUnknown,
             MaintainerDiagnostics.Codes.LayerUnlisted,
             MaintainerDiagnostics.Codes.LinkBroken,

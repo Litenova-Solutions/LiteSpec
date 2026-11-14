@@ -1,5 +1,5 @@
 type: decision
-id: decision/0049-use-literal-journey-words-and-concrete-consequences
+id: decision/0049-literal-journey-words-concrete-consequences
 title: Use Literal Journey Words and Concrete Consequences
 options:
   - name: "Replace walk and why it matters in every provision, template and glossary entry"

@@ -1,5 +1,5 @@
 type: decision
-id: decision/0050-put-each-feature-inside-the-problem-it-answers
+id: decision/0050-feature-inside-the-problem-it-answers
 title: Put Each Feature Inside the Problem It Answers
 options:
   - name: "One problem per feature, with the feature inside the problem's folder"

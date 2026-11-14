@@ -161,6 +161,13 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/frontend/patterns/sample.md", StandardsFixture.PatternPage + "\n#### `three`: Three Actions\n\n**Rationale:** A third choice.\n\n**Cost:** More labels.\n\n#### `four`: Four Actions\n\n**Rationale:** A fourth choice.\n\n**Cost:** More labels still.\n"),
         [MaintainerDiagnostics.Codes.PatternOptionCount]);
 
+    /// <summary>A packaged file whose path is too long for the tool package.</summary>
+    /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
+    [Fact(DisplayName = "a packaged file whose path is too long for the tool package")]
+    public void PackagedPathTooLong() => Check(
+        root => StandardsFixture.Write(root, "schemas/" + new string('a', 125) + ".yaml", "type: object\n"),
+        [MaintainerDiagnostics.Codes.PackagedPathLong]);
+
     /// <summary>A manifest page without its pin table region is stale.</summary>
     /// <proves>litespec/core/authoring#regenerate-the-provision-index</proves>
     [Fact(DisplayName = "a manifest page without its pin table region is stale")]

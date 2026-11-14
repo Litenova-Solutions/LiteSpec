@@ -2974,8 +2974,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice/0040-require-decisions-only-for-six-kinds-of-choice.md",
-      "path": "intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice/0040-require-decisions-only-for-six-kinds-of-choice",
+      "file": "docs/intent/decisions/0040-decisions-only-for-six-kinds-of-choice/0040-decisions-only-for-six-kinds-of-choice.md",
+      "path": "intent/decisions/0040-decisions-only-for-six-kinds-of-choice/0040-decisions-only-for-six-kinds-of-choice",
       "style": "decision",
       "area": "intent",
       "title": "Require Decisions Only for Six Kinds of Choice",
@@ -3109,8 +3109,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md",
-      "path": "intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences",
+      "file": "docs/intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences.md",
+      "path": "intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences",
       "style": "decision",
       "area": "intent",
       "title": "Use Literal Journey Words and Concrete Consequences",
@@ -3124,8 +3124,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0050-put-each-feature-inside-the-problem-it-answers/0050-put-each-feature-inside-the-problem-it-answers.md",
-      "path": "intent/decisions/0050-put-each-feature-inside-the-problem-it-answers/0050-put-each-feature-inside-the-problem-it-answers",
+      "file": "docs/intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers.md",
+      "path": "intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers",
       "style": "decision",
       "area": "intent",
       "title": "Put Each Feature Inside the Problem It Answers",
@@ -3169,8 +3169,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0053-describe-actors-by-responsibility-and-knowledge/0053-describe-actors-by-responsibility-and-knowledge.md",
-      "path": "intent/decisions/0053-describe-actors-by-responsibility-and-knowledge/0053-describe-actors-by-responsibility-and-knowledge",
+      "file": "docs/intent/decisions/0053-actors-by-responsibility-and-knowledge/0053-actors-by-responsibility-and-knowledge.md",
+      "path": "intent/decisions/0053-actors-by-responsibility-and-knowledge/0053-actors-by-responsibility-and-knowledge",
       "style": "decision",
       "area": "intent",
       "title": "Describe Actors by Responsibility and Knowledge",
@@ -3259,8 +3259,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0059-publish-release-candidates-from-release-branches/0059-publish-release-candidates-from-release-branches.md",
-      "path": "intent/decisions/0059-publish-release-candidates-from-release-branches/0059-publish-release-candidates-from-release-branches",
+      "file": "docs/intent/decisions/0059-publish-candidates-from-release-branches/0059-publish-candidates-from-release-branches.md",
+      "path": "intent/decisions/0059-publish-candidates-from-release-branches/0059-publish-candidates-from-release-branches",
       "style": "decision",
       "area": "intent",
       "title": "Publish Release Candidates from Release Branches",
