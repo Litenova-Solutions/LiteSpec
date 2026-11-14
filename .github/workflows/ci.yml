@@ -23,6 +23,12 @@ on:
         description: The build configuration to use.
         type: string
         default: Debug
+      # A release candidate names its package version, such as 6.0.0-rc.1, so every package, archive and
+      # install it builds carries the suffix. Empty builds the manifest version, which the committed files hold.
+      package_version:
+        description: The package version to build for a release candidate, or empty for the manifest version.
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -163,6 +169,8 @@ jobs:
     # for that long and report nothing useful at the end of it.
     timeout-minutes: 15
     needs: web-assets
+    env:
+      PACKAGE_VERSION: ${{ inputs.package_version }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -185,11 +193,12 @@ jobs:
       - name: Build the CLI and the analyzers
         run: dotnet build LiteSpec.slnx --configuration ${{ inputs.configuration }}
 
+      # PACKAGE_VERSION is empty except for a release candidate, which stamps its suffix into every package.
       - name: Pack the analyzers and the tool packages for every platform
         run: |
-          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration ${{ inputs.configuration }} --output artifacts
-          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} -p:TopLevelToolPackage=true --output artifacts
-          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --runtime any -p:PublishAot=false --output artifacts
+          dotnet pack apps/analyzers/src/LiteSpec.Analyzers --configuration ${{ inputs.configuration }} ${PACKAGE_VERSION:+-p:Version=$PACKAGE_VERSION} --output artifacts
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} -p:TopLevelToolPackage=true ${PACKAGE_VERSION:+-p:Version=$PACKAGE_VERSION} --output artifacts
+          dotnet pack apps/cli/src/LiteSpec.Cli --configuration ${{ inputs.configuration }} --runtime any -p:PublishAot=false ${PACKAGE_VERSION:+-p:Version=$PACKAGE_VERSION} --output artifacts
 
       # The framework-dependent package runs on the .NET runtime wherever no native build exists.
       - name: Run the framework-dependent package the way a consumer runs it
@@ -215,6 +224,8 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     needs: web-assets
+    env:
+      PACKAGE_VERSION: ${{ inputs.package_version }}
     strategy:
       fail-fast: false
       matrix:
@@ -254,7 +265,7 @@ jobs:
         if: matrix.container != ''
         run: |
           mkdir -p native
-          docker run --rm -v "$PWD:/src:ro" -v "$PWD/native:/out" -e OWNER="$(id -u):$(id -g)" \
+          docker run --rm -v "$PWD:/src:ro" -v "$PWD/native:/out" -e OWNER="$(id -u):$(id -g)" -e PACKAGE_VERSION \
             "${{ matrix.container }}" sh /src/.github/scripts/build-native-container.sh "${{ matrix.rid }}"
 
       - name: Build the native CLI
@@ -269,10 +280,11 @@ jobs:
         if: matrix.test
         run: .github/scripts/smoke.sh --binary "$LITESPEC_INSTALLED"
 
+      # The suite's expectations name the package version the installed binary reports, so the suite is built at that version too.
       - name: Run the CLI suite against the installed binary
         if: matrix.test
         run: |
-          dotnet build apps/cli/tests/LiteSpec.Cli.Tests --configuration Release
+          dotnet build apps/cli/tests/LiteSpec.Cli.Tests --configuration Release ${PACKAGE_VERSION:+-p:Version=$PACKAGE_VERSION}
           LITESPEC_TEST_EXECUTABLE="$LITESPEC_INSTALLED" dotnet test --project apps/cli/tests/LiteSpec.Cli.Tests --configuration Release --no-build
 
       - name: Keep the platform package and the archive
@@ -323,6 +335,8 @@ jobs:
     needs: release-assets
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
+    env:
+      PACKAGE_VERSION: ${{ inputs.package_version }}
     strategy:
       fail-fast: false
       matrix:
@@ -362,13 +376,13 @@ jobs:
       - name: Install and run the binary in ${{ matrix.image }}
         run: |
           . .github/scripts/lib.sh
-          version="$(manifest_version litespec.manifest.yaml)"
+          version="$(release_version litespec.manifest.yaml)"
           site="$RUNNER_TEMP/site"
           mkdir -p "$site/v$version"
           cp release/* "$site/v$version/"
           serve_folder "$site" "$RUNNER_TEMP/serve.log" .github/scripts/serve.mjs
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
-          docker run --rm --network host -e LITESPEC_DOWNLOAD_URL="http://127.0.0.1:$SERVER_PORT" -v "$PWD:/src:ro" \
+          docker run --rm --network host -e LITESPEC_DOWNLOAD_URL="http://127.0.0.1:$SERVER_PORT" -e PACKAGE_VERSION -v "$PWD:/src:ro" \
             "${{ matrix.image }}" sh /src/.github/scripts/smoke-distro.sh
 
   # Installs LiteSpec.Cli as a local .NET tool from the packages, the way a consumer restores
@@ -380,6 +394,8 @@ jobs:
     needs: [package, native]
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
+    env:
+      PACKAGE_VERSION: ${{ inputs.package_version }}
     strategy:
       fail-fast: false
       matrix:
@@ -428,5 +444,5 @@ jobs:
       - name: Install the tool and run the smoke scenario in ${{ matrix.image }}
         if: matrix.image != ''
         run: |
-          docker run --rm -v "$PWD:/src:ro" "${{ matrix.image }}" \
+          docker run --rm -e PACKAGE_VERSION -v "$PWD:/src:ro" "${{ matrix.image }}" \
             sh -c 'apk add --no-cache -q bash coreutils diffutils findutils && bash /src/.github/scripts/smoke.sh --tool /src/feed'

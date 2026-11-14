@@ -23,7 +23,7 @@ fi
 
 repository="$(cd "$(dirname "$0")/../.." && pwd)"
 . "$repository/.github/scripts/lib.sh"
-version="$(manifest_version "$repository/litespec.manifest.yaml")"
+version="$(release_version "$repository/litespec.manifest.yaml")"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 unset LITESPEC_HOME
