@@ -53,6 +53,7 @@ static class Checker
     [
         SchemaChecks.Run,
         IdentifierChecks.Run,
+        DuplicateKeyChecks.Run,
         RecordNameChecks.RunNames,
         RecordNameChecks.Run,
         CitationChecks.Run,

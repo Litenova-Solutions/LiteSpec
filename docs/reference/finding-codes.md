@@ -13,6 +13,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `identifier-duplicate` | G | any | no | - | One identifier names two records. | Give one of the records a new identifier. |
 | `identifier-folder-drift` | G | any | no | - | An identifier's module segment disagrees with its folder. | Rename the identifier to its folder's module and update every citation. |
 | `name-duplicate` | G | any | no | - | One name segment names two records in the product. | Give one of the records a new name. |
+| `record-key-duplicate` | G | any | no | - | Two entries of one record share a key, such as a source key, a step id, an operation name or a field name. | Give one of the entries a new key. |
 | `field-invalid` | G | any | no | - | A field holds a value outside its shape. | Write the field in its declared shape. |
 | `reference-unknown` | G | any | no | - | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | any | no | - | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
