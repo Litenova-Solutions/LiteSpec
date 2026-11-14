@@ -200,6 +200,33 @@ internal static class MarkChecks
         SourceRoots.ModulePath(config, file);
 
     /// <summary>
+    ///     Whether a view mark sits on a type inside a module's <c>Views</c> folder. A view is built
+    ///     by several types, such as its document, its reader and its projections, and a projection
+    ///     implements an event handler, so the folder names the view's code rather than the kind.
+    ///     Several types may carry the same view mark.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds the consumer configuration.</param>
+    /// <param name="element">The marked code element that carries the mark.</param>
+    /// <param name="mark">The mark under test.</param>
+    /// <returns>True when the mark names a view and the element sits in a module Views folder.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
+    private static bool IsViewMarkInViewsFolder(ProjectModel model, MarkedElement element, CodeMark mark)
+    {
+        if (!mark.RecordId.StartsWith(RecordTypes.View + "/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        // The folders above the file name, read from the path as written: a Views folder below
+        // another folder is a module's Views folder. The module layout drops layer folders, so
+        // the raw path is read rather than the module segments.
+        var folders = element.File.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        return folders.Length > 2
+            && folders[1..^1].Any(folder => string.Equals(folder, "Views", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     ///     The use-case folder of a handler or endpoint: the third segment of module,
     ///     aggregate and use case, or the second of a flat module and use case. Null when
     ///     the file sits directly in its module folder, where no use-case folder names it.
@@ -249,7 +276,7 @@ internal static class MarkChecks
         {
             findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which matches no record.", mark.File, mark.Line, subject));
         }
-        else if (!MarkRules.Accepts(element.Kind, mark.RecordId))
+        else if (!MarkRules.Accepts(element.Kind, mark.RecordId) && !IsViewMarkInViewsFolder(model, element, mark))
         {
             findings.Add(new Finding("mark-unknown", $"{KindName(element.Kind)} '{DisplayName(element)}' marks '{mark.RecordId}', which is a {record.Type} record, not a {ExpectedTypes(element.Kind)} record.", mark.File, mark.Line, subject));
         }

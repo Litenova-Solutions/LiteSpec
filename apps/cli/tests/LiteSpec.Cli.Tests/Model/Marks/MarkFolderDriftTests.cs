@@ -102,7 +102,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = TestCli.Temp("marks");
         var model = DriftModel(temp.Path);
-        var file = LayerFile(temp.Path, "Application", "Lending", "Jobs", "SendRemindersJob.cs");
+        var file = LayerFile(temp.Path, "Application", "Lending", "UseCases", "SendReminders", "Application", "SendRemindersJob.cs");
         model.Code.Elements.Add(Element(CodeKind.Job, "SendRemindersJob", file, "job/billing.send-reminders"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -238,7 +238,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Billing", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Billing", "Holds", "UseCases", "HoldRoom", "Application", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         var drifts = MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift");
@@ -255,7 +255,7 @@ public sealed class MarkFolderDriftTests
     {
         using var temp = TestCli.Temp("marks");
         var model = ModuleModel(temp.Path);
-        var file = ProductFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "HoldRoomCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Booking", "Holds", "UseCases", "HoldRoom", "Application", "HoldRoomCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "HoldRoomCommandHandler", file, "use-case/booking.hold-room"));
 
         Assert.Empty(MarksFixture.WithCode(Checker.Check(model).Findings, "mark-folder-drift"));

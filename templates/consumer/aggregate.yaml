@@ -97,6 +97,13 @@ records:
   meaning: An expense was reimbursed.
   carries:
   - expenseId
+  - employeeId
   - amount
   - currency
   - reimbursedAt
+- type: event
+  id: event/expense.personal-data-erased
+  title: Expense Personal Data Erased
+  meaning: The personal data of a decided expense was erased.
+  carries:
+  - expenseId

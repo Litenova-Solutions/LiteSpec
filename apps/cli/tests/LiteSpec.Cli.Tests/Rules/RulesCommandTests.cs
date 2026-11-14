@@ -71,11 +71,11 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs");
+            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
+            "Rules for apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs (stack: dotnet, concern: application, artifact: command-handler)",
             result.Output);
         Assert.Contains("Required:", result.Output);
         Assert.Contains("Concern-wide:", result.Output);
@@ -99,7 +99,7 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains("Checked by a tool:", result.Output);
-        Assert.Contains("- litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage: checked by `LS2012`, `LS2013`, `LS2014`, `LS2015` [path match (artifact command-handler)]", result.Output);
+        Assert.Contains("- litespec/backend/dotnet/application#bind-command-handlers-to-load-call-and-stage: checked by `LS2012`, `LS2013`, `LS2014`, `LS2015`, `LS2021` [path match (artifact command-handler)]", result.Output);
         Assert.DoesNotContain("A command handler MUST", result.Output);
     }
 
@@ -205,7 +205,7 @@ public sealed class RulesCommandTests
         var result = TestCli.Run(
             "rules",
             "--root", root,
-            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs",
+            "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs",
             "--full");
 
         Assert.Equal(0, result.Status);

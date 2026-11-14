@@ -13,8 +13,16 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 /// <summary>The backend placement check: every backend mark sits under the code folder its record's placement names, with a namespace that names the same path.</summary>
 /// <follows>litespec/core/model#match-each-backend-mark-to-its-folder</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
+/// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+/// <follows>litespec/backend/application#use-this-use-case-layout</follows>
 internal static class BackendPlacementChecks
 {
+    /// <summary>The layer folders a use case holds: its Application folder, and its WebApi folder for an endpoint.</summary>
+    static readonly HashSet<string> UseCaseLayerFolders = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Application", "WebApi",
+    };
+
     /// <summary>
     ///     Reports every backend mark whose namespace or aggregate folder misses the code folder its record's placement names:
     ///     a use case mark outside its aggregate folder, an event or rule mark outside its module or aggregate,
@@ -39,8 +47,24 @@ internal static class BackendPlacementChecks
                     continue;
                 }
 
-                if (!model.ById.TryGetValue(mark.RecordId, out var record)
-                    || !MarkRules.Accepts(element.Kind, mark.RecordId))
+                if (!model.ById.TryGetValue(mark.RecordId, out var record))
+                {
+                    continue;
+                }
+
+                // A view projection or reader carries its view mark as a technical class mark. The
+                // view's folder is its module Views folder, so only the view placement applies to it.
+                if (record.Type == "view")
+                {
+                    if (!CheckViewPlacement(model, element, mark, record, findings))
+                    {
+                        CheckBackendNamespace(model.Config, element, mark, record, PathOf(record), null, namespaces, findings);
+                    }
+
+                    continue;
+                }
+
+                if (element.Kind == CodeKind.Technical || !MarkRules.Accepts(element.Kind, mark.RecordId))
                 {
                     continue;
                 }
@@ -136,6 +160,12 @@ internal static class BackendPlacementChecks
             return CheckUseCaseElementFolder(model.Config, element, mark, path, findings);
         }
 
+        if (element.Kind is CodeKind.EventHandler or CodeKind.Job
+            && record.Type is RecordTypes.Reaction or RecordTypes.Job)
+        {
+            return CheckTriggerFolder(model.Config, element, mark, record, path, findings);
+        }
+
         if (path.Aggregate is null
             || record.Type is not (RecordTypes.Event or RecordTypes.Rule or RecordTypes.Aggregate))
         {
@@ -204,7 +234,14 @@ internal static class BackendPlacementChecks
             return false;
         }
 
+        // A use case's handler, message and steps sit in its Application folder, and its endpoint in
+        // its WebApi folder. The layer folder names no use case, so the use case folder is the one above it.
         var folders = raw[1..^1];
+
+        if (folders.Length > 0 && UseCaseLayerFolders.Contains(folders[^1]))
+        {
+            folders = folders[..^1];
+        }
 
         if (folders.Length == 0)
         {
@@ -334,6 +371,98 @@ internal static class BackendPlacementChecks
         }
 
         return SourceRoots.ModulePath(config, file);
+    }
+
+    /// <summary>
+    ///     Reports the folder a reaction or job trigger misses, read from its record's effects: the Application folder of
+    ///     the use case it runs, else the Notifications folder of the notification it sends, else the ExternalSystems
+    ///     folder of the external system it calls. A trigger in another module folder stays with <c>mark-folder-drift</c>,
+    ///     and a trigger under layer projects keeps no folder rule.
+    /// </summary>
+    /// <param name="config">The project configuration that holds each layer root.</param>
+    /// <param name="element">The marked event handler or job host whose folder is checked.</param>
+    /// <param name="mark">The mark naming the reaction or job the folder should hold.</param>
+    /// <param name="record">The marked reaction or job record.</param>
+    /// <param name="path">The module, aggregate and name the record's folder path states.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    /// <follows>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</follows>
+    private static bool CheckTriggerFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<Finding> findings)
+    {
+        if (!SourceRoots.IsProductRoot(config.ModulesRoot)
+            || TriggerHomeOf(record) is not { } home
+            || RawModulePath(config, element.File) is not { } raw
+            || raw.Length < 2
+            || !SameName(raw[0], path.Module!))
+        {
+            return false;
+        }
+
+        var folders = raw[..^1];
+        var placed = home.Container == "UseCases"
+            ? folders.Length >= 3
+                && string.Equals(folders[^1], "Application", StringComparison.OrdinalIgnoreCase)
+                && SameName(folders[^2], home.Name)
+                && string.Equals(folders[^3], "UseCases", StringComparison.OrdinalIgnoreCase)
+            : folders.Length >= 2
+                && SameName(folders[^1], home.Name)
+                && string.Equals(folders[^2], home.Container, StringComparison.OrdinalIgnoreCase);
+
+        if (placed)
+        {
+            return false;
+        }
+
+        var expected = home.Container == "UseCases"
+            ? $"{raw[0]}/UseCases/{home.Name}/Application"
+            : $"{raw[0]}/{home.Container}/{home.Name}";
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but its trigger '{mark.RecordId}' belongs in '{expected}'.", mark.File, mark.Line, mark.RecordId));
+        return true;
+    }
+
+    /// <summary>
+    ///     Reports the folder a view projection or reader misses: the module Views folder named for the view's plural,
+    ///     <c>Views/&lt;ViewPlural&gt;/</c>, which holds files only. A view in another module folder is reported too.
+    /// </summary>
+    /// <param name="model">The loaded project model whose configuration names the layer roots.</param>
+    /// <param name="element">The marked code element that carries the view mark.</param>
+    /// <param name="mark">The view mark naming the view the folder should hold.</param>
+    /// <param name="view">The marked view record.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
+    private static bool CheckViewPlacement(ProjectModel model, MarkedElement element, CodeMark mark, Record view, List<Finding> findings)
+    {
+        var path = PathOf(view);
+
+        if (!SourceRoots.IsProductRoot(model.Config.ModulesRoot)
+            || path.Module is null
+            || path.Name is null
+            || RawModulePath(model.Config, element.File) is not { } raw
+            || raw.Length < 2)
+        {
+            return false;
+        }
+
+        if (!SameName(raw[0], path.Module))
+        {
+            findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in module folder '{raw[0]}', but marks '{mark.RecordId}'.", mark.File, mark.Line, mark.RecordId));
+            return true;
+        }
+
+        var folders = raw[..^1];
+        var plural = ViewFolderOf(path.Name);
+
+        if (folders.Length >= 2
+            && string.Equals(folders[^2], "Views", StringComparison.OrdinalIgnoreCase)
+            && SameName(folders[^1], plural))
+        {
+            return false;
+        }
+
+        findings.Add(new Finding("code-placement-drift", $"{KindName(element.Kind)} '{DisplayName(element)}' sits in folder '{folders[^1]}', but marks '{mark.RecordId}', so it belongs in '{raw[0]}/Views/{plural}/'.", mark.File, mark.Line, mark.RecordId));
+        return true;
     }
 
     /// <summary>Whether the file sits in the Contracts folder of the module the mark names, at any depth below it.</summary>
@@ -484,15 +613,17 @@ internal static class BackendPlacementChecks
 
     /// <summary>
     ///     Whether the element carries a backend placement: not a test, a frontend element, an
-    ///     aggregate method, a technical class or a host endpoint.
+    ///     aggregate method, a technical class or a host endpoint. A technical class that carries a
+    ///     view mark is the one technical class with a placement, its module Views folder.
     /// </summary>
     /// <param name="config">The project configuration naming the host roots.</param>
     /// <param name="element">The marked code element.</param>
     /// <returns>True when the element's folder and namespace follow its record.</returns>
     private static bool HasBackendPlacement(ConsumerConfig config, MarkedElement element) =>
         !element.InTests
-        && element.Kind is not (CodeKind.Test or CodeKind.BrowserTest
-            or CodeKind.FrontendModule or CodeKind.FrontendRoute
-            or CodeKind.AggregateMethod or CodeKind.Technical)
+        && (element.Kind is not (CodeKind.Test or CodeKind.BrowserTest
+                or CodeKind.FrontendModule or CodeKind.FrontendRoute
+                or CodeKind.AggregateMethod or CodeKind.Technical)
+            || element.Marks.Any(mark => mark.RecordId.StartsWith("view/", StringComparison.Ordinal)))
         && !(element.Kind == CodeKind.Endpoint && IsHostEndpoint(config, element.File));
 }

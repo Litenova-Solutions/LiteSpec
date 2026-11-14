@@ -209,4 +209,48 @@ public sealed class AutomationNamingAnalyzerTests
             {
             }
             """, assemblyName: "Shop.Core", layer: "Application");
+
+    /// <summary>LS2007 accepts a view projection filed in a module Views folder, whatever its name.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
+    [Fact(DisplayName = "LS2007 accepts a view projection filed in a module Views folder")]
+    public Task AcceptsAViewProjectionInAViewsFolder() =>
+        Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
+            [
+                ("Claimwick.Modules/Reporting/Views/ReimbursedExpenses/ReimbursedExpenseProjector.cs", """
+                    namespace Claimwick.Reporting.Views.ReimbursedExpenses;
+
+                    public interface IEventHandler<TEvent> { }
+
+                    public sealed record ExpenseReimbursedEvent(int ExpenseId);
+
+                    internal sealed class ReimbursedExpenseProjector : IEventHandler<ExpenseReimbursedEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules",
+            layer: "Application");
+
+    /// <summary>LS2007 accepts a projection named {View}On{Fact}Projection outside a Views folder.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/workspace/naming#use-architectural-suffixes</proves>
+    [Fact(DisplayName = "LS2007 accepts a projection named for its view and fact")]
+    public Task AcceptsAProjectionNamedForItsViewAndFact() =>
+        Verify.AnalyzerAsync<AutomationNamingAnalyzer>(
+            [
+                ("Claimwick.Modules/Reporting/ReimbursedExpenseOnExpenseReimbursedProjection.cs", """
+                    namespace Claimwick.Reporting;
+
+                    public interface IEventHandler<TEvent> { }
+
+                    public sealed record ExpenseReimbursedEvent(int ExpenseId);
+
+                    internal sealed class ReimbursedExpenseOnExpenseReimbursedProjection : IEventHandler<ExpenseReimbursedEvent>
+                    {
+                    }
+                    """),
+            ],
+            assemblyName: "Claimwick.Modules",
+            layer: "Application");
 }

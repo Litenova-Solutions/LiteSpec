@@ -14,10 +14,10 @@ static class SourceRoots
         "Domain", "Application", "Infrastructure", "WebApi",
     };
 
-    /// <summary>Module-level folders that state no layer: the public surface and the record homes they mirror.</summary>
+    /// <summary>Module-level folders that state no layer: the public surface and the record homes they mirror. A notification, external system or view folder keeps its child, which names the record.</summary>
     static readonly HashSet<string> UnlayeredFolders = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Contracts", "UseCases", "Jobs",
+        "Contracts", "UseCases", "Notifications", "ExternalSystems", "Views",
     };
 
     /// <summary>The short project name holding the file, or null when it sits under no backend root.</summary>

@@ -209,7 +209,7 @@ public sealed class BookLexiconTests
         Assert.Equal("Triggered by", lexicon.Fields["triggeredBy"]);
         Assert.Equal("Skipped when", lexicon.Fields["skippedWhen"]);
         Assert.Equal("Runs", lexicon.Fields["runs"]);
-        Assert.Equal("Emits", lexicon.Fields["emits"]);
+        Assert.Equal("Publishes", lexicon.Fields["publishes"]);
         Assert.Equal("Binds", lexicon.Fields["binds"]);
         Assert.Equal("Exercises", lexicon.Fields["exercises"]);
         Assert.Equal("Background", lexicon.Fields["background"]);
@@ -272,7 +272,6 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.Fields.ContainsKey("on"));
         Assert.False(lexicon.Fields.ContainsKey("if"));
         Assert.False(lexicon.Fields.ContainsKey("issues"));
-        Assert.False(lexicon.Fields.ContainsKey("publishes"));
         Assert.False(lexicon.Fields.ContainsKey("driver"));
         Assert.False(lexicon.Fields.ContainsKey("automation"));
         Assert.False(lexicon.Fields.ContainsKey("removeWhen"));

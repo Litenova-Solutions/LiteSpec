@@ -23,6 +23,7 @@ internal static class IdentifierChecks
         RecordTypes.Job,
         RecordTypes.Notification,
         RecordTypes.Setting,
+        RecordTypes.View,
     };
 
     /// <summary>Types whose name segment stays unique in the product.</summary>
@@ -36,6 +37,7 @@ internal static class IdentifierChecks
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
         RecordTypes.Departure,
+        RecordTypes.View,
     };
 
     /// <summary>Record file names fixed by type: the file carries the type's name instead of the record's name.</summary>
@@ -454,6 +456,7 @@ internal static class IdentifierChecks
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",
         RecordTypes.Setting => "Setting",
+        RecordTypes.View => "View",
         _ => "Record",
     };
 }

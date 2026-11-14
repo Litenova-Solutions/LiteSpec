@@ -27,10 +27,13 @@ public sealed class CommandPipelineAnalyzerTests
             }
             """, assemblyName: "Shop.Application");
 
-    /// <summary>No rule reports a command handler dispatching through the mediator.</summary>
+    /// <summary>
+    ///     LS2004 reports no session write for a command handler holding the command mediator. The mediator
+    ///     itself is LS2021's finding, which MessageSentOutsideEntryPointAnalyzerTests covers.
+    /// </summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/persistence#stage-aggregate-writes-through-repositories</proves>
-    [Fact(DisplayName = "No rule reports a command handler dispatching through the mediator")]
+    [Fact(DisplayName = "LS2004 stays quiet for a command handler holding the command mediator")]
     public Task AcceptsADispatchThroughTheMediator() =>
         Verify.AnalyzerAsync<CommandPipelineAnalyzer>("""
             using System.Threading;

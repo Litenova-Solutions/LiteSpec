@@ -54,6 +54,7 @@ static class BookParents
             ["event"] = new("event", ["aggregate"], "aggregate"),
             ["reaction"] = new("reaction", ["module"], "module"),
             ["job"] = new("job", ["module"], "module"),
+            ["view"] = new("view", ["module"], "module"),
             ["notification"] = new("notification", ["module"], "module"),
             ["setting"] = new("setting", ["module"], "module"),
             ["screen"] = new("screen", ["entry-point"], "entry point"),
@@ -212,7 +213,7 @@ static class BookParents
             "scenario" => ScenarioParent(index, record),
             "rule" => RuleParent(index, record, id),
             "event" => AggregateFromFile(index, record) ?? AggregateNameParent(index, id),
-            "reaction" or "job" or "notification" or "setting" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
+            "reaction" or "job" or "notification" or "setting" or "view" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "screen" => EntryPointFromFile(index, record) ?? ScreenParent(index, id),
             _ => null,
         };

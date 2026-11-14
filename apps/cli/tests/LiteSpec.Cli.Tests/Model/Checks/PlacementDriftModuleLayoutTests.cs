@@ -19,7 +19,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagEndpoint.cs");
+        var file = ProductFile(temp.Path, "Controls", "UseCases", "ReadFeatureFlag", "WebApi", "ReadFeatureFlagEndpoint.cs");
         WriteCode(file, "Library.Controls.UseCases.ReadFeatureFlag", "ReadFeatureFlagEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "ReadFeatureFlagEndpoint", file, "use-case/controls.read-feature-flag"));
 
@@ -34,7 +34,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Controls", "Flags", "UseCases", "ReadFeatureFlag", "ReadFeatureFlagQueryHandler.cs");
+        var file = ProductFile(temp.Path, "Controls", "Flags", "UseCases", "ReadFeatureFlag", "Application", "ReadFeatureFlagQueryHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "ReadFeatureFlagQueryHandler", file, "use-case/controls.read-feature-flag"));
 
         var placed = Run(model);
@@ -51,7 +51,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        var file = ProductFile(temp.Path, "Cancellations", "EventChangeAnswers", "UseCases", "RecordEventChangeAnswer", "WebApi", "RecordEventChangeAnswerEndpoint.cs");
         WriteCode(file, "Library.Cancellations.EventChangeAnswers.UseCases.RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
@@ -65,7 +65,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerEndpoint.cs");
+        var file = ProductFile(temp.Path, "Cancellations", "EventChanges", "UseCases", "RecordEventChangeAnswer", "WebApi", "RecordEventChangeAnswerEndpoint.cs");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "RecordEventChangeAnswerEndpoint", file, "use-case/cancellations.record-event-change-answer"));
 
         var placed = Run(model);
@@ -82,7 +82,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "RecordEventChangeAnswerCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Cancellations", "UseCases", "RecordEventChangeAnswer", "Application", "RecordEventChangeAnswerCommandHandler.cs");
         model.Code.Elements.Add(Element(CodeKind.Handler, "RecordEventChangeAnswerCommandHandler", file, "use-case/cancellations.record-event-change-answer"));
 
         var placed = Run(model);
@@ -113,17 +113,17 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Directory", "Directory", "UseCases", "SearchAccounts", "SearchAccountsEndpoint.cs");
+        var file = ProductFile(temp.Path, "Directory", "Directory", "UseCases", "SearchAccounts", "WebApi", "SearchAccountsEndpoint.cs");
         WriteCode(file, "Library.Directory.Directory.UseCases.SearchAccounts", "SearchAccountsEndpoint");
         model.Code.Elements.Add(Element(CodeKind.Endpoint, "SearchAccountsEndpoint", file, "use-case/directory.search-accounts"));
 
         Assert.Empty(Run(model));
     }
 
-    /// <summary>A rule exception in its module Contracts folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <summary>A rule exception in its module Contracts folder reports that Contracts holds no Exceptions kind folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</proves>
     [Fact]
-    public void RuleExceptionInOwnModuleContractsReportsNothing()
+    public void RuleExceptionInModuleContractsReportsKindFolderDrift()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
@@ -131,7 +131,7 @@ public sealed class PlacementDriftModuleLayoutTests
         WriteCode(file, "Library.Lending.Contracts.Exceptions", "LoanNotFoundException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "LoanNotFoundException", file, "rule/loan.request-names-an-existing-loan"));
 
-        Assert.Empty(Run(model));
+        Assert.Contains(Run(model), finding => finding.Message.Contains("names no Contracts kind folder", StringComparison.Ordinal));
     }
 
     /// <summary>A product rule exception in the shared kernel reports nothing, wherever its record file sits.</summary>
@@ -157,8 +157,8 @@ public sealed class PlacementDriftModuleLayoutTests
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
         AddProductRule(model, temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Contracts", "Exceptions", "TextRequiredException.cs");
-        WriteCode(file, "Library.Lending.Contracts.Exceptions", "TextRequiredException");
+        var file = ProductFile(temp.Path, "Lending", "Domain", "Exceptions", "TextRequiredException.cs");
+        WriteCode(file, "Library.Lending.Domain.Exceptions", "TextRequiredException");
         model.Code.Elements.Add(Element(CodeKind.RuleException, "TextRequiredException", file, "rule/library.required-text-is-never-blank"));
 
         var finding = Assert.Single(Run(model));
@@ -292,7 +292,7 @@ public sealed class PlacementDriftModuleLayoutTests
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "BorrowCopyCommandHandler.cs");
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "BorrowCopyCommandHandler.cs");
         WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy", "BorrowCopyCommandHandler");
         model.Code.Elements.Add(Element(CodeKind.Handler, "BorrowCopyCommandHandler", file, "use-case/lending.borrow-copy"));
 
@@ -318,19 +318,59 @@ public sealed class PlacementDriftModuleLayoutTests
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>A reaction under its module UseCases On fact folder reports nothing.</summary>
-    /// <proves>litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case</proves>
+    /// <summary>A reaction that runs a use case, in that use case's Application folder, reports nothing.</summary>
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
     [Fact]
-    public void ReactionUnderUseCasesOnFactReportsNothing()
+    public void ReactionInItsUseCaseApplicationFolderReportsNothing()
     {
         using var temp = TestCli.Temp("placement");
         var model = DriftModel(temp.Path);
-        var file = ProductFile(temp.Path, "Lending", "UseCases", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
-        WriteCode(file, "Library.Lending.UseCases.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
+        RunsBorrowCopy(model);
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "BorrowCopy", "Application", "SendDueNoticeOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Loans.UseCases.BorrowCopy.Application", "SendDueNoticeOnLoanBorrowedHandler");
         model.Code.Elements.Add(Element(CodeKind.EventHandler, "SendDueNoticeOnLoanBorrowedHandler", file, "reaction/lending.send-due-notice"));
 
         Assert.Empty(Run(model));
         Assert.Empty(FolderDrift(model));
+    }
+
+    /// <summary>A reaction in a module UseCases On fact folder reports the Application folder its effects name, and the folder that names no use case.</summary>
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    [Fact]
+    public void ReactionInOnFactFolderReportsTriggerDrift()
+    {
+        using var temp = TestCli.Temp("placement");
+        var model = DriftModel(temp.Path);
+        RunsBorrowCopy(model);
+        var file = ProductFile(temp.Path, "Lending", "Loans", "UseCases", "OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler.cs");
+        WriteCode(file, "Library.Lending.Loans.UseCases.OnLoanBorrowed", "SendDueNoticeOnLoanBorrowedHandler");
+        model.Code.Elements.Add(Element(CodeKind.EventHandler, "SendDueNoticeOnLoanBorrowedHandler", file, "reaction/lending.send-due-notice"));
+
+        var placed = Run(model);
+
+        Assert.Contains(placed, finding => finding.Message == "Event handler 'SendDueNoticeOnLoanBorrowedHandler' sits in folder 'OnLoanBorrowed', but its trigger 'reaction/lending.send-due-notice' belongs in 'Lending/UseCases/BorrowCopy/Application'.");
+        Assert.Contains(placed, finding => finding.Message.StartsWith("Folder ", StringComparison.Ordinal) && finding.Message.EndsWith("OnLoanBorrowed' names no declared use case.", StringComparison.Ordinal));
+    }
+
+    /// <summary>Gives the drift model's reaction the effect that runs the borrow copy use case.</summary>
+    /// <param name="model">The drift model whose reaction record is changed.</param>
+    static void RunsBorrowCopy(ProjectModel model)
+    {
+        var index = model.Records.FindIndex(record => record.Id == "reaction/lending.send-due-notice");
+        var reaction = model.Records[index];
+        using var document = JsonDocument.Parse("""{"status": "reviewed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.borrow-copy"}]}""");
+
+        model.Records[index] = new LiteSpec.Cli.Model.Records.Record
+        {
+            Type = reaction.Type,
+            Id = reaction.Id,
+            Folder = reaction.Folder,
+            Module = reaction.Module,
+            Title = reaction.Title,
+            File = reaction.File,
+            Line = reaction.Line,
+            Raw = document.RootElement.Clone(),
+        };
     }
 
     /// <summary>A file directly in a module Contracts folder reports the kind folders.</summary>

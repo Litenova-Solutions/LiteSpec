@@ -527,7 +527,7 @@ public sealed class BookEnrichTests
             "Borrow Copy",
             "approved",
             "approved",
-            """{"input": [{"name": "roomId", "type": "id", "of": "aggregate/inventory.room", "required": true}], "effects": [{"runs": "use-case/lending.return-copy"}]}""");
+            """{"input": [{"name": "roomId", "type": "id", "of": "aggregate/inventory.room", "required": true}]}""");
         var runner = Record("use-case", "use-case/lending.return-copy", "Return Copy", "approved", "approved");
         var due = Record("event", "event/loan.loan-due", "Loan Due", "approved", "approved");
         var reaction = Record(
@@ -536,7 +536,7 @@ public sealed class BookEnrichTests
             "Send Due Reminder",
             "approved",
             "approved",
-            """{"triggeredBy": ["event/loan.loan-due"], "effects": [{"sends": "notification/lending.due-reminder"}, {"emits": "integration-event/loan-borrowed"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter", "surfacesIn": "entry-point/library-app", "runbook": "runbook/overdue-notice"}}""");
+            """{"triggeredBy": ["event/loan.loan-due"], "effects": [{"runs": "use-case/lending.return-copy"}, {"sends": "notification/lending.due-reminder"}], "onFailure": {"mode": "retry", "retry": {"maxAttempts": 5}, "then": "dead-letter", "surfacesIn": "entry-point/library-app", "runbook": "runbook/overdue-notice"}}""");
         var job = Record(
             "job",
             "job/lending.send-overdue-notices",
@@ -566,9 +566,8 @@ public sealed class BookEnrichTests
         var details = DetailsOf(NewModel(loan, room, useCase, runner, due, reaction, job, notification, integration, rule, result, scenario, door, runbook));
 
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "event/loan.loan-due", "reaction.triggeredBy"));
-        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "use-case/lending.return-copy", "use-case.effects.runs"));
+        Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "use-case/lending.return-copy", "reaction.effects.runs"));
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "notification/lending.due-reminder", "reaction.effects.sends"));
-        Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "integration-event/loan-borrowed", "reaction.effects.emits"));
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "entry-point/library-app", "reaction.onFailure.surfacesIn"));
         Assert.True(HasEdge(Arr(details["reaction/lending.send-due-reminder-on-loan-due"], "out"), "runbook/overdue-notice", "reaction.onFailure.runbook"));
         Assert.True(HasEdge(Arr(details["job/lending.send-overdue-notices"], "out"), "notification/lending.due-reminder", "job.effects.sends"));
@@ -578,6 +577,34 @@ public sealed class BookEnrichTests
         Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "aggregate/inventory.room", "use-case.input.of"));
         Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "out"), "aggregate/lending.loan", "integration-event.payload.of"));
         Assert.Equal("https://example.com/schemas/loan-borrowed.json", Str(Obj(details["integration-event/loan-borrowed"], "fields"), "dataschema"));
+    }
+
+    /// <summary>A use case publishes each outbound integration event that translates an event it raises, and the edge is computed from raises and translates.</summary>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-effects</proves>
+    [Fact]
+    public void PublishEdgeComesFromRaisesAndTranslates()
+    {
+        var details = DetailsOf(LoadFixture("Book/review.json"));
+
+        Assert.True(HasEdge(Arr(details["use-case/lending.borrow-copy"], "out"), "integration-event/loan-borrowed", "publishes"));
+        Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "in"), "use-case/lending.borrow-copy", "publishes"));
+    }
+
+    /// <summary>A view reads its key aggregate, takes each field from an integration event, and is read by the use case that names it.</summary>
+    /// <proves>litespec/backend/application#read-another-modules-state-through-a-view</proves>
+    [Fact]
+    public void ViewEdgesReadKeyFromAndReads()
+    {
+        var details = DetailsOf(LoadFixture("Book/review.json"));
+        var view = "view/reporting.loan-borrowing";
+
+        Assert.Equal("view", Str(details[view], "type"));
+        Assert.True(HasEdge(Arr(details[view], "out"), "aggregate/lending.loan", "view.keyedBy"));
+        Assert.True(HasEdge(Arr(details[view], "out"), "aggregate/lending.loan", "view.fields.of"));
+        Assert.True(HasEdge(Arr(details[view], "out"), "integration-event/loan-borrowed", "view.fields.from"));
+        Assert.True(HasEdge(Arr(details["integration-event/loan-borrowed"], "in"), view, "view.fields.from"));
+        Assert.True(HasEdge(Arr(details["use-case/lending.return-copy"], "out"), view, "use-case.reads"));
+        Assert.True(HasEdge(Arr(details[view], "in"), "use-case/lending.return-copy", "use-case.reads"));
     }
 
     /// <summary>A record detail carries the captures and evidence strength the model states beside the record, and computes completion from proof.</summary>

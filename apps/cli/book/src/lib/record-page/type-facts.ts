@@ -5,7 +5,7 @@
 import { capitalize, esc, formatLabel, pluralize, proofLabel, stripStep } from "$lib/frame";
 import type { Book, BookRecord, ProofState, RecordFields } from "$lib/frame";
 import { codeCls, inlineRefHtml } from "./page-html";
-import { aggregateFields, journeyFields, routeFileOf, stringField, stringList, teamValue } from "./page-values";
+import { aggregateFields, journeyFields, objectList, routeFileOf, stringField, stringList, teamValue } from "./page-values";
 
 export interface Fact {
   key: string;
@@ -110,10 +110,14 @@ const facts: Record<string, FactFn> = {
   job: (f) => [{ key: "Kind", text: capitalize(stringField(f, "kind") ?? "job") }],
   "integration-event": (f, r) => {
     const out: Fact[] = [{ key: "Direction", text: f.direction === "in" ? "Arrives from outside" : "Leaves the system" }];
+    // The use cases that publish it, computed from the event each raises and the event this translates.
+    const publishers = (r.in ?? []).filter((edge) => edge.key === "publishes").length;
+    if (publishers) out.push({ key: "Published by", text: pluralize(publishers, "use case") });
     const t = testedFact(r);
     if (t) out.push(t);
     return out;
   },
+  view: (f) => [{ key: "Keeps", text: pluralize(objectList(f, "fields").length, "field") }],
   "external-system": (_f, r) => {
     const t = testedFact(r);
     return t ? [t] : [];
@@ -197,6 +201,8 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "decider", "decideBy", "owner", "approvedBy", "approvedOn", "approvedHash", "reviewBy",
   // A scenario shows these in its own Given, When, Then and Result sections.
   "given", "when", "then", "result",
+  // A view shows these in its own definition list, with the key as a record link.
+  "keyedBy", "removedBy", "freshness",
 ]);
 
 /** The field table's rows: the type's relations and facts, then the plain fields. */

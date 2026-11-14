@@ -1,0 +1,23 @@
+type: use-case
+id: use-case/finance.record-loan
+title: Record loan
+kind: command
+access:
+  grant: permission/borrow-copy
+  tenant: own
+reachedThrough:
+- entry-point/library-app
+raises:
+- event/loan.loan-borrowed
+idempotency:
+  mode: none
+  reason: Each call records its own loan.
+audit:
+  level: none
+  target: No audit trail.
+records:
+- type: result
+  id: result/record-loan.recorded
+  title: Recorded
+  outcome: success
+  meaning: The loan is recorded.

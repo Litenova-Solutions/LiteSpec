@@ -30,7 +30,7 @@ internal static class EffectEdges
                 continue;
             }
 
-            foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Emits, RecordFields.Calls })
+            foreach (var verb in new[] { RecordFields.Sends, RecordFields.Calls })
             {
                 if (entry.TryGetProperty(verb, out var target)
                     && target.ValueKind == JsonValueKind.String
@@ -44,14 +44,14 @@ internal static class EffectEdges
         return edges;
     }
 
-    /// <summary>Every edge a reaction or job declares: its runs, sends, emits and calls.</summary>
+    /// <summary>Every edge a reaction or job declares: its runs, sends and calls.</summary>
     /// <param name="record">The reaction or job record whose edge fields are read.</param>
     /// <returns>Each declared edge verb with its target identifier.</returns>
     internal static List<(string Verb, string Target)> HolderEdges(Record record)
     {
         var edges = new List<(string Verb, string Target)>();
 
-        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Emits, RecordFields.Calls })
+        foreach (var verb in new[] { RecordFields.Runs, RecordFields.Sends, RecordFields.Calls })
         {
             foreach (var id in record.EdgeIds(verb))
             {
@@ -62,7 +62,11 @@ internal static class EffectEdges
         return edges;
     }
 
-    /// <summary>Whether a declared edge of the same verb names the dispatch's target.</summary>
+    /// <summary>
+    ///     Whether a declared edge of the same verb names the dispatch's target. An event publish
+    ///     is never declared: no record names it, because an outbound integration event is published
+    ///     by the use cases whose raised event it translates.
+    /// </summary>
     /// <param name="model">The loaded project model that resolves dispatched messages and notifications.</param>
     /// <param name="edges">The edges the holder record declares.</param>
     /// <param name="dispatch">The scanned dispatch under test.</param>
@@ -72,7 +76,7 @@ internal static class EffectEdges
         {
             "runs" => ResolveMessageUseCases(model, dispatch.Target)
                 .Any(id => edges.Any(edge => edge.Verb == "runs" && edge.Target == id)),
-            "emits" => edges.Any(edge => edge.Verb == "emits" && MessageMatches(dispatch.Target, edge.Target)),
+            "publishes" => false,
             "sends" => edges.Any(edge => edge.Verb == "sends" && NotificationMatches(model, dispatch, edge.Target)),
             "calls" => edges.Any(edge => edge.Verb == "calls" && OperationMatches(dispatch.Target, edge.Target)),
             _ => true,

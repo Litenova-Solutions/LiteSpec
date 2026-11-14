@@ -38,6 +38,9 @@ public static class RecordTypes
     /// <summary>Gets the `example-cast` record type name.</summary>
     public const string ExampleCast = "example-cast";
 
+    /// <summary>Gets the `view` record type name.</summary>
+    public const string View = "view";
+
     /// <summary>Gets the `vision` record type name.</summary>
     public const string Vision = "vision";
 
@@ -146,7 +149,7 @@ public static class RecordTypes
         "product", "goal", "vision", "constraint", "research", "decision", "requirement", "problem",
         "feature", "actor", "role", "permission", "journey", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "event", "integration-event",
-        "reaction", "job", "notification", "setting",
+        "reaction", "job", "notification", "setting", "view",
         "entry-point", "screen", "external-system", "runbook", "departure", "term",
     };
 
@@ -164,7 +167,7 @@ public static class RecordTypes
             ["module"] = "behavior", ["aggregate"] = "behavior", ["rule"] = "behavior",
             ["use-case"] = "behavior", ["result"] = "behavior", ["scenario"] = "behavior",
             ["event"] = "behavior", ["integration-event"] = "behavior", ["reaction"] = "behavior",
-            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior",
+            ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["view"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
             ["departure"] = "governance",
@@ -188,7 +191,7 @@ public static class RecordTypes
     public static readonly HashSet<string> WithHome = new HashSet<string>(StringComparer.Ordinal)
     {
         "requirement", "aggregate", "rule", "use-case", "result",
-        "scenario", "event", "reaction", "job", "notification", "setting", "screen",
+        "scenario", "event", "reaction", "job", "notification", "setting", "screen", "view",
     };
 
     /// <summary>Types the small size requires.</summary>
@@ -226,17 +229,20 @@ public static class RecordTypes
             ["raises"] = new HashSet<string> { "event" },
             ["runs"] = new HashSet<string> { "use-case" },
             ["sends"] = new HashSet<string> { "notification" },
-            ["emits"] = new HashSet<string> { "integration-event" },
             ["calls"] = new HashSet<string> { "external-system" },
             ["triggeredBy"] = new HashSet<string> { "event", "integration-event" },
             ["changes"] = new HashSet<string> { "aggregate" },
-            ["reads"] = new HashSet<string> { "aggregate", "setting" },
+            ["keyedBy"] = new HashSet<string> { "aggregate" },
+            ["from"] = new HashSet<string> { "integration-event" },
+            ["erasedBy"] = new HashSet<string> { "integration-event" },
+            ["removedBy"] = new HashSet<string> { "integration-event" },
+            ["reads"] = new HashSet<string> { "aggregate", "setting", "view" },
             ["translates"] = new HashSet<string> { "event" },
             ["fallback"] = new HashSet<string> { "requirement" },
             ["releasedBy"] = new HashSet<string> { "use-case" },
             ["computedBy"] = new HashSet<string> { "rule" },
             ["enforcedBy"] = new HashSet<string> { "reaction", "job" },
-            ["effects"] = new HashSet<string> { "use-case", "notification", "integration-event", "external-system" },
+            ["effects"] = new HashSet<string> { "use-case", "notification", "external-system" },
             ["access"] = new HashSet<string> { "permission" },
             ["except"] = new HashSet<string> { "requirement" },
             ["dataClasses"] = new HashSet<string> { "reaction", "job", "decision", "requirement" },

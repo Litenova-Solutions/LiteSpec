@@ -45,6 +45,12 @@ public static class KindReader
     /// <summary>The record id prefix a job mark names.</summary>
     private const string JobPrefix = "job/";
 
+    /// <summary>The record id prefix an integration event mark names.</summary>
+    private const string IntegrationEventPrefix = "integration-event/";
+
+    /// <summary>The record id prefix a view mark names.</summary>
+    private const string ViewPrefix = "view/";
+
     /// <summary>The attribute names that mark a test method.</summary>
     private static readonly HashSet<string> TestAttributeNames = new HashSet<string>(StringComparer.Ordinal)
     {
@@ -628,8 +634,7 @@ public static class KindReader
     /// <returns>True when the type is a technical class.</returns>
     private static bool IsTechnical(TypeDeclarationSyntax type, KindContext context, string? containingProject, string? containingLayer)
     {
-        if (type is not ClassDeclarationSyntax
-            || type.Parent is TypeDeclarationSyntax
+        if (type.Parent is TypeDeclarationSyntax
             || containingProject is null
             || !ProjectMatches(containingProject, containingLayer, "Application", "Application.Abstractions", "Infrastructure", "WebApi", "Worker"))
         {
@@ -637,6 +642,18 @@ public static class KindReader
         }
 
         if (IsGeneratedFile(type.SyntaxTree) || HasGeneratedCodeAttribute(type) || IsMigration(type))
+        {
+            return false;
+        }
+
+        // An integration event contract and a view type are technical by their mark: a record,
+        // an interface or a class with no method carries it, as the mark names the type's role.
+        if (HasMark(type, IntegrationEventPrefix) || HasMark(type, ViewPrefix))
+        {
+            return true;
+        }
+
+        if (type is not ClassDeclarationSyntax)
         {
             return false;
         }

@@ -6,7 +6,7 @@
   import Fact from "../blocks/Fact.svelte";
   import { EFFECT_VERBS, effectCondHtml, effectVerbOf, objectList } from "../page-values";
 
-  // What a behavior does beyond its own record: runs, sends, emits and calls.
+  // What a behavior does beyond its own record: runs, sends and calls.
   type Props = { f: RecordFields };
   let { f }: Props = $props();
   const list = $derived(objectList(f, "effects"));

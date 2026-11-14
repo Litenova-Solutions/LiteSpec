@@ -26,7 +26,7 @@ static class BookMarkdown
     static readonly Regex Italic = new(@"\*([^*\n]+)\*", RegexOptions.Compiled);
     /// <summary>The pattern of one record identifier with an optional fragment, covering every record type prefix.</summary>
     static readonly Regex RecordId = new(
-        @"\b((?:product|goal|problem|feature|constraint|research|decision|requirement|journey|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|use-case|result|scenario|actor|role|permission|entry-point|external-system|runbook|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)",
+        @"\b((?:product|goal|vision|problem|feature|constraint|research|decision|requirement|journey|term|module|aggregate|rule|event|integration-event|reaction|job|notification|setting|view|use-case|result|scenario|actor|role|permission|entry-point|screen|external-system|runbook|departure|exception)/[A-Za-z0-9][A-Za-z0-9._-]*(?:#[A-Za-z0-9_-]+)?)",
         RegexOptions.Compiled);
     /// <summary>The pattern of one heading line with its level marks and text.</summary>
     static readonly Regex Heading = new(@"^(#{1,6})\s+(.*)$", RegexOptions.Compiled);

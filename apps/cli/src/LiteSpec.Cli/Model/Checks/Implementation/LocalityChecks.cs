@@ -218,40 +218,61 @@ internal static class LocalityChecks
             SubjectOf(holder)));
     }
 
-    /// <summary>Reports an integration event published from more than one module.</summary>
-    /// <param name="model">The loaded project model that holds every integration event and emitting record.</param>
+    /// <summary>
+    ///     Reports an integration event published from more than one module. A use case publishes each
+    ///     outbound integration event that translates an event the use case raises, so the publishing
+    ///     modules are the modules of those use cases.
+    /// </summary>
+    /// <param name="model">The loaded project model that holds every integration event and use case.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-effects</follows>
     private static void CheckPublishers(ProjectModel model, List<Finding> findings)
     {
         var publishers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        var translators = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
-        foreach (var record in model.Records.Where(record =>
-            record.Type is RecordTypes.UseCase or RecordTypes.Reaction or RecordTypes.Job))
+        foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
         {
-            var module = ModuleOf(model, record);
+            foreach (var translated in integration.Ids(RecordFields.Translates))
+            {
+                var eventId = Identifiers.BaseId(translated);
+
+                if (!translators.TryGetValue(eventId, out var integrations))
+                {
+                    integrations = [];
+                    translators[eventId] = integrations;
+                }
+
+                integrations.Add(integration.Id);
+            }
+        }
+
+        foreach (var useCase in model.Records.Where(record => record.Type == RecordTypes.UseCase))
+        {
+            var module = ModuleOf(model, useCase);
 
             if (module is not { Length: > 0 })
             {
                 continue;
             }
 
-            foreach (var emitted in record.EdgeIds(RecordFields.Emits))
+            foreach (var raised in useCase.Ids(RecordFields.Raises))
             {
-                var baseId = Identifiers.BaseId(emitted);
-
-                if (!model.ById.TryGetValue(baseId, out var resolved)
-                    || resolved.Type != RecordTypes.IntegrationEvent)
+                if (!translators.TryGetValue(Identifiers.BaseId(raised), out var integrations))
                 {
                     continue;
                 }
 
-                if (!publishers.TryGetValue(baseId, out var set))
+                foreach (var integrationId in integrations)
                 {
-                    set = new HashSet<string>(StringComparer.Ordinal);
-                    publishers[baseId] = set;
-                }
+                    if (!publishers.TryGetValue(integrationId, out var set))
+                    {
+                        set = new HashSet<string>(StringComparer.Ordinal);
+                        publishers[integrationId] = set;
+                    }
 
-                set.Add(module);
+                    set.Add(module);
+                }
             }
         }
 

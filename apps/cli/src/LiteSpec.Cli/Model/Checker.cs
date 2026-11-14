@@ -112,6 +112,7 @@ static class Checker
         IntentChecks.Run,
         GraphChecks.RunStepUnserved,
         EffectLoopChecks.Run,
+        ViewChecks.Run,
         ConsistencyChecks.RunConsistency,
         QueryChecks.RunQueryOutput,
         QueryChecks.RunPaging,

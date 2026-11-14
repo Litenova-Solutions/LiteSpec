@@ -109,11 +109,11 @@ static class DispatchReader
                     found.Add((receiver, new CodeDispatch("runs", runs.Target, "", file, line)));
                 }
             }
-            else if (EmitsThrough(kind))
+            else if (PublishesThrough(kind))
             {
-                if (MessageTarget(invocation, templateCounts: false) is { } emits)
+                if (MessageTarget(invocation, templateCounts: false) is { } published)
                 {
-                    found.Add((receiver, new CodeDispatch("emits", emits.Target, "", file, line)));
+                    found.Add((receiver, new CodeDispatch("publishes", published.Target, "", file, line)));
                 }
             }
             else if (SendsThrough(kind))
@@ -139,10 +139,10 @@ static class DispatchReader
         return found;
     }
 
-    /// <summary>Whether a receiver kind emits events: a publisher or the outbox.</summary>
+    /// <summary>Whether a receiver kind publishes events: a publisher or the outbox.</summary>
     /// <param name="kind">The receiver kind.</param>
-    /// <returns>True when a receiver kind emits events.</returns>
-    public static bool EmitsThrough(string kind) =>
+    /// <returns>True when a receiver kind publishes events.</returns>
+    public static bool PublishesThrough(string kind) =>
         kind.EndsWith("Publisher", StringComparison.Ordinal)
         || kind.Contains("Outbox", StringComparison.Ordinal);
 
@@ -164,7 +164,7 @@ static class DispatchReader
         var kind = DotnetNames.KindOf(type);
 
         return kind == "ICommandMediator"
-            || EmitsThrough(kind)
+            || PublishesThrough(kind)
             || SendsThrough(kind)
             || (!ExcludedReceiver(kind) && qualified.IsExternalPort(scope, kind));
     }

@@ -65,17 +65,43 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("known-gap", RecordTypes.All);
     }
 
-    /// <summary>The effect verbs link the records each effect reaches, with no retired verb left.</summary>
+    /// <summary>The effect verbs link the records each effect reaches, and an event publish is no verb.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-effects</proves>
     [Fact]
     public void EffectVerbsLinkTheirTargets()
     {
         Assert.True(RecordTypes.LinkTargets["runs"].SetEquals(["use-case"]));
         Assert.True(RecordTypes.LinkTargets["sends"].SetEquals(["notification"]));
-        Assert.True(RecordTypes.LinkTargets["emits"].SetEquals(["integration-event"]));
         Assert.True(RecordTypes.LinkTargets["calls"].SetEquals(["external-system"]));
+        Assert.False(RecordTypes.LinkTargets.ContainsKey("emits"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("issues"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("publishes"));
+    }
+
+    /// <summary>A view links the aggregate it is keyed by, the integration events it takes fields from and removes rows on, and the use cases that read it.</summary>
+    /// <proves>litespec/core/automation#declare-each-view-field-from-a-published-field</proves>
+    [Fact]
+    public void ViewLinksItsSourcesAndReaders()
+    {
+        Assert.Contains("view", RecordTypes.All);
+        Assert.Contains("view", RecordTypes.WithHome);
+        Assert.Equal("behavior", RecordTypes.LayerByType["view"]);
+        Assert.True(RecordTypes.LinkTargets["keyedBy"].SetEquals(["aggregate"]));
+        Assert.True(RecordTypes.LinkTargets["from"].SetEquals(["integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["erasedBy"].SetEquals(["integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["removedBy"].SetEquals(["integration-event"]));
+        Assert.True(RecordTypes.LinkTargets["reads"].SetEquals(["aggregate", "setting", "view"]));
+    }
+
+    /// <summary>A view is a technical type that code implements, and its record home is its module's views folder.</summary>
+    /// <proves>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</proves>
+    [Fact]
+    public void ViewHomeIsTheModuleViewsFolder()
+    {
+        Assert.Contains("views", RecordFolders.BehaviorModuleFolders);
+        Assert.Equal("behavior/modules/reporting/views/reimbursed-expense/reimbursed-expense.yaml", RecordFolders.ScaffoldPath("view", "reporting", "reimbursed-expense"));
+        Assert.True(RecordFolders.Places("view", ["behavior", "modules", "reporting", "views", "reimbursed-expense"], "reimbursed-expense.yaml"));
     }
 
     /// <summary>The reaction trigger links the events that set it off, and the old trigger is gone.</summary>

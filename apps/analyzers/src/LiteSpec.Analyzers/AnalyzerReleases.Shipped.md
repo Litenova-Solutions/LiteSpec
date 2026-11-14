@@ -52,3 +52,12 @@ LS5008 | LiteSpec.Traceability | Error | Descriptors
 LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 LS5011 | LiteSpec.Traceability | Error | Descriptors
 LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics
+
+## Release 6.1.0
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|-------
+LS2021 | LiteSpec.Layers | Error | Descriptors
+LS2022 | LiteSpec.Layers | Error | Descriptors

@@ -61,34 +61,31 @@ internal static class SchemaChecks
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ProjectModel, HashSet<string>> RunTargetCache = new();
 
     /// <summary>
-    ///     The use cases another record runs: a reaction, job or use case through a `runs`
-    ///     effect. Such a use case is reached from inside the system.
+    ///     The use cases a reaction or job runs through its `runs` effect. Such a use case is
+    ///     reached from inside the system.
     /// </summary>
-    /// <param name="model">The loaded project model whose records declare the runs effects.</param>
-    /// <returns>The identifiers of use cases that another record runs.</returns>
+    /// <param name="model">The loaded project model whose reactions and jobs declare the runs effects.</param>
+    /// <returns>The identifiers of use cases that a reaction or job runs.</returns>
     private static HashSet<string> RunTargets(ProjectModel model) => RunTargetCache.GetValue(model, built =>
     {
         var targets = new HashSet<string>(StringComparer.Ordinal);
         foreach (var record in built.Records)
         {
-            if (record.Raw.ValueKind != JsonValueKind.Object)
+            if (record.Type is not (RecordTypes.Reaction or RecordTypes.Job) || record.Raw.ValueKind != JsonValueKind.Object)
             {
                 continue;
             }
 
-            foreach (var listName in new[] { RecordFields.Effects, RecordFields.Steps })
+            if (!record.Raw.TryGetProperty(RecordFields.Effects, out var list) || list.ValueKind != JsonValueKind.Array)
             {
-                if (!record.Raw.TryGetProperty(listName, out var list) || list.ValueKind != JsonValueKind.Array)
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                foreach (var entry in list.EnumerateArray())
+            foreach (var entry in list.EnumerateArray())
+            {
+                if (Str(entry, RecordFields.Runs) is { Length: > 0 } target)
                 {
-                    if (Str(entry, RecordFields.Runs) is { Length: > 0 } target)
-                    {
-                        targets.Add(target);
-                    }
+                    targets.Add(target);
                 }
             }
         }
@@ -232,8 +229,8 @@ internal static class SchemaChecks
 
             case RecordTypes.UseCase:
                 RequireEnum(record, RecordFields.Kind, ["command", "query"], findings);
-                // A use case only a reaction, a job or another use case runs has no door of
-                // its own: only the rest must name one.
+                // A use case only a reaction or a job runs has no door of its own: only the
+                // rest must name one.
                 if (!RunTargets(model).Contains(record.Id))
                 {
                     RequireIds(record, RecordFields.ReachedThrough, 1, findings);
@@ -245,12 +242,20 @@ internal static class SchemaChecks
             case RecordTypes.Reaction:
             case RecordTypes.Job:
                 RequireArray(record, RecordFields.Effects, 1, findings);
+                CheckRunsAtMostOne(record, findings);
                 CheckIdempotency(record, findings);
                 CheckFailurePolicy(record, findings);
                 break;
 
             case RecordTypes.Setting:
                 CheckSetBy(record, findings);
+                break;
+
+            case RecordTypes.View:
+                RequireString(record, RecordFields.Summary, findings);
+                RequireIds(record, RecordFields.KeyedBy, 1, findings);
+                RequireArray(record, RecordFields.Fields, 1, findings);
+                RequireString(record, RecordFields.Freshness, findings);
                 break;
 
             case RecordTypes.ExternalSystem:
@@ -841,6 +846,33 @@ internal static class SchemaChecks
                           && name.GetString() is { Length: > 0 })
                       .Select(entry => entry.GetProperty(RecordFields.Name).GetString()!),
         ];
+    }
+
+    /// <summary>Reports a reaction or job whose effects hold more than one runs entry: it runs at most one use case.</summary>
+    /// <param name="record">The reaction or job record whose effects are counted.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    /// <follows>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</follows>
+    private static void CheckRunsAtMostOne(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Effects, out var list) || list.ValueKind != JsonValueKind.Array)
+        {
+            return;
+        }
+
+        var runs = 0;
+
+        foreach (var entry in list.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.Object && entry.TryGetProperty(RecordFields.Runs, out _))
+            {
+                runs++;
+            }
+        }
+
+        if (runs > 1)
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' has {runs} runs effects; a reaction or job runs at most one use case.", record.File, record.Line, SubjectOf(record)));
+        }
     }
 
     /// <summary>

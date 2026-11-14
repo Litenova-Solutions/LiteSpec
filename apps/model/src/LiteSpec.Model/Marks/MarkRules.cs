@@ -38,7 +38,7 @@ public static class MarkRules
     private static readonly string[] TechnicalImplementsTypes =
     [
         "aggregate", "use-case", "reaction", "job", "external-system",
-        "event", "rule", "notification", "setting", "integration-event",
+        "event", "rule", "notification", "setting", "integration-event", "view",
     ];
     /// <summary>The record types a follows mark names.</summary>
     private static readonly string[] FollowsTypes = ["litespec", "decision", "departure"];

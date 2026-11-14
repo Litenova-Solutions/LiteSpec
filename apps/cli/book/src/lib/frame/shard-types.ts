@@ -66,7 +66,7 @@ export function isFlowType(type: string): boolean {
 }
 
 /** The record types that live under a module member: use cases, rules, reactions, jobs, notifications and settings. */
-export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting"];
+export const MODULE_MEMBER_TYPES: readonly string[] = ["use-case", "rule", "reaction", "job", "notification", "setting", "view"];
 
 /** A record the Records packs carry, with every computed detail the book adds. */
 export interface BookRecord {

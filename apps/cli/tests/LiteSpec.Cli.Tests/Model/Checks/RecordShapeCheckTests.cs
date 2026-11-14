@@ -21,6 +21,45 @@ public sealed class RecordShapeCheckTests
         Assert.Contains("effect-loop-invalid", TestModel.Codes(model));
     }
 
+    /// <summary>A reaction with one runs entry passes the run-count rule.</summary>
+    /// <proves>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</proves>
+    [Fact]
+    public void ReactionWithOneRunsEntryPassesTheRunCountRule()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.return-again-on-loan-returned", Path.Combine(temp.Path, "again.yaml"), """{"triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}]}"""));
+
+        Assert.DoesNotContain("record-invalid", TestModel.Codes(model));
+    }
+
+    /// <summary>A reaction whose effects run two use cases is refused: a reaction or job runs at most one use case.</summary>
+    /// <proves>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</proves>
+    [Fact]
+    public void ReactionRunningTwoUseCasesIsRefused()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("reaction", "reaction/lending.return-twice-on-loan-returned", Path.Combine(temp.Path, "twice.yaml"), """{"triggeredBy": ["event/loan.loan-returned"], "effects": [{"runs": "use-case/lending.return-copy", "timing": "async"}, {"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "a reaction or job runs at most one use case"));
+    }
+
+    /// <summary>A job whose effects run two use cases is refused: a reaction or job runs at most one use case.</summary>
+    /// <proves>litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job</proves>
+    [Fact]
+    public void JobRunningTwoUseCasesIsRefused()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("job", "job/lending.scan-due", Path.Combine(temp.Path, "scan.yaml"), """{"kind": "manual", "guard": "An operator starts the scan.", "effects": [{"runs": "use-case/lending.mark-due", "timing": "async"}, {"runs": "use-case/lending.mark-late", "timing": "async"}]}"""));
+
+        Assert.True(Reports(model, "record-invalid", "a reaction or job runs at most one use case"));
+    }
+
     /// <summary>Reaction Effects Sends Edge Satisfies Notification Sender.</summary>
     /// <proves>litespec/core/edges#describe-every-notification-with-audience-channel-and-consent</proves>
     [Fact]
@@ -323,7 +362,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": "retry (5, PT1M) then dead-letter"}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure 'retry (5, PT1M) then dead-letter' as prose"));
     }
@@ -336,7 +375,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "retry", "retry": {"initialDelay": "PT1M", "maxDelay": "PT5M", "backoff": "exponential"}, "then": "dead-letter"}}]}"""));
 
         Assert.True(Reports(model, "record-invalid", "effect onFailure retry with no positive maxAttempts"));
     }
@@ -349,7 +388,7 @@ public sealed class RecordShapeCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"runs": "use-case/lending.notify-reader", "timing": "async", "onFailure": {"mode": "discard"}}]}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "effects": [{"sends": "notification/lending.notify-reader", "timing": "async", "onFailure": {"mode": "discard"}}]}"""));
 
         Assert.False(Reports(model, "record-invalid", "onFailure"));
     }

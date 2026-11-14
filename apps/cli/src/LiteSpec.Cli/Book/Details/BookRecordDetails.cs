@@ -58,7 +58,7 @@ static class BookRecordDetails
         var handlers = BookDetailSources.CodeByKey(model, "handlers", "useCase");
         var endpoints = BookDetailSources.CodeByKey(model, "endpoints", "useCase");
         var methods = BookDetailSources.CodeByKey(model, "aggregateMethods", "aggregate");
-        var runnersByPath = BookDetailSources.CodeByPaths(model, ["automations", "reactions", "jobs"]);
+        var runnersByPath = BookDetailSources.CodeByPaths(model, ["reactions", "jobs"]);
 
         var details = new Dictionary<string, JsonObject>(StringComparer.Ordinal);
         var order = new List<string>();

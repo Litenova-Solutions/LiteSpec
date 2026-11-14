@@ -137,7 +137,7 @@ public sealed class ConventionMarkTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "6.1.0",
                   "owners": [
                     "lending-team"
                   ],

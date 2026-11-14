@@ -65,7 +65,72 @@ static class BookEdges
             }
         }
 
+        AddPublishEdges(index, outs);
         return outs;
+    }
+
+    /// <summary>
+    ///     Adds the publish edge from each use case to every outbound integration event
+    ///     that translates a domain event the use case raises. The edge is computed from
+    ///     <c>raises</c> and <c>translates</c>; no record writes it.
+    /// </summary>
+    /// <param name="index">The model index.</param>
+    /// <param name="outs">The outgoing edges per record id, extended in place.</param>
+    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-effects</follows>
+    static void AddPublishEdges(BookIndex index, Dictionary<string, List<BookEdge>> outs)
+    {
+        var publishers = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var pair in index.ById)
+        {
+            if (BookRender.StrProp(pair.Value, "type") != "use-case" || BookRender.Fields(pair.Value)?["raises"] is not JsonArray raised)
+            {
+                continue;
+            }
+
+            foreach (var raisedEvent in RecordIds(raised))
+            {
+                if (!publishers.TryGetValue(raisedEvent, out var useCases))
+                {
+                    useCases = new List<string>();
+                    publishers[raisedEvent] = useCases;
+                }
+
+                useCases.Add(pair.Key);
+            }
+        }
+
+        foreach (var pair in index.ById)
+        {
+            if (BookRender.StrProp(pair.Value, "type") != "integration-event" || BookRender.Fields(pair.Value)?["translates"] is not JsonArray translated)
+            {
+                continue;
+            }
+
+            foreach (var domainEvent in RecordIds(translated))
+            {
+                foreach (var useCase in publishers.GetValueOrDefault(domainEvent) ?? new List<string>())
+                {
+                    if (outs.TryGetValue(useCase, out var list) && !list.Exists(edge => edge.Id == pair.Key && edge.Key == "publishes"))
+                    {
+                        list.Add(new BookEdge(pair.Key, "publishes"));
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>The record ids a string array holds, with any step fragment stripped.</summary>
+    /// <param name="items">The array of id strings.</param>
+    /// <returns>The base record ids, skipping entries that are not strings.</returns>
+    static IEnumerable<string> RecordIds(JsonArray items)
+    {
+        foreach (var item in items)
+        {
+            if (item is JsonValue value && value.TryGetValue<string>(out var text) && !string.IsNullOrEmpty(text))
+            {
+                yield return BookDetailValues.BaseId(text);
+            }
+        }
     }
 
     /// <summary>Walks one fields node, adding an edge per resolving record id.</summary>

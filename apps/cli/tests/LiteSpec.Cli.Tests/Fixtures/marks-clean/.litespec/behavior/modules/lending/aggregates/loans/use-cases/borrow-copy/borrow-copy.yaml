@@ -8,8 +8,6 @@ raises:
   - event/loan.loan-borrowed
 changes:
   - aggregate/lending.loan
-effects:
-  - runs: use-case/lending.register-copy
 records:
   - type: result
     id: result/borrow-copy.borrowed

@@ -488,6 +488,31 @@ public sealed class BookOutlineTests
                 .ToList());
     }
 
+    /// <summary>A view parents its module by its folder and sorts after the reactions of that module.</summary>
+    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    [Fact]
+    public void ViewParentsItsModuleByFolderAndSortsAfterReactions()
+    {
+        var model = Model(
+            Record("product", "product/library", "Library", "approved"),
+            Record("module", "module/reporting", "Reporting", "reviewed", file: ".litespec/behavior/modules/reporting/module.yaml"),
+            Record("reaction", "reaction/reporting.refresh-loan-totals", "Refresh Loan Totals", "reviewed", file: ".litespec/behavior/modules/reporting/reactions/refresh-loan-totals/refresh-loan-totals.yaml"),
+            Record("view", "view/reporting.loan-borrowing", "Loan Borrowing", "reviewed", file: ".litespec/behavior/modules/reporting/views/loan-borrowing/loan-borrowing.yaml"));
+
+        Assert.Equal("module/reporting", BookParents.ParentOf(model, "view/reporting.loan-borrowing"));
+
+        var outline = BookOutline.Build(model);
+        Assert.DoesNotContain("view/reporting.loan-borrowing", outline.Unplaced);
+        var module = Find(outline.Layers, "module/reporting");
+        Assert.NotNull(module);
+        Assert.Equal(
+            new[] { "reaction", "view" },
+            module!.Children
+                .Where(child => string.Equals(child.Kind, "record", StringComparison.Ordinal))
+                .Select(child => child.Type)
+                .ToList());
+    }
+
     /// <summary>A screen parents its entry point by identifier home; a home naming no entry point stays unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]

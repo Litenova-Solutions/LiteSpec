@@ -669,11 +669,17 @@
         "access": {
           "grant": "permission/borrow-copy",
           "tenant": "own"
-        }
+        },
+        "reads": [
+          "view/reporting.loan-borrowing"
+        ]
       },
       "links": {
         "fulfills": [
           "requirement/self-checkout.copy-shelf-home"
+        ],
+        "reads": [
+          "view/reporting.loan-borrowing"
         ]
       }
     },
@@ -1297,6 +1303,66 @@
       "links": {
         "translates": [
           "event/loan.loan-borrowed"
+        ]
+      }
+    },
+    {
+      "type": "module",
+      "id": "module/reporting",
+      "title": "Reporting",
+      "owner": "reporting-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/reporting/module.yaml",
+      "line": 3,
+      "explanation": "# Reporting\n\n## Boundaries\n\nThe branch reports on loans it does not keep.",
+      "fields": {
+        "type": "module",
+        "id": "module/reporting",
+        "title": "Reporting",
+        "owner": "reporting-team",
+        "status": "reviewed",
+        "summary": "What the branch reports on loans."
+      },
+      "links": {}
+    },
+    {
+      "type": "view",
+      "id": "view/reporting.loan-borrowing",
+      "title": "Loan Borrowing",
+      "owner": "reporting-team",
+      "status": "reviewed",
+      "effectiveStatus": "approved",
+      "decider": null,
+      "decideBy": null,
+      "file": ".litespec/behavior/modules/reporting/views/loan-borrowing/loan-borrowing.yaml",
+      "line": 3,
+      "fields": {
+        "type": "view",
+        "id": "view/reporting.loan-borrowing",
+        "title": "Loan Borrowing",
+        "owner": "reporting-team",
+        "status": "reviewed",
+        "summary": "What Reporting keeps about each loan the branch lends.",
+        "keyedBy": "aggregate/lending.loan",
+        "freshness": "PT5S",
+        "fields": [
+          {
+            "name": "loanId",
+            "meaning": "The loan that was borrowed.",
+            "type": "id",
+            "of": "aggregate/lending.loan",
+            "from": "integration-event/loan-borrowed#loanId",
+            "accumulate": "latest",
+            "classification": "internal"
+          }
+        ]
+      },
+      "links": {
+        "keyedBy": [
+          "aggregate/lending.loan"
         ]
       }
     }

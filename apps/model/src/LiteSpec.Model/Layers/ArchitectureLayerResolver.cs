@@ -69,9 +69,12 @@ public static class ArchitectureLayerResolver
         return assemblyLayer;
     }
 
-    /// <summary>Returns true when the file sits below a UseCases or Jobs folder; otherwise false.</summary>
+    /// <summary>
+    ///     Returns true when the file sits below a UseCases folder, or in a module Notifications, ExternalSystems or
+    ///     Views folder; otherwise false. A file inside a use case takes its layer from its Application or WebApi folder.
+    /// </summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
-    /// <returns>True when a folder of the path is named UseCases or Jobs; otherwise false.</returns>
+    /// <returns>True when a folder of the path is named UseCases, Notifications, ExternalSystems or Views; otherwise false.</returns>
     private static bool InSliceFolder(string? filePath)
     {
         if (string.IsNullOrEmpty(filePath))
@@ -80,7 +83,10 @@ public static class ArchitectureLayerResolver
         }
 
         var path = "/" + filePath!.Replace('\\', '/');
-        return path.Contains("/UseCases/") || path.Contains("/Jobs/");
+        return path.Contains("/UseCases/")
+            || path.Contains("/Notifications/")
+            || path.Contains("/ExternalSystems/")
+            || path.Contains("/Views/");
     }
 
     /// <summary>Reads a declared layer name; an unknown name opts the project out.</summary>

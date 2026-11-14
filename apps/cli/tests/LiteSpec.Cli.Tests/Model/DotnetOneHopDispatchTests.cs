@@ -43,7 +43,7 @@ public sealed class DotnetOneHopDispatchTests
             found => found.Class == "PublishEventOnLoanBorrowedHandler");
         var dispatch = Assert.Single(reaction.Dispatches!);
 
-        Assert.Equal("emits", dispatch.Verb);
+        Assert.Equal("publishes", dispatch.Verb);
         Assert.Equal("LoanBorrowedEvent", dispatch.Target);
         Assert.Equal("LoanEventRelay.RelayAsync", dispatch.Via);
     }

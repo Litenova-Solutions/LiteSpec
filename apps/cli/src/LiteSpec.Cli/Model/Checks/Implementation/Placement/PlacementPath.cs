@@ -50,6 +50,62 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
         return new(module, AggregateOf(record), name, true);
     }
 
+    /// <summary>
+    ///     Where a reaction or job trigger's code lives, read from its record's effects in this order: the use case it
+    ///     runs, its Application folder; else the first notification it sends; else the first external system it calls.
+    /// </summary>
+    /// <param name="record">The reaction or job record whose effects are read.</param>
+    /// <returns>The container folder and the PascalCase folder name under it, or null when the trigger names no effect.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
+    internal static (string Container, string Name)? TriggerHomeOf(Record record)
+    {
+        if (FirstNameOf(record.EdgeIds(RecordFields.Runs)) is { } run)
+        {
+            return new("UseCases", Naming.Pascal(run));
+        }
+
+        if (FirstNameOf(record.EdgeIds(RecordFields.Sends)) is { } sent)
+        {
+            return new("Notifications", Naming.Pascal(sent));
+        }
+
+        if (FirstNameOf(record.EdgeIds(RecordFields.Calls)) is { } called)
+        {
+            return new("ExternalSystems", Naming.Pascal(called));
+        }
+
+        return null;
+    }
+
+    /// <summary>The folder name a view takes under its module Views folder: the PascalCase plural of the view name.</summary>
+    /// <param name="name">The view name segment of its identifier, such as reimbursed-expense.</param>
+    /// <returns>The plural folder name, such as ReimbursedExpenses.</returns>
+    /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
+    internal static string ViewFolderOf(string name)
+    {
+        var pascal = Naming.Pascal(name);
+
+        return pascal.Length > 1 && pascal[^1] == 'y' && !"aeiouAEIOU".Contains(pascal[^2], StringComparison.Ordinal)
+            ? pascal[..^1] + "ies"
+            : pascal + "s";
+    }
+
+    /// <summary>The name segment of the first identifier that names one, with any '#' operation part dropped.</summary>
+    /// <param name="ids">The identifiers in declared order.</param>
+    /// <returns>The name segment, or null when no identifier names one.</returns>
+    private static string? FirstNameOf(IReadOnlyList<string> ids)
+    {
+        foreach (var id in ids)
+        {
+            if (Identifiers.TrySplit(id.Split('#')[0], out _, out _, out var name) && name.Length > 0)
+            {
+                return name;
+            }
+        }
+
+        return null;
+    }
+
     /// <summary>The identifier name of a record, or its whole identifier when the name is not split out.</summary>
     /// <param name="record">The record.</param>
     /// <returns>The name segment of the identifier.</returns>

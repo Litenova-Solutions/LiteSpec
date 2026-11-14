@@ -79,6 +79,10 @@ internal static class Descriptors
     private static readonly Provision UniquenessOutOfHandlers = Provision.Of("backend/persistence", "keep-uniqueness-out-of-handlers");
     /// <summary>The provision the related descriptors enforce: mark the test that proves each scenario (litespec/quality/testing#prove-each-scenario-through-the-public-boundary).</summary>
     private static readonly Provision ScenarioProof = Provision.Of("quality/testing", "prove-each-scenario-through-the-public-boundary");
+    /// <summary>The provision the related descriptors enforce: keep command handlers to load, call and stage (litespec/backend/application#keep-command-handlers-to-load-call-and-stage).</summary>
+    private static readonly Provision CommandHandlerStages = Provision.Of("backend/application", "keep-command-handlers-to-load-call-and-stage");
+    /// <summary>The provision the related descriptors enforce: emit declared integration events after commit (litespec/backend/application#emit-declared-integration-events-after-commit).</summary>
+    private static readonly Provision EmitAfterCommit = Provision.Of("backend/application", "emit-declared-integration-events-after-commit");
     /// <summary>The provision the related descriptors enforce: point code and tests up to records (litespec/core/system#point-code-and-tests-up-to-records).</summary>
     private static readonly Provision PointToRecords = Provision.Of("core/system", "point-code-and-tests-up-to-records");
     /// <summary>The provision the related descriptors enforce: write each mark in the declared style (litespec/backend/dotnet/stack#write-each-mark-in-the-declared-style).</summary>
@@ -269,13 +273,25 @@ internal static class Descriptors
     public static readonly DiagnosticDescriptor LS2019 = Create("LS2019", LayersCategory, UseCaseIsolation,
         "Use case names a type of another use case",
         "'{0}' lives in use case folder '{1}', which this use case may not name",
-        "A use case folder names no type declared in another use case folder. A reaction folder keeps the same boundary.");
+        "A use case folder names no type declared in another use case folder, the message and result of another use case included. A reaction or job sits in the folder of the use case it runs, so it names no other use case's type either.");
 
     /// <summary>The LS2020 descriptor: Module names a type outside another module's Contracts.</summary>
     public static readonly DiagnosticDescriptor LS2020 = Create("LS2020", LayersCategory, ModuleContracts,
         "Module names a type outside another module's Contracts",
         "'{0}' lives in module '{1}' outside its Contracts folder",
         "A module names another module's types only through its Contracts folder, including through global using directives.");
+
+    /// <summary>The LS2021 descriptor: A type that is not an entry point holds a message mediator.</summary>
+    public static readonly DiagnosticDescriptor LS2021 = Create("LS2021", LayersCategory, CommandHandlerStages,
+        "Message Sent Outside an Entry Point",
+        "'{0}' holds '{1}', which only an endpoint, reaction, or job may hold",
+        "A type that is not an endpoint, reaction, or job holds no command, query, or event mediator. A use case handler loads, calls one act, and stages; follow-on work runs from an endpoint, a reaction, or a job after the commit.");
+
+    /// <summary>The LS2022 descriptor: User code publishes an event.</summary>
+    public static readonly DiagnosticDescriptor LS2022 = Create("LS2022", LayersCategory, EmitAfterCommit,
+        "Event Published by User Code",
+        "'{0}' publishes events from user code; the pipeline publishes the integration event a raised domain event translates",
+        "Only the pipeline publishes an outbound integration event. A use case raises a domain event, and the pipeline stages each integration event that translates it in the same commit. User code holds no event mediator and no event publisher.");
 
     /// <summary>The LS3001 descriptor: Asynchronous method name lacks Async.</summary>
     public static readonly DiagnosticDescriptor LS3001 = Create("LS3001", StyleCategory, AsyncNames,

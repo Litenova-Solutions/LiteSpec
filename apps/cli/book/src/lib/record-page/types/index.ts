@@ -40,6 +40,7 @@ import Term from "./Term.svelte";
 import Test from "./Test.svelte";
 import UseCase from "./UseCase.svelte";
 import Vision from "./Vision.svelte";
+import View from "./View.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
 
@@ -76,6 +77,7 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,
+  view: View,
   "architecture-layer": GroupingPage,
   folder: GroupingPage,
   frontend: GroupingPage,

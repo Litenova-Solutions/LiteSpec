@@ -36,8 +36,8 @@ static class NewCommand
         lending.notify-reader; the full identifier is <type>/<id>. The file is
         written at the home its type owns, under behavior/: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
-        a notification under modules/<module>/notifications/, a decision under
-        the decisions folder. A named record is written in its own folder beside
+        a notification under modules/<module>/notifications/, a view under
+        modules/<module>/views/, a decision under the decisions folder. A named record is written in its own folder beside
         its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
         modules/<module>/reactions/<name>/<name>.md. A module file is
         modules/<module>/module.yaml; an aggregate file is

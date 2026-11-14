@@ -23,7 +23,7 @@ public sealed class RulesLookupTests
         Assert.Contains("Statement: ", result.Output);
         Assert.Contains("Rationale: ", result.Output);
         Assert.Contains("Example: ", result.Output);
-        Assert.Contains("Reviewed for: ", result.Output);
+        Assert.Contains("Checked by: ", result.Output);
     }
 
     /// <summary>An unknown provision identifier exits 1.</summary>

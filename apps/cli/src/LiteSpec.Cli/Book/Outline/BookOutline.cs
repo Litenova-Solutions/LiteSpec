@@ -38,7 +38,7 @@ static class BookOutline
     /// <summary>The record types that top the intent layer, in display order.</summary>
     static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "constraint", "research", "decision", "actor"];
     /// <summary>The record types under a module, in display order.</summary>
-    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event"];
+    static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event", "view"];
     /// <summary>The record types under an aggregate, in display order.</summary>
     static readonly IReadOnlyList<string> AggregateChildOrder = ["rule", "use-case", "event"];
     /// <summary>The list record types in the behavior layer, in display order.</summary>
@@ -551,7 +551,7 @@ static class BookOutline
             "departure" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "product" or "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "journey" or "actor" => "intent",
-            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
+            "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "view" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };
 

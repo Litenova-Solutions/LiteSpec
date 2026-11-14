@@ -90,6 +90,7 @@ public sealed class NewEveryTypeTests
         yield return ["reaction", "spending.send-reminder", "behavior/modules/spending/reactions/send-reminder/send-reminder.yaml", "Send Reminder", "reaction/spending.send-reminder"];
         yield return ["job", "spending.erase-data", "behavior/modules/spending/jobs/erase-data/erase-data.yaml", "Erase Data", "job/spending.erase-data"];
         yield return ["notification", "spending.approver-reminder", "behavior/modules/spending/notifications/approver-reminder/approver-reminder.yaml", "Approver Reminder", "notification/spending.approver-reminder"];
+        yield return ["view", "reporting.reimbursed-expense", "behavior/modules/reporting/views/reimbursed-expense/reimbursed-expense.yaml", "Reimbursed Expense", "view/reporting.reimbursed-expense"];
         yield return ["external-system", "bank", "behavior/external-systems/bank/bank.yaml", "Bank", "external-system/bank"];
         yield return ["screen", "library-app.loans", "behavior/entry-points/library-app/screens/library-app.loans/library-app.loans.yaml", "Loans", "screen/library-app.loans"];
         yield return ["runbook", "month-end", "implementation/runbooks/month-end/month-end.yaml", "Month End", "runbook/month-end"];

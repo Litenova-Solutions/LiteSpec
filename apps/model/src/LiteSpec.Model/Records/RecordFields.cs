@@ -11,6 +11,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `access` field.</summary>
     public const string Access = "access";
 
+    /// <summary>Gets the name of the `accumulate` field.</summary>
+    public const string Accumulate = "accumulate";
+
     /// <summary>Gets the name of the `action` field.</summary>
     public const string Action = "action";
 
@@ -225,14 +228,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `effects` field.</summary>
     public const string Effects = "effects";
 
-    /// <summary>Gets the name of the `emits` field.</summary>
-    public const string Emits = "emits";
-
     /// <summary>Gets the name of the `enforcedBy` field.</summary>
     public const string EnforcedBy = "enforcedBy";
 
     /// <summary>Gets the name of the `environment` field.</summary>
     public const string Environment = "environment";
+
+    /// <summary>Gets the name of the `erasedBy` field.</summary>
+    public const string ErasedBy = "erasedBy";
 
     /// <summary>Gets the name of the `erasure` field.</summary>
     public const string Erasure = "erasure";
@@ -358,6 +361,9 @@ public static class RecordFields
     public const string Input = "input";
     /// <summary>Gets the name of the `key` field.</summary>
     public const string Key = "key";
+
+    /// <summary>Gets the name of the `keyedBy` field.</summary>
+    public const string KeyedBy = "keyedBy";
 
     /// <summary>Gets the name of the `kind` field.</summary>
     public const string Kind = "kind";
@@ -543,6 +549,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `releasedBy` field.</summary>
     public const string ReleasedBy = "releasedBy";
 
+    /// <summary>Gets the name of the `removedBy` field.</summary>
+    public const string RemovedBy = "removedBy";
+
     /// <summary>Gets the name of the `reopenedWhen` field.</summary>
     public const string ReopenedWhen = "reopenedWhen";
 
@@ -614,9 +623,6 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `severity` field.</summary>
     public const string Severity = "severity";
-
-    /// <summary>Gets the name of the `sharesTransaction` field.</summary>
-    public const string SharesTransaction = "sharesTransaction";
 
     /// <summary>Gets the name of the `skippedWhen` field.</summary>
     public const string SkippedWhen = "skippedWhen";

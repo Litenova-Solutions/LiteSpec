@@ -108,9 +108,12 @@ public sealed class LayerResolverTests
     [InlineData("Claimwick/Organizations/Contracts/TeamId.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamHandler.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/CreateTeam/CreateTeamEndpoint.cs", ArchitectureLayer.WebApi)]
-    [InlineData("Claimwick/Organizations/Jobs/SendDigest/SendDigestJob.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/UseCases/SendDigest/Application/SendDigestJob.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick.Modules/Organizations/Teams/UseCases/CreateTeam/TeamNameRules.cs", ArchitectureLayer.Application)]
-    [InlineData("Claimwick.Modules/Organizations/UseCases/OnTeamCreated/WelcomeNoticeText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/UseCases/WelcomeNotice/Application/WelcomeNoticeText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Notifications/TeamRenamed/TeamRenamedText.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/ExternalSystems/PayoutBank/PayoutBankAdapter.cs", ArchitectureLayer.Application)]
+    [InlineData("Claimwick.Modules/Organizations/Views/ReimbursedExpenses/ReimbursedExpenseOnEmployeeReimbursedProjection.cs", ArchitectureLayer.Application)]
     [InlineData("Claimwick/Organizations/Teams/Team.cs", ArchitectureLayer.None)]
     public void ResolvesAModuleFile(string filePath, ArchitectureLayer expected) =>
         Assert.Equal(expected, ArchitectureLayerResolver.FileLayer(filePath, "Claimwick", BackendLayout.Modules, null));

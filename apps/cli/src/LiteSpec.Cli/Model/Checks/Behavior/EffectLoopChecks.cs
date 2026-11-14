@@ -28,8 +28,9 @@ internal static class EffectLoopChecks
     }
 
     /// <summary>
-    ///     The declared effect edges: use-case effects and raises, reaction triggers
-    ///     reversed into event edges with the reaction effects, and job effects.
+    ///     The effect edges: use-case effects and raises, each raised event into the integration
+    ///     events that translate it, reaction triggers reversed into event edges with the reaction
+    ///     effects, and job effects.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record and its effect edges.</param>
     /// <returns>The effect graph by source identifier, with each target list in ordinal order.</returns>
@@ -105,6 +106,15 @@ internal static class EffectLoopChecks
                         Edge(record.Id, target);
                     }
                 }
+            }
+        }
+
+        // A raised domain event reaches each outbound integration event that translates it.
+        foreach (var integration in model.Records.Where(record => record.Type == RecordTypes.IntegrationEvent))
+        {
+            foreach (var translated in integration.Ids(RecordFields.Translates))
+            {
+                Edge(Identifiers.BaseId(translated), integration.Id);
             }
         }
 
@@ -191,11 +201,11 @@ internal static class EffectLoopChecks
             && record.Type == RecordTypes.Reaction
             && record.Field(RecordFields.SkippedWhen) is { Length: > 0 });
 
-    /// <summary>The one target an effect entry names, across its four verbs.</summary>
+    /// <summary>The one target an effect entry names, across its verbs.</summary>
     /// <param name="entry">The effect entry whose target is read.</param>
-    /// <returns>The first non-empty target across the four edge verbs, or null when the entry names none.</returns>
+    /// <returns>The first non-empty target across the edge verbs, or null when the entry names none.</returns>
     private static string? EffectTarget(JsonElement entry) =>
-        (Str(entry, RecordFields.Runs) ?? Str(entry, RecordFields.Sends) ?? Str(entry, RecordFields.Emits) ?? Str(entry, RecordFields.Calls)) is { Length: > 0 } target
+        (Str(entry, RecordFields.Runs) ?? Str(entry, RecordFields.Sends) ?? Str(entry, RecordFields.Calls)) is { Length: > 0 } target
             ? target
             : null;
 }

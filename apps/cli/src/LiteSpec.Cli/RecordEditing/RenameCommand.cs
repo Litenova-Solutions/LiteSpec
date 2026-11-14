@@ -719,7 +719,7 @@ static class RenameCommand
             [RecordTypes.Module] = new HashSet<string>(StringComparer.Ordinal)
             {
                 RecordTypes.UseCase, RecordTypes.Aggregate, RecordTypes.Reaction, RecordTypes.Job,
-                RecordTypes.Notification, RecordTypes.Setting, RecordTypes.Rule,
+                RecordTypes.Notification, RecordTypes.Setting, RecordTypes.Rule, RecordTypes.View,
             },
             [RecordTypes.Feature] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Requirement },
             [RecordTypes.EntryPoint] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Screen },

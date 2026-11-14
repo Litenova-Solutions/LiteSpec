@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/6.0.0/schemas/record.schema.yaml'
+$id: 'https://litespec.dev/6.1.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
 description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
 oneOf:
@@ -23,6 +23,7 @@ oneOf:
 - $ref: '#/$defs/notificationPage'
 - $ref: '#/$defs/externalSystemPage'
 - $ref: '#/$defs/integrationEventPage'
+- $ref: '#/$defs/viewPage'
 - $ref: '#/$defs/runbookPage'
 - $ref: '#/$defs/departurePage'
 - $ref: '#/$defs/permissionListPage'
@@ -123,6 +124,9 @@ $defs:
   reactionId:
     type: string
     pattern: '^reaction/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
+  viewId:
+    type: string
+    pattern: '^view/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
   jobId:
     type: string
     pattern: '^job/[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$'
@@ -326,6 +330,7 @@ $defs:
       anyOf:
       - $ref: '#/$defs/aggregateId'
       - $ref: '#/$defs/settingId'
+      - $ref: '#/$defs/viewId'
   refusalValue:
     anyOf:
     - $ref: '#/$defs/resultId'
@@ -438,7 +443,7 @@ $defs:
       classification:
         $ref: '#/$defs/classification'
       reads:
-        $ref: '#/$defs/aggregateIdArray'
+        $ref: '#/$defs/readsArray'
       freshness:
         $ref: '#/$defs/freshnessValue'
       visibleWhen:
@@ -557,12 +562,8 @@ $defs:
     required:
     - timing
     properties:
-      runs:
-        $ref: '#/$defs/useCaseId'
       sends:
         $ref: '#/$defs/notificationId'
-      emits:
-        $ref: '#/$defs/integrationEventId'
       calls:
         $ref: '#/$defs/externalOperationRef'
       timing:
@@ -570,8 +571,6 @@ $defs:
         - inline
         - after-commit
         - async
-      sharesTransaction:
-        type: boolean
       onFailure:
         $ref: '#/$defs/onFailureValue'
       onExhausted:
@@ -580,49 +579,11 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       forEach:
         $ref: '#/$defs/nonEmptyString'
-    allOf:
-    - anyOf:
-      - required:
-        - runs
-      - required:
-        - sends
-      - required:
-        - emits
-      - required:
-        - calls
-    - not:
-        required:
-        - runs
-        - sends
-    - not:
-        required:
-        - runs
-        - emits
-    - not:
-        required:
-        - runs
-        - calls
-    - not:
-        required:
-        - sends
-        - emits
-    - not:
-        required:
-        - sends
-        - calls
-    - not:
-        required:
-        - emits
-        - calls
-    - if:
-        required:
-        - runs
-        properties:
-          timing:
-            const: inline
-      then:
-        required:
-        - sharesTransaction
+    oneOf:
+    - required:
+      - sends
+    - required:
+      - calls
   triggeredEffectEntry:
     type: object
     additionalProperties: false
@@ -631,8 +592,6 @@ $defs:
         $ref: '#/$defs/useCaseId'
       sends:
         $ref: '#/$defs/notificationId'
-      emits:
-        $ref: '#/$defs/integrationEventId'
       calls:
         $ref: '#/$defs/externalOperationRef'
       timing:
@@ -640,8 +599,6 @@ $defs:
         - inline
         - after-commit
         - async
-      sharesTransaction:
-        type: boolean
       onFailure:
         $ref: '#/$defs/onFailureValue'
       onExhausted:
@@ -650,49 +607,13 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       forEach:
         $ref: '#/$defs/nonEmptyString'
-    allOf:
-    - anyOf:
-      - required:
-        - runs
-      - required:
-        - sends
-      - required:
-        - emits
-      - required:
-        - calls
-    - not:
-        required:
-        - runs
-        - sends
-    - not:
-        required:
-        - runs
-        - emits
-    - not:
-        required:
-        - runs
-        - calls
-    - not:
-        required:
-        - sends
-        - emits
-    - not:
-        required:
-        - sends
-        - calls
-    - not:
-        required:
-        - emits
-        - calls
-    - if:
-        required:
-        - runs
-        properties:
-          timing:
-            const: inline
-      then:
-        required:
-        - sharesTransaction
+    oneOf:
+    - required:
+      - runs
+    - required:
+      - sends
+    - required:
+      - calls
   isoDuration:
     type: string
     pattern: '^P(?=.*\d)(?:\d+Y)?(?:\d+M)?(?:\d+W)?(?:\d+D)?(?:T(?:\d+H)?(?:\d+M)?(?:\d+(?:\.\d+)?S)?)?$'
@@ -2774,6 +2695,94 @@ $defs:
             - translates
           - required:
             - addresses
+  viewPage:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - summary
+    - keyedBy
+    - fields
+    - freshness
+    properties:
+      type:
+        const: view
+      id:
+        $ref: '#/$defs/viewId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      keyedBy:
+        $ref: '#/$defs/aggregateId'
+      fields:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/viewField'
+      removedBy:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items:
+          $ref: '#/$defs/integrationEventId'
+      freshness:
+        $ref: '#/$defs/isoDuration'
+      terms:
+        $ref: '#/$defs/termIdArray'
+      fulfills:
+        $ref: '#/$defs/requirementIdArray'
+  viewField:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    - meaning
+    - type
+    - from
+    - classification
+    properties:
+      name:
+        $ref: '#/$defs/nonEmptyString'
+      meaning:
+        $ref: '#/$defs/nonEmptyString'
+      type:
+        $ref: '#/$defs/contractValueType'
+      of:
+        $ref: '#/$defs/contractFieldOf'
+      many:
+        type: boolean
+      from:
+        description: The outbound integration event and the payload field of it that the view takes the value from.
+        type: string
+        pattern: '^integration-event/[a-z0-9][a-z0-9-]*#[a-z][a-zA-Z0-9]*$'
+      accumulate:
+        enum:
+        - latest
+        - sum
+        - count
+      classification:
+        $ref: '#/$defs/classification'
+      erasedBy:
+        $ref: '#/$defs/integrationEventId'
+    allOf:
+    - if:
+        required:
+        - classification
+        properties:
+          classification:
+            enum:
+            - personal
+            - sensitive
+      then:
+        required:
+        - erasedBy
+      else:
+        not:
+          required:
+          - erasedBy
   runbookPage:
     type: object
     additionalProperties: false

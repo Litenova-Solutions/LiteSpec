@@ -157,7 +157,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "6.1.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -264,12 +264,6 @@ public sealed class ActCheckTests
                   "owner": "lending-team",
                   "status": "reviewed",
                   "kind": "command",
-                  "effects": [
-                    {
-                      "runs": "use-case/lending.borrow-copy",
-                      "timing": "after-commit"
-                    }
-                  ],
                   "records": [
                     {
                       "type": "result",
@@ -404,7 +398,7 @@ public sealed class ActCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "6.1.0",
                   "owners": [
                     "lending-team"
                   ],

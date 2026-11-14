@@ -60,6 +60,8 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `notification.md` | `.litespec/behavior/modules/<module>/notifications/<name>/<name>.md` | Explains one notification beside its record file. |
 | `integration-event.yaml` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.yaml` | Defines one published or consumed integration event. |
 | `integration-event.md` | `.litespec/behavior/modules/<module>/integration-events/<name>/<name>.md` | Explains one integration event beside its record file. |
+| `view.yaml` | `.litespec/behavior/modules/<module>/views/<name>/<name>.yaml` | Defines one view a module keeps from the events another module publishes, with its key, fields and freshness. |
+| `view.md` | `.litespec/behavior/modules/<module>/views/<name>/<name>.md` | Explains one view beside its record file. |
 | `entry-point.yaml` | `.litespec/behavior/entry-points/<entry-point>/entry-point.yaml` | Records one door into the system: its kind and auth. |
 | `entry-point.md` | `.litespec/behavior/entry-points/<entry-point>/entry-point.md` | Explains one entry point beside its entry-point file. |
 | `screen.yaml` | `.litespec/behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml` | Records one page a person sees through an entry point, what it offers, and the steps it serves. |
@@ -117,6 +119,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | job | Invocation, Failure Handling, Example (optional) |
 | notification | Content, Delivery, Example |
 | integration-event | Consumers, Compatibility, Example |
+| view | Sources, Freshness, Example (optional) |
 | external-system | Use, Data Shared, Failure Handling |
 | entry-point | Audience, Authentication, Limits (optional) |
 | screen | Task, States, Example |

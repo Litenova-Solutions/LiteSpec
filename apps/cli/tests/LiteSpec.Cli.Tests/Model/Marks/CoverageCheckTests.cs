@@ -112,7 +112,7 @@ public sealed class CoverageCheckTests
 
         var finding = Assert.Single(findings);
         Assert.Equal("use-case/lending.borrow-copy", finding.Subject);
-        Assert.Contains("runs use-case/lending.register-copy", finding.Message);
+        Assert.Contains("sends notification/lending.loan-due", finding.Message);
     }
 
     /// <summary>Writes a consumer where an entity and a store aggregate each have no root in code.</summary>
@@ -134,7 +134,7 @@ public sealed class CoverageCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.0.0",
+                  "reviewedLiteSpecVersion": "6.1.0",
                   "owners": [
                     "lending-team"
                   ],

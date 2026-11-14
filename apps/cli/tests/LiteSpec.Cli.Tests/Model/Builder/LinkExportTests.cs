@@ -147,8 +147,8 @@ public sealed class LinkExportTests
             ["use-case/lending.release-hold"],
             ModelBuilder.TargetsOf(Element("""{"runs": "use-case/lending.release-hold"}""")));
         Assert.Equal(
-            ["integration-event/hold-released"],
-            ModelBuilder.TargetsOf(Element("""{"emits": "integration-event/hold-released"}""")));
+            ["notification/lending.due-reminder"],
+            ModelBuilder.TargetsOf(Element("""{"sends": "notification/lending.due-reminder"}""")));
         Assert.Equal(
             ["event/loan.loan-borrowed"],
             ModelBuilder.TargetsOf(Element("""{"event": "event/loan.loan-borrowed"}""")));

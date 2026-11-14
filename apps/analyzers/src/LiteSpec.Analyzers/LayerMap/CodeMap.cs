@@ -14,7 +14,7 @@ namespace LiteSpec.Analyzers.LayerMap;
 /// <follows>litespec/backend/architecture#point-dependencies-inward</follows>
 internal sealed class CodeMap
 {
-    /// <summary>Folder names that never hold a use case or reaction of their own, and never name a module.</summary>
+    /// <summary>Folder names that never hold a use case of their own, and never name a module.</summary>
     private static readonly HashSet<string> KnownFolders = new(StringComparer.Ordinal)
     {
         "Domain",
@@ -24,8 +24,9 @@ internal sealed class CodeMap
         "Contracts",
         "Composition",
         "UseCases",
-        "Reactions",
-        "Jobs",
+        "Notifications",
+        "ExternalSystems",
+        "Views",
         "Events",
         "Exceptions",
     };
@@ -115,13 +116,24 @@ internal sealed class CodeMap
         return longest;
     }
 
-    /// <summary>Returns the use case or reaction folder holding the file, or null when none does.</summary>
+    /// <summary>Returns the use case folder holding the file, or null when none does.</summary>
     /// <param name="filePath">The file path as the host reports it, or null when the document has none.</param>
     /// <returns>The slice folder, or null when the file sits outside every slice.</returns>
     public string? SliceOf(string? filePath)
     {
         var folder = FolderOf(filePath);
-        return folder is not null && Slices.Contains(folder) ? folder : null;
+
+        if (folder is null)
+        {
+            return null;
+        }
+
+        if (UseCaseFolderOf(folder) is { } slice && Slices.Contains(slice))
+        {
+            return slice;
+        }
+
+        return Slices.Contains(folder) ? folder : null;
     }
 
     /// <summary>Returns true when the file sits under a module Contracts folder; otherwise false.</summary>
@@ -404,13 +416,13 @@ internal sealed class CodeMap
                 continue;
             }
 
-            // A slice is a folder directly under a UseCases/ folder, at module or
-            // aggregate level, including On{Fact}/ reaction folders.
+            // A slice is a use case folder directly under a UseCases/ folder, at module or aggregate
+            // level, which a file reaches through its Application/ or WebApi/ folder.
             if (layout != BackendLayout.LayerProjects)
             {
-                if (ParentNameIs(folder, "UseCases"))
+                if (UseCaseFolderOf(folder) is { } slice)
                 {
-                    slices.Add(folder);
+                    slices.Add(slice);
                 }
 
                 continue;
@@ -430,22 +442,30 @@ internal sealed class CodeMap
         return slices;
     }
 
-    /// <summary>Returns true when the folder sits directly under a folder of that name; otherwise false.</summary>
+    /// <summary>
+    ///     Returns the use case folder a folder belongs to: the nearest ancestor whose parent is a UseCases folder,
+    ///     when the folder runs through that ancestor's Application or WebApi folder. Otherwise null.
+    /// </summary>
     /// <param name="folder">The folder as a forward-slash directory path.</param>
-    /// <param name="parent">The parent folder name.</param>
-    /// <returns>True when the folder sits directly under a folder of that name; otherwise false.</returns>
-    private static bool ParentNameIs(string folder, string parent)
+    /// <returns>The use case folder, as a forward-slash directory path, or null when the folder sits in no use case.</returns>
+    /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
+    private static string? UseCaseFolderOf(string folder)
     {
-        var slash = folder.LastIndexOf('/');
-        if (slash <= 0)
+        var segments = folder.Split('/');
+
+        for (var index = segments.Length - 2; index >= 1; index--)
         {
-            return false;
+            if (!segments[index - 1].Equals("UseCases", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return segments[index + 1] is "Application" or "WebApi"
+                ? string.Join("/", segments, 0, index + 1)
+                : null;
         }
 
-        var before = folder.Substring(0, slash);
-        var parentSlash = before.LastIndexOf('/');
-        var name = parentSlash < 0 ? before : before.Substring(parentSlash + 1);
-        return name.Equals(parent, StringComparison.Ordinal);
+        return null;
     }
 
     /// <summary>Returns the module folder of a layer-projects file: the folder under its project folder.</summary>

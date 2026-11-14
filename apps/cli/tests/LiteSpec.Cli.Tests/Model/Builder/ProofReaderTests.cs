@@ -2,7 +2,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.Model.Configuration;
-using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Tests.Support;
 using LiteSpec.Model;
 using LiteSpec.Standards;
@@ -12,7 +11,7 @@ namespace LiteSpec.Cli.Tests.Model.Builder;
 /// <summary>
 ///     Proves the proof shapes a shared harness writes confirm their claim: a probe table, a step that requests
 ///     a route itself, a then step that asserts inside its class, a use case observed after it runs in a given
-///     step, and a use case set off by a producer whose effects issue it.
+///     step, and a use case a reaction sets off from its producer's raised event.
 /// </summary>
 public sealed class ProofReaderTests
 {
@@ -100,10 +99,10 @@ public sealed class ProofReaderTests
         Assert.False(Confirmed(Extend, ObservedScenarios("new RegisterCopySteps().RegisterACopy(\"copy-1\")")));
     }
 
-    /// <summary>A when step driving a use case whose effects run the claimed use case confirms on an effect assertion.</summary>
+    /// <summary>A when step driving the producer confirms when a reaction runs the claimed use case from the producer's raised event.</summary>
     /// <proves>litespec/core/model#name-the-lowest-record-each-test-proves</proves>
     [Fact]
-    public void ProducerWhoseEffectsRunTheUseCaseConfirms()
+    public void ReactionRunningTheUseCaseFromTheProducersEventConfirms()
     {
         Assert.True(Confirmed(Extend, ProducerScenarios, effects: true));
     }
@@ -132,16 +131,7 @@ public sealed class ProofReaderTests
 
         if (effects)
         {
-            PatchRecord(
-                temp.Path,
-                ".litespec/behavior/modules/lending/aggregates/loans/use-cases/borrow-copy/borrow-copy.yaml",
-                front => front["effects"] = new JsonArray(
-                    new JsonObject
-                    {
-                        ["runs"] = "use-case/lending.extend-loan",
-                        ["timing"] = "after-commit",
-                        ["reason"] = "A borrowed copy starts its first extension.",
-                    }));
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/reactions/extend-loan-on-loan-borrowed.yaml", ReactionJson);
         }
 
         using var document = Build(temp.Path);
@@ -170,15 +160,6 @@ public sealed class ProofReaderTests
         var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, text);
-    }
-
-    static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
-    {
-        var path = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
-        var node = JsonNode.Parse(YamlText.Parse(File.ReadAllText(path)).ToJson())!.AsObject();
-
-        mutate(node);
-        File.WriteAllText(path, RecordFile.Write(node));
     }
 
     static void WriteRefusals(string root, string statuses)
@@ -321,6 +302,26 @@ public sealed class ProofReaderTests
           "when": "The reader acts on it.",
           "result": "{{result}}",
           "then": "The library answers."
+        }
+        """;
+
+    const string ReactionJson = """
+        {
+          "type": "reaction",
+          "id": "reaction/lending.extend-loan-on-loan-borrowed",
+          "title": "Extend loan on loan borrowed",
+          "triggeredBy": [
+            "event/loan.loan-borrowed"
+          ],
+          "effects": [
+            {
+              "runs": "use-case/lending.extend-loan",
+              "timing": "async"
+            }
+          ],
+          "fulfills": [
+            "requirement/borrowing.loan-period-days"
+          ]
         }
         """;
 }

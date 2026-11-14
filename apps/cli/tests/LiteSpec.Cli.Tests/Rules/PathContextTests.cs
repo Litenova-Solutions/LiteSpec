@@ -69,6 +69,55 @@ public sealed class PathContextTests
         Assert.Contains("concern: application, artifact: use-case", result.Output);
     }
 
+    /// <summary>A reaction handler in the Application folder of the use case it runs derives the reaction artifact.</summary>
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    [Fact]
+    public void RulesReactionInUseCaseApplicationFolderDerivesReactionArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/UseCases/SendInvoice/Application/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/UseCases/SendInvoice/Application/NotifyOnInvoiceSentHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: reaction", result.Output);
+    }
+
+    /// <summary>A reaction handler in a Notifications folder derives the reaction artifact.</summary>
+    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    [Fact]
+    public void RulesReactionInNotificationsFolderDerivesReactionArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs", "sealed class NotifyOnInvoiceSentHandler;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/Notifications/InvoiceSent/NotifyOnInvoiceSentHandler.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: reaction", result.Output);
+    }
+
+    /// <summary>A job file in a use case Application folder derives the job artifact.</summary>
+    /// <proves>litespec/backend/application#use-this-use-case-layout</proves>
+    [Fact]
+    public void RulesJobInUseCaseApplicationFolderDerivesJobArtifact()
+    {
+        using var root = CopyFixtureWithFile(
+            "apps/api/src/Demo/Billing/UseCases/SendReminders/Application/SendRemindersJob.cs", "sealed class SendRemindersJob;\n");
+        var result = TestCli.Run(
+            "rules",
+            "--root", root.Path,
+            "apps/api/src/Demo/Billing/UseCases/SendReminders/Application/SendRemindersJob.cs");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("concern: application, artifact: job", result.Output);
+    }
+
+
     /// <summary>Copies the rules-basic fixture to a temporary root and adds one file.</summary>
     /// <param name="relative">The added file path, with forward-slash segments.</param>
     /// <param name="contents">The added file contents.</param>

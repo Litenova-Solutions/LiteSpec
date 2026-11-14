@@ -43,6 +43,22 @@ describe("the record page", () => {
     expect(event).not.toContain('href="javascript:');
   });
 
+  it("shows a view's key, freshness and the payload field each row takes from an event", async () => {
+    await fixtureBook();
+    const view = render("view", {
+      type: "view", title: "Loan Borrowing",
+      fields: {
+        keyedBy: "aggregate/lending.loan",
+        freshness: "PT5S",
+        removedBy: [],
+        fields: [{ name: "loanId", type: "id", from: "integration-event/loan-borrowed#loanId", accumulate: "latest", classification: "internal" }],
+      },
+    });
+    expect(view).toContain("5 seconds");
+    expect(view).toContain("#loanId");
+    expect(view).toContain("Latest");
+  });
+
   it("renders a journey's start, steps and branches, each branch as a sentence", async () => {
     await fixtureBook();
     const journey = render("journey", {

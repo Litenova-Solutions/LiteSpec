@@ -454,7 +454,7 @@ static partial class GeneratedRegions
                 "Application" => "application",
                 "Infrastructure" => "infrastructure",
                 "WebApi" => "web-api",
-                "Composition" or "Contracts" or "Jobs" => "application",
+                "Composition" or "Contracts" or "Notifications" or "ExternalSystems" or "Views" => "application",
                 "Migrations" => "infrastructure",
                 _ => "",
             };

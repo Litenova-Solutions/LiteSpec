@@ -177,17 +177,18 @@ public sealed class ReachCheckTests
         Assert.Contains("intent-unreached", TestModel.Codes(model));
     }
 
-    /// <summary>A use case another use case runs needs no journey of its own.</summary>
+    /// <summary>A use case a reaction runs needs no journey of its own.</summary>
     /// <proves>litespec/core/model#connect-every-behavior-record-to-intent</proves>
     [Fact]
-    public void UseCaseRunByAnotherSkipsJourneyMissing()
+    public void UseCaseRunByAReactionSkipsJourneyMissing()
     {
         using var temp = TestCli.Temp("checks");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec", "project.yaml"), """{"owners": ["lending-team"], "size": "large"}""");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["journey/borrow#s1"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "inline", "sharesTransaction": true}]}"""),
-            TestModel.Record("use-case", "use-case/lending.hold-copy", Path.Combine(temp.Path, "hold.yaml"), """{"kind": "command"}"""));
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", Path.Combine(temp.Path, "borrow.yaml"), """{"kind": "command", "serves": ["journey/borrow#s1"]}"""),
+            TestModel.Record("reaction", "reaction/lending.hold-on-borrow", Path.Combine(temp.Path, "hold.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"runs": "use-case/lending.hold-copy", "timing": "async"}]}"""),
+            TestModel.Record("use-case", "use-case/lending.hold-copy", Path.Combine(temp.Path, "hold-copy.yaml"), """{"kind": "command"}"""));
 
         var findings = Checker.Check(model).Findings;
 

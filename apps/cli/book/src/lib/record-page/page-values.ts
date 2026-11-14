@@ -426,14 +426,13 @@ export function bulletsHtml(list: unknown) {
   return '<span class="font-mono text-[0.6875rem] text-muted-foreground">&ndash;</span>';
 }
 
-export type EffectVerb = "runs" | "sends" | "emits" | "calls";
+export type EffectVerb = "runs" | "sends" | "calls";
 export const EFFECT_VERBS = {
   runs: { label: "Runs", icon: "use-case" },
   sends: { label: "Sends", icon: "notification" },
-  emits: { label: "Emits", icon: "integration-event" },
   calls: { label: "Calls", icon: "ext" },
 } satisfies Record<EffectVerb, { label: string; icon: string }>;
-const EFFECT_VERB_KEYS: readonly EffectVerb[] = ["runs", "sends", "emits", "calls"];
+const EFFECT_VERB_KEYS: readonly EffectVerb[] = ["runs", "sends", "calls"];
 
 export function effectVerbOf(e: RecordFields): EffectVerb | null {
   return EFFECT_VERB_KEYS.find((k) => e[k]) ?? null;
@@ -443,11 +442,6 @@ export function effectCondHtml(e: RecordFields) {
   return [
     e.forEach ? "For each " + esc(e.forEach) : "",
     e.onFailure ? edgeFailureText(isRecord(e.onFailure) ? e.onFailure : {}) : "",
-    e.sharesTransaction !== undefined
-      ? String(e.sharesTransaction) === "true"
-        ? "In the same transaction"
-        : "In its own transaction"
-      : "",
   ]
     .filter(Boolean)
     .join(" &middot; ");

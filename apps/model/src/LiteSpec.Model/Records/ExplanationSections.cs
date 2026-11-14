@@ -44,6 +44,7 @@ public static class ExplanationSections
             [RecordTypes.Job] = Of(("Invocation", false), ("Failure Handling", false), ("Example", true)),
             [RecordTypes.Notification] = Of(("Content", false), ("Delivery", false), ("Example", false)),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false), ("Compatibility", false), ("Example", false)),
+            [RecordTypes.View] = Of(("Sources", false), ("Freshness", false), ("Example", true)),
             [RecordTypes.ExternalSystem] = Of(("Use", false), ("Data Shared", false), ("Failure Handling", false)),
             [RecordTypes.EntryPoint] = Of(("Audience", false), ("Authentication", false), ("Limits", true)),
             [RecordTypes.Screen] = Of(("Task", false), ("States", false), ("Example", false)),

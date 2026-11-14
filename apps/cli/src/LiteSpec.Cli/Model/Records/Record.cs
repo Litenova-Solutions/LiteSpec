@@ -79,10 +79,10 @@ sealed class Record : IRecordFields
     }
 
     /// <summary>
-    ///     Reads the targets of one edge verb (runs, sends, emits, calls): the entries of
+    ///     Reads the targets of one edge verb (runs, sends, calls): the entries of
     ///     <c>effects</c> carrying the verb, then a top-level field of the same name.
     /// </summary>
-    /// <param name="verb">The edge verb to read: runs, sends, emits or calls.</param>
+    /// <param name="verb">The edge verb to read: runs, sends or calls.</param>
     /// <returns>The target ids the verb names, from effects entries then a same-named field.</returns>
     public IReadOnlyList<string> EdgeIds(string verb)
     {
