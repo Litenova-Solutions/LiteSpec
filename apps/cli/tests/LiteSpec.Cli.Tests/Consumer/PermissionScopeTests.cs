@@ -5,10 +5,9 @@ using LiteSpec.Cli.Tests.Support;
 namespace LiteSpec.Cli.Tests.Consumer;
 
 /// <summary>
-/// Proves <c>litespec model check</c> enforces the permission scope: an entry with
-/// <c>scope</c> passes, one without fails with the schema error, and an entry
-/// with an unknown property still fails. Each test owns its own folder because
-/// tests run in parallel.
+/// Proves <c>litespec model check</c> keeps the scope on the role only: a permission entry
+/// carrying <c>scope</c> fails the schema, a role without <c>scope</c> fails it, and an actor
+/// holds roles as plain identifiers. Each test owns its own folder because tests run in parallel.
 /// </summary>
 public sealed class PermissionScopeTests
 {
@@ -76,51 +75,42 @@ public sealed class PermissionScopeTests
     static JsonObject FirstPermission(JsonObject meta) =>
         (JsonObject)((JsonArray)meta["records"]!)[0]!;
 
-    /// <summary>Permission entry with its scope.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "permission entry with its scope")]
-    public void PermissionEntryWithItsScope()
+    /// <summary>Asserts a rejected record: exit 1 with at least one schema problem.</summary>
+    /// <param name="result">The completed model check run.</param>
+    static void AssertRejected(CliResult result)
+    {
+        Assert.Equal(1, result.Status);
+        Assert.NotEmpty(Problems(result));
+    }
+
+    /// <summary>A permission entry without scope, with its group, passes.</summary>
+    /// <proves>litespec/core/access#scope-every-role</proves>
+    [Fact(DisplayName = "permission entry without scope, with its group")]
+    public void PermissionEntryWithoutScopeWithItsGroup()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            ".litespec/behavior/permissions.yaml",
+            meta => FirstPermission(meta)["group"] = "orders");
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>A permission entry carrying scope is refused, because the role holds the scope.</summary>
+    /// <proves>litespec/core/access#scope-every-role</proves>
+    [Fact(DisplayName = "permission entry carrying scope")]
+    public void PermissionEntryCarryingScope()
     {
         using var folder = ConsumerFixture.Create();
         ConsumerFixture.MutateMeta(
             folder.Path,
             ".litespec/behavior/permissions.yaml",
             meta => FirstPermission(meta)["scope"] = "self");
-        AssertClean(RunConsumer(folder.Path));
-    }
-
-    /// <summary>Permission entry with its scope and group.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "permission entry with its scope and group")]
-    public void PermissionEntryWithItsScopeAndGroup()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            ".litespec/behavior/permissions.yaml",
-            meta =>
-            {
-                FirstPermission(meta)["scope"] = "self";
-                FirstPermission(meta)["group"] = "orders";
-            });
-        AssertClean(RunConsumer(folder.Path));
-    }
-
-    /// <summary>Permission entry without its scope.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
-    [Fact(DisplayName = "permission entry without its scope")]
-    public void PermissionEntryWithoutItsScope()
-    {
-        using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(
-            folder.Path,
-            ".litespec/behavior/permissions.yaml",
-            meta => FirstPermission(meta).Remove("scope"));
-        AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
+        AssertProblem(RunConsumer(folder.Path), "unknown property 'scope'");
     }
 
     /// <summary>Permission entry with an unknown property.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
+    /// <proves>litespec/core/access#scope-every-role</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]
     public void PermissionEntryWithAnUnknownProperty()
     {
@@ -128,11 +118,42 @@ public sealed class PermissionScopeTests
         ConsumerFixture.MutateMeta(
             folder.Path,
             ".litespec/behavior/permissions.yaml",
-            meta =>
-            {
-                FirstPermission(meta)["scope"] = "self";
-                FirstPermission(meta)["reach"] = "self";
-            });
+            meta => FirstPermission(meta)["reach"] = "self");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'reach'");
+    }
+
+    /// <summary>A role without its scope fails, because the scope is the role's only home.</summary>
+    /// <proves>litespec/core/access#scope-every-role</proves>
+    [Fact(DisplayName = "role without its scope")]
+    public void RoleWithoutItsScope()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            ".litespec/behavior/roles/customer.yaml",
+            meta => meta.Remove("scope"));
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'scope'");
+    }
+
+    /// <summary>An actor holds a role as an identifier and passes.</summary>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
+    [Fact(DisplayName = "actor holds a role as an identifier")]
+    public void ActorHoldsARoleAsAnIdentifier()
+    {
+        using var folder = ConsumerFixture.Create();
+        AssertClean(RunConsumer(folder.Path));
+    }
+
+    /// <summary>An actor hold carrying scope is refused: the role holds the scope.</summary>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
+    [Fact(DisplayName = "actor hold carrying scope")]
+    public void ActorHoldCarryingScope()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateMeta(
+            folder.Path,
+            ".litespec/behavior/actors/customer.yaml",
+            meta => meta["holds"] = new JsonArray(new JsonObject { ["role"] = "role/customer", ["scope"] = "self" }));
+        AssertRejected(RunConsumer(folder.Path));
     }
 }

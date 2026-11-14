@@ -47,7 +47,7 @@ public static class ExplanationSections
             [RecordTypes.ExternalSystem] = Of(("Use", false), ("Data Shared", false), ("Failure Handling", false)),
             [RecordTypes.EntryPoint] = Of(("Audience", false), ("Authentication", false), ("Limits", true)),
             [RecordTypes.Screen] = Of(("Task", false), ("States", false), ("Example", false)),
-            [RecordTypes.PermissionList] = Of(("Risk", false), ("Future Roles", true)),
+            [RecordTypes.PermissionList] = Of(("Risk", false), ("Boundaries", true)),
             [RecordTypes.SettingSet] = Of(("Defaults", false), ("Changes", true)),
             [RecordTypes.RetentionSchedule] = Of(("Legal Basis", false), ("Conflicts", false), ("Deletion", false)),
 

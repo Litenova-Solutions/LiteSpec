@@ -103,7 +103,7 @@ static class ConsumerFixture
             """),
         new(".litespec/behavior/actors/customer.yaml",
             """
-            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":[{"role":"role/customer","scope":"self"}]}
+            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":["role/customer"]}
             """,
             """
             # Customer
@@ -118,7 +118,7 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/permissions.yaml",
             """
-            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","scope":"self","meaning":"The holder cancels an order they placed."}]}
+            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed."}]}
             """,
             null),
         new(".litespec/behavior/entry-points.yaml",
@@ -310,7 +310,7 @@ static class ConsumerFixture
     ];
 
     const string GlossaryJsonText = """
-        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}]}],"mannered":[{"term":"load-bearing","instead":"required"}]}
+        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}]},{"id":"term/self-scope","term":"self scope","meaning":"The reach of a grant over the customer's own orders only.","layer":"intent"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
         """;
 
     sealed record ManifestInfo(string Version, string KnownExtension);

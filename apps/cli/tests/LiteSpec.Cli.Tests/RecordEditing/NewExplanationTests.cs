@@ -123,7 +123,7 @@ public sealed class NewExplanationTests
         { "external-system", ["Use", "Data Shared", "Failure Handling"] },
         { "entry-point", ["Audience", "Authentication", "Limits"] },
         { "screen", ["Task", "States", "Example"] },
-        { "permission-list", ["Risk", "Future Roles"] },
+        { "permission-list", ["Risk", "Boundaries"] },
         { "setting-set", ["Defaults", "Changes"] },
         { "retention-schedule", ["Legal Basis", "Conflicts", "Deletion"] },
         { "runbook", ["Prerequisites", "Steps", "Verification", "Recovery"] },

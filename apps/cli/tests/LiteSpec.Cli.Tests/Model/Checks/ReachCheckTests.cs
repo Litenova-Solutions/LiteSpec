@@ -240,7 +240,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Without Holder Reports Role Orphan.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleWithoutHolderReportsRoleOrphan()
     {
@@ -253,14 +253,14 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Held Passes.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleHeldPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": [{"role": "role/reader", "scope": "self"}]}"""),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": ["role/reader"]}"""),
             TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
             TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
 
@@ -343,7 +343,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Orphan Message Names Role.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleOrphanMessageNamesRole()
     {

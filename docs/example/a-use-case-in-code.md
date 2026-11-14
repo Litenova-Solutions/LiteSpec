@@ -15,7 +15,7 @@ title: Submit Expense
 summary: An employee files a work expense so it can be decided and reimbursed.
 kind: command
 access:
-  grant: permission/submit-expense
+  grant: permission/request-expense
   tenant: own
 serves:
 - journey/submit-and-reimburse#s1

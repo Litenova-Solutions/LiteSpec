@@ -10,7 +10,7 @@ namespace LiteSpec.Analyzers.Generation.Sources;
 
 /// <summary>Writes the permission constants, one per permission record, each with its scope.</summary>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
-/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/access#scope-every-role</follows>
 internal static class PermissionWriter
 {
     /// <summary>

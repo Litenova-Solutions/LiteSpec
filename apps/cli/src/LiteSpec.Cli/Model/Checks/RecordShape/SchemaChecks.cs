@@ -175,6 +175,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Actor:
                 RequireEnum(record, RecordFields.Kind, ["person", "organization"], findings);
+                RequireRoleHolds(record, findings);
                 break;
 
             case RecordTypes.Role:
@@ -632,6 +633,35 @@ internal static class SchemaChecks
             }
 
             return;
+        }
+    }
+
+    /// <summary>Reports each holds entry that is not a role identifier, so a hold that carries a scope is refused.</summary>
+    /// <param name="record">The actor record whose holds list is read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void RequireRoleHolds(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Holds, out var holds))
+        {
+            return;
+        }
+
+        if (holds.ValueKind != JsonValueKind.Array)
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds no list in {RecordFields.Holds}.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        foreach (var entry in holds.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.String)
+            {
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds an entry in {RecordFields.Holds} that is not a role identifier.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (!Regex.IsMatch(entry.GetString() ?? "", @"^role/[a-z0-9][a-z0-9-]*$"))
+            {
+                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds '{entry.GetString()}' in {RecordFields.Holds}, which is not a role identifier.", record.File, record.Line, SubjectOf(record)));
+            }
         }
     }
 

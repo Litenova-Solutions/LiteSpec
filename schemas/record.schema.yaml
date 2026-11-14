@@ -1213,17 +1213,6 @@ $defs:
           $ref: '#/$defs/retentionProcessor'
       conflicts:
         $ref: '#/$defs/nonEmptyString'
-  holdItem:
-    type: object
-    additionalProperties: false
-    required:
-    - role
-    - scope
-    properties:
-      role:
-        $ref: '#/$defs/roleId'
-      scope:
-        $ref: '#/$defs/nonEmptyString'
   journeyStep:
     type: object
     additionalProperties: false
@@ -1554,7 +1543,6 @@ $defs:
     - id
     - title
     - meaning
-    - scope
     properties:
       type:
         const: permission
@@ -1566,9 +1554,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      scope:
-        type: string
-        pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
       group:
         type: string
         pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
@@ -2181,7 +2166,7 @@ $defs:
       holds:
         type: array
         items:
-          $ref: '#/$defs/holdItem'
+          $ref: '#/$defs/roleId'
   rolePage:
     type: object
     additionalProperties: false

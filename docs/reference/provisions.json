@@ -5200,6 +5200,24 @@
       "example": "A payout archive declares \u0060{\u0022mode\u0022: \u0022impossible\u0022, \u0022reason\u0022: \u0022settled payouts belong to the bank\u0022}\u0060 with the decision that accepts the limit, plus the sentence employees see."
     },
     {
+      "id": "litespec/core/access#define-each-scope-level-in-the-glossary",
+      "heading": "Define Each Scope Level in the Glossary",
+      "page": "docs/core/access.md",
+      "anchor": "define-each-scope-level-in-the-glossary",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060scope-term-missing\u0060 for a role scope with no glossary term titled with the level and Scope.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:role",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each scope level a role names MUST have a glossary term titled with the level and Scope, stating what the level covers in this product.",
+      "rationale": "A bare level such as \u0060platform\u0060 or \u0060tenant\u0060 reads the same in every product, and each product means a different reach by it. The glossary term states that reach once, so a reviewer reads what \u0060platform\u0060 covers in this product rather than guessing it from the word. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).",
+      "example": "Claimwick\u0027s \u0060platform\u0060 scope has a glossary term, Platform Scope, that states it covers every expense in the Claimwick installation."
+    },
+    {
       "id": "litespec/core/access#describe-every-served-content-entry-point-with-its-serving-fields",
       "heading": "Describe Every Served Content Entry Point with Its Serving Fields",
       "page": "docs/core/access.md",
@@ -5269,7 +5287,7 @@
       "strength": "required",
       "statement": "A role MUST name the permissions it allows in \u0060allows\u0060.",
       "rationale": "The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. The role lives in Intent and the permission lives in Behavior, so \u0060allows\u0060 is a declared down-link. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.",
-      "example": "\u0060role/employee\u0060 allows \u0060permission/submit-expense\u0060, which the submit use case cites in its grant."
+      "example": "\u0060role/employee\u0060 allows \u0060permission/request-expense\u0060, which the submit use case cites in its grant."
     },
     {
       "id": "litespec/core/access#keep-access-records-in-their-homes",
@@ -5296,16 +5314,34 @@
       "anchor": "keep-permission-lists-to-entries",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which module permissions files carry an explanation file? Look beside each permissions file for a \u0060.md\u0060 file with its name.",
+      "evidence": "Which explanation files beside a permissions file restate a permission\u0027s meaning, add a grant, or name a future role? Look at the Risk and Boundaries sections beside each permissions file.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:permission-list",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "A module permissions file MUST hold entries only.",
-      "rationale": "The file holds entries only: each permission is one row with its fields, and prose around them would restate the meanings the entries already carry. A file with entries only stays readable as a list even as entries grow.",
+      "statement": "A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries, without restating a permission\u0027s meaning or adding a grant.",
+      "rationale": "Each permission is defined once, in its entry: its \u0060meaning\u0060 is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).",
       "example": ""
+    },
+    {
+      "id": "litespec/core/access#name-each-permission-by-a-use-case-verb",
+      "heading": "Name Each Permission by a Use-Case Verb",
+      "page": "docs/core/access.md",
+      "anchor": "name-each-permission-by-a-use-case-verb",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060permission-verb-unknown\u0060 for a permission name whose opening verb is neither in the table nor \u0060manage\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:permission",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each permission name MUST open with a verb from the use-case verb table or with \u0060manage\u0060.",
+      "rationale": "The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as \u0060handle-documents\u0060 says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).",
+      "example": "\u0060permission/approve-expense\u0060 opens with \u0060approve\u0060 and \u0060permission/manage-policy\u0060 opens with \u0060manage\u0060, so both pass. \u0060permission/handle-documents\u0060 opens with a word the table does not state, so it is reported."
     },
     {
       "id": "litespec/core/access#name-every-actor-with-its-kind",
@@ -5362,22 +5398,22 @@
       "example": "In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy with \u0060validFrom\u0060 of 2026-12-20 and \u0060validUntil\u0060 of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares \u0060permission/manage-team\u0060."
     },
     {
-      "id": "litespec/core/access#record-every-role-hold-with-its-scope",
-      "heading": "Record Every Role Hold with Its Scope",
+      "id": "litespec/core/access#record-every-role-an-actor-holds",
+      "heading": "Record Every Role an Actor Holds",
       "page": "docs/core/access.md",
-      "anchor": "record-every-role-hold-with-its-scope",
+      "anchor": "record-every-role-an-actor-holds",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060role-orphaned\u0060 for a role held by no actor.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060role-orphaned\u0060 for a role held by no actor, and \u0060record-invalid\u0060 for a hold that is not a role identifier, such as a hold carrying a scope.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:actor",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "An actor that acts through a role MUST record the hold in \u0060holds\u0060.",
-      "rationale": "The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The scope bounds each grant, so one role grants platform reach to one actor and self reach to another.",
-      "example": "\u0060\u0060\u0060json\n\u0022holds\u0022: [{ \u0022role\u0022: \u0022role/employee\u0022, \u0022scope\u0022: \u0022self\u0022 }]\n\u0060\u0060\u0060"
+      "statement": "An actor that acts through a role MUST list the role\u0027s identifier in \u0060holds\u0060.",
+      "rationale": "The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The hold names only the role, because the role holds the scope of its grant, so one actor\u0027s hold cannot widen or narrow the reach the role states. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).",
+      "example": "\u0060\u0060\u0060json\n\u0022holds\u0022: [\u0022role/employee\u0022]\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/access#remove-a-target-that-must-be-the-caller",
@@ -5417,20 +5453,20 @@
     },
     {
       "id": "litespec/core/access#scope-every-role",
-      "heading": "Scope Every Role",
+      "heading": "Scope Every Role to Its One Reach",
       "page": "docs/core/access.md",
-      "anchor": "scope-every-role",
+      "anchor": "scope-every-role-to-its-one-reach",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a role without \u0060scope\u0060 and \u0060field-invalid\u0060 for a scope outside kebab-case form.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a role without \u0060scope\u0060 and \u0060field-invalid\u0060 for a scope outside kebab-case form. A \u0060scope\u0060 on a permission entry or on a hold fails the schema as an unknown property.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:role",
       "layer": "behavior",
       "trace": false,
       "strength": "required",
-      "statement": "A role MUST name its scope in \u0060scope\u0060.",
-      "rationale": "The scope bounds what the role reaches: the same permission allows platform-wide action in one grant and own-record action in another. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach.",
+      "statement": "A role MUST name its one scope in \u0060scope\u0060.",
+      "rationale": "The role is the only home of a grant\u0027s reach. The scope bounds what the role reaches: the same permission allows platform-wide action in one grant and own-record action in another. A scope on each hold or each permission would state the reach again, and three copies of one value drift apart, so the role states it once and every permission reads its reach from the roles that allow it. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).",
       "example": "A scope of \u0060team\u0060 bounds the role to one team, while \u0060platform\u0060 bounds it to the whole product."
     },
     {
@@ -5449,25 +5485,7 @@
       "strength": "required",
       "statement": "A permission MUST state what it allows in \u0060meaning\u0060.",
       "rationale": "The meaning is the one sentence a reviewer reads to decide whether the grant fits the role: a name alone carries no boundary. Two permissions with the same name pattern and no meanings drift into overlapping grants that no audit can separate.",
-      "example": "\u0060permission/submit-expense\u0060 carries \u0022Submit an expense for reimbursement.\u0022"
-    },
-    {
-      "id": "litespec/core/access#state-the-scope-of-every-permission",
-      "heading": "State the Scope of Every Permission",
-      "page": "docs/core/access.md",
-      "anchor": "state-the-scope-of-every-permission",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a permission entry without \u0060scope\u0060.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:permission",
-      "layer": "behavior",
-      "trace": false,
-      "strength": "required",
-      "statement": "Each permission MUST state the scope at which a role grants it.",
-      "rationale": "A grant without a named reach is decided in code: each check looks up the reach beside the permission list, and code then holds a second list of permissions.",
-      "example": "\u0060permission/manage-copies\u0060 carries \u0060scope: platform\u0060, the same level as the librarian role that grants it."
+      "example": "\u0060permission/request-expense\u0060 carries \u0022Submit an expense for reimbursement.\u0022"
     },
     {
       "id": "litespec/core/access#use-three-conventional-scope-levels",
@@ -13790,7 +13808,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An audited system MUST provide a trail read as a use case with its access grant, filtered by tenant, actor, action, target, and outcome.",
-      "rationale": "A trail no use case reads is storage, not a control. The read path is a use case with its own access grant: the actor holds a role at a role scope, the role allows the permission, and the grant permits the read. Tenant, actor, action, target, and outcome filters keep each reader inside the records they may see.",
+      "rationale": "A trail no use case reads is storage, not a control. The read path is a use case with its own access grant: the actor holds a role whose scope reaches the records, the role allows the permission, and the grant permits the read. Tenant, actor, action, target, and outcome filters keep each reader inside the records they may see.",
       "example": ""
     },
     {
@@ -20722,7 +20740,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A delegation MUST declare the delegator grant naming who may be acted for and the acting grant naming who may act.",
-      "rationale": "Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role at its scope that may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. \u0060litespec/core/access#grant-across-tenants-only-through-declared-delegation\u0060 requires both declarations.",
+      "rationale": "Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role whose scope may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. \u0060litespec/core/access#grant-across-tenants-only-through-declared-delegation\u0060 requires both declarations.",
       "example": "An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing."
     },
     {
@@ -20757,8 +20775,8 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "An administrative cross-tenant operation MUST require a permission the actor holds through a role at platform scope, writing an audit record.",
-      "rationale": "Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role at platform scope, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer\u0027s data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.",
+      "statement": "An administrative cross-tenant operation MUST require a permission the actor holds through a role whose scope is platform, writing an audit record.",
+      "rationale": "Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role whose scope is platform, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer\u0027s data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.",
       "example": ""
     },
     {
@@ -21046,7 +21064,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A protected multi-tenant operation MUST confirm actor and target tenancy, with the needed permission held at the resolved scope and the target belonging to it.",
-      "rationale": "Checking the caller alone leaves the target unchecked: an authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role at the resolved scope, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.",
+      "rationale": "Checking the caller alone leaves the target unchecked: an authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.",
       "example": ""
     },
     {
@@ -22000,7 +22018,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A page MUST offer a command only when the session actor holds its permissions at the record\u0027s scope, with the API deciding every command.",
-      "rationale": "Permissions are the project\u0027s permission records: an actor holds a role at a scope, a role allows permissions, and a use case needs permissions. The page reads the permissions the signed-in actor holds from the session the API returns, and offers only the commands those permissions allow at the record\u0027s scope, so the user meets no offer that ends in a refusal. The API still decides every command, so an action offered in error is refused rather than executed.",
+      "rationale": "Permissions are the project\u0027s permission records: an actor holds a role, a role allows permissions, and a use case needs permissions. The page reads the permissions the signed-in actor holds from the session the API returns, and offers only the commands those permissions allow at the record\u0027s scope, so the user meets no offer that ends in a refusal. The API still decides every command, so an action offered in error is refused rather than executed.",
       "example": ""
     },
     {

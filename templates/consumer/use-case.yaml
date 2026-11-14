@@ -2,10 +2,10 @@ type: use-case
 id: use-case/spending.submit-expense
 title: Submit Expense
 summary: The employee submits an expense for approval.
-exposure: The claimwick-app entry point reaches it, guarded by permission/submit-expense.
+exposure: The claimwick-app entry point reaches it, guarded by permission/request-expense.
 kind: command
 access:
-  grant: permission/submit-expense
+  grant: permission/request-expense
   tenant: own
 serves:
   - journey/submit-and-reimburse#s2

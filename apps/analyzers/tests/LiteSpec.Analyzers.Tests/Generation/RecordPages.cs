@@ -101,20 +101,14 @@ internal static class RecordPages
         return Page("{\"type\": \"permission-list\", \"records\": [" + string.Join(", ", entries) + "]}");
     }
 
-    /// <summary>Builds a permission entry with the scope, group and risks the record states.</summary>
+    /// <summary>Builds a permission entry with the group and risks the record states. The reach comes from the roles that allow it.</summary>
     /// <param name="id">The permission identifier.</param>
-    /// <param name="scope">The reach, or null for no scope field.</param>
     /// <param name="group">The group, or null for no group field.</param>
     /// <param name="risks">The risks, or null for no risk field.</param>
     /// <returns>The entry object.</returns>
-    public static string PermissionEntry(string id, string? scope = null, string? group = null, string[]? risks = null)
+    public static string PermissionEntry(string id, string? group = null, string[]? risks = null)
     {
         var entry = "{\"type\": \"permission\", \"id\": \"" + id + "\", \"title\": \"A permission\", \"meaning\": \"Its meaning.\"";
-
-        if (scope is not null)
-        {
-            entry += ", \"scope\": \"" + scope + "\"";
-        }
 
         if (group is not null)
         {

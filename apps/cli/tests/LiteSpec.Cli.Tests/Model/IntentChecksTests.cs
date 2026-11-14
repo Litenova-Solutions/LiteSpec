@@ -33,7 +33,7 @@ public sealed class IntentChecksTests
               "summary": "The team building and running the product.",
               "kind": "person",
               "belongsToTeam": true,
-              "holds": [{ "role": "role/librarian", "scope": "platform" }]
+              "holds": ["role/librarian"]
             }
             """);
         var problem = ReadRecord(fixture.Path, ProblemFile);

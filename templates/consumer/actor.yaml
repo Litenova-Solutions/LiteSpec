@@ -5,7 +5,6 @@ summary: The employee submits expenses and receives reimbursement.
 kind: person
 belongsToTeam: false
 holds:
-  - role: role/employee
-    scope: self
+  - role/employee
 terms:
   - term/expense

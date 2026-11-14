@@ -666,7 +666,7 @@ Source: the GDPR.
 
 ### Role
 
-One named set of permissions granted to an actor at a scope.
+One named set of permissions granted together, at the one scope the role holds.
 
 Layer: Intent.
 

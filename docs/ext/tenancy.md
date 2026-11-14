@@ -104,7 +104,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A protected multi-tenant operation MUST confirm actor and target tenancy, with the needed permission held at the resolved scope and the target belonging to it.
 
-**Rationale:** Checking the caller alone leaves the target unchecked: an authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role at the resolved scope, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.
+**Rationale:** Checking the caller alone leaves the target unchecked: an authorized caller can still name a resource from another tenant. The operation confirms both sides through one chain: the actor holds a role for the resolved tenant, the role allows the permission, the use case declares that permission in its grant, and the target belongs to the same scope.
 
 **Reviewed for:** Which protected operations pass when the actor and target tenants mismatch? Look at the authorization tests.
 
@@ -132,9 +132,9 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Applies to:** artifact: command-handler, query-handler
 
-**Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role at platform scope, writing an audit record.
+**Statement:** An administrative cross-tenant operation MUST require a permission the actor holds through a role whose scope is platform, writing an audit record.
 
-**Rationale:** Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role at platform scope, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer's data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
+**Rationale:** Support and operations sometimes reach across tenants, and that exceptional reach needs exceptional control: a permission held through a role whose scope is platform, with an audit record for every use. Without both, one support login becomes an unscoped key to every customer's data. Grants that let one tenant act for another follow [Declare Delegation Grants on Both Sides](#declare-delegation-grants-on-both-sides) instead.
 
 **Reviewed for:** Which administrative cross-tenant use cases name no platform-scope permission, or have a run with no audit record? Look at the use case permissions beside the audit trail.
 
@@ -234,7 +234,7 @@ It switches on no record type: tenant scope applies to records every project req
 
 **Statement:** A delegation MUST declare the delegator grant naming who may be acted for and the acting grant naming who may act.
 
-**Rationale:** Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role at its scope that may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. `litespec/core/access#grant-across-tenants-only-through-declared-delegation` requires both declarations.
+**Rationale:** Delegation lets one actor act for another, so a grant on one side alone leaves the other side unreviewed. The delegator grant names the role whose scope may be acted for and the permissions open to delegation; the acting grant names the role permitted to act and the pairing it acts under. `litespec/core/access#grant-across-tenants-only-through-declared-delegation` requires both declarations.
 
 **Example:** An assistant acts for a manager only where the manager delegation grant and the assistant acting grant both name the pairing.
 

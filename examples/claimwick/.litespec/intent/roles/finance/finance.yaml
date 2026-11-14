@@ -4,7 +4,7 @@ title: Finance
 summary: Finance moves money for approved expenses.
 scope: platform
 allows:
-- permission/reimburse-expense
+- permission/post-reimbursement
 - permission/list-expenses
 - permission/export-expenses
-- permission/erase-personal-data
+- permission/remove-personal-data

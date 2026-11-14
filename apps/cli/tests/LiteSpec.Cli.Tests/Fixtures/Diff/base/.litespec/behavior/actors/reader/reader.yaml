@@ -3,5 +3,4 @@ id: actor/reader
 title: Reader
 kind: person
 holds:
-  - role: role/reader
-    scope: self
+  - role/reader

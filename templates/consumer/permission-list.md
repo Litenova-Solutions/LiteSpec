@@ -6,6 +6,6 @@ Say which permissions this module holds and why they are split this way. A reade
 
 Say what each permission risks if a wrong person holds it.
 
-## Future Roles
+## Boundaries
 
-Optional. Say how later roles would hold these permissions.
+Optional. Say what a reader might assume a permission allows but it does not, one permission at a time.

@@ -5,5 +5,4 @@ summary: A librarian registers copies, retires them, and keeps the shelves in or
 kind: person
 belongsToTeam: false
 holds:
-- role: role/librarian
-  scope: platform
+- role/librarian

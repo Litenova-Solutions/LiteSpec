@@ -247,7 +247,7 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Statement:** A page MUST offer a command only when the session actor holds its permissions at the record's scope, with the API deciding every command.
 
-**Rationale:** Permissions are the project's permission records: an actor holds a role at a scope, a role allows permissions, and a use case needs permissions. The page reads the permissions the signed-in actor holds from the session the API returns, and offers only the commands those permissions allow at the record's scope, so the user meets no offer that ends in a refusal. The API still decides every command, so an action offered in error is refused rather than executed.
+**Rationale:** Permissions are the project's permission records: an actor holds a role, a role allows permissions, and a use case needs permissions. The page reads the permissions the signed-in actor holds from the session the API returns, and offers only the commands those permissions allow at the record's scope, so the user meets no offer that ends in a refusal. The API still decides every command, so an action offered in error is refused rather than executed.
 
 **Reviewed for:** Which offered commands exceed the permissions the session actor holds at the record scope? Look in the page command guards and the session shape.
 

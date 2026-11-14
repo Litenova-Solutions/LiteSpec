@@ -29,6 +29,18 @@ terms:
     nl: lezer
     de: Leser
   rejected: []
+- id: term/platform-scope
+  term: platform scope
+  meaning: The reach of a grant over every loan in the library.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/self-scope
+  term: self scope
+  meaning: The reach of a grant over the reader's own loans only.
+  layer: intent
+  aliases: []
+  rejected: []
 mannered:
 - term: one-way-door
   instead: irreversible

@@ -1,11 +1,11 @@
 # Record Title
 
-Say what this role is in plain words, which actors hold it and why it exists. A reader who has read nothing else should understand the role from this paragraph.
+Say what access this role grants, in plain words, and name the actors that hold it as a pointer to their own records. A reader who has read nothing else should understand the grant from this paragraph.
 
 ## Access
 
-Say which permissions the role bundles and why they belong together.
+Say why these permissions are granted together, without listing them again. The record's `allows` field already names them.
 
 ## Limits
 
-Say what the role cannot do, and say why.
+Say what a reader might assume this role grants but it does not, and say why.

@@ -5,7 +5,7 @@ summary: Finance pays an approved expense so the employee gets the money back.
 exposure: "Money moves here: a double payment reaches the employee twice. The `rule/expense.reimbursed-once` rule guards it, and the payout bank settles each batch once."
 kind: command
 access:
-  grant: permission/reimburse-expense
+  grant: permission/post-reimbursement
   tenant: own
 serves:
 - journey/submit-and-reimburse#s4

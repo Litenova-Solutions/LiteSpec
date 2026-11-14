@@ -142,6 +142,11 @@ internal static class ExplanationChecks
             {
                 findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds its sections out of order: {pair.Later} must follow {pair.Earlier}.", explanation.RecordPath, explanation.Line, explanation.Subject));
             }
+
+            foreach (var heading in headings.Where(heading => !sections.Any(section => heading == "## " + section.Name)))
+            {
+                findings.Add(new Finding("explanation-section-unknown", $"{label} '{explanation.Name}' holds the section '{heading[3..]}', which its type's section table does not state.", explanation.RecordPath, explanation.Line, explanation.Subject));
+            }
         }
     }
 

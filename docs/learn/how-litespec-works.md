@@ -72,17 +72,16 @@ Access runs through three records and one grant: the actor holds a role, the rol
 ```yaml
 # intent/actors/employee/employee.yaml
 holds:
-- role: role/employee
-  scope: self
+- role/employee
 
 # intent/roles/employee/employee.yaml
 allows:
-- permission/submit-expense
+- permission/request-expense
 - permission/list-expenses
 
 # behavior/.../submit-expense/submit-expense.yaml
 access:
-  grant: permission/submit-expense
+  grant: permission/request-expense
   tenant: own
 ```
 

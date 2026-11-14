@@ -5,5 +5,4 @@ summary: A manager approves or rejects expenses.
 kind: person
 belongsToTeam: false
 holds:
-- role: role/approver
-  scope: team
+- role/approver

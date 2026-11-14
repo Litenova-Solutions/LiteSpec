@@ -4,6 +4,14 @@ The permission list names what each person may do in the spending module, with o
 
 ## Risk
 
-Each permission has a scope, which is `self`, `team` or `platform`. The records give `self` to actions on a person's own expenses, and `team` to approving or refusing expenses and to setting the receipt threshold. They give `platform` to the finance actions: reimbursing, exporting and erasing. The records do not state the reason for this split.
+Two permissions carry a risk tag. `permission/post-reimbursement` is tagged money, because a wrong payment moves money. `permission/remove-personal-data` is tagged personal data, because an erasure cannot be undone. The records give no risk tag to `permission/export-expenses`.
 
-Two permissions carry a risk tag. `permission/reimburse-expense` is tagged money, because a wrong payment moves money. `permission/erase-personal-data` is tagged personal data, because an erasure cannot be undone. The records give no risk tag to `permission/export-expenses`.
+## Boundaries
+
+A permission allows only the action its meaning states. These readings are not allowed by the list:
+
+- `permission/request-expense` does not cover approving or refusing an expense. Attaching a receipt uses the same permission, because the attach use case cites it.
+- `permission/approve-expense` covers refusing an expense too, because the refuse use case cites it.
+- `permission/post-reimbursement` does not cover exporting the approved expenses. Export has its own permission.
+- `permission/list-expenses` reads expenses and changes none of them.
+- `permission/remove-personal-data` removes personal data of a decided expense only. It does not remove the expense.

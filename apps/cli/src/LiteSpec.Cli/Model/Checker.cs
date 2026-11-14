@@ -78,6 +78,7 @@ static class Checker
         ReachChecks.RunIntentUnreached,
         ReachChecks.RunRoleOrphan,
         ReachChecks.RunPermissionOrphan,
+        AccessChecks.Run,
         ReachChecks.RunDecisionConflict,
         FolderChecks.Run,
         LocalityChecks.Run,

@@ -5,7 +5,7 @@ summary: Finance erases the personal data of an old expense so nothing personal 
 exposure: "Personal data is erased here: erasing the wrong expense cannot be undone. Finance names one expense at a time, and only past its retention."
 kind: command
 access:
-  grant: permission/erase-personal-data
+  grant: permission/remove-personal-data
   tenant: own
 fulfills:
 - requirement/approval.erase-after-retention

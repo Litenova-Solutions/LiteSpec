@@ -2,10 +2,9 @@ type: permission-list
 title: Permissions
 records:
   - type: permission
-    id: permission/submit-expense
-    title: Submit Expense
+    id: permission/request-expense
+    title: Request Expense
     meaning: The holder submits expenses for approval.
-    scope: self
     group: spending
     risk:
       - money

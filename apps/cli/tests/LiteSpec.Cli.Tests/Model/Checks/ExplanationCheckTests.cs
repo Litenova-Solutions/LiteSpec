@@ -408,6 +408,20 @@ public sealed class ExplanationCheckTests
         Assert.Equal(id, finding.Subject);
     }
 
+    /// <summary>An explanation holding a section its type's table does not state reports that section by its name.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact]
+    public void SectionOutsideTheTableIsReported()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            RecordWithExplanation(temp.Path, "actor", "actor/reader", Explanation("An opening paragraph names the record.", ["Responsibilities", "Access", "Knowledge", "Example"])));
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-section-unknown");
+        Assert.Equal("Actor 'actor/reader' holds the section 'Access', which its type's section table does not state.", finding.Message);
+    }
+
     /// <summary>Fixed sections the file holds out of table order report the pair that is out of order.</summary>
     /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Fact]

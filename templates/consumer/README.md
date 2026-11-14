@@ -119,7 +119,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | external-system | Use, Data Shared, Failure Handling |
 | entry-point | Audience, Authentication, Limits (optional) |
 | screen | Task, States, Example |
-| permission-list | Risk, Future Roles (optional) |
+| permission-list | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |
 | retention-schedule | Legal Basis, Conflicts, Deletion |
 | runbook | Prerequisites, Steps, Verification, Recovery |

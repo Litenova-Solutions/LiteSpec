@@ -49,6 +49,24 @@ terms:
     nl: persoonsgegevens
     de: personenbezogene Daten
   rejected: []
+- id: term/self-scope
+  term: self scope
+  meaning: The reach of a grant over the caller's own expenses only.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/team-scope
+  term: team scope
+  meaning: The reach of a grant over the expenses that the caller's approval team submits.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/platform-scope
+  term: platform scope
+  meaning: The reach of a grant over every expense in the Claimwick installation.
+  layer: intent
+  aliases: []
+  rejected: []
 mannered:
 - term: one-way-door
   instead: irreversible

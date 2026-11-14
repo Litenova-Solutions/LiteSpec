@@ -60,7 +60,7 @@ An explanation file beside a record file opens with the record title as its one 
 | external-system | Use, Data Shared, Failure Handling |
 | entry-point | Audience, Authentication, Limits (optional) |
 | screen | Task, States, Example |
-| permission-list | Risk, Future Roles (optional) |
+| permission-list | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |
 | retention-schedule | Legal Basis, Conflicts, Deletion |
 | runbook | Prerequisites, Steps, Verification, Recovery |

@@ -305,7 +305,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `freshness.authority` | use case | The record holding the authoritative value | is advised by | advises |
 | `erasure.operation` | aggregate | The external system operation erasing the data class | is erased through | erases |
 | `erasure.event` | aggregate | The integration event carrying the erasure | is erased through | carries the erasure of |
-| `holds` | actor | Roles at a scope | holds | is held by |
+| `holds` | actor | Roles it holds | holds | is held by |
 | `allows` | role | Permissions | allows | is allowed by |
 | `actor` | journey, external system | The actor walking the journey; the actor the system acts as | is walked by / acts as | walks / is acted as by |
 | `translates` | integration event | Domain events | translates | is translated by |
@@ -315,7 +315,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `subject` | departure | The records the departure covers, including journey steps (`journey/<name>#s<n>`) for the step findings | applies to | is applied to |
 | `terms` | any record | Terms | uses | is used by |
 
-Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds at a scope: a journey names no use case, and a requirement names no rule.
+Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds: a journey names no use case, and a requirement names no rule.
 
 Placement needs no link field: it follows the folder. The folder node is the parent, so a feature answers the problem whose folder holds it, and `serves` on a journey remains a connection that carries meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, departure, or project convention that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
 
