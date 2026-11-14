@@ -97,7 +97,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | Record | Sections, in order |
 |:---|:---|
 | product | Scope, Users, Out of Scope, Direction |
-| actor | Responsibilities, Access, Example (optional) |
+| actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
 | vision | Direction, Effect on Current Design, Trigger |

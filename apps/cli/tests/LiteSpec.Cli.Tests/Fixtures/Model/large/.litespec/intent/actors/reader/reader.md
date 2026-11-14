@@ -6,6 +6,6 @@ A reader borrows copies and places holds.
 
 Fixture text for the Responsibilities section.
 
-## Access
+## Knowledge
 
-Fixture text for the Access section.
+Fixture text for the Knowledge section.

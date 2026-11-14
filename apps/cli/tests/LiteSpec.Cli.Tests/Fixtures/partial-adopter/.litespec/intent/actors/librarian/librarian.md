@@ -6,6 +6,6 @@ A librarian helps readers borrow copies.
 
 Fixture text for the Responsibilities section.
 
-## Access
+## Knowledge
 
-Fixture text for the Access section.
+Fixture text for the Knowledge section.

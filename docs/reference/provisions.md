@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1683 provisions in 4 groups across 6 areas.
+The active release states 1684 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -38,7 +38,7 @@ The active release states 1683 provisions in 4 groups across 6 areas.
 | [core/departures](../core/departures.md) | 2 | 2 | 100% |
 | [core/domain-model](../core/domain-model.md) | 21 | 13 | 62% |
 | [core/edges](../core/edges.md) | 17 | 14 | 82% |
-| [core/intent](../core/intent.md) | 59 | 33 | 56% |
+| [core/intent](../core/intent.md) | 60 | 33 | 55% |
 | [core/language](../core/language.md) | 25 | 8 | 32% |
 | [core/layers](../core/layers.md) | 9 | 4 | 44% |
 | [core/maintaining](../core/maintaining.md) | 7 | 5 | 71% |
@@ -608,6 +608,7 @@ The active release states 1683 provisions in 4 groups across 6 areas.
 | litespec/core/intent#state-the-boundaries-of-every-feature | [State the Boundaries of Every Feature](../core/intent.md#state-the-boundaries-of-every-feature) | rule | any | records | record:feature | intent | no | required | guidance | Which feature explanations leave out what the feature leaves to other features, the features it depends on, or its open questions? Look at the Boundaries section of each feature explanation file. |
 | litespec/core/intent#state-the-cost-and-workaround-of-every-problem | [State the Cost and Workaround of Every Problem](../core/intent.md#state-the-cost-and-workaround-of-every-problem) | rule | any | records | record:problem | intent | no | required | guidance | Which problem explanations name a workaround without its burden, or mix time, money and risk in one cost? Look at Current Workaround and Cost in each problem explanation file. |
 | litespec/core/intent#state-the-measure-on-a-counted-requirement | [State the Measure on a Counted Requirement](../core/intent.md#state-the-measure-on-a-counted-requirement) | rule | any | records | record:requirement | intent | no | required | checkable | `litespec model check` reports `requirement-measure-missing` for a requirement carrying `measure` without `check` or a passing run, and for a statement naming a number with no `measure`. |
+| litespec/core/intent#state-what-the-product-assumes-each-actor-knows | [State What the Product Assumes Each Actor Knows](../core/intent.md#state-what-the-product-assumes-each-actor-knows) | rule | any | records | record:actor | intent | no | required | guidance | Which actor explanations state a user's knowledge as a fact about every user, rather than as an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation. |
 | litespec/core/intent#state-when-each-journey-finishes | [State When Each Journey Finishes](../core/intent.md#state-when-each-journey-finishes) | rule | any | records | record:journey | intent | no | required | checkable | `litespec model check` reports `record-invalid` for a journey record file missing `finishedWhen`. |
 | litespec/core/intent#state-when-each-journey-starts | [State When Each Journey Starts](../core/intent.md#state-when-each-journey-starts) | rule | any | records | record:journey | intent | no | required | checkable | `litespec model check` reports `record-invalid` for a journey record file missing `startedWhen`. |
 | litespec/core/intent#treat-generated-research-as-source-material | [Treat Generated Research as Source Material](../core/intent.md#treat-generated-research-as-source-material) | rule | any | records | any | intent | no | required | guidance | A research record or a decision behind each position built from generated records. |

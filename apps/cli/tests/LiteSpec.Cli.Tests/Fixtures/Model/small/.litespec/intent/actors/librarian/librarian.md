@@ -6,6 +6,6 @@ A librarian registers copies and retires them.
 
 Fixture text for the Responsibilities section.
 
-## Access
+## Knowledge
 
-Fixture text for the Access section.
+Fixture text for the Knowledge section.

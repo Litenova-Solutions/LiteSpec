@@ -101,7 +101,7 @@ public sealed class NewExplanationTests
     public static TheoryData<string, string[]> ExplanationTemplates() => new()
     {
         { "product", ["Scope", "Users", "Out of Scope", "Direction"] },
-        { "actor", ["Responsibilities", "Access", "Example"] },
+        { "actor", ["Responsibilities", "Knowledge", "Example"] },
         { "role", ["Access", "Limits"] },
         { "goal", ["Target", "Measurement"] },
         { "vision", ["Direction", "Effect on Current Design", "Trigger"] },

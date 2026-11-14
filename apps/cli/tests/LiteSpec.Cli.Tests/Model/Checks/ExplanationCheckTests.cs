@@ -393,6 +393,7 @@ public sealed class ExplanationCheckTests
     [Theory]
     [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery")]
     [InlineData("departure", "departure/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk")]
+    [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge")]
     public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing)
     {
         using var temp = TestCli.Temp("checks");

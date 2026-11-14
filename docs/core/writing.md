@@ -38,7 +38,7 @@ An explanation file beside a record file opens with the record title as its one 
 | Record type | Sections, in order |
 |:---|:---|
 | product | Scope, Users, Out of Scope, Direction |
-| actor | Responsibilities, Access, Example (optional) |
+| actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
 | vision | Direction, Effect on Current Design, Trigger |

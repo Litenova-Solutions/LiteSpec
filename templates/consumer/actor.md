@@ -1,15 +1,15 @@
 # Record Title
 
-Say who or what this actor is in plain words, what it wants from the product and why it matters to the product. A reader who has read nothing else should know the actor from this paragraph.
+Say who this actor is in relation to the product, in plain words: what it does with the product and what the product answers to it for. Name typical people as examples of the actor, not as conditions for being it. A reader who has read nothing else should know the actor from this paragraph.
 
 ## Responsibilities
 
-Say what the actor does, in one or two sentences.
+Say which tasks and decisions the actor answers for, in one or two sentences. State no product rule here: what the product accepts, refuses, calculates or records belongs in a requirement.
 
-## Access
+## Knowledge
 
-Say what the actor may reach in the product and why that access is right.
+Say what the product assumes the actor knows, and what it does not assume, as an assumption of the product. Write "The product does not assume the employee knows the expense policy", never "Employees have no training in accounting".
 
 ## Example
 
-Optional. Walk one concrete case from the example cast, with the numbers worked through.
+Optional. Show one occasion of the responsibilities above, using the example cast.

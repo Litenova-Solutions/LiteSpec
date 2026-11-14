@@ -23,7 +23,7 @@ public static class ExplanationSections
         {
             // Intent
             [RecordTypes.Product] = Of(("Scope", false), ("Users", false), ("Out of Scope", false), ("Direction", false)),
-            [RecordTypes.Actor] = Of(("Responsibilities", false), ("Access", false), ("Example", true)),
+            [RecordTypes.Actor] = Of(("Responsibilities", false), ("Knowledge", false), ("Example", true)),
             [RecordTypes.Role] = Of(("Access", false), ("Limits", false)),
             [RecordTypes.Goal] = Of(("Target", false), ("Measurement", false)),
             [RecordTypes.Vision] = Of(("Direction", false), ("Effect on Current Design", false), ("Trigger", false)),

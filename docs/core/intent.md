@@ -540,6 +540,22 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `record-invalid` for an actor record file with a kind outside person and organization, or with no `belongsToTeam`; `litespec model check` reports `field-invalid` for such a kind.
 
+### State What the Product Assumes Each Actor Knows
+
+**ID:** `litespec/core/intent#state-what-the-product-assumes-each-actor-knows`
+
+**Strength:** required
+
+**Applies to:** artifact: record:actor
+
+**Statement:** An actor explanation MUST state what the product assumes the actor knows in its Knowledge section, as an assumption of the product, and states no user's knowledge as a fact about every user.
+
+**Rationale:** What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as "has no training in accounting" written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Writing it as "Claimwick does not assume the employee knows the expense policy" names the product's assumption and the actor it applies to. Proposed by [decision/0053-describe-actors-by-responsibility-and-knowledge](decision/0053-describe-actors-by-responsibility-and-knowledge).
+
+**Example:** Claimwick's employee actor states in its Knowledge section that Claimwick does not assume the employee knows the expense policy.
+
+**Reviewed for:** Which actor explanations state a user's knowledge as a fact about every user, rather than as an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation.
+
 ### Name Every Actor from a Journey, a Problem or an Access Position
 
 **ID:** `litespec/core/intent#name-every-actor-from-a-journey-a-problem-or-an-access-position`

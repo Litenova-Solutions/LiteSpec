@@ -8782,6 +8782,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#state-what-the-product-assumes-each-actor-knows",
+      "heading": "State What the Product Assumes Each Actor Knows",
+      "page": "docs/core/intent.md",
+      "anchor": "state-what-the-product-assumes-each-actor-knows",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which actor explanations state a user\u0027s knowledge as a fact about every user, rather than as an assumption of the product? Look at the opening paragraph and the Knowledge section of each actor explanation.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:actor",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "An actor explanation MUST state what the product assumes the actor knows in its Knowledge section, as an assumption of the product, and states no user\u0027s knowledge as a fact about every user.",
+      "rationale": "What a user knows decides what the product can ask of them, so a reader needs the assumption stated where it applies. A fact such as \u0022has no training in accounting\u0022 written in the opening paragraph reads as a claim about every user, and the product has no way to check it. Writing it as \u0022Claimwick does not assume the employee knows the expense policy\u0022 names the product\u0027s assumption and the actor it applies to. Proposed by [decision/0053-describe-actors-by-responsibility-and-knowledge](decision/0053-describe-actors-by-responsibility-and-knowledge).",
+      "example": "Claimwick\u0027s employee actor states in its Knowledge section that Claimwick does not assume the employee knows the expense policy."
+    },
+    {
       "id": "litespec/core/intent#state-when-each-journey-finishes",
       "heading": "State When Each Journey Finishes",
       "page": "docs/core/intent.md",
