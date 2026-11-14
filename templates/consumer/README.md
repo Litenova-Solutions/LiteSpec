@@ -2,7 +2,7 @@
 
 ## Intent
 
-These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. The other templates carry working example values; adjust them to the project.
+These files are starting points for consumer records. `litespec init` copies the project setup files to their targets and writes the local tool manifest; `litespec new` scaffolds a record file or a document from its template. Copy only the record files the current work needs, replace every example value with the project's own before committing, and remove any optional line left unused. A section whose starter text opens with `Optional.` may be removed when it has nothing to say; every other section is required. `litespec init` fills `__PROJECT__` in `.litespec/project.yaml` and the `agent-protocol` region in `AGENTS.md`, and lists the placeholders it leaves, and `litespec model check` refuses a project file that still holds one. Each record template is a copy of one record in the Claimwick example, so it carries that record's values; `litespec model check` reports a scaffold that keeps a copied text or number.
 
 A record file carries its record in YAML, with the entries in `records`. A named record sits in its own folder named for it, as `<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that same folder beside the record file. Every record type with a fixed-section explanation has its own `.md` template, listed below. A document holds no record. Each requirement is a named record in its own folder inside its feature's folder. Rules and events sit on an aggregate file, results sit on a use-case file, and scenarios sit on their use-case, reaction, or job file. Permissions sit on their module's permissions file, and settings on a setting-set file. Each entry point is one record in its own folder, with its `screens/` folder beside the entry-point file. Retention rows sit on the retention schedule. Terms live in the glossary at `.litespec/glossary.yaml` instead of on a file.
 
@@ -37,7 +37,7 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `feature.md` | `.litespec/intent/problems/<problem>/features/<name>/<name>.md` | Explains one feature beside its record file. |
 | `requirement.yaml` | `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml` | Records one commitment the feature makes, with its kind and statement. |
 | `requirement.md` | `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.md` | Explains one requirement beside its record file, when its statement needs prose. |
-| `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person, organization, or system. |
+| `actor.yaml` | `.litespec/intent/actors/<name>/<name>.yaml` | Records one person or organization that takes part in the product. |
 | `actor.md` | `.litespec/intent/actors/<name>/<name>.md` | Explains one actor beside its record file. |
 | `role.yaml` | `.litespec/intent/roles/<name>/<name>.yaml` | Records one named set of permissions at a scope. |
 | `role.md` | `.litespec/intent/roles/<name>/<name>.md` | Explains one role beside its record file. |
@@ -49,8 +49,9 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains one module beside its module file. |
 | `aggregate.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.yaml` | Defines one aggregate, with its kind, states, data classes, and its rule and event entries. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/aggregate.md` | Explains one aggregate beside its aggregate file. |
-| `use-case.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one command or query, with its result and scenario entries. |
-| `use-case.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.md` | Explains one use case beside its record file. |
+| `use-case-command.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one command that changes data, with its input, result and scenario entries. |
+| `use-case-query.yaml` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.yaml` | Defines one query that returns data, with its output, freshness, paging and scenario entries. |
+| `use-case.md` | `.litespec/behavior/modules/<module>/aggregates/<aggregate>/use-cases/<use-case>/<use-case>.md` | Explains one use case beside its record file, a command or a query. |
 | `reaction.yaml` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml` | Defines one reaction an event triggers. |
 | `reaction.md` | `.litespec/behavior/modules/<module>/reactions/<name>/<name>.md` | Explains one reaction beside its record file. |
 | `job.yaml` | `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml` | Defines one scheduled, one-off, or manual job. |
@@ -96,7 +97,7 @@ An explanation file sits in the record's folder beside its record file, with the
 
 | Record | Sections, in order |
 |:---|:---|
-| product | Scope, Users, Out of Scope, Direction |
+| product | Scope, Users, Out of Scope, Direction (optional) |
 | actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
@@ -113,7 +114,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
-| job | Schedule, Failure Handling, Example (optional) |
+| job | Invocation, Failure Handling, Example (optional) |
 | notification | Content, Delivery, Example |
 | integration-event | Consumers, Compatibility, Example |
 | external-system | Use, Data Shared, Failure Handling |
@@ -121,7 +122,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | screen | Task, States, Example |
 | permission-list | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |
-| retention-schedule | Legal Basis, Conflicts, Deletion |
+| retention-schedule | Basis, Conflicts, Deletion |
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | departure | Provision, Reason, Risk, Expiry |
 

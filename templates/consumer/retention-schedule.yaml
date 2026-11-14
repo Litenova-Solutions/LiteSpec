@@ -1,19 +1,12 @@
 type: retention-schedule
 title: Retention Schedule
 rows:
-  - dataClass: expense
-    covers:
-      - aggregate/spending.expense
-    basis: business
-    purpose: Reimbursing employee expenses.
-    period: P7Y
-    enforcedBy: job/spending.erase-expired-personal-data
-    cites: requirement/approval-reminders.decided-within-five-days
-    processors:
-      - system: external-system/payout-bank
-        forwarding:
-          mode: event
-          event: integration-event/payout
-        basedOn:
-          - decision/0001-receipt-threshold
-    conflicts: Audit keeping wins for seven years, and the payout ledger logs each kept record.
+- dataClass: expense
+  covers:
+  - aggregate/spending.expense
+  basis: statute
+  purpose: Keeping the business receipts and expense records for the tax file.
+  period: P7Y
+  enforcedBy: job/spending.erase-expired-personal-data
+  cites: requirement/approval.erase-after-retention
+  conflicts: An erasure request waits until the statutory period ends, because the tax law sets that period.

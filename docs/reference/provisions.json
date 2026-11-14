@@ -5992,6 +5992,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/authoring#copy-each-template-from-the-example",
+      "heading": "Copy Each Template from the Example",
+      "page": "docs/core/authoring.md",
+      "anchor": "copy-each-template-from-the-example",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec-maintain validate\u0060 (\u0060TEMPLATE_SOURCE_DIFFERS\u0060, \u0060TEMPLATE_SOURCE_MISSING\u0060) and \u0060litespec model check\u0060 (\u0060template-value-unchanged\u0060).",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each record template in \u0060templates/consumer/\u0060 MUST equal the Claimwick example record its identifier names, and a scaffold that \u0060litespec new\u0060 writes keeps no copied text or number.",
+      "rationale": "A template is also a worked example, so it stays coherent only when it is one record of the reference product. \u0060litespec-maintain validate\u0060 reports a template that differs from its example record, and \u0060litespec model check\u0060 reports \u0060template-value-unchanged\u0060 on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Proposed by [decision/0056-copy-each-template-from-claimwick](decision/0056-copy-each-template-from-claimwick).",
+      "example": ""
+    },
+    {
       "id": "litespec/core/authoring#define-each-glossary-term-under-its-heading",
       "heading": "Define Each Glossary Term Under Its Heading",
       "page": "docs/core/authoring.md",

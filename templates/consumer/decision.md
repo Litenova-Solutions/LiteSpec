@@ -12,7 +12,7 @@ Compare each real option on the same points: what it gives, what it costs and wh
 
 ## Decision
 
-State the choice and the date it was made, in one or two sentences.
+State the choice in one or two sentences.
 
 ## Consequences
 

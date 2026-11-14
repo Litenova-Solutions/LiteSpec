@@ -629,6 +629,18 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Checked by:** `litespec-maintain provisions --check` exits zero.
 
+### Copy Each Template from the Example
+
+**ID:** `litespec/core/authoring#copy-each-template-from-the-example`
+
+**Strength:** required
+
+**Statement:** Each record template in `templates/consumer/` MUST equal the Claimwick example record its identifier names, and a scaffold that `litespec new` writes keeps no copied text or number.
+
+**Rationale:** A template is also a worked example, so it stays coherent only when it is one record of the reference product. `litespec-maintain validate` reports a template that differs from its example record, and `litespec model check` reports `template-value-unchanged` on a scaffold that keeps a copied value, so a copied period or a copied statement cannot pass as a decision. Proposed by [decision/0056-copy-each-template-from-claimwick](decision/0056-copy-each-template-from-claimwick).
+
+**Checked by:** `litespec-maintain validate` (`TEMPLATE_SOURCE_DIFFERS`, `TEMPLATE_SOURCE_MISSING`) and `litespec model check` (`template-value-unchanged`).
+
 ### Run Repeatable Authoring Checks
 
 **ID:** `litespec/core/authoring#run-repeatable-authoring-checks`

@@ -1,45 +1,11 @@
 type: reaction
-id: reaction/spending.send-approver-reminder-on-expense-submitted
-title: Send Approver Reminder on Expense Submitted
-summary: The approver decides every new expense within five days.
+id: reaction/spending.send-approver-reminders-on-expense-submitted
+title: Send Approver Reminders on Expense Submitted
+summary: A submitted expense that waits past three business days without a decision earns one reminder to its approver. Decided expenses are left alone.
 triggeredBy:
-  - event/expense.submitted
-skippedWhen: The expense is already decided.
+- event/expense.submitted
+skippedWhen: The expense waits past three business days with no decision.
 effects:
-  - sends: notification/spending.approval-reminder
-    timing: async
+- sends: notification/spending.approval-reminder
 fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-serves:
-  - journey/submit-and-reimburse#s2
-onFailure:
-  mode: retry
-  retry:
-    maxAttempts: 3
-    initialDelay: PT10S
-    maxDelay: PT5M
-    backoff: exponential
-  then: dead-letter
-  deadLetter:
-    after: P30D
-    action: The on-call engineer replays the dead letter.
-  surfacesIn: entry-point/claimwick-app
-  runbook: runbook/clear-stuck-reimbursements
-idempotency:
-  mode: key
-  key: reminder-{expenseId}
-  scope: tenant
-reads:
-  - aggregate/spending.expense
-changes:
-  - aggregate/spending.expense
-terms:
-  - term/expense
-records:
-  - type: scenario
-    id: scenario/send-approver-reminder-on-expense-submitted.reminder-sent
-    title: Reminder Sent on Submission
-    given: An expense is submitted.
-    when: The submission event fires.
-    then: The approver receives a reminder.
-    result: result/submit-expense.submitted
+- requirement/approval-reminders.remind-approver-after-three-days

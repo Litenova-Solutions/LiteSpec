@@ -1,15 +1,12 @@
 type: constraint
 id: constraint/tax-receipt-retention
 title: Tax Receipt Retention
-summary: The national tax authority requires keeping every receipt for seven years.
-authority: National tax authority.
+summary: National tax law requires a company to keep its business receipts for seven years.
+authority: National tax law.
 sources:
-  - key: tax-authority-rules
-    url: https://example.com/tax-authority-rules
-    readOn: 2026-10-12
-    publishedOn: 2026-01-15
-kind: legal
+- key: national-tax-law
+  url: https://example.com/national-tax-law
+  readOn: 2026-02-10
+kind: organizational
 applies: true
-appliesBecause: Claimwick stores receipts for reimbursement.
-terms:
-  - term/expense
+appliesBecause: Claimwick stores receipts for reimbursed expenses.

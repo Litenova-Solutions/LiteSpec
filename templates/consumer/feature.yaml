@@ -1,8 +1,5 @@
 type: feature
-id: feature/approval-reminders
-title: Approval Reminders
-offering: Claimwick reminds approvers daily until each expense is decided.
-advances:
-  - goal/faster-reimbursement
-terms:
-  - term/expense
+id: feature/approval
+title: Approval
+summary: Employees submit work expenses and wait for the money, managers decide each one, and finance reimburses the approved ones. Expenses arrive daily, and each one needs a timely decision with proof where the policy asks for it.
+offering: Employees submit expenses with receipts, managers decide each one within five business days, and finance reimburses and exports the approved ones.

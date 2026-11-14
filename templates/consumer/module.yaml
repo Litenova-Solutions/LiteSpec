@@ -1,8 +1,5 @@
 type: module
 id: module/spending
 title: Spending
-summary: Spending covers employee expenses from submission to reimbursement.
-dependsOn:
-  - module/privacy
-terms:
-  - term/expense
+summary: Spending submits, decides, reimburses and exports work expenses.
+dependsOn: []

@@ -8,7 +8,7 @@ Say what starts the reaction and what follows from it, in one or two sentences.
 
 ## Failure Handling
 
-Say what happens on a retry, a duplicate and a dead letter, and why each one is handled that way.
+Say what happens when the reaction fails. Where it retries, say what a retry, a duplicate and a dead letter each do and why. Where it does not retry, say what happens to the failed event instead.
 
 ## Example
 

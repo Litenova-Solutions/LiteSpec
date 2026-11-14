@@ -1,6 +1,6 @@
 # Record Title
 
-Say what this use case does for its actor and what it changes, in plain words. A reader who has read nothing else should understand the use case from this paragraph.
+Say what this use case changes or returns for its actor, in plain words. A reader who has read nothing else should understand the use case from this paragraph.
 
 ## Flow
 

@@ -37,7 +37,7 @@ An explanation file beside a record file opens with the record title as its one 
 
 | Record type | Sections, in order |
 |:---|:---|
-| product | Scope, Users, Out of Scope, Direction |
+| product | Scope, Users, Out of Scope, Direction (optional) |
 | actor | Responsibilities, Knowledge, Example (optional) |
 | role | Access, Limits |
 | goal | Target, Measurement |
@@ -54,7 +54,7 @@ An explanation file beside a record file opens with the record title as its one 
 | use-case | Flow, Example (optional), Edge Cases (optional) |
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
-| job | Schedule, Failure Handling, Example (optional) |
+| job | Invocation, Failure Handling, Example (optional) |
 | notification | Content, Delivery, Example |
 | integration-event | Consumers, Compatibility, Example |
 | external-system | Use, Data Shared, Failure Handling |
@@ -62,7 +62,7 @@ An explanation file beside a record file opens with the record title as its one 
 | screen | Task, States, Example |
 | permission-list | Risk, Boundaries (optional) |
 | setting-set | Defaults, Changes (optional) |
-| retention-schedule | Legal Basis, Conflicts, Deletion |
+| retention-schedule | Basis, Conflicts, Deletion |
 | runbook | Prerequisites, Steps, Verification, Recovery |
 | departure | Provision, Reason, Risk, Expiry |
 

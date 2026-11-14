@@ -1,12 +1,8 @@
 type: requirement
-id: requirement/approval-reminders.decided-within-five-days
-title: Decided Within Five Days
+id: requirement/approval-reminders.remind-approver-after-three-days
+title: Remind Approver After Three Business Days
 kind: functional
-statement: The product decides every expense within five working days.
-rationale: Approvers batch decisions monthly today.
+statement: The product sends the approver one reminder for each expense that waits past three business days without a decision.
+rationale: Managers decide in batches, so an expense can wait unseen for weeks.
 cites:
-  - goal/faster-reimbursement
-except:
-  - condition: The amount is under the threshold.
-    fallback: requirement/approval-reminders.auto-approved-under-threshold
-setBy: product
+- feature/approval-reminders

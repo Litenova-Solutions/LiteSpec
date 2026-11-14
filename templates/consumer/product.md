@@ -16,4 +16,4 @@ Name what the product does not do, and say why it stays out.
 
 ## Direction
 
-Say where the product is heading and which decision the direction depends on.
+Optional. Point to the vision records that say where the product is heading, and name the decision the direction depends on.

@@ -2,9 +2,9 @@
 
 Say what data the schedule keeps, for how long and why. A reader who has read nothing else should understand the schedule from this paragraph.
 
-## Legal Basis
+## Basis
 
-Say why each period applies, with the law or contract it comes from.
+Say why each period applies, with the statute, the business reason or the engineering reason it comes from.
 
 ## Conflicts
 

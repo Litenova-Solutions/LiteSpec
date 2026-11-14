@@ -4,7 +4,7 @@ Say what this aggregate keeps track of, who depends on it and why it exists as o
 
 ## Lifecycle
 
-Say why each state exists and what moves the aggregate from one state to the next.
+For an entity, say each state it can hold and what moves it from one state to the next. For a store, say how an entry is created, changed and removed, and which use case does each.
 
 ## Data and Retention
 

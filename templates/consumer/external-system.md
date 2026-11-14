@@ -8,7 +8,7 @@ Say why the product depends on the system and which calls it makes.
 
 ## Data Shared
 
-Say what data leaves the product for this system, and what the system may keep.
+Say what data the product sends to this system and what the system sends back, and what trust the product places in each.
 
 ## Failure Handling
 

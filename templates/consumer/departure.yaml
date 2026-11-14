@@ -1,15 +1,12 @@
 type: departure
 id: departure/export-review-bypass
 title: Export Review Bypass
+summary: The weekend export runs with no reviewer on shift.
 covers:
 - litespec/backend/application#enforce-target-authorization-in-the-pipeline
 subject:
 - use-case/spending.export-expenses
-paths:
-- apps/api/src/Spending.Export/**
-reason: The project ships exports without review until 2027-03-31.
-exit: The export review check turns green and the bypass is removed.
-consequences: Exports ship without the review step until the check is green.
-expiresOn: 2027-03-31
-terms:
-- term/expense
+reason: The weekend export runs with no reviewer on shift.
+exit: A reviewer covers the weekend export shift, and the bypass is removed.
+consequences: The weekend export skips the daily review. Finance runs the export alone, and a Monday review covers each weekend batch after the fact. The bypass ends when a reviewer covers weekends.
+expiresOn: 2027-01-01

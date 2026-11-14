@@ -1,0 +1,12 @@
+type: retention-schedule
+title: Retention Schedule
+rows:
+- dataClass: expense
+  covers:
+  - aggregate/spending.expense
+  basis: statute
+  purpose: Keeping the business receipts and expense records for the tax file.
+  period: P7Y
+  enforcedBy: job/spending.erase-expired-personal-data
+  cites: requirement/approval.erase-after-retention
+  conflicts: An erasure request waits until the statutory period ends, because the tax law sets that period.

@@ -11,6 +11,7 @@ litespec new <type> <id> [--root <path>] [--help]
 litespec new requirement <feature>.<name> [--root <path>]
 litespec new decision <name> [--root <path>]
 litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
+litespec new use-case <id> --kind command|query [--root <path>]
 litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
 litespec new entry <page-id> <type> <name> [--root <path>]
 ```
@@ -54,6 +55,7 @@ A release record starts from `templates/consumer/release-record.md`: copy it to 
 | Option | Default | Effect |
 |:---|:---|:---|
 | `--root <path>` | the working directory | The folder to start from. The command uses the first folder at or above it that holds `.litespec/project.yaml`. |
+| `--kind command` or `query` | `command` | For `use-case`: whether the file is written from the command template or the query template. |
 | `--outcome success` or `refusal` | none | For `result`: whether the entry ends in success or refusal. |
 | `--code <code>` | none | For `result`: the refusal code as `<module>.<reason>`; required for a refusal, the first of `codes` on a success. |
 | `--result <result-id>` | none | For `scenario`: the written or derived result the scenario ends in. |
@@ -137,4 +139,4 @@ litespec new entry .litespec/behavior/modules/spending/settings/receipt-settings
 
 ## Underneath
 
-This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; it also reads `templates/consumer/<type>.md` and writes the explanation file beside the record, and for a document style it reads `templates/consumer/<type>.md` and writes the document. A requirement writes its record file alone, in the feature's folder. The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes. It splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular; it prints nothing when no statement matches or the carried release cannot be read. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.
+This command reads `templates/consumer/<type>.yaml` from the release the tool carries and writes the record file; a use case reads `use-case-command.yaml` or `use-case-query.yaml` by its `--kind`. The record file opens with a marker line that names its template, and `model check` reports `template-value-unchanged` for a scaffold that keeps a text or number the template copied; it also reads `templates/consumer/<type>.md` and writes the explanation file beside the record, and for a document style it reads `templates/consumer/<type>.md` and writes the document. A requirement writes its record file alone, in the feature's folder. The `decision` path allocates the next number from the one decision sequence, prints the provisions whose statement matches the name's words in identifier order, and then writes. It splits the name on hyphens, skips words shorter than three letters, and matches a plural word against its singular; it prints nothing when no statement matches or the carried release cannot be read. The `result` and `scenario` paths read the use-case file instead and write one entry into its `records`. The `entry` path reads the list file at `<page-id>` instead and writes one entry last into its `records`. Every write lands in canonical form. Nothing beneath this command is separately runnable. Validate the written file before committing it.

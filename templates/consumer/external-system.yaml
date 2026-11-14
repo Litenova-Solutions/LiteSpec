@@ -1,23 +1,9 @@
 type: external-system
 id: external-system/payout-bank
 title: Payout Bank
-summary: The payout bank moves approved reimbursements to employee accounts.
+summary: The payout bank moves reimbursed money to employees. Claimwick sends one bank file per batch and reads back a settlement report.
 sends:
-  - The payout amount and target account.
+- Approved payouts as one bank file per batch.
 receives:
-  - The payout reference.
-failure: Callers read cached answers while this system stays down.
-operations:
-  - name: payout
-    direction: out
-    timeout: PT30S
-    onTimeout: Callers see a timeout when the wait ends.
-    response: The payout reference.
-    cache: Payout references stay cached for one day.
-erasure:
-  mode: event
-  event: integration-event/payout
-basedOn:
-  - decision/0001-receipt-threshold
-terms:
-  - term/expense
+- A settlement report per payout batch.
+failure: The bank rejects a payout file, and finance fixes the entry and re-sends the batch.

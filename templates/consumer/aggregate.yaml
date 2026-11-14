@@ -1,47 +1,102 @@
 type: aggregate
 id: aggregate/spending.expense
 title: Expense
-summary: The expense keeps one reimbursement consistent from submission to payout.
+summary: An expense is one work cost an employee submitted.
 kind: entity
-parts:
-  - line-item
 states:
-  - name: submitted
-    meaning: The expense awaits approval.
+- name: Submitted
+  meaning: The expense waits for a decision.
+- name: Approved
+  meaning: A manager approved the expense.
+- name: Refused
+  meaning: A manager refused the expense.
+- name: Reimbursed
+  meaning: The reimbursed state of an expense whose payout reached the submitter.
+transitions:
+- from: "-"
+  to: Submitted
+  by: use-case/spending.submit-expense
+- from: Submitted
+  to: Approved
+  by: use-case/spending.approve-expense
+- from: Submitted
+  to: Refused
+  by: use-case/spending.refuse-expense
+- from: Approved
+  to: Reimbursed
+  by: use-case/spending.reimburse-expense
+data:
+- name: employee
+  meaning: The employee who submitted the expense.
+  classification: personal
+  dataClass: submitter-contact
+- name: amount
+  meaning: The exact amount with its currency.
+  classification: internal
+  dataClass: expense-ledger
+- name: receipt
+  meaning: The proof of payment, when one is attached.
+  classification: internal
+  dataClass: expense-ledger
+- name: state
+  meaning: The lifecycle state of the expense.
+  classification: internal
+  dataClass: expense-ledger
 dataClasses:
-  - name: expense
-    classification: personal
-    fields:
-      - employeeId
-      - amount
-    onErasure: erase
-    basis: business
-    purpose: Reimbursing employee expenses.
-    period: P7Y
-    enforcedBy: job/spending.erase-expired-personal-data
-    reach: subject-wide
-    exceptions:
-      - field: amount
-        onErasure: anonymize
-terms:
-  - term/expense
+- name: submitter-contact
+  classification: personal
+  fields:
+  - employee
+  onErasure: pseudonymize
+  basis: business
+  period: P7Y
+  enforcedBy: job/spending.erase-expired-personal-data
+  purpose: Link each expense to the employee who submitted it.
+  basedOn:
+  - requirement/approval.erase-after-retention
+- name: expense-ledger
+  classification: internal
+  fields:
+  - amount
+  - receipt
+  - state
+  onErasure: retain
+  basis: statute
+  period: P7Y
+  enforcedBy: record-expiry
+  purpose: Keep the tax file defensible.
 records:
-  - type: rule
-    id: rule/expense.receipt-required-above-threshold
-    title: Receipt Required Above Threshold
-    kind: invariant
-    statement: An expense above the threshold carries a receipt.
-    governs:
-      - aggregate/spending.expense
-    refusal: result/submit-expense.receipt-missing
-    basedOn:
-      - constraint/tax-receipt-retention
-    fulfills:
-      - requirement/approval-reminders.decided-within-five-days
-  - type: event
-    id: event/expense.submitted
-    title: Submitted
-    meaning: The expense was submitted for approval.
-    carries:
-      - expenseId
-      - amount
+- type: event
+  id: event/expense.submitted
+  title: Expense Submitted
+  meaning: An expense was submitted.
+  carries:
+  - expenseId
+  - amount
+  - currency
+  - employeeId
+- type: event
+  id: event/expense.approved
+  title: Expense Approved
+  meaning: An expense was approved.
+  carries:
+  - expenseId
+  - approvedBy
+  - decidedAt
+- type: event
+  id: event/expense.refused
+  title: Expense Refused
+  meaning: An expense was refused.
+  carries:
+  - expenseId
+  - refusedBy
+  - decidedAt
+- type: event
+  id: event/expense.reimbursed
+  title: Expense Reimbursed
+  meaning: An expense was reimbursed.
+  carries:
+  - expenseId
+  - amount
+  - currency
+  - reimbursedAt

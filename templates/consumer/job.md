@@ -2,9 +2,9 @@
 
 Say what this job does and why it runs on its own schedule. A reader who has read nothing else should understand the job from this paragraph.
 
-## Schedule
+## Invocation
 
-Say when the job runs and why that timing fits the work.
+Say how each run starts: on its schedule, once when requested, or by hand, and what each run covers. Say whether a run waits for an earlier run still in progress, and where a run resumes after it stops.
 
 ## Failure Handling
 

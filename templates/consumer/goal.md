@@ -4,8 +4,8 @@ Say what outcome this goal names, who gains when it holds, and the consequence a
 
 ## Target
 
-State the target number and the date it applies to, in one or two sentences.
+State the target number, the population it counts and the date it applies to, in one or two sentences.
 
 ## Measurement
 
-Say how and where the target is measured, and what the baseline is today.
+Say the start and end events of the measured period, the measurement window, what is excluded from the count, and the baseline today.

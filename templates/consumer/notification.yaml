@@ -1,24 +1,17 @@
 type: notification
 id: notification/spending.approval-reminder
 title: Approval Reminder
-summary: The approver opens the reminder and decides the expense.
-template: approval-reminder
+summary: The reminder names the expense and its waiting time. Each waiting expense earns one reminder.
+template: approval-reminder-manager
 addresses:
-  - actor/employee
+- actor/manager
 channel:
-  - email
-consent: SMS only with consent.
+- email
+consent: Managers accept reminders with the approver role.
 frequency: once
-dedupKey: reminder-{expenseId}
+dedupKey: approval-reminder-{expenseId}
 params:
-  - expenseId
-  - dueDate
-locale: The approver profile language.
-suppressedWhen: The expense is decided before the run.
-claims:
-  - claim: The reminder names the true amount due.
-    requirement: requirement/approval-reminders.decided-within-five-days
+- submitterName
+locale: English only; the template ships one language.
 fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-terms:
-  - term/expense
+- requirement/approval.decided-within-five-days

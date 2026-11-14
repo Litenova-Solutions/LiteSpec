@@ -15,6 +15,13 @@ reachedThrough:
 raises:
 - event/expense.submitted
 input:
+- name: requestId
+  meaning: The identifier the app mints for one submission attempt, so a retried request finds the same expense.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
 - name: amount
   meaning: The exact amount of the expense.
   type: decimal
@@ -39,8 +46,9 @@ changes:
 reads:
 - aggregate/spending.policy
 idempotency:
-  mode: none
-  reason: the endpoint mints a fresh expense identity for each request, so each call submits its own expense
+  mode: key
+  key: "{requestId}"
+  scope: account
 audit:
   level: none
   target: no audit trail; the example stores no audit entry

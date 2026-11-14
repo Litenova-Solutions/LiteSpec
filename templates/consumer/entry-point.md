@@ -8,7 +8,7 @@ Name who comes in this way and what they come to do.
 
 ## Authentication
 
-Say how these people sign in and what proof the system checks.
+Say how callers prove their identity: the sign-in method and the proof the system checks. If the door needs no identity, say why in one sentence.
 
 ## Limits
 

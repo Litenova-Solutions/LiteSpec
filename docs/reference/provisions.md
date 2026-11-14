@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1690 provisions in 4 groups across 6 areas.
+The active release states 1691 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -32,7 +32,7 @@ The active release states 1690 provisions in 4 groups across 6 areas.
 | [backend/testing](../backend/testing.md) | 6 | 0 | 0% |
 | [core/access](../core/access.md) | 22 | 15 | 68% |
 | [core/agent](../core/agent.md) | 19 | 2 | 11% |
-| [core/authoring](../core/authoring.md) | 42 | 24 | 57% |
+| [core/authoring](../core/authoring.md) | 43 | 25 | 58% |
 | [core/automation](../core/automation.md) | 12 | 9 | 75% |
 | [core/behavior](../core/behavior.md) | 2 | 1 | 50% |
 | [core/departures](../core/departures.md) | 2 | 2 | 100% |
@@ -453,6 +453,7 @@ The active release states 1690 provisions in 4 groups across 6 areas.
 | litespec/core/agent#write-pages-below-decided-intent | [Write Pages Below Decided Intent](../core/agent.md#write-pages-below-decided-intent) | rule | any | workspace | any | any | no | required | guidance | Each written page traces to a decided Intent record, with no invented promise. |
 | litespec/core/authoring#attach-examples-to-their-provisions | [Attach Examples to Their Provisions](../core/authoring.md#attach-examples-to-their-provisions) | rule | any | workspace | - | any | no | required | checkable | `litespec-maintain validate` emits no `STANDARD_EXAMPLE_LABEL`, `PAGE_UNKNOWN_SECTION`, or `REFERENCE_EXAMPLE_DECLARATION` diagnostic. |
 | litespec/core/authoring#cite-owned-content-instead-of-copying-it | [Cite Owned Content Instead of Copying It](../core/authoring.md#cite-owned-content-instead-of-copying-it) | rule | any | workspace | - | any | no | required | guidance | Which passages restate content another page owns? Compare repeated passages with the owning page. |
+| litespec/core/authoring#copy-each-template-from-the-example | [Copy Each Template from the Example](../core/authoring.md#copy-each-template-from-the-example) | rule | any | workspace | - | any | no | required | checkable | `litespec-maintain validate` (`TEMPLATE_SOURCE_DIFFERS`, `TEMPLATE_SOURCE_MISSING`) and `litespec model check` (`template-value-unchanged`). |
 | litespec/core/authoring#define-each-glossary-term-under-its-heading | [Define Each Glossary Term Under Its Heading](../core/authoring.md#define-each-glossary-term-under-its-heading) | rule | any | workspace | - | any | no | required | guidance | Which glossary entries open with something other than the definition, or carry a Term line? Look in `docs/reference/glossary.md`. |
 | litespec/core/authoring#exclude-a-sequence-number-from-the-identifier | [Exclude a Sequence Number from the Identifier](../core/authoring.md#exclude-a-sequence-number-from-the-identifier) | rule | any | workspace | - | any | no | required | guidance | Which identifiers carry a sequence number? Look at the provision IDs the change adds. |
 | litespec/core/authoring#exclude-cross-release-compatibility-work | [Exclude Cross-Release Compatibility Work](../core/authoring.md#exclude-cross-release-compatibility-work) | rule | any | workspace | - | any | no | required | guidance | Which pages promise migration, mapping, or alias between releases? Look at the release material the change adds. |

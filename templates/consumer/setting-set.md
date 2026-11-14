@@ -4,7 +4,7 @@ Say which settings this set holds and what the module runs with. A reader who ha
 
 ## Defaults
 
-Say why each default and each range was chosen.
+For each setting that has a default, say the default, the range it may take, who sets it and when a change takes effect. Say why the default was chosen. A setting with no default says so.
 
 ## Changes
 
