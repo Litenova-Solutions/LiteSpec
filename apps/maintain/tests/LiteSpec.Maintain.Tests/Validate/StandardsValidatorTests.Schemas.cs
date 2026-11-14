@@ -506,7 +506,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"goal\",\"id\":\"goal/<name>\",\"title\":\"<Goal display title>\"," +
                 "\"kind\":\"<a|b>\"}"));
         },
-        []);
+        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
     /// <summary>Consumer template breaking its record shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -575,7 +575,7 @@ public sealed partial class StandardsValidatorTests
                 "\"address\":\"<Route template, or remove this line and keep host>\"," +
                 "\"host\":\"screen/sample\"}"));
         },
-        []);
+        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
     /// <summary>Consumer template reading an enum under its shape.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -668,7 +668,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"reaction\",\"id\":\"reaction/<module>.<name>\",\"title\":\"<Reaction display title>\"," +
                 "\"triggeredBy\":{}}"));
         },
-        []);
+        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
     /// <summary>Consumer template carrying a job identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -690,7 +690,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"job\",\"id\":\"job/<module>.<name>\",\"title\":\"<Job display title>\"," +
                 "\"kind\":\"<scheduled|one-off|manual>\"}"));
         },
-        []);
+        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
     /// <summary>Consumer template carrying a departure identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
@@ -718,7 +718,7 @@ public sealed partial class StandardsValidatorTests
                 "{\"type\":\"departure\",\"id\":\"departure/<name>\",\"title\":\"<Departure display title>\"," +
                 "\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
-        []);
+        [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
     /// <summary>Consumer template carrying no record type.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>

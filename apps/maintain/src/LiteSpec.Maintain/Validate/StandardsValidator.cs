@@ -182,6 +182,7 @@ internal static class StandardsValidator
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         context.Templates.CheckTemplateIndex();
         context.Templates.CheckConsumerTemplates();
+        context.Templates.CheckTemplateSources();
         context.Repository.CheckGeneratedCounts(parsedPages);
         context.ValueStyle.CheckValueStyle();
 

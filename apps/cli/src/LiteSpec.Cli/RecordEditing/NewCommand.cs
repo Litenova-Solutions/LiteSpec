@@ -24,6 +24,7 @@ static class NewCommand
                litespec new decision <name> [--root <path>]
                litespec new requirement <feature>.<name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
+               litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
                litespec new entry <page-id> <type> <name> [--root <path>]
 
@@ -106,7 +107,7 @@ static class NewCommand
     /// <returns>The process exit code: 0 when the file or entry is written, 1 when no template or repository can be read, and 2 on invalid input or a taken identifier.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result"], maxPositionals: 4);
+        var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result", "--kind"], maxPositionals: 4);
 
         if (parsed.Help)
         {
@@ -141,6 +142,18 @@ static class NewCommand
                 CliHost.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
                 return 2;
             }
+        }
+
+        if (parsed.Value("--kind") is not null && type != RecordTypes.UseCase)
+        {
+            CliHost.Error.WriteLine("Option --kind applies only to new use-case.");
+            return 2;
+        }
+
+        if (parsed.Value("--kind") is { } kind && kind is not ("command" or "query"))
+        {
+            CliHost.Error.WriteLine($"Option --kind takes command or query, not '{kind}'.");
+            return 2;
         }
 
         if (!RecordTypes.All.Contains(type) && !RecordTypes.PageStyles.Contains(type))
@@ -289,7 +302,10 @@ static class NewCommand
             return 2;
         }
 
-        var templateFile = $"{type}.yaml";
+        // A use case is a command or a query, and each kind has its own template.
+        var templateFile = type == RecordTypes.UseCase
+            ? (parsed.Value("--kind") == "query" ? "use-case-query.yaml" : "use-case-command.yaml")
+            : $"{type}.yaml";
 
         if (ReadTemplate(templateFile) is not { } template)
         {
@@ -319,7 +335,7 @@ static class NewCommand
             node["title"] = title;
         }
 
-        var filled = RecordFile.Write(node);
+        var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 
         // An article type, and a type on a layer the project lists, gets the explanation template for its own

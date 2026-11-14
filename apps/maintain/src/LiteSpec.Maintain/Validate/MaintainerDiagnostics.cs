@@ -102,6 +102,8 @@ internal static class MaintainerDiagnostics
         Codes.ValueStyle,
         Codes.TemplateIndexPath,
         Codes.TemplateSchema,
+        Codes.TemplateSourceMissing,
+        Codes.TemplateSourceDiffers,
         Codes.IndexMissingRouting,
         Codes.LayerUnlisted,
         Codes.GeneratedStale,
@@ -402,6 +404,12 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A template that does not satisfy its schema.</summary>
         public const string TemplateSchema = "TEMPLATE_SCHEMA";
+
+        /// <summary>A record template whose identifier names no record in the Claimwick example.</summary>
+        public const string TemplateSourceMissing = "TEMPLATE_SOURCE_MISSING";
+
+        /// <summary>A record template that is not a copy of the Claimwick example record it names.</summary>
+        public const string TemplateSourceDiffers = "TEMPLATE_SOURCE_DIFFERS";
 
         /// <summary>An index missing a routing block.</summary>
         public const string IndexMissingRouting = "INDEX_MISSING_ROUTING";

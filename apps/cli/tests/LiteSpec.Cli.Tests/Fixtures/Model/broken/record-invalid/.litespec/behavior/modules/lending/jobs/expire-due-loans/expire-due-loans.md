@@ -2,9 +2,9 @@
 
 This record file is intentionally broken: it wraps the record in frontmatter fences, which the record subset refuses, so the read reports record-invalid.
 
-## Schedule
+## Invocation
 
-Fixture text for the Schedule section.
+Fixture text for the Invocation section.
 
 ## Failure Handling
 

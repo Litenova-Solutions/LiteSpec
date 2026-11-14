@@ -2,9 +2,9 @@
 
 An operator announces each borrowed loan.
 
-## Schedule
+## Invocation
 
-Fixture text for the Schedule section.
+Fixture text for the Invocation section.
 
 ## Failure Handling
 

@@ -51,6 +51,23 @@ public sealed class NewEveryTypeTests
         Assert.Equal(TemplateSections(type), lines.Where(line => line.StartsWith("## ", StringComparison.Ordinal)).ToArray());
     }
 
+    /// <summary>A query is scaffolded from the query template, which its kind names, and the record opens with the scaffold marker.</summary>
+    /// <proves>litespec/core/authoring#copy-each-template-from-the-example</proves>
+    [Fact(DisplayName = "new writes a query from the query template")]
+    public void NewWritesAQueryFromTheQueryTemplate()
+    {
+        using var consumer = Consumer();
+
+        var result = TestCli.Run("new", "use-case", "spending.list-expenses", "--kind", "query", "--root", consumer.Path);
+
+        Assert.Equal(0, result.Status);
+
+        var record = Path.Combine(consumer.Path, ".litespec", "behavior/modules/spending/use-cases/list-expenses/list-expenses.yaml");
+        var text = File.ReadAllText(record);
+        Assert.StartsWith("# Scaffolded by litespec new from templates/consumer/use-case-query.yaml;", text, StringComparison.Ordinal);
+        Assert.Contains("kind: query", text);
+    }
+
     /// <summary>The scaffold cases: each listed type with its identifier argument, file, title and full identifier.</summary>
     /// <returns>One row per listed type.</returns>
     public static IEnumerable<object[]> Cases()

@@ -2,9 +2,9 @@
 
 Each day the scan marks the loans that passed their due date.
 
-## Schedule
+## Invocation
 
-Fixture text for the Schedule section.
+Fixture text for the Invocation section.
 
 ## Failure Handling
 

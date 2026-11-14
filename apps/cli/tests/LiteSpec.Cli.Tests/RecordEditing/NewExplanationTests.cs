@@ -117,7 +117,7 @@ public sealed class NewExplanationTests
         { "use-case", ["Flow", "Example", "Edge Cases"] },
         { "rule-set", ["Rationale", "Example"] },
         { "reaction", ["Trigger and Effect", "Failure Handling", "Example"] },
-        { "job", ["Schedule", "Failure Handling", "Example"] },
+        { "job", ["Invocation", "Failure Handling", "Example"] },
         { "notification", ["Content", "Delivery", "Example"] },
         { "integration-event", ["Consumers", "Compatibility", "Example"] },
         { "external-system", ["Use", "Data Shared", "Failure Handling"] },
@@ -125,7 +125,7 @@ public sealed class NewExplanationTests
         { "screen", ["Task", "States", "Example"] },
         { "permission-list", ["Risk", "Boundaries"] },
         { "setting-set", ["Defaults", "Changes"] },
-        { "retention-schedule", ["Legal Basis", "Conflicts", "Deletion"] },
+        { "retention-schedule", ["Basis", "Conflicts", "Deletion"] },
         { "runbook", ["Prerequisites", "Steps", "Verification", "Recovery"] },
         { "departure", ["Provision", "Reason", "Risk", "Expiry"] },
     };

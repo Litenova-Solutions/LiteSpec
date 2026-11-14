@@ -439,6 +439,8 @@ public sealed partial class StandardsValidatorTests
             MaintainerDiagnostics.Codes.StandardUnlabeledContent,
             MaintainerDiagnostics.Codes.TemplateIndexPath,
             MaintainerDiagnostics.Codes.TemplateSchema,
+            MaintainerDiagnostics.Codes.TemplateSourceDiffers,
+            MaintainerDiagnostics.Codes.TemplateSourceMissing,
             MaintainerDiagnostics.Codes.TemplateCitationUnknown,
             MaintainerDiagnostics.Codes.StandardStrengthModal,
             MaintainerDiagnostics.Codes.VerifyCommand,

@@ -22,7 +22,7 @@ public static class ExplanationSections
         new Dictionary<string, IReadOnlyList<Section>>(StringComparer.Ordinal)
         {
             // Intent
-            [RecordTypes.Product] = Of(("Scope", false), ("Users", false), ("Out of Scope", false), ("Direction", false)),
+            [RecordTypes.Product] = Of(("Scope", false), ("Users", false), ("Out of Scope", false), ("Direction", true)),
             [RecordTypes.Actor] = Of(("Responsibilities", false), ("Knowledge", false), ("Example", true)),
             [RecordTypes.Role] = Of(("Access", false), ("Limits", false)),
             [RecordTypes.Goal] = Of(("Target", false), ("Measurement", false)),
@@ -41,7 +41,7 @@ public static class ExplanationSections
             [RecordTypes.UseCase] = Of(("Flow", false), ("Example", true), ("Edge Cases", true)),
             [RecordTypes.RuleSet] = Of(("Rationale", false), ("Example", true)),
             [RecordTypes.Reaction] = Of(("Trigger and Effect", false), ("Failure Handling", false), ("Example", true)),
-            [RecordTypes.Job] = Of(("Schedule", false), ("Failure Handling", false), ("Example", true)),
+            [RecordTypes.Job] = Of(("Invocation", false), ("Failure Handling", false), ("Example", true)),
             [RecordTypes.Notification] = Of(("Content", false), ("Delivery", false), ("Example", false)),
             [RecordTypes.IntegrationEvent] = Of(("Consumers", false), ("Compatibility", false), ("Example", false)),
             [RecordTypes.ExternalSystem] = Of(("Use", false), ("Data Shared", false), ("Failure Handling", false)),
@@ -49,7 +49,7 @@ public static class ExplanationSections
             [RecordTypes.Screen] = Of(("Task", false), ("States", false), ("Example", false)),
             [RecordTypes.PermissionList] = Of(("Risk", false), ("Boundaries", true)),
             [RecordTypes.SettingSet] = Of(("Defaults", false), ("Changes", true)),
-            [RecordTypes.RetentionSchedule] = Of(("Legal Basis", false), ("Conflicts", false), ("Deletion", false)),
+            [RecordTypes.RetentionSchedule] = Of(("Basis", false), ("Conflicts", false), ("Deletion", false)),
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false), ("Steps", false), ("Verification", false), ("Recovery", false)),

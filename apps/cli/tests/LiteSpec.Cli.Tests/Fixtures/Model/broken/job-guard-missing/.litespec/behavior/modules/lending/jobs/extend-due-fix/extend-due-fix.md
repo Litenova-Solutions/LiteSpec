@@ -2,9 +2,9 @@
 
 A librarian fixes a due date by hand.
 
-## Schedule
+## Invocation
 
-Fixture text for the Schedule section.
+Fixture text for the Invocation section.
 
 ## Failure Handling
 

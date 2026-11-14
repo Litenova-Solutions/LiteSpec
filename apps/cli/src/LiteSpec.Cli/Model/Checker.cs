@@ -72,6 +72,7 @@ static class Checker
         SourceLinkChecks.Run,
         ConstraintChecks.Run,
         FormatChecks.Run,
+        TemplateValueChecks.Run,
         SizeTypeChecks.Run,
         ReachChecks.RunReach,
         ReachChecks.RunBehavior,
