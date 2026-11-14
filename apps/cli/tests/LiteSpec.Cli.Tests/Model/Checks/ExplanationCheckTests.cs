@@ -108,7 +108,7 @@ public sealed class ExplanationCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Decision 'decision/0001-loan-period' holds no Context section in its explanation.", finding.Message);
-        Assert.Equal(file, finding.Path);
+        Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("decision/0001-loan-period", finding.Subject);
     }
@@ -155,7 +155,7 @@ public sealed class ExplanationCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Research 'research/loan-period-benchmarks' holds no Findings section in its explanation.", finding.Message);
-        Assert.Equal(file, finding.Path);
+        Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("research/loan-period-benchmarks", finding.Subject);
     }
@@ -279,7 +279,7 @@ public sealed class ExplanationCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Feature 'feature/submit-an-expense-claim' holds no Success Criteria section in its explanation.", finding.Message);
-        Assert.Equal(file, finding.Path);
+        Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("feature/submit-an-expense-claim", finding.Subject);
     }
@@ -308,7 +308,7 @@ public sealed class ExplanationCheckTests
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-missing");
         Assert.Equal("A", finding.Tier);
         Assert.Equal("Use case 'use-case/spending.submit-expense' holds no Flow section in its explanation.", finding.Message);
-        Assert.Equal(file, finding.Path);
+        Assert.Equal(Path.ChangeExtension(file, ".md"), finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("use-case/spending.submit-expense", finding.Subject);
     }
@@ -419,7 +419,7 @@ public sealed class ExplanationCheckTests
             RecordWithExplanation(temp.Path, "actor", "actor/reader", Explanation("An opening paragraph names the record.", ["Responsibilities", "Access", "Knowledge", "Example"])));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-section-unknown");
-        Assert.Equal("Actor 'actor/reader' holds the section 'Access', which its type's section table does not state.", finding.Message);
+        Assert.Equal("Actor 'actor/reader' holds the section 'Access' ahead of its fixed sections, and its type's section table does not state it. Free sections follow the fixed ones.", finding.Message);
     }
 
     /// <summary>Fixed sections the file holds out of table order report the pair that is out of order.</summary>
@@ -474,6 +474,72 @@ public sealed class ExplanationCheckTests
         var codes = TestModel.Codes(model);
         Assert.DoesNotContain("explanation-opening-missing", codes);
         Assert.DoesNotContain("explanation-missing", codes);
+    }
+
+    /// <summary>A comment and a code block before the first H2 are not the opening paragraph, so the explanation reports it.</summary>
+    /// <proves>litespec/core/writing#open-each-explanation-file-with-a-paragraph</proves>
+    [Fact]
+    public void CommentAndCodeBeforeTheFirstSectionAreNotAnOpeningParagraph()
+    {
+        using var temp = TestCli.Temp("checks");
+        var record = RecordWithExplanation(
+            temp.Path,
+            "goal",
+            "goal/faster-pickup",
+            "# Faster Pickup\n\n<!-- Written by the team. -->\n\n```text\nPickup takes too long.\n```\n\n## Target\n\nTen minutes.\n\n## Measurement\n\nThe pickup desk logs each wait.\n");
+        var model = TestModel.Model(TestModel.Config(temp.Path), record);
+
+        Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-opening-missing");
+    }
+
+    /// <summary>A heading written inside a code block is not a section, so the explanation reports nothing for it.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact]
+    public void HeadingInsideACodeBlockIsNotASection()
+    {
+        using var temp = TestCli.Temp("checks");
+        var record = RecordWithExplanation(
+            temp.Path,
+            "goal",
+            "goal/faster-pickup",
+            "# Faster Pickup\n\nPickup takes too long, and members leave.\n\n## Target\n\nTen minutes.\n\n## Measurement\n\n```markdown\n## Not A Section\n```\n");
+        var model = TestModel.Model(TestModel.Config(temp.Path), record);
+
+        Assert.DoesNotContain("explanation-section-unknown", TestModel.Codes(model));
+    }
+
+    /// <summary>A section finding points at the explanation file and the line of the heading it reports.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact]
+    public void SectionFindingPointsAtTheExplanationFile()
+    {
+        using var temp = TestCli.Temp("checks");
+        var record = RecordWithExplanation(
+            temp.Path,
+            "goal",
+            "goal/faster-pickup",
+            "# Faster Pickup\n\nPickup takes too long, and members leave.\n\n## Target\n\nTen minutes.\n\n## Notes\n\nOne line.\n\n## Measurement\n\nThe desk logs each wait.\n");
+        var model = TestModel.Model(TestModel.Config(temp.Path), record);
+
+        var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-section-unknown");
+        Assert.Equal(Path.Combine(temp.Path, ".litespec", "goal", "faster-pickup", "faster-pickup.md"), finding.Path);
+        Assert.Equal(9, finding.Line);
+    }
+
+    /// <summary>A free section after the fixed sections is allowed, so the explanation reports nothing for it.</summary>
+    /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
+    [Fact(DisplayName = "a free section after the fixed sections passes")]
+    public void FreeSectionAfterTheFixedSectionsPasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var record = RecordWithExplanation(
+            temp.Path,
+            "goal",
+            "goal/faster-pickup",
+            "# Faster Pickup\n\nPickup takes too long, and members leave.\n\n## Target\n\nTen minutes.\n\n## Measurement\n\nThe desk logs each wait.\n\n## Notes\n\nOne line.\n");
+        var model = TestModel.Model(TestModel.Config(temp.Path), record);
+
+        Assert.DoesNotContain("explanation-section-unknown", TestModel.Codes(model));
     }
 
     /// <summary>A record with its explanation file beside it, as the reader sees it.</summary>

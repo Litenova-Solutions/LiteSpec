@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LiteSpec.Cli.Files;
+using Markdig.Syntax;
 using LiteSpec.Cli.Model.Configuration;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Cli.Rules;
@@ -132,20 +133,28 @@ internal static class ExplanationChecks
 
             foreach (var section in sections.Where(section => !section.Optional))
             {
-                if (!headings.Contains("## " + section.Name))
+                if (!headings.Any(heading => heading.Text == "## " + section.Name))
                 {
-                    findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds no {section.Name} section in its explanation.", explanation.RecordPath, explanation.Line, explanation.Subject));
+                    findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds no {section.Name} section in its explanation.", explanation.File, 1, explanation.Subject));
                 }
             }
 
             if (OutOfOrder(headings, sections) is { } pair)
             {
-                findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds its sections out of order: {pair.Later} must follow {pair.Earlier}.", explanation.RecordPath, explanation.Line, explanation.Subject));
+                findings.Add(new Finding("explanation-missing", $"{label} '{explanation.Name}' holds its sections out of order: {pair.Later} must follow {pair.Earlier}.", explanation.File, pair.Line, explanation.Subject));
             }
 
-            foreach (var heading in headings.Where(heading => !sections.Any(section => heading == "## " + section.Name)))
+            // A free section may follow the fixed sections, so only a section ahead of the last fixed one is reported.
+            var lastFixed = headings.FindLastIndex(heading => sections.Any(section => heading.Text == "## " + section.Name));
+
+            for (var at = 0; at < lastFixed; at++)
             {
-                findings.Add(new Finding("explanation-section-unknown", $"{label} '{explanation.Name}' holds the section '{heading[3..]}', which its type's section table does not state.", explanation.RecordPath, explanation.Line, explanation.Subject));
+                var heading = headings[at];
+
+                if (!sections.Any(section => heading.Text == "## " + section.Name))
+                {
+                    findings.Add(new Finding("explanation-section-unknown", $"{label} '{explanation.Name}' holds the section '{heading.Text[3..]}' ahead of its fixed sections, and its type's section table does not state it. Free sections follow the fixed ones.", explanation.File, heading.Line, explanation.Subject));
+                }
             }
         }
     }
@@ -156,8 +165,8 @@ internal static class ExplanationChecks
     /// </summary>
     /// <param name="headings">The H2 headings of the explanation file, in file order.</param>
     /// <param name="sections">The fixed sections of the record type, in table order.</param>
-    /// <returns>The earlier and later section names, or null when the fixed sections keep their order.</returns>
-    private static (string Earlier, string Later)? OutOfOrder(List<string> headings, IReadOnlyList<ExplanationSections.Section> sections)
+    /// <returns>The earlier and later section names and the line of the later heading, or null when the fixed sections keep their order.</returns>
+    private static (string Earlier, string Later, int Line)? OutOfOrder(IReadOnlyList<Heading> headings, IReadOnlyList<ExplanationSections.Section> sections)
     {
         var position = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -170,14 +179,14 @@ internal static class ExplanationChecks
 
         foreach (var heading in headings)
         {
-            if (!position.TryGetValue(heading, out var index))
+            if (!position.TryGetValue(heading.Text, out var index))
             {
                 continue;
             }
 
             if (previous is { } before && index < before)
             {
-                return (sections[index].Name, sections[before].Name);
+                return (sections[index].Name, sections[before].Name, heading.Line);
             }
 
             previous = index;
@@ -252,27 +261,24 @@ internal static class ExplanationChecks
         return null;
     }
 
-    /// <summary>Whether an explanation holds prose between its H1 and its first H2, with no heading or code fence on that line.</summary>
+    /// <summary>
+    ///     Whether an explanation holds a paragraph block before its first H2. The block structure decides it: an HTML
+    ///     comment, a fenced code block, a list or a table before the first H2 does not count as the opening paragraph.
+    /// </summary>
     /// <param name="text">The explanation file text.</param>
-    /// <returns>True when a paragraph of prose sits between the H1 and the first H2.</returns>
+    /// <returns>True when a paragraph block sits before the first H2 heading block.</returns>
     private static bool HasOpeningParagraph(string text)
     {
-        var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        var start = Array.FindIndex(lines, line => line.StartsWith("# ", StringComparison.Ordinal)) + 1;
-        var end = Array.FindIndex(lines, line => line.StartsWith("## ", StringComparison.Ordinal));
-
-        if (end < 0)
+        foreach (var block in PageReader.Parse(text).Document)
         {
-            end = lines.Length;
-        }
-
-        for (var at = start; at < end; at++)
-        {
-            var trimmed = lines[at].Trim();
-
-            if (trimmed.Length > 0 && !trimmed.StartsWith('#'))
+            switch (block)
             {
-                return true;
+                case HeadingBlock { Level: 1 }:
+                    continue;
+                case HeadingBlock:
+                    return false;
+                case ParagraphBlock:
+                    return true;
             }
         }
 
@@ -323,23 +329,20 @@ internal static class ExplanationChecks
     private static string LabelOf(string type) =>
         type.Length == 0 ? "Record" : char.ToUpperInvariant(type[0]) + type.Substring(1).Replace('-', ' ');
 
-    /// <summary>Every H2 heading line of an explanation file, trimmed, in file order, as the page contract reads them.</summary>
+    /// <summary>
+    ///     Every H2 heading block of an explanation file, in file order. A heading written inside a fenced code block
+    ///     or an HTML comment is not a heading block, so it is not counted.
+    /// </summary>
     /// <param name="explanation">The explanation file text.</param>
-    /// <returns>The trimmed H2 heading lines in file order.</returns>
-    private static List<string> HeadingsOf(string explanation)
-    {
-        var headings = new List<string>();
+    /// <returns>Each H2 heading with its text as <c>## Name</c> and its 1-based line.</returns>
+    private static List<Heading> HeadingsOf(string explanation) =>
+        PageReader.Parse(explanation).Headings
+            .Where(heading => heading.Level == 2)
+            .Select(heading => new Heading("## " + heading.Text.Trim(), heading.Line))
+            .ToList();
 
-        foreach (var line in explanation.Split('\n'))
-        {
-            var trimmed = line.Trim();
-
-            if (trimmed.StartsWith("## ", StringComparison.Ordinal))
-            {
-                headings.Add(trimmed);
-            }
-        }
-
-        return headings;
-    }
+    /// <summary>One H2 heading of an explanation file: its text as <c>## Name</c> and its 1-based line.</summary>
+    /// <param name="Text">The heading with its level marker, such as <c>## Evidence</c>.</param>
+    /// <param name="Line">The 1-based line the heading starts on.</param>
+    private sealed record Heading(string Text, int Line);
 }
