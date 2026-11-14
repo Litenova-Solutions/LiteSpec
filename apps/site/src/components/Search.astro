@@ -18,6 +18,8 @@ import Icon from "./Icon.astro";
   </div>
 </dialog>
 <style>
+@layer base, components, pages;
+@layer components {
   .search-trigger {
     display: flex;
     align-items: center;
@@ -41,7 +43,7 @@ import Icon from "./Icon.astro";
     white-space: nowrap;
   }
   .search-trigger .kbd {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
   .search-dialog {
     width: min(640px, 100vw - 32px);
@@ -110,7 +112,7 @@ import Icon from "./Icon.astro";
     display: grid;
     gap: var(--space-1);
     padding: var(--pad-box-y) var(--pad-box-x);
-    border-left: 2px solid transparent;
+    border-inline-start: 2px solid transparent;
     border-radius: var(--radius-sm);
     color: var(--fg);
   }
@@ -148,7 +150,7 @@ import Icon from "./Icon.astro";
     padding: var(--pad-box-y) var(--pad-box-x) var(--pad-box-y) var(--space-8);
     font-size: 0.8125rem;
     color: var(--muted-fg);
-    border-left: 2px solid transparent;
+    border-inline-start: 2px solid transparent;
     border-radius: var(--radius-sm);
   }
   :global(.search-dialog .search-sub:hover) {
@@ -156,7 +158,7 @@ import Icon from "./Icon.astro";
   }
   :global(.search-dialog a.is-selected) {
     background: var(--accent-subtle);
-    border-left-color: var(--accent);
+    border-inline-start-color: var(--accent);
   }
   @media (max-width: 760px) {
     .search-trigger {
@@ -169,6 +171,7 @@ import Icon from "./Icon.astro";
       display: none;
     }
   }
+}
 </style>
 <script>
   (function () {

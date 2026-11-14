@@ -1,3 +1,6 @@
+@layer base, components, pages;
+
+@layer pages {
 /* Docs pages: the three-column layout, the sidebar tree, the breadcrumb, the
    content header block, the pager and the "On this page" list. The rendered
    page body itself is styled by prose.css. Every color is a token from
@@ -78,7 +81,7 @@
   width: 14px;
   height: 14px;
   color: var(--muted-fg);
-  margin-left: auto;
+  margin-inline-start: auto;
   transition: transform .15s;
 }
 
@@ -88,8 +91,8 @@ details[open] > .group-h .chev {
 
 .group > .tree {
   margin: var(--space-1) 0 var(--space-3) var(--space-4);
-  padding-left: var(--space-2);
-  border-left: 1px solid var(--rail);
+  padding-inline-start: var(--space-2);
+  border-inline-start: 1px solid var(--rail);
 }
 
 .tree a,
@@ -123,7 +126,7 @@ details[open] > .group-h .chev {
 .tree a.on::before {
   content: "";
   position: absolute;
-  left: calc(-1 * var(--space-2) - 2px);
+  inset-inline-start: calc(-1 * var(--space-2) - 2px);
   top: var(--space-1);
   bottom: var(--space-1);
   width: 2px;
@@ -132,7 +135,7 @@ details[open] > .group-h .chev {
 }
 
 .tree .tag {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-family: var(--mono);
   font-size: 0.65625rem;
   font-weight: 500;
@@ -152,7 +155,7 @@ details[open] > .group-h .chev {
 }
 
 .tree summary .chev {
-  margin-left: auto;
+  margin-inline-start: auto;
   width: 14px;
   height: 14px;
   color: var(--muted-fg);
@@ -164,13 +167,13 @@ details[open] > .group-h .chev {
 }
 
 .tree summary .tag + .chev {
-  margin-left: var(--space-1);
+  margin-inline-start: var(--space-1);
 }
 
 .tree .kids {
   margin: var(--space-1) 0 var(--space-2) var(--space-3);
-  padding-left: var(--space-2);
-  border-left: 1px solid var(--rail);
+  padding-inline-start: var(--space-2);
+  border-inline-start: 1px solid var(--rail);
 }
 
 /* An open folder's own row reads as the head of its block. */
@@ -295,7 +298,7 @@ details[open] > .group-h .chev {
 
 .page-meta > span + span::before {
   content: "\00B7";
-  margin-right: var(--gap-inline);
+  margin-inline-end: var(--gap-inline);
   color: var(--rail);
 }
 
@@ -334,7 +337,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .tools-badge {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .pager {
@@ -387,7 +390,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .pager-next {
   grid-column: 2;
-  text-align: right;
+  text-align: end;
 }
 
 .pager-next small {
@@ -428,7 +431,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: block;
   padding: var(--space-1) 0 var(--space-1) var(--space-3);
   color: var(--muted-fg);
-  border-left: 1px solid var(--border);
+  border-inline-start: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 
@@ -438,16 +441,16 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .toc-list a[aria-current="location"] {
   color: var(--fg);
-  border-left: 2px solid var(--accent);
-  padding-left: calc(var(--space-3) - 1px);
+  border-inline-start: 2px solid var(--accent);
+  padding-inline-start: calc(var(--space-3) - 1px);
 }
 
 .toc-list a.toc-sub {
-  padding-left: var(--space-6);
+  padding-inline-start: var(--space-6);
 }
 
 .toc-list a.toc-sub[aria-current="location"] {
-  padding-left: calc(var(--space-6) - 1px);
+  padding-inline-start: calc(var(--space-6) - 1px);
 }
 
 .toc .links,
@@ -500,7 +503,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .toc-mobile > summary .chev {
-  margin-left: auto;
+  margin-inline-start: auto;
   transition: transform .15s;
 }
 
@@ -596,7 +599,8 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     display: flex;
     flex-direction: column;
     position: fixed;
-    inset: 0 auto 0 0;
+    inset-block: 0;
+    inset-inline-start: 0;
     width: min(340px, 92vw);
     max-width: none;
     height: 100dvh;
@@ -607,7 +611,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     background: var(--bg);
     color: var(--fg);
     border: 0;
-    border-right: 1px solid var(--border);
+    border-inline-end: 1px solid var(--border);
   }
 
   .side-dialog::backdrop {
@@ -655,7 +659,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   .pager-prev,
   .pager-next {
     grid-column: auto;
-    text-align: left;
+    text-align: start;
   }
 
   .pager-next small {
@@ -688,3 +692,4 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   .side-dialog[open]::backdrop { animation: fade .24s ease-out both; }
 }
 @keyframes drawer-in { from { translate: -100% 0; } }
+}

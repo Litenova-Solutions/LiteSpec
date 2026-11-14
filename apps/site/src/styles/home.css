@@ -1,3 +1,6 @@
+@layer base, components, pages;
+
+@layer pages {
 /* Styles for the landing page: one hero that fills the first screen, with the
    release badge, the title, the tagline and the two ways in. Tokens only, as
    everywhere. */
@@ -51,9 +54,9 @@
 }
 
 .hero-ver-more {
-  padding-left: var(--space-2);
-  margin-left: var(--space-1);
-  border-left: 1px solid var(--rule-bd);
+  padding-inline-start: var(--space-2);
+  margin-inline-start: var(--space-1);
+  border-inline-start: 1px solid var(--rule-bd);
   font-family: var(--sans);
   color: var(--fg-2);
 }
@@ -139,4 +142,5 @@
   .actions .btn {
     flex: 1 1 auto;
   }
+}
 }

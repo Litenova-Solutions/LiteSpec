@@ -27,6 +27,8 @@ import Icon from "./Icon.astro";
   <div class="pattern-viewer-body" data-pattern-body></div>
 </dialog>
 <style>
+@layer base, components, pages;
+@layer components {
   .pattern-viewer {
     width: calc(100vw - 32px);
     height: calc(100dvh - 32px);
@@ -200,7 +202,7 @@ import Icon from "./Icon.astro";
     color: var(--muted-fg);
   }
   :global(.pattern-viewer-code-head .btn) {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
   :global(.pattern-viewer-code pre) {
     margin: 0;
@@ -239,6 +241,7 @@ import Icon from "./Icon.astro";
       margin: var(--space-3);
     }
   }
+}
 </style>
 <script>
   (function () {

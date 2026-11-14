@@ -1,3 +1,6 @@
+@layer base, components, pages;
+
+@layer components {
 /* Styles for the rendered page body: every element render-markdown.ts can emit
    inside .prose, from section headings and provision cards down to links, lists,
    tables, code and wireframe option cards. */
@@ -65,11 +68,11 @@
   color: var(--accent-text);
   text-decoration: none;
   font-weight: 400;
-  margin-left: var(--gap-inline);
+  margin-inline-start: var(--gap-inline);
 }
 
 .prose h2 .anchor {
-  margin-left: 0;
+  margin-inline-start: 0;
 }
 
 .prose h2:hover .anchor,
@@ -99,7 +102,7 @@
 .prose ul,
 .prose ol {
   margin: 0 0 var(--space-block);
-  padding-left: var(--space-6);
+  padding-inline-start: var(--space-6);
   overflow-wrap: break-word;
 }
 
@@ -116,7 +119,7 @@
 .prose blockquote {
   margin: 0 0 var(--space-block);
   padding: var(--space-1) 0 var(--space-1) var(--space-4);
-  border-left: 2px solid var(--accent);
+  border-inline-start: 2px solid var(--accent);
   color: var(--muted-fg);
 }
 
@@ -189,7 +192,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted-fg);
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
   padding: var(--pad-box-y) var(--pad-box-x);
   border-bottom: 1px solid var(--border);
@@ -244,7 +247,7 @@
 }
 
 .prose .provision-badges {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   align-items: center;
   gap: var(--gap-inline);
@@ -305,11 +308,11 @@
 .prose .provision-statement {
   margin: 0 var(--pad-card-x) var(--pad-card-y);
   padding: var(--space-1) 0 var(--space-1) var(--space-4);
-  border-left: 3px solid var(--accent);
+  border-inline-start: 3px solid var(--accent);
 }
 
 .prose .provision-convention .provision-statement {
-  border-left-color: var(--conv-bd);
+  border-inline-start-color: var(--conv-bd);
 }
 
 .prose .provision-eyebrow {
@@ -363,8 +366,8 @@
   content: "";
   width: 6px;
   height: 6px;
-  margin-right: var(--space-1);
-  border-right: 1.5px solid currentColor;
+  margin-inline-end: var(--space-1);
+  border-inline-end: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
   transform: rotate(-45deg);
   transition: transform 0.12s;
@@ -391,7 +394,7 @@
 }
 
 .prose .provision-aside {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-weight: 400;
 }
 
@@ -470,7 +473,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--muted-fg);
-  margin-right: var(--gap-inline);
+  margin-inline-end: var(--gap-inline);
 }
 
 .prose .note-muted {
@@ -537,7 +540,7 @@
   display: flex;
   align-items: center;
   gap: var(--gap-inline);
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .prose .option-tabs {
@@ -613,7 +616,7 @@
   display: none;
   position: absolute;
   top: var(--space-2);
-  right: var(--space-2);
+  inset-inline-end: var(--space-2);
   padding: var(--space-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -655,7 +658,7 @@
 }
 
 .prose .option-code-head .btn {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .prose .option-code-head .btn[data-copied] {
@@ -670,8 +673,8 @@
 }
 
 .prose .option > p {
-  padding-left: var(--pad-card-x);
-  padding-right: var(--pad-card-x);
+  padding-inline-start: var(--pad-card-x);
+  padding-inline-end: var(--pad-card-x);
 }
 
 @media (max-width: 760px) {
@@ -684,11 +687,11 @@
   }
 
   .prose .provision-badges {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 
   .prose .provision-more {
-    padding-left: var(--pad-card-x);
+    padding-inline-start: var(--pad-card-x);
   }
 
   .prose .option-drawings {
@@ -746,9 +749,9 @@
 }
 
 .prose .trail-list .trail-list {
-  margin-left: 11px;
-  padding-left: var(--space-5);
-  border-left: 1px solid var(--border);
+  margin-inline-start: 11px;
+  padding-inline-start: var(--space-5);
+  border-inline-start: 1px solid var(--border);
 }
 
 .prose .trail-node {
@@ -851,17 +854,17 @@
 .prose .trail-crumb + .trail-crumb {
   position: relative;
   margin-top: 2px;
-  padding-left: var(--space-5);
+  padding-inline-start: var(--space-5);
 }
 
 .prose .trail-crumb + .trail-crumb::before {
   content: "";
   position: absolute;
-  left: 5px;
+  inset-inline-start: 5px;
   top: -2px;
   width: 9px;
   height: 12px;
-  border-left: 1.5px solid var(--rail);
+  border-inline-start: 1.5px solid var(--rail);
   border-bottom: 1.5px solid var(--rail);
   border-bottom-left-radius: 3px;
 }
@@ -877,8 +880,8 @@
   }
 
   .prose .trail-list .trail-list {
-    margin-left: var(--space-2);
-    padding-left: var(--space-3);
+    margin-inline-start: var(--space-2);
+    padding-inline-start: var(--space-3);
   }
 }
 
@@ -889,7 +892,7 @@
   }
 
   .prose .option-actions {
-    margin-left: 0;
+    margin-inline-start: 0;
   }
 }
 
@@ -918,4 +921,5 @@
       animation-range: entry 0% entry 40%;
     }
   }
+}
 }

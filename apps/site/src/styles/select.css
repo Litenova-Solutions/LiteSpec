@@ -1,3 +1,14 @@
+@layer base, components, pages;
+
+/* The page's code is a default, so it sits in the base layer: every component
+   rule for code, which is in the components layer, overrides it. */
+@layer base {
+  .select-page code {
+    font-size: 0.9em;
+  }
+}
+
+@layer pages {
 /* Styles for the "Use with Agents" page: the header block, the numbered steps,
    the reading list and the copy boxes. The selection questions carry their own
    styles in SelectForm.astro. */
@@ -25,9 +36,6 @@
   max-width: 68ch;
 }
 
-.select-page code {
-  font-size: 0.9em;
-}
 
 /* The same-page anchor nav under the title. */
 .select-nav {
@@ -203,7 +211,7 @@
 }
 
 .select-output-head .btn {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .select-output-body {
@@ -230,4 +238,5 @@
     grid-template-columns: minmax(0, 1fr);
     row-gap: var(--space-3);
   }
+}
 }

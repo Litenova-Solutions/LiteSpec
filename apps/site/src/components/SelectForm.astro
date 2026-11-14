@@ -236,6 +236,8 @@ const initialAgents = renderAgentProtocol(
   </div>
 </li>
 <style>
+@layer base, components, pages;
+@layer components {
   .select-form {
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -257,7 +259,7 @@ const initialAgents = renderAgentProtocol(
   .select-label {
     float: left;
     width: 220px;
-    margin-right: var(--space-6);
+    margin-inline-end: var(--space-6);
     padding: 0;
     font-size: 0.875rem;
     font-weight: 600;
@@ -272,7 +274,7 @@ const initialAgents = renderAgentProtocol(
   }
   .select-seg,
   .select-exts {
-    margin-left: calc(220px + var(--space-6));
+    margin-inline-start: calc(220px + var(--space-6));
   }
   .select-seg {
     display: flex;
@@ -352,7 +354,7 @@ const initialAgents = renderAgentProtocol(
     color: var(--muted-fg);
   }
   .select-ext-scope {
-    margin-left: auto;
+    margin-inline-start: auto;
     flex: none;
     font-size: 0.75rem;
     color: var(--muted-fg);
@@ -365,7 +367,7 @@ const initialAgents = renderAgentProtocol(
     }
     .select-seg,
     .select-exts {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
     .select-seg {
       max-width: 100%;
@@ -374,6 +376,7 @@ const initialAgents = renderAgentProtocol(
       display: none;
     }
   }
+}
 </style>
 <script type="application/json" id="select-data" set:html={payload}></script>
 <script is:inline>
