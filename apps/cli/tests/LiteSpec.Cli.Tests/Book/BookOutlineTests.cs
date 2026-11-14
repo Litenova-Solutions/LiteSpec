@@ -540,10 +540,10 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("module/lending", outline.Unplaced);
     }
 
-    /// <summary>A goal in a module folder parents that module; a goal at product level parents the product.</summary>
+    /// <summary>A goal at product level parents the product.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void GoalParentsItsModuleFileElseTheProduct()
+    public void GoalParentsTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -553,17 +553,17 @@ public sealed class BookOutlineTests
                 "goal/faster-borrowing",
                 "Faster Borrowing",
                 "approved",
-                file: ".litespec/intent/modules/lending/goals/faster-borrowing.yaml"),
+                file: ".litespec/intent/goals/faster-borrowing/faster-borrowing.yaml"),
             Record("goal", "goal/quiet-study", "Quiet Study", "approved"));
 
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "goal/faster-borrowing"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/quiet-study"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
+        var product = Find(outline.Layers, "product/library");
+        Assert.NotNull(product);
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
     }
 
     /// <summary>A technical decision tops the implementation layer at product and module level alike, and a product decision sits under the product or its module.</summary>
@@ -597,12 +597,12 @@ public sealed class BookOutlineTests
                 "decision/lending-pick-a-queue",
                 "Pick A Queue",
                 "approved",
-                file: ".litespec/intent/modules/lending/decisions/lending-pick-a-queue.yaml"));
+                file: ".litespec/intent/decisions/lending-pick-a-queue/lending-pick-a-queue.yaml"));
 
         Assert.Equal("product/library", BookParents.ParentOf(model, "decision/0004-serve-receipts"));
         Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/0005-render-receipts"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "decision/library-pick-a-format"));
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/lending-pick-a-queue"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "decision/lending-pick-a-queue"));
 
         var outline = BookOutline.Build(model);
         Assert.Empty(outline.Unplaced);
@@ -616,10 +616,10 @@ public sealed class BookOutlineTests
         Assert.NotNull(product);
         Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/library-pick-a-format", StringComparison.Ordinal));
 
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
         var module = Find(outline.Layers, "module/lending");
         Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
-        Assert.DoesNotContain(module.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
+        Assert.DoesNotContain(module!.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
     }
 
     /// <summary>A rule whose home names no aggregate or module parents the product as a product-level invariant.</summary>

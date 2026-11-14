@@ -70,7 +70,7 @@ public sealed class RecordFolderLayoutTests
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
         var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "entry", "post-entry", "post-entry.yaml");
         File.WriteAllText(useCase, "type: use-case\nid: use-case/books.post-entry\ntitle: Post entry\n");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "books", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""),
@@ -90,7 +90,7 @@ public sealed class RecordFolderLayoutTests
         using var temp = TestCli.Temp("layout");
         var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "post-entry", "post-entry.yaml");
         File.WriteAllText(useCase, "type: use-case\nid: use-case/books.post-entry\ntitle: Post entry\n");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "books", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""));

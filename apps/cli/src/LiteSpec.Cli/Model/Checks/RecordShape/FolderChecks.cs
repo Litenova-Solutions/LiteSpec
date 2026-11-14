@@ -19,10 +19,10 @@ internal static class FolderChecks
         "goals", "visions", "problems", "constraints", "decisions", "research", "actors", "journeys", "roles",
     };
 
-    /// <summary>Type folders under <c>intent/modules/&lt;m&gt;/</c>.</summary>
+    /// <summary>Type folders under <c>intent/modules/&lt;m&gt;/</c>: features only.</summary>
     private static readonly HashSet<string> IntentModuleFolders = new(StringComparer.Ordinal)
     {
-        "goals", "problems", "constraints", "decisions", "research", "features",
+        "features",
     };
 
     /// <summary>Type folders under <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>.</summary>

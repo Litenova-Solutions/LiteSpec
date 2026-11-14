@@ -45,8 +45,8 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `external-system.md` | `.litespec/behavior/external-systems/<name>/<name>.md` | Explains one external system beside its record file. |
 | `journey.yaml` | `.litespec/intent/journeys/<name>/<name>.yaml` | Records the ordered steps an actor takes toward one goal. |
 | `journey.md` | `.litespec/intent/journeys/<name>/<name>.md` | Explains one journey beside its record file. |
-| `module.yaml` | `.litespec/intent/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
-| `module.md` | `.litespec/intent/modules/<module>/module.md` | Explains one module beside its module file. |
+| `module.yaml` | `.litespec/behavior/modules/<module>/module.yaml` | Declares one product area; Behavior folders follow it. |
+| `module.md` | `.litespec/behavior/modules/<module>/module.md` | Explains one module beside its module file. |
 | `aggregate.yaml` | `.litespec/behavior/modules/<module>/<aggregate>/aggregate.yaml` | Defines one aggregate, with its kind, states, data classes, and its rule and event entries. |
 | `aggregate.md` | `.litespec/behavior/modules/<module>/<aggregate>/aggregate.md` | Explains one aggregate beside its aggregate file. |
 | `use-case.yaml` | `.litespec/behavior/modules/<module>/<aggregate>/<use-case>/<use-case>.yaml` | Defines one command or query, with its result and scenario entries. |

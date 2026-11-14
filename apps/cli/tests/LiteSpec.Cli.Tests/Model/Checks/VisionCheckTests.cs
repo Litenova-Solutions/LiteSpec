@@ -32,7 +32,7 @@ public sealed class VisionCheckTests
     public void VisionUnderModuleReportsPlacement()
     {
         using var temp = TestCli.Temp("checks");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "spending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "spending", "module.yaml");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "spending", "visions", "contractor-expenses.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),

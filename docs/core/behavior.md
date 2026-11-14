@@ -22,6 +22,20 @@ The five Behavior pages hold the records; this page holds the overview, the mapp
 | [Edges and Screens](edges.md) | Integration events, notifications, entry points, screens, and external systems. |
 | [Privacy and Retention](privacy.md) | Data classes and the retention schedule. |
 
+### Modules as Product Areas
+
+A module names one product area of the bounded context. It is declared here, at `.litespec/behavior/modules/<module>/module.yaml`, beside the aggregates it groups, because a module is a code boundary with its dependencies. Intent holds the product reasons for the area, so one name runs through every layer:
+
+```text
+.litespec/intent/modules/<module>/features/    features with their requirements
+.litespec/behavior/modules/<module>/...        module, aggregates and use cases
+src/<Layer>/<Module>/<Aggregate>/<UseCase>     code
+```
+
+The reader finds a use case by module, then aggregate, then use case, and the requirements behind it under the same module name in Intent. The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `intent/modules/` that names no declared module gets a blocking finding.
+
+A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
+
 ### Spec to Design Mapping
 
 The specification names only what carries business meaning. Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. Each record maps to one design pattern; the stack pages state the code form of each pattern.
@@ -57,6 +71,22 @@ The specification names only what carries business meaning. Child entities and v
 | scenario | an executable example proving the scenario |
 
 ## Standards
+
+### Shape Each Module Page
+
+**ID:** `litespec/core/behavior#shape-each-module-page`
+
+**Strength:** required
+
+**Applies to:** artifact: record:module
+
+**Statement:** A module MUST state its `summary` and its `dependsOn` in fields.
+
+**Rationale:** The module names one product area of the bounded context, so Intent, Behavior and code share one name for one area. `summary` states what the area covers in one place, and `dependsOn` names the modules it builds on. A reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
+
+**Example:** The spending module covers expenses, receipts and the policy, with an empty `dependsOn` where it stands alone.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a module record file missing a required field.
 
 ### Keep Design Choices Out of the Records
 

@@ -6982,6 +6982,24 @@
       "example": "Order lines live as a child of the order aggregate, and money as a value with its glossary entry; neither is a record."
     },
     {
+      "id": "litespec/core/behavior#shape-each-module-page",
+      "heading": "Shape Each Module Page",
+      "page": "docs/core/behavior.md",
+      "anchor": "shape-each-module-page",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a module record file missing a required field.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:module",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "A module MUST state its \u0060summary\u0060 and its \u0060dependsOn\u0060 in fields.",
+      "rationale": "The module names one product area of the bounded context, so Intent, Behavior and code share one name for one area. \u0060summary\u0060 states what the area covers in one place, and \u0060dependsOn\u0060 names the modules it builds on. A reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
+      "example": "The spending module covers expenses, receipts and the policy, with an empty \u0060dependsOn\u0060 where it stands alone."
+    },
+    {
       "id": "litespec/core/departures#depart-from-advice-without-a-record",
       "heading": "Depart from Advice Without a Record",
       "page": "docs/core/departures.md",
@@ -7999,13 +8017,13 @@
       "evidence": "The \u0060.litespec/intent/\u0060 layout beside the project\u0027s recorded layout.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement",
+      "artifact": "record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "default",
-      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
-      "rationale": "A module folder keeps related pages together, so the pages of one product area sit side by side. One folder per kind keeps each record findable: goals, problems, features, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module names a product area, never the company, and each module folder names a module declared in Behavior.",
-      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  modules/\n    spending/\n      module.yaml\n      goals/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      problems/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      constraints/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      decisions/\n        \u003Cnumber\u003E-\u003Cname\u003E/\n          \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      research/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n          \u003Crequirement\u003E/\n            \u003Crequirement\u003E.yaml\n\u0060\u0060\u0060"
+      "statement": "Keep the product record at \u0060.litespec/intent/product.yaml\u0060, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in its module\u0027s \u0060features/\u0060 folder under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
+      "rationale": "A module folder keeps the features of one product area side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module is declared in Behavior, so each module folder names a module declared there. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
+      "example": "\u0060\u0060\u0060text\n.litespec/intent/\n  product.yaml\n  goals/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  problems/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  constraints/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  decisions/\n    \u003Cnumber\u003E-\u003Cname\u003E/\n      \u003Cnumber\u003E-\u003Cname\u003E.yaml\n      \u003Cnumber\u003E-\u003Cname\u003E.md\n  research/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n      \u003Cname\u003E.md\n  actors/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  journeys/\n    \u003Cname\u003E/\n      \u003Cname\u003E.yaml\n  modules/\n    spending/\n      features/\n        \u003Cname\u003E/\n          \u003Cname\u003E.yaml\n          \u003Crequirement\u003E/\n            \u003Crequirement\u003E.yaml\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/core/intent#identify-every-requirement",
@@ -8140,15 +8158,15 @@
       "anchor": "keep-intent-in-its-homes",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and \u0060module-undeclared\u0060 for a folder under \u0060intent/modules/\u0060 naming no declared module or a module folder without its module.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and \u0060module-undeclared\u0060 for a folder under \u0060intent/modules/\u0060 naming no declared module.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement",
+      "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each module with its goals, problems, constraints, decisions, research and features in their own folders under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
-      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features, a feature\u0027s folder holds its requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.",
+      "statement": "A consumer MUST keep its product record at \u0060.litespec/intent/product.yaml\u0060, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under \u0060.litespec/intent/\u0060, each feature in its module\u0027s \u0060features/\u0060 folder under \u0060.litespec/intent/modules/\u003Cmodule\u003E/\u0060, and each requirement in its own folder inside its feature\u0027s folder.",
+      "rationale": "Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, module level holds only features, and a feature\u0027s folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
       "example": ""
     },
     {
@@ -8402,24 +8420,6 @@
       "statement": "A decision MUST state its \u0060choice\u0060 and \u0060consequences\u0060 in fields and carry Context and Decision in its explanation file.",
       "rationale": "Context in the explanation file states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option. The \u0060choice\u0060 field names the chosen option, and \u0060consequences\u0060 states what follows, so each decision reads the same way. Evidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
       "example": ""
-    },
-    {
-      "id": "litespec/core/intent#shape-each-module-page",
-      "heading": "Shape Each Module Page",
-      "page": "docs/core/intent.md",
-      "anchor": "shape-each-module-page",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a module record file missing a required field.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:module",
-      "layer": "intent",
-      "trace": false,
-      "strength": "required",
-      "statement": "A module MUST state its \u0060summary\u0060 and its \u0060dependsOn\u0060 in fields.",
-      "rationale": "The module names one product area of the bounded context, so Intent, Behavior and code share one name for one area. \u0060summary\u0060 states what the area covers in one place, and \u0060dependsOn\u0060 names the modules it builds on. A reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it.",
-      "example": "The spending module covers expenses, receipts and the policy, with an empty \u0060dependsOn\u0060 where it stands alone."
     },
     {
       "id": "litespec/core/intent#state-each-exception-with-its-fallback",

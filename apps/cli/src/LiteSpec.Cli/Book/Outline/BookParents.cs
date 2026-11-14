@@ -26,11 +26,11 @@ static class BookParents
         new Dictionary<string, BookParentRule>(StringComparer.Ordinal)
         {
             ["product"] = new("product", [], "none"),
-            ["goal"] = new("goal", ["product", "module"], "product or module"),
+            ["goal"] = new("goal", ["product"], "product"),
             ["vision"] = new("vision", ["product"], "product"),
-            ["problem"] = new("problem", ["product", "module"], "product or module"),
-            ["constraint"] = new("constraint", ["product", "module"], "product or module"),
-            ["research"] = new("research", ["product", "module"], "product or module"),
+            ["problem"] = new("problem", ["product"], "product"),
+            ["constraint"] = new("constraint", ["product"], "product"),
+            ["research"] = new("research", ["product"], "product"),
             ["decision"] = new("decision", ["product", "module"], "product or module"),
             ["actor"] = new("actor", ["product"], "product"),
             ["term"] = new("term", ["product"], "product"),

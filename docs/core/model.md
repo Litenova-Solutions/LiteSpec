@@ -16,8 +16,8 @@ Each record layer answers one question, is written from the record layer above i
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | people and agents | product, goal, vision, problem, feature, requirement, constraint, decision, research, journey, actor, role, module, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
+| Intent | Why build it, and what do we promise? | people and agents | product, goal, vision, problem, feature, requirement, constraint, decision, research, journey, actor, role, term (`layer: intent`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -43,7 +43,7 @@ Each type answers one question.
 | `journey` | intent | Which ordered steps reach one goal? |
 | `actor` | intent | Who or what touches the product? |
 | `role` | intent | Which permission sets exist? |
-| `module` | intent | Which product areas exist? |
+| `module` | behavior | Which product areas exist? |
 | `aggregate` | behavior | Which things stay consistent? |
 | `rule` | behavior | What holds? |
 | `use-case` | behavior | Which use cases does the product offer? |
@@ -90,18 +90,18 @@ The table is frozen: it gives each type its layer, levels, folder, parent and id
 | Type | Layer | Levels | Folder | Parent | Identifier |
 |:--|:--|:--|:--|:--|:--|
 | `product` | Intent | product | `intent/product.yaml` | none | `product/<name>` |
-| `goal` | Intent | product, module | `intent/goals/<name>/<name>.yaml`, `intent/modules/<m>/goals/<name>/<name>.yaml` | product or module | `goal/<name>` |
+| `goal` | Intent | product | `intent/goals/<name>/<name>.yaml` | product | `goal/<name>` |
 | `vision` | Intent | product | `intent/visions/<name>/<name>.yaml` | product | `vision/<name>` |
-| `problem` | Intent | product, module | `intent/problems/<name>/<name>.yaml`, `intent/modules/<m>/problems/<name>/<name>.yaml` | product or module | `problem/<name>` |
+| `problem` | Intent | product | `intent/problems/<name>/<name>.yaml` | product | `problem/<name>` |
 | `feature` | Intent | module | `intent/modules/<m>/features/<name>/<name>.yaml` | module | `feature/<name>` |
 | `requirement` | Intent | module | `intent/modules/<m>/features/<feature>/<name>/<name>.yaml` | feature | `requirement/<feature>.<name>` |
-| `constraint` | Intent | product, module | `intent/constraints/<name>/<name>.yaml`, `intent/modules/<m>/constraints/<name>/<name>.yaml` | product or module | `constraint/<name>` |
-| `decision` | Intent, Implementation | product, module | `intent/decisions/<number>-<name>/<number>-<name>.yaml`, `intent/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml` | product or module | `decision/<number>-<name>` |
-| `research` | Intent | product, module | `intent/research/<name>/<name>.yaml`, `intent/modules/<m>/research/<name>/<name>.yaml` | product or module | `research/<name>` |
+| `constraint` | Intent | product | `intent/constraints/<name>/<name>.yaml` | product | `constraint/<name>` |
+| `decision` | Intent, Implementation | product, module | `intent/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/decisions/<number>-<name>/<number>-<name>.yaml`, `implementation/modules/<m>/decisions/<number>-<name>/<number>-<name>.yaml` | product or module | `decision/<number>-<name>` |
+| `research` | Intent | product | `intent/research/<name>/<name>.yaml` | product | `research/<name>` |
 | `journey` | Intent | product | `intent/journeys/<name>/<name>.yaml` | product | `journey/<name>` |
 | `actor` | Intent | product | `intent/actors/<name>/<name>.yaml` | product | `actor/<name>` |
 | `role` | Intent | product | `intent/roles/<name>/<name>.yaml` | product | `role/<name>` |
-| `module` | Intent | module | `intent/modules/<m>/module.yaml` | product | `module/<name>` |
+| `module` | Behavior | module | `behavior/modules/<m>/module.yaml` | product | `module/<name>` |
 | `term` | Intent, Behavior | product | `glossary.yaml` | product | `term/<name>` |
 | `aggregate` | Behavior | module | `behavior/modules/<m>/<aggregate>/aggregate.yaml` | module | `aggregate/<module>.<name>` |
 | `use-case` | Behavior | aggregate, module | `behavior/modules/<m>/<aggregate>/<use-case>/<use-case>.yaml`, `behavior/modules/<m>/use-cases/<use-case>/<use-case>.yaml` | aggregate or module | `use-case/<module>.<name>` |
@@ -123,7 +123,7 @@ The table is frozen: it gives each type its layer, levels, folder, parent and id
 
 Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. Anything else is a `folder-invalid` finding. A module with one aggregate of the module's own name may stay flat.
 
-`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules. A folder under either that names no declared module, and a module folder without its module, get a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A named record placed flat, directly in its type's folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
+`intent/modules/<m>/` and `behavior/modules/<m>/` name the same declared modules, which are declared in Behavior. A folder under either that names no declared module, and a module folder without its module, get a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A named record placed flat, directly in its type's folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
 A module, an aggregate, and an entry point is a folder node, and the folder path of each record under it names that node. Placement is the folder path and the module, never a second name.
 

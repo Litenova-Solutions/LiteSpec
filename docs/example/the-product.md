@@ -27,7 +27,7 @@ The `addresses` list names the three actors that hold the product's roles. The a
 
 ## The Spending Module
 
-The product has one module, Spending. A module record names one product area and the records that belong to it. Its file is `.litespec/intent/modules/spending/module.yaml`:
+The product has one module, Spending. A module record names one product area and the records that belong to it. It is declared in Behavior, beside the aggregates it groups, at `.litespec/behavior/modules/spending/module.yaml`:
 
 ```yaml
 type: module

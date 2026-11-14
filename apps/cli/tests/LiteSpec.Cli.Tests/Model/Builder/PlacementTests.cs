@@ -25,7 +25,7 @@ public sealed class PlacementTests
             id: goal/faster-reimbursement
             title: Faster reimbursement
             """);
-        Write(temp.Path, ".litespec/intent/modules/finance/module.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/finance/module.yaml", """
             type: module
             id: module/finance
             title: Finance
@@ -83,7 +83,7 @@ public sealed class PlacementTests
 
         AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
-        AssertPlaced(model, "module/finance", ".litespec/intent/modules/finance", "finance");
+        AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
         AssertPlaced(model, "feature/payout", ".litespec/intent/modules/finance/features/payout", "finance");
         AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/modules/finance/features/payout/request-payout", "finance");
         AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/payouts", "finance");

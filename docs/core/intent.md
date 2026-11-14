@@ -6,7 +6,7 @@
 
 ## Intent
 
-Intent is why the product exists and what it promises: the product, its modules, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
+Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -15,7 +15,6 @@ Intent is why the product exists and what it promises: the product, its modules,
 | Question | Record | Write It When | Skip It When | Familiar As |
 |:---|:---|:---|:---|:---|
 | What is the product and for whom? | product | Always, once | Never | Product brief |
-| Which product area holds this work? | module | Always, one per product area | Never | Product area |
 | Who touches the product? | actor | A person or organization appears in a problem, a journey or an access position | The "actor" is a role or a system; roles are Behavior and systems stand alone | Stakeholder |
 | What software outcome do we want? | goal | You can name what you count | The system controls it directly: that is a quality requirement | Product goal |
 | Where is the product heading beyond what it promises now? | vision | A choice made now keeps a later destination open | You can name the pain and the offer: write the problem and the feature | Product vision |
@@ -32,7 +31,7 @@ Intent is why the product exists and what it promises: the product, its modules,
 
 Product intent is what the product commits to: what it does, for whom, and where it stops. Running the company is no part of it. [Keep Company Operation Out of Intent](#keep-company-operation-out-of-intent) states the boundary, and [The Software Test](#the-software-test) names what belongs for each record type.
 
-Intent reads module, then feature, then requirement. A module names one product area of the bounded context; each feature sits under one module and carries the offer against a problem; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
+Intent reads problem, then feature, then requirement. A problem names one outside pain with its evidence; each feature carries the offer against a problem; each requirement sits in its own folder inside its feature's folder and states one commitment Behavior fulfills. The [model page](model.md) defines the record types and links. Each requirement keeps one authoritative file, and the book brings a feature's requirements together on the feature's page with the decisions behind them.
 
 Intent is not Behavior. A rule or use case states what the system does today and matches the code. A requirement states what the product decided and why, and it can describe a position the code does not carry yet. The two connect in one direction: Behavior records name the requirements they fulfill and the steps they serve, and an Intent record never describes Behavior, except a decision naming the records it settles in `decides` and an actor naming its roles in `holds`.
 
@@ -49,32 +48,19 @@ Every record states something the software does, holds, refuses at runtime or ru
 | Requirement | A commitment Behavior fulfills | (always software when it reaches Behavior) |
 | Constraint | Law, a provider or a limit that binds the software | A company duty with no software effect, such as incorporation |
 | Research | Evidence a software record cites | Market sizing, viability, acquisition, pricing strategy |
-| Module | A product area of the bounded context | A company function |
 
 A record that states company operation fails the test, even when its folder is right. Reachability proves the rest: a record that reaches no Behavior is either unfinished work for the backlog or not software.
 
-### Modules as Product Areas
+### The Folder Is the Parent
 
-Each Intent area names a module declared in Behavior, so one name runs through every layer:
-
-```text
-.litespec/intent/modules/<module>/features/    features with their requirements
-.litespec/behavior/modules/<module>/...        aggregates and use cases
-src/<Layer>/<Module>/<Aggregate>/<UseCase>     code
-```
-
-The reader finds a use case by module, then aggregate, then use case, and the requirements behind it under the same module name in Intent. The module is also the seam where a monolith would later split into services. Anything cross-cutting, such as accessibility or security, sits at product level. A folder under `intent/modules/` that names no declared module gets a blocking finding.
-
-The folder is the parent, at product level or under a module:
+Each record sits in the folder of its parent, and the folder names that parent:
 
 ```text
 .litespec/intent/
   product.yaml
-  goals/  visions/  problems/  constraints/  decisions/  research/  actors/  journeys/
+  goals/  visions/  problems/  constraints/  decisions/  research/  actors/  roles/  journeys/
   modules/
     finance/
-      module.yaml
-      goals/  problems/  constraints/  decisions/  research/
       features/
         payout/
           payout.yaml          the feature
@@ -82,19 +68,11 @@ The folder is the parent, at product level or under a module:
           paid-once/           requirement
             paid-once.yaml
             paid-once.md       its explanation, optional
-.litespec/behavior/
-  modules/
-    finance/
-      payout/                  aggregate
-        aggregate.yaml
-        request-payout/        use case
-          request-payout.yaml
-          request-payout.md    its explanation, optional
 ```
 
-Product level holds only the product, visions, actors, roles and journeys; journeys cross modules through their steps. Module level holds only features, each with its requirements in folders inside the feature's folder. Goals, problems, constraints, decisions and research sit at either level, and the folder says which. Every folder is one of a closed set per layer; a record of a type in the wrong folder, a module folder without its module, and a record type outside its allowed levels are blocking findings.
+Product level holds the product, visions, goals, problems, constraints, decisions, research, actors, roles and journeys. Journeys cross modules through their steps. Module level holds only features, each with its requirements in folders inside the feature's folder. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
 
-A record under a module is linked only from records in that module. A link from another module is a blocking finding, because the record is then not local and belongs at product level. A product-level record may be linked from one module or many.
+Modules are not declared here. A module is a code boundary, so it is declared in Behavior, and [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Intent, Behavior and code.
 
 ### Identifiers and Placement
 
@@ -147,13 +125,13 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in its module's `features/` folder under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
 
-**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level and each module with its goals, problems, constraints, decisions, research and features under its module folder, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds only the product, visions, actors, roles and journeys, module level holds only features, a feature's folder holds its requirements, and goals, problems, constraints, decisions and research sit at either level with the folder saying which. Each module folder names a module declared in Behavior, so one name runs through Intent, Behavior and code.
+**Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, module level holds only features, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
-**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and a link from another module to a module-local record, and `module-undeclared` for a folder under `intent/modules/` naming no declared module or a module folder without its module.
+**Checked by:** `litespec model check` reports `record-placement-invalid` for a record outside its home, a record type outside its allowed levels, and `module-undeclared` for a folder under `intent/modules/` naming no declared module.
 
 ### State One Product
 
@@ -648,22 +626,6 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `record-invalid` for a decision option missing `pros` or `cons`.
 
-### Shape Each Module Page
-
-**ID:** `litespec/core/intent#shape-each-module-page`
-
-**Strength:** required
-
-**Applies to:** artifact: record:module
-
-**Statement:** A module MUST state its `summary` and its `dependsOn` in fields.
-
-**Rationale:** The module names one product area of the bounded context, so Intent, Behavior and code share one name for one area. `summary` states what the area covers in one place, and `dependsOn` names the modules it builds on. A reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it.
-
-**Example:** The spending module covers expenses, receipts and the policy, with an empty `dependsOn` where it stands alone.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a module record file missing a required field.
-
 ### Identify Every Requirement
 
 **ID:** `litespec/core/intent#identify-every-requirement`
@@ -958,13 +920,13 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** default
 
-**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:module, record:feature, record:requirement
+**Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each module with its goals, problems, constraints, decisions, research and features in their own folders under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
+**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in its module's `features/` folder under `.litespec/intent/modules/<module>/`, and each requirement in its own folder inside its feature's folder.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
-**Rationale:** A module folder keeps related pages together, so the pages of one product area sit side by side. One folder per kind keeps each record findable: goals, problems, features, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module names a product area, never the company, and each module folder names a module declared in Behavior.
+**Rationale:** A module folder keeps the features of one product area side by side. One folder per kind keeps each record findable: goals, problems, constraints, decisions, research, journeys, and actors each have one home. A newcomer learns the layout once and predicts where the next record lives. A module is declared in Behavior, so each module folder names a module declared there. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
 **Example:**
 
@@ -998,22 +960,6 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
       <name>.yaml
   modules/
     spending/
-      module.yaml
-      goals/
-        <name>/
-          <name>.yaml
-      problems/
-        <name>/
-          <name>.yaml
-      constraints/
-        <name>/
-          <name>.yaml
-      decisions/
-        <number>-<name>/
-          <number>-<name>.yaml
-      research/
-        <name>/
-          <name>.yaml
       features/
         <name>/
           <name>.yaml

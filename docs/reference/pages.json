@@ -1071,7 +1071,7 @@
       "style": "standard",
       "area": "core",
       "title": "Intent Layer",
-      "intent": "Intent is why the product exists and what it promises: the product, its modules, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",

@@ -10,24 +10,19 @@ Use this generated page to find the folder and file each record type lives in, r
 |:---|:---|:---|:---|
 | `product` | `intent` | `product.yaml` | - |
 | `goal` | `intent/goals/{name}` | `{name}.yaml` | - |
-| `goal` | `intent/modules/{module}/goals/{name}` | `{name}.yaml` | - |
 | `vision` | `intent/visions/{name}` | `{name}.yaml` | - |
 | `problem` | `intent/problems/{name}` | `{name}.yaml` | - |
-| `problem` | `intent/modules/{module}/problems/{name}` | `{name}.yaml` | - |
 | `feature` | `intent/modules/{module}/features/{name}` | `{name}.yaml` | - |
 | `requirement` | `intent/modules/{module}/features/{feature}/{name}` | `{name}.yaml` | - |
 | `constraint` | `intent/constraints/{name}` | `{name}.yaml` | - |
-| `constraint` | `intent/modules/{module}/constraints/{name}` | `{name}.yaml` | - |
 | `decision` | `intent/decisions/{name}` | `{name}.yaml` | - |
-| `decision` | `intent/modules/{module}/decisions/{name}` | `{name}.yaml` | - |
 | `decision` | `implementation/decisions/{name}` | `{name}.yaml` | - |
 | `decision` | `implementation/modules/{module}/decisions/{name}` | `{name}.yaml` | - |
 | `research` | `intent/research/{name}` | `{name}.yaml` | - |
-| `research` | `intent/modules/{module}/research/{name}` | `{name}.yaml` | - |
 | `journey` | `intent/journeys/{name}` | `{name}.yaml` | - |
 | `actor` | `intent/actors/{name}` | `{name}.yaml` | - |
 | `role` | `intent/roles/{name}` | `{name}.yaml` | - |
-| `module` | `intent/modules/{name}` | `module.yaml` | - |
+| `module` | `behavior/modules/{name}` | `module.yaml` | - |
 | `term` | `` | `glossary.yaml` | - |
 | `aggregate` | `behavior/modules/{module}/{aggregate}` | `aggregate.yaml` | - |
 | `aggregate` | `behavior/modules/{module}` | `aggregate.yaml` | yes |
