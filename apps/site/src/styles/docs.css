@@ -186,9 +186,15 @@ details[open] > .group-h .chev {
   display: none;
 }
 
-/* Content column: the phone browse button, the indexed header and body,
-   and the pager pinned to the bottom of the column. */
+/* Content column: the phone browse button, the indexed header and body, and the
+   pager pinned to the bottom of the column. The article has one measure, 56ch of
+   the body font (about 80 characters a line, the Web Guidance limit for running
+   text). Every block in the article takes that width, from the title and the
+   intro through tables, provision cards, code and diagrams, so they share one
+   left edge and one right edge. A table wider than the measure scrolls inside
+   its own wrapper. */
 .content {
+  --measure: 56ch;
   padding: var(--space-10) var(--space-12);
   min-width: 0;
   display: flex;
@@ -203,6 +209,7 @@ details[open] > .group-h .chev {
 
 .docs-body {
   min-width: 0;
+  max-width: var(--measure);
   margin-bottom: var(--space-8);
 }
 
@@ -291,13 +298,12 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: block;
 }
 
-/* The page introduction: the Intent or Purpose section, shown under the title. */
-/* Body size in the secondary text color: the intro gives context, and the title
-   above it carries the weight. */
+/* The page introduction: the Intent or Purpose section, shown under the title.
+   Body size in the secondary text color: the intro gives context, and the title
+   above it carries the weight. It takes the article measure, like every block. */
 .content .page-intro {
   margin-top: var(--space-3);
   margin-bottom: var(--space-2);
-  max-width: 68ch;
   font-size: 15px;
   line-height: 1.7;
   color: var(--fg-2);
@@ -323,6 +329,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-cards);
+  max-width: var(--measure);
   margin-top: auto;
   padding-top: var(--space-8);
   border-top: 1px solid var(--border);
@@ -504,7 +511,6 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .prose .std-list {
   list-style: none;
-  max-width: none;
   margin: 0;
   padding: 0;
   display: grid;

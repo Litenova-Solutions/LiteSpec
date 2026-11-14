@@ -76,7 +76,6 @@
 
 .prose p {
   margin: 0 0 var(--space-block);
-  max-width: 72ch;
   overflow-wrap: break-word;
 }
 
@@ -94,7 +93,6 @@
 .prose ol {
   margin: 0 0 var(--space-block);
   padding-left: var(--space-6);
-  max-width: 72ch;
   overflow-wrap: break-word;
 }
 
@@ -251,12 +249,6 @@
   padding: var(--space-1) var(--pad-card-x) var(--pad-card-y);
 }
 
-.prose .provision-body p,
-.prose .provision-body ul,
-.prose .provision-body ol {
-  max-width: none;
-}
-
 .prose .provision-body > :last-child {
   margin-bottom: 0;
 }
@@ -327,7 +319,6 @@
 }
 
 .prose .provision-statement p {
-  max-width: none;
   margin: 0;
   font-size: 16.5px;
   line-height: 1.55;
@@ -406,7 +397,6 @@
 
 .prose .provision-more > * {
   margin: 0;
-  max-width: none;
 }
 
 .prose .provision-more .provision-evidence {
@@ -443,10 +433,6 @@
 .prose .pattern-facts dd {
   margin: 0;
   min-width: 0;
-}
-
-.prose .pattern-facts dd > * {
-  max-width: none;
 }
 
 .prose .pattern-facts dd > :first-child {
@@ -679,7 +665,6 @@
 .prose .option > p {
   padding-left: var(--pad-card-x);
   padding-right: var(--pad-card-x);
-  max-width: none;
 }
 
 @media (max-width: 760px) {
