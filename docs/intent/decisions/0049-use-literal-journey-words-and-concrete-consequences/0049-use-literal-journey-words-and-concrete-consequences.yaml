@@ -1,0 +1,16 @@
+type: decision
+id: decision/0049-use-literal-journey-words-and-concrete-consequences
+title: Use Literal Journey Words and Concrete Consequences
+options:
+  - name: "Replace walk and why it matters in every provision, template and glossary entry"
+    pros: "One mechanical replacement covers every record type, and the rule reads the same in each file."
+    cons: "Every file that uses the words changes, including the glossary, the templates and the fixtures, and the citation of one renamed testing provision changes with them."
+  - name: "Change only the journey and constraint wording"
+    pros: "Fewer files change, and the actor, goal and notification records keep their wording."
+    cons: "The same loose word stays in four record types, and a writer sees two rules for one word."
+  - name: "Keep the wording and add a weak and strong example to the guides only"
+    pros: "No record or provision changes, and the guides show stronger wording."
+    cons: "The provisions still accept loose verbs, and a writer who reads only a template meets the old words."
+choice: "Replace walk and why it matters in every provision, template and glossary entry"
+consequences: "The journey sense of walk becomes take: an actor takes a journey, the Links table reads is taken by and takes, and the glossary entry for Journey uses the same verb. The verb in the testing provision `litespec/frontend/testing#name-the-journey-a-journey-test-walks` changes to covers, and each citation of it changes in the same change, including follows and proves marks in code. Loose uses of walk where a literal verb exists are replaced. Why it matters becomes the consequence at stake, and for whom, in `litespec/core/intent#describe-every-journey`, `litespec/core/intent#state-each-goal-with-its-measure`, `litespec/core/writing#open-each-explanation-file-with-a-paragraph`, the fix text of `explanation-opening-missing` and the opening prompts of the record templates. `describe-every-journey` asks for who takes the journey, what they achieve and the consequence at stake. `litespec/core/writing#use-literal-words` gains a weak and a strong example. Documentation pages keep why it matters where it describes a page's Intent section, and decision and research records keep the wording they were written with."
+reopenedWhen: "Consumers report that take reads poorly in a sentence about a journey that an actor does not take alone, or that the consequence phrase makes explanation openings longer than a cold reader needs."

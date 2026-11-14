@@ -1,0 +1,16 @@
+type: decision
+id: decision/0047-cite-a-source-for-each-constraint-rule
+title: Cite a Source for Each Constraint Rule
+options:
+  - name: "Put sources on the constraint, with an optional research link"
+    pros: "A law is its own source, a rule needs no extra record for one URL, and each rule names the source key it rests on in its own file."
+    cons: "Each constraint carries its own source list, so a source that two constraints cite is listed in both."
+  - name: "Require every constraint to cite a research record and hold no sources"
+    pros: "Every outside fact has one shape, and each source is checked once, in research."
+    cons: "A law with one public page needs a research record beside it, and that record holds a question that needs no investigating."
+  - name: "Keep authority and readOn, and add review questions only"
+    pros: "No field changes and no record shape moves."
+    cons: "A rule cannot be traced to a source key, and a reviewer checks each citation by hand."
+choice: "Put sources on the constraint, with an optional research link"
+consequences: "A constraint carries `sources` in the research shape, with `key`, `url` and `readOn` on each entry, and `publishedOn` where the source shows it. The record-level `readOn` is removed. `effectiveFrom` states the date a rule starts to bind, and `basedOn` links the research a rule rests on. `litespec/core/intent#cite-a-source-for-each-constraint-rule` requires each rule in Rules to cite a source key with a reference link. `model check` reports `source-key-unknown`, `source-link-bare` and `source-unused` on constraint files, `record-invalid` for a constraint without `sources`, and `field-invalid` for a `basedOn` that names no research record. `model render` writes a `source-links` region into every explanation file that cites a source, and `model check` reports `source-links-drift` and `source-links-missing`. The constraint sections become Scope, Rules, Effect on the Product and Open Points (optional), and Source is removed. `constraint-effect-unlisted` and `constraint-effect-uncited` keep the requirements named in Effect on the Product equal to those that cite the constraint. `litespec/core/intent#state-each-constraint-rule-with-its-condition` requires each rule to keep its condition and to state no unverified fact as settled. The book shows the sources, the effective date and the research link."
+reopenedWhen: "Consumers report that several constraints cite the same source often enough that a shared record is cheaper than repeated source lists, or that a constraint's source list grows past what a reader can scan."

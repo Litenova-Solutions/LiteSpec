@@ -1,0 +1,16 @@
+type: decision
+id: decision/0055-state-each-access-scope-once
+title: State Each Access Scope Once
+options:
+  - name: "Keep the scope on the role only"
+    pros: "The level is part of what the role is, one field holds the reach, and no hold or permission entry repeats it."
+    cons: "The analyzers read the role's scope instead of the permission's, and the instance a person holds, such as one tenant or team, moves to runtime role assignments."
+  - name: "Keep the scope on each hold only, with roles and permissions unscoped"
+    pros: "One role can be held at different levels by different actors."
+    cons: "A role's reach is undefined until someone holds it, and a permission's reach depends on which hold reaches it."
+  - name: "Keep all three with a rule that the hold and the permission must equal the role"
+    pros: "Each record names its scope, and a check catches a mismatch."
+    cons: "Three copies of one value must stay equal, and each record repeats a value its role already states."
+choice: "Keep the scope on the role only"
+consequences: "A role's `scope` is the one scope of its grant. `scope` is removed from each `holds` entry, so `holds` becomes a list of role identifiers, and from each permission entry. Which tenant or team a person holds a role for is runtime data held by role assignments. A permission allowed by two roles at different levels takes its reach from the role the caller holds. `litespec/core/access#record-every-role-hold-with-its-scope` is renamed to `litespec/core/access#record-every-role-an-actor-holds`, `litespec/core/access#state-the-scope-of-every-permission` is retired, and `litespec/core/access#scope-every-role` names the role as the scope's only home. `litespec/core/access#define-each-scope-level-in-the-glossary` is required and checked by `scope-term-missing`. `litespec/core/access#name-each-permission-by-a-use-case-verb` is required and checked by `permission-verb-unknown`. A `holds` entry or permission entry that carries `scope` fails `model check`. The permission-list sections become Risk and Boundaries, and Future Roles is removed."
+reopenedWhen: "One actor must hold one role at different levels, or the analyzers cannot generate permission code from role scopes once the scope moves."

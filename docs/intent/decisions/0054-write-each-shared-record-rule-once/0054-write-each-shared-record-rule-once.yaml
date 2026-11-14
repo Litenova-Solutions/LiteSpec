@@ -1,0 +1,16 @@
+type: decision
+id: decision/0054-write-each-shared-record-rule-once
+title: Write Each Shared Record Rule Once
+options:
+  - name: "One provision per shared rule, applying to every record type it concerns"
+    pros: "A rule is stated once, a reviewer reads it once, and a later change edits one provision."
+    cons: "A reader of one record type finds some of its rules in provisions that name other types, so each provision must say which types it covers."
+  - name: "A rule per record type in each workstream"
+    pros: "Each record type's page states all of its rules in one place."
+    cons: "The same rule is written several times in slightly different words, and each copy can drift."
+  - name: "Template wording only, with no provision"
+    pros: "No provision is added, and the templates carry the prompts."
+    cons: "No check or review reads the rule, and the templates are its only home, so the rule is not one an agent is told to follow."
+choice: "One provision per shared rule, applying to every record type it concerns"
+consequences: "`litespec/core/intent#add-no-behavior-in-an-explanation-file` applies to every Intent explanation file and keeps its identifier. An explanation file describes only what its own record's fields and the records it cites state. The feature and requirement wording from decision 0046 is the example. New shared provisions: `litespec/core/writing#keep-the-conditions-when-shortening`, which keeps the conditions of every summary, conclusion, statement and opening paragraph, `litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record`, `litespec/core/intent#split-records-whose-parts-change-separately`, and `litespec/core/writing#keep-release-phases-and-plans-out-of-records`. The eight Example prompts take one sentence in one form, adjusted per type where a type needs more. Walk leaves every prompt, and no template says numbers worked through. The constraint, research and actor provisions cite these shared provisions instead of stating their own."
+reopenedWhen: "A shared provision is cited by record types it does not fit, or an Example prompt needs a rule for one type that the shared sentence cannot carry."

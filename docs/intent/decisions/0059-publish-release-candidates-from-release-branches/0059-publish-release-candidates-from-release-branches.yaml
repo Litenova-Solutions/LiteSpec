@@ -1,0 +1,16 @@
+type: decision
+id: decision/0059-publish-release-candidates-from-release-branches
+title: Publish Release Candidates from Release Branches
+options:
+  - name: "Candidate tags on the release branch publish prerelease packages"
+    pros: "A consumer tests a release on the packages it will install, before the final tag, and a defect found there ships in the next candidate."
+    cons: "The release workflow gains a second path with its own refusals, and every place that reads the version reads the suffix as well."
+  - name: "Consumers build the CLI from source"
+    pros: "No workflow changes and no prerelease packages to publish."
+    cons: "A consumer tests a build that is not the one it installs, and its first real run comes after the final tag."
+  - name: "A separate preview feed"
+    pros: "Preview packages stay apart from the stable feed."
+    cons: "A second feed must be hosted and secured, and a candidate still needs the same build steps and archive checks."
+choice: "Candidate tags on the release branch publish prerelease packages"
+consequences: "A tag `v<version>-rc.<n>`, where the version equals the manifest version, publishes a candidate when the tagged commit is on `release/<version>`. The workflow refuses a candidate tag whose base version differs from the manifest or whose commit is not on the matching branch. A tag without a suffix still publishes only from main. A candidate publishes `LiteSpec.Cli` and `LiteSpec.Analyzers` at the suffixed version as prerelease packages, with the same archives, checksums and attestations, and creates a prerelease GitHub release. The committed files keep the plain version, and the workflow stamps the suffix at build time. The analyzer pin, the agent protocol, the skill, the schema identifier the tool reports read the full version, and the release comparison reads the base version. A candidate's site deploys beside the current release and is removed when the final release ships. `litespec/core/maintaining#publish-a-litespec-release-from-a-tag` states the two tag forms and the branch each publishes from."
+reopenedWhen: "Consumers report that candidate packages reach them too late to test, or that a candidate is hard to tell from a final release in the tools they run."

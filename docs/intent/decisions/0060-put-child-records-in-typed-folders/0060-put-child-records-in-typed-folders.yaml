@@ -1,0 +1,16 @@
+type: decision
+id: decision/0060-put-child-records-in-typed-folders
+title: Put Child Records in Typed Folders
+options:
+  - name: "One typed folder per child type inside every parent"
+    pros: "A reader sees each kind of child in its own folder, and creation, renaming and the folder checks follow one table."
+    cons: "A parent with one child type gains a folder, and every existing requirement, aggregate and use case moves."
+  - name: "Typed folders only where a parent holds several child types"
+    pros: "A parent with one child type keeps the layout it has."
+    cons: "Two layouts stay for the same kind of record, and a parent's layout changes when a second child type is added."
+  - name: "Keep the current mix"
+    pros: "No record moves and no path changes."
+    cons: "A reader cannot tell a parent's own files from its children, and an untyped folder holds an aggregate beside its use cases."
+choice: "One typed folder per child type inside every parent"
+consequences: "A child record stored as its own file sits in its own folder, inside a folder named for its type in the plural, inside its parent's folder. A child stored as an entry, such as a result, scenario, permission, journey step or source, stays in its parent's file. Requirements sit in a requirements folder under their feature, aggregates in an aggregates folder under their module, use cases in a use-cases folder under their aggregate, and events and rules in folders under the aggregate. A use case that belongs to no aggregate keeps a module-level use-cases folder. A product-level quality requirement sits in the product's requirements folder. The flat module layouts are removed, so every module has one layout. `BehaviorModuleFolders` becomes the closed set of a module's typed folders, and an unknown subfolder reports `record-placement-invalid`. Identifiers and code paths do not change, since no identifier names a type folder. Creation, renaming, the folder checks, the locality checks, the book outline and the folder reference page follow the one table."
+reopenedWhen: "A parent that holds one child type gains a folder that helps no reader, or the closed set of folders blocks a child type that a product needs."

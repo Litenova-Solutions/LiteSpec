@@ -1,0 +1,16 @@
+type: decision
+id: decision/0058-keep-shape-rules-in-the-schema
+title: Keep Shape Rules in the Schema
+options:
+  - name: "Shape rules in the schema, graph rules in the model check, and a parity test"
+    pros: "An editor reads the shape rules from the schema, the model check reads the graph, and a test shows that the two agree on every rule both carry."
+    cons: "Each rule is placed in one of two validators, and the parity test must run in continuous integration to keep them in step."
+  - name: "Every rule in the model check, with the schema for editors only"
+    pros: "One validator holds every rule, and the model check is the only source of errors."
+    cons: "The schema holds fewer rules than the check, so an editor accepts records the check rejects."
+  - name: "Every rule in both, with no test"
+    pros: "Each validator enforces the full set, and an editor and the check reject the same records when the copies agree."
+    cons: "Nothing shows that the two agree, and the copies drift as the rules change."
+choice: "Shape rules in the schema, graph rules in the model check, and a parity test"
+consequences: "Shape rules live in `schemas/record.schema.yaml`: required properties, minimum counts, conditional requirements and allowed values. Rules about the record graph stay in the model check: reference resolution, ownership, scope, reach and consistency across records. Five disagreements are settled one way and written into the schema: role `allows` is required, decision `choice` is required, research `sources` may not be empty, module `dependsOn` is required and policy `values` may not be empty. A parity test runs both validators over invalid records and asserts that they agree on every rule both carry. `uniqueItems` is removed from lists of objects, since it compares whole objects, and the model check reports duplicate keys inside a record: source keys, journey step identifiers, branch targets, operation names and field names, each with its own test."
+reopenedWhen: "The schema and the model check disagree on a rule the parity test does not cover, or an editor's schema support loses a rule that the schema can no longer carry."

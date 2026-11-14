@@ -1,0 +1,16 @@
+type: decision
+id: decision/0056-copy-each-template-from-claimwick
+title: Copy Each Template from Claimwick
+options:
+  - name: "Copy each template from a Claimwick record, and report unchanged template values"
+    pros: "The example stays coherent, and a copied number cannot pass as a decision unnoticed."
+    cons: "A template changes when its Claimwick record changes, and the reference product must carry every record the templates need."
+  - name: "Keep three file sets: scaffold, example and field reference"
+    pros: "Each file does one job, and a scaffold holds no example value."
+    cons: "Three files per record type drift apart, and each change is made three times."
+  - name: "Use placeholder values that model check reports"
+    pros: "A scaffold is plainly unfinished, and no copied value looks like a decision."
+    cons: "LiteSpec's no-placeholders principle refuses placeholder values, and placeholders make a template useless as an example."
+choice: "Copy each template from a Claimwick record, and report unchanged template values"
+consequences: "Each YAML template is a copy of one Claimwick record, and `litespec-maintain validate` reports a template that differs from its source. Every link in a template resolves in one coherent product, and Claimwick gains the records the templates need, including a reminder requirement that the reminder reaction fulfills, a retention requirement and a query use case. `model check` reports `template-value-unchanged` for a record that `new` scaffolded and that still carries a template value unchanged. `use-case.yaml` splits into a command template and a query template. The explanation prompts depend on the kind a record takes: aggregate Lifecycle covers entity and store, the job Invocation section covers scheduled, one-off and manual runs, retention Basis covers statute, business and engineering, entry point Authentication asks how callers prove identity, setting set Defaults asks for the default where one exists, external system Data Shared covers data sent and received, and reaction Failure Handling applies where a reaction retries. The product's Direction becomes optional and points to vision records, and the design contract states the accessible rule in place of absolute ones."
+reopenedWhen: "A template copied from Claimwick keeps a value a reader takes for a rule, or Claimwick must carry records that a product of another kind would never need."

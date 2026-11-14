@@ -1,0 +1,16 @@
+type: decision
+id: decision/0050-put-each-feature-inside-the-problem-it-answers
+title: Put Each Feature Inside the Problem It Answers
+options:
+  - name: "One problem per feature, with the feature inside the problem's folder"
+    pros: "A problem's folder shows each feature that answers it, and the folder names the parent as a requirement folder does."
+    cons: "Every feature moves, a feature that answers two problems is split or merged, and each path changes while each identifier stays."
+  - name: "One problem per feature as a field, with features flat in intent/features/"
+    pros: "Features keep one list, and a change of problem edits one field and moves no folder."
+    cons: "A reader of a problem file cannot see the features that answer it, and the field must agree with any other link to the problem."
+  - name: "Keep solves as a list and the module as the feature's folder"
+    pros: "No feature moves and the existing link stays as it is."
+    cons: "A feature can answer two problems, and the features of a problem are visible only from the features."
+choice: "One problem per feature, with the feature inside the problem's folder"
+consequences: "A feature lives at `.litespec/intent/problems/<problem>/features/<feature>/<feature>.yaml`, with its explanation beside it and its requirements in folders under it. `solves` is removed, and `record-invalid` reports a feature that still carries it. `record-placement-invalid` reports a feature outside a problem's features folder. Every feature sits under a problem, and a feature with no outside pain is given a problem its evidence supports or its requirements move to the features that need them. Qualities that cross features follow the placement rule for product-level requirements. Identifiers do not change, so moving a feature changes no citation. `advances` stays a list. `litespec new feature` takes the problem the feature answers. `litespec/core/intent#answer-one-problem-with-each-feature` is required and checked by placement, and it retires `litespec/core/intent#name-each-sibling-problem-or-merge-it`. The Links table replaces the solves row with the folder parent, and the book shows each problem with its features."
+reopenedWhen: "Consumers report that features with no outside pain are forced onto weak problems by the folder, or that a feature's requirements answer a second problem often enough that splitting features costs more than sharing them."

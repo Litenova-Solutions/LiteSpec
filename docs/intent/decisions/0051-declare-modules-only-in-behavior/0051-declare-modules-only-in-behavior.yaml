@@ -1,0 +1,16 @@
+type: decision
+id: decision/0051-declare-modules-only-in-behavior
+title: Declare Modules Only in Behavior
+options:
+  - name: "Declare modules only in Behavior"
+    pros: "Intent is organized by reason, and each module sits in Behavior beside the aggregates it groups, with its code dependencies in one record."
+    cons: "The Intent tree no longer groups records by module, and a module's product reasons move to the problems that hold them."
+  - name: "Keep Intent modules equal to Behavior modules, as today"
+    pros: "No record moves, and a reader finds one module name in both layers."
+    cons: "Intent groups follow code boundaries instead of product reasons, and an Intent module folder holds nothing once features sit under problems."
+  - name: "Choose Intent product areas apart from the Behavior modules"
+    pros: "Intent gets a grouping by product area, and code boundaries stay in Behavior."
+    cons: "Two sets of names must be kept in step, and an area and a module can disagree about where a record belongs."
+choice: "Declare modules only in Behavior"
+consequences: "The module record moves to `.litespec/behavior/modules/<module>/module.yaml`, with its explanation beside it. `.litespec/intent/modules/` is removed, and `record-placement-invalid` reports any file under it. Goals, problems, constraints, decisions and research sit at product level. The Intent Questions table loses its module row, and Intent reads problem, then feature, then requirement. The Modules as Product Areas concept moves to the Behavior page, where one module name runs through Behavior and code. `litespec/core/intent#shape-each-module-page` moves to the Behavior page under a Behavior identifier, which the major release allows. The book's Intent tree groups by problem, and module grouping stays in the Behavior tree. The module's explanation sections move under Behavior, and the glossary entry for Module names Behavior as its layer."
+reopenedWhen: "Consumers report that a product area spans several problems and cannot be found in Intent without a module grouping, or that a module's product reasons are lost once the module moves to Behavior."

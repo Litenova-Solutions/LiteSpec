@@ -1,0 +1,16 @@
+type: decision
+id: decision/0048-state-the-start-and-branches-of-each-journey
+title: State the Start and Branches of Each Journey
+options:
+  - name: "Add startedWhen and a structured branches list"
+    pros: "A check can enforce each branch, and an action hidden in a branch cannot be written, because every action is a step."
+    cons: "Every journey is rewritten, and the book renders each branch as its own sentence."
+  - name: "Keep betweenSteps as prose and add review questions"
+    pros: "No journey field changes and no record is rewritten for the field."
+    cons: "A reviewer reads the prose to find each branch, and no check sees an action placed in a branch."
+  - name: "Drop betweenSteps and keep the branches only in the Variations prose"
+    pros: "The journey fields shrink, and the explanation holds the detail."
+    cons: "No check sees the order of the steps, and a reader sees the branches only by reading the explanation."
+choice: "Add startedWhen and a structured branches list"
+consequences: "A journey carries `startedWhen`, required, as the observable state in which it starts. The Preconditions section is removed, and any detail of one occasion moves to the Example. `betweenSteps` is removed. A journey carries `branches`, optional, where each entry has `step`, `condition` and `nextStep`. A branch states no action of its own. A blocker is the `failure` of the step it blocks, and a branch from that step names where the actor goes after the failure. `record-invalid` reports a journey without `startedWhen`, a `betweenSteps` field, or a branch missing a field. `field-invalid` reports a branch whose `step` or `nextStep` names no step of the journey. The journey explanation sections become Example and Branches, and Variations is removed. New provisions: `litespec/core/intent#state-when-each-journey-starts`, `litespec/core/intent#branch-a-journey-only-between-its-steps`, `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`. `litespec/core/intent#order-each-journey-toward-one-goal` names `branches` in place of `betweenSteps`. A step may name the product's observable response after the performer's act."
+reopenedWhen: "Consumers report that branch lists repeat the steps so often that the field costs more review time than the Branches section it replaced, or that a single branch needs more than one condition to state its path."
