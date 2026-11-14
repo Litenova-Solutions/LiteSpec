@@ -50,7 +50,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** goal, problem, feature, journey.
 
-**Differs:** LiteSpec fixes the map as typed records and links: a feature solves problems and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
+**Differs:** LiteSpec fixes the map as typed records and links: a feature answers one problem and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
 
 ## Decision Records
 

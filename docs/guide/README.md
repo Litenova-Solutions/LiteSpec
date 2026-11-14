@@ -23,5 +23,8 @@ When LiteSpec is new, install the command line first with [Install the CLI](inst
 - [Write Code for a Use Case](write-code-for-a-use-case.md): where each code element of a use case goes, the mark it carries, and the check that watches it.
 - [Write a Problem](write-a-problem.md): write one problem with its failure cases, evidence and resolution criteria, step by step with weak and strong examples.
 - [Write a Feature Under a Problem](write-a-feature-under-a-problem.md): write one feature with its requirements under the problem it answers, with statements a tester can decide and the feature's boundaries.
+- [Write a Constraint](write-a-constraint.md): write one outside rule with its sources, its scope, its rules and the requirements that hold its effect.
+- [Write a Journey](write-a-journey.md): write one actor's path toward one goal, from its start through its steps, blockers and branches.
+- [Write a Research Record](write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Build an Audit Trail](audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 - [Run Rules After Every Edit](run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.

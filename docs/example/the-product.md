@@ -47,6 +47,7 @@ A goal record states one measurable outcome that features advance. Claimwick kee
 type: goal
 id: goal/decided-in-days
 title: Decided in Days
+summary: Employees plan around reimbursements, and a late decision holds their money. A fast decision keeps trust in the whole flow.
 statement: Every submitted expense is decided within five business days.
 measure: Median hours from submission to decision.
 target: Under 120 hours.
@@ -56,13 +57,13 @@ The statement names the target, and the measure says how the team reads it. The 
 
 ## The Problem
 
-A problem record states one pain that a person outside the team has today. Claimwick keeps one, in `.litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.yaml`. Submitted expenses wait weeks for a decision, so employees chase managers by email. The `affects` field names the employee as the person who suffers it, and the `evidence` list cites the research below with its grade, `reported`.
+A problem record states one pain that a person outside the team has today. Claimwick keeps one, in `.litespec/intent/problems/expenses-wait-weeks/expenses-wait-weeks.yaml`. Submitted expenses wait weeks for a decision, so employees chase managers by email. The `affects` field names the employee as the person who suffers it, and the `evidence` list cites the research below with its kind, `reported`.
 
 ## The Features and Their Requirements
 
 A feature record states what the product offers against a problem. Claimwick has two features.
 
-The Approval feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml`, answers the waiting problem and holds five functional requirements, each in its own folder inside the feature's folder:
+The Approval feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml`, answers the waiting problem and holds five functional requirements, each in its own folder inside the feature's `requirements/` folder:
 
 | Requirement ID | Statement |
 |:---|:---|
@@ -72,7 +73,7 @@ The Approval feature, in `.litespec/intent/problems/expenses-wait-weeks/features
 | `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. |
 | `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. |
 
-The Approval Reminders feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and answers the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, in `.litespec/intent/modules/spending/features/approval-reminders/month-end-submissions/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and answers the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/requirements/month-end-submissions/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 Each requirement carries its identifier, title, kind, statement, rationale and the records it cites in `cites`. The `cites` list is how the tax file traces back to the constraint below.
 
@@ -126,11 +127,13 @@ The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-re
 
 ## The Constraint
 
-A constraint states one outside rule, the source it rests on and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years, the record names the law as its source with the day it was read, and the product applies because it stores receipts for reimbursed expenses. The receipt requirement cites this constraint, so the retention rule traces to the outside law that demands it.
+A constraint states one outside rule, the source it rests on and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years. The record's `sources` list names the law with its key, its URL and the day it was read, and the product applies because it stores receipts for reimbursed expenses.
+
+The explanation file holds Scope, Rules, Effect on the Product and Open Points. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that hold the rule's effect, `requirement/approval.receipt-over-threshold` and `requirement/approval.erase-after-retention`, and each of them cites this constraint, so the retention rule traces to the outside law that demands it.
 
 ## The Journey
 
-A journey record holds the steps one actor takes toward one goal. Claimwick keeps one, in `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml`. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey starts when the employee has paid a work cost and ends when the employee holds the reimbursement. Its steps carry IDs `s1` to `s5`, each names the actor who takes it, and a branch takes the journey to its end when the manager rejects the expense:
+A journey record holds the steps one actor takes toward one goal. Claimwick keeps three journeys, one for each path. This one, in `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml`, is the employee's path; the two staff journeys, `journey/export-approved-expenses` and `journey/set-receipt-threshold`, sit beside it. An employee submits an expense, a manager decides it, finance reimburses it, and the employee sees it in their own list. The journey starts when the employee has paid a work cost and ends when the employee holds the reimbursement. Its steps carry IDs `s1` to `s5`, each names the actor who takes it, and a branch takes the journey to its end when the manager rejects the expense:
 
 ```yaml
 type: journey

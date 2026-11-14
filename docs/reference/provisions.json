@@ -8248,7 +8248,7 @@
       "anchor": "keep-intent-in-its-homes",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and \u0060folder-invalid\u0060 for any folder under \u0060intent/modules/\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-placement-invalid\u0060 for a record outside its home, a record type outside its allowed levels, and any file under \u0060intent/modules/\u0060.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement",
@@ -8472,7 +8472,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A problem explanation file MUST state under Resolution Criteria, for each failure case, an observable outcome for the sufferer that shows the failure has ended, naming no feature or implementation.",
-      "rationale": "Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome names the problem in \u0060solves\u0060, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.",
+      "rationale": "Criteria that cover one failure let a solution end half the problem and look finished. An outcome leaves the solution open, so a reader can propose a different one and judge it against the same criteria. The feature that delivers the outcome sits in the folder of the problem it answers, so the book shows which feature answers it without the problem naming the feature. An implementation that is already required is a constraint, written as its own record.",
       "example": "The library problem of readers losing due dates states two criteria, one for each failure case: a reader knows the due date of every copy they hold without a paper list, and a renewed copy shows its new date wherever the reader looks."
     },
     {

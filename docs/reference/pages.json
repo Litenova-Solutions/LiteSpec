@@ -1364,7 +1364,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 26 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
+      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 25 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
       "sections": [
         "Intent",
         "The Full Check",
@@ -2330,6 +2330,20 @@
       ]
     },
     {
+      "file": "docs/guide/write-a-constraint.md",
+      "path": "guide/write-a-constraint",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Constraint",
+      "intent": "A constraint states one outside rule, by law or by contract, that the product must respect, and it says which product choices the rule takes away. This guide writes one constraint record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
       "file": "docs/guide/write-a-feature-under-a-problem.md",
       "path": "guide/write-a-feature-under-a-problem",
       "style": "how-to",
@@ -2344,12 +2358,40 @@
       ]
     },
     {
+      "file": "docs/guide/write-a-journey.md",
+      "path": "guide/write-a-journey",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Journey",
+      "intent": "A journey states the path one actor takes toward one goal, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one journey record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
       "file": "docs/guide/write-a-problem.md",
       "path": "guide/write-a-problem",
       "style": "how-to",
       "area": "guide",
       "title": "Write a Problem",
       "intent": "A problem states a pain that people outside the team have today, before any feature answers it. This guide writes one problem record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-research-record.md",
+      "path": "guide/write-a-research-record",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Research Record",
+      "intent": "A research record answers one question with the sources that bear on it, and it states what those sources establish and what they leave open. This guide writes one research record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source\u0027s statement from the writer\u0027s inference. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",

@@ -75,23 +75,23 @@ The other expense rules hold that an approver is not the submitter, that an expe
 
 ## The Use Cases
 
-A use case is one thing an actor does through the system. The module has nine, each in a file of its own. Every use case names its grant, the journey step it serves and the entry point that reaches it:
+A use case is one thing an actor does through the system. The module has nine, each in a file of its own. Every use case names its grant and the entry point that reaches it. Most also name the journey step they serve, and the erasure use case serves none, because a scheduled promise is a requirement that a job fulfills:
 
 | Use case | Kind | Grant | Serves | Raises |
 |:---|:---|:---|:---|:---|
-| Submit expense | command | `permission/request-expense` | `s1` | `event/expense.submitted` |
-| Attach receipt | command | `permission/request-expense` | `s2` | `event/receipt.attached` |
-| Approve expense | command | `permission/approve-expense` | `s3` | `event/expense.approved` |
-| Refuse expense | command | `permission/approve-expense` | `s3` | `event/expense.refused` |
-| Reimburse expense | command | `permission/post-reimbursement` | `s4` | `event/expense.reimbursed` |
-| List expenses | query | `permission/list-expenses` | `s5` | none |
-| Change receipt threshold | command | `permission/manage-policy` | `s6` | none |
-| Export expenses | query | `permission/export-expenses` | `s7` | none |
-| Erase personal data | command | `permission/remove-personal-data` | `s8` | none |
+| Submit expense | command | `permission/request-expense` | `journey/submit-and-reimburse#s1` | `event/expense.submitted` |
+| Attach receipt | command | `permission/request-expense` | `journey/submit-and-reimburse#s2` | `event/receipt.attached` |
+| Approve expense | command | `permission/approve-expense` | `journey/submit-and-reimburse#s3` | `event/expense.approved` |
+| Refuse expense | command | `permission/approve-expense` | `journey/submit-and-reimburse#s3` | `event/expense.refused` |
+| Reimburse expense | command | `permission/post-reimbursement` | `journey/submit-and-reimburse#s4` | `event/expense.reimbursed` |
+| List expenses | query | `permission/list-expenses` | `journey/submit-and-reimburse#s5` | none |
+| Change receipt threshold | command | `permission/manage-policy` | `journey/set-receipt-threshold#s1` | none |
+| Export expenses | query | `permission/export-expenses` | `journey/export-approved-expenses#s1` | none |
+| Erase personal data | command | `permission/remove-personal-data` | none | none |
 
 The Submit expense file lists its inputs, its results and its scenarios. It takes an amount, a currency and an optional receipt, and it has two results: `result/submit-expense.submitted`, and the refusal `result/submit-expense.receipt-missing` with the code `spending.receipt-missing`. Its two scenarios are the ones the acceptance tests prove, as [A Use Case in Code](a-use-case-in-code.md) shows.
 
-The journey steps run in the order the table gives them. Submit expense serves `s1` and Attach receipt serves `s2`; the journey file names no use case, so each use case points up to the step it serves.
+The journey steps run in the order the journey file gives them. Submit expense serves `journey/submit-and-reimburse#s1` and Attach receipt serves `journey/submit-and-reimburse#s2`; the journey file names no use case, so each use case points up to the step it serves.
 
 ## The Entry Point and the Screen
 
@@ -123,7 +123,7 @@ Four records act outside a single request:
 
 ## The Permissions and the Access Chain
 
-The permission list in `behavior/modules/spending/permissions.yaml` names seven permissions. Two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`. Intent roles hold these permissions: the employee role allows submitting and listing, the approver role allows approving and managing the policy, and the finance role allows reimbursing, exporting and erasing. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
+The permission list in `behavior/modules/spending/permissions.yaml` names seven permissions. Two carry a risk: `permission/post-reimbursement` carries `money`, and `permission/remove-personal-data` carries `personal-data`. The roles allow these permissions: the employee role allows submitting and listing, the approver role allows approving and managing the policy, and the finance role allows reimbursing, exporting and erasing. The chain runs from the actor to the role, the role to the permission, and the permission to the use case it grants.
 
 ## The External System
 
@@ -131,4 +131,4 @@ The payout bank is the one external system the module talks to. It is in `behavi
 
 ## Counting the Records
 
-Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 9 rules, 9 use cases, 2 settings, 1 job, 1 reaction and 1 notification. The entry point holds 1 screen, and the payout bank is the one external system. The product holds 3 actors, 3 roles and 1 journey. Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records, and [The Model and Its Checks](model-and-checks.md) shows that output.
+Every count on these pages comes from the folder, not from memory. The Spending module holds 3 aggregates, 9 rules, 9 use cases, 2 settings, 1 job, 1 reaction and 1 notification. The entry point holds 1 screen, and the payout bank is the one external system. The product holds 3 actors, 3 roles and 3 journeys. Run `dotnet run --project apps/cli/src/LiteSpec.Cli -- model check --root examples/claimwick` to see the model's view of the same records, and [The Model and Its Checks](model-and-checks.md) shows that output.

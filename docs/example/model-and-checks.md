@@ -2,11 +2,11 @@
 
 ## Intent
 
-The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the departures that cover its 26 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
+The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the departures that cover its 25 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
 
 ## The Full Check
 
-`litespec model check` builds the model in memory and reports each finding with its file, level, code and message. Against the example it exits zero, because every finding is covered by a departure. The full result, all 26 lines copied from the run, is:
+`litespec model check` builds the model in memory and reports each finding with its file, level, code and message. Against the example it exits zero, because every finding is covered by a departure. The full result, all 25 lines copied from the run, is:
 
 ```text
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/approve-expense/approve-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.approve-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
@@ -28,23 +28,22 @@ The project model joins the written records of a project to its code, screens an
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.attach-receipt' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
+.litespec/intent/journeys/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/export-approved-expenses#s1' is served by a browser or device use case but by no screen.
+.litespec/intent/journeys/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/set-receipt-threshold#s1' is served by a browser or device use case but by no screen.
 .litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
 .litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s2' is served by a browser or device use case but by no screen.
 .litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s3' is served by a browser or device use case but by no screen.
 .litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s4' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s6' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s7' is served by a browser or device use case but by no screen.
-.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Journey step 'journey/submit-and-reimburse#s8' is served by a browser or device use case but by no screen.
-0 findings, 0 blocking, 26 covered.
+0 findings, 0 blocking, 25 covered.
 ```
 
-The 26 covered findings fall into five codes:
+The 25 covered findings fall into five codes:
 
 | Code | Count | Covered by |
 |:---|:---|:---|
 | `use-case-unreached` | 8 | `departure/expense-screens-unimplemented` |
 | `use-case-unverified` | 9 | `departure/use-cases-unverified` |
-| `step-screen-missing` | 7 | `departure/expense-steps-unscreened` |
+| `step-screen-missing` | 6 | `departure/expense-steps-unscreened` |
 | `use-case-unimplemented` | 1 | `departure/export-expenses-unimplemented` |
 | `use-case-endpoint-missing` | 1 | `departure/export-expenses-unexposed` |
 

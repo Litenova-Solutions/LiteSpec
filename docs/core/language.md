@@ -17,7 +17,7 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
 | 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
-| 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `solves`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
+| 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
 | 3. Link to one record in a role | singular noun naming the role | "the journey's actor is traveller" | `actor`, `fallback`, `runbook`, `result`, `host`, `refusal` |
 | 4. Link where the target acts on this record | `<participle>By`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `releasedBy`, `computedBy`, `triggeredBy` |
 | 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `direction`, `trust`, `reach`, `lifecycle`, `level` |

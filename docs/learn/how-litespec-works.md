@@ -48,8 +48,9 @@ The folder is part of the record: it names the parent, and every other folder na
       features/
         approval/
           approval.yaml        the feature
-          decided-within-five-days/
-            decided-within-five-days.yaml   a requirement, in its own folder
+          requirements/
+            decided-within-five-days/
+              decided-within-five-days.yaml   a requirement, in its own folder
 .litespec/behavior/
   modules/
     spending/
@@ -101,7 +102,7 @@ Read Intent before Behavior: start at the product record with its goals, problem
 
 ### One Journey End to End
 
-Follow one journey from its goal to its proof: the goal and its requirements, the journey page with its steps, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the journey is proven, the journey holds.
+Follow one journey from its goal to its proof: the goal and its requirements, the journey page with its start, its steps and its branches, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the journey is proven, the journey holds.
 
 ### One Module End to End
 
