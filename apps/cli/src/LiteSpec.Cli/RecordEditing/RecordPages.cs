@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.RecordEditing;
@@ -16,10 +17,10 @@ static class RecordPages
     /// <summary>Record types that own a file <c>litespec new</c> can scaffold.</summary>
     public static readonly HashSet<string> PageTypes = new(StringComparer.Ordinal)
     {
-        "product", "goal", "problem", "feature", "constraint", "research",
+        "product", "goal", "vision", "problem", "feature", "requirement", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
-        "runbook", "departure",
+        "runbook", "departure", "screen",
     };
 
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
@@ -32,7 +33,6 @@ static class RecordPages
     /// <summary>Where an entry type lives, for the refusal message.</summary>
     public static readonly Dictionary<string, string> EntryHomes = new(StringComparer.Ordinal)
     {
-        ["requirement"] = "a feature file under .litespec/intent/modules/<m>/features/",
         ["rule"] = "its aggregate file, or a rule file under .litespec/behavior/rules/ for a cross-aggregate rule",
         ["result"] = "its use-case file",
         ["scenario"] = "its use-case, reaction or job file",
@@ -105,63 +105,94 @@ static class RecordPages
     }
 
     /// <summary>
-    ///     The file a renamed record moves to, or null when the file stays where
-    ///     it is. A file that already sits inside its home's module area keeps its
-    ///     folder and takes the new file name, so a use case beside its aggregate
-    ///     is not dragged back under <c>reads/</c> by its own rename.
+    ///     The stem a record's file takes at its identifier: the name the scaffold pattern gives the file, such as
+    ///     <c>library-app.loan-list</c> for a screen, or the bare name for a type whose file takes the name.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type.</param>
+    /// <param name="home">The identifier home, or null for a type without a home.</param>
+    /// <param name="name">The identifier name.</param>
+    /// <returns>The file stem the record takes, which also names its own folder.</returns>
+    public static string StemOf(ConsumerConfig config, string type, string? home, string name)
+    {
+        if (!RecordFolders.Scaffolds(type) || (RecordFolders.NeedsHome(type) && home is null))
+        {
+            return name;
+        }
+
+        return Path.GetFileNameWithoutExtension(PagePath(config, type, home, name));
+    }
+
+    /// <summary>
+    ///     The folder a record's own folder sits in once a rename moves the record to the home its new identifier
+    ///     names. A plain rename does not call this: it keeps the folder the record already sits in.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
     /// <param name="type">The record type that owns the file.</param>
-    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
     /// <param name="newName">The identifier name after the rename.</param>
     /// <param name="oldFile">The current absolute path of the file.</param>
-    /// <returns>The absolute path the file moves to, or null when the file stays at its current path.</returns>
-    public static string? RenameTarget(
-        ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
+    /// <returns>The absolute path of the folder that holds the record's own folder at its new home.</returns>
+    public static string? OwnerContainer(ConsumerConfig config, string type, string? newHome, string newName, string oldFile)
     {
-        // A type whose identifier carries no home, such as an integration event, which lives under a
-        // module folder its id does not name, stays in the folder it already sits in.
-        if (newHome is null && RecordFolders.NeedsHome(type))
-        {
-            var folder = Path.GetDirectoryName(oldFile);
-
-            if (string.IsNullOrEmpty(folder))
-            {
-                return null;
-            }
-
-            var renamed = Path.Combine(folder, newName + Path.GetExtension(oldFile));
-
-            return string.Equals(renamed, oldFile, StringComparison.Ordinal) ? null : renamed;
-        }
-
-        var placed = PagePath(config, type, newHome, newName);
-
         // A technical decision lives under Implementation and stays there when renamed.
         if (type == "decision" && IsTechnicalDecision(config, oldFile))
         {
-            placed = Path.Combine(DocsRoot(config), "implementation", "decisions", Path.GetFileName(placed));
+            return Path.Combine(DocsRoot(config), "implementation", "decisions");
         }
 
-        if (string.Equals(placed, oldFile, StringComparison.Ordinal))
+        // A type whose identifier carries no home, such as an integration event, keeps the folder it sits in.
+        if (newHome is null && RecordFolders.NeedsHome(type))
+        {
+            return ContainerOf(oldFile);
+        }
+
+        // The placed path is <container>/<name>/<file>, so the container is two folders up.
+        var placed = PagePath(config, type, newHome, newName);
+
+        return Path.GetDirectoryName(Path.GetDirectoryName(placed));
+    }
+
+    /// <summary>The path of a named record's file: its own folder under the container, holding the file that carries the name.</summary>
+    /// <param name="container">The folder the record's own folder sits in.</param>
+    /// <param name="name">The record name, which names the folder and the file.</param>
+    /// <param name="extension">The file extension, including the dot.</param>
+    /// <returns>The path <c>&lt;container&gt;/&lt;name&gt;/&lt;name&gt;&lt;extension&gt;</c>.</returns>
+    public static string PlaceIn(string container, string name, string extension) =>
+        Path.Combine(container, name, name + extension);
+
+    /// <summary>
+    ///     The folder of the feature a requirement belongs to: the folder of the feature record
+    ///     <c>feature/&lt;feature&gt;</c>. A requirement's own folder sits inside it.
+    /// </summary>
+    /// <param name="records">Every record the model read.</param>
+    /// <param name="feature">The feature name the requirement identifier names.</param>
+    /// <returns>The requirements folder of that feature, or null when no feature record holds that name.</returns>
+    public static string? FeatureFolder(IReadOnlyList<Record> records, string feature) =>
+        records.FirstOrDefault(record => !record.Derived && record.Id == $"feature/{feature}") is { } found
+            ? Path.Combine(Path.GetDirectoryName(found.File)!, "requirements")
+            : null;
+
+    /// <summary>
+    ///     The folder that holds a record's own folder: the container a named record's folder sits in, or the
+    ///     folder of a flat record file. A file whose folder carries its stem is a named record's file.
+    /// </summary>
+    /// <param name="file">The absolute record file path.</param>
+    /// <returns>The container folder, or null when the file has no folder.</returns>
+    public static string? ContainerOf(string file)
+    {
+        var folder = Path.GetDirectoryName(file);
+
+        if (string.IsNullOrEmpty(folder))
         {
             return null;
         }
 
-        var oldFolder = Path.GetDirectoryName(oldFile);
-        var placedFolder = Path.GetDirectoryName(placed);
+        var stem = Path.GetFileNameWithoutExtension(file);
 
-        if (oldFolder is null
-            || string.Equals(oldFolder, placedFolder, StringComparison.Ordinal)
-            || !StaysInFolder(config, type, oldHome, newHome, oldFolder))
-        {
-            return placed;
-        }
-
-        var stayed = Path.Combine(oldFolder, Path.GetFileName(placed));
-
-        return string.Equals(stayed, oldFile, StringComparison.Ordinal) ? null : stayed;
+        return string.Equals(Path.GetFileName(folder), stem, StringComparison.Ordinal)
+            ? Path.GetDirectoryName(folder)
+            : folder;
     }
 
     /// <summary>Whether a decision file sits under the implementation decisions folder.</summary>
@@ -170,42 +201,6 @@ static class RecordPages
     /// <returns>True when the file sits under the implementation decisions folder; otherwise false.</returns>
     static bool IsTechnicalDecision(ConsumerConfig config, string file) =>
         file.StartsWith(Path.Combine(DocsRoot(config), "implementation", "decisions") + Path.DirectorySeparatorChar, StringComparison.Ordinal);
-
-    /// <summary>
-    ///     The folder a renamed module or aggregate file moves to. The folder moves
-    ///     whole, so the use cases beside a renamed aggregate move with it.
-    /// </summary>
-    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the folder, either module or aggregate.</param>
-    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
-    /// <param name="newName">The identifier name after the rename.</param>
-    /// <returns>The absolute path of the folder the file moves to after the rename.</returns>
-    public static string RenameFolderTarget(ConsumerConfig config, string type, string? newHome, string newName) =>
-        Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
-
-    /// <summary>
-    ///     Whether the renamed file keeps its folder: the home is unchanged and the
-    ///     folder sits inside that home's module area.
-    /// </summary>
-    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the file.</param>
-    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
-    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
-    /// <param name="folder">The folder that currently holds the file.</param>
-    /// <returns>True when the home is unchanged and the folder sits inside that home module area; otherwise false.</returns>
-    static bool StaysInFolder(ConsumerConfig config, string type, string? oldHome, string? newHome, string folder)
-    {
-        if (type is "module" or "aggregate"
-            || oldHome is null || newHome is null
-            || !string.Equals(oldHome, newHome, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var area = Path.Combine(config.BehaviorDocs, "modules", newHome) + Path.DirectorySeparatorChar;
-
-        return (folder + Path.DirectorySeparatorChar).StartsWith(area, StringComparison.Ordinal);
-    }
 
     /// <summary>
     ///     The grammar error in an identifier's home and name, or null when both
@@ -246,7 +241,9 @@ static class RecordPages
     /// <summary>
     ///     Rewrites every citation of <paramref name="oldId"/> as
     ///     <paramref name="newId"/>. A match inside a longer identifier is left
-    ///     alone; a journey step keeps its fragment.
+    ///     alone; a journey step keeps its fragment. A dot after the match ends
+    ///     the citation unless a name character follows it, so a sentence that
+    ///     ends on the identifier is rewritten.
     /// </summary>
     /// <param name="text">The file text to rewrite.</param>
     /// <param name="oldId">The identifier to replace.</param>
@@ -278,8 +275,16 @@ static class RecordPages
             var before = found > 0 ? text[found - 1] : '\0';
             var afterIndex = found + oldId.Length;
             var after = afterIndex < text.Length ? text[afterIndex] : '\0';
+            var afterNext = afterIndex + 1 < text.Length ? text[afterIndex + 1] : '\0';
 
-            if (IsIdChar(before) || before == '/' || IsIdChar(after) || after == '/')
+            // A dot continues the identifier only before a name character, as
+            // in a home-dot-name identifier. A dot before anything else is
+            // prose punctuation, so the citation before it stands alone.
+            var continues = IsIdChar(before) || before == '/'
+                || after == '/'
+                || (after == '.' ? IsNameChar(afterNext) : IsIdChar(after));
+
+            if (continues)
             {
                 built.Append(text, index, afterIndex - index);
                 index = afterIndex;
@@ -300,6 +305,12 @@ static class RecordPages
     /// <returns>True when the character continues an identifier, covering letters, digits, underscore, hyphen and dot; otherwise false.</returns>
     static bool IsIdChar(char value) =>
         char.IsAsciiLetterOrDigit(value) || value is '_' or '-' or '.';
+
+    /// <summary>Whether the character continues an identifier after a dot: a letter, digit, underscore or hyphen, which a home-dot-name separator joins to the name.</summary>
+    /// <param name="value">The character after the dot.</param>
+    /// <returns>True when the character continues the identifier after the dot; otherwise false.</returns>
+    static bool IsNameChar(char value) =>
+        char.IsAsciiLetterOrDigit(value) || value is '_' or '-';
 
     /// <summary>
     ///     Every file a record identifier can be cited in under the root, in a stable order: record files,

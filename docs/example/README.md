@@ -10,15 +10,14 @@ The pages follow one thread from the product's intent down to its checks:
 
 ```trail
 product        Claimwick: submit, approve, reimburse
-  module       Spending, holding two features and their requirements
   goal         Decided in days
   problem      Expenses wait weeks
     feature    Approval, with five functional requirements
   research     Approval time benchmarks
   decision     Receipt threshold of 25 EUR
   constraint   Tax receipt retention
-  journey      Submit and reimburse, in steps s1 to s8
-Behavior        Aggregates, rules, use cases, entry point, screen, reaction, job
+  journey      Submit and reimburse, in steps s1 to s5
+Behavior        Module Spending: aggregates, rules, use cases, entry point, screen, reaction, job
 Implementation  Expense code, handlers, endpoints, screen and tests, each marked with its record
 Proof           Acceptance tests, the departures that cover the gaps, the model check
 ```

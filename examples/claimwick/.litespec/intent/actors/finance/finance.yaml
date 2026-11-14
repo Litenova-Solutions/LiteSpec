@@ -1,0 +1,8 @@
+type: actor
+id: actor/finance
+title: Finance
+summary: Finance reimburses approved expenses.
+kind: person
+belongsToTeam: false
+holds:
+- role/finance

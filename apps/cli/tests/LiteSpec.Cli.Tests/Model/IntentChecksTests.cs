@@ -11,10 +11,10 @@ namespace LiteSpec.Cli.Tests.Model;
 public sealed class IntentChecksTests
 {
     /// <summary>The problem record file of the large fixture.</summary>
-    const string ProblemFile = ".litespec/intent/problems/overdue-loans-pile-up.yaml";
+    const string ProblemFile = ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.yaml";
 
     /// <summary>The journey record file of the large fixture.</summary>
-    const string JourneyFile = ".litespec/intent/journeys/borrow-and-return.yaml";
+    const string JourneyFile = ".litespec/intent/journeys/borrow-and-return/borrow-and-return.yaml";
 
     /// <summary>A problem whose primary sufferer belongs to the team blocks with problem-sufferer-invalid.</summary>
     /// <proves>litespec/core/intent#admit-only-outside-pains-as-problems</proves>
@@ -33,7 +33,7 @@ public sealed class IntentChecksTests
               "summary": "The team building and running the product.",
               "kind": "person",
               "belongsToTeam": true,
-              "holds": [{ "role": "role/librarian", "scope": "platform" }]
+              "holds": ["role/librarian"]
             }
             """);
         var problem = ReadRecord(fixture.Path, ProblemFile);
@@ -137,9 +137,9 @@ public sealed class IntentChecksTests
     public void UndefinedCapitalizedPhraseAdvises()
     {
         using var fixture = ModelFixture.Prepare("large");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/librarian.md", "# Librarian\n\nDesign Partners meet at the desk each month.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/reader.md", "# Reader\n\nDesign Partners borrow first each season.\n");
-        TestRecords.Explain(fixture.Path, ".litespec/intent/problems/overdue-loans-pile-up.md", "# Overdue Loans Pile Up\n\nDesign Partners report lost due dates at the desk.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/librarian/librarian.md", "# Librarian\n\nDesign Partners meet at the desk each month.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/actors/reader/reader.md", "# Reader\n\nDesign Partners borrow first each season.\n");
+        TestRecords.Explain(fixture.Path, ".litespec/intent/problems/overdue-loans-pile-up/overdue-loans-pile-up.md", "# Overdue Loans Pile Up\n\nDesign Partners report lost due dates at the desk.\n");
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 

@@ -29,6 +29,18 @@ manifest_version() {
   }
 }
 
+# Prints the version the build names: PACKAGE_VERSION when the release workflow sets it for a release
+# candidate, such as 6.0.0-rc.1, and else the manifest version. The packages, archives and installs of
+# a candidate carry the suffix; the committed files keep the plain version.
+#   release_version <manifest-file>
+release_version() {
+  if [ -n "${PACKAGE_VERSION:-}" ]; then
+    echo "$PACKAGE_VERSION"
+  else
+    manifest_version "$1"
+  fi
+}
+
 # Prints the SHA-256 command the host has: sha256sum where it exists, shasum -a 256 on macOS.
 sha256_command() {
   if command -v sha256sum >/dev/null 2>&1; then

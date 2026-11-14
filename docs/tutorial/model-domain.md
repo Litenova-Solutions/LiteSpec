@@ -91,17 +91,17 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
     | Actor | Role | Permission |
     |:---|:---|:---|
-    | `actor/employee` | `role/employee` at self scope | `permission/submit-expense` |
-    | `actor/manager` | `role/approver` at team scope | `permission/approve-expense` |
-    | `actor/finance` | `role/finance` at platform scope | `permission/reimburse-expense` |
+    | `actor/employee` | `role/employee`, whose scope is self | `permission/request-expense` |
+    | `actor/manager` | `role/approver`, whose scope is team | `permission/approve-expense` |
+    | `actor/finance` | `role/finance`, whose scope is platform | `permission/post-reimbursement` |
 
 10. Write the use cases. Give each use case a name that is unique across the project, so its results and scenarios resolve. Name the kind, `command` or `query`, the goal, what happens, the journey steps it serves, the requirements it fulfills, the access it declares, the entry points, the aggregates it changes and reads, its consistency, its effects, and the events it raises. This satisfies `litespec/backend/application#use-this-use-case-layout`, `litespec/core/use-cases#give-each-use-case-a-command-or-query-kind`, `litespec/core/use-cases#connect-each-use-case-to-intent`, and `litespec/core/access#declare-access-on-every-use-case`.
 
     | Use case | Kind | Serves | Access grant | Changes | Consistency |
     |:---|:---|:---|:---|:---|:---|
-    | `use-case/spending.submit-expense` | `command` | `journey/submit-and-reimburse#s1` | `permission/submit-expense` | `aggregate/spending.expense` | atomic |
+    | `use-case/spending.submit-expense` | `command` | `journey/submit-and-reimburse#s1` | `permission/request-expense` | `aggregate/spending.expense` | atomic |
     | `use-case/spending.approve-expense` | `command` | `journey/submit-and-reimburse#s2` | `permission/approve-expense` | `aggregate/spending.expense` | atomic |
-    | `use-case/spending.reimburse-expense` | `command` | `journey/submit-and-reimburse#s3` | `permission/reimburse-expense` | `aggregate/spending.expense` | atomic |
+    | `use-case/spending.reimburse-expense` | `command` | `journey/submit-and-reimburse#s3` | `permission/post-reimbursement` | `aggregate/spending.expense` | atomic |
     | `use-case/spending.list-expenses` | `query` | `journey/submit-and-reimburse#s4` | `self(permission/list-expenses)` | None | None |
 
     At least one of `serves` and `fulfills` is present on every use case. Access declares one grant and the tenant scope; a grant of `self(...)` limits the permission to the caller's own records. `changes` and `reads` name every aggregate the use case touches, and `consistency` states how the writes hold together. This satisfies `litespec/core/use-cases#grant-each-use-case-scoped-access`, `litespec/core/use-cases#name-every-aggregate-a-use-case-changes-or-reads`, and `litespec/core/use-cases#state-the-consistency-of-every-use-case`. Every edge the use case causes goes in `effects` with one verb and its timing: `runs`, `sends`, `emits`, or `calls`. This satisfies `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing`. Every input field names its origin and classification, and caller-supplied values on money or access paths carry bounding rules. This satisfies `litespec/core/use-cases#describe-every-use-case-input-with-origin-and-classification`. Every use case names its idempotency and, for commands, its audit position. This satisfies `litespec/core/use-cases#name-the-idempotency-of-every-use-case` and `litespec/core/use-cases#state-the-audit-position-of-every-command`.

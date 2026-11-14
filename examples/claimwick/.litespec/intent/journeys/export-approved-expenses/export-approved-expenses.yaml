@@ -1,0 +1,14 @@
+type: journey
+id: journey/export-approved-expenses
+title: Export Approved Expenses
+actor: actor/finance
+summary: Finance exports the approved expenses of a period in one batch, so the payout can run. The journey starts when the period's approvals are in and ends when the batch is exported. A good export carries every approved expense of the period.
+serves:
+- goal/decided-in-days
+startedWhen: Finance has the approvals of the period to pay out.
+finishedWhen: Finance has exported the batch of approved expenses for the payout.
+steps:
+- id: s1
+  statement: Finance exports the approved expenses in one batch.
+  actor: actor/finance
+  failure: No expense was approved this period, so the export is refused.

@@ -1,0 +1,16 @@
+type: decision
+id: decision/0061-name-each-identifier-from-its-title
+title: Name Each Identifier from Its Title
+options:
+  - name: "The identifier name is a word subsequence of the title"
+    pros: "A retitle keeps a short identifier while the folder still says what the record says, and short names stay short."
+    cons: "A name may leave title words out, so two records with near titles may take near names."
+  - name: "The identifier name equals the title in kebab case"
+    pros: "The identifier states the whole title, so the folder and the record cannot differ."
+    cons: "Requirement sentences become long identifiers that no citation writes by hand."
+  - name: "No rule"
+    pros: "No record is renamed and no check is added."
+    cons: "Retitled records keep identifiers that say the old name, and folders drift from content with nothing reporting it."
+choice: "The identifier name is a word subsequence of the title"
+consequences: "Every page record takes its identifier name from the words of its title in title order: the name words appear in the title words in the same order, with title words allowed in between, so words may be left out but none added or changed. The owner prefix and the decision number name the home and the sequence rather than the record, so neither faces the title. The record file carries the identifier name or the fixed file name of its type, and the folder check already keeps each named folder on its file's stem. `litespec model check` reports `identifier-title-invalid` for a page record outside the rule. Claimwick renames five requirements to take their names from their titles."
+reopenedWhen: "Titles grow words no identifier keeps, so names stop saying what records say, or a record type needs a name outside its title."

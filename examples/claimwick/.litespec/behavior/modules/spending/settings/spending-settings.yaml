@@ -11,7 +11,7 @@ records:
   setBy: product
   atBound: refuse
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt
 - type: setting
   id: setting/spending.approval-reminder-delay
   title: Approval Reminder Delay

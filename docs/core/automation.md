@@ -11,7 +11,7 @@ Automation states the work that runs without a request: the reactions answering 
 
 ### Reactions
 
-A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `summary`, and its steps live under What Happens in the explanation file beside the record file, with Example and Notes.
+A reaction is work that runs when a domain or integration event arrives. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A reaction changes nothing directly; a reaction needing a change runs a small command. A reaction is named `<verb>-<what>-on-<fact>`, as the [record language page](language.md) states. It carries `summary`, and its trigger and effect live under Trigger and Effect in the explanation file beside the record file, with Failure Handling and an optional Example.
 
 | Field | Meaning |
 |:---|:---|
@@ -26,7 +26,7 @@ A reaction may hold scenario child records ending in a result of a use case its 
 
 ### Jobs
 
-A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `summary`, and its steps live under What Happens in the explanation file beside the record file, with Example and Notes.
+A job is work that runs on a schedule, once, or by hand. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`, filed with the module whose records it changes, or with the module owning the notification it sends when it only sends. A job changes nothing directly; a job needing a change runs a small command. A job is named `<verb>-<what>` with the verb of the use case it runs, as the [record language page](language.md) states. It carries `summary`, and its trigger and effect live under Trigger and Effect in the explanation file beside the record file, with Failure Handling and an optional Example.
 
 | Field | Meaning |
 |:---|:---|

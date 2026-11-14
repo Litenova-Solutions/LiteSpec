@@ -21,17 +21,6 @@ static class PageChecks
     /// <summary>The Example word bound.</summary>
     const int ExampleLimit = 120;
 
-    // An explanation file carries the sections its record type requires: research answers
-    // its question and a decision states its context. Every other type keeps free prose.
-    // Each field the schema requires left the body for the record file, so no other
-    // record type names a required section.
-    /// <summary>The H2 sections each article type's explanation file requires.</summary>
-    static readonly Dictionary<string, string[]> ExplanationSections = new(StringComparer.Ordinal)
-    {
-        ["research"] = ["Answer"],
-        ["decision"] = ["Context"],
-    };
-
     // A document keeps the sections its page style always required: a document never held
     // a record, so nothing about it changed when records moved to files.
     /// <summary>The H2 sections each document page style requires.</summary>
@@ -307,7 +296,7 @@ static class PageChecks
         var lines = SplitLines(raw);
         HeadingChecks.CheckHeadings(file, lines, subject, add);
 
-        string[] required = type is not null && ExplanationSections.TryGetValue(type, out var names) ? names : [];
+        string[] required = type is not null && RecordFile.ArticleTypes.Contains(type) ? [.. LiteSpec.Model.ExplanationSections.RequiredNames(type)] : [];
         CheckSections(file, lines, type, subject, required, add);
     }
 

@@ -80,14 +80,14 @@ public static class RecordFields
     /// <summary>Gets the name of the `before` field.</summary>
     public const string Before = "before";
 
-    /// <summary>Gets the name of the `betweenSteps` field.</summary>
-    public const string BetweenSteps = "betweenSteps";
-
     /// <summary>Gets the name of the `binds` field.</summary>
     public const string Binds = "binds";
 
     /// <summary>Gets the name of the `boundary` field.</summary>
     public const string Boundary = "boundary";
+
+    /// <summary>Gets the name of the `branches` field.</summary>
+    public const string Branches = "branches";
 
     /// <summary>Gets the name of the `builtAsynchronously` field.</summary>
     public const string BuiltAsynchronously = "builtAsynchronously";
@@ -410,6 +410,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `needs` field.</summary>
     public const string Needs = "needs";
 
+    /// <summary>Gets the name of the `nextStep` field.</summary>
+    public const string NextStep = "nextStep";
+
     /// <summary>Gets the name of the `of` field.</summary>
     public const string Of = "of";
 
@@ -483,6 +486,9 @@ public static class RecordFields
     public const string Period = "period";
     /// <summary>Gets the name of the `prerequisites` field.</summary>
     public const string Prerequisites = "prerequisites";
+
+    /// <summary>Gets the name of the `publishedOn` field: the date a source states it was published.</summary>
+    public const string PublishedOn = "publishedOn";
 
     /// <summary>Gets the name of the `procedure` field.</summary>
     public const string Procedure = "procedure";
@@ -615,9 +621,6 @@ public static class RecordFields
     /// <summary>Gets the name of the `skippedWhen` field.</summary>
     public const string SkippedWhen = "skippedWhen";
 
-    /// <summary>Gets the name of the `solves` field.</summary>
-    public const string Solves = "solves";
-
     /// <summary>Gets the name of the `source` field.</summary>
     public const string Source = "source";
 
@@ -629,6 +632,12 @@ public static class RecordFields
 
     /// <summary>Gets the name of the `states` field.</summary>
     public const string States = "states";
+
+    /// <summary>Gets the name of the `startedWhen` field.</summary>
+    public const string StartedWhen = "startedWhen";
+
+    /// <summary>Gets the name of the `step` field.</summary>
+    public const string Step = "step";
 
     /// <summary>Gets the name of the `steps` field.</summary>
     public const string Steps = "steps";

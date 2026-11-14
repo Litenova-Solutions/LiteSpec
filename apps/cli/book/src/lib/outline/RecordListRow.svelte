@@ -1,5 +1,6 @@
 <script lang="ts">
   import { book, cn } from "$lib/frame";
+  import { outlineState } from "./outline-state.svelte";
   import { RecordIcon } from "$lib/record";
 
   // One record row in the Security view: the icon, the title and the finding text.
@@ -15,9 +16,9 @@
     );
   });
 
-  function choose(): void { void book.select(id); }
+  function choose(): void { outlineState.choose(id); }
   function key(e: KeyboardEvent): void {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void book.select(id); }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); outlineState.choose(id); }
   }
 </script>
 

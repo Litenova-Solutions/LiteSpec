@@ -7,16 +7,16 @@ eventType: com.claimwick.expense.submitted
 source: /spending/expenses
 subject: aggregate/spending.expense
 payload:
-  - name: expenseId
-    meaning: The submitted expense.
-    type: id
-    of: aggregate/spending.expense
-    required: true
-    classification: internal
+- name: expenseId
+  meaning: The submitted expense.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  classification: internal
 delivery: The broker delivers each event at least once, in submission order.
-addresses: permission/submit-expense
+addresses: permission/request-expense
 trust: payload
 translates: event/expense.submitted
 dataschema: https://schemas.claimwick.dev/expense-submitted/v1
 terms:
-  - term/expense
+- term/expense

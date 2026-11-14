@@ -2,17 +2,33 @@ type: journey
 id: journey/submit-and-reimburse
 title: Submit and Reimburse
 actor: actor/employee
+summary: An employee who paid a work cost submits the expense and waits for a decision. The journey starts at the paid cost and ends when the reimbursement lands in the employee account. A good journey decides each expense within five business days, because the employee plans around the money.
 serves:
-  - goal/faster-reimbursement
-summary: An employee who paid a work cost submits the expense and waits for a decision. The walk starts at submission and ends when the reimbursement lands in the employee account. A good walk decides each expense within five business days, because the employee plans around the money.
-finishedWhen: The employee receives the reimbursement.
+- goal/decided-in-days
+startedWhen: The employee has paid a work cost and has not yet submitted it.
+finishedWhen: The employee holds the reimbursement.
 steps:
-  - id: s1
-    statement: The employee submits the expense with its receipt.
-    actor: actor/employee
-    failure: The submission is refused for a missing receipt.
-betweenSteps: A refused expense returns to the employee for correction, and an approved one waits for payout.
+- id: s1
+  statement: The employee submits the expense with its amount and currency.
+  actor: actor/employee
+- id: s2
+  statement: The employee attaches the receipt to the expense.
+  actor: actor/employee
+- id: s3
+  statement: The manager approves or rejects the expense within five business days.
+  actor: actor/manager
+  failure: The expense waits past three business days, and the approver is reminded.
+- id: s4
+  statement: Finance reimburses the approved expense.
+  actor: actor/finance
+  failure: The expense is not approved, so it waits and no payout is made.
+- id: s5
+  statement: The employee watches each expense in their own list.
+  actor: actor/employee
+branches:
+- step: s3
+  condition: the manager rejects the expense
+  nextStep: end
 cites:
-  - requirement/approval-reminders.decided-within-five-days
-terms:
-  - term/expense
+- requirement/approval.decided-within-five-days
+- requirement/approval-reminders.month-end-submission

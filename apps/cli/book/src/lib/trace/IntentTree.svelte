@@ -6,7 +6,7 @@
   import { breaksIntentChain, FEATURE_GAP_TEXT, GAP_TEXT, GOAL_GAP_TEXT, keptBySentence } from "./trace-model";
 
   // The Intent tree: the product down through goals, features, requirements and
-  // journeys, one level per click. A box opens the level below it; the ext icon
+  // journeys, and through its visions to the decisions and requirements naming them, one level per click. A box opens the level below it; the ext icon
   // opens the record's page.
   type Props = { onClose: () => void };
   let { onClose }: Props = $props();
@@ -19,7 +19,7 @@
       await book.ensureRecords(
         book.order.filter((x) => {
           const t = book.typeOf(x);
-          return t === "goal" || t === "feature";
+          return t === "goal" || t === "vision" || t === "feature";
         }),
       );
       const pid = book.productId();
@@ -34,7 +34,13 @@
   function tvKids(id: string): string[] {
     void book.rev;
     const t = id.startsWith("tv/") ? id : book.typeOf(id);
-    if (t === "product") return [...book.order.filter((x) => book.typeOf(x) === "goal"), "tv/no-goal"];
+    if (t === "product") {
+      return [
+        ...book.order.filter((x) => book.typeOf(x) === "goal"),
+        ...book.order.filter((x) => book.typeOf(x) === "vision"),
+        "tv/no-goal",
+      ];
+    }
     if (t === "tv/no-goal") {
       return Object.keys(book.rec).filter((x) => {
         if (book.rec[x]?.type !== "feature") return false;
@@ -43,6 +49,7 @@
       });
     }
     if (t === "goal") return book.ins(id, "advances").filter((x) => book.typeOf(x) === "feature");
+    if (t === "vision") return [...book.ins(id, "basedOn"), ...book.ins(id, "cites")];
     if (t === "feature") return book.ins(id, "cites");
     if (t === "requirement") return book.ins(id, "cites").filter((x) => book.typeOf(x) === "journey");
     return [];
@@ -67,7 +74,20 @@
         ? { text: pluralize(kids.length, "requirement"), gap: false }
         : { text: FEATURE_GAP_TEXT, gap: true };
     }
-    if (t === "product") return { text: pluralize(Math.max(0, kids.length - 1), "goal"), gap: false };
+    if (t === "vision") {
+      const decisions = kids.filter((x) => book.typeOf(x) === "decision").length;
+      const requirements = kids.length - decisions;
+      const parts = [
+        ...(decisions ? [pluralize(decisions, "decision") + (decisions === 1 ? " is" : " are") + " based on it"] : []),
+        ...(requirements ? [pluralize(requirements, "requirement") + (requirements === 1 ? " cites" : " cite") + " it"] : []),
+      ];
+      return { text: parts.length ? capitalize(parts.join(", ")) : "", gap: false };
+    }
+    if (t === "product") {
+      const goals = kids.filter((x) => book.typeOf(x) === "goal").length;
+      const visions = kids.filter((x) => book.typeOf(x) === "vision").length;
+      return { text: pluralize(goals, "goal") + (visions ? ", " + pluralize(visions, "vision") : ""), gap: false };
+    }
     return { text: "", gap: false };
   }
 

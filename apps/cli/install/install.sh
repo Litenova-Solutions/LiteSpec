@@ -4,7 +4,7 @@
 # release's SHA256SUMS. The binary needs no .NET runtime.
 #
 #   curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh
-#   curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh -s -- --version 5.2.0
+#   curl -fsSL https://github.com/Litenova-Solutions/LiteSpec/releases/latest/download/install.sh | sh -s -- --version 6.0.0
 #
 # Options, each also read from the environment:
 #

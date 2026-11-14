@@ -1,8 +1,11 @@
 name: Release
 
-# A release is a v<version> tag on main. After the same checks a pull request runs, the tag
-# attests every package and archive, publishes the NuGet packages, and publishes the GitHub
-# release with the standalone archives, their SHA256SUMS and the install scripts.
+# A release is a v<version> tag on main. A release candidate is a v<version>-rc.<n> tag on the
+# release/<version> branch, so a consumer can install and test a release before the branch merges.
+# Both forms run the same checks a pull request runs, attest every package and archive, publish the
+# NuGet packages, and publish the GitHub release with the standalone archives, their SHA256SUMS and
+# the install scripts. A candidate publishes its packages at its suffixed version and marks the
+# GitHub release as a prerelease.
 on:
   push:
     tags:
@@ -16,35 +19,75 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # The same gates a pull request runs, in the Release configuration. They build every
-  # package and archive this workflow publishes.
-  ci:
-    uses: ./.github/workflows/ci.yml
-    with:
-      configuration: Release
-
+  # Names the release from the tag and refuses a tag that publishes nothing. The base version must
+  # be the manifest version, a candidate's suffix must be rc.<n>, and the tagged commit must be on
+  # the branch the tag form publishes from: main for a release, release/<version> for a candidate.
   version:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       version: ${{ steps.version.outputs.version }}
+      package_version: ${{ steps.version.outputs.package_version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
     steps:
+      # The branch check reads every branch, so the history and the branch refs are fetched in full.
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
-      # The tag, the manifest and both packages name one release. The version test in
-      # the suite holds the manifest, the packages, the changelog and the templates
-      # together; this step adds the tag.
-      - name: Match the tag to the manifest version
+      # The tag, the manifest and both packages name one release. The version test in the suite holds
+      # the manifest, the packages, the changelog and the templates together; this step adds the tag.
+      - name: Match the tag to the manifest version and its branch
         id: version
         run: |
           . .github/scripts/lib.sh
           version="$(manifest_version litespec.manifest.yaml)"
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
-            echo "The tag $GITHUB_REF_NAME does not name the manifest version $version."
+          tag="$GITHUB_REF_NAME"
+
+          case "$tag" in
+            "v$version")
+              package="$version"
+              prerelease=false
+              branch=main
+              ;;
+            "v$version-rc."*)
+              number="${tag#"v$version-rc."}"
+              case "$number" in
+                '' | *[!0-9]*)
+                  echo "The tag $tag needs a candidate number after rc., such as v$version-rc.1."
+                  exit 1
+                  ;;
+              esac
+              package="$version-rc.$number"
+              prerelease=true
+              branch="release/$version"
+              ;;
+            *)
+              echo "The tag $tag does not name the manifest version $version, as v$version or v$version-rc.<n>."
+              exit 1
+              ;;
+          esac
+
+          if [ -z "$(git branch -r --contains HEAD --list "origin/$branch")" ]; then
+            echo "The tag $tag names commit $GITHUB_SHA, which is not on origin/$branch."
             exit 1
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "version=$version"
+            echo "package_version=$package"
+            echo "prerelease=$prerelease"
+          } >> "$GITHUB_OUTPUT"
+
+  # The same gates a pull request runs, in the Release configuration. They build every package and
+  # archive this workflow publishes, at the package version the tag names.
+  ci:
+    needs: version
+    uses: ./.github/workflows/ci.yml
+    with:
+      configuration: Release
+      package_version: ${{ needs.version.outputs.package_version }}
 
   # A build provenance attestation ties each file to this workflow run, so a consumer checks a
   # download with 'gh attestation verify <file> --repo Litenova-Solutions/LiteSpec'.
@@ -123,22 +166,23 @@ jobs:
 
       # LiteSpec.Cli names one package per platform, and an install that finds it before them
       # fails, so every platform package and the analyzers publish first and LiteSpec.Cli last.
+      # The file names carry the package version, which a release candidate suffixes.
       - name: Publish the platform packages, the framework-dependent package and LiteSpec.Analyzers
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          PACKAGE_VERSION: ${{ needs.version.outputs.package_version }}
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
         run: |
           for package in native/packages/*.nupkg packages/*.nupkg; do
-            if [ "$(basename "$package")" != "LiteSpec.Cli.$VERSION.nupkg" ]; then
+            if [ "$(basename "$package")" != "LiteSpec.Cli.$PACKAGE_VERSION.nupkg" ]; then
               dotnet nuget push "$package" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
             fi
           done
 
       - name: Publish LiteSpec.Cli
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          PACKAGE_VERSION: ${{ needs.version.outputs.package_version }}
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-        run: dotnet nuget push "packages/LiteSpec.Cli.$VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "packages/LiteSpec.Cli.$PACKAGE_VERSION.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   github-release:
     needs: [version, nuget]
@@ -157,15 +201,32 @@ jobs:
           path: release
 
       # The release notes are the changelog section for this version, unchanged. The packages
-      # live on nuget.org; the release carries what a machine without .NET installs.
+      # live on nuget.org; the release carries what a machine without .NET installs. A candidate's
+      # notes open with a heading that says so and the command that installs it.
       - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.version.outputs.version }}
+          PACKAGE_VERSION: ${{ needs.version.outputs.package_version }}
+          PRERELEASE: ${{ needs.version.outputs.prerelease }}
         run: |
           awk -v heading="## v$VERSION" '$0 == heading {found = 1; next} found && /^## v/ {exit} found' CHANGELOG.md > notes.md
           if [ ! -s notes.md ]; then
             echo "CHANGELOG.md has no section headed '## v$VERSION'."
             exit 1
           fi
-          gh release create "$GITHUB_REF_NAME" release/* --title "LiteSpec $VERSION" --notes-file notes.md --verify-tag
+
+          title="LiteSpec $PACKAGE_VERSION"
+          if [ "$PRERELEASE" = "true" ]; then
+            {
+              echo "## Release candidate $PACKAGE_VERSION"
+              echo
+              echo "This candidate publishes LiteSpec $VERSION from release/$VERSION so it can be tested before the release. Install it with \`dotnet tool install LiteSpec.Cli --version $PACKAGE_VERSION\`, or with the install script and \`--version $PACKAGE_VERSION\`. The notes below are the $VERSION changelog section as it stands."
+              echo
+              cat notes.md
+            } > candidate-notes.md
+            mv candidate-notes.md notes.md
+            gh release create "$GITHUB_REF_NAME" release/* --title "$title" --notes-file notes.md --verify-tag --prerelease
+          else
+            gh release create "$GITHUB_REF_NAME" release/* --title "$title" --notes-file notes.md --verify-tag
+          fi

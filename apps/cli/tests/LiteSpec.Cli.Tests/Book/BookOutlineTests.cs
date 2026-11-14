@@ -86,14 +86,13 @@ public sealed class BookOutlineTests
             outline.Layers.Select(layer => layer.Id).ToArray());
     }
 
-    /// <summary>A feature parents its module by file; its solves and advances entries never move it, and a feature with no module file stays unplaced.</summary>
-    /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
+    /// <summary>A feature parents the problem whose features folder holds it; its advances entries never move it, and a feature outside a problem folder stays unplaced.</summary>
+    /// <proves>litespec/core/intent#answer-one-problem-with-each-feature</proves>
     [Fact]
-    public void FeatureParentsItsModuleByFile()
+    public void FeatureParentsItsProblemByFile()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
             Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
@@ -102,31 +101,30 @@ public sealed class BookOutlineTests
                 "approved",
                 new JsonObject
                 {
-                    ["solves"] = Links("problem/slow-queues"),
                     ["advances"] = Links("goal/faster-borrowing"),
                 },
-                file: ".litespec/intent/modules/lending/features/self-checkout.yaml"));
+                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"));
 
         var outline = BookOutline.Build(model);
 
-        Assert.Equal("module/lending", outline.ParentOf["feature/self-checkout"]);
+        Assert.Equal("problem/slow-queues", outline.ParentOf["feature/self-checkout"]);
         var placed = RecordIds(outline.Layers);
         Assert.Equal(1, placed.Count(id => string.Equals(id, "feature/self-checkout", StringComparison.Ordinal)));
         Assert.DoesNotContain("feature/self-checkout", outline.Unplaced);
 
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
+        var problem = Find(outline.Layers, "problem/slow-queues");
+        Assert.NotNull(problem);
+        Assert.Contains(problem!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
 
         var homeless = Model(
             Record("product", "product/library", "Library", "approved"),
-            Record("module", "module/lending", "Lending", "reviewed"),
+            Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                new JsonObject { ["solves"] = Links("problem/slow-queues") }));
+                new JsonObject { ["advances"] = Links("goal/faster-borrowing") }));
 
         Assert.Null(BookParents.ParentOf(homeless, "feature/self-checkout"));
         Assert.Contains("feature/self-checkout", BookOutline.Build(homeless).Unplaced);
@@ -194,12 +192,13 @@ public sealed class BookOutlineTests
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
             Record("module", "module/lending", "Lending", "reviewed"),
+            Record("problem", "problem/slow-queues", "Slow Queues", "approved"),
             Record(
                 "feature",
                 "feature/self-checkout",
                 "Self Checkout",
                 "approved",
-                file: ".litespec/intent/modules/lending/features/self-checkout.yaml"),
+                file: ".litespec/intent/problems/slow-queues/features/self-checkout.yaml"),
             Record(
                 "requirement",
                 "requirement/self-checkout.max-wait",
@@ -540,10 +539,10 @@ public sealed class BookOutlineTests
         Assert.DoesNotContain("module/lending", outline.Unplaced);
     }
 
-    /// <summary>A goal in a module folder parents that module; a goal at product level parents the product.</summary>
+    /// <summary>A goal at product level parents the product.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void GoalParentsItsModuleFileElseTheProduct()
+    public void GoalParentsTheProduct()
     {
         var model = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -553,17 +552,17 @@ public sealed class BookOutlineTests
                 "goal/faster-borrowing",
                 "Faster Borrowing",
                 "approved",
-                file: ".litespec/intent/modules/lending/goals/faster-borrowing.yaml"),
+                file: ".litespec/intent/goals/faster-borrowing/faster-borrowing.yaml"),
             Record("goal", "goal/quiet-study", "Quiet Study", "approved"));
 
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "goal/faster-borrowing"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "goal/faster-borrowing"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "goal/quiet-study"));
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);
-        var module = Find(outline.Layers, "module/lending");
-        Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
+        var product = Find(outline.Layers, "product/library");
+        Assert.NotNull(product);
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
     }
 
     /// <summary>A technical decision tops the implementation layer at product and module level alike, and a product decision sits under the product or its module.</summary>
@@ -597,12 +596,12 @@ public sealed class BookOutlineTests
                 "decision/lending-pick-a-queue",
                 "Pick A Queue",
                 "approved",
-                file: ".litespec/intent/modules/lending/decisions/lending-pick-a-queue.yaml"));
+                file: ".litespec/intent/decisions/lending-pick-a-queue/lending-pick-a-queue.yaml"));
 
         Assert.Equal("product/library", BookParents.ParentOf(model, "decision/0004-serve-receipts"));
         Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/0005-render-receipts"));
         Assert.Equal("product/library", BookParents.ParentOf(model, "decision/library-pick-a-format"));
-        Assert.Equal("module/lending", BookParents.ParentOf(model, "decision/lending-pick-a-queue"));
+        Assert.Equal("product/library", BookParents.ParentOf(model, "decision/lending-pick-a-queue"));
 
         var outline = BookOutline.Build(model);
         Assert.Empty(outline.Unplaced);
@@ -616,10 +615,10 @@ public sealed class BookOutlineTests
         Assert.NotNull(product);
         Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/library-pick-a-format", StringComparison.Ordinal));
 
+        Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
         var module = Find(outline.Layers, "module/lending");
         Assert.NotNull(module);
-        Assert.Contains(module!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
-        Assert.DoesNotContain(module.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
+        Assert.DoesNotContain(module!.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
     }
 
     /// <summary>A rule whose home names no aggregate or module parents the product as a product-level invariant.</summary>
@@ -650,13 +649,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "use-case",
                 "use-case/lending.borrow-copy",
                 "Borrow Copy",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/borrow-copy.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml"),
             Record(
                 "use-case",
                 "use-case/copies.list-loans",
@@ -691,13 +690,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "rule",
                 "rule/lending.discount-rounds-down",
                 "Discount Rounds Down",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/rules/discount-rounds-down.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/rules/discount-rounds-down.yaml"),
             Record(
                 "rule",
                 "rule/loan.shelf-marks-face-out",
@@ -773,7 +772,7 @@ public sealed class BookOutlineTests
                 "aggregate/copies.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "reaction",
                 "reaction/copies.send-due-reminder",
@@ -802,13 +801,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "event",
                 "event/other.loan-borrowed",
                 "Loan Borrowed",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/events/loan-borrowed.yaml"));
+                file: ".litespec/behavior/modules/lending/aggregates/loans/events/loan-borrowed.yaml"));
 
         Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "event/other.loan-borrowed"));
 

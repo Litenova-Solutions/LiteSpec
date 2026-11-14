@@ -1,5 +1,6 @@
 <script lang="ts">
   import { book, cn } from "$lib/frame";
+  import { outlineState } from "./outline-state.svelte";
   import { RecordIcon } from "$lib/record";
   import RowMarks from "./RowMarks.svelte";
   import { indentClass } from "./outline-rows";
@@ -25,14 +26,14 @@
     );
   });
 
-  function choose(): void { void book.select(id); }
+  function choose(): void { outlineState.choose(id); }
   function toggle(e: MouseEvent): void {
     e.stopPropagation();
     if (book.expanded[id]) book.expanded[id] = false;
-    else void book.select(id);
+    else outlineState.choose(id);
   }
   function key(e: KeyboardEvent): void {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void book.select(id); }
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); outlineState.choose(id); }
   }
 </script>
 

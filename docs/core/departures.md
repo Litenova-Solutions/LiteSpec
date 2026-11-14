@@ -11,7 +11,7 @@ A departure is the one record that sets a provision, a page or a finding code as
 
 ### What a Departure Is
 
-A departure is a record in `.litespec/governance/departures/`, or in `.litespec/governance/modules/<module>/departures/` when it covers one module. Each departure is one file. It states what the project departs from, why, and where the departure applies. It binds nothing outside the records it names.
+A departure is a record in `.litespec/governance/departures/`, or in `.litespec/governance/modules/<module>/departures/` when it covers one module. Each departure sits in its own folder named for it, holding its record file `<name>.yaml` and an optional explanation `<name>.md` beside it. It states what the project departs from, why, and where the departure applies. It binds nothing outside the records it names.
 
 | Field | Required | Holds |
 |:---|:---|:---|
@@ -69,7 +69,7 @@ A provision of Strength `default` is replaced by the project's own choice, recor
 
 **Rationale:** Missing work with no date is invisible: nothing reports it. A departure with an `expiresOn` date turns the same missing work into a dated promise. Its `covers` findings are covered until the date, the `exit` says how the gap closes, and `departure-expired` reports the departure after the date. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
-**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure in `.litespec/governance/departures/export-expenses-unimplemented.yaml`:
+**Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure in `.litespec/governance/departures/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 
 ```yaml
 type: departure

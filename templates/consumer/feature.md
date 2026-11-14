@@ -1,13 +1,19 @@
-# Approval Reminders
+# Record Title
 
-## Who It Serves and Why
+Say what this feature is for and what it covers, for whom. A reader who has read nothing else should understand the feature from this paragraph.
 
-Name the people this feature serves and the pain each one brings to it.
+## Capabilities
 
-## What It Offers
+Group what the user can do by task, one short subsection or paragraph per task, and do not repeat the summary.
 
-State what the feature does for them, in the order they meet it.
+## Success Criteria
 
-## What Good Looks Like
+List the outcomes the feature brings about on its own, each one a tester can check.
 
-State the observable change that shows the feature works, with how it is measured.
+## Boundaries
+
+Say what the feature leaves to other features, which features it depends on, and each open question the owner has not decided.
+
+## Example
+
+Optional. One concrete case of the feature with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

@@ -1,0 +1,8 @@
+type: actor
+id: actor/manager
+title: Manager
+summary: A manager approves or rejects expenses.
+kind: person
+belongsToTeam: false
+holds:
+- role/approver

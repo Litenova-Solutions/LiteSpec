@@ -1,9 +1,15 @@
-# Approval Time Benchmarks
+# Record Title
 
-## Answer
+Say what question this research answers and why the answer matters to a choice. A reader who has read nothing else should understand the research from this paragraph.
 
-Expand the conclusion: what the sources say, claim by claim, with the confidence behind each claim.
+## Findings
 
-## Notes on Sources
+Give each finding as its own short paragraph. Give its one claim with the conditions it holds under, cite the source that states it as a reference link `[text][key]`, and say whether that source states the claim or you infer it. Write "the study states ..." for a source's own claim, and "this suggests ..., but the study does not address ..." for an inference.
 
-Optional. State what each source covers and where one source disagrees with another. Remove this section when the answer stands on one source alone.
+## Open Questions
+
+Optional. Say what the sources do not establish, each as a question that names what to investigate.
+
+## Source Notes
+
+Optional. Say what each source covers, the audience it addresses and where sources disagree.

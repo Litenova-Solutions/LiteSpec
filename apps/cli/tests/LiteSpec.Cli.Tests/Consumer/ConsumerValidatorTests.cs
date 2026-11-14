@@ -187,6 +187,17 @@ public sealed partial class ConsumerValidatorTests
         AssertProblem(result, "dotnet tool update LiteSpec.Cli --version 0.0.0");
     }
 
+    /// <summary>A candidate of the installed release is reviewed for that release, so it is not drift.</summary>
+    /// <proves>litespec/core/authoring#record-the-reviewed-litespec-release</proves>
+    [Fact(DisplayName = "reviewed candidate of the installed release")]
+    public void ReviewedCandidateOfTheInstalledRelease()
+    {
+        using var folder = ConsumerFixture.Create();
+        ConsumerFixture.MutateProject(folder.Path, project => project["reviewedLiteSpecVersion"] = ConsumerFixture.ManifestVersion + "-rc.1");
+        var problems = Problems(RunConsumer(folder.Path));
+        Assert.DoesNotContain(problems, problem => problem.Contains("does not match the installed LiteSpec tool release", StringComparison.Ordinal));
+    }
+
     /// <summary>Extension the manifest does not ship.</summary>
     /// <proves>litespec/core/scope#record-selected-extensions</proves>
     [Fact(DisplayName = "extension the manifest does not ship")]

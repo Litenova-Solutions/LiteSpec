@@ -194,8 +194,8 @@ public sealed class ModelCheckTests
     static void WriteDeparture(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $".litespec/governance/departures/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $".litespec/governance/departures/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/departures/{name}/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/departures/{name}/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
     // Builds the departure fields as JSON. A departure is live when present and unexpired.

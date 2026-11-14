@@ -336,7 +336,7 @@ The refused request is unauthenticated, so it answers 401 under `litespec/backen
 
 **Statement:** A paging cursor MUST carry a version and the last stable sort values, including a unique tie-breaker, and no sensitive value in readable form.
 
-**Rationale:** Paging walks a sorted sequence, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the walk exact when values repeat. The tie-breaker matches the query's stable order under `litespec/backend/api#bound-collection-queries`. No sensitive value travels in readable form, because callers store and replay cursors.
+**Rationale:** Paging reads a sorted sequence in order, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the read exact when values repeat. The tie-breaker matches the query's stable order under `litespec/backend/api#bound-collection-queries`. No sensitive value travels in readable form, because callers store and replay cursors.
 
 **Reviewed for:** Which cursor payloads miss a version, the last sort values, or a unique tie-breaker, or leak a readable secret? Look at the cursor payloads.
 

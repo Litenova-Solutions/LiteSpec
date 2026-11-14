@@ -222,12 +222,19 @@ function hoistOptionIds(html: string): string {
 }
 
 // Gives rendered tables a scrolling wrapper, so wide tables scroll inside
-// their own region on small screens. A table whose first column holds
-// provision IDs gains a marker class for mono styling.
+// their own region on small screens. The wrapper is a named region that a
+// keyboard user can reach and scroll, and its header cells carry a scope, so a
+// screen reader announces each cell with its column or row. A table whose first
+// column holds provision IDs gains a marker class for mono styling.
 function styleTables(html: string): string {
-  return html.replace(/<table>([\s\S]*?)<\/table>/g, (match, inner: string) => {
+  return html.replace(/<table>([\s\S]*?)<\/table>/g, (_match, inner: string) => {
     const wrap = /<td[^>]*>\s*litespec\//.test(inner) ? "table-wrap table-provisions" : "table-wrap";
-    return `<div class="${wrap}"><table>${inner}</table></div>`;
+    const scoped = inner
+      .replace(/<thead>[\s\S]*?<\/thead>/, (head) => head.replace(/<th(\s[^>]*)?>/g, (_m, attrs: string = "") => `<th scope="col"${attrs}>`))
+      .replace(/<tbody>[\s\S]*?<\/tbody>/, (body) => body.replace(/<th(\s[^>]*)?>/g, (_m, attrs: string = "") => `<th scope="row"${attrs}>`));
+    const columns = [...inner.matchAll(/<th[^>]*>([\s\S]*?)<\/th>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim()).filter((name) => name !== "");
+    const label = columns.length > 0 ? `Table with columns ${columns.join(", ")}` : "Table";
+    return `<div class="${wrap}" role="region" tabindex="0" aria-label="${label}"><table>${scoped}</table></div>`;
   });
 }
 

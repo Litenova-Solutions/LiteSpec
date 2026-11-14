@@ -10,7 +10,7 @@ The `litespec` command line for applications that follow LiteSpec, the specifica
 
 The tool installs as a native executable for the machine: `win-x64`, `win-arm64`, `linux-x64`, `linux-arm64`, `linux-musl-x64`, `linux-musl-arm64`, `osx-x64` or `osx-arm64`. Any other platform gets a framework-dependent build that runs on the .NET 10 runtime. Installing needs the .NET 10 SDK; running the native executable needs no .NET runtime.
 
-Read [Adopting LiteSpec](https://litespec.dev/5.2.0/learn/adopting-litespec/), [the command reference](https://litespec.dev/5.2.0/tools/) and [the source and issues](https://github.com/Litenova-Solutions/LiteSpec).
+Read [Adopting LiteSpec](https://litespec.dev/6.0.0/learn/adopting-litespec/), [the command reference](https://litespec.dev/6.0.0/tools/) and [the source and issues](https://github.com/Litenova-Solutions/LiteSpec).
 
 ## Quick Start
 
@@ -18,10 +18,10 @@ Install the tool in the project, at the release the project follows:
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --local --version 5.2.0
+dotnet tool install LiteSpec.Cli --local --version 6.0.0
 ```
 
-A teammate or a build restores it with `dotnet tool restore`. A machine without .NET installs the same executable from the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) with the install script; [installing the CLI](https://litespec.dev/5.2.0/tools/#install-the-cli) lists every method.
+A teammate or a build restores it with `dotnet tool restore`. A machine without .NET installs the same executable from the [GitHub release](https://github.com/Litenova-Solutions/LiteSpec/releases) with the install script; [installing the CLI](https://litespec.dev/6.0.0/tools/#install-the-cli) lists every method.
 
 Run each command from the project root, the folder that holds `.litespec/project.yaml`:
 

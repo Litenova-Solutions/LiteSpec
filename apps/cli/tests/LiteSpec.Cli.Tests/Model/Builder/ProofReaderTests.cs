@@ -119,9 +119,9 @@ public sealed class ProofReaderTests
     static bool Confirmed(string claim, string scenarios, (string Path, string Text)? steps = null, bool effects = false)
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/extend-loan-proof-scenario.yaml", ScenarioJson(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/return-copy-proof-scenario.yaml", ScenarioJson(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-refusal-scenario.yaml", ScenarioJson(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/extend-loan-proof-scenario.yaml", ScenarioJson(Extend, "Extending an active loan succeeds", "result/extend-loan.extended"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/return-copy-proof-scenario.yaml", ScenarioJson(Return, "Returning a borrowed copy succeeds", "result/return-copy.returned"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-refusal-scenario.yaml", ScenarioJson(Refusal, "Borrowing an unavailable copy refuses", "result/borrow-copy.copy-unavailable"));
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Harness/HarnessScenarios.cs", scenarios);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""");
 
@@ -134,7 +134,7 @@ public sealed class ProofReaderTests
         {
             PatchRecord(
                 temp.Path,
-                ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+                ".litespec/behavior/modules/lending/aggregates/loans/use-cases/borrow-copy/borrow-copy.yaml",
                 front => front["effects"] = new JsonArray(
                     new JsonObject
                     {

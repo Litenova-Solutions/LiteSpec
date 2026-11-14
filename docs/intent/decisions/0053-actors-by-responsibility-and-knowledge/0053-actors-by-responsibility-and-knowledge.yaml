@@ -1,0 +1,16 @@
+type: decision
+id: decision/0053-actors-by-responsibility-and-knowledge
+title: Describe Actors by Responsibility and Knowledge
+options:
+  - name: "Responsibilities, Knowledge and Example, with Access removed"
+    pros: "The holds field names the role and scope, the role's files state the permissions, and each section says what the actor answers for or what the product assumes."
+    cons: "Every actor file is rewritten, and a reader who wants what an actor may reach follows its role instead of its actor file."
+  - name: "Keep Access narrowed to why the actor holds its role at its scope"
+    pros: "The section stays, and the reason for the grant sits in the actor's own file."
+    cons: "The role's Limits section answers the same question, so two files state one reason."
+  - name: "Keep the sections and fix only the template prompts"
+    pros: "No section moves and no file is rewritten for structure."
+    cons: "The Access section still restates the role, and no section holds what the product assumes the user knows."
+choice: "Responsibilities, Knowledge and Example, with Access removed"
+consequences: "The actor sections become Responsibilities, Knowledge and Example (optional), and Access is removed. Responsibilities states the tasks and decisions the actor answers for, and no product rule. Knowledge states what the product assumes the actor knows and what it does not assume, as an assumption of the product and not a fact about every user. The opening paragraph states who the actor is in relation to the product. The Example shows one occasion of the actor's responsibilities. `holds` names the role and its scope, and the role's files state the permissions and why the scope fits. `litespec/core/intent#state-what-the-product-assumes-each-actor-knows` is required and reviewed for. The product rules that an actor explanation states are removed by the shared provision that applies to every Intent explanation file. `litespec new actor` writes the new sections, and `section check` fails an actor explanation with an Access section."
+reopenedWhen: "Readers ask what an actor may reach and cannot find it without opening the role, or most actor files carry a Knowledge section that repeats their opening paragraph."

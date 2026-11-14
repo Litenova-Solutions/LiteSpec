@@ -102,6 +102,8 @@ internal static class MaintainerDiagnostics
         Codes.ValueStyle,
         Codes.TemplateIndexPath,
         Codes.TemplateSchema,
+        Codes.TemplateSourceMissing,
+        Codes.TemplateSourceDiffers,
         Codes.IndexMissingRouting,
         Codes.LayerUnlisted,
         Codes.GeneratedStale,
@@ -116,6 +118,7 @@ internal static class MaintainerDiagnostics
         Codes.FindingCodeUnknown,
         Codes.IndexPageMissing,
         Codes.PatternOptionCount,
+        Codes.PackagedPathLong,
         Codes.TemplateCitedUnknown,
         Codes.TemplateCitationUnknown,
         Codes.StandardStrengthModal,
@@ -403,6 +406,12 @@ internal static class MaintainerDiagnostics
         /// <summary>A template that does not satisfy its schema.</summary>
         public const string TemplateSchema = "TEMPLATE_SCHEMA";
 
+        /// <summary>A record template whose identifier names no record in the Claimwick example.</summary>
+        public const string TemplateSourceMissing = "TEMPLATE_SOURCE_MISSING";
+
+        /// <summary>A record template that is not a copy of the Claimwick example record it names.</summary>
+        public const string TemplateSourceDiffers = "TEMPLATE_SOURCE_DIFFERS";
+
         /// <summary>An index missing a routing block.</summary>
         public const string IndexMissingRouting = "INDEX_MISSING_ROUTING";
 
@@ -444,6 +453,9 @@ internal static class MaintainerDiagnostics
 
         /// <summary>A pattern that offers more than three options.</summary>
         public const string PatternOptionCount = "PATTERN_OPTION_COUNT";
+
+        /// <summary>A file the tool package carries whose path is too long for NuGet to pack.</summary>
+        public const string PackagedPathLong = "PACKAGED_PATH_LONG";
 
         /// <summary>A docs page that cites a template path the templates folder lacks.</summary>
         public const string TemplateCitedUnknown = "TEMPLATE_CITED_UNKNOWN";

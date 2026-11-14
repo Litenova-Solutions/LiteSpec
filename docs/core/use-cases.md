@@ -34,7 +34,7 @@ Each consistency mode defines its promise and the effect timings it permits:
 
 Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
-`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under What Happens in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
+`summary` states what the use case is, in one paragraph. Each use case carries `summary`, and a command describes its steps under Flow in its explanation file, as [Write Prose on Every Use Case](#write-prose-on-every-use-case) states. `exposure` states what the use case exposes and what protects it. Example and Notes live in the explanation file beside the record file.
 
 ### Queries
 
@@ -49,7 +49,7 @@ A query reads without changing and declares what its readers receive. Its output
 
 ### Use-Case Verbs
 
-A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project records its domain verbs as conventions, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
+A use-case name starts with a verb, and each verb keeps one meaning and one kind across the project. LiteSpec ships the baseline vocabulary below; a project declares each verb beyond the baseline as a verb term in its glossary, as [Start Every Use Case with a Declared Verb](#start-every-use-case-with-a-declared-verb) states.
 
 | Verb | Kind | Means |
 |:---|:---|:---|
@@ -81,6 +81,16 @@ A use-case name starts with a verb, and each verb keeps one meaning and one kind
 | `retry`, `verify` | command | Work run again, and a check run again. |
 
 The baseline vocabulary retires these synonyms: `get`, `fetch`, `lookup` and `count` become `read`; `browse` becomes `list`; `find` becomes `search`; `update`, `edit`, `modify`, `revise`, `set`, `adjust`, `configure` and `rename` become `change`; `define`, `compose`, `save` and `new` become `create`; `delete` becomes `remove`; `notify`, `remind` and `email` become `send`; `suggest` and `ask` become `answer`; `mark`, `note` and `log` become `record`; `end` becomes `close`; `finish` becomes `complete`; `abandon` becomes `cancel`; `lapse` becomes `expire`; `clone` and `copy` become `duplicate`; `replay` becomes `retry`; `recheck` becomes `verify`; `archive` becomes `retire`; `reject` and `deny` become `refuse`; `unpublish` and `hide` become `withdraw`.
+
+A verb term names the verb in `term`, the kind it opens in `verbKind`, and the act in `meaning` in one sentence, as any term does.
+
+```yaml
+- id: term/borrow
+  term: borrow
+  meaning: The loan of one copy to one reader.
+  layer: behavior
+  verbKind: command
+```
 
 A reaction is named for its trigger and a job for the use case it runs, as the [Automation page](automation.md) states.
 
@@ -145,13 +155,13 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each use case MUST start with a verb from the baseline vocabulary or the domain verbs the project records as conventions.
+**Statement:** Each use case MUST start with a verb from the baseline vocabulary or a verb term the project declares in its glossary.
 
-**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its domain verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first records it as a convention in the same change, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the convention lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. No tool checks the verb: a reviewer checks that a use-case name starts with a baseline verb or a recorded project verb, and that a retired synonym is replaced.
+**Rationale:** One verb per meaning keeps use cases findable: `read` versus `get` and `change` versus `update` stop competing when every project starts from one closed baseline vocabulary and adds only its declared verbs. A shared first word groups related behavior in every listing, and a retired synonym points at its replacement instead of spreading silently. When the act verb is in neither list, the author first declares it as a glossary verb term in the same change, and then scaffolds the use case. `litespec new` scaffolds a use-case page without checking its verb, so the verb term lands before the scaffold rather than after a refusal from the scaffold command. A project never redefines a baseline verb. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
 
-**Example:** The project records `borrow` and `check-in` as domain verbs, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
+**Example:** The project declares `borrow` and `check-in` as glossary verb terms, so `use-case/lending.borrow-copy` and `use-case/lending.check-in-copy` pass, `use-case/lending.list-loans` passes on the baseline vocabulary, and `use-case/lending.update-copy` is told to use `change`.
 
-**Reviewed for:** Which use-case names open outside the baseline vocabulary and the recorded project verbs? Look at the first word of each use-case name.
+**Checked by:** `litespec model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares, and `term-verb-duplicate` for a glossary verb term restating a baseline verb.
 
 ### Keep One Kind per Verb
 
@@ -163,11 +173,11 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST open with a verb of its own kind, or with an either verb.
 
-**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project records which of its domain verbs read; its other domain verbs open either kind.
+**Rationale:** The first word is the first thing a reader trusts. A query named `change-...` or a command named `read-...` makes every listing lie about what the use case may touch, and a reader stops trusting names at all. The baseline vocabulary gives each verb a kind of query, command, or either; an either verb opens either kind. A project declares the kind of each of its verbs in its glossary verb term. Proposed by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
 
 **Example:** `use-case/lending.list-loans` is a query and passes; `use-case/lending.answer-inquiry` opens either kind on an either verb and passes; `use-case/lending.read-overdue-count` declared as a command is reported, and so is `use-case/lending.change-copy` declared as a query.
 
-**Reviewed for:** Which queries open with a changing verb, or which commands open with a reading verb? Look at the first word of each use-case name beside its kind.
+**Checked by:** `litespec model check` reports `use-case-verb-invalid` for a use case opening with a verb of the other kind.
 
 ### Name What a Use Case Acts on from the Model
 
@@ -213,7 +223,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Rationale:** A use case serving nothing and fulfilling nothing is behavior nobody asked for: it ships without a promise behind it and stays when the promise changes. Naming a journey step or a requirement ties each behavior to the intent it carries. The `record-link-missing` check reports a use case with neither field, and `step-use-case-missing` reports a journey step no use case serves.
 
-**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval-reminders.single-reimbursement`.
+**Example:** The reimburse-expense command serves `journey/submit-and-reimburse#s4` and fulfills `requirement/approval.expense-reimbursed-at-most-once`.
 
 **Checked by:** `litespec model check` reports `record-link-missing` for a use case with neither `serves` nor `fulfills`.
 
@@ -668,9 +678,9 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case MUST carry `summary`.
 
-**Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under What Happens in the explanation file beside a command, where they stay readable without a shape a check must parse.
+**Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse.
 
-**Example:** The submit-expense summary states that an employee files a work expense for approval, and its What Happens section walks validation, storage, and the approver notice in order.
+**Example:** The submit-expense summary states that an employee files a work expense for approval, and its Flow section lists validation, storage, and the approver notice in order.
 
 **Checked by:** `litespec model check` reports `prose-missing` for a use case without `summary`.
 

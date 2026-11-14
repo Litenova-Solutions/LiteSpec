@@ -1,5 +1,5 @@
 {
-  "version": "5.2.0",
+  "version": "6.0.0",
   "pages": [
     {
       "file": "docs/README.md",
@@ -1071,7 +1071,7 @@
       "style": "standard",
       "area": "core",
       "title": "Intent Layer",
-      "intent": "Intent is why the product exists and what it promises: the product, its modules, actors, goals, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features with their requirements, journeys, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1329,7 +1329,7 @@
       "style": "explanation",
       "area": "example",
       "title": "A Use Case in Code",
-      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/expenses/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
+      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
       "sections": [
         "Intent",
         "The Record",
@@ -1364,7 +1364,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 26 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
+      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 25 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
       "sections": [
         "Intent",
         "The Full Check",
@@ -2330,12 +2330,68 @@
       ]
     },
     {
-      "file": "docs/guide/write-a-feature-under-a-module.md",
-      "path": "guide/write-a-feature-under-a-module",
+      "file": "docs/guide/write-a-constraint.md",
+      "path": "guide/write-a-constraint",
       "style": "how-to",
       "area": "guide",
-      "title": "Write a Feature Under a Module",
-      "intent": "A feature is one answer to a problem under a module, advancing a goal and solving that problem, and it lives under the module that holds the problem: one file at \u0060.litespec/intent/modules/\u003Cmodule\u003E/features/\u003Cfeature\u003E.yaml\u0060 carrying the feature with its requirements as entries. This guide writes that file: the offering, the links to the problem and the goal, one requirement entry per commitment, and the explanation file beside it. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "title": "Write a Constraint",
+      "intent": "A constraint states one outside rule, by law or by contract, that the product must respect, and it says which product choices the rule takes away. This guide writes one constraint record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check the rule against its source, see whom it binds, and find each requirement that holds its effect. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-feature-under-a-problem.md",
+      "path": "guide/write-a-feature-under-a-problem",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Feature Under a Problem",
+      "intent": "A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature\u0027s \u0060requirements/\u0060 folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-journey.md",
+      "path": "guide/write-a-journey",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Journey",
+      "intent": "A journey states the path one actor takes toward one goal, from the state in which it starts to the state in which it ends, one step at a time. This guide writes one journey record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can follow the path, see where it can leave its order, and find the requirement behind each block. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-problem.md",
+      "path": "guide/write-a-problem",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Problem",
+      "intent": "A problem states a pain that people outside the team have today, before any feature answers it. This guide writes one problem record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader who has never met the author can understand the problem, judge its evidence, and propose a different solution. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
+      "sections": [
+        "Purpose",
+        "Prerequisites",
+        "Procedure",
+        "Check"
+      ]
+    },
+    {
+      "file": "docs/guide/write-a-research-record.md",
+      "path": "guide/write-a-research-record",
+      "style": "how-to",
+      "area": "guide",
+      "title": "Write a Research Record",
+      "intent": "A research record answers one question with the sources that bear on it, and it states what those sources establish and what they leave open. This guide writes one research record, \u0060\u003Cname\u003E.yaml\u0060, and its explanation file \u0060\u003Cname\u003E.md\u0060, so a reader can check each claim against its source, see the conditions the claim holds under, and tell a source\u0027s statement from the writer\u0027s inference. Each step shows a weak version and a strong version from the Claimwick expense product, names the provisions it satisfies, and adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -2370,656 +2426,1100 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0001-keep-release-reasoning-as-records.md",
-      "path": "intent/decisions/0001-keep-release-reasoning-as-records",
+      "file": "docs/intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records.md",
+      "path": "intent/decisions/0001-keep-release-reasoning-as-records/0001-keep-release-reasoning-as-records",
       "style": "decision",
       "area": "intent",
       "title": "Keep Release Reasoning as Records",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0002-parent-for-every-record.md",
-      "path": "intent/decisions/0002-parent-for-every-record",
+      "file": "docs/intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md",
+      "path": "intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record",
       "style": "decision",
       "area": "intent",
       "title": "Parent for Every Record",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0003-requirement-origin.md",
-      "path": "intent/decisions/0003-requirement-origin",
+      "file": "docs/intent/decisions/0003-requirement-origin/0003-requirement-origin.md",
+      "path": "intent/decisions/0003-requirement-origin/0003-requirement-origin",
       "style": "decision",
       "area": "intent",
       "title": "Requirement Origin",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0004-features-advance-goals.md",
-      "path": "intent/decisions/0004-features-advance-goals",
+      "file": "docs/intent/decisions/0004-features-advance-goals/0004-features-advance-goals.md",
+      "path": "intent/decisions/0004-features-advance-goals/0004-features-advance-goals",
       "style": "decision",
       "area": "intent",
       "title": "Features Advance Goals",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0005-journeys-serve-a-goal.md",
-      "path": "intent/decisions/0005-journeys-serve-a-goal",
+      "file": "docs/intent/decisions/0005-journeys-serve-a-goal/0005-journeys-serve-a-goal.md",
+      "path": "intent/decisions/0005-journeys-serve-a-goal/0005-journeys-serve-a-goal",
       "style": "decision",
       "area": "intent",
       "title": "Journeys Serve a Goal",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0006-one-field-naming-grammar.md",
-      "path": "intent/decisions/0006-one-field-naming-grammar",
+      "file": "docs/intent/decisions/0006-one-field-naming-grammar/0006-one-field-naming-grammar.md",
+      "path": "intent/decisions/0006-one-field-naming-grammar/0006-one-field-naming-grammar",
       "style": "decision",
       "area": "intent",
       "title": "One Field Naming Grammar",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0008-book-follows-record-layers.md",
-      "path": "intent/decisions/0008-book-follows-record-layers",
+      "file": "docs/intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md",
+      "path": "intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers",
       "style": "decision",
       "area": "intent",
       "title": "Book Follows Record Layers",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0009-research-states-its-conclusion.md",
-      "path": "intent/decisions/0009-research-states-its-conclusion",
+      "file": "docs/intent/decisions/0009-research-states-its-conclusion/0009-research-states-its-conclusion.md",
+      "path": "intent/decisions/0009-research-states-its-conclusion/0009-research-states-its-conclusion",
       "style": "decision",
       "area": "intent",
       "title": "Research States Its Conclusion",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0011-one-grammar-for-names-and-values.md",
-      "path": "intent/decisions/0011-one-grammar-for-names-and-values",
+      "file": "docs/intent/decisions/0011-one-grammar-for-names-and-values/0011-one-grammar-for-names-and-values.md",
+      "path": "intent/decisions/0011-one-grammar-for-names-and-values/0011-one-grammar-for-names-and-values",
       "style": "decision",
       "area": "intent",
       "title": "One Grammar for Names and Values",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0012-use-cases-read-their-settings.md",
-      "path": "intent/decisions/0012-use-cases-read-their-settings",
+      "file": "docs/intent/decisions/0012-use-cases-read-their-settings/0012-use-cases-read-their-settings.md",
+      "path": "intent/decisions/0012-use-cases-read-their-settings/0012-use-cases-read-their-settings",
       "style": "decision",
       "area": "intent",
       "title": "Use Cases Read Their Settings",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0014-one-exception-record.md",
-      "path": "intent/decisions/0014-one-exception-record",
+      "file": "docs/intent/decisions/0014-one-exception-record/0014-one-exception-record.md",
+      "path": "intent/decisions/0014-one-exception-record/0014-one-exception-record",
       "style": "decision",
       "area": "intent",
       "title": "One Departure Record",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0015-automations-and-sagas.md",
-      "path": "intent/decisions/0015-automations-and-sagas",
+      "file": "docs/intent/decisions/0015-automations-and-sagas/0015-automations-and-sagas.md",
+      "path": "intent/decisions/0015-automations-and-sagas/0015-automations-and-sagas",
       "style": "decision",
       "area": "intent",
       "title": "Automations and Sagas",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0016-typed-contracts-and-privacy.md",
-      "path": "intent/decisions/0016-typed-contracts-and-privacy",
+      "file": "docs/intent/decisions/0016-typed-contracts-and-privacy/0016-typed-contracts-and-privacy.md",
+      "path": "intent/decisions/0016-typed-contracts-and-privacy/0016-typed-contracts-and-privacy",
       "style": "decision",
       "area": "intent",
       "title": "Typed Contracts and Privacy",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0017-proof-that-holds.md",
-      "path": "intent/decisions/0017-proof-that-holds",
+      "file": "docs/intent/decisions/0017-proof-that-holds/0017-proof-that-holds.md",
+      "path": "intent/decisions/0017-proof-that-holds/0017-proof-that-holds",
       "style": "decision",
       "area": "intent",
       "title": "Proof That Holds",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0018-one-record-language.md",
-      "path": "intent/decisions/0018-one-record-language",
+      "file": "docs/intent/decisions/0018-one-record-language/0018-one-record-language.md",
+      "path": "intent/decisions/0018-one-record-language/0018-one-record-language",
       "style": "decision",
       "area": "intent",
       "title": "One Record Language",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0020-records-in-yaml.md",
-      "path": "intent/decisions/0020-records-in-yaml",
+      "file": "docs/intent/decisions/0020-records-in-yaml/0020-records-in-yaml.md",
+      "path": "intent/decisions/0020-records-in-yaml/0020-records-in-yaml",
       "style": "decision",
       "area": "intent",
       "title": "Records in YAML",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0021-native-command-line.md",
-      "path": "intent/decisions/0021-native-command-line",
+      "file": "docs/intent/decisions/0021-native-command-line/0021-native-command-line.md",
+      "path": "intent/decisions/0021-native-command-line/0021-native-command-line",
       "style": "decision",
       "area": "intent",
       "title": "Native Command Line",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0022-own-schema-evaluator.md",
-      "path": "intent/decisions/0022-own-schema-evaluator",
+      "file": "docs/intent/decisions/0022-own-schema-evaluator/0022-own-schema-evaluator.md",
+      "path": "intent/decisions/0022-own-schema-evaluator/0022-own-schema-evaluator",
       "style": "decision",
       "area": "intent",
       "title": "Own Schema Evaluator",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0023-every-handwritten-file-in-yaml.md",
-      "path": "intent/decisions/0023-every-handwritten-file-in-yaml",
+      "file": "docs/intent/decisions/0023-every-handwritten-file-in-yaml/0023-every-handwritten-file-in-yaml.md",
+      "path": "intent/decisions/0023-every-handwritten-file-in-yaml/0023-every-handwritten-file-in-yaml",
       "style": "decision",
       "area": "intent",
       "title": "Every Hand-Written File in YAML",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0024-keep-the-ui-source-lock.md",
-      "path": "intent/decisions/0024-keep-the-ui-source-lock",
+      "file": "docs/intent/decisions/0024-keep-the-ui-source-lock/0024-keep-the-ui-source-lock.md",
+      "path": "intent/decisions/0024-keep-the-ui-source-lock/0024-keep-the-ui-source-lock",
       "style": "decision",
       "area": "intent",
       "title": "Keep the UI Source Lock",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0025-remove-fields-nothing-reads.md",
-      "path": "intent/decisions/0025-remove-fields-nothing-reads",
+      "file": "docs/intent/decisions/0025-remove-fields-nothing-reads/0025-remove-fields-nothing-reads.md",
+      "path": "intent/decisions/0025-remove-fields-nothing-reads/0025-remove-fields-nothing-reads",
       "style": "decision",
       "area": "intent",
       "title": "Remove Fields Nothing Reads",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0026-one-name-for-each-concept.md",
-      "path": "intent/decisions/0026-one-name-for-each-concept",
+      "file": "docs/intent/decisions/0026-one-name-for-each-concept/0026-one-name-for-each-concept.md",
+      "path": "intent/decisions/0026-one-name-for-each-concept/0026-one-name-for-each-concept",
       "style": "decision",
       "area": "intent",
       "title": "One Name for Each Concept",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0027-projects-claim-record-layers.md",
-      "path": "intent/decisions/0027-projects-claim-record-layers",
+      "file": "docs/intent/decisions/0027-projects-claim-record-layers/0027-projects-claim-record-layers.md",
+      "path": "intent/decisions/0027-projects-claim-record-layers/0027-projects-claim-record-layers",
       "style": "decision",
       "area": "intent",
       "title": "Projects Claim the Record Layers They Use",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0028-one-default-and-two-pattern-options.md",
-      "path": "intent/decisions/0028-one-default-and-two-pattern-options",
+      "file": "docs/intent/decisions/0028-one-default-and-two-pattern-options/0028-one-default-and-two-pattern-options.md",
+      "path": "intent/decisions/0028-one-default-and-two-pattern-options/0028-one-default-and-two-pattern-options",
       "style": "decision",
       "area": "intent",
       "title": "One Default and Two Options per Pattern",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0029-delete-the-unwired-language-checker.md",
-      "path": "intent/decisions/0029-delete-the-unwired-language-checker",
+      "file": "docs/intent/decisions/0029-delete-the-unwired-language-checker/0029-delete-the-unwired-language-checker.md",
+      "path": "intent/decisions/0029-delete-the-unwired-language-checker/0029-delete-the-unwired-language-checker",
       "style": "decision",
       "area": "intent",
       "title": "Delete the Unwired Language Checker",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0030-limit-the-jobs-extension.md",
-      "path": "intent/decisions/0030-limit-the-jobs-extension",
+      "file": "docs/intent/decisions/0030-limit-the-jobs-extension/0030-limit-the-jobs-extension.md",
+      "path": "intent/decisions/0030-limit-the-jobs-extension/0030-limit-the-jobs-extension",
       "style": "decision",
       "area": "intent",
       "title": "Jobs Extension Limited to Scheduled and Manual Work",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0031-remove-only-the-timing-variable.md",
-      "path": "intent/decisions/0031-remove-only-the-timing-variable",
+      "file": "docs/intent/decisions/0031-remove-only-the-timing-variable/0031-remove-only-the-timing-variable.md",
+      "path": "intent/decisions/0031-remove-only-the-timing-variable/0031-remove-only-the-timing-variable",
       "style": "decision",
       "area": "intent",
       "title": "Remove Only the Timing Variable",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0032-one-mock-rule-for-every-stack.md",
-      "path": "intent/decisions/0032-one-mock-rule-for-every-stack",
+      "file": "docs/intent/decisions/0032-one-mock-rule-for-every-stack/0032-one-mock-rule-for-every-stack.md",
+      "path": "intent/decisions/0032-one-mock-rule-for-every-stack/0032-one-mock-rule-for-every-stack",
       "style": "decision",
       "area": "intent",
       "title": "One Mock Rule for Every Stack",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0033-agents-never-weaken-proving-tests.md",
-      "path": "intent/decisions/0033-agents-never-weaken-proving-tests",
+      "file": "docs/intent/decisions/0033-agents-never-weaken-proving-tests/0033-agents-never-weaken-proving-tests.md",
+      "path": "intent/decisions/0033-agents-never-weaken-proving-tests/0033-agents-never-weaken-proving-tests",
       "style": "decision",
       "area": "intent",
       "title": "Agents Never Weaken Proving Tests",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0034-measure-mutation-before-gating.md",
-      "path": "intent/decisions/0034-measure-mutation-before-gating",
+      "file": "docs/intent/decisions/0034-measure-mutation-before-gating/0034-measure-mutation-before-gating.md",
+      "path": "intent/decisions/0034-measure-mutation-before-gating/0034-measure-mutation-before-gating",
       "style": "decision",
       "area": "intent",
       "title": "Measure Mutation Testing, Add No Gate",
       "intent": "",
       "sections": [
         "Context",
+        "Options",
         "Decision",
-        "Evidence with Confidence"
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0035-bind-docs-to-tools-and-example.md",
-      "path": "intent/decisions/0035-bind-docs-to-tools-and-example",
+      "file": "docs/intent/decisions/0035-bind-docs-to-tools-and-example/0035-bind-docs-to-tools-and-example.md",
+      "path": "intent/decisions/0035-bind-docs-to-tools-and-example/0035-bind-docs-to-tools-and-example",
       "style": "decision",
       "area": "intent",
       "title": "Bind the Docs to the Tools and the Example",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0036-pin-third-party-packages-to-their-major.md",
-      "path": "intent/decisions/0036-pin-third-party-packages-to-their-major",
+      "file": "docs/intent/decisions/0036-pin-third-party-packages-to-their-major/0036-pin-third-party-packages-to-their-major.md",
+      "path": "intent/decisions/0036-pin-third-party-packages-to-their-major/0036-pin-third-party-packages-to-their-major",
       "style": "decision",
       "area": "intent",
       "title": "Pin Third-Party Packages to Their Major",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0037-generate-the-agent-protocol.md",
-      "path": "intent/decisions/0037-generate-the-agent-protocol",
+      "file": "docs/intent/decisions/0037-generate-the-agent-protocol/0037-generate-the-agent-protocol.md",
+      "path": "intent/decisions/0037-generate-the-agent-protocol/0037-generate-the-agent-protocol",
       "style": "decision",
       "area": "intent",
       "title": "Generate the Agent Protocol",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0038-narrow-rules-output-per-file-and-change-set.md",
-      "path": "intent/decisions/0038-narrow-rules-output-per-file-and-change-set",
+      "file": "docs/intent/decisions/0038-narrow-rules-output-per-file-and-change-set/0038-narrow-rules-output-per-file-and-change-set.md",
+      "path": "intent/decisions/0038-narrow-rules-output-per-file-and-change-set/0038-narrow-rules-output-per-file-and-change-set",
       "style": "decision",
       "area": "intent",
       "title": "Narrow Rules Output per File and Change Set",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0039-ship-a-litespec-skill.md",
-      "path": "intent/decisions/0039-ship-a-litespec-skill",
+      "file": "docs/intent/decisions/0039-ship-a-litespec-skill/0039-ship-a-litespec-skill.md",
+      "path": "intent/decisions/0039-ship-a-litespec-skill/0039-ship-a-litespec-skill",
       "style": "decision",
       "area": "intent",
       "title": "Ship a LiteSpec Skill",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice.md",
-      "path": "intent/decisions/0040-require-decisions-only-for-six-kinds-of-choice",
+      "file": "docs/intent/decisions/0040-decisions-only-for-six-kinds-of-choice/0040-decisions-only-for-six-kinds-of-choice.md",
+      "path": "intent/decisions/0040-decisions-only-for-six-kinds-of-choice/0040-decisions-only-for-six-kinds-of-choice",
       "style": "decision",
       "area": "intent",
       "title": "Require Decisions Only for Six Kinds of Choice",
       "intent": "",
       "sections": [
         "Context",
-        "Decision"
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
       ]
     },
     {
-      "file": "docs/intent/research/agent-testing-evidence.md",
-      "path": "intent/research/agent-testing-evidence",
+      "file": "docs/intent/decisions/0041-record-product-vision/0041-record-product-vision.md",
+      "path": "intent/decisions/0041-record-product-vision/0041-record-product-vision",
+      "style": "decision",
+      "area": "intent",
+      "title": "Record Product Vision as a Vision Record",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0042-record-named-folders/0042-record-named-folders.md",
+      "path": "intent/decisions/0042-record-named-folders/0042-record-named-folders",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Each Named Record in Its Own Folder",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections.md",
+      "path": "intent/decisions/0043-use-plain-noun-sections/0043-use-plain-noun-sections",
+      "style": "decision",
+      "area": "intent",
+      "title": "Use Plain Noun Sections and an Opening Paragraph",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case.md",
+      "path": "intent/decisions/0044-state-problems-by-failure-case/0044-state-problems-by-failure-case",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Each Problem by Its Failure Cases",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder.md",
+      "path": "intent/decisions/0045-keep-each-requirement-in-its-own-folder/0045-keep-each-requirement-in-its-own-folder",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Each Requirement in Its Own Folder",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers.md",
+      "path": "intent/decisions/0046-write-features-for-builders-and-testers/0046-write-features-for-builders-and-testers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Write Features for the Builder and the Tester",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0047-cite-a-source-for-each-constraint-rule/0047-cite-a-source-for-each-constraint-rule.md",
+      "path": "intent/decisions/0047-cite-a-source-for-each-constraint-rule/0047-cite-a-source-for-each-constraint-rule",
+      "style": "decision",
+      "area": "intent",
+      "title": "Cite a Source for Each Constraint Rule",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey.md",
+      "path": "intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey",
+      "style": "decision",
+      "area": "intent",
+      "title": "State the Start and Branches of Each Journey",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences.md",
+      "path": "intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences",
+      "style": "decision",
+      "area": "intent",
+      "title": "Use Literal Journey Words and Concrete Consequences",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers.md",
+      "path": "intent/decisions/0050-feature-inside-the-problem-it-answers/0050-feature-inside-the-problem-it-answers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Put Each Feature Inside the Problem It Answers",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0051-declare-modules-only-in-behavior/0051-declare-modules-only-in-behavior.md",
+      "path": "intent/decisions/0051-declare-modules-only-in-behavior/0051-declare-modules-only-in-behavior",
+      "style": "decision",
+      "area": "intent",
+      "title": "Declare Modules Only in Behavior",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0052-tie-each-research-finding-to-its-source/0052-tie-each-research-finding-to-its-source.md",
+      "path": "intent/decisions/0052-tie-each-research-finding-to-its-source/0052-tie-each-research-finding-to-its-source",
+      "style": "decision",
+      "area": "intent",
+      "title": "Tie Each Research Finding to Its Source",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0053-actors-by-responsibility-and-knowledge/0053-actors-by-responsibility-and-knowledge.md",
+      "path": "intent/decisions/0053-actors-by-responsibility-and-knowledge/0053-actors-by-responsibility-and-knowledge",
+      "style": "decision",
+      "area": "intent",
+      "title": "Describe Actors by Responsibility and Knowledge",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md",
+      "path": "intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once",
+      "style": "decision",
+      "area": "intent",
+      "title": "Write Each Shared Record Rule Once",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0055-state-each-access-scope-once/0055-state-each-access-scope-once.md",
+      "path": "intent/decisions/0055-state-each-access-scope-once/0055-state-each-access-scope-once",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Each Access Scope Once",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0056-copy-each-template-from-claimwick/0056-copy-each-template-from-claimwick.md",
+      "path": "intent/decisions/0056-copy-each-template-from-claimwick/0056-copy-each-template-from-claimwick",
+      "style": "decision",
+      "area": "intent",
+      "title": "Copy Each Template from Claimwick",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md",
+      "path": "intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning",
+      "style": "decision",
+      "area": "intent",
+      "title": "Narrow the Writing Rules to Meaning",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md",
+      "path": "intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Shape Rules in the Schema",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0059-publish-candidates-from-release-branches/0059-publish-candidates-from-release-branches.md",
+      "path": "intent/decisions/0059-publish-candidates-from-release-branches/0059-publish-candidates-from-release-branches",
+      "style": "decision",
+      "area": "intent",
+      "title": "Publish Release Candidates from Release Branches",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders.md",
+      "path": "intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders",
+      "style": "decision",
+      "area": "intent",
+      "title": "Put Child Records in Typed Folders",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md",
+      "path": "intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title",
+      "style": "decision",
+      "area": "intent",
+      "title": "Name Each Identifier from Its Title",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0062-declare-project-verbs-in-the-glossary/0062-declare-project-verbs-in-the-glossary.md",
+      "path": "intent/decisions/0062-declare-project-verbs-in-the-glossary/0062-declare-project-verbs-in-the-glossary",
+      "style": "decision",
+      "area": "intent",
+      "title": "Declare Project Verbs in the Glossary",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
+      "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
       "area": "intent",
       "title": "How Agent-Written Tests Fail and What Guards Them",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/behavior-containment-evidence.md",
-      "path": "intent/research/behavior-containment-evidence",
+      "file": "docs/intent/research/behavior-containment-evidence/behavior-containment-evidence.md",
+      "path": "intent/research/behavior-containment-evidence/behavior-containment-evidence",
       "style": "research",
       "area": "intent",
       "title": "Behavior Containment Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/book-outline-evidence.md",
-      "path": "intent/research/book-outline-evidence",
+      "file": "docs/intent/research/book-outline-evidence/book-outline-evidence.md",
+      "path": "intent/research/book-outline-evidence/book-outline-evidence",
       "style": "research",
       "area": "intent",
       "title": "Book Outline Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/check-coverage-evidence.md",
-      "path": "intent/research/check-coverage-evidence",
+      "file": "docs/intent/research/check-coverage-evidence/check-coverage-evidence.md",
+      "path": "intent/research/check-coverage-evidence/check-coverage-evidence",
       "style": "research",
       "area": "intent",
       "title": "Check Coverage Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/comparable-rationale-practice.md",
-      "path": "intent/research/comparable-rationale-practice",
+      "file": "docs/intent/research/comparable-rationale-practice/comparable-rationale-practice.md",
+      "path": "intent/research/comparable-rationale-practice/comparable-rationale-practice",
       "style": "research",
       "area": "intent",
       "title": "Comparable Rationale Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/cross-layer-trace-evidence.md",
-      "path": "intent/research/cross-layer-trace-evidence",
+      "file": "docs/intent/research/cross-layer-trace-evidence/cross-layer-trace-evidence.md",
+      "path": "intent/research/cross-layer-trace-evidence/cross-layer-trace-evidence",
       "style": "research",
       "area": "intent",
       "title": "Cross-Layer Trace Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/established-traceability-practice.md",
-      "path": "intent/research/established-traceability-practice",
+      "file": "docs/intent/research/established-traceability-practice/established-traceability-practice.md",
+      "path": "intent/research/established-traceability-practice/established-traceability-practice",
       "style": "research",
       "area": "intent",
       "title": "Established Traceability Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/field-naming-evidence.md",
-      "path": "intent/research/field-naming-evidence",
+      "file": "docs/intent/research/field-naming-evidence/field-naming-evidence.md",
+      "path": "intent/research/field-naming-evidence/field-naming-evidence",
       "style": "research",
       "area": "intent",
       "title": "Field Naming Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/intent-hierarchy-evidence.md",
-      "path": "intent/research/intent-hierarchy-evidence",
+      "file": "docs/intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md",
+      "path": "intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence",
       "style": "research",
       "area": "intent",
       "title": "Intent Hierarchy Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/layer-claim-evidence.md",
-      "path": "intent/research/layer-claim-evidence",
+      "file": "docs/intent/research/layer-claim-evidence/layer-claim-evidence.md",
+      "path": "intent/research/layer-claim-evidence/layer-claim-evidence",
       "style": "research",
       "area": "intent",
       "title": "Which Record Layers a Project Can Leave Out",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/lower-layers-practice.md",
-      "path": "intent/research/lower-layers-practice",
+      "file": "docs/intent/research/lower-layers-practice/lower-layers-practice.md",
+      "path": "intent/research/lower-layers-practice/lower-layers-practice",
       "style": "research",
       "area": "intent",
       "title": "Lower Layers Practice",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/naming-grammar-evidence.md",
-      "path": "intent/research/naming-grammar-evidence",
+      "file": "docs/intent/research/naming-grammar-evidence/naming-grammar-evidence.md",
+      "path": "intent/research/naming-grammar-evidence/naming-grammar-evidence",
       "style": "research",
       "area": "intent",
       "title": "Naming Grammar Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/native-command-line-evidence.md",
-      "path": "intent/research/native-command-line-evidence",
+      "file": "docs/intent/research/native-command-line-evidence/native-command-line-evidence.md",
+      "path": "intent/research/native-command-line-evidence/native-command-line-evidence",
       "style": "research",
       "area": "intent",
       "title": "Native Command Line Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/record-format-evidence.md",
-      "path": "intent/research/record-format-evidence",
+      "file": "docs/intent/research/record-format-evidence/record-format-evidence.md",
+      "path": "intent/research/record-format-evidence/record-format-evidence",
       "style": "research",
       "area": "intent",
       "title": "Record Format Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/research-conclusion-evidence.md",
-      "path": "intent/research/research-conclusion-evidence",
+      "file": "docs/intent/research/research-conclusion-evidence/research-conclusion-evidence.md",
+      "path": "intent/research/research-conclusion-evidence/research-conclusion-evidence",
       "style": "research",
       "area": "intent",
       "title": "Research Conclusion Evidence",
       "intent": "",
       "sections": [
-        "Answer"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/schema-evaluator-evidence.md",
-      "path": "intent/research/schema-evaluator-evidence",
+      "file": "docs/intent/research/schema-evaluator-evidence/schema-evaluator-evidence.md",
+      "path": "intent/research/schema-evaluator-evidence/schema-evaluator-evidence",
       "style": "research",
       "area": "intent",
       "title": "Schema Evaluator Evidence",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
-      "file": "docs/intent/research/yaml-format-evidence.md",
-      "path": "intent/research/yaml-format-evidence",
+      "file": "docs/intent/research/yaml-format-evidence/yaml-format-evidence.md",
+      "path": "intent/research/yaml-format-evidence/yaml-format-evidence",
       "style": "research",
       "area": "intent",
       "title": "Can Editors Check YAML Against LiteSpec Schemas",
       "intent": "",
       "sections": [
-        "Answer",
-        "Notes on Sources"
+        "Findings",
+        "Source Notes"
       ]
     },
     {
@@ -3366,7 +3866,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Record Folders",
-      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A record in any other folder is a \u0060record-placement-invalid\u0060 finding. The Flat module column marks a home that applies only to a module that keeps its records flat. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
+      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A named record sits in a folder that carries its name, beside its explanation, so \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060 and \u0060\u003Cname\u003E/\u003Cname\u003E.md\u0060 are the pair. A record in any other folder is a \u0060record-placement-invalid\u0060 finding, a folder whose name differs from its file stem is a \u0060record-folder-drift\u0060 finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
       "sections": [
         "Intent",
         "Reference",
@@ -3528,7 +4028,7 @@
       "style": "command",
       "area": "tools",
       "title": "Scaffold Record",
-      "intent": "\u0060litespec new\u0060 scaffolds a record file and reserves its identifier, appends a result or scenario entry to a use-case file, or appends a requirement, rule, permission, or setting entry to its owning list file.",
+      "intent": "\u0060litespec new\u0060 scaffolds a record file, including a requirement\u0027s folder, and reserves its identifier. It also appends a result or scenario entry to a use-case file, or appends a rule, permission, or setting entry to its owning list file.",
       "sections": [
         "Name",
         "Synopsis",

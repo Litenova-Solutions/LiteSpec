@@ -20,6 +20,9 @@
   src: url("/fonts/geist-mono-latin.woff2") format("woff2");
 }
 
+@layer base, components, pages;
+
+@layer base {
 /* Palette: warm neutrals ending in charcoal #3e3643, an amber ramp around #f8c258,
    and three muted support hues at the same lightness and low chroma. The logo keeps
    the Litenova Solutions colors (assets/README.md) and only the mark uses them.
@@ -66,6 +69,9 @@
 
   --radius: 8px; --radius-sm: 6px; --radius-lg: 12px;
   --frame: 1280px; --top: 56px;
+  /* Article body text: fluid from 17px to 20px, so a full-width line of the article
+     column holds about 70 to 80 characters at 1280px and wider (the Web Guidance limit). */
+  --text: clamp(1.0625rem, 0.9rem + 0.5vw, 1.25rem);
   --sans: "Geist", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
   color-scheme: light;
@@ -101,11 +107,13 @@
 }
 
 /* Base */
-*, *::before, *::after { box-sizing: border-box; }
+:where(html, body, div, section, article, header, footer, main, nav, aside, dialog, details, summary, p, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, figure, blockquote, table, thead, tbody, tr, th, td, a, span, button, input, select, textarea, label, img, svg, code, small, strong, b, em) { box-sizing: border-box; }
+:where(html, body, div, section, article, header, footer, main, nav, aside, dialog, details, summary, p, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, figure, blockquote, table, thead, tbody, tr, th, td, a, span, button, input, select, textarea, label, img, svg, code, small, strong, b, em)::before,
+:where(html, body, div, section, article, header, footer, main, nav, aside, dialog, details, summary, p, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, figure, blockquote, table, thead, tbody, tr, th, td, a, span, button, input, select, textarea, label, img, svg, code, small, strong, b, em)::after { box-sizing: border-box; }
 html { scroll-padding-top: calc(var(--top) + var(--space-4)); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--fg); overflow-x: clip;
-  font-family: var(--sans); font-size: 15px; line-height: 1.65;
+  font-family: var(--sans); font-size: 0.9375rem; line-height: 1.5;
   font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
@@ -116,11 +124,13 @@ img, svg { display: block; }
 button { font: inherit; color: inherit; }
 code, kbd, pre, .mono { font-family: var(--mono); }
 ::selection { background: var(--accent-soft); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+/* The focus ring is accent-text, not the amber accent: the accent is about 1.6:1
+   on white and fails the 3:1 contrast the Web Guidance requires for focus. */
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; border-radius: var(--radius-sm); }
 a, button, summary, .btn { transition: color .12s, background-color .12s, border-color .12s; }
 
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.skip-link { position: absolute; left: var(--space-3); top: calc(var(--space-12) * -1); z-index: 50; padding: var(--space-2) var(--space-3); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
+.skip-link { position: absolute; inset-inline-start: var(--space-3); top: calc(var(--space-12) * -1); z-index: 50; padding: var(--space-2) var(--space-3); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
 .skip-link:focus { top: var(--space-3); }
 
 /* The frame: a centered column at least the viewport tall, so the footer sits at
@@ -130,38 +140,39 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .frame {
   width: 100%; max-width: var(--frame); min-height: 100vh; margin: 0 auto;
   display: flex; flex-direction: column;
-  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  border-inline-start: 1px solid var(--border); border-inline-end: 1px solid var(--border);
 }
 .frame-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .wrap { padding: 0 var(--gutter); }
 
 /* Header */
 .site-top { position: sticky; top: 0; z-index: 20; height: var(--top); background: color-mix(in srgb, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-.site-top::after, .site-foot::before { content: ""; position: absolute; left: 50%; width: 100vw; height: 1px; translate: -50% 0; background: var(--border); pointer-events: none; }
+.site-top::after, .site-foot::before { content: ""; position: absolute; inset-inline-start: 50%; width: 100vw; height: 1px; translate: -50% 0; background: var(--border); pointer-events: none; }
 .site-top::after { bottom: -1px; }
 .site-foot { position: relative; }
 .site-foot::before { top: -1px; }
 .site-top .wrap { height: 100%; display: flex; align-items: center; gap: var(--space-8); }
 .logo { display: flex; align-items: center; }
-.site-nav { display: flex; gap: var(--space-6); font-size: 14px; color: var(--muted-fg); }
+.site-nav { display: flex; gap: var(--space-6); font-size: 0.875rem; color: var(--muted-fg); }
 .site-nav a { position: relative; height: var(--top); display: flex; align-items: center; }
 .site-nav a:hover { color: var(--fg); }
 .site-nav a[aria-current="page"] { color: var(--fg); font-weight: 500; }
-.site-nav a[aria-current="page"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); }
-.site-end { margin-left: auto; display: flex; align-items: center; gap: var(--gap-inline); }
+.site-nav a[aria-current="page"]::after { content: ""; position: absolute; inset-inline-start: 0; inset-inline-end: 0; bottom: -1px; height: 2px; background: var(--accent); }
+.site-end { margin-inline-start: auto; display: flex; align-items: center; gap: var(--gap-inline); }
 .site-agents[aria-current="page"] { background: var(--muted); border-color: var(--rail); font-weight: 500; }
 .site-menu { display: none; position: relative; }
 .site-menu > summary { list-style: none; }
 .site-menu > summary::-webkit-details-marker { display: none; }
-.site-menu-panel { position: absolute; right: 0; top: var(--space-10); min-width: 200px; padding: var(--space-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); display: grid; }
-.site-menu-panel a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); font-size: 14px; }
+.site-menu-panel { position: absolute; inset-inline-end: 0; top: var(--space-10); min-width: 200px; padding: var(--space-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); display: grid; }
+.site-menu-panel a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); font-size: 0.875rem; }
 .site-menu-panel a:hover, .site-menu-panel a[aria-current="page"] { background: var(--muted); }
 
 /* Footer */
 
-.site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 13px; color: var(--muted-fg); }
+.site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 0.8125rem; color: var(--muted-fg); }
 .site-foot .brand { display: flex; align-items: center; gap: var(--gap-inline); }
-.site-foot .spacer { margin-left: auto; }
+.site-foot .spacer { margin-inline-start: auto; }
+.site-foot a { display: inline-flex; align-items: center; min-block-size: 1.5rem; }
 .site-foot a:hover { color: var(--fg); }
 
 /* Icons */
@@ -173,21 +184,21 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
   display: inline-flex; align-items: center; justify-content: center; gap: var(--gap-inline);
   height: 40px; padding: 0 var(--space-4); border-radius: var(--radius); cursor: pointer;
   border: 1px solid var(--primary); background: var(--primary); color: var(--primary-fg);
-  font: 500 14px var(--sans); white-space: nowrap;
+  font: 500 0.875rem var(--sans); white-space: nowrap;
 }
 .btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 .btn-outline { background: var(--bg); color: var(--fg); border-color: var(--border); }
 .btn-outline:hover { background: var(--muted); border-color: var(--border); }
 .btn-ghost { background: transparent; color: var(--fg); border-color: transparent; }
 .btn-ghost:hover { background: var(--muted); border-color: transparent; }
-.btn-sm { height: 32px; padding: 0 var(--space-3); font-size: 13px; }
+.btn-sm { height: 32px; padding: 0 var(--space-3); font-size: 0.8125rem; }
 .btn-icon { width: 32px; height: 32px; padding: 0; }
 
 /* Badges and keys */
 .badge {
   display: inline-flex; align-items: center; gap: var(--gap-inline); height: 22px; padding: 0 var(--space-2);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font: 500 12px var(--sans); color: var(--muted-fg); white-space: nowrap; font-variant-numeric: tabular-nums;
+  font: 500 0.75rem var(--sans); color: var(--muted-fg); white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 .badge-rule, .badge-strength-required { background: var(--rule-bg); border-color: var(--rule-bd); color: var(--rule-fg); }
 .badge-convention, .badge-strength-default { background: var(--conv-bg); border-color: var(--conv-bd); color: var(--conv-fg); }
@@ -198,10 +209,10 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .ver {
   display: inline-flex; align-items: center; gap: var(--gap-inline); height: 22px; padding: 0 var(--space-2);
   border: 1px solid var(--rule-bd); background: var(--rule-bg); color: var(--rule-fg);
-  border-radius: var(--radius-sm); font: 500 12px var(--mono); font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-sm); font: 500 0.75rem var(--mono); font-variant-numeric: tabular-nums;
 }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--accent-ink); }
-.kbd { font: 500 11px var(--mono); border: 1px solid var(--border); border-radius: 4px; padding: 0 var(--space-1); color: var(--muted-fg); background: var(--muted); }
+.kbd { font: 500 0.6875rem var(--mono); border: 1px solid var(--border); border-radius: 4px; padding: 0 var(--space-1); color: var(--muted-fg); background: var(--muted); }
 .must { color: var(--accent-text); font-weight: 700; letter-spacing: .02em; }
 .muted { color: var(--muted-fg); }
 
@@ -214,7 +225,7 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
   :root { --gutter: var(--space-4); }
   /* The footer: the brand line, then the links on their own row. */
   .site-foot .wrap { padding-top: var(--space-4); padding-bottom: var(--space-4); }
-  .site-foot .spacer { flex-basis: 100%; height: 0; margin-left: 0; }
+  .site-foot .spacer { flex-basis: 100%; height: 0; margin-inline-start: 0; }
   .wrap { padding: 0 var(--gutter); }
   .site-nav { display: none; }
   .site-agents { display: none; }
@@ -225,12 +236,12 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
    Litenova Solutions site. Page styles add their own wide-screen sizes. */
 @media (min-width: 100rem) {
   :root { --frame: 1440px; --top: 60px; --gutter: var(--space-10); }
-  body { font-size: 16px; }
-  .site-nav { font-size: 15px; gap: var(--space-8); }
-  .btn { height: 42px; font-size: 15px; }
-  .btn-sm { height: 34px; font-size: 14px; }
+  body { font-size: 1rem; }
+  .site-nav { font-size: 0.9375rem; gap: var(--space-8); }
+  .btn { height: 42px; font-size: 0.9375rem; }
+  .btn-sm { height: 34px; font-size: 0.875rem; }
   .btn-icon { width: 34px; height: 34px; }
-  .site-foot .wrap { min-height: 72px; font-size: 14px; }
+  .site-foot .wrap { min-height: 72px; font-size: 0.875rem; }
 }
 @media (min-width: 140rem) {
   :root { --frame: 1600px; }
@@ -262,3 +273,4 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 @keyframes top-lift { to { box-shadow: 0 8px 24px -16px rgb(16 13 18 / .35); } }
 @keyframes rise { from { opacity: 0; translate: 0 10px; } }
 @keyframes fade { from { opacity: 0; } }
+}

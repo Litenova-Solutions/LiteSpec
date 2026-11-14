@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.2.0/schemas/glossary.schema.yaml'
+$id: 'https://litespec.dev/6.0.0/schemas/glossary.schema.yaml'
 title: LiteSpec Project Glossary
 description: 'The closed vocabulary a project''s prose is checked against: one Term entry per concept, with its meaning, labels per language, rejected synonyms, broader and narrower terms, and closed-set values, plus the mannered terms no page may use.'
 type: object
@@ -43,7 +43,7 @@ $defs:
         type: string
         minLength: 1
       meaning:
-        description: What the term means, in at most 25 words.
+        description: What the term means, in about 25 words; a longer meaning draws an advisory finding.
         type: string
         minLength: 1
       layer:
@@ -52,6 +52,13 @@ $defs:
         enum:
         - intent
         - behavior
+      verbKind:
+        description: The use-case kind the verb opens. Present only on a term that declares a project use-case verb.
+        type: string
+        enum:
+        - command
+        - query
+        - either
       aliases:
         description: Other spellings of the term that name the same concept and are allowed.
         type: array

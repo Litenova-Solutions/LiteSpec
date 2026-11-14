@@ -20,14 +20,14 @@ Add one `PackageReference` in `apps/api/Directory.Build.props` so every project 
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="LiteSpec.Analyzers" Version="5.2.0" PrivateAssets="all" />
+  <PackageReference Include="LiteSpec.Analyzers" Version="6.0.0" PrivateAssets="all" />
 </ItemGroup>
 ```
 
 `PrivateAssets="all"` keeps the analyzer out of any package you publish. Keep the version in one central place to satisfy `litespec/workspace/dependencies#pin-every-dependency-version-centrally`: with central package management, put the version in `apps/api/Directory.Packages.props` instead:
 
 ```xml
-<PackageVersion Include="LiteSpec.Analyzers" Version="5.2.0" />
+<PackageVersion Include="LiteSpec.Analyzers" Version="6.0.0" />
 ```
 
 and omit `Version` from the `PackageReference`. Never add a second copy in a project file.
@@ -67,7 +67,7 @@ dotnet build apps/api/Shop.slnx
 Each finding is an error by default, fails the build, and names the provision it enforces. A typical first line reads:
 
 ```text
-error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/5.2.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
+error LS1002: Enum 'OrderStatus' models a closed set; use an abstract record with sealed cases and a stable Code (https://litespec.dev/6.0.0/backend/dotnet/domain/#model-every-closed-set-of-domain-values-without-enums)
 ```
 
 The trailing address is the help link: it opens the provision the rule enforces, here `litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`. In Visual Studio the same error appears in the Error List with its ID, file, and line, and the tooltip carries the help link. In the terminal, `dotnet build` prints the line above.
@@ -151,10 +151,10 @@ Every rule is an error by default, so `dotnet build` already fails on a finding 
 
 ### 6. Record a Deliberate Departure
 
-When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>.yaml`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred.yaml
+#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```

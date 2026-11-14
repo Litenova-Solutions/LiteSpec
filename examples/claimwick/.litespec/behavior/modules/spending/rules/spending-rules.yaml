@@ -11,4 +11,4 @@ records:
   - aggregate/spending.receipt
   basedOn: []
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt

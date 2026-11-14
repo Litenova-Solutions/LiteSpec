@@ -5,4 +5,3 @@ records:
   id: permission/borrow-copy
   title: Borrow copy
   meaning: Borrow an available copy and return it.
-  scope: self

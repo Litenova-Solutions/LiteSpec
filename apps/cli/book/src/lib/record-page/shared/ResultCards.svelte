@@ -15,7 +15,7 @@
   <div>
     {#each items as x, i (x.id ?? i)}
       {@const ok = x.outcome === "success"}
-      <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-1 border-b border-border py-2.5">
+      <div class="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-1 sm:grid-cols-[180px_minmax(0,1fr)] border-b border-border py-2.5">
         <div class="flex items-start gap-2 text-sm font-medium">
           <RecordIcon name={ok ? "passing" : "x"} class="mt-0.5 size-3.5 shrink-0" />
           {#if x.id && book.has(x.id)}

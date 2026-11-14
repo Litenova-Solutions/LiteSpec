@@ -35,6 +35,19 @@ static class RecordFile
     public static string RecordPathOf(string explanationPath) => Path.ChangeExtension(explanationPath, RecordFiles.Extension);
 
     /// <summary>
+    ///     The folder that holds a named record's own folder. A named record sits at
+    ///     <c>&lt;container&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>, so its container is two folders up from the file.
+    ///     Its parent records (its aggregate, its page's index) are found in the container, not in the
+    ///     record's own folder.
+    /// </summary>
+    /// <param name="recordPath">The record file path.</param>
+    /// <returns>The container folder, or null when the path has no two folders above it.</returns>
+    public static string? ContainerOf(string recordPath) =>
+        Path.GetDirectoryName(Path.GetDirectoryName(recordPath) ?? "") is { Length: > 0 } container
+            ? container
+            : null;
+
+    /// <summary>
     ///     Parses a record file's text.
     /// </summary>
     /// <param name="text">The file text.</param>

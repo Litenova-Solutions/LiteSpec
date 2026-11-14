@@ -1,8 +1,0 @@
-type: constraint
-id: constraint/library-privacy-law
-title: Library privacy law
-summary: Reader records stay private under the city library privacy ordinance.
-authority: City library privacy ordinance.
-kind: organizational
-applies: true
-appliesBecause: The library keeps reader records.

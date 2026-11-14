@@ -28,7 +28,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "problems", "ghost-pain", "features", "borrowing", "borrowing.yaml"), """{}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -58,7 +58,7 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{}"""),
             TestModel.Record("problem", "problem/ghost-pain", Path.Combine(temp.Path, "ghost-pain.yaml"), "{}"));
 
         Assert.Contains("intent-unreached", TestModel.Codes(model));
@@ -72,7 +72,7 @@ public sealed class ReachCheckTests
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{"solves": ["problem/ghost-pain"]}"""),
+            TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, "borrowing.yaml"), """{}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-loans", Path.Combine(temp.Path, "max-loans.yaml"), """{"kind": "functional", "statement": "A ghost reads a copy."}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
@@ -157,7 +157,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["research/ghost-study"], "steps": [{"id": "s1", "statement": "Walk."}]}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["research/ghost-study"], "steps": [{"id": "s1", "statement": "Take the copy."}]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));
@@ -240,7 +240,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Without Holder Reports Role Orphan.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleWithoutHolderReportsRoleOrphan()
     {
@@ -253,14 +253,14 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Held Passes.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleHeldPasses()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": [{"role": "role/reader", "scope": "self"}]}"""),
+            TestModel.Record("actor", "actor/reader", Path.Combine(temp.Path, "reader.yaml"), """{"kind": "person", "holds": ["role/reader"]}"""),
             TestModel.Record("role", "role/reader", Path.Combine(temp.Path, "reader-role.yaml"), """{"scope": "self", "allows": ["permission/read-loans"]}"""),
             TestModel.Record("permission", "permission/read-loans", Path.Combine(temp.Path, "read-loans.yaml"), "{}"));
 
@@ -343,7 +343,7 @@ public sealed class ReachCheckTests
     }
 
     /// <summary>Role Orphan Message Names Role.</summary>
-    /// <proves>litespec/core/access#record-every-role-hold-with-its-scope</proves>
+    /// <proves>litespec/core/access#record-every-role-an-actor-holds</proves>
     [Fact]
     public void RoleOrphanMessageNamesRole()
     {

@@ -1,9 +1,0 @@
-type: actor
-id: actor/employee
-title: Employee
-summary: An employee submits expenses and attaches receipts.
-kind: person
-belongsToTeam: false
-holds:
-- role: role/employee
-  scope: self

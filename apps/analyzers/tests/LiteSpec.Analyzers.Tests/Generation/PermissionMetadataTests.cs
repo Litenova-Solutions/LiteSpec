@@ -10,15 +10,19 @@ namespace LiteSpec.Analyzers.Tests.Generation;
 /// <summary>Tests for the generated permission entries with their scope, group and risks.</summary>
 public sealed class PermissionMetadataTests
 {
-    /// <summary>The entry carries scope, group and risks from the record.</summary>
+    /// <summary>The entry takes its scope from the role that allows it, and carries group and risks from the record.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "The entry carries scope, group and risks from the record")]
+    /// <proves>litespec/core/access#scope-every-role</proves>
+    [Fact(DisplayName = "The entry takes its scope from the role that allows it and carries group and risks")]
     public void EntryCarriesFactsFromTheRecord()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/read-loans", "tenant", "loans", ["money", "access"])))),
+            RecordPages.Files(
+                "xml",
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
+                    RecordPages.PermissionEntry("permission/read-loans", "loans", ["money", "access"]))),
+                ("reader.yaml", RecordPages.RolePage("role/reader", "tenant", ["permission/read-loans"]))),
             assemblyName: "Shop.Application");
 
         Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
@@ -28,9 +32,29 @@ public sealed class PermissionMetadataTests
         Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
     }
 
-    /// <summary>An entry without scope, group and risks reads empty, null and empty.</summary>
+    /// <summary>A permission that roles allow at more than one scope carries an empty scope, because the caller's role decides its reach.</summary>
+    /// <proves>litespec/core/access#scope-every-role</proves>
+    [Fact(DisplayName = "A permission allowed at more than one scope carries an empty scope")]
+    public void PermissionAllowedAtSeveralScopesCarriesNoScope()
+    {
+        var run = GeneratorVerify.Run(
+            RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
+            RecordPages.Files(
+                "xml",
+                ("permissions.yaml", RecordPages.PermissionFactsPage(RecordPages.PermissionEntry("permission/list-expenses"))),
+                ("self.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
+                ("team.yaml", RecordPages.RolePage("role/approver", "team", ["permission/list-expenses"]))),
+            assemblyName: "Shop.Application");
+
+        Assert.True(run.Sources.TryGetValue("LiteSpecPermissions.g.cs", out var permissions), "The permissions source is missing.");
+        Assert.Contains("new LiteSpecPermission(\"permission/list-expenses\", \"\", null, new string[] { })", permissions, StringComparison.Ordinal);
+        Assert.Empty(run.ReportedDiagnostics);
+        Assert.True(run.CompileErrors.Count == 0, "The generated code does not compile:\n" + string.Join("\n", run.CompileErrors));
+    }
+
+    /// <summary>An entry without group and risks, and with no allowing role, reads empty scope, null group and empty risks.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    [Fact(DisplayName = "An entry without scope, group and risks reads empty, null and empty")]
+    [Fact(DisplayName = "An entry with no allowing role reads an empty scope, null group and empty risks")]
     public void EntryWithoutFactsReadsDefaults()
     {
         var run = GeneratorVerify.Run(
@@ -46,16 +70,20 @@ public sealed class PermissionMetadataTests
     }
 
     /// <summary>A permission opening with any verb is emitted and stays silent.</summary>
-    /// <proves>litespec/core/access#state-the-scope-of-every-permission</proves>
+    /// <proves>litespec/core/access#name-each-permission-by-a-use-case-verb</proves>
     [Fact(DisplayName = "A permission opening with any verb is emitted and stays silent")]
     public void AnyOpeningVerbIsEmittedAndStaysSilent()
     {
         var run = GeneratorVerify.Run(
             RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;"),
-            RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/frobnicate-widgets", "tenant"),
-                RecordPages.PermissionEntry("permission/approve-order", "platform"),
-                RecordPages.PermissionEntry("permission/manage-copies", "tenant")))),
+            RecordPages.Files(
+                "xml",
+                ("permissions.yaml", RecordPages.PermissionFactsPage(
+                    RecordPages.PermissionEntry("permission/frobnicate-widgets"),
+                    RecordPages.PermissionEntry("permission/approve-order"),
+                    RecordPages.PermissionEntry("permission/manage-copies"))),
+                ("tenant.yaml", RecordPages.RolePage("role/tenant", "tenant", ["permission/frobnicate-widgets", "permission/manage-copies"])),
+                ("platform.yaml", RecordPages.RolePage("role/platform", "platform", ["permission/approve-order"]))),
             assemblyName: "Shop.Application");
 
         Assert.Empty(run.ReportedDiagnostics);
@@ -72,9 +100,13 @@ public sealed class PermissionMetadataTests
     public void OfReturnsKnownAndThrowsForUnknown()
     {
         var sources = RecordPages.Sources("namespace Shop.Spending; internal sealed class Placeholder;");
-        var files = RecordPages.Files("xml", ("permissions.yaml", RecordPages.PermissionFactsPage(
-            RecordPages.PermissionEntry("permission/read-loans", "tenant", "loans", ["money"]),
-            RecordPages.PermissionEntry("permission/approve-order", "platform"))));
+        var files = RecordPages.Files(
+            "xml",
+            ("permissions.yaml", RecordPages.PermissionFactsPage(
+                RecordPages.PermissionEntry("permission/read-loans", "loans", ["money"]),
+                RecordPages.PermissionEntry("permission/approve-order"))),
+            ("reader.yaml", RecordPages.RolePage("role/reader", "tenant", ["permission/read-loans"])),
+            ("platform.yaml", RecordPages.RolePage("role/platform", "platform", ["permission/approve-order"])));
         var run = GeneratorVerify.Run(sources, files, assemblyName: "Shop.Application");
         Assert.True(run.Sources.ContainsKey("LiteSpecPermissions.g.cs"), "The permissions source is missing.");
 

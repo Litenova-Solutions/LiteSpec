@@ -1,0 +1,24 @@
+type: research
+id: research/naming-grammar-evidence
+title: Naming Grammar Evidence
+sources:
+  - url: https://cucumber.io/docs/gherkin/reference
+    readOn: 2026-10-31
+    key: cucumber-docs-gherkin-reference
+  - url: https://github.com/cloudevents/spec
+    readOn: 2026-10-31
+    key: github-cloudevents-spec
+  - path: schemas/record.schema.yaml
+    readOn: 2026-10-31
+    key: record-schema
+  - path: docs/intent/research/field-naming-evidence/field-naming-evidence.md
+    readOn: 2026-10-31
+    key: field-naming-evidence
+  - path: docs/core/model.md
+    readOn: 2026-10-31
+    key: model
+  - path: schemas/glossary.schema.yaml
+    readOn: 2026-10-31
+    key: glossary-schema
+question: What does the 248-field inventory show about name collisions and value shapes, and which grammar follows from it?
+conclusion: The inventory counts 248 field names with 18 genuine collisions plus link-shaped justifications and string mini-languages, so one grammar of eight word classes with no exceptions, objects for mini-languages, and American spelling follows.

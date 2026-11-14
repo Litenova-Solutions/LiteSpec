@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Output;
+using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 
 namespace LiteSpec.Cli.Book.Outline;
@@ -26,10 +27,11 @@ static class BookParents
         new Dictionary<string, BookParentRule>(StringComparer.Ordinal)
         {
             ["product"] = new("product", [], "none"),
-            ["goal"] = new("goal", ["product", "module"], "product or module"),
-            ["problem"] = new("problem", ["product", "module"], "product or module"),
-            ["constraint"] = new("constraint", ["product", "module"], "product or module"),
-            ["research"] = new("research", ["product", "module"], "product or module"),
+            ["goal"] = new("goal", ["product"], "product"),
+            ["vision"] = new("vision", ["product"], "product"),
+            ["problem"] = new("problem", ["product"], "product"),
+            ["constraint"] = new("constraint", ["product"], "product"),
+            ["research"] = new("research", ["product"], "product"),
             ["decision"] = new("decision", ["product", "module"], "product or module"),
             ["actor"] = new("actor", ["product"], "product"),
             ["term"] = new("term", ["product"], "product"),
@@ -37,7 +39,7 @@ static class BookParents
             ["role"] = new("role", ["product"], "product"),
             ["journey"] = new("journey", ["product"], "product"),
             ["entry-point"] = new("entry-point", ["product"], "product"),
-            ["feature"] = new("feature", ["module"], "module"),
+            ["feature"] = new("feature", ["problem"], "problem"),
             ["permission"] = new("permission", ["module"], "module"),
             ["integration-event"] = new("integration-event", ["module"], "module"),
             ["external-system"] = new("external-system", ["product", "module"], "its folder node"),
@@ -103,6 +105,8 @@ static class BookParents
         public Dictionary<string, string> AggregatesByDir { get; } = new(StringComparer.Ordinal);
         /// <summary>Gets the entry-point identifier for each entry-point file directory, first record winning.</summary>
         public Dictionary<string, string> EntryPointsByDir { get; } = new(StringComparer.Ordinal);
+        /// <summary>Gets the feature identifier for each feature file directory, first record winning.</summary>
+        public Dictionary<string, string> FeaturesByDir { get; } = new(StringComparer.Ordinal);
     }
 
     /// <summary>Builds the parent lookup tables from the model records.</summary>
@@ -143,6 +147,11 @@ static class BookParents
                 && DirOf(StrProp(pair.Value, "file")) is { } entryDir)
             {
                 index.EntryPointsByDir.TryAdd(entryDir, pair.Key);
+            }
+            else if (string.Equals(type, "feature", StringComparison.Ordinal)
+                && DirOf(StrProp(pair.Value, "file")) is { } featureDir)
+            {
+                index.FeaturesByDir.TryAdd(featureDir, pair.Key);
             }
 
             if (!Identifiers.TrySplit(pair.Key, out _, out _, out var name) || name is not { Length: > 0 })
@@ -191,10 +200,12 @@ static class BookParents
         string? parent = type switch
         {
             "product" => null,
-            "goal" or "problem" or "constraint" or "research" or "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
-            "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
-            "feature" or "permission" or "integration-event" => ModuleFromFile(index, record),
-            "requirement" => FeatureParent(index, id),
+            "goal" or "problem" or "constraint" or "research" => index.ProductId,
+            "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "vision" or "module" or "role" or "journey" or "actor" or "term" or "entry-point" => index.ProductId,
+            "feature" => ProblemFromFile(record),
+            "permission" or "integration-event" => ModuleFromFile(index, record),
+            "requirement" => FeatureFromFolder(index, record) ?? FeatureParent(index, id),
             "aggregate" => ModuleFromFile(index, record) ?? ModuleParent(index, id),
             "use-case" => UseCaseParent(index, record, id),
             "result" => UseCaseNameParent(index, id),
@@ -209,6 +220,14 @@ static class BookParents
         // A record never parents itself.
         return string.Equals(parent, id, StringComparison.Ordinal) ? null : parent;
     }
+
+    /// <summary>Finds the problem parent of a feature from its file: the problem whose features folder holds it.</summary>
+    /// <param name="record">The feature record object that holds the file path.</param>
+    /// <returns>The problem identifier for the folder, or null when the file sits in no problem's features folder.</returns>
+    static string? ProblemFromFile(JsonObject record) =>
+        RecordPlacement.ProblemOf(StrProp(record, "file") ?? string.Empty) is { Length: > 0 } problem
+            ? $"problem/{problem}"
+            : null;
 
     /// <summary>Finds the module parent of a record from its file: the module its folder sits under.</summary>
     /// <param name="index">The parent lookup tables for the model.</param>
@@ -247,8 +266,8 @@ static class BookParents
             return null;
         }
 
-        // A use case or an event sits beside aggregate.yaml; a rule sits one
-        // level down in rules/, so its parent folder holds the aggregate.
+        // An event sits beside aggregate.yaml or in events/, and a rule sits in rules/, so the
+        // parent folder holds the aggregate.
         // The folders match, never their names, so a plural folder still holds
         // the aggregate its aggregate.yaml names.
         var dir = DirOf(file);
@@ -258,7 +277,14 @@ static class BookParents
         }
 
         var parent = dir is null ? null : ParentDirOf(dir);
-        return parent is not null && index.AggregatesByDir.TryGetValue(parent, out var up) ? up : null;
+        if (parent is not null && index.AggregatesByDir.TryGetValue(parent, out var up))
+        {
+            return up;
+        }
+
+        // A use case sits in use-cases/<name>/, two folders below its aggregate.
+        var grand = parent is null ? null : ParentDirOf(parent);
+        return grand is not null && index.AggregatesByDir.TryGetValue(grand, out var above) ? above : null;
     }
 
     /// <summary>Finds the entry-point parent of a record from its file: the entry point whose folder holds it.</summary>
@@ -347,6 +373,25 @@ static class BookParents
     {
         var slash = dir.LastIndexOf('/');
         return slash < 0 ? null : dir[..slash];
+    }
+
+    /// <summary>Finds the feature parent of a requirement from its folder: the feature whose folder holds the requirement's own folder.</summary>
+    /// <param name="index">The parent lookup tables for the model.</param>
+    /// <param name="record">The requirement record object that holds its file path.</param>
+    /// <returns>The feature identifier for the folder, or null when the requirement sits in no feature folder.</returns>
+    static string? FeatureFromFolder(ParentIndex index, JsonObject record)
+    {
+        var file = StrProp(record, "file");
+        if (file is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        // A requirement sits in <feature>/requirements/<name>/<name>.yaml, so the feature folder is three levels up.
+        var dir = DirOf(file);
+        var requirements = dir is null ? null : ParentDirOf(dir);
+        var parent = requirements is null ? null : ParentDirOf(requirements);
+        return parent is not null && index.FeaturesByDir.TryGetValue(parent, out var feature) ? feature : null;
     }
 
     /// <summary>Finds the feature parent of a record from its identifier home.</summary>

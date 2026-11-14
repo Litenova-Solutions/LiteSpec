@@ -1,16 +1,14 @@
 type: rule-set
 title: Spending Rules
-summary: These rules keep expense totals consistent across aggregates.
+summary: Receipt files are filed once across spending.
 records:
-  - type: rule
-    id: rule/spending.receipt-filed-once
-    title: Receipt Filed Once
-    kind: cross-aggregate
-    statement: Every receipt is filed exactly once across expenses.
-    governs:
-      - aggregate/spending.expense
-    refusal: result/submit-expense.receipt-missing
-    basedOn:
-      - research/approval-time-benchmarks
-    fulfills:
-      - requirement/approval-reminders.decided-within-five-days
+- type: rule
+  id: rule/spending.receipt-filed-once
+  title: Receipt Filed Once
+  kind: cross-aggregate
+  statement: A receipt file supports one expense across spending.
+  governs:
+  - aggregate/spending.receipt
+  basedOn: []
+  fulfills:
+  - requirement/approval.above-threshold-receipt

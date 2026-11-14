@@ -16,7 +16,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
-/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/access#scope-every-role</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class RecordModel : IEquatable<RecordModel>
 {
@@ -293,13 +293,19 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         return ImmutableArray.CreateRange(codes);
     }
 
-    /// <summary>Returns the permissions of the index.</summary>
+    /// <summary>Returns the permissions of the index, each with the one reach its allowing roles share.</summary>
+    /// <remarks>
+    ///     A role holds the scope of its grant, so a permission takes its reach from the roles that allow it. When those
+    ///     roles grant it at one scope, the permission carries that scope; when they grant it at several, or no role allows
+    ///     it, the permission carries an empty scope, because the reach comes from the role the caller holds.
+    /// </remarks>
     /// <param name="index">The record index that resolves identifiers to records.</param>
     /// <returns>The permissions of the index.</returns>
     private static ImmutableArray<PermissionFacts> PermissionsOf(RecordIndex index)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var found = new List<PermissionFacts>();
+        var reaches = ReachesByPermission(index);
 
         foreach (var record in index.ByType("permission"))
         {
@@ -310,7 +316,7 @@ internal sealed class RecordModel : IEquatable<RecordModel>
 
             found.Add(new PermissionFacts(
                 record.Id,
-                record.Field("scope") ?? string.Empty,
+                reaches.TryGetValue(record.Id, out var reach) && reach.Count == 1 ? reach.First() : string.Empty,
                 record.Field("group"),
                 ImmutableArray.CreateRange(record.Ids("risk"))));
         }
@@ -318,6 +324,35 @@ internal sealed class RecordModel : IEquatable<RecordModel>
         found.Sort(static (left, right) => string.Compare(left.Id, right.Id, StringComparison.Ordinal));
 
         return ImmutableArray.CreateRange(found);
+    }
+
+    /// <summary>Collects the distinct scopes of the roles that allow each permission.</summary>
+    /// <param name="index">The record index that resolves identifiers to records.</param>
+    /// <returns>The distinct role scopes by permission identifier.</returns>
+    private static Dictionary<string, HashSet<string>> ReachesByPermission(RecordIndex index)
+    {
+        var reaches = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+
+        foreach (var role in index.ByType("role"))
+        {
+            if (role.Field("scope") is not { Length: > 0 } scope)
+            {
+                continue;
+            }
+
+            foreach (var permission in role.Ids("allows"))
+            {
+                if (!reaches.TryGetValue(permission, out var scopes))
+                {
+                    scopes = new HashSet<string>(StringComparer.Ordinal);
+                    reaches[permission] = scopes;
+                }
+
+                scopes.Add(scope);
+            }
+        }
+
+        return reaches;
     }
 
     /// <summary>Returns the roles of the index.</summary>

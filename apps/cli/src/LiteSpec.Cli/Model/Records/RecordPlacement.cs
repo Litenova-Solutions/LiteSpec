@@ -65,4 +65,23 @@ static class RecordPlacement
 
         return file;
     }
+
+    /// <summary>The problem a feature file sits under: the name segment before its <c>features</c> folder.</summary>
+    /// <param name="file">The absolute record file path, or empty for a derived record.</param>
+    /// <returns>The problem folder name, or null when the file sits in no problem's features folder.</returns>
+    public static string? ProblemOf(string file)
+    {
+        var segments = file.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        for (var at = segments.Length - 3; at >= 0; at--)
+        {
+            if (string.Equals(segments[at], "problems", StringComparison.Ordinal)
+                && string.Equals(segments[at + 2], "features", StringComparison.Ordinal))
+            {
+                return segments[at + 1];
+            }
+        }
+
+        return null;
+    }
 }

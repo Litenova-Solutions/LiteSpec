@@ -1,0 +1,15 @@
+type: rule-set
+title: Receipt Rules
+summary: Each receipt attaches before its expense is decided.
+records:
+- type: rule
+  id: rule/receipt.attaches-before-decision
+  title: Attaches Before Decision
+  kind: precondition
+  statement: A receipt attaches before the expense is decided.
+  governs:
+  - use-case/spending.attach-receipt
+  refusal: result/attach-receipt.expense-decided
+  basedOn: []
+  fulfills:
+  - requirement/approval.above-threshold-receipt

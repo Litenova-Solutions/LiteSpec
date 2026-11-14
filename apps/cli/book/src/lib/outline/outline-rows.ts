@@ -58,7 +58,7 @@ function goalTitleForFeatureOf(book: Book, id: string): string {
 }
 
 function goalTitleForProblemOf(book: Book, id: string): string {
-  for (const f of book.ins(stripStep(id) ?? "", "solves")) {
+  for (const f of book.kids(stripStep(id) ?? "").filter((child) => book.typeOf(child) === "feature")) {
     const g = goalTitleForFeatureOf(book, f);
     if (g) return g;
   }

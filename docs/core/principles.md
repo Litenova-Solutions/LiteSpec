@@ -372,9 +372,9 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Applies to:** artifact: any
 
-**Statement:** A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement.
+**Statement:** A consumer MUST add packages, projects, wrappers, background processes, caches, queues, or distributed patterns only for a current documented requirement, and never for a vision alone.
 
-**Rationale:** Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader must learn. A current use case, decision, or requirement names the activation criterion that justifies that cost. Preference and possible future need justify nothing, so speculative machinery stays out.
+**Rationale:** Each package, project, wrapper, background process, cache, queue, or distributed pattern adds maintenance, failure modes, and concepts every later reader must learn. A current use case, decision, or requirement names the activation criterion that justifies that cost. Preference and possible future need justify nothing, so speculative machinery stays out. A vision may justify the shape of a record or a model, such as a field that keeps a later destination reachable, but it activates no machinery: that cost waits for the requirement that cites the vision.
 
 **Reviewed for:** Each added package, project, wrapper, process, cache, queue, or pattern cites a current use case, decision, or requirement.
 

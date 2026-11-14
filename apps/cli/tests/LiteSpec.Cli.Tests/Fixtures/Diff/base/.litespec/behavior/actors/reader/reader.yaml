@@ -1,0 +1,6 @@
+type: actor
+id: actor/reader
+title: Reader
+kind: person
+holds:
+  - role/reader

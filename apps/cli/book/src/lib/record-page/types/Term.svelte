@@ -49,7 +49,7 @@
   <PageSection blockKey="rej" heading="rejected" count={rejected.length}>
     <div class="border-t border-border">
       {#each rejected as x, i (String(x.word ?? i))}
-        <div class="grid grid-cols-[150px_minmax(0,1fr)] gap-3 border-b border-border py-2.5 text-[0.84375rem]">
+        <div class="grid grid-cols-[minmax(0,1fr)] gap-x-3 gap-y-1 sm:grid-cols-[150px_minmax(0,1fr)] border-b border-border py-2.5 text-[0.84375rem]">
           <s class="font-medium text-warn-foreground [text-decoration-thickness:1.5px]">{String(x.word ?? "")}</s>
           <div><p class="m-0 text-subtle-foreground">{String(x.reason ?? "")}</p></div>
         </div>

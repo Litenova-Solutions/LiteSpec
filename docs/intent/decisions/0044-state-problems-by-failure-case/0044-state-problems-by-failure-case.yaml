@@ -1,0 +1,16 @@
+type: decision
+id: decision/0044-state-problems-by-failure-case
+title: State Each Problem by Its Failure Cases
+options:
+  - name: "Keep the five problem sections: Affected Users, Current Workaround, Cost, Evidence and Resolution"
+    pros: "No problem explanation is rewritten again, and the list stays short."
+    cons: "Two failures share one sentence, a resolution can end one failure and leave the other, feasibility passes as evidence, and an opening that starts with the workaround never says why the work is needed."
+  - name: "List the failure cases as bullets in the opening paragraph, add an optional Example, and keep Resolution"
+    pros: "A cold reader meets each failure in the first lines, and the change adds one optional section."
+    cons: "No check can tell whether a problem lists its failure cases, and nothing ties a resolution to each failure."
+  - name: "Add a Failure Cases section and an optional Example, rename Resolution to Resolution Criteria, and state the opening, claim, evidence and resolution rules"
+    pros: "Each failure has its own entry and its own resolution criterion, the check sees the section, and the evidence and claims are judged against what they show."
+    cons: "Every problem explanation is rewritten in 6.0.0, and a problem with one failure carries a one-entry list."
+choice: "Add a Failure Cases section and an optional Example, rename Resolution to Resolution Criteria, and state the opening, claim, evidence and resolution rules"
+consequences: "A problem explanation carries Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence and Resolution Criteria, and `explanation-missing` reports a problem explanation without them in that order. Five provisions state how a problem is written: `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#state-the-cost-and-workaround-of-every-problem` now asks for the burden of the workaround and keeps time, money and risk apart. `litespec/core/intent#explain-every-problem-in-its-fixed-sections` lists the sections. A problem title names the failure or its consequence. The problem template and the Claimwick problem follow the new sections, and each consumer rewrites its problem explanations under the changelog's upgrade step."
+reopenedWhen: "Consumers report that most problems have one failure case, so Failure Cases repeats the opening paragraph, or that resolution criteria cannot be written without naming the feature that delivers them."

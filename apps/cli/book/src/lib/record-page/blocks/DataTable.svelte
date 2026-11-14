@@ -4,7 +4,9 @@
   let { head, rows }: Props = $props();
 </script>
 
-<table class="w-full overflow-hidden rounded-lg border border-border text-sm">
+<!-- A table wider than a phone scrolls inside its own frame instead of widening the page. -->
+<div class="max-w-full overflow-x-auto rounded-lg border border-border">
+<table class="w-full text-sm [overflow-wrap:normal]">
   <thead>
     <tr>
       {#each head as h (h)}
@@ -20,3 +22,4 @@
     {/each}
   </tbody>
 </table>
+</div>

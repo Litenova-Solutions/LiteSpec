@@ -217,7 +217,7 @@ public sealed class FindingCodesTests
     {
         "missing", "unknown", "undeclared", "unrecorded", "unimplemented", "unreached",
         "drift", "invalid", "duplicate", "expired", "unverified", "break",
-        "orphaned", "bare", "unused",
+        "orphaned", "bare", "unused", "unlisted", "uncited", "unchanged",
     };
 
     /// <summary>The LiteSpec repository root, found above the test binary.</summary>

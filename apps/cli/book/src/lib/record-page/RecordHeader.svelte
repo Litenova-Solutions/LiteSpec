@@ -112,7 +112,7 @@
     >
       <RecordIcon name="back" class="size-3.5" />
     </Button>
-    <span class="mx-1 whitespace-nowrap">
+    <span class="mx-1 min-w-0">
       {at + 1} of {sib.length} {pluralName.toLowerCase()}{parent ? " in " + book.title(parent) : ""}
     </span>
     <Button

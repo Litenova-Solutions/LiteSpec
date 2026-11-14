@@ -1,9 +1,0 @@
-type: actor
-id: actor/reader
-title: Reader
-summary: A reader borrows copies, places holds, and returns loans.
-kind: person
-belongsToTeam: false
-holds:
-- role: role/reader
-  scope: self

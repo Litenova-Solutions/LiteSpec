@@ -72,10 +72,10 @@ public sealed class ScreenRenameAndRecordsTests
         var result = TestCli.Run("rename", "screen/library-app.loans", "screen/library-app.loan-list", "--root", root);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(screens, "library-app.loan-list.yaml")));
-        Assert.False(File.Exists(Path.Combine(screens, "library-app.loans.yaml")));
+        Assert.True(File.Exists(Path.Combine(screens, "library-app.loan-list", "library-app.loan-list.yaml")));
+        Assert.False(File.Exists(Path.Combine(screens, "library-app.loans", "library-app.loans.yaml")));
         Assert.Contains("screen/library-app.loan-list", File.ReadAllText(route));
-        Assert.Contains("screen/library-app.loan-list", File.ReadAllText(Path.Combine(screens, "library-app.loan-list.yaml")));
+        Assert.Contains("screen/library-app.loan-list", File.ReadAllText(Path.Combine(screens, "library-app.loan-list", "library-app.loan-list.yaml")));
     }
 
     /// <summary>Rename Scenario Rewrites A Browser Tests Proves Call.</summary>

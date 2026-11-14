@@ -42,4 +42,24 @@ describe("the record page", () => {
     expect(event).toContain("javascript:alert(1)");
     expect(event).not.toContain('href="javascript:');
   });
+
+  it("renders a journey's start, steps and branches, each branch as a sentence", async () => {
+    await fixtureBook();
+    const journey = render("journey", {
+      type: "journey", title: "Submit",
+      fields: {
+        startedWhen: "The employee has paid for a work cost.",
+        finishedWhen: "The employee holds the reimbursement.",
+        steps: [{ id: "s1", statement: "The employee submits the expense." }, { id: "s2", statement: "The manager decides it." }, { id: "s3", statement: "Finance pays it." }],
+        branches: [
+          { step: "s2", condition: "the manager rejects the expense", nextStep: "end" },
+          { step: "s1", condition: "the form is incomplete", nextStep: "s3" },
+        ],
+      },
+    });
+    expect(journey).toContain("The employee has paid for a work cost.");
+    expect(journey).toContain("At step 2, when the manager rejects the expense, the journey ends.");
+    expect(journey).toContain("At step 1, when the form is incomplete, the journey continues at step 3.");
+    expect(journey).not.toContain("betweenSteps");
+  });
 });

@@ -45,7 +45,7 @@ public sealed class RenderTests
             "type: runbook\nid: runbook/clear-cache\ntitle: Clear Cache\ntrigger: The cache fills.\n");
 
         var page = Path.Combine(
-            temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.md");
+            temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "borrow-copy.md");
         File.WriteAllText(
             page,
             """

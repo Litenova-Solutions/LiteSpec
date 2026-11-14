@@ -67,11 +67,11 @@ static class CliEntry
         return 0;
     }
 
-    /// <summary>Prints the LiteSpec release this tool ships in.</summary>
+    /// <summary>Prints the LiteSpec package version this tool ships as, with a release candidate's suffix.</summary>
     /// <returns>Exit code 0.</returns>
     static int Version()
     {
-        CliHost.Out.WriteLine(LiteSpecHome.Version ?? "unknown");
+        CliHost.Out.WriteLine(LiteSpecHome.Version is { } release ? ReleaseVersion.PackageOf(release) : "unknown");
         return 0;
     }
 

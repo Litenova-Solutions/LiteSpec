@@ -22,7 +22,9 @@ static class NewCommand
         Usage: litespec new <type> <id> [--root <path>] [--help]
                litespec new <document-style> <name> [--root <path>]
                litespec new decision <name> [--root <path>]
+               litespec new requirement <feature>.<name> [--root <path>]
                litespec new result <use-case-id> <name> --outcome success|refusal [--code <code>] [--root <path>]
+               litespec new use-case <id> --kind command|query [--root <path>]
                litespec new scenario <use-case-id> <name> --result <result-id> [--root <path>]
                litespec new entry <page-id> <type> <name> [--root <path>]
 
@@ -32,19 +34,29 @@ static class NewCommand
         identifier twice. <type> is the record type, such as use-case, reaction,
         or decision. <id> is the home.name part of the identifier, such as
         lending.notify-reader; the full identifier is <type>/<id>. The file is
-        written at the home its type owns: a reaction under
+        written at the home its type owns, under behavior/: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
-        the decisions folder with its explanation file beside it. A module file
-        is modules/<module>/module.yaml; an aggregate file is
-        modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
-        under reads/ beside its module; move the file beside its aggregate once
-        the use case names one. For an article type (research or decision) or
-        for a type on a layer listed in explanations.layers, the command also
-        writes the explanation file from its explanation template, or from the
-        generic templates/consumer/explanation.md when the type carries no
-        fixed sections. The command refuses an identifier a record already
-        carries.
+        the decisions folder. A named record is written in its own folder beside
+        its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
+        modules/<module>/reactions/<name>/<name>.md. A module file is
+        modules/<module>/module.yaml; an aggregate file is
+        modules/<module>/aggregates/<aggregate>/aggregate.yaml. A use-case file starts
+        under modules/<module>/use-cases/<name>/<name>.yaml; move the folder
+        under its aggregate's use-cases/ folder once the use case names one. The
+        title is one Title Case title, written to the YAML title and to the
+        explanation H1. For an article type
+        (research or decision) or for a type on a layer listed in
+        explanations.layers, the command also writes the explanation file beside
+        the record, from the template for its type (templates/consumer/<type>.md),
+        with the title filled in and the fixed sections of the type. The command
+        refuses an identifier a record already carries.
+
+        new requirement <feature>.<name> writes a requirement file of its own in its
+        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The
+        feature record <feature> must exist; the command refuses an unknown feature.
+        A requirement takes no explanation file, because its statement is its lead;
+        add <name>.md beside it only when the requirement needs an example.
 
         new decision writes a decision file with the next free number from the
         one decision sequence across the product and technical decisions.
@@ -71,15 +83,13 @@ static class NewCommand
         on a success it becomes the first of codes. The command refuses a duplicate
         id and an unknown use case.
 
-        new entry appends one requirement, rule, permission, or setting entry
-        to its owning list file's records instead of scaffolding a file. <page-id>
-        is the file's consumer-relative path, because list files carry no record
-        identifier. The type must belong on the file: a requirement on a feature file,
-        a rule on a rule-set file, a permission on the permission list, a setting
-        on a setting set. The entry id is <type>/<home>.<name> from the file's home,
-        or permission/<name>; the home is the file's existing entries' home, else
-        the file stem for a requirement or rule and the parent modules folder
-        for a setting. The entry lands last with every required field filled
+        new entry appends one rule, permission, or setting entry to its owning list file's records
+        instead of scaffolding a file. <page-id> is the file's consumer-relative path, because list
+        files carry no record identifier. The type must belong on the file: a rule on a rule-set file,
+        a permission on the permission list, a setting on a setting set. A requirement is a page of
+        its own: write it with new requirement. The entry id is <type>/<home>.<name> from the file's
+        home, or permission/<name>; the home is the file's existing entries' home, else the file stem
+        for a rule and the parent modules folder for a setting. The entry lands last with every required field filled
         with its template example value; the file is written back in canonical
         form. The command refuses a duplicate id and an unknown file.
 
@@ -97,7 +107,7 @@ static class NewCommand
     /// <returns>The process exit code: 0 when the file or entry is written, 1 when no template or repository can be read, and 2 on invalid input or a taken identifier.</returns>
     public static int Run(string[] args)
     {
-        var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result"], maxPositionals: 4);
+        var parsed = CliArgs.Parse(args, [], ["--root", "--code", "--outcome", "--result", "--kind"], maxPositionals: 4);
 
         if (parsed.Help)
         {
@@ -132,6 +142,18 @@ static class NewCommand
                 CliHost.Error.WriteLine($"Option {option} applies only to new result and new scenario.");
                 return 2;
             }
+        }
+
+        if (parsed.Value("--kind") is not null && type != RecordTypes.UseCase)
+        {
+            CliHost.Error.WriteLine("Option --kind applies only to new use-case.");
+            return 2;
+        }
+
+        if (parsed.Value("--kind") is { } kind && kind is not ("command" or "query"))
+        {
+            CliHost.Error.WriteLine($"Option --kind takes command or query, not '{kind}'.");
+            return 2;
         }
 
         if (!RecordTypes.All.Contains(type) && !RecordTypes.PageStyles.Contains(type))
@@ -176,18 +198,23 @@ static class NewCommand
 
             if (type == "feature" && homeName is null)
             {
-                return CommandFailure.UsageError("New feature needs a module: use litespec new feature <module>.<name>.", Usage, json: false);
+                return CommandFailure.UsageError("New feature needs a problem: use litespec new feature <problem>.<name>.", Usage, json: false);
             }
 
-            // A feature lives in its module's folder, but its identifier carries no home:
-            // the module picks the folder and the identifier is feature/<name>.
+            if (type == RecordTypes.Requirement && homeName is null)
+            {
+                return CommandFailure.UsageError("New requirement needs a feature: use litespec new requirement <feature>.<name>.", Usage, json: false);
+            }
+
+            // A feature lives in its problem's folder, but its identifier carries no home:
+            // the problem picks the folder and the identifier is feature/<name>.
             var identifierHome = homeName;
 
             if (type == "feature")
             {
                 if (!Identifiers.ValidName(homeName!, false) || Identifiers.AllDigitsName(homeName!))
                 {
-                    CliHost.Error.WriteLine($"'{homeName}' is not a valid module name.");
+                    CliHost.Error.WriteLine($"'{homeName}' is not a valid problem name.");
                     return 2;
                 }
 
@@ -266,7 +293,19 @@ static class NewCommand
             return 2;
         }
 
-        var templateFile = $"{type}.yaml";
+        // A requirement lives in its feature's folder, so the feature record must exist first.
+        var requirementFolder = type == RecordTypes.Requirement ? RecordPages.FeatureFolder(records, homeName!) : null;
+
+        if (type == RecordTypes.Requirement && requirementFolder is null)
+        {
+            CliHost.Error.WriteLine($"No feature '{homeName}' holds the requirement; write feature/{homeName} first with litespec new feature <problem>.{homeName}.");
+            return 2;
+        }
+
+        // A use case is a command or a query, and each kind has its own template.
+        var templateFile = type == RecordTypes.UseCase
+            ? (parsed.Value("--kind") == "query" ? "use-case-query.yaml" : "use-case-command.yaml")
+            : $"{type}.yaml";
 
         if (ReadTemplate(templateFile) is not { } template)
         {
@@ -285,36 +324,39 @@ static class NewCommand
             return 1;
         }
 
+        // One title serves the YAML title and the explanation H1, so the two cannot differ. A decision's
+        // title leaves out the number the tool allocates.
+        var title = RecordTitle(isDecision ? id : name);
+
         node["id"] = full;
 
-        var filled = RecordFile.Write(node);
+        if (node.ContainsKey("title"))
+        {
+            node["title"] = title;
+        }
+
+        var filled = RecordScaffold.LineFor(templateFile) + "\n" + RecordFile.Write(node);
         string? explanation = null;
 
-        if (RecordFile.ArticleTypes.Contains(type))
+        // An article type, and a type on a layer the project lists, gets the explanation template for its own
+        // type, with the title filled in, so the record starts with its fixed sections. A requirement takes none:
+        // its statement is its lead.
+        if (type != RecordTypes.Requirement
+            && (RecordFile.ArticleTypes.Contains(type)
+                || (RecordTypes.LayerByType.TryGetValue(type, out var layer)
+                    && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))))
         {
-            var explanationFile = $"{type}.md";
-
-            if (ReadTemplate(explanationFile) is not { } explanationTemplate)
+            if (ReadTemplate($"{type}.md") is not { } explanationTemplate)
             {
                 return 1;
             }
 
-            explanation = explanationTemplate;
-        }
-        else if (RecordTypes.LayerByType.TryGetValue(type, out var layer)
-            && config.ExplanationLayers.Contains(layer, StringComparer.Ordinal))
-        {
-            var explanationFile = TemplateExists($"{type}.md") ? $"{type}.md" : "explanation.md";
-
-            if (ReadTemplate(explanationFile) is not { } explanationTemplate)
-            {
-                return 1;
-            }
-
-            explanation = explanationTemplate;
+            explanation = FillTitle(explanationTemplate, title);
         }
 
-        var target = RecordPages.PagePath(config, type, homeName, name);
+        var target = requirementFolder is null
+            ? RecordPages.PagePath(config, type, homeName, name)
+            : RecordPages.PlaceIn(requirementFolder, name, RecordFiles.Extension);
 
         if (File.Exists(target))
         {
@@ -456,6 +498,41 @@ static class NewCommand
             return null;
         }
     }
+
+    /// <summary>
+    ///     The one title a new record takes: its kebab-case name in Title Case, the first word capitalized and
+    ///     the minor words lowercase, as the consumer templates carry it.
+    /// </summary>
+    /// <param name="name">The kebab-case name of the record, without the decision number.</param>
+    /// <returns>The title, with its words separated by spaces.</returns>
+    static string RecordTitle(string name)
+    {
+        var words = name.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        if (words.Length == 0)
+        {
+            return name;
+        }
+
+        for (var at = 0; at < words.Length; at++)
+        {
+            if (at > 0 && MinorTitleWords.Contains(words[at]))
+            {
+                continue;
+            }
+
+            words[at] = char.ToUpperInvariant(words[at][0]) + words[at][1..];
+        }
+
+        return string.Join(' ', words);
+    }
+
+    /// <summary>The words a Title Case title keeps lowercase unless they open it.</summary>
+    static readonly HashSet<string> MinorTitleWords = new(StringComparer.Ordinal)
+    {
+        "a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "nor",
+        "of", "on", "or", "the", "to", "vs", "with",
+    };
 
     /// <summary>Whether the decision name already carries a number: four digits and a hyphen first.</summary>
     /// <param name="name">The name from the command line.</param>

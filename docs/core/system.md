@@ -182,13 +182,13 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Applies to:** artifact: record:use-case
 
-**Default:** Group module use case files under a plural kebab-case aggregate subdirectory, each holding that aggregate's page; a module with one aggregate of the module's own name may stay flat.
+**Default:** Group each module use case in its own folder under a plural kebab-case aggregate subdirectory, which holds the aggregate's `aggregate.yaml`; a module with one aggregate of the module's own name may keep its use cases in the module's `use-cases/` folder.
 
 **Replacement:** A consumer names its own module file grouping in its documentation.
 
-**Rationale:** Each aggregate needs its own directory for its page and use cases, so grouping use case files under a plural kebab-case aggregate subdirectory gives every aggregate one home. A module with one aggregate of the module's own name may stay flat, avoiding a repeated segment such as `modules/products/products/`. The use case identifier stays `use-case/<module>.<name>`; only the directory changes.
+**Rationale:** Each aggregate needs its own directory for its `aggregate.yaml` and use cases, so grouping use case folders under a plural kebab-case aggregate subdirectory gives every aggregate one home. The use case identifier stays `use-case/<module>.<name>`; only the directory changes. Each module keeps the same typed layout, so a module with one aggregate has the same folders as any other. Proposed by [decision/0060-put-child-records-in-typed-folders](decision/0060-put-child-records-in-typed-folders).
 
-**Reviewed for:** Each use case file under its module directory or its aggregate subdirectory.
+**Reviewed for:** Each use case folder, holding its `<use-case>.yaml`, under the module's `use-cases/` folder or its aggregate subdirectory.
 
 ### Keep Operational and Security References Under Operations
 

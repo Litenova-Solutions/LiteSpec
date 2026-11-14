@@ -28,7 +28,7 @@ The local tool pins the release in the repository, so every machine and every CI
 
 ```bash
 dotnet new tool-manifest
-dotnet tool install LiteSpec.Cli --version 5.2.0
+dotnet tool install LiteSpec.Cli --version 6.0.0
 dotnet litespec --version
 ```
 
@@ -39,7 +39,7 @@ Commit `.config/dotnet-tools.json`. A teammate or a CI job then runs `dotnet too
 A global tool puts `litespec` on the PATH for every folder on the machine, at one release:
 
 ```bash
-dotnet tool install --global LiteSpec.Cli --version 5.2.0
+dotnet tool install --global LiteSpec.Cli --version 6.0.0
 litespec --version
 ```
 
@@ -50,7 +50,7 @@ litespec --version
 `dnx` runs a release without installing it, which suits a quick look at a repository:
 
 ```bash
-dnx LiteSpec.Cli@5.2.0 model check
+dnx LiteSpec.Cli@6.0.0 model check
 ```
 
 It asks before the first download; `dnx --yes` answers for it.
@@ -67,7 +67,7 @@ export PATH="$HOME/.litespec/bin:$PATH"
 litespec --version
 ```
 
-Add the `export` line to `~/.profile` or `~/.zshrc`. `sh -s -- --version 5.2.0` installs a named release, and `--install-dir <dir>` another folder; `LITESPEC_VERSION` and `LITESPEC_INSTALL_DIR` set the same from the environment.
+Add the `export` line to `~/.profile` or `~/.zshrc`. `sh -s -- --version 6.0.0` installs a named release, and `--install-dir <dir>` another folder; `LITESPEC_VERSION` and `LITESPEC_INSTALL_DIR` set the same from the environment.
 
 On Windows, `install.ps1` keeps each release in `%LOCALAPPDATA%\Programs\LiteSpec\<version>` and puts the active one on the user PATH:
 
@@ -85,7 +85,7 @@ Check a download against its checksum and its build provenance attestation, whic
 
 ```bash
 sha256sum --check --ignore-missing SHA256SUMS
-gh attestation verify litespec-5.2.0-linux-x64.tar.gz --repo Litenova-Solutions/LiteSpec
+gh attestation verify litespec-6.0.0-linux-x64.tar.gz --repo Litenova-Solutions/LiteSpec
 ```
 
 A browser marks a download as coming from the internet. On macOS, the archive is not notarized, so clear the mark before the first run with `xattr -dr com.apple.quarantine <folder>`. On Windows, SmartScreen asks before the first run of an unsigned executable; `Unblock-File` on the archive before extracting it clears the mark. The install scripts and the .NET tool download without the mark, so neither prompt appears.
@@ -121,6 +121,28 @@ The release builds a native executable for these runtime identifiers:
 | `linux-musl-x64`, `linux-musl-arm64` | Alpine 3.21 or later |
 
 The [.NET 10 supported OS list](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md) names the Windows and macOS versions. A Linux executable needs only the C library: no ICU, no OpenSSL, and no .NET runtime. Any other platform runs the framework-dependent .NET tool on the .NET 10 runtime.
+
+### 8. Install a Release Candidate
+
+A release candidate, such as `6.0.0-rc.1`, lets a consumer test a release before it ships. It publishes the same packages and archives as the release, at the suffixed version, from the release branch, and its GitHub release is marked as a prerelease. Without a version, the install script and `dotnet tool update` keep the latest release, so a candidate installs only when it is named.
+
+The local .NET tool takes the candidate's version and pins it in `.config/dotnet-tools.json`, so `dotnet tool restore` restores the same candidate everywhere:
+
+```bash
+dotnet new tool-manifest
+dotnet tool install LiteSpec.Cli --version 6.0.0-rc.1
+dotnet litespec --version
+```
+
+`dotnet litespec --version` prints `6.0.0-rc.1`. Each project that references the analyzers names the candidate too, because the release's pin does not restore the candidate's analyzers:
+
+```xml
+<PackageReference Include="LiteSpec.Analyzers" Version="6.0.0-rc.1" PrivateAssets="all" />
+```
+
+The standalone binary takes the same version: `sh -s -- --version 6.0.0-rc.1` with the install script, or `$env:LITESPEC_VERSION = '6.0.0-rc.1'` before `install.ps1` on Windows. The archives of a candidate carry the suffix in their names, such as `litespec-6.0.0-rc.1-linux-x64.tar.gz`.
+
+A candidate's `AGENTS.md` links name the release version, and the site serves that release once it ships, so those links resolve only after the release. The consumer records the candidate in `reviewedLiteSpecVersion`, which `litespec init` writes when it runs with the candidate installed.
 
 ## Check
 

@@ -49,6 +49,52 @@ terms:
     nl: persoonsgegevens
     de: personenbezogene Daten
   rejected: []
+- id: term/self-scope
+  term: self scope
+  meaning: The reach of a grant over the caller's own expenses only.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/team-scope
+  term: team scope
+  meaning: The reach of a grant over the expenses that the caller's approval team submits.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/platform-scope
+  term: platform scope
+  meaning: The reach of a grant over every expense in the Claimwick installation.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/submit
+  term: submit
+  meaning: The act of sending an expense for approval.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
+- id: term/attach
+  term: attach
+  meaning: The act of adding a receipt to an expense.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
+- id: term/reimburse
+  term: reimburse
+  meaning: The act of paying an approved expense back to the employee.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
+- id: term/erase
+  term: erase
+  meaning: The act of removing personal data past its retention.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
 mannered:
 - term: one-way-door
   instead: irreversible

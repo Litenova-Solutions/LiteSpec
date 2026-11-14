@@ -11,7 +11,7 @@ Security answers 3 questions for every operation: who acts, what it touches, and
 
 ### Actors, Roles, and Permissions
 
-Every protected operation answers one question: who may do what to which target. An actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role at a scope, such as one organization; a role allows permissions from the shared closed list; and each use case declares the permissions it needs. The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question.
+Every protected operation answers one question: who may do what to which target. An actor is whoever acts: a person, a company, a provider, a system, or a guest. An actor holds a role, and the role's scope sets its reach, such as one organization; a role allows permissions from the shared closed list; and each use case declares the permissions it needs. The application guard authorizes every protected operation from those declarations, so two operations about the same record ask the same question.
 
 ### Trust Boundaries
 

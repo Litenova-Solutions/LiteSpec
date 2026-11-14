@@ -1,5 +1,5 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.2.0/schemas/design-contract.schema.yaml'
+$id: 'https://litespec.dev/6.0.0/schemas/design-contract.schema.yaml'
 title: LiteSpec Frontend Design Contract
 description: The metadata block opening the DESIGN.md a shared UI package ships. The block carries what a validator resolves; the sections under it carry what a reader and an agent compose from.
 type: object

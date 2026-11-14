@@ -15,7 +15,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         TestRecords.Explain(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.md",
@@ -32,7 +32,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/journeys/submit-and-reimburse.yaml",
-            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","betweenSteps":"The shop hands the claim to payment.","steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
+            """{"type":"journey","id":"journey/submit-and-reimburse","title":"Submit and Reimburse","actor":"actor/customer","serves":["goal/faster-delivery"],"destination":"The customer is reimbursed.","summary":"A customer submits a claim and is reimbursed.","finishedWhen":"The customer holds the reimbursement.","startedWhen":"The customer has a claim to submit.","branches":[{"step":"s1","condition":"The shop refuses the claim.","nextStep":"end"}],"steps":[{"id":"s1","statement":"The customer submits the order.","actor":"actor/customer"}],"cites":["requirement/pricing.flat-fee"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'destination'");
     }
 
@@ -45,7 +45,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","advances":["goal/faster-delivery"]}""");
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -58,7 +58,7 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/features/approval-reminders.yaml",
-            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","solves":["problem/slow-approval"],"advances":["goal/faster-delivery"]}""");
+            """{"type":"feature","id":"feature/approval-reminders","title":"Approval Reminders","offering":"Managers get a reminder for claims waiting past three days.","state":"shipped","advances":["goal/faster-delivery"]}""");
         AssertProblem(RunConsumer(folder.Path), "unknown property 'state'");
     }
 

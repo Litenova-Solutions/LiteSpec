@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LiteSpec.Cli.Files;
 using LiteSpec.Cli.Model.Records;
 using LiteSpec.Model;
 using static LiteSpec.Cli.Model.Checks.FindingText;
@@ -6,7 +7,7 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.Behavior;
 
-/// <summary>The privacy checks: each aggregate data class and personal field holds an erasure position, and each data class names what enforces its retention.</summary>
+/// <summary>The privacy checks: each aggregate data class and personal field holds an erasure position, each data class names what enforces its retention, and each retention schedule row names the reaction or job record that enforces it.</summary>
 /// <follows>litespec/core/privacy#declare-every-data-class-with-its-erasure-position</follows>
 /// <follows>litespec/core/privacy#schedule-every-data-class-for-retention</follows>
 internal static class PrivacyChecks
@@ -142,7 +143,7 @@ internal static class PrivacyChecks
         classification.Equals("personal", StringComparison.OrdinalIgnoreCase)
         || classification.Equals("sensitive", StringComparison.OrdinalIgnoreCase);
 
-    /// <summary>Reports an aggregate data class or field with no enforcedBy.</summary>
+    /// <summary>Reports an aggregate data class or field with no enforcedBy, and a retention schedule row whose enforcedBy names no reaction or job record.</summary>
     /// <param name="model">The loaded project model that holds every aggregate record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void RunRetention(ProjectModel model, List<Finding> findings)
@@ -165,6 +166,72 @@ internal static class PrivacyChecks
                         findings.Add(new Finding("retention-enforcement-missing", $"Aggregate '{aggregate.Id}' holds field '{exception.Field}' of data class '{position.Name}' with no enforcedBy.", aggregate.File, aggregate.Line, SubjectOf(aggregate)));
                     }
                 }
+            }
+        }
+
+        RunRetentionRows(model, findings);
+    }
+
+    /// <summary>Reports a retention schedule row whose enforcedBy is no reaction or job identifier, or names no record.</summary>
+    /// <param name="model">The loaded project model that resolves each enforcedBy target.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void RunRetentionRows(ProjectModel model, List<Finding> findings)
+    {
+        // The retention schedule is a container page, not a record, so its rows
+        // reach no record check; this check reads the page beside the records.
+        var file = Path.Combine(model.Config.BehaviorDocs, "retention-schedule.yaml");
+
+        if (!File.Exists(file))
+        {
+            return;
+        }
+
+        string text;
+
+        try
+        {
+            text = SourceTree.Read(file);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+
+        // A page the reader refuses, and rows without their shape, are left to record-invalid.
+        if (!RecordFile.TryParseTree(text, out var tree, out _)
+            || tree.Kind != JsonKind.Object
+            || !tree.TryGetProperty(RecordFields.Rows, out var rows)
+            || rows.Kind != JsonKind.Array)
+        {
+            return;
+        }
+
+        foreach (var row in rows.Items)
+        {
+            if (row.Kind != JsonKind.Object
+                || !row.TryGetProperty(RecordFields.DataClass, out var dataClass)
+                || dataClass.GetString() is not { Length: > 0 } name
+                || !row.TryGetProperty(RecordFields.EnforcedBy, out var enforced)
+                || enforced.GetString() is not { Length: > 0 } target)
+            {
+                continue;
+            }
+
+            if (!Identifiers.TrySplit(target, out _, out _, out _))
+            {
+                findings.Add(new Finding("field-invalid", $"Retention schedule row '{name}' holds '{target}' in enforcedBy, which is not a reaction or job identifier.", file, enforced.Line, null));
+                continue;
+            }
+
+            if (!model.ById.TryGetValue(Identifiers.BaseId(target), out var resolved))
+            {
+                findings.Add(new Finding("reference-unknown", $"Retention schedule row '{name}' holds enforcedBy '{target}', which no record holds.", file, enforced.Line, null));
+                continue;
+            }
+
+            if (resolved.Type is not (RecordTypes.Reaction or RecordTypes.Job))
+            {
+                findings.Add(new Finding("field-invalid", $"Retention schedule row '{name}' links enforcedBy to '{target}', which is a {resolved.Type}.", file, enforced.Line, null));
             }
         }
     }

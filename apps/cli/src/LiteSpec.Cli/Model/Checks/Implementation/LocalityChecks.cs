@@ -403,10 +403,10 @@ internal static class LocalityChecks
 
         return record.Type switch
         {
-            RecordTypes.Product or RecordTypes.Goal or RecordTypes.Problem or RecordTypes.Feature
+            RecordTypes.Product or RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Feature
                 or RecordTypes.Constraint or RecordTypes.Research or RecordTypes.Decision
                 or RecordTypes.Requirement or RecordTypes.Journey or RecordTypes.Actor
-                or RecordTypes.Role or RecordTypes.Module => "intent",
+                or RecordTypes.Role => "intent",
             _ => "behavior",
         };
     }

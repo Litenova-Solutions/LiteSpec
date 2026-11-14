@@ -61,7 +61,7 @@ public sealed class ReachabilityTests
         Assert.Empty(states.EnumerateArray());
     }
 
-    const string Aggregate = ".litespec/behavior/modules/lending/loans/aggregate.yaml";
+    const string Aggregate = ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml";
 
     static void PatchRecord(string root, string relative, Action<JsonObject> mutate)
     {

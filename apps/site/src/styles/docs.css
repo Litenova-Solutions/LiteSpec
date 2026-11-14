@@ -1,3 +1,6 @@
+@layer base, components, pages;
+
+@layer pages {
 /* Docs pages: the three-column layout, the sidebar tree, the breadcrumb, the
    content header block, the pager and the "On this page" list. The rendered
    page body itself is styled by prose.css. Every color is a token from
@@ -29,7 +32,7 @@
   background: transparent;
   color: inherit;
   border: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
@@ -49,7 +52,7 @@
   min-height: 32px;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
@@ -78,7 +81,7 @@
   width: 14px;
   height: 14px;
   color: var(--muted-fg);
-  margin-left: auto;
+  margin-inline-start: auto;
   transition: transform .15s;
 }
 
@@ -88,8 +91,8 @@ details[open] > .group-h .chev {
 
 .group > .tree {
   margin: var(--space-1) 0 var(--space-3) var(--space-4);
-  padding-left: var(--space-2);
-  border-left: 1px solid var(--rail);
+  padding-inline-start: var(--space-2);
+  border-inline-start: 1px solid var(--rail);
 }
 
 .tree a,
@@ -103,7 +106,7 @@ details[open] > .group-h .chev {
   color: var(--muted-fg);
   cursor: pointer;
   line-height: 1.4;
-  font-size: 13.5px;
+  font-size: 0.84375rem;
 }
 
 .tree a:hover,
@@ -123,7 +126,7 @@ details[open] > .group-h .chev {
 .tree a.on::before {
   content: "";
   position: absolute;
-  left: calc(-1 * var(--space-2) - 2px);
+  inset-inline-start: calc(-1 * var(--space-2) - 2px);
   top: var(--space-1);
   bottom: var(--space-1);
   width: 2px;
@@ -132,9 +135,9 @@ details[open] > .group-h .chev {
 }
 
 .tree .tag {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 0.65625rem;
   font-weight: 500;
   color: var(--muted-fg);
   border: 1px solid var(--border);
@@ -152,7 +155,7 @@ details[open] > .group-h .chev {
 }
 
 .tree summary .chev {
-  margin-left: auto;
+  margin-inline-start: auto;
   width: 14px;
   height: 14px;
   color: var(--muted-fg);
@@ -164,13 +167,13 @@ details[open] > .group-h .chev {
 }
 
 .tree summary .tag + .chev {
-  margin-left: var(--space-1);
+  margin-inline-start: var(--space-1);
 }
 
 .tree .kids {
   margin: var(--space-1) 0 var(--space-2) var(--space-3);
-  padding-left: var(--space-2);
-  border-left: 1px solid var(--rail);
+  padding-inline-start: var(--space-2);
+  border-inline-start: 1px solid var(--rail);
 }
 
 /* An open folder's own row reads as the head of its block. */
@@ -186,8 +189,12 @@ details[open] > .group-h .chev {
   display: none;
 }
 
-/* Content column: the phone browse button, the indexed header and body,
-   and the pager pinned to the bottom of the column. */
+/* Content column: the phone browse button, the indexed header and body, and the
+   pager pinned to the bottom of the column. The article fills the column between the
+   sidebar and the on-page list, and every block in it (title, intro, paragraphs,
+   lists, tables, provision cards, callouts, code and diagrams) takes that full width,
+   so they share one left edge and one right edge. A table wider than the column
+   scrolls inside its own wrapper. */
 .content {
   padding: var(--space-10) var(--space-12);
   min-width: 0;
@@ -207,7 +214,7 @@ details[open] > .group-h .chev {
 }
 
 .crumb {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted-fg);
 }
 
@@ -245,6 +252,18 @@ details[open] > .group-h .chev {
   gap: var(--gap-inline);
 }
 
+/* Breadcrumb links and the group link are 24px targets (WCAG 2.5.8). */
+.crumb li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+}
+
 .crumb a:hover {
   color: var(--fg);
 }
@@ -256,7 +275,7 @@ details[open] > .group-h .chev {
 }
 
 .content h1 {
-  font-size: 36px;
+  font-size: calc(var(--text) * 2.2);
   letter-spacing: -.03em;
   font-weight: 600;
   margin: var(--space-3) 0 var(--space-2);
@@ -270,13 +289,13 @@ details[open] > .group-h .chev {
   flex-wrap: wrap;
   gap: var(--gap-inline);
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted-fg);
 }
 
 .page-meta > span + span::before {
   content: "\00B7";
-  margin-right: var(--gap-inline);
+  margin-inline-end: var(--gap-inline);
   color: var(--rail);
 }
 
@@ -291,15 +310,14 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: block;
 }
 
-/* The page introduction: the Intent or Purpose section, shown under the title. */
-/* Body size in the secondary text color: the intro gives context, and the title
-   above it carries the weight. */
+/* The page introduction: the Intent or Purpose section, shown under the title.
+   Body size in the secondary text color: the intro gives context, and the title
+   above it carries the weight. It takes the full article column, like every block. */
 .content .page-intro {
   margin-top: var(--space-3);
   margin-bottom: var(--space-2);
-  max-width: 68ch;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: var(--text);
+  line-height: 1.5;
   color: var(--fg-2);
 }
 
@@ -316,7 +334,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .tools-badge {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .pager {
@@ -345,7 +363,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: flex;
   align-items: center;
   gap: var(--gap-inline);
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--muted-fg);
 }
 
@@ -356,7 +374,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 .pager b {
   display: block;
   margin-top: var(--space-1);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -.01em;
   overflow-wrap: anywhere;
@@ -368,7 +386,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .pager-next {
   grid-column: 2;
-  text-align: right;
+  text-align: end;
 }
 
 .pager-next small {
@@ -379,7 +397,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
    page links below it. */
 .toc {
   padding: var(--space-10) var(--space-6);
-  font-size: 13px;
+  font-size: 0.8125rem;
   position: sticky;
   top: var(--top);
   align-self: start;
@@ -390,7 +408,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .toc .cap {
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--muted-fg);
@@ -409,7 +427,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: block;
   padding: var(--space-1) 0 var(--space-1) var(--space-3);
   color: var(--muted-fg);
-  border-left: 1px solid var(--border);
+  border-inline-start: 1px solid var(--border);
   overflow-wrap: anywhere;
 }
 
@@ -419,16 +437,16 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .toc-list a[aria-current="location"] {
   color: var(--fg);
-  border-left: 2px solid var(--accent);
-  padding-left: calc(var(--space-3) - 1px);
+  border-inline-start: 2px solid var(--accent);
+  padding-inline-start: calc(var(--space-3) - 1px);
 }
 
 .toc-list a.toc-sub {
-  padding-left: var(--space-6);
+  padding-inline-start: var(--space-6);
 }
 
 .toc-list a.toc-sub[aria-current="location"] {
-  padding-left: calc(var(--space-6) - 1px);
+  padding-inline-start: calc(var(--space-6) - 1px);
 }
 
 .toc .links,
@@ -444,11 +462,12 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 .toc-mobile .links a {
   border: 0;
   padding: 0;
+  min-block-size: 1.5rem;
   display: flex;
   gap: var(--gap-inline);
   align-items: center;
   color: var(--muted-fg);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .toc .links a:hover,
@@ -471,7 +490,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   cursor: pointer;
   list-style: none;
   padding: var(--pad-box-y) var(--pad-box-x);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
@@ -480,7 +499,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .toc-mobile > summary .chev {
-  margin-left: auto;
+  margin-inline-start: auto;
   transition: transform .15s;
 }
 
@@ -504,7 +523,6 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .prose .std-list {
   list-style: none;
-  max-width: none;
   margin: 0;
   padding: 0;
   display: grid;
@@ -528,7 +546,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .std-list > li > a {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -.01em;
   text-decoration: none;
@@ -544,7 +562,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .std-list > li > p {
   margin: var(--space-1) 0 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--fg-2);
 }
 
@@ -577,7 +595,8 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     display: flex;
     flex-direction: column;
     position: fixed;
-    inset: 0 auto 0 0;
+    inset-block: 0;
+    inset-inline-start: 0;
     width: min(340px, 92vw);
     max-width: none;
     height: 100dvh;
@@ -588,7 +607,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     background: var(--bg);
     color: var(--fg);
     border: 0;
-    border-right: 1px solid var(--border);
+    border-inline-end: 1px solid var(--border);
   }
 
   .side-dialog::backdrop {
@@ -612,7 +631,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     background: var(--bg);
     color: var(--fg);
     font: inherit;
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
 
   .side-dialog .side {
@@ -636,7 +655,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   .pager-prev,
   .pager-next {
     grid-column: auto;
-    text-align: left;
+    text-align: start;
   }
 
   .pager-next small {
@@ -648,15 +667,13 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
    wider frame in site.css. */
 @media (min-width: 100rem) {
   .doc3 { --side: 296px; --toc: 248px; }
-  .side-dialog { font-size: 15px; }
-  .tree a, .tree summary { font-size: 14.5px; min-height: 32px; }
-  .group-h { font-size: 14px; }
+  .side-dialog { font-size: 0.9375rem; }
+  .tree a, .tree summary { font-size: 0.90625rem; min-height: 32px; }
+  .group-h { font-size: 0.875rem; }
   .content { padding: var(--space-12) var(--space-16); }
-  .content h1 { font-size: 42px; }
-  .content .page-intro { font-size: 16.5px; }
-  .crumb, .page-meta { font-size: 14px; }
-  .toc { font-size: 14px; }
-  .pager b { font-size: 16px; }
+  .crumb, .page-meta { font-size: 0.875rem; }
+  .toc { font-size: 0.875rem; }
+  .pager b { font-size: 1rem; }
 }
 
 /* Motion: the page body settles in on load, and the phone drawer slides in
@@ -669,3 +686,4 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   .side-dialog[open]::backdrop { animation: fade .24s ease-out both; }
 }
 @keyframes drawer-in { from { translate: -100% 0; } }
+}

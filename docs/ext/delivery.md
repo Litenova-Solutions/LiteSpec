@@ -237,7 +237,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** The requirement's measure is the agreed target, and the alert is the one place it is enforced at runtime. A measure that says two seconds and an alert that fires at five drift apart silently, because nobody re-reads the alert when the requirement changes. Comparing the numbers is a coarse check, since a measure is prose, so it advises rather than blocks.
 
-**Example:** `requirement/expense-submission.month-end-submissions` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
+**Example:** `requirement/approval-reminders.month-end-submission` measures "at least 99 percent within two seconds", and its alert's expression compares the 0.99 quantile against 2.
 
 **Checked by:** `litespec model check` reports `alert-threshold-drift` (level A) for an alert rule whose own text carries none of the decimal numbers its requirement's `measure` names.
 
@@ -253,7 +253,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A drill rehearses a procedure against a running deployment, and a harness measures from outside: neither is a test, and neither runs in the test job, so their outcome lives only in a terminal or a pasted note that no tool reads. Writing each run as a small result file in Proof gives the quality requirement the same evidence a measured check gives it, under the same `check` name, with the date it ran and the value it saw.
 
-**Example:** Claimwick's month-end load harness writes `.litespec/proof/checks/2026-11-20-month-end-load.json` holding `"check": "month-end-load"`, `"passed": true`, `"value": "99.4 percent acknowledged within two seconds"`, and `"ranOn": "2026-11-20"`, and `requirement/expense-submission.month-end-submissions` names `month-end-load` in its `check`.
+**Example:** Claimwick's month-end load harness writes `.litespec/proof/checks/2026-11-20-month-end-load.json` holding `"check": "month-end-load"`, `"passed": true`, `"value": "99.4 percent acknowledged within two seconds"`, and `"ranOn": "2026-11-20"`, and `requirement/approval-reminders.month-end-submission` names `month-end-load` in its `check`.
 
 **Reviewed for:** Which drill or measuring harness runs lack a check result file naming the requirement's `check` under `paths.checkResults`? Look at the harness run records beside the files under `paths.checkResults`.
 
@@ -269,7 +269,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** An alert is the runtime half of a quality requirement: it fires when the measure the requirement promises is breached, and the runbook says what a person does next. Written as a file path or left out, the link is a string no tool follows, so an alert can outlive its requirement, a requirement can lose its last alert, and a renamed runbook breaks silently. Record identifiers in the alert's own labels keep the link in the file the alert lives in, in the syntax its tool already reads, and let the model check both ends. A baseline alert also carries its window and severity, as `litespec/ext/delivery#define-actionable-baseline-alerts` states.
 
-**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/expense-submission.month-end-submissions` and `runbook: runbook/slow-submissions` in its labels.
+**Example:** Claimwick's alert rule `submission-acknowledgement-slow` carries `requirement: requirement/approval-reminders.month-end-submission` and `runbook: runbook/slow-submissions` in its labels.
 
 **Checked by:** `litespec model check` reports `alert-link-missing` (level S) for an alert rule in the files `paths.alerts` names whose `requirement` label is missing or names no quality requirement, or whose `runbook` label is missing or names no runbook.
 
@@ -285,7 +285,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a departure with a reason, an exit and an expiry date, instead of passing silently.
 
-**Example:** `requirement/expense-submission.month-end-submissions` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
+**Example:** `requirement/approval-reminders.month-end-submission` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
 **Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no departure covering `quality-alert-missing` lists in its `subject`.
 

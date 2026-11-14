@@ -236,6 +236,8 @@ const initialAgents = renderAgentProtocol(
   </div>
 </li>
 <style>
+@layer base, components, pages;
+@layer components {
   .select-form {
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -252,33 +254,29 @@ const initialAgents = renderAgentProtocol(
   .select-row:first-child {
     border-top: 0;
   }
-  /* A legend cannot be a grid item, so it floats into the label column and the
-     answer takes the rest of the row. */
+  /* A legend cannot be a grid item. Full width, it sits above its answer and does
+     not break the fieldset's border, which a narrower legend would. */
   .select-label {
-    float: left;
-    width: 220px;
-    margin-right: var(--space-6);
+    float: inline-start;
+    inline-size: 100%;
+    margin-block-end: var(--space-2);
     padding: 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
   }
   .select-label span {
     display: block;
     margin-top: 2px;
     color: var(--muted-fg);
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 400;
     line-height: 1.5;
-  }
-  .select-seg,
-  .select-exts {
-    margin-left: calc(220px + var(--space-6));
   }
   .select-seg {
     display: flex;
     flex-wrap: wrap;
     width: max-content;
-    max-width: calc(100% - 220px - var(--space-6));
+    max-width: 100%;
     gap: 2px;
     padding: 2px;
     border: 1px solid var(--border);
@@ -292,7 +290,7 @@ const initialAgents = renderAgentProtocol(
   .select-seg label span {
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-sm);
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--muted-fg);
   }
   .select-seg label:hover span {
@@ -305,7 +303,7 @@ const initialAgents = renderAgentProtocol(
     box-shadow: 0 0 0 1px var(--border);
   }
   .select-seg input:focus-visible + span {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--accent-text);
     outline-offset: -2px;
   }
   .select-seg input:disabled + span {
@@ -327,7 +325,7 @@ const initialAgents = renderAgentProtocol(
     align-items: center;
     gap: var(--gap-inline);
     padding: var(--space-2) var(--space-3);
-    font-size: 14px;
+    font-size: 0.875rem;
     cursor: pointer;
   }
   .select-exts label:hover {
@@ -348,13 +346,13 @@ const initialAgents = renderAgentProtocol(
     min-width: 0;
   }
   .select-exts code {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--muted-fg);
   }
   .select-ext-scope {
-    margin-left: auto;
+    margin-inline-start: auto;
     flex: none;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--muted-fg);
   }
   @media (max-width: 760px) {
@@ -365,7 +363,7 @@ const initialAgents = renderAgentProtocol(
     }
     .select-seg,
     .select-exts {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
     .select-seg {
       max-width: 100%;
@@ -374,6 +372,7 @@ const initialAgents = renderAgentProtocol(
       display: none;
     }
   }
+}
 </style>
 <script type="application/json" id="select-data" set:html={payload}></script>
 <script is:inline>
@@ -531,6 +530,7 @@ const initialAgents = renderAgentProtocol(
     var chosen = checkedExtensions();
     var values = {
       "__LITESPEC_VERSION__": data.version,
+      "__LITESPEC_PACKAGE_VERSION__": data.version,
       "__SIZE__": size,
       "__SHAPE__": shape,
       "__STACKS__": stacks.length ? stacks.join(", ") : "none",

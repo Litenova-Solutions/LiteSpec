@@ -134,7 +134,7 @@ public sealed class CoverageCheckTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "5.2.0",
+                  "reviewedLiteSpecVersion": "6.0.0",
                   "owners": [
                     "lending-team"
                   ],
@@ -162,7 +162,7 @@ public sealed class CoverageCheckTests
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -178,12 +178,12 @@ public sealed class CoverageCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/outbox/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.outbox",
@@ -193,7 +193,7 @@ public sealed class CoverageCheckTests
                   "kind": "store"
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/outbox/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/outbox/aggregate.md", """
                 # Outbox
 
                 The lending-owned table of scans awaiting dispatch.

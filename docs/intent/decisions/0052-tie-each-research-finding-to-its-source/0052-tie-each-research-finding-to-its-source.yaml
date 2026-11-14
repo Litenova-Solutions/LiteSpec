@@ -1,0 +1,16 @@
+type: decision
+id: decision/0052-tie-each-research-finding-to-its-source
+title: Tie Each Research Finding to Its Source
+options:
+  - name: "Each finding cites its source key and says whether the source states it, with Open Questions as its own section"
+    pros: "A reader sees which claims the source states and which the writer infers, and a check finds each finding's citation."
+    cons: "Every finding is rewritten, and each inference is stated in its own sentence."
+  - name: "Define the three confidence levels: high, medium and low"
+    pros: "A reader gets one short label per finding, and the template stays as it is."
+    cons: "A label does not say what the source states, and a reader still rechecks each claim."
+  - name: "Structured findings with claim, source and kind fields"
+    pros: "A check reads each field, and each finding names one source by design."
+    cons: "A finding's conditions have no field to sit in, and one claim cannot hold a qualified statement."
+choice: "Each finding cites its source key and says whether the source states it, with Open Questions as its own section"
+consequences: "Each paragraph under Findings states one claim with its conditions, cites at least one source key with a reference link, and says whether the source states the claim or the writer infers it. The high, medium and low labels are removed from the provision and the template. `finding-source-missing` reports a Findings paragraph with no source link. The research sections become Findings, Open Questions (optional) and Source Notes (optional). Open Questions holds what the sources do not establish, each as a question naming what to investigate. Source Notes holds what each source covers and where sources disagree. The conclusion states what the sources establish, with the conditions the findings carry, and drops what follows. Findings answer only the record's question. Each source may carry `publishedOn`, and `readOn` states when someone read the source. `litespec/core/intent#state-each-research-finding-with-its-source` is required, and the research guide follows the new sections."
+reopenedWhen: "Consumers report that most findings are written as inferences, so the sentence adds nothing to the claim, or that a finding cannot hold its conditions in one paragraph."

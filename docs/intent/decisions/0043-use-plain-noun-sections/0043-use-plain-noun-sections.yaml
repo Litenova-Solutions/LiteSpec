@@ -1,0 +1,16 @@
+type: decision
+id: decision/0043-use-plain-noun-sections
+title: Use Plain Noun Sections and an Opening Paragraph
+options:
+  - name: "Keep the headings each record type had, phrased as questions and stories"
+    pros: "Each heading reads as the question a reader asks, and the text under it answers in the author's own voice."
+    cons: "Headings differ from type to type and phrase the same content in different words, so a reader cannot predict a section's name, a check must list every phrasing, and the types without a fixed list shared one generic heading."
+  - name: "Give each record type one fixed list of plain noun sections, and open each explanation with one paragraph"
+    pros: "Each type has one list, each name says what its section holds, and the opening paragraph tells a cold reader what the record is before any section is read."
+    cons: "Every explanation file written under the old headings must be rewritten, and a noun heading carries less voice than a question."
+  - name: "Keep the H1 only and let each explanation file choose its own sections"
+    pros: "No table to keep, and each author writes the sections the record needs."
+    cons: "No check can tell whether a limit, a cost or an example is present, and a reader moving from one record to the next finds the same content under different names."
+choice: "Give each record type one fixed list of plain noun sections, and open each explanation with one paragraph"
+consequences: "Each explanation file opens with its H1 and one paragraph of prose, then the fixed H2 sections of its record type in the order the section table on the writing page gives. `explanation-missing` reports a missing section or sections out of order, and the new `explanation-opening-missing` finding reports an explanation with no opening paragraph. `litespec new` writes each type's own explanation template, and the generic `explanation.md` template is removed. The old headings are invalid in 6.0.0, and no conversion tool ships, so each consumer rewrites its explanation files under the changelog's upgrade step. `litespec/core/writing#give-each-explanation-file-its-fixed-sections` states the section table and `litespec/core/writing#open-each-explanation-file-with-a-paragraph` states the paragraph rule."
+reopenedWhen: "A record type needs a section that no plain noun can name, or consumers report that the opening paragraph repeats the summary so often that it adds nothing to the reading."

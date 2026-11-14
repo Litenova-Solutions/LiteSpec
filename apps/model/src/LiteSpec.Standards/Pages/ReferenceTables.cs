@@ -49,12 +49,12 @@ public static class ReferenceTables
     {
         var text = new StringBuilder();
         text.Append("# Record Folders\n\n## Intent\n\n");
-        text.Append("Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A record in any other folder is a `record-placement-invalid` finding. The Flat module column marks a home that applies only to a module that keeps its records flat. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.\n\n");
+        text.Append("Use this generated page to find the folder and file each record type lives in, relative to `.litespec/`. A named record sits in a folder that carries its name, beside its explanation, so `<name>/<name>.yaml` and `<name>/<name>.md` are the pair. A record in any other folder is a `record-placement-invalid` finding, a folder whose name differs from its file stem is a `record-folder-drift` finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.\n\n");
         text.Append("## Reference\n\n");
-        text.Append("| Type | Folder | File | Flat module |\n|:---|:---|:---|:---|\n");
-        foreach (var (type, folder, file, flat) in RecordFolders.Homes())
+        text.Append("| Type | Folder | File |\n|:---|:---|:---|\n");
+        foreach (var (type, folder, file) in RecordFolders.Homes())
         {
-            text.Append(CultureInfo.InvariantCulture, $"| `{type}` | `{folder}` | `{file}` | {(flat ? "yes" : "-")} |\n");
+            text.Append(CultureInfo.InvariantCulture, $"| `{type}` | `{folder}` | `{file}` |\n");
         }
 
         text.Append("\n## Notes\n\nThe `litespec-maintain provisions` command writes this page from the record folder table in the model, and `litespec-maintain provisions --check` fails when it differs. Edit the table, not the page.\n");

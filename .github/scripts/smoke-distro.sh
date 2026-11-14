@@ -28,7 +28,7 @@ else
   exit 2
 fi
 
-version="$(manifest_version /src/litespec.manifest.yaml)"
+version="$(release_version /src/litespec.manifest.yaml)"
 install_dir="$(mktemp -d)"
 
 LITESPEC_INSTALL_DIR="$install_dir" sh /src/apps/cli/install/install.sh --version "$version"

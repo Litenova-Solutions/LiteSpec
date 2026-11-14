@@ -20,7 +20,7 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            consumer.Path, ".litespec", "intent", "decisions", "0001-receipt-threshold.yaml");
+            consumer.Path, ".litespec", "intent", "decisions", "0001-receipt-threshold", "0001-receipt-threshold.yaml");
 
         Assert.True(File.Exists(page), $"Expected the decision page at '{page}'.");
         Assert.Contains("decision/0001-receipt-threshold", File.ReadAllText(page));
@@ -44,7 +44,7 @@ public sealed class NewDecisionTests
         Assert.DoesNotContain(
             "kind:",
             File.ReadAllText(Path.Combine(
-                consumer.Path, ".litespec", "intent", "decisions", "0001-receipt-threshold.yaml")),
+                consumer.Path, ".litespec", "intent", "decisions", "0001-receipt-threshold", "0001-receipt-threshold.yaml")),
             StringComparison.Ordinal);
     }
 
@@ -61,7 +61,7 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
 
         var page = Path.Combine(
-            fixture.Path, ".litespec", "intent", "decisions", "0002-hold-notices.yaml");
+            fixture.Path, ".litespec", "intent", "decisions", "0002-hold-notices", "0002-hold-notices.yaml");
 
         Assert.True(File.Exists(page), $"Expected the decision page at '{page}'.");
         Assert.Contains("decision/0002-hold-notices", File.ReadAllText(page));
@@ -88,7 +88,7 @@ public sealed class NewDecisionTests
         Assert.Contains(
             "decision/0003-hold-notices",
             File.ReadAllText(Path.Combine(
-                fixture.Path, ".litespec", "intent", "decisions", "0003-hold-notices.yaml")));
+                fixture.Path, ".litespec", "intent", "decisions", "0003-hold-notices", "0003-hold-notices.yaml")));
     }
 
     /// <summary>New decision refuses a name that already carries a number.</summary>
@@ -104,7 +104,7 @@ public sealed class NewDecisionTests
         Assert.Equal(2, result.Status);
         Assert.Contains("takes a name without a number", result.Output);
         Assert.False(File.Exists(Path.Combine(
-            fixture.Path, ".litespec", "intent", "decisions", "0005-hold-notices.yaml")));
+            fixture.Path, ".litespec", "intent", "decisions", "0005-hold-notices", "0005-hold-notices.yaml")));
     }
 
     public static TheoryData<string> RejectedNames() => new()
@@ -170,7 +170,7 @@ public sealed class NewDecisionTests
                 < result.Stdout.IndexOf("Wrote ", StringComparison.Ordinal),
             "Expected the matching provisions to print before the written files.");
         Assert.True(File.Exists(Path.Combine(
-            consumer.Path, ".litespec", "intent", "decisions", "0001-render-receipts.yaml")));
+            consumer.Path, ".litespec", "intent", "decisions", "0001-render-receipts", "0001-render-receipts.yaml")));
     }
 
     /// <summary>New decision prints nothing when no provision statement matches the name.</summary>
@@ -187,7 +187,7 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Provisions matching", result.Stdout, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(
-            consumer.Path, ".litespec", "intent", "decisions", "0001-wombat-ledger-quarry.yaml")));
+            consumer.Path, ".litespec", "intent", "decisions", "0001-wombat-ledger-quarry", "0001-wombat-ledger-quarry.yaml")));
     }
 
     /// <summary>New decision matches a plural name word against the singular in a statement.</summary>
@@ -222,6 +222,6 @@ public sealed class NewDecisionTests
         Assert.Equal(0, result.Status);
         Assert.DoesNotContain("Provisions matching", result.Stdout, StringComparison.Ordinal);
         Assert.True(File.Exists(Path.Combine(
-            consumer.Path, ".litespec", "intent", "decisions", "0001-up-it.yaml")));
+            consumer.Path, ".litespec", "intent", "decisions", "0001-up-it", "0001-up-it.yaml")));
     }
 }

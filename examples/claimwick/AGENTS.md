@@ -3,9 +3,9 @@
 <!-- generated:agent-protocol -->
 When this file disagrees with `litespec rules`, `litespec model query` or a record, the tool output and the record win; this file only points to them.
 
-This project follows LiteSpec 5.2.0: size large, shape server, stacks dotnet, svelte, extensions none.
+This project follows LiteSpec 6.0.0: size large, shape server, stacks dotnet, svelte, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
-Before a task, read https://litespec.dev/5.2.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
+Before a task, read https://litespec.dev/6.0.0/select/server.dotnet.svelte/llms.txt and fetch only the pages the task touches.
 UI work: the pattern pages listed in that index.
 
 Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#select-task-context)

@@ -16,14 +16,46 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "goals");
-        DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "features");
-        DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        DirAt(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
 
         Assert.DoesNotContain(Run(model), found => found.Code == "folder-invalid");
+    }
+
+    /// <summary>A module record filed under intent reports a placement finding: modules are declared in Behavior.</summary>
+    /// <proves>litespec/core/intent#keep-intent-in-its-homes</proves>
+    [Fact]
+    public void ModuleRecordUnderIntentReportsPlacement()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("module", "module/lending", file, """{"dependsOn": []}"""));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("Module 'module/lending' sits in 'intent/modules/lending', but modules live in 'behavior/modules/<name>/module.yaml'.", finding.Message);
+    }
+
+    /// <summary>A requirement folder directly under its feature folder, without the requirements folder, reports a placement finding.</summary>
+    /// <proves>litespec/core/model#place-child-records-in-typed-folders</proves>
+    [Fact]
+    public void RequirementDirectlyInFeatureFolderReports()
+    {
+        using var temp = TestCli.Temp("checks");
+        var file = PathAt(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "max-active-holds", "max-active-holds.yaml");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", PathAt(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "overdue-loans-pile-up.yaml"), "{}"),
+            TestModel.Record("feature", "feature/hold-queue", PathAt(temp.Path, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "hold-queue.yaml"), "{}"),
+            TestModel.Record("requirement", "requirement/hold-queue.max-active-holds", file, "{}"));
+
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Requirement 'requirement/hold-queue.max-active-holds' sits in 'intent/problems/overdue-loans-pile-up/features/hold-queue/max-active-holds', but requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml'.", finding.Message);
     }
 
     /// <summary>Intent Unknown Folder Reports.</summary>
@@ -65,15 +97,14 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending", "widgets");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
 
-        var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Folder '.litespec/behavior/modules/lending/widgets' sits outside the closed folder set of its layer and level.", finding.Message);
-        Assert.Null(finding.Subject);
+        Assert.Equal("Folder '.litespec/behavior/modules/lending/widgets' is no typed folder of its module; aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/', and the other module children in their named folders.", finding.Message);
     }
 
     /// <summary>Behavior Aggregate Folder Passes.</summary>
@@ -82,9 +113,9 @@ public sealed class FolderCheckTests
     public void BehaviorAggregateFolderPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
@@ -98,9 +129,9 @@ public sealed class FolderCheckTests
     public void EventsAggregateFolderInModulePasses()
     {
         using var temp = TestCli.Temp("checks");
-        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "events", "events", "aggregate.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "events", "aggregates", "events", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/events.event\ntitle: Event\n");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "events", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "events", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/events", moduleFile, """{"dependsOn": []}"""),
@@ -145,12 +176,12 @@ public sealed class FolderCheckTests
     public void TypeFolderChildReports()
     {
         using var temp = TestCli.Temp("checks");
-        DirAt(temp.Path, ".litespec", "intent", "goals", "archive");
+        DirAt(temp.Path, ".litespec", "intent", "goals", "archive", "notes");
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
         var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Folder '.litespec/intent/goals/archive' sits outside the closed folder set of its layer and level.", finding.Message);
+        Assert.Equal("Folder '.litespec/intent/goals/archive/notes' sits outside the closed folder set of its layer and level.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -202,7 +233,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "implementation", "modules", "lending", "widgets");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
@@ -220,7 +251,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "governance", "modules", "lending", "reviews");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
@@ -231,46 +262,39 @@ public sealed class FolderCheckTests
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>Intent Module Actors Folder Reports.</summary>
+    /// <summary>Intent Modules Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void IntentModuleActorsFolderReports()
+    public void IntentModulesFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "intent", "modules", "lending", "actors");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Folder '.litespec/intent/modules/lending/actors' sits outside the closed folder set of its layer and level.", finding.Message);
+        Assert.Equal("Folder '.litespec/intent/modules' sits outside the closed folder set of its layer and level.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
-    /// <summary>Behavior Module Events Folder Reports When Not Flat.</summary>
+    /// <summary>Behavior Module Events Folder Reports.</summary>
     /// <proves>litespec/core/model#give-every-record-one-parent</proves>
     [Fact]
-    public void BehaviorModuleEventsFolderReportsWhenNotFlat()
+    public void BehaviorModuleEventsFolderReports()
     {
         using var temp = TestCli.Temp("checks");
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending", "events");
-        var loans = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
-        File.WriteAllText(loans, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
-        var holds = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "holds", "aggregate.yaml");
-        File.WriteAllText(holds, "type: aggregate\nid: aggregate/lending.hold\ntitle: Hold\n");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", loans, """{}"""),
-            TestModel.Record("aggregate", "aggregate/lending.hold", holds, """{}"""));
+            TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
 
-        var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Folder '.litespec/behavior/modules/lending/events' sits outside the closed folder set of its layer and level.", finding.Message);
-        Assert.Null(finding.Subject);
+        Assert.Equal("Folder '.litespec/behavior/modules/lending/events' is no typed folder of its module; aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/', and the other module children in their named folders.", finding.Message);
     }
 
     /// <summary>Behavior Module Events Folder Passes When Flat.</summary>
@@ -279,8 +303,8 @@ public sealed class FolderCheckTests
     public void BehaviorModuleEventsFolderPassesWhenFlat()
     {
         using var temp = TestCli.Temp("checks");
-        DirAt(temp.Path, ".litespec", "behavior", "modules", "posts", "events");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "posts", "module.yaml");
+        DirAt(temp.Path, ".litespec", "behavior", "modules", "posts", "aggregates", "events");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "module.yaml");
         var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "aggregate.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
@@ -300,7 +324,7 @@ public sealed class FolderCheckTests
         DirAt(temp.Path, ".litespec", "behavior", "modules", "lending");
         DirAt(temp.Path, ".litespec", "implementation", "modules", "lending");
         DirAt(temp.Path, ".litespec", "governance", "modules", "lending");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
@@ -322,21 +346,6 @@ public sealed class FolderCheckTests
         Assert.Equal("Module folder '.litespec/behavior/modules/ghost' names no declared module.", finding.Message);
         Assert.Equal(directory, finding.Path);
         Assert.Equal(1, finding.Line);
-        Assert.Null(finding.Subject);
-    }
-
-    /// <summary>Undeclared Intent Module Reports.</summary>
-    /// <proves>litespec/core/model#give-every-record-one-parent</proves>
-    [Fact]
-    public void UndeclaredIntentModuleReports()
-    {
-        using var temp = TestCli.Temp("checks");
-        DirAt(temp.Path, ".litespec", "intent", "modules", "ghost");
-        var model = TestModel.Model(TestModel.Config(temp.Path));
-
-        var finding = Assert.Single(Run(model), found => found.Code == "module-undeclared");
-        Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module folder '.litespec/intent/modules/ghost' names no declared module.", finding.Message);
         Assert.Null(finding.Subject);
     }
 
@@ -362,11 +371,11 @@ public sealed class FolderCheckTests
         var file = PathAt(temp.Path, ".litespec", "intent", "goals", "stray-feature.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("feature", "feature/stray-feature", file, """{"solves": ["problem/overdue-loans-pile-up"]}"""));
+            TestModel.Record("feature", "feature/stray-feature", file, """{}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Feature 'feature/stray-feature' sits in 'intent/goals', but features live in 'intent/modules/<m>/features/'.", finding.Message);
+        Assert.Equal("Feature 'feature/stray-feature' sits in 'intent/goals', but features live in 'intent/problems/<problem>/features/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("feature/stray-feature", finding.Subject);
@@ -379,7 +388,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-journey.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -387,7 +396,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Journey 'journey/stray-journey' sits in 'intent/modules/lending/goals', but journeys live in 'intent/journeys/'.", finding.Message);
+        Assert.Equal("Journey 'journey/stray-journey' sits in 'intent/modules/lending/goals', but journeys live in 'intent/journeys/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("journey/stray-journey", finding.Subject);
     }
 
@@ -398,7 +407,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-actor.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -406,7 +415,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Actor 'actor/visitor' sits in 'intent/modules/lending/goals', but actors live in 'intent/actors/'.", finding.Message);
+        Assert.Equal("Actor 'actor/visitor' sits in 'intent/modules/lending/goals', but actors live in 'intent/actors/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("actor/visitor", finding.Subject);
     }
 
@@ -417,7 +426,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "goals", "stray-role.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -425,7 +434,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Role 'role/guest' sits in 'intent/modules/lending/goals', but roles live in 'intent/roles/'.", finding.Message);
+        Assert.Equal("Role 'role/guest' sits in 'intent/modules/lending/goals', but roles live in 'intent/roles/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("role/guest", finding.Subject);
     }
 
@@ -442,7 +451,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Requirement 'requirement/hold-queue.max-active-holds' sits in 'intent/problems', but requirements live in their feature file under 'intent/modules/<m>/features/'.", finding.Message);
+        Assert.Equal("Requirement 'requirement/hold-queue.max-active-holds' sits in 'intent/problems', but requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("requirement/hold-queue.max-active-holds", finding.Subject);
     }
 
@@ -453,7 +462,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "stray.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -461,7 +470,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Use case 'use-case/lending.stray' sits in 'behavior/modules/lending', but use cases live in 'behavior/modules/<m>/<aggregate>/' or 'behavior/modules/<m>/use-cases/'.", finding.Message);
+        Assert.Equal("Use case 'use-case/lending.stray' sits in 'behavior/modules/lending', but use cases live in 'behavior/modules/<m>/aggregates/<aggregate>/use-cases/<name>/<name>.yaml' or 'behavior/modules/<m>/use-cases/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("use-case/lending.stray", finding.Subject);
     }
 
@@ -471,11 +480,11 @@ public sealed class FolderCheckTests
     public void UseCasePlacedPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
-        var underAggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml");
-        var inTypeFolder = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var underAggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
+        var inTypeFolder = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans", "list-loans.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -493,7 +502,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "reactions", "loans.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -501,7 +510,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Screen 'screen/library-app.loans' sits in 'behavior/modules/lending/reactions', but screens live in 'behavior/entry-points/<entry-point>/screens/'.", finding.Message);
+        Assert.Equal("Screen 'screen/library-app.loans' sits in 'behavior/modules/lending/reactions', but screens live in 'behavior/entry-points/<entry-point>/screens/<home>.<name>/<home>.<name>.yaml'.", finding.Message);
         Assert.Equal("screen/library-app.loans", finding.Subject);
     }
 
@@ -511,7 +520,7 @@ public sealed class FolderCheckTests
     public void ScreenPlacedPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var file = PathAt(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "loans.yaml");
+        var file = PathAt(temp.Path, ".litespec", "behavior", "entry-points", "library-app", "screens", "library-app.loans", "library-app.loans.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("screen", "screen/library-app.loans", file, """{"address": "/loans"}"""));
@@ -525,7 +534,7 @@ public sealed class FolderCheckTests
     public void RuleInModuleYamlReports()
     {
         using var temp = TestCli.Temp("checks");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -533,7 +542,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Rule 'rule/loan.stray' sits in '.litespec/intent/modules/lending/module.yaml', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
+        Assert.Equal("Rule 'rule/loan.stray' sits in '.litespec/behavior/modules/lending/module.yaml', but module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
         Assert.Equal(moduleFile, finding.Path);
         Assert.Equal(10, finding.Line);
         Assert.Equal("rule/loan.stray", finding.Subject);
@@ -545,14 +554,14 @@ public sealed class FolderCheckTests
     public void ModuleHoldingRulesFieldReports()
     {
         using var temp = TestCli.Temp("checks");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": [], "rules": ["rule/loan.stray"]}"""));
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Module 'module/lending' holds rules in '.litespec/intent/modules/lending/module.yaml'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
+        Assert.Equal("Module 'module/lending' holds rules in '.litespec/behavior/modules/lending/module.yaml'; module rules live in rule-set files under 'behavior/modules/<m>/rules/'.", finding.Message);
         Assert.Equal(moduleFile, finding.Path);
         Assert.Equal(1, finding.Line);
         Assert.Equal("module/lending", finding.Subject);
@@ -564,7 +573,7 @@ public sealed class FolderCheckTests
     public void ModulePlacedPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""));
@@ -585,7 +594,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Runbook 'runbook/clear-stuck-holds' sits in 'behavior/rules', but runbooks live in 'implementation/runbooks/' or 'implementation/modules/<m>/runbooks/'.", finding.Message);
+        Assert.Equal("Runbook 'runbook/clear-stuck-holds' sits in 'behavior/rules', but runbooks live in 'implementation/runbooks/<name>/<name>.yaml' or 'implementation/modules/<m>/runbooks/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("runbook/clear-stuck-holds", finding.Subject);
     }
 
@@ -595,9 +604,9 @@ public sealed class FolderCheckTests
     public void RunbookPlacedPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var product = PathAt(temp.Path, ".litespec", "implementation", "runbooks", "clear-stuck-holds.yaml");
-        var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var product = PathAt(temp.Path, ".litespec", "implementation", "runbooks", "clear-stuck-holds", "clear-stuck-holds.yaml");
+        var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly", "lending-nightly.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -620,7 +629,7 @@ public sealed class FolderCheckTests
 
         var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
         Assert.Equal("G", finding.Tier);
-        Assert.Equal("Goal 'goal/old-goal' sits in 'proof/registers', but goals live in 'intent/goals/' or 'intent/modules/<m>/goals/'.", finding.Message);
+        Assert.Equal("Goal 'goal/old-goal' sits in 'proof/registers', but goals live in 'intent/goals/<name>/<name>.yaml'.", finding.Message);
         Assert.Equal("goal/old-goal", finding.Subject);
     }
 
@@ -630,9 +639,9 @@ public sealed class FolderCheckTests
     public void DecisionInImplementationPasses()
     {
         using var temp = TestCli.Temp("checks");
-        var product = PathAt(temp.Path, ".litespec", "implementation", "decisions", "0002-render-engine.yaml");
-        var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0003-nightly-scan.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var product = PathAt(temp.Path, ".litespec", "implementation", "decisions", "0002-render-engine", "0002-render-engine.yaml");
+        var module = PathAt(temp.Path, ".litespec", "implementation", "modules", "lending", "decisions", "0003-nightly-scan", "0003-nightly-scan.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -649,7 +658,7 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var file = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "reactions", "borrow-copy.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "lending", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", moduleFile, """{"dependsOn": []}"""),
@@ -661,23 +670,22 @@ public sealed class FolderCheckTests
         Assert.Equal("permission/borrow-copy", finding.Subject);
     }
 
-    /// <summary>Flat Module Passes.</summary>
+    /// <summary>Flat Module Layout Reports.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void FlatModulePasses()
+    public void FlatModuleLayoutReports()
     {
         using var temp = TestCli.Temp("checks");
         var aggregateFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "aggregate.yaml");
-        var useCaseFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "create-post.yaml");
-        var moduleFile = PathAt(temp.Path, ".litespec", "intent", "modules", "posts", "module.yaml");
+        var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "posts", "module.yaml");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/posts", moduleFile, """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/posts.posts", aggregateFile, """{}"""),
-            TestModel.Record("use-case", "use-case/posts.create-post", useCaseFile, """{"kind": "command"}"""),
-            TestModel.Record("event", "event/posts.created", aggregateFile, """{}"""));
+            TestModel.Record("aggregate", "aggregate/posts.posts", aggregateFile, """{}"""));
 
-        Assert.Empty(Run(model));
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("Aggregate 'aggregate/posts.posts' sits in 'behavior/modules/posts', but aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/aggregate.yaml'.", finding.Message);
     }
 
     /// <summary>Valid BackendLayout Passes.</summary>
@@ -687,48 +695,48 @@ public sealed class FolderCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var root = temp.Path;
-        var aggregate = PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml");
+        var aggregate = PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
         var model = TestModel.Model(
             TestModel.Config(root),
             TestModel.Record("product", "product/library", PathAt(root, ".litespec", "intent", "product.yaml"), """{}"""),
-            TestModel.Record("goal", "goal/faster-pickup", PathAt(root, ".litespec", "intent", "goals", "faster-pickup.yaml"), """{}"""),
-            TestModel.Record("problem", "problem/overdue-loans-pile-up", PathAt(root, ".litespec", "intent", "modules", "lending", "problems", "overdue-loans-pile-up.yaml"), """{}"""),
-            TestModel.Record("feature", "feature/hold-queue", PathAt(root, ".litespec", "intent", "modules", "lending", "features", "hold-queue.yaml"), """{}"""),
-            TestModel.Record("requirement", "requirement/hold-queue.max-active-holds", PathAt(root, ".litespec", "intent", "modules", "lending", "features", "hold-queue.yaml"), """{}"""),
-            TestModel.Record("constraint", "constraint/library-privacy-law", PathAt(root, ".litespec", "intent", "constraints", "library-privacy-law.yaml"), """{}"""),
-            TestModel.Record("decision", "decision/0001-loan-period", PathAt(root, ".litespec", "intent", "decisions", "0001-loan-period.yaml"), """{}"""),
-            TestModel.Record("decision", "decision/0002-render-engine", PathAt(root, ".litespec", "implementation", "decisions", "0002-render-engine.yaml"), """{}"""),
-            TestModel.Record("research", "research/loan-period-benchmarks", PathAt(root, ".litespec", "intent", "research", "loan-period-benchmarks.yaml"), """{}"""),
-            TestModel.Record("journey", "journey/borrow-and-return", PathAt(root, ".litespec", "intent", "journeys", "borrow-and-return.yaml"), """{}"""),
-            TestModel.Record("actor", "actor/reader", PathAt(root, ".litespec", "intent", "actors", "reader.yaml"), """{}"""),
-            TestModel.Record("role", "role/reader", PathAt(root, ".litespec", "intent", "roles", "reader.yaml"), """{}"""),
-            TestModel.Record("module", "module/lending", PathAt(root, ".litespec", "intent", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
+            TestModel.Record("goal", "goal/faster-pickup", PathAt(root, ".litespec", "intent", "goals", "faster-pickup", "faster-pickup.yaml"), """{}"""),
+            TestModel.Record("problem", "problem/overdue-loans-pile-up", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "overdue-loans-pile-up.yaml"), """{}"""),
+            TestModel.Record("feature", "feature/hold-queue", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "hold-queue.yaml"), """{}"""),
+            TestModel.Record("requirement", "requirement/hold-queue.max-active-holds", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "features", "hold-queue", "requirements", "max-active-holds", "max-active-holds.yaml"), """{}"""),
+            TestModel.Record("constraint", "constraint/library-privacy-law", PathAt(root, ".litespec", "intent", "constraints", "library-privacy-law", "library-privacy-law.yaml"), """{}"""),
+            TestModel.Record("decision", "decision/0001-loan-period", PathAt(root, ".litespec", "intent", "decisions", "0001-loan-period", "0001-loan-period.yaml"), """{}"""),
+            TestModel.Record("decision", "decision/0002-render-engine", PathAt(root, ".litespec", "implementation", "decisions", "0002-render-engine", "0002-render-engine.yaml"), """{}"""),
+            TestModel.Record("research", "research/loan-period-benchmarks", PathAt(root, ".litespec", "intent", "research", "loan-period-benchmarks", "loan-period-benchmarks.yaml"), """{}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", PathAt(root, ".litespec", "intent", "journeys", "borrow-and-return", "borrow-and-return.yaml"), """{}"""),
+            TestModel.Record("actor", "actor/reader", PathAt(root, ".litespec", "intent", "actors", "reader", "reader.yaml"), """{}"""),
+            TestModel.Record("role", "role/reader", PathAt(root, ".litespec", "intent", "roles", "reader", "reader.yaml"), """{}"""),
+            TestModel.Record("module", "module/lending", PathAt(root, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("term", "term/loan", PathAt(root, ".litespec", "glossary.yaml"), """{}"""),
             TestModel.Record("aggregate", "aggregate/lending.loan", aggregate, """{}"""),
-            TestModel.Record("use-case", "use-case/lending.borrow-copy", PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/lending.list-loans", PathAt(root, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans.yaml"), """{}"""),
-            TestModel.Record("result", "result/borrow-copy.borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{}"""),
-            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-succeeds", PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.borrow-copy", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{}"""),
+            TestModel.Record("use-case", "use-case/lending.list-loans", PathAt(root, ".litespec", "behavior", "modules", "lending", "use-cases", "list-loans", "list-loans.yaml"), """{}"""),
+            TestModel.Record("result", "result/borrow-copy.borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{}"""),
+            TestModel.Record("scenario", "scenario/borrow-copy.borrowing-succeeds", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml"), """{}"""),
             TestModel.Record("event", "event/loan.loan-borrowed", aggregate, """{}"""),
-            TestModel.Record("event", "event/loan.loan-returned", PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "events", "loan-returned.yaml"), """{}"""),
-            TestModel.Record("rule", "rule/loan.loan-period", PathAt(root, ".litespec", "behavior", "modules", "lending", "loans", "rules", "loan-period.yaml"), """{}"""),
+            TestModel.Record("event", "event/loan.loan-returned", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "events", "loan-returned.yaml"), """{}"""),
+            TestModel.Record("rule", "rule/loan.loan-period", PathAt(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "rules", "loan-period.yaml"), """{}"""),
             TestModel.Record("rule", "rule/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "rules", "max-renewals.yaml"), """{}"""),
             TestModel.Record("rule", "rule/pricing.rounding", PathAt(root, ".litespec", "behavior", "rules", "pricing-rounding.yaml"), """{}"""),
-            TestModel.Record("reaction", "reaction/lending.send-due-notice", PathAt(root, ".litespec", "behavior", "modules", "lending", "reactions", "send-due-notice.yaml"), """{}"""),
-            TestModel.Record("job", "job/lending.scan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "jobs", "scan-due.yaml"), """{}"""),
-            TestModel.Record("notification", "notification/lending.loan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due.yaml"), """{}"""),
+            TestModel.Record("reaction", "reaction/lending.send-due-notice", PathAt(root, ".litespec", "behavior", "modules", "lending", "reactions", "send-due-notice", "send-due-notice.yaml"), """{}"""),
+            TestModel.Record("job", "job/lending.scan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "jobs", "scan-due", "scan-due.yaml"), """{}"""),
+            TestModel.Record("notification", "notification/lending.loan-due", PathAt(root, ".litespec", "behavior", "modules", "lending", "notifications", "loan-due", "loan-due.yaml"), """{}"""),
             TestModel.Record("setting", "setting/lending.max-renewals", PathAt(root, ".litespec", "behavior", "modules", "lending", "settings", "library.yaml"), """{}"""),
-            TestModel.Record("integration-event", "integration-event/loan-borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed.yaml"), """{}"""),
+            TestModel.Record("integration-event", "integration-event/loan-borrowed", PathAt(root, ".litespec", "behavior", "modules", "lending", "integration-events", "loan-borrowed", "loan-borrowed.yaml"), """{}"""),
             TestModel.Record("permission", "permission/borrow-copy", PathAt(root, ".litespec", "behavior", "modules", "lending", "permissions.yaml"), """{}"""),
             TestModel.Record("entry-point", "entry-point/library-app", PathAt(root, ".litespec", "behavior", "entry-points", "library-app", "entry-point.yaml"), """{}"""),
-            TestModel.Record("screen", "screen/library-app.loans", PathAt(root, ".litespec", "behavior", "entry-points", "library-app", "screens", "loans.yaml"), """{}"""),
-            TestModel.Record("external-system", "external-system/text-gateway", PathAt(root, ".litespec", "behavior", "external-systems", "text-gateway.yaml"), """{}"""),
-            TestModel.Record("external-system", "external-system/lending-printer", PathAt(root, ".litespec", "behavior", "modules", "lending", "external-systems", "lending-printer.yaml"), """{}"""),
-            TestModel.Record("runbook", "runbook/clear-stuck-holds", PathAt(root, ".litespec", "implementation", "runbooks", "clear-stuck-holds.yaml"), """{}"""),
-            TestModel.Record("runbook", "runbook/lending-nightly", PathAt(root, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly.yaml"), """{}"""),
-            TestModel.Record("departure", "departure/shelf-check-bypass", PathAt(root, ".litespec", "governance", "departures", "shelf-check-bypass.yaml"), """{}"""),
-            TestModel.Record("departure", "departure/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "departures", "lending-waiver.yaml"), """{}"""));
+            TestModel.Record("screen", "screen/library-app.loans", PathAt(root, ".litespec", "behavior", "entry-points", "library-app", "screens", "library-app.loans", "library-app.loans.yaml"), """{}"""),
+            TestModel.Record("external-system", "external-system/text-gateway", PathAt(root, ".litespec", "behavior", "external-systems", "text-gateway", "text-gateway.yaml"), """{}"""),
+            TestModel.Record("external-system", "external-system/lending-printer", PathAt(root, ".litespec", "behavior", "modules", "lending", "external-systems", "lending-printer", "lending-printer.yaml"), """{}"""),
+            TestModel.Record("runbook", "runbook/clear-stuck-holds", PathAt(root, ".litespec", "implementation", "runbooks", "clear-stuck-holds", "clear-stuck-holds.yaml"), """{}"""),
+            TestModel.Record("runbook", "runbook/lending-nightly", PathAt(root, ".litespec", "implementation", "modules", "lending", "runbooks", "lending-nightly", "lending-nightly.yaml"), """{}"""),
+            TestModel.Record("departure", "departure/shelf-check-bypass", PathAt(root, ".litespec", "governance", "departures", "shelf-check-bypass", "shelf-check-bypass.yaml"), """{}"""),
+            TestModel.Record("departure", "departure/lending-waiver", PathAt(root, ".litespec", "governance", "modules", "lending", "departures", "lending-waiver", "lending-waiver.yaml"), """{}"""));
 
         Assert.Empty(Run(model));
     }

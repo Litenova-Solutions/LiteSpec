@@ -61,7 +61,7 @@ static class ManifestSelectionChecks
                     1,
                     null));
             }
-            else if (!JsonValues.StrictEqual(reviewed, version))
+            else if (!ReleaseVersion.SameRelease(JsonValues.Text(reviewed), JsonValues.Text(version)))
             {
                 run.Err(new Finding(
                     "release-drift",

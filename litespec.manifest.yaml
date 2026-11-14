@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./schemas/litespec-manifest.schema.yaml
 schemaVersion: 6
-version: 5.2.0
+version: 6.0.0
 name: litespec
 agentsEntry: AGENTS.md
 stacks:
@@ -215,7 +215,7 @@ packages:
     LiteBus.Queries.Abstractions: 7.x
     LiteBus.Storage.PostgreSql: 7.x
     LiteBus.Testing.Mediation: 7.x
-    LiteSpec.Analyzers: 5.2.0
+    LiteSpec.Analyzers: 6.0.0
     Marten: 9.x
     Microsoft.AspNetCore.Authentication.JwtBearer: 10.x
     Microsoft.AspNetCore.DataProtection: 10.x

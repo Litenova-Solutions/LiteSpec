@@ -18,8 +18,8 @@ public sealed class StackReaderTests
     /// <param name="scenarios">The scenario count the case expects the builder to read.</param>
     /// <proves>litespec/core/model#compute-proof-statuses-in-the-builder</proves>
     [Theory]
-    [InlineData("small", 73, 7, 0, 0)]
-    [InlineData("large", 94, 7, 1, 9)]
+    [InlineData("small", 80, 7, 0, 0)]
+    [InlineData("large", 101, 7, 1, 9)]
     public void BuildReadsFixtureCounts(string fixture, int records, int handlers, int screens, int scenarios)
     {
         using var temp = ModelFixture.Prepare(fixture);
@@ -72,19 +72,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/borrow-copy-junit-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-junit-scenario.yaml",
             BorrowScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/borrow-copy-junit-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-junit-scenario.md",
             BorrowScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/return-copy-junit-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/return-copy-junit-scenario.yaml",
             ReturnScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/return-copy-junit-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/return-copy-junit-scenario.md",
             ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
@@ -119,19 +119,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/borrow-copy-trx-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-trx-scenario.yaml",
             BorrowScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/borrow-copy-trx-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-trx-scenario.md",
             BorrowScenarioExplanation);
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/return-copy-trx-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/return-copy-trx-scenario.yaml",
             ReturnScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/return-copy-trx-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/return-copy-trx-scenario.md",
             ReturnScenarioExplanation);
 
         var scenariosFolder = Path.Combine(
@@ -166,19 +166,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans.yaml",
             ReviewLoansJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans.md",
             ReviewLoansExplanation);
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans-browser-scenario.yaml",
             ReviewLoansScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans-browser-scenario.md",
             ReviewLoansScenarioExplanation);
         TestRecords.Write(
             temp.Path,
@@ -218,19 +218,19 @@ public sealed class StackReaderTests
 
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans.yaml",
             ReviewLoansJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans.md",
             ReviewLoansExplanation);
         TestRecords.Write(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.yaml",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans-browser-scenario.yaml",
             ReviewLoansScenarioJson);
         TestRecords.Explain(
             temp.Path,
-            ".litespec/behavior/modules/lending/loans/review-loans-browser-scenario.md",
+            ".litespec/behavior/modules/lending/aggregates/loans/review-loans-browser-scenario.md",
             ReviewLoansScenarioExplanation);
         TestRecords.Write(
             temp.Path,

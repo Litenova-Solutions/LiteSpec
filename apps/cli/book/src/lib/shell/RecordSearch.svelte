@@ -46,19 +46,19 @@
   }
 </script>
 
-<div class="relative ml-3 min-w-0 flex-[0_1_460px]">
+<div class="relative min-w-0 flex-[1_1_460px] sm:ml-3 sm:flex-[0_1_460px]">
   <RecordIcon name="search" class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
   <Input
     bind:ref={input}
     type="search"
-    placeholder="Find a record by title or text"
+    placeholder="Find a record"
     aria-label="Filter the navigation"
     autocomplete="off"
-    class="pr-10 pl-8"
+    class="pl-8 sm:pr-10"
     value={book.query}
     onfocus={() => void book.ensureSearch()}
     oninput={(e) => changed((e.target as HTMLInputElement).value)}
     onkeydown={keyed}
   />
-  <Kbd class="absolute top-1/2 right-2 -translate-y-1/2" aria-hidden="true">/</Kbd>
+  <Kbd class="absolute top-1/2 right-2 hidden -translate-y-1/2 sm:inline-flex" aria-hidden="true">/</Kbd>
 </div>

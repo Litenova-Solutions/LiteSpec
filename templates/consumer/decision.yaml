@@ -1,19 +1,20 @@
 type: decision
 id: decision/0001-receipt-threshold
 title: Receipt Threshold
+summary: Small expenses need no proof, large ones do.
 options:
-  - name: Threshold at 25 euros
-    pros: Most expenses pass untouched.
-    cons: Large fraud still needs review.
-  - name: Threshold at 100 euros
-    pros: Fewer receipts to file.
-    cons: Weak control on mid-size fraud.
-choice: Threshold at 25 euros
-consequences: Every expense above the threshold needs an attached receipt before approval.
-reopenedWhen: The fraud rate crosses one percent.
+- name: 0 EUR
+  pros: Every expense carries proof.
+  cons: Tiny expenses cost more to file than they pay.
+- name: 25 EUR
+  pros: Small expenses stay light to submit.
+  cons: Some fraud slips under the line.
+- name: 75 EUR
+  pros: Almost nothing needs a receipt.
+  cons: Finance cannot defend the tax file.
+choice: 25 EUR
+consequences: Small expenses stay light to submit.
+reopenedWhen: Finance sees abuse or friction.
 decides:
-  - requirement/approval-reminders.decided-within-five-days
-basedOn:
-  - research/approval-time-benchmarks
-terms:
-  - term/expense
+- requirement/approval.above-threshold-receipt
+basedOn: []

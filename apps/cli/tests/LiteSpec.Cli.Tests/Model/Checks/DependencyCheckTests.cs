@@ -161,7 +161,7 @@ public sealed class DependencyCheckTests
     {
         using var temp = ModelFixture.Prepare("small");
         ConfigureSbom(temp.Path);
-        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "5.2.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@5.2.0")));
+        Write(temp.Path, ".litespec/proof/sbom/api.spdx.json", SpdxDoc(("LiteSpec.Analyzers", "6.0.0", "MIT", "pkg:nuget/LiteSpec.Analyzers@6.0.0")));
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -185,7 +185,7 @@ public sealed class DependencyCheckTests
         Assert.Contains("nuget:LiteSpec.Analyzers", finding);
         Assert.Contains("5.1.1", finding);
         Assert.Contains("differs from its manifest pin", finding);
-        Assert.Contains("5.2.0", finding);
+        Assert.Contains("6.0.0", finding);
         Assert.DoesNotContain("dependency-undeclared", check.Output);
         Assert.DoesNotContain("dependency-license-unknown", check.Output);
     }
@@ -541,13 +541,27 @@ public sealed class DependencyCheckTests
     const string DecisionExplanation = """
         # Admit extra package
 
+        The project admits one package that the pins do not name.
+
         ## Context
 
         A technical choice needs a package the pins do not name.
 
+        ## Options
+
+        Admit the package, or write the small part of it by hand.
+
         ## Decision
 
         The project admits the package with its license and failure behavior.
+
+        ## Consequences
+
+        The project carries one more package to review on each update.
+
+        ## Revisit Conditions
+
+        The package stops receiving security fixes.
         """;
 
     static string DecisionJson(string id, string admitsJson) =>

@@ -50,7 +50,7 @@ static class ConsumerFixture
             null),
         new(".litespec/product/pricing.yaml",
             """
-            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","solves":["problem/slow-checkout"],"advances":["goal/faster-delivery"],"records":[{"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}]}
+            {"type":"feature","id":"feature/pricing","title":"Pricing","offering":"Every order carries a flat fee of one euro.","advances":["goal/faster-delivery"]}
             """,
             """
             # Pricing
@@ -62,6 +62,11 @@ static class ConsumerFixture
             Alex orders two books on Monday and pays one fee at checkout.
 
             """),
+        new(".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml",
+            """
+            {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
+            """,
+            null),
         new(".litespec/product/decisions/0001-launch.yaml",
             """
             {"type":"decision","id":"decision/0001-launch","title":"Launch with a flat fee","options":[{"name":"Flat fee","pros":"Every receipt shows the same fee line.","cons":"Large orders pay too little for delivery."},{"name":"Percentage","pros":"Large orders carry their delivery cost.","cons":"Every receipt needs its own math."}],"choice":"Flat fee","consequences":"Every receipt shows the same fee line.","reopenedWhen":"The fee changes when delivery costs move.","decides":["requirement/pricing.flat-fee"],"basedOn":[]}
@@ -69,22 +74,36 @@ static class ConsumerFixture
             """
             # Launch with a Flat Fee
 
+            The shop opens with one flat fee that it can state on every page.
+
             ## Context
 
             The shop opens with one fee it can state on every page.
+
+            ## Options
+
+            A flat fee is simple, and a percentage fee follows the cost of delivery.
 
             ## Decision
 
             The shop charges a flat fee on every order.
 
-            ## Evidence with Confidence
+            ## Consequences
+
+            Every receipt shows the same fee line.
+
+            ## Evidence
 
             The launch plan states the fee on its first page.
+
+            ## Revisit Conditions
+
+            The fee changes when delivery costs move.
 
             """),
         new(".litespec/behavior/actors/customer.yaml",
             """
-            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":[{"role":"role/customer","scope":"self"}]}
+            {"type":"actor","id":"actor/customer","title":"Customer","kind":"person","belongsToTeam":false,"summary":"A customer buys books from the shop.","holds":["role/customer"]}
             """,
             """
             # Customer
@@ -99,7 +118,7 @@ static class ConsumerFixture
             null),
         new(".litespec/behavior/permissions.yaml",
             """
-            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","scope":"self","meaning":"The holder cancels an order they placed."}]}
+            {"type":"permission-list","id":"permissions","title":"Permissions","records":[{"type":"permission","id":"permission/cancel-order","title":"Cancel order","meaning":"The holder cancels an order they placed."}]}
             """,
             null),
         new(".litespec/behavior/entry-points.yaml",
@@ -117,7 +136,7 @@ static class ConsumerFixture
             The orders module keeps every order claim.
 
             """),
-        new(".litespec/behavior/modules/orders/order-claims/aggregate.yaml",
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
             """
             {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":["orderId"]}]}
             """,
@@ -291,7 +310,7 @@ static class ConsumerFixture
     ];
 
     const string GlossaryJsonText = """
-        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}]}],"mannered":[{"term":"load-bearing","instead":"required"}]}
+        {"schemaVersion":2,"terms":[{"id":"term/order-claim","term":"order claim","meaning":"A claim stating what a customer ordered from the shop.","layer":"intent","labels":{"nl":"orderclaim","de":"Bestellanspruch"},"rejected":[{"word":"orderclaim","reason":"the words stay separate."}]},{"id":"term/self-scope","term":"self scope","meaning":"The reach of a grant over the customer's own orders only.","layer":"intent"}],"mannered":[{"term":"load-bearing","instead":"required"}]}
         """;
 
     sealed record ManifestInfo(string Version, string KnownExtension);

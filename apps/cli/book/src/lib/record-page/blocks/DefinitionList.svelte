@@ -14,7 +14,7 @@
 </script>
 
 {#if pairs ? rows.length > 0 : true}
-  <dl class="grid grid-cols-[160px_minmax(0,1fr)] gap-x-5 gap-y-2.5 text-[0.90625rem]">
+  <dl class="grid grid-cols-[minmax(0,1fr)] gap-x-5 gap-y-1 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-y-2.5 text-[0.90625rem]">
     {#if pairs}
       {#each rows as p (p.label)}
         <dt class="text-muted-foreground">{book.fieldLabel(p.label)}</dt>

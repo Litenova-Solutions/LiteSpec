@@ -20,6 +20,20 @@ terms:
     nl: exemplaar
     de: Exemplar
   rejected: []
+- id: term/borrow
+  term: borrow
+  meaning: The act of lending one copy to one reader.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
+- id: term/return
+  term: return
+  meaning: The act of bringing one lent copy back.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
 - id: term/reader
   term: reader
   meaning: A person holding a library card.
@@ -28,6 +42,18 @@ terms:
   labels:
     nl: lezer
     de: Leser
+  rejected: []
+- id: term/platform-scope
+  term: platform scope
+  meaning: The reach of a grant over every loan in the library.
+  layer: intent
+  aliases: []
+  rejected: []
+- id: term/self-scope
+  term: self scope
+  meaning: The reach of a grant over the reader's own loans only.
+  layer: intent
+  aliases: []
   rejected: []
 mannered:
 - term: one-way-door

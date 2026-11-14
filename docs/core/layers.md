@@ -141,9 +141,9 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Applies to:** artifact: any
 
-**Statement:** A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.
+**Statement:** A fact learned from the world MUST enter Intent as research, or as a constraint whose `sources` cite its source with the date it was read.
 
-**Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory.
+**Rationale:** Commitments flow down, and facts from the world flow up: a provider's behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and the `readOn` date show where the fact came from and when someone read it, so a later change rechecks the source instead of the memory. A constraint names the research it rests on in `basedOn`, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) and the constraint fields state. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
 **Example:** An observed two-day payout settlement window enters as research, then as a constraint citing that research.
 
@@ -159,7 +159,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Statement:** A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.
 
-**Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint that follows cites the research, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
+**Rationale:** The provider's behavior is a fact from the world, and research is where such facts enter. The constraint that follows names the research in `basedOn`, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.
 
 **Example:** A payout provider that starts settling every two days instead of daily enters as research with the observed dates, and a settlement-window constraint cites that research.
 
@@ -175,7 +175,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Statement:** Behavior that anticipates a regulation with a deadline MUST follow that regulation's constraint.
 
-**Rationale:** A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.
+**Rationale:** A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime, with its statutory date in `effectiveFrom`. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.
 
 **Example:** A privacy regulation that takes effect next year enters as a constraint with its statutory date, and the anticipatory behavior follows that constraint until the requirement exists.
 

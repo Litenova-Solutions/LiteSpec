@@ -25,7 +25,7 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Records |
 |:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Product, module, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
+| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
 | Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, permission, entry point, screen, external system |
 | Implementation | How is it built? | Code, technical decisions, runbooks |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
@@ -41,20 +41,27 @@ The folder is part of the record: it names the parent, and every other folder na
 ```text
 .litespec/intent/
   product.yaml
-  goals/  problems/  constraints/  decisions/  research/  actors/  roles/  journeys/
-  modules/
-    spending/
-      module.yaml
+  goals/  constraints/  decisions/  research/  actors/  roles/  journeys/
+  problems/
+    expenses-wait-weeks/
+      expenses-wait-weeks.yaml
       features/
-        approval.yaml            the feature, with its requirements as entries
+        approval/
+          approval.yaml        the feature
+          requirements/
+            decided-within-five-days/
+              decided-within-five-days.yaml   a requirement, in its own folder
 .litespec/behavior/
   modules/
     spending/
-      expenses/                  an aggregate's folder
-        aggregate.yaml
-        submit-expense.yaml      a use case
-      rules/
-        ...
+      aggregates/
+        expenses/                an aggregate's folder
+          aggregate.yaml
+          use-cases/
+            submit-expense/
+              submit-expense.yaml  a use case
+          rules/
+            ...
 ```
 
 Each record has one identifier, short and unique in the product, such as `use-case/spending.submit-expense`, and every link uses it. A record that moves to another module changes its identifier and every citation in the same change.
@@ -64,25 +71,24 @@ Each record has one identifier, short and unique in the product, such as `use-ca
 Access runs through three records and one grant: the actor holds a role, the role allows permissions, and the use case declares one grant:
 
 ```yaml
-# intent/actors/employee.yaml
+# intent/actors/employee/employee.yaml
 holds:
-- role: role/employee
-  scope: self
+- role/employee
 
-# intent/roles/employee.yaml
+# intent/roles/employee/employee.yaml
 allows:
-- permission/submit-expense
+- permission/request-expense
 - permission/list-expenses
 
-# behavior/.../submit-expense.yaml
+# behavior/.../submit-expense/submit-expense.yaml
 access:
-  grant: permission/submit-expense
+  grant: permission/request-expense
   tenant: own
 ```
 
 ## A Use Case from Record to Code
 
-Claimwick lets employees submit work expenses with receipts. The record `.litespec/behavior/modules/spending/expenses/submit-expense.yaml` states the use case, its access grant, the requirement it fulfills, and the results and scenarios that end and prove it. The handler `SubmitExpenseCommandHandler.cs` sits in a folder ordered by module, aggregate, `UseCases/` and use case, and carries the mark `<implements>use-case/spending.submit-expense</implements>` naming the record it serves. Running `dotnet litespec model check` from the project root reports each gap as a finding, and `dotnet litespec model query use-case/spending.submit-expense` shows the record with its links. The model computes one completion stage for the use case from the marks, as [Completion Stages](../core/model.md#completion-stages) defines: `coded` when the handler exists, `verified` only when every scenario has a passing proof. [A Use Case in Code](../example/a-use-case-in-code.md) walks the same record line by line, with the rule, the endpoint, the handler, and the tests.
+Claimwick lets employees submit work expenses with receipts. The record `.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml` states the use case, its access grant, the requirement it fulfills, and the results and scenarios that end and prove it. The handler `SubmitExpenseCommandHandler.cs` sits in a folder ordered by module, aggregate, `UseCases/` and use case, and carries the mark `<implements>use-case/spending.submit-expense</implements>` naming the record it serves. Running `dotnet litespec model check` from the project root reports each gap as a finding, and `dotnet litespec model query use-case/spending.submit-expense` shows the record with its links. The model computes one completion stage for the use case from the marks, as [Completion Stages](../core/model.md#completion-stages) defines: `coded` when the handler exists, `verified` only when every scenario has a passing proof. [A Use Case in Code](../example/a-use-case-in-code.md) walks the same record line by line, with the rule, the endpoint, the handler, and the tests.
 
 Each finding carries a level: level G findings read records only and always block, level S findings read code through a stack reader, and level A findings are advisory. The [Model Builder](../tools/model.md) states the levels, and [The Model and Its Checks](../example/model-and-checks.md) shows the full Claimwick output.
 
@@ -96,7 +102,7 @@ Read Intent before Behavior: start at the product record with its goals, problem
 
 ### One Journey End to End
 
-Follow one journey from its goal to its proof: the goal and its requirements, the journey page with its steps, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the journey is proven, the journey holds.
+Follow one journey from its goal to its proof: the goal and its requirements, the journey page with its start, its steps and its branches, each step's serving use cases, and the tests the model links to each scenario. When every scenario on the journey is proven, the journey holds.
 
 ### One Module End to End
 

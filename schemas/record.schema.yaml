@@ -1,15 +1,17 @@
 $schema: 'https://json-schema.org/draft/2020-12/schema'
-$id: 'https://litespec.dev/5.2.0/schemas/record.schema.yaml'
+$id: 'https://litespec.dev/6.0.0/schemas/record.schema.yaml'
 title: LiteSpec Project Record
 description: 'The record file holding a consumer record page: one page record or one container page, with the entry records it carries.'
 oneOf:
 - $ref: '#/$defs/productPage'
 - $ref: '#/$defs/goalPage'
+- $ref: '#/$defs/visionPage'
 - $ref: '#/$defs/constraintPage'
 - $ref: '#/$defs/researchPage'
 - $ref: '#/$defs/decisionPage'
 - $ref: '#/$defs/problemPage'
 - $ref: '#/$defs/featurePage'
+- $ref: '#/$defs/requirementPage'
 - $ref: '#/$defs/actorPage'
 - $ref: '#/$defs/rolePage'
 - $ref: '#/$defs/journeyPage'
@@ -46,6 +48,9 @@ $defs:
   goalId:
     type: string
     pattern: '^goal/[a-z0-9][a-z0-9-]*$'
+  visionId:
+    type: string
+    pattern: '^vision/[a-z0-9][a-z0-9-]*$'
   constraintId:
     type: string
     pattern: '^constraint/[a-z0-9][a-z0-9-]*$'
@@ -283,13 +288,20 @@ $defs:
       anyOf:
       - $ref: '#/$defs/constraintId'
       - $ref: '#/$defs/researchId'
+      - $ref: '#/$defs/visionId'
       - $ref: '#/$defs/requirementId'
+  researchIdArray:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/researchId'
   citesArray:
     type: array
     uniqueItems: true
     items:
       anyOf:
       - $ref: '#/$defs/goalId'
+      - $ref: '#/$defs/visionId'
       - $ref: '#/$defs/problemId'
       - $ref: '#/$defs/featureId'
       - $ref: '#/$defs/constraintId'
@@ -421,7 +433,6 @@ $defs:
       fields:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/outputField'
       classification:
@@ -447,7 +458,6 @@ $defs:
           $ref: '#/$defs/outputGroup'
   commandOutput:
     type: array
-    uniqueItems: true
     items:
       $ref: '#/$defs/outputField'
   pagingObject:
@@ -867,7 +877,6 @@ $defs:
       exceptions:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/dataClassException'
     allOf:
@@ -1193,28 +1202,18 @@ $defs:
       period:
         $ref: '#/$defs/periodValue'
       enforcedBy:
-        $ref: '#/$defs/enforcedByValue'
+        anyOf:
+        - $ref: '#/$defs/reactionId'
+        - $ref: '#/$defs/jobId'
       purpose:
         $ref: '#/$defs/nonEmptyString'
       cites:
         $ref: '#/$defs/requirementId'
       processors:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/retentionProcessor'
       conflicts:
-        $ref: '#/$defs/nonEmptyString'
-  holdItem:
-    type: object
-    additionalProperties: false
-    required:
-    - role
-    - scope
-    properties:
-      role:
-        $ref: '#/$defs/roleId'
-      scope:
         $ref: '#/$defs/nonEmptyString'
   journeyStep:
     type: object
@@ -1241,6 +1240,22 @@ $defs:
       required:
       - actor
       - system
+  journeyBranch:
+    type: object
+    additionalProperties: false
+    required:
+    - step
+    - condition
+    - nextStep
+    properties:
+      step:
+        type: string
+        pattern: '^s[0-9]+$'
+      condition:
+        $ref: '#/$defs/nonEmptyString'
+      nextStep:
+        type: string
+        pattern: '^(s[0-9]+|end)$'
   problemEvidence:
     type: object
     additionalProperties: false
@@ -1281,6 +1296,8 @@ $defs:
       path:
         $ref: '#/$defs/nonEmptyString'
       readOn:
+        $ref: '#/$defs/isoDate'
+      publishedOn:
         $ref: '#/$defs/isoDate'
   appliedValue:
     type: object
@@ -1420,10 +1437,8 @@ $defs:
             $ref: '#/$defs/contractFieldChoices'
   recordsArray:
     type: array
-    uniqueItems: true
     items:
       oneOf:
-      - $ref: '#/$defs/requirementEntry'
       - $ref: '#/$defs/permissionEntry'
       - $ref: '#/$defs/ruleEntry'
       - $ref: '#/$defs/resultEntry'
@@ -1431,7 +1446,7 @@ $defs:
       - $ref: '#/$defs/eventEntry'
       - $ref: '#/$defs/entryPointEntry'
       - $ref: '#/$defs/settingEntry'
-  requirementEntry:
+  requirementPage:
     type: object
     additionalProperties: false
     required:
@@ -1461,7 +1476,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       values:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/appliedValue'
       stimulus:
@@ -1491,7 +1505,6 @@ $defs:
       except:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/requirementExcept'
       setBy:
@@ -1509,6 +1522,9 @@ $defs:
       then:
         required:
         - values
+        properties:
+          values:
+            minItems: 1
     - if:
         required:
         - kind
@@ -1529,7 +1545,6 @@ $defs:
     - id
     - title
     - meaning
-    - scope
     properties:
       type:
         const: permission
@@ -1541,9 +1556,6 @@ $defs:
         $ref: '#/$defs/termIdArray'
       meaning:
         $ref: '#/$defs/nonEmptyString'
-      scope:
-        type: string
-        pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
       group:
         type: string
         pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
@@ -1883,6 +1895,7 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       addresses:
         $ref: '#/$defs/actorIdArray'
+        minItems: 1
   goalPage:
     type: object
     additionalProperties: false
@@ -1912,6 +1925,28 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       target:
         $ref: '#/$defs/nonEmptyString'
+  visionPage:
+    type: object
+    additionalProperties: false
+    required:
+    - type
+    - id
+    - title
+    - summary
+    - statement
+    properties:
+      type:
+        const: vision
+      id:
+        $ref: '#/$defs/visionId'
+      title:
+        $ref: '#/$defs/nonEmptyString'
+      terms:
+        $ref: '#/$defs/termIdArray'
+      summary:
+        $ref: '#/$defs/nonEmptyString'
+      statement:
+        $ref: '#/$defs/nonEmptyString'
   constraintPage:
     type: object
     additionalProperties: false
@@ -1921,6 +1956,7 @@ $defs:
     - title
     - summary
     - authority
+    - sources
     - kind
     - applies
     - appliesBecause
@@ -1939,8 +1975,15 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       authority:
         $ref: '#/$defs/nonEmptyString'
-      readOn:
+      sources:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/researchSource'
+      effectiveFrom:
         $ref: '#/$defs/isoDate'
+      basedOn:
+        $ref: '#/$defs/researchIdArray'
       kind:
         enum:
         - technical
@@ -1976,7 +2019,7 @@ $defs:
         $ref: '#/$defs/recordsArray'
       sources:
         type: array
-        uniqueItems: true
+        minItems: 1
         items:
           $ref: '#/$defs/researchSource'
       question:
@@ -1993,6 +2036,7 @@ $defs:
     - options
     - consequences
     - reopenedWhen
+    - choice
     properties:
       type:
         const: decision
@@ -2016,7 +2060,7 @@ $defs:
         - replacement
       options:
         type: array
-        uniqueItems: true
+        minItems: 1
         items:
           $ref: '#/$defs/decisionOption'
       choice:
@@ -2067,7 +2111,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       evidence:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/problemEvidence'
   featurePage:
@@ -2078,7 +2121,6 @@ $defs:
     - id
     - title
     - offering
-    - solves
     properties:
       type:
         const: feature
@@ -2090,12 +2132,8 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       terms:
         $ref: '#/$defs/termIdArray'
-      records:
-        $ref: '#/$defs/recordsArray'
       offering:
         $ref: '#/$defs/nonEmptyString'
-      solves:
-        $ref: '#/$defs/problemIdArray'
       advances:
         $ref: '#/$defs/goalIdArray'
   actorPage:
@@ -2129,9 +2167,8 @@ $defs:
         type: boolean
       holds:
         type: array
-        uniqueItems: true
         items:
-          $ref: '#/$defs/holdItem'
+          $ref: '#/$defs/roleId'
   rolePage:
     type: object
     additionalProperties: false
@@ -2141,6 +2178,7 @@ $defs:
     - title
     - summary
     - scope
+    - allows
     properties:
       type:
         const: role
@@ -2159,6 +2197,7 @@ $defs:
         pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
       allows:
         $ref: '#/$defs/permissionIdArray'
+        minItems: 1
   journeyPage:
     type: object
     additionalProperties: false
@@ -2169,9 +2208,9 @@ $defs:
     - actor
     - serves
     - summary
+    - startedWhen
     - finishedWhen
     - steps
-    - betweenSteps
     properties:
       type:
         const: journey
@@ -2189,16 +2228,20 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       serves:
         $ref: '#/$defs/journeyServesArray'
+      startedWhen:
+        $ref: '#/$defs/nonEmptyString'
       finishedWhen:
         $ref: '#/$defs/nonEmptyString'
       steps:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/journeyStep'
-      betweenSteps:
-        $ref: '#/$defs/nonEmptyString'
+      branches:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/journeyBranch'
       cites:
         $ref: '#/$defs/requirementIdArray'
   modulePage:
@@ -2208,6 +2251,7 @@ $defs:
     - type
     - id
     - title
+    - dependsOn
     properties:
       type:
         const: module
@@ -2257,23 +2301,20 @@ $defs:
           pattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
       states:
         type: array
-        uniqueItems: true
+        minItems: 1
         items:
           $ref: '#/$defs/stateEntry'
       transitions:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/transitionEntry'
       data:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/aggregateData'
       dataClasses:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/dataClassEntry'
     allOf:
@@ -2342,7 +2383,6 @@ $defs:
         $ref: '#/$defs/eventIdArray'
       input:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/useCaseInput'
       output:
@@ -2362,7 +2402,6 @@ $defs:
       effects:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/effectEntry'
       idempotency:
@@ -2425,7 +2464,6 @@ $defs:
       effects:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/triggeredEffectEntry'
       fulfills:
@@ -2490,7 +2528,6 @@ $defs:
       effects:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/triggeredEffectEntry'
       fulfills:
@@ -2603,7 +2640,6 @@ $defs:
       claims:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/notificationClaim'
       fulfills:
@@ -2644,7 +2680,6 @@ $defs:
       operations:
         type: array
         minItems: 1
-        uniqueItems: true
         items:
           $ref: '#/$defs/externalOperation'
       erasure:
@@ -2695,7 +2730,6 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       payload:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/integrationEventPayload'
       delivery:
@@ -3087,7 +3121,6 @@ $defs:
         $ref: '#/$defs/recordsArray'
       rows:
         type: array
-        uniqueItems: true
         items:
           $ref: '#/$defs/retentionRow'
   indexPage:

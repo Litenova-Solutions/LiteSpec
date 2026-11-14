@@ -16,6 +16,7 @@ namespace LiteSpec.Cli.Rules;
 /// <param name="Concern">The derived concern, such as domain or tests, or empty when the path names none.</param>
 /// <param name="Artifact">The derived artifact, or empty when the path names none.</param>
 /// <param name="Marked">The record and provision identifiers the file marks, in file order.</param>
+/// <param name="IsExplanation">Whether the target is a Markdown explanation file beside a record file.</param>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
 internal sealed record PathContext(
     string Display,
@@ -25,7 +26,8 @@ internal sealed record PathContext(
     string Stack,
     string Concern,
     string Artifact,
-    IReadOnlyList<string> Marked)
+    IReadOnlyList<string> Marked,
+    bool IsExplanation = false)
 {
     /// <summary>Gets a value indicating whether the target names code rather than a record or a record file.</summary>
     public bool IsCodePath => !IsRecord && Concern != "records";
@@ -42,6 +44,7 @@ internal sealed record PathContext(
         ["decision"] = "decision",
         ["departure"] = "departure",
         ["goal"] = "goal",
+        ["vision"] = "vision",
         ["problem"] = "problem",
         ["feature"] = "feature",
         ["constraint"] = "constraint",
@@ -157,6 +160,7 @@ internal sealed record PathContext(
         var artifact = "";
         var stack = "";
         var text = "";
+        var isExplanation = false;
 
         if (!isFolder)
         {
@@ -179,6 +183,16 @@ internal sealed record PathContext(
         {
             layer = "records";
             artifact = RecordFileArtifact(text, name);
+
+            if (!isFolder && extension is ".md" or ".markdown")
+            {
+                isExplanation = true;
+
+                if (artifact.Length == 0)
+                {
+                    artifact = SiblingRecordArtifact(absolute);
+                }
+            }
         }
         else if (UnderAny(absolute, config.Alerts) || UnderAny(absolute, config.Operations) || IsOperationsFile(name))
         {
@@ -219,7 +233,7 @@ internal sealed record PathContext(
         }
 
         var marked = isFolder ? [] : ReadMarks(text);
-        return new PathContext(relative, false, config.Root, relative, stack, layer, artifact, marked);
+        return new PathContext(relative, false, config.Root, relative, stack, layer, artifact, marked, isExplanation);
     }
 
     /// <summary>Derives the context of a record identifier.</summary>
@@ -518,6 +532,49 @@ internal sealed record PathContext(
             if (match.Success)
             {
                 return RecordArtifacts.GetValueOrDefault(match.Groups[1].Value, "");
+            }
+        }
+
+        return "";
+    }
+
+    /// <summary>Derives the artifact of an explanation file from its sibling record file.</summary>
+    /// <param name="absolute">The absolute explanation path.</param>
+    /// <returns>The artifact of the sibling record, or empty when no sibling record names one.</returns>
+    static string SiblingRecordArtifact(string absolute)
+    {
+        var folder = Path.GetDirectoryName(absolute);
+        var stem = Path.GetFileNameWithoutExtension(absolute);
+
+        if (folder is null || stem.Length == 0)
+        {
+            return "";
+        }
+
+        foreach (var siblingExtension in new[] { ".yaml", ".yml" })
+        {
+            var sibling = Path.Combine(folder, stem + siblingExtension);
+            string text;
+
+            try
+            {
+                if (!File.Exists(sibling))
+                {
+                    continue;
+                }
+
+                text = File.ReadAllText(sibling);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            var artifact = RecordFileArtifact(text, stem + siblingExtension);
+
+            if (artifact.Length > 0)
+            {
+                return artifact;
             }
         }
 

@@ -357,11 +357,13 @@ static class StandardsFixture
     public static readonly string ResearchExplanation = Normalize("""
         # Sample Study
 
-        ## Answer
+        The sample study asks whether one sample holds, and it finds that it does.
+
+        ## Findings
 
         The sample shows one finding with high confidence.
 
-        ## Notes on Sources
+        ## Source Notes
 
         One web source, read in October 2026.
         """) + "\n";
@@ -370,13 +372,27 @@ static class StandardsFixture
     public static readonly string DecisionExplanation = Normalize("""
         # Sample Choice
 
+        The sample choice keeps one sample and names what would reopen it.
+
         ## Context
 
         The sample forces one choice.
 
+        ## Options
+
+        Keep the sample or drop it.
+
         ## Decision
 
         Keep the sample.
+
+        ## Consequences
+
+        The sample stays beside its topic.
+
+        ## Revisit Conditions
+
+        A larger sample disagrees.
         """) + "\n";
 
     /// <summary>The command page. The validator checks its sections, not its sample command.</summary>

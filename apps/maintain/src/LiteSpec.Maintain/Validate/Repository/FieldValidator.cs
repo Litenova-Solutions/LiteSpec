@@ -40,7 +40,7 @@ internal sealed class FieldValidator
     // (litespec/core/language#name-each-field-by-its-word-class)
     /// <summary>Gets the field names that read as link verbs.</summary>
     private static readonly HashSet<string> LinkVerbFields = new(
-        ["serves", "fulfills", "solves", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
+        ["serves", "fulfills", "advances", "cites", "governs", "raises", "reads", "changes", "covers", "addresses",
             "allows", "affects", "holds", "offers", "sends", "receives", "translates", "admits", "decides", "carries",
             "binds", "exercises"],
         StringComparer.Ordinal);
@@ -65,7 +65,7 @@ internal sealed class FieldValidator
     // cannot collide with record-level names.
     /// <summary>Gets the entry definition names in field-naming scope.</summary>
     private static readonly HashSet<string> FieldNamingEntries = new(
-        ["requirementEntry", "permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
+        ["permissionEntry", "ruleEntry", "resultEntry", "scenarioEntry", "eventEntry", "entryPointEntry", "settingEntry"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the schemas whose fields face the naming rules.</summary>

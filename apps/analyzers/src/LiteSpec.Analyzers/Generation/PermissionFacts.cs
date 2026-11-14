@@ -6,12 +6,12 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One permission with the facts the generated entry carries.</summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-/// <follows>litespec/core/access#state-the-scope-of-every-permission</follows>
+/// <follows>litespec/core/access#scope-every-role</follows>
 internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 {
     /// <summary>Initializes a new instance of the <see cref="PermissionFacts"/> class.Creates permission facts.</summary>
     /// <param name="id">The permission identifier.</param>
-    /// <param name="scope">The reach at which a role grants it, or empty when the record states none.</param>
+    /// <param name="scope">The one reach the allowing roles grant it at, or empty when they grant it at several or none.</param>
     /// <param name="group">The group ordering it beside its peers, or null when the record states none.</param>
     /// <param name="risks">The risks the record marks, in record order.</param>
     public PermissionFacts(string id, string scope, string? group, ImmutableArray<string> risks)
@@ -25,7 +25,7 @@ internal sealed class PermissionFacts : IEquatable<PermissionFacts>
     /// <summary>Gets the permission identifier.</summary>
     public string Id { get; }
 
-    /// <summary>Gets the reach at which a role grants it, or empty when the record states none.</summary>
+    /// <summary>Gets the one reach the allowing roles grant it at, or empty when they grant it at several or none.</summary>
     public string Scope { get; }
 
     /// <summary>Gets the group ordering it beside its peers, or null when the record states none.</summary>

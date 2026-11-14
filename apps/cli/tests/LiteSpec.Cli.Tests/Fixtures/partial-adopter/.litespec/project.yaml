@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://litespec.dev/5.2.0/schemas/litespec-project.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/litespec-project.schema.yaml
 schemaVersion: 1
 project:
   name: Fixture Library
@@ -9,7 +9,7 @@ stacks:
 layers:
   intent: litespec
   behavior: litespec
-reviewedLiteSpecVersion: 5.2.0
+reviewedLiteSpecVersion: 6.0.0
 paths:
   docs: .litespec
   behaviorDocs: .litespec/behavior

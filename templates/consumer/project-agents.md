@@ -3,7 +3,7 @@
 <!-- generated:agent-protocol -->
 When this file disagrees with `__LITESPEC_COMMAND__ rules`, `__LITESPEC_COMMAND__ model query` or a record, the tool output and the record win; this file only points to them.
 
-This project follows LiteSpec __LITESPEC_VERSION__: size __SIZE__, shape __SHAPE__, stacks __STACKS__, extensions __EXTENSIONS__.
+This project follows LiteSpec __LITESPEC_PACKAGE_VERSION__: size __SIZE__, shape __SHAPE__, stacks __STACKS__, extensions __EXTENSIONS__.
 Layers: __LAYERS__.
 Before a task, read https://litespec.dev/__LITESPEC_VERSION__/select/__SELECTION_KEY__/llms.txt and fetch only the pages the task touches.
 UI work: the pattern pages listed in that index.

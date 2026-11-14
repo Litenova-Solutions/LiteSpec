@@ -22,6 +22,25 @@ internal static class ProseText
     internal static bool IsoDate(string text, out DateOnly date) =>
         DateOnly.TryParseExact(text, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
 
+    /// <summary>The body of one H2 section of an explanation, without its heading.</summary>
+    /// <param name="text">The explanation file text.</param>
+    /// <param name="heading">The section heading text.</param>
+    /// <returns>The lines of the section up to the next H2, or null when the section is absent.</returns>
+    internal static string? SectionOf(string text, string heading)
+    {
+        var lines = text.ReplaceLineEndings("\n").Split('\n');
+        var start = Array.FindIndex(lines, line => line.Trim() == "## " + heading);
+
+        if (start < 0)
+        {
+            return null;
+        }
+
+        var end = Array.FindIndex(lines, start + 1, line => line.StartsWith("## ", StringComparison.Ordinal));
+
+        return string.Join('\n', lines[(start + 1)..(end < 0 ? lines.Length : end)]);
+    }
+
     /// <summary>Every line's start offset, for offset-to-line reads.</summary>
     /// <param name="text">The text whose line starts are indexed.</param>
     /// <returns>The offset of each line start, beginning with zero.</returns>

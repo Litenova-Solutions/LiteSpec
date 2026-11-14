@@ -1,5 +1,332 @@
 # Changelog
 
+## v6.0.0
+
+LiteSpec 6.0.0 gives constraints their sources, scope and rules, and gives journeys a start, steps and branches. It also moves each feature into the problem it answers, declares modules only in Behavior, puts each child record in a typed folder, ties each research finding to its source, and publishes release candidates from release branches. It adds the vision record, puts each named record and each requirement in its own folder, gives every explanation file plain sections behind an opening paragraph, states each problem by its failure cases, and has each feature state its boundaries for the people who build and test it. It is a major release: it changes the record layout, renames and retires the provision IDs that Part H lists, and removes fields, so a consumer moves its records, rewrites its explanation files and follows Part I. It also adds three guides: Write a Constraint, Write a Journey and Write a Research Record.
+
+### Part A: The Vision Record
+
+- A `vision` record lives at `.litespec/intent/visions/<name>/<name>.yaml`, at product level only, with `summary` and `statement` and no date, priority or status. `litespec new vision <name>` scaffolds it. When the project lists `intent` in `explanations.layers`, its explanation file carries the sections Direction, Effect on Current Design and Trigger.
+- A decision names a vision in `basedOn`, and a requirement names one in `cites`. Nothing else links to a vision, and a vision links to nothing.
+- A vision reaches no Behavior by design: no reach check reads it, so it raises no `intent-unreached` or other planned-Intent finding. `litespec/core/intent#reach-every-intent-record-with-behavior` now excepts it.
+- `litespec/core/principles#require-current-complexity-activation` states that a vision never justifies a package, project, wrapper, process, cache, queue or distributed pattern on its own. A vision may justify the shape of a record or model.
+- The book lists visions beside goals in the Why group, under the product. `prose-missing` covers a vision with no `statement`.
+- Claimwick carries `vision/contractor-expenses`.
+
+The four rules are `litespec/core/intent#state-each-vision-in-its-fields`, `litespec/core/intent#keep-dates-and-priorities-out-of-visions`, `litespec/core/intent#build-nothing-from-a-vision`, and `litespec/core/intent#cite-the-vision-a-decision-keeps-open`. Decision 0041, Record Product Vision as a Vision Record, records why.
+
+### Part B: The Book on Narrow Screens
+
+- Below 1024 pixels the navigation becomes a drawer: a menu button in the top bar opens it, and choosing a record, the backdrop or Escape closes it and returns focus to the button. The page behind an open drawer is inert. Above 1024 pixels the columns stand side by side as before.
+- The top bar drops the test run and completion widgets below 1280 pixels, and the button labels, the book label and the shortcut hint below 768 pixels. The search box placeholder reads "Find a record".
+- Record pages fit a 320-pixel screen with no sideways scroll: long identifiers, paths and refusal codes wrap, label and value grids stack, and wide tables scroll inside their own frame.
+- The Intent tree and the trace rail show visions under the product, each with the decisions based on it and the requirements citing it.
+
+### Part C: Named Records in Their Own Folders
+
+- Each named record lives in its own folder named for it, `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in that folder beside the record file. The folder name equals the file stem. `litespec/core/model#write-every-record-in-its-home` and `litespec/core/model#explain-each-record-beside-its-record-file` state the rule.
+- A named record placed flat in its type's folder is a `record-placement-invalid` finding. A named record whose folder name differs from its file stem is a `record-folder-drift` finding, a level G finding.
+- Fixed-name files keep their places: `product.yaml`, `module.yaml`, `aggregate.yaml`, `entry-point.yaml`, `permissions.yaml`, `glossary.yaml`, rule sets, settings, events and the list files. A result or scenario sits in its use-case file, and a requirement sits in its own folder inside its feature's folder, as Part F states.
+- `litespec new` writes a named record in the folder layout, and `litespec rename` moves a record with its folder.
+- No migration tool ships. Part I lists the move each consumer makes.
+
+Decision 0042, Keep Each Named Record in Its Own Folder, records why.
+
+### Part D: Explanation Files with Plain Sections
+
+- Each record type has one fixed list of plain noun sections, in the order the section table on the writing page gives. The table covers every type with an explanation file, including the container pages: permission lists, setting sets, rule sets, retention schedules, runbooks and departures. A section is named by one or two plain nouns, such as Cost, Evidence or Revisit Conditions.
+- Each explanation file opens with one paragraph of prose between its H1 and its first H2. `explanation-opening-missing` reports an explanation with no such paragraph, at level A.
+- `explanation-missing` reports a missing fixed section, and it now also reports sections that come out of order. Its message names the section.
+- The old headings, such as What It Means, Who Has It, Answer and Known Limits, are invalid in 6.0.0. The generic explanation template is removed. `litespec new` writes each type's own explanation template, with the title filled in.
+- The book shows the opening paragraph above the sections, and it sets Limits apart as risks, Example as an example and Open Points as questions. It no longer moves a Why section out of the body.
+
+Decision 0043, Use Plain Noun Sections and an Opening Paragraph, records why.
+
+### Part E: Problems Stated by Failure Case
+
+- A problem explanation carries Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence and Resolution Criteria, in that order. `explanation-missing` reports a problem explanation that still carries Resolution, or that has no Failure Cases.
+- The opening paragraph states what the sufferer cannot reliably do, the gap that causes it, and what they lose or risk. Failure Cases gives each failure that can happen on its own its own entry, with how the sufferer finds it and what follows when they do not.
+- Each claim stays within its evidence, and an estimate is named as an estimate. An evidence entry shows that the sufferer has the pain; a file format, an API or another product only shows that a solution can be built, and it belongs in research that a feature cites.
+- Resolution Criteria gives one observable outcome for each failure case and names no feature or implementation. The feature that delivers it sits in the folder of the problem it answers.
+- Current Workaround names the burden of the workaround, and Cost keeps time, money and risk apart.
+- A problem title names the failure or its consequence, never a theme or a feature.
+- `litespec new problem` writes the new sections, and the Claimwick problem follows them.
+- The new how-to [Write a Problem](docs/guide/write-a-problem.md) walks through each section with a weak and a strong Claimwick example.
+
+The five new rules are `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`, `litespec/core/intent#state-each-failure-case-on-its-own`, `litespec/core/intent#claim-no-more-than-the-evidence-shows`, `litespec/core/intent#keep-feasibility-out-of-problem-evidence` and `litespec/core/intent#resolve-every-failure-case-with-an-outcome`. `litespec/core/intent#explain-every-problem-in-four-sections` becomes `litespec/core/intent#explain-every-problem-in-its-fixed-sections`, under the heading Explain Every Problem in Its Fixed Sections. Decision 0044, State Each Problem by Its Failure Cases, records why.
+
+### Part F: Requirements in Their Own Folders
+
+- Each requirement lives in its own folder inside its feature's folder: `.litespec/intent/modules/<module>/features/<feature>/<name>/<name>.yaml`. Its identifier stays `requirement/<feature>.<name>`, and its feature segment names the feature whose folder holds it; `identifier-invalid` reports one that differs.
+- A feature record file holds no requirement entries. A requirement entry left in a feature file is a `record-invalid` finding.
+- A requirement's explanation file `<name>.md` is optional on every layer, even when the project lists `intent` in `explanations.layers`. When it exists, it opens with a paragraph and may carry an Example; acceptance stays in the Behavior scenarios that fulfill the requirement.
+- `litespec new requirement <feature>.<name>` writes the requirement's folder inside the feature's folder, with no explanation file. `litespec new entry` no longer takes a requirement. `litespec rename` moves a requirement's folder, and renaming a feature moves its folder with the requirement folders inside.
+- The book brings a feature's requirements together on the feature's page, as before.
+- Claimwick, the templates and the test fixtures hold each requirement in its own folder.
+
+Decision 0045, Keep Each Requirement in Its Own Folder, records why.
+
+### Part G: Features Written for the Builder and the Tester
+
+- A feature explanation carries Capabilities, Success Criteria, Boundaries and an optional Example. Boundaries is required: what the feature leaves to other features, the features it depends on, and each open question its owner has not decided. `explanation-missing` reports a feature explanation without it, or one that still carries Limits.
+- Success Criteria lists only outcomes the feature brings about on its own and a tester can check.
+- A feature or requirement explanation describes only behavior that the feature's requirements state.
+- A requirement statement states one behavior a tester can pass or fail on its own, with each condition, date and amount its result depends on. A rationale states why the requirement exists, adds no behavior, and claims no more than its reason supports. A requirement title names the specific behavior or fact it requires.
+- Every record names the operation it describes instead of a loose verb such as handles, holds, touches or lands, and states the observable behavior or the measured target instead of an intensifier such as seamlessly, instantly or at once.
+- The feature template and the Claimwick approval feature follow, and [Write a Feature Under a Problem](docs/guide/write-a-feature-under-a-problem.md) walks through the requirement and explanation steps with a weak and a strong Claimwick example.
+
+The six new rules are `litespec/core/intent#state-the-boundaries-of-every-feature`, `litespec/core/intent#state-success-criteria-the-feature-controls`, `litespec/core/intent#add-no-behavior-in-an-explanation-file`, `litespec/core/intent#state-one-testable-behavior-in-each-requirement`, `litespec/core/intent#keep-each-rationale-to-its-reason` and `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`. `litespec/core/writing#use-literal-words` also refuses loose verbs. Decision 0046, Write Features for the Builder and the Tester, records why.
+
+### Part H: Provision Changes Since v5.2.0
+
+The generated list below compares the provision index at v5.2.0 with this release. The comparison matches a provision by its page and statement, so a renamed or moved identifier appears as one removal and one addition. These identifiers changed in 6.0.0:
+
+- `litespec/core/access#record-every-role-hold-with-its-scope` is renamed to `litespec/core/access#record-every-role-an-actor-holds`.
+- `litespec/core/access#state-the-scope-of-every-permission` is retired. The role holds the one scope, so no permission states one.
+- `litespec/core/intent#explain-every-problem-in-four-sections` is renamed to `litespec/core/intent#explain-every-problem-in-its-fixed-sections`.
+- `litespec/core/intent#group-product-records-by-module` is replaced by `litespec/core/intent#group-product-records-by-problem`.
+- `litespec/core/intent#name-each-sibling-problem-or-merge-it` is retired, and `litespec/core/intent#answer-one-problem-with-each-feature` replaces it.
+- `litespec/core/intent#shape-each-module-page` moves to `litespec/core/behavior#shape-each-module-page`.
+- `litespec/frontend/testing#name-the-journey-a-journey-test-walks` is renamed to `litespec/frontend/testing#name-the-journey-a-journey-test-covers`.
+
+Six finding codes are new in the schema or the model check: `constraint-effect-uncited`, `constraint-effect-unlisted`, `finding-source-missing`, `permission-verb-unknown`, `scope-term-missing` and `template-value-unchanged`. The rest of the new codes are listed below.
+
+- New: `constraint-effect-uncited`, `constraint-effect-unlisted`, `explanation-opening-missing`, `explanation-section-unknown`, `finding-source-missing`, `identifier-title-invalid`, `permission-verb-unknown`, `record-folder-drift`, `record-key-duplicate`, `scope-term-missing`, `source-links-drift`, `source-links-missing`, `template-value-unchanged`, `term-meaning-invalid`, `term-verb-duplicate`, `use-case-verb-invalid` and `use-case-verb-unknown`.
+- New provision `litespec/core/model#name-each-identifier-from-its-title`, checked as `identifier-title-invalid`: every page record takes its identifier name from the words of its title in title order, and names its record file for its identifier name or for the fixed file name of its type. Decision 0061, Name Each Identifier from Its Title, records why.
+
+<!-- generated:provision-diff -->
+### Provision Changes Since v5.2.0
+
+Added (41):
+
+- `litespec/core/access#define-each-scope-level-in-the-glossary`
+- `litespec/core/access#name-each-permission-by-a-use-case-verb`
+- `litespec/core/access#record-every-role-an-actor-holds`
+- `litespec/core/authoring#copy-each-template-from-the-example`
+- `litespec/core/behavior#shape-each-module-page`
+- `litespec/core/intent#add-no-behavior-in-an-explanation-file`
+- `litespec/core/intent#answer-one-problem-with-each-feature`
+- `litespec/core/intent#branch-a-journey-only-between-its-steps`
+- `litespec/core/intent#build-nothing-from-a-vision`
+- `litespec/core/intent#cite-a-source-for-each-constraint-rule`
+- `litespec/core/intent#cite-the-vision-a-decision-keeps-open`
+- `litespec/core/intent#claim-no-more-than-the-evidence-shows`
+- `litespec/core/intent#explain-every-problem-in-its-fixed-sections`
+- `litespec/core/intent#group-product-records-by-problem`
+- `litespec/core/intent#keep-dates-and-priorities-out-of-visions`
+- `litespec/core/intent#keep-each-rationale-to-its-reason`
+- `litespec/core/intent#keep-feasibility-out-of-problem-evidence`
+- `litespec/core/intent#open-each-problem-with-its-gap-and-consequence`
+- `litespec/core/intent#reach-each-finish-condition-through-a-step`
+- `litespec/core/intent#resolve-every-failure-case-with-an-outcome`
+- `litespec/core/intent#split-records-whose-parts-change-separately`
+- `litespec/core/intent#state-each-constraint-rule-with-its-condition`
+- `litespec/core/intent#state-each-failure-case-on-its-own`
+- `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`
+- `litespec/core/intent#state-each-research-finding-with-its-source`
+- `litespec/core/intent#state-each-vision-in-its-fields`
+- `litespec/core/intent#state-one-testable-behavior-in-each-requirement`
+- `litespec/core/intent#state-success-criteria-the-feature-controls`
+- `litespec/core/intent#state-the-boundaries-of-every-feature`
+- `litespec/core/intent#state-what-the-product-assumes-each-actor-knows`
+- `litespec/core/intent#state-when-each-journey-starts`
+- `litespec/core/maintaining#publish-each-release-candidate-from-its-release-branch`
+- `litespec/core/model#keep-shape-rules-in-the-schema`
+- `litespec/core/model#name-each-identifier-from-its-title`
+- `litespec/core/model#place-child-records-in-typed-folders`
+- `litespec/core/writing#keep-release-phases-and-plans-out-of-records`
+- `litespec/core/writing#keep-the-conditions-when-shortening`
+- `litespec/core/writing#name-observable-behavior-instead-of-intensifiers`
+- `litespec/core/writing#open-each-explanation-file-with-a-paragraph`
+- `litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record`
+- `litespec/frontend/testing#name-the-journey-a-journey-test-covers`
+
+Removed (7):
+
+- `litespec/core/access#record-every-role-hold-with-its-scope`
+- `litespec/core/access#state-the-scope-of-every-permission`
+- `litespec/core/intent#explain-every-problem-in-four-sections`
+- `litespec/core/intent#group-product-records-by-module`
+- `litespec/core/intent#name-each-sibling-problem-or-merge-it`
+- `litespec/core/intent#shape-each-module-page`
+- `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
+
+Renamed (0):
+
+None.
+
+Extensions added (0):
+
+None.
+
+Extensions removed (0):
+
+None.
+
+<!-- /generated:provision-diff -->
+
+### Part I: Upgrading a Consumer
+
+LiteSpec does no migration. Each step below is a manual edit, in the order given, because later steps depend on earlier moves.
+
+1. Install `LiteSpec.Cli` 6.0.0 (`dotnet tool update LiteSpec.Cli --version 6.0.0`) or rerun the install script, and set `reviewedLiteSpecVersion: 6.0.0` in `.litespec/project.yaml`. To test first, install the candidate `6.0.0-rc.<n>` and set the same field to it.
+2. Move each module from `.litespec/intent/modules/<module>/` to `.litespec/behavior/modules/<module>/`: move its `module.yaml` and its explanation with it. Move each goal, constraint, decision and research record that sat under an Intent module to product level, under `.litespec/intent/`.
+3. Move each feature folder into the folder of the one problem it answers, `.litespec/intent/problems/<problem>/features/<feature>/`, and remove its `solves` field. A feature that answers two problems becomes two features, or its two problems merge into one. A feature that answers no problem gets the problem its evidence supports, or its requirements move into the features that need them.
+4. Move each requirement entry out of its feature file into its own folder under the feature's `requirements/` folder: `requirement/approval.nobody-approves-own-expense` in `features/approval/approval.yaml` becomes `features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml`, with `type`, `id` and `title` first and the entry's other fields after them. Remove the moved entries from the feature file.
+5. Move each aggregate folder under its module's `aggregates/` folder, each use case under its aggregate's `use-cases/` folder, and each aggregate's event and rule files under the aggregate's `events/` and `rules/` folders. A use case that belongs to no aggregate moves to `behavior/modules/<module>/use-cases/<use-case>/`. No tool moves them, so move each one by hand.
+6. Move each named record and its explanation file into the record's own folder: `<container>/<name>/<name>.yaml` and `<container>/<name>/<name>.md`. For example, `.litespec/intent/goals/decided-in-days.yaml` moves to `.litespec/intent/goals/decided-in-days/decided-in-days.yaml`.
+7. Give each constraint a `sources` list, one entry per source with its `key`, `url` and `readOn`, and remove the record-level `readOn`. Add `effectiveFrom` where the rule starts on a date, and `basedOn` where the rule rests on research. Rewrite its explanation to Scope, Rules, Effect on the Product and Open Points: state each Rules paragraph's condition and cite its source key, and name in Effect on the Product each requirement that cites the constraint. Remove the Source section.
+8. Give each journey `startedWhen`, and replace `betweenSteps` with `branches`, one entry for each path that leaves the order of the steps, with its `step`, `condition` and `nextStep`. Move any action that sat in `betweenSteps` into the step list. Remove a step that serves another journey, and split a journey that takes two actors or two goals. Rewrite the explanation to Example and Branches: rename Variations to Branches, and move Preconditions into the Example. Make each clause of `finishedWhen` reached by a step, and remove a clause that no step reaches.
+9. Give each research record's Findings paragraph a source key as a reference link, and say in the sentence whether the source states the claim or the writer infers it. Remove the high, medium and low confidence labels. Move each point the sources do not establish from Source Notes into Open Questions, each as a question. Shorten the `conclusion` to what the sources establish, with its conditions, and remove what follows for the product. Add `publishedOn` where the source states its publication date.
+10. Give each actor explanation a Knowledge section in place of Access. Move the product rules out of the actor, into the requirements they belong to. Remove the Access section.
+11. Remove `scope` from each `holds` entry and from each permission entry. A role that one actor holds at two levels becomes one role per level. Add a glossary term titled with each role's scope level and "Scope", stating what the level covers in the product. Rename each permission whose leading verb is not in the use-case verb table of the Use Cases page, a glossary verb of kind command or either, or `manage`, and update each `allows` list, each `grant` and each code mark that names it. In each permission-list explanation, replace Future Roles with Boundaries.
+12. Move each project use-case verb from its convention page into the glossary as a verb term: the term names the verb, `verbKind` names the kind it opens (`command`, `query`, or `either`), and `meaning` states the act in one sentence. Then delete the convention page. A verb term that restates a baseline verb is removed instead, since a project never redefines one.
+13. Rewrite each explanation file to the fixed sections of its record type, as Parts D, E, G, J, K, P and R and the section table on the writing page state. Keep the H1, write one opening paragraph, and keep each free section after the fixed sections. The old headings are invalid, and no tool converts them. `litespec new` shows the template for each type. In a problem, give each failure its own entry under Failure Cases, give each failure case one outcome under Resolution Criteria, and move an evidence entry that only shows a solution can be built into research. In a feature, replace Limits with Boundaries, and add the features it depends on and its open questions.
+14. Remove each release phase and each future plan from every explanation: a destination becomes a vision, an open choice becomes an owner question or a backlog item, and a limit of the current product stays a stated limit.
+15. Replace each citation of a retired or renamed provision with its new identifier, including `follows` and `proves` marks in code and tests: `litespec/core/intent#explain-every-problem-in-four-sections` becomes `litespec/core/intent#explain-every-problem-in-its-fixed-sections`, `litespec/core/intent#name-each-sibling-problem-or-merge-it` becomes `litespec/core/intent#answer-one-problem-with-each-feature`, `litespec/core/access#record-every-role-hold-with-its-scope` becomes `litespec/core/access#record-every-role-an-actor-holds`, `litespec/core/intent#group-product-records-by-module` becomes `litespec/core/intent#group-product-records-by-problem`, `litespec/core/intent#shape-each-module-page` becomes `litespec/core/behavior#shape-each-module-page`, and `litespec/frontend/testing#name-the-journey-a-journey-test-walks` becomes `litespec/frontend/testing#name-the-journey-a-journey-test-covers`. Drop each citation of `litespec/core/access#state-the-scope-of-every-permission`, which is retired.
+16. To record where the product is heading, run `litespec new vision <name>` and name the vision in `basedOn` on each decision made to keep it open.
+17. Run `litespec model render`, which writes each source-links region and the consumer's agent protocol, and then `litespec model check`. Fix each finding, including `record-placement-invalid`, `record-parent-missing`, `record-folder-drift`, `record-invalid`, `field-invalid`, `identifier-invalid`, `identifier-title-invalid`, `record-key-duplicate`, `explanation-missing`, `explanation-opening-missing`, `explanation-section-unknown`, `finding-source-missing`, `source-links-missing`, `source-links-drift`, `constraint-effect-unlisted`, `constraint-effect-uncited`, `scope-term-missing`, `permission-verb-unknown`, `template-value-unchanged`, `use-case-verb-unknown`, `use-case-verb-invalid` and `term-verb-duplicate`. A value a template copied and you kept is a finding, so write the value you decided.
+18. Rename each record the new `identifier-title-invalid` finding reports with `litespec rename`, or retitle it when the title is the wrong one.
+
+### Part J: Constraints with Sources, Scope and Rules
+
+- A constraint carries `sources`, one entry per source with its `key`, `url` and `readOn`, in the shape research uses. The record-level `readOn` is removed. Each source may carry `publishedOn`, the date the source states it was published.
+- A constraint carries `effectiveFrom`, the date its rule starts to bind, and `basedOn`, the research the rule rests on. `authority` names the issuing body in a few words, and `summary` states the rule, its condition and whom it binds.
+- A constraint explanation holds Scope, Rules, Effect on the Product and Open Points (optional), in that order. Source is removed. Each Rules paragraph keeps its condition and cites a source key as a reference link `[text][key]`.
+- Effect on the Product names by identifier each requirement that holds the rule's effect. `model check` reports `constraint-effect-unlisted` for a requirement that cites the constraint but is not named there, and `constraint-effect-uncited` for a requirement named there that does not cite it.
+- `model render` writes a `source-links` region at the end of each research and constraint explanation, one link definition per source with its read date. `model check` reports `source-links-missing` and `source-links-drift`, so each citation resolves in a plain Markdown preview.
+- The source checks `source-key-unknown`, `source-link-bare` and `source-unused` read constraint explanations as well as research. `record-invalid` reports a constraint with no source, and `field-invalid` reports a `basedOn` that names no research record.
+- New provisions `litespec/core/intent#cite-a-source-for-each-constraint-rule` and `litespec/core/intent#state-each-constraint-rule-with-its-condition`. `litespec/core/intent#answer-every-constraint`, `litespec/core/layers#enter-world-facts-as-cited-research-or-constraints` and `litespec/core/layers#build-ahead-of-a-regulation-only-under-its-constraint` are reworded for the fields. Decision 0047, Cite a Source for Each Constraint Rule, records why.
+- Claimwick's constraint `tax-receipt-retention` states its source with a key, a URL and its read date, and its Effect on the Product names the two requirements that hold it.
+
+### Part K: Journeys with a Start, Steps and Branches
+
+- A journey carries `startedWhen`, the observable state in which it starts, in one sentence. The Preconditions section is removed, and any detail of one occasion moves to the Example.
+- `betweenSteps` is removed. A journey carries `branches`, a list where each entry names the `step` it leaves, the `condition` under which it leaves, and the `nextStep` it continues at, or `end`. A branch states no action of its own, so an action on a path is a step.
+- A blocker is the `failure` of the step it blocks, with the requirement that holds it cited. A step names one act of its performer, may name the product's observable response after that act, and a second act of a person is a second step.
+- `record-invalid` reports a journey without `startedWhen`, a journey still holding `betweenSteps`, or a branch missing `step`, `condition` or `nextStep`. `field-invalid` reports a branch whose `step` or `nextStep` names no step of its journey. `record-key-duplicate` reports two branches that repeat a step and next step.
+- The journey explanation sections are Example and Branches. Variations is renamed to Branches, which explains when each branch happens and why, with an occasion.
+- The book renders `startedWhen` before the steps, and each branch as a sentence after them.
+- New provisions `litespec/core/intent#state-when-each-journey-starts`, `litespec/core/intent#branch-a-journey-only-between-its-steps`, `litespec/core/intent#reach-each-finish-condition-through-a-step` and `litespec/core/intent#state-each-journey-blocker-as-a-step-failure`. Decision 0048, State the Start and Branches of Each Journey, records why.
+- Claimwick's reference journey is split by actor and goal, as the plan's review asked. `journey/submit-and-reimburse` keeps the employee's path from submission to reimbursement, with handoffs to the manager and finance. The threshold step moves to `journey/set-receipt-threshold`, taken by the manager, and the export step moves to `journey/export-approved-expenses`, taken by finance. The erasure step leaves every journey, and its use case fulfills its requirement without serving a step, as a scheduled promise does.
+
+### Part L: Literal Journey Words and Concrete Consequences
+
+- An actor takes a journey, and nothing walks. The Links table reads "is taken by" and "takes", and the journey sense of "walk" is gone from the records, templates, glossary and standards pages.
+- `litespec/frontend/testing#name-the-journey-a-journey-test-walks` is renamed to `litespec/frontend/testing#name-the-journey-a-journey-test-covers`, and every citation and `follows` mark moves with it.
+- Record openings state the consequence at stake and for whom, not "why it matters" followed by a general reason. The opening prompts of the actor, goal, notification, product and README templates change, and `explanation-opening-missing` names the consequence in its fix text. Documentation pages keep their Intent sections, since those describe LiteSpec pages rather than records.
+- `litespec/core/writing#use-literal-words` gains a weak and strong example: "It matters because the figures must be correct" against "A wrong box amount means a correction return, and a late return means a fine." Decision 0049, Use Literal Journey Words and Concrete Consequences, records why.
+
+### Part M: Features Inside the Problem They Answer
+
+- A feature sits in the folder of the one problem it answers: `.litespec/intent/problems/<problem>/features/<feature>/<feature>.yaml`, with its explanation beside it. The `solves` field is removed, because the folder names the problem.
+- Each requirement sits in the `requirements/` folder of its feature, as Part X states. Identifiers do not change, because `feature/<name>` and `requirement/<feature>.<name>` name no problem, so moving a feature to another problem moves its folder and changes no citation.
+- `advances` stays a list, since one feature can move several goals.
+- `record-invalid` reports a feature that still carries `solves`. `record-placement-invalid` reports a feature outside a problem's `features/` folder, and `record-parent-missing` reports a feature in the folder of no problem record.
+- Retired: `litespec/core/intent#name-each-sibling-problem-or-merge-it`. New: `litespec/core/intent#answer-one-problem-with-each-feature`. Two pains that one offer answers are one problem, and an offer that answers two pains is two features.
+- The Links table reads "answers" and "is answered by" for the folder parent. The book's Intent tree shows each problem with its features, and `litespec new feature` takes the problem the feature answers.
+- The guide `docs/guide/write-a-feature-under-a-module.md` is renamed to `docs/guide/write-a-feature-under-a-problem.md`. Decision 0050, Put Each Feature Inside the Problem It Answers, records why.
+
+### Part N: Modules Declared Only in Behavior
+
+- A module is declared in Behavior: `.litespec/behavior/modules/<module>/module.yaml`, with its explanation beside it. Its fields are unchanged. The module sections are Responsibilities, Boundaries and Example, and they sit under Behavior.
+- `.litespec/intent/modules/` is removed. Goals, problems, constraints, decisions, research and features sit at product level, under their problems where they belong. `record-placement-invalid` reports any file under `intent/modules/`.
+- The Intent tree groups by problem. The Behavior tree keeps grouping aggregates by module. `litespec new module` writes into `behavior/modules/<module>/`.
+- The provision `litespec/core/intent#shape-each-module-page` moves to `litespec/core/behavior#shape-each-module-page`, and `litespec/core/intent#group-product-records-by-module` is replaced by `litespec/core/intent#group-product-records-by-problem`.
+- Decision 0051, Declare Modules Only in Behavior, records why.
+
+### Part O: Research Findings Tied to Their Sources
+
+- `readOn` states when someone read a source. The date a rule takes effect and the period a figure covers are claims a finding states with its source. `publishedOn` carries the date the source states, and the book shows it beside `readOn`.
+- Each paragraph under Findings states one claim with its conditions, cites its source key as a reference link, and says whether the source states the claim or the writer infers it. The high, medium and low confidence labels are removed.
+- `model check` reports `finding-source-missing` for a Findings paragraph with no source link. The existing source checks cover the keys.
+- The research sections are Findings, Open Questions (optional) and Source Notes (optional). Open Questions holds what the sources do not establish, each as a question that names what to investigate. Source Notes holds what each source covers and where sources disagree.
+- The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and leaves out what follows for the product.
+- Findings answer only the record's `question`. The shared split rule in Part Q applies, so a record that answers two questions becomes two records.
+- New provision `litespec/core/intent#state-each-research-finding-with-its-source`. Decision 0052, Tie Each Research Finding to Its Source, records why.
+
+### Part P: Actors by Responsibility and Knowledge
+
+- The actor sections are Responsibilities, Knowledge and Example (optional). Access is removed. The actor's record names its role in `holds`, and the role's own files state the permissions and why that scope fits.
+- Responsibilities states the tasks and decisions the actor answers for, and no product rule. Knowledge states what the product assumes the actor knows, as an assumption of the product and not a fact about every user.
+- New provision `litespec/core/intent#state-what-the-product-assumes-each-actor-knows`. Decision 0053, Describe Actors by Responsibility and Knowledge, records why.
+
+### Part Q: Rules Shared by Every Record Type
+
+- `litespec/core/intent#add-no-behavior-in-an-explanation-file` applies to every Intent explanation file, not only features and requirements. An explanation describes only what its record's fields and the records it cites state.
+- `litespec/core/writing#keep-the-conditions-when-shortening` (new): a summary, conclusion, statement or opening paragraph keeps each condition of the claim it shortens.
+- `litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record` (new): each name, date and number in an Example comes from the example cast or from a record the example's own record cites.
+- `litespec/core/intent#split-records-whose-parts-change-separately` (new): a constraint or research record holds claims that share one question or source, one scope and one rate of change, so a claim verified or changed separately sits in its own record.
+- `litespec/core/writing#keep-release-phases-and-plans-out-of-records` (new): a record states the product as it stands. A destination is a vision, an open choice is an owner question or a backlog item, and a limit stays a limit.
+- The Example prompt of each template becomes one sentence in the same form, and no prompt opens with "Walk" or asks for numbers "worked through". Decision 0054, Write Each Shared Record Rule Once, records why.
+
+### Part R: Access Records with One Scope and Literal Permissions
+
+- A role's `scope` is the one scope of its grant. `scope` is removed from each `holds` entry and from each permission, so `holds` is a list of role identifiers. Which tenant or team a person holds a role for is runtime data held by role assignments. A permission that two roles allow at different scopes takes its reach from the role the caller holds.
+- Each scope level a role names needs a glossary term titled with the level and "Scope", stating what the level covers in this product. `model check` reports `scope-term-missing` for a role scope with no such term. A role held at two levels becomes one role per level.
+- Each permission name opens with a verb from the use-case verb table or with `manage`. `model check` reports `permission-verb-unknown` for any other. Claimwick's `submit-expense` is now `request-expense`, `reimburse-expense` is `post-reimbursement`, and `erase-personal-data` is `remove-personal-data`.
+- The permission-list explanation sections are Risk and Boundaries (optional). Boundaries states what a reader might assume a permission allows but it does not. Future Roles is removed.
+- `litespec/core/access#record-every-role-hold-with-its-scope` is renamed to `litespec/core/access#record-every-role-an-actor-holds`, and `litespec/core/access#state-the-scope-of-every-permission` is retired. `litespec/core/access#define-each-scope-level-in-the-glossary` and `litespec/core/access#name-each-permission-by-a-use-case-verb` are new.
+- The Access page states once that a permission allows a call and the call still meets every rule, so holding a permission never bypasses a refusal. Decision 0055, State Each Access Scope Once, records why.
+
+### Part S: Templates Copied from Claimwick
+
+- Each YAML template is a copy of one Claimwick record. `litespec-maintain validate` reports a template that differs from its source (`TEMPLATE_SOURCE_DIFFERS`) or names none (`TEMPLATE_SOURCE_MISSING`), so every link in a template resolves in one coherent product. Claimwick gains the records the templates copy: an approver reminder requirement, a retention schedule and an expense-submitted integration event.
+- `litespec new` writes a marker line that names its template. `model check` reports `template-value-unchanged` for a scaffolded record that still keeps a template's text or number, so a copied value never passes for a decision.
+- The use-case template splits into a command template and a query template. `litespec new use-case <id> --kind command|query` chooses one. The command template keys its idempotency on a request identifier declared in its input, so two expenses of one amount do not collide.
+- Explanation prompts follow the record's kind. Aggregate Lifecycle covers states for an entity and creation, change and removal for a store. The job section becomes Invocation, covering scheduled, one-off and manual runs. The retention schedule's Legal Basis becomes Basis, covering statute, business and engineering. Entry point Authentication asks how callers prove identity, and setting set Defaults asks for the default, range, setter and when a change applies.
+- The product's Direction section is optional and points to vision records. The goal prompt asks for the population, the start and end events, the measurement window and the exclusions. The decision template drops the date, which Git holds. The README's actor row drops "or system".
+- The design contract states the accessible rule: buttons for actions, links for navigation, native controls for input, and `role=alert` only for failures that need attention. Motion timings are defaults, not a rule that every state change takes 0 ms. Decision 0056, Copy Each Template from Claimwick, records why.
+
+### Part T: CLI and Check Fixes
+
+- `litespec new` writes one Title Case title to the YAML `title` and to the explanation H1 for every type. A test runs `new` for every listed type.
+- `new aggregate` has a scaffold home, and `new journey` has a template. `new use-case` takes `--kind`.
+- `litespec rename` keeps a record at its level and in its owner's folder. A new identifier that names another owner is refused unless `--move` is given. A record folder moves whole with its supporting files, and every destination is checked before anything moves.
+- The explanation checks read the Markdown block structure. A comment or a code fence no longer counts as the opening paragraph, a heading inside a fence is not a section, and section findings point at the explanation file. `explanation-section-unknown` reports an H2 outside the type's section table ahead of a fixed section, and a free section after the fixed sections passes.
+- Claimwick renames five requirements to take their names from their titles: `requirement/approval.erase-after-retention` becomes `requirement/approval.erased-after-retention`, `requirement/approval.no-self-approval` becomes `requirement/approval.nobody-approves-own-expense`, `requirement/approval.receipt-over-threshold` becomes `requirement/approval.above-threshold-receipt`, `requirement/approval.single-reimbursement` becomes `requirement/approval.expense-reimbursed-at-most-once`, and `requirement/approval-reminders.month-end-submissions` becomes `requirement/approval-reminders.month-end-submission`.
+- The LiteSpec workflow checks pushes to `release/*`, the branch a release is prepared on.
+- In the book, choosing a record in the narrow-screen drawer closes it, including the record already selected, and focus returns to the menu button.
+- `docs/core/maintaining.md` no longer promises that a pinned consumer keeps resolving old schema `$id` URLs. The site serves one release, and the CLI carries its schemas offline.
+
+### Part U: Writing Rules Narrowed to Where They Improve Meaning
+
+- `litespec/core/writing#put-the-actor-first` applies to a sentence that describes an action. A sentence that states a fact, a state or a calculation may take its object or its condition as the subject. Passive voice that hides who acts is still a finding.
+- `litespec/core/writing#write-for-the-reader-who-arrives-cold` applies to the opening paragraph of a record, an explanation file or a page, and each section answers its own question without repeating it.
+- `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words` is advisory. A longer sentence in a `statement` or `summary` that keeps a condition is not a defect. A glossary meaning longer than the bound reports `term-meaning-invalid` at the same strength, where it used to report `field-invalid`.
+- The rationales of the twenty-five-word and eight-word bounds state them as house limits, not as facts about readers or screens. The eight-word title bound stays required, and so does the one-sentence rule for a `statement`.
+- `use-literal-words` states that a word is loose when it leaves the act unclear, so a domain term used in its defined sense is not loose. Decision 0057, Narrow the Writing Rules to Meaning, records why.
+
+### Part V: Schema and Model Check Parity
+
+- Shape rules live in `schemas/record.schema.yaml`: required properties, minimum counts, conditional requirements and allowed values. Rules about the record graph stay in the model check. New provision `litespec/core/model#keep-shape-rules-in-the-schema` states the split.
+- Five local requirements now appear in the schema as well as the check: role `allows`, decision `choice`, research `sources`, module `dependsOn` and policy `values`. An editor that validates against the schema refuses the same records the CLI does.
+- `uniqueItems` is removed from every array of objects, because it compares whole objects. The model check reports `record-key-duplicate` for a repeated source key, journey step id, external operation name or field name in one record.
+- A parity test runs both validators over invalid records and fails where they disagree on a rule both carry. Decision 0058, Keep Shape Rules in the Schema, records why.
+
+### Part W: Release Candidates from Release Branches
+
+- A tag `v<version>-rc.<n>` on `release/<version>` publishes a release candidate: `LiteSpec.Cli` and `LiteSpec.Analyzers` at `<version>-rc.<n>` as prerelease packages on nuget.org, the same standalone archives, checksums and attestations, and a GitHub release marked prerelease, with the changelog section for the version as its notes.
+- A plain tag `v<version>` still publishes only from `main`. The workflow refuses a candidate whose base version differs from the manifest, whose number is not digits, or whose commit is not on the matching release branch.
+- The committed files keep the plain version. The workflow stamps the suffix at build time, and the tool reads the full version from its assembly, so `init` and `model render` write `6.0.0-rc.1` into a consumer's `reviewedLiteSpecVersion`, tool manifest and analyzer pin. Links the tool writes keep the base version, because a candidate publishes no site. The reviewed-release comparison uses the base version.
+- `reviewedLiteSpecVersion` accepts a `-rc.<n>` suffix. `docs/guide/install-the-cli.md` shows how to install a candidate, and `docs/reference/published-urls.md` says a candidate publishes no site.
+- New provision `litespec/core/maintaining#publish-each-release-candidate-from-its-release-branch`, and `litespec/core/maintaining#publish-a-litespec-release-from-a-tag` states both tag forms. Decision 0059, Publish Release Candidates from Release Branches, records why.
+
+### Part X: Child Records in Typed Folders
+
+- A child record stored as its own file sits in its own folder, inside a folder named for its type in the plural, inside its parent's folder. A child stored as an entry stays in its parent's file. `litespec/core/model#place-child-records-in-typed-folders` states the rule.
+- The homes are `intent/problems/<problem>/features/<feature>/requirements/<requirement>/`, `behavior/modules/<module>/aggregates/<aggregate>/` with `use-cases/<use-case>/`, `events/` and `rules/` folders inside it, and `intent/requirements/<requirement>/` for a product-level quality requirement.
+- A use case that belongs to no aggregate keeps the module-level home `behavior/modules/<module>/use-cases/<use-case>/`.
+- The flat module homes are removed, so every module has one layout. An unknown subfolder of a module is a `record-placement-invalid` finding, not an aggregate. Identifiers do not change, because none names a type folder.
+- `new`, `rename`, the folder and locality checks, the book outline and the folder reference page follow the table, and the reference page is generated from the same table the checks read. Decision 0060, Put Child Records in Typed Folders, records why.
+
+### Part Y: Project Verbs in the Glossary
+
+- A project declares each use-case verb beyond the baseline vocabulary as a verb term in its glossary: the term names the verb, the new `verbKind` field names the kind it opens (`command`, `query`, or `either`), and `meaning` states the act in one sentence. The glossary schema carries the field, and the consumer glossary template shows it.
+- `model check` reports `use-case-verb-unknown` for a use-case name opening with a verb neither the table nor the glossary declares, `use-case-verb-invalid` for a use case opening with a verb of the other kind, and `term-verb-duplicate` for a verb term restating a baseline verb. `permission-verb-unknown` now also accepts a glossary verb of kind `command` or `either`.
+- Reworded: `litespec/core/use-cases#start-every-use-case-with-a-declared-verb` and `litespec/core/use-cases#keep-one-kind-per-verb` are checked instead of reviewed, and `litespec/core/access#name-each-permission-by-a-use-case-verb` accepts glossary verbs. A convention states a judgment rule, never a list of words.
+- Claimwick declares `submit`, `attach`, `reimburse` and `erase` as glossary verb terms. Decision 0062, Declare Project Verbs in the Glossary, records why.
+
 ## v5.2.0
 
 LiteSpec 5.2.0 generates the agent instructions in a consumer's `AGENTS.md` from one template and reports when they drift, narrows `rules` to the provisions that apply to the edited file or the change set, ships a LiteSpec skill for Claude Code and OpenCode, and requires a technical decision only for a choice of one of six named kinds. It is a minor release: no provision ID is removed or renamed. A consumer runs `model render`, moves provision-shaped conventions into the conventions folder, and may give each technical decision its kind, as Part H describes.

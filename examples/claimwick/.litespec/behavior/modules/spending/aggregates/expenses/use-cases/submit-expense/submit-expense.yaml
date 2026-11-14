@@ -1,0 +1,80 @@
+type: use-case
+id: use-case/spending.submit-expense
+title: Submit Expense
+summary: An employee files a work expense so it can be decided and reimbursed.
+kind: command
+access:
+  grant: permission/request-expense
+  tenant: own
+serves:
+- journey/submit-and-reimburse#s1
+fulfills:
+- requirement/approval.above-threshold-receipt
+reachedThrough:
+- entry-point/claimwick-app
+raises:
+- event/expense.submitted
+input:
+- name: requestId
+  meaning: The identifier the app mints for one submission attempt, so a retried request finds the same expense.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  origin: caller
+  classification: internal
+- name: amount
+  meaning: The exact amount of the expense.
+  type: decimal
+  required: true
+  origin: caller
+  classification: internal
+- name: currency
+  meaning: The ISO 4217 currency code of the amount.
+  type: text
+  required: true
+  origin: caller
+  classification: internal
+- name: receipt
+  meaning: The proof of payment, required above the threshold.
+  type: id
+  of: aggregate/spending.receipt
+  required: false
+  origin: caller
+  classification: internal
+changes:
+- aggregate/spending.expense
+reads:
+- aggregate/spending.policy
+idempotency:
+  mode: key
+  key: "{requestId}"
+  scope: account
+audit:
+  level: none
+  target: no audit trail; the example stores no audit entry
+records:
+- type: result
+  id: result/submit-expense.submitted
+  title: Submitted
+  outcome: success
+  meaning: The expense is submitted.
+- type: result
+  id: result/submit-expense.receipt-missing
+  title: Receipt Missing
+  outcome: refusal
+  code: spending.receipt-missing
+  meaning: The expense is above the receipt threshold and carries no receipt.
+- type: scenario
+  id: scenario/submit-expense.submitting-with-a-receipt-succeeds
+  title: Submitting with a Receipt Succeeds
+  given: An employee paid for a train ticket and kept the receipt.
+  when: The employee submits the expense with the receipt.
+  then: The expense is submitted.
+  result: result/submit-expense.submitted
+- type: scenario
+  id: scenario/submit-expense.submitting-without-a-receipt-is-refused
+  title: Submitting Without a Receipt Is Refused
+  given: An employee paid for a train ticket and lost the receipt.
+  when: The employee submits the expense with no receipt.
+  then: The submission is refused because the expense is above the receipt threshold and carries no receipt.
+  result: result/submit-expense.receipt-missing

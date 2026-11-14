@@ -12,7 +12,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementCarryingItsScenario()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta => QualityRecord(meta, []));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, []));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -28,7 +28,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta => QualityRecord(meta, [field]));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, [field]));
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
@@ -38,9 +38,9 @@ public sealed partial class ConsumerValidatorTests
     public void FunctionalRequirementWithoutScenarioFields()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing.yaml", meta =>
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta =>
         {
-            var record = FirstRecord(meta);
+            var record = meta;
             record["kind"] = "functional";
             record.Remove("values");
         });
@@ -63,29 +63,38 @@ public sealed partial class ConsumerValidatorTests
             """
             # Store Order Claims as Documents
 
+            The shop chooses how to store each order claim.
+
             ## Context
 
             Each claim reads as one record with no joins.
+
+            ## Options
+
+            Documents keep each claim whole, or rows split each claim across tables.
 
             ## Decision
 
             The shop stores each claim as one document.
 
+            ## Consequences
+
+            Cross-claim reports need an index.
+
+            ## Revisit Conditions
+
+            Reports across claims slow down past the index's size.
+
             """);
         AssertClean(RunConsumer(folder.Path));
     }
 
-    /// <summary>The first requirement entry on the pricing page.</summary>
-    /// <param name="meta">The pricing page record fields.</param>
-    /// <returns>The first record in the page records array.</returns>
-    static JsonObject FirstRecord(JsonObject meta) => (JsonObject)((JsonArray)meta["records"]!)[0]!;
-
-    /// <summary>Turns the first pricing record into a quality requirement missing the named fields.</summary>
-    /// <param name="meta">The pricing page record fields to mutate.</param>
+    /// <summary>Turns the pricing requirement into a quality requirement missing the named fields.</summary>
+    /// <param name="meta">The requirement record fields to mutate.</param>
     /// <param name="missing">The scenario fields to omit from the record.</param>
     static void QualityRecord(JsonObject meta, string[] missing)
     {
-        var record = FirstRecord(meta);
+        var record = meta;
         record["kind"] = "quality";
         record.Remove("values");
         var fields = new Dictionary<string, string>(StringComparer.Ordinal)

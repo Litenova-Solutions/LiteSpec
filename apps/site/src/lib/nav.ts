@@ -163,6 +163,12 @@ export function crumbTrail(page: Page): Crumb[] {
     });
   }
   const parts = page.file.split("/").slice(0, -1);
+  // A page held in its own folder named for its file stem, such as a decision folder
+  // holding its record and explanation, shows no crumb for that folder.
+  const stem = page.file.split("/").pop()!.replace(/\.md$/, "");
+  if (parts.length > 0 && parts[parts.length - 1] === stem) {
+    parts.pop();
+  }
   for (let i = 3; i <= parts.length; i++) {
     const dir = parts.slice(0, i).join("/");
     const overview = folderOverview(dir);

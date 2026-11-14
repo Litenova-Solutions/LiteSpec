@@ -11,7 +11,7 @@ Domain Model states the words and things inside the bounded context: the modules
 
 ### Bounded Context and Module
 
-The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page at `intent/modules/<m>/module.yaml` carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. `behavior/modules/<m>/` holds the same module name, so Behavior folders follow Intent. Inside `behavior/modules/<m>/`, a subfolder is either a fixed type folder from the closed set or an aggregate holding `aggregate.yaml`. A module with one aggregate of the module's own name may stay flat. Example, Known Limits, and Notes live in the explanation file beside the record file.
+The product speaks one business language inside one deployment boundary, as the [scope page](scope.md) states. Modules organize that language into areas; they stay areas of one language and one deployment, never languages or deployments of their own. A module is one business area: a page at `behavior/modules/<m>/module.yaml` carrying a `summary` and the `dependsOn` links to the modules it relies on, in the home the [model page](model.md) names. Intent holds no module; each module is declared only in Behavior, beside the aggregates it groups. Each child record sits in a typed folder inside its module, such as `aggregates/<aggregate>/`, `integration-events/<name>/` or `rules/`, as the [model page](model.md) places each type. Responsibilities, Boundaries and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -20,12 +20,13 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term that declares a project use-case verb carries `verbKind` with the kind it opens: `command`, `query`, or `either`.
 
 | Field | Meaning |
 |:---|:---|
 | `term`, `meaning` | The one word and what it means. |
 | `layer` | `intent`, `behavior`, or `implementation`. |
+| `verbKind` | The use-case kind a verb term opens, where the term declares a verb. |
 | `aliases` | Established synonyms readers know. |
 | `rejected` | Synonyms barred in their scope. |
 | `broader`, `narrower`, `values` | The wider and narrower terms, and the closed values. |
@@ -40,7 +41,7 @@ An aggregate is one thing the product keeps consistent and changes in one step, 
 | `entity` | One thing kept consistent through its root, with states, transitions, and data. |
 | `store` | State no aggregate invariant guards, such as a library-owned table, with a named owner. |
 
-An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Example, Known Limits, and Notes live in the explanation file beside the record file.
+An aggregate lists in `parts` the kebab-case names of the child entities and value objects inside it that use cases act on, such as `line`, `hold`, and `note`. The use-case noun check reads each part as a known word. Lifecycle, Data and Retention, Example and Limits live in the explanation file beside the record file.
 
 `transitions` lists every allowed change with the use case moving it: each entry names the state left in `from`, the state entered in `to`, and the moving use case in `by`. A creation, the change that brings an instance into being, writes `-` as the state left. `data` lists the fields the aggregate keeps, each with name, meaning, classification, and data class. Each data class declares how its fields erase:
 
@@ -58,7 +59,7 @@ An aggregate lists in `parts` the kebab-case names of the child entities and val
 
 ### Rules
 
-A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule. An invariant an aggregate enforces lives under its aggregate or its module. A cross-aggregate rule spans aggregates and lives as an entry on a rule page; a module rule lives in `behavior/modules/<m>/rules/`; `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move.
+A rule states what holds, with its `kind` and its `statement`. A rule names what it constrains in `governs`, the refusal its breach produces in `refusal`, the requirements it carries in `fulfills`, and the constraints and research behind it in `basedOn`. A rule an organization chooses, such as rounding, consent, or seller responsibility, is a requirement or a constraint in Intent, not a Behavior rule. An invariant an aggregate enforces lives under its aggregate or its module. A cross-aggregate rule spans aggregates and lives as an entry on a rule page; a module rule lives in `behavior/modules/<m>/rules/`; `module.yaml` holds no rules. A rule page carries a `summary` stating why its rules sit together, and its explanation file holds Notes. No rule page restates another record type. A rule identifier keeps its segment when the rule moves; only identifiers whose first segment names a module change with a module move. State a rule once per refusal: when two use cases enforce the same condition with different refusals, write one rule for each refusal, with each rule naming its own refusal in `refusal`. One `refusal` field holds one refusal, as `litespec/core/domain-model#name-the-refusal-a-broken-rule-produces` states, and each use case declares its own refusals, as `litespec/core/use-cases#end-every-use-case-in-named-results` states, so a condition refused two ways is two rules.
 
 | Kind | Meaning |
 |:---|:---|

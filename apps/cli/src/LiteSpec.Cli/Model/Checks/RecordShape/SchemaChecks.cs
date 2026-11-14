@@ -16,6 +16,9 @@ namespace LiteSpec.Cli.Model.Checks.RecordShape;
 /// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
 internal static class SchemaChecks
 {
+    /// <summary>The journey field that a journey no longer carries; its paths are branches now.</summary>
+    const string RemovedJourneyBranchField = "betweenSteps";
+
     /// <summary>Runs the schema checks on every record.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -112,8 +115,13 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Target, findings);
                 break;
 
+            case RecordTypes.Vision:
+                RequireString(record, RecordFields.Statement, findings);
+                break;
+
             case RecordTypes.Constraint:
                 RequireString(record, RecordFields.Authority, findings);
+                RequireArray(record, RecordFields.Sources, 1, findings);
                 RequireEnum(record, RecordFields.Kind, ["technical", "organizational", "convention", "legal"], findings);
                 RequireBoolean(record, RecordFields.Applies, findings);
                 RequireString(record, RecordFields.AppliesBecause, findings);
@@ -157,7 +165,6 @@ internal static class SchemaChecks
                 break;
 
             case RecordTypes.Feature:
-                RequireIds(record, RecordFields.Solves, 1, findings);
 
                 if (record.Has(RecordFields.Serves))
                 {
@@ -168,6 +175,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Actor:
                 RequireEnum(record, RecordFields.Kind, ["person", "organization"], findings);
+                RequireRoleHolds(record, findings);
                 break;
 
             case RecordTypes.Role:
@@ -182,7 +190,17 @@ internal static class SchemaChecks
             case RecordTypes.Journey:
                 RequireIds(record, RecordFields.Actor, 1, findings);
                 RequireIds(record, RecordFields.Serves, 1, findings);
+                RequireString(record, RecordFields.StartedWhen, findings);
+                RequireString(record, RecordFields.FinishedWhen, findings);
                 RequireArray(record, RecordFields.Steps, 1, findings);
+
+                // The order of steps changes only through branches; the removed betweenSteps prose is refused.
+                if (record.Has(RemovedJourneyBranchField))
+                {
+                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' holds {RemovedJourneyBranchField}; state each path in {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+                }
+
+                CheckJourneyBranches(record, findings);
                 break;
 
             case RecordTypes.Module:
@@ -309,7 +327,7 @@ internal static class SchemaChecks
                 }
                 else if (record.Field(RecordFields.Meaning)!.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length > 25)
                 {
-                    findings.Add(new Finding("field-invalid", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("term-meaning-invalid", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;
@@ -480,6 +498,61 @@ internal static class SchemaChecks
         IsoDate(text, out _)
         || DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out _);
 
+    /// <summary>
+    ///     Reports a journey branch that lacks its step, condition or nextStep, and a branch whose
+    ///     step or nextStep names no step of the journey. The end of a path is written as end.
+    /// </summary>
+    /// <param name="record">The journey record whose branches are read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckJourneyBranches(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Branches, out var branches))
+        {
+            return;
+        }
+
+        if (branches.ValueKind != JsonValueKind.Array)
+        {
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds {RecordFields.Branches} as no array.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        if (branches.GetArrayLength() == 0)
+        {
+            findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds an empty {RecordFields.Branches}.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        var stepTargets = record.StepIds().ToHashSet(StringComparer.Ordinal);
+
+        foreach (var branch in branches.EnumerateArray())
+        {
+            if (branch.ValueKind != JsonValueKind.Object)
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' holds a branch as no object.", record.File, record.Line, SubjectOf(record)));
+                continue;
+            }
+
+            foreach (var field in new[] { RecordFields.Step, RecordFields.Condition, RecordFields.NextStep })
+            {
+                if (Str(branch, field) is not { Length: > 0 })
+                {
+                    findings.Add(new Finding("record-invalid", $"Journey '{record.Id}' has a branch with no {field}.", record.File, record.Line, SubjectOf(record)));
+                }
+            }
+
+            if (Str(branch, RecordFields.Step) is { Length: > 0 } step && !stepTargets.Contains($"{record.Id}#{step}"))
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches from step '{step}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+
+            if (Str(branch, RecordFields.NextStep) is { Length: > 0 } next && next != "end" && !stepTargets.Contains($"{record.Id}#{next}"))
+            {
+                findings.Add(new Finding("field-invalid", $"Journey '{record.Id}' branches to step '{next}', which it does not hold.", record.File, record.Line, SubjectOf(record)));
+            }
+        }
+    }
+
     /// <summary>Reports the record when the named field holds no non-empty string.</summary>
     /// <param name="record">The record whose field is required.</param>
     /// <param name="field">The field name that must hold text.</param>
@@ -560,6 +633,35 @@ internal static class SchemaChecks
             }
 
             return;
+        }
+    }
+
+    /// <summary>Reports each holds entry that is not a role identifier, so a hold that carries a scope is refused.</summary>
+    /// <param name="record">The actor record whose holds list is read.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void RequireRoleHolds(Record record, List<Finding> findings)
+    {
+        if (!record.Raw.TryGetProperty(RecordFields.Holds, out var holds))
+        {
+            return;
+        }
+
+        if (holds.ValueKind != JsonValueKind.Array)
+        {
+            findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds no list in {RecordFields.Holds}.", record.File, record.Line, SubjectOf(record)));
+            return;
+        }
+
+        foreach (var entry in holds.EnumerateArray())
+        {
+            if (entry.ValueKind != JsonValueKind.String)
+            {
+                findings.Add(new Finding("record-invalid", $"Record '{record.Id}' holds an entry in {RecordFields.Holds} that is not a role identifier.", record.File, record.Line, SubjectOf(record)));
+            }
+            else if (!Regex.IsMatch(entry.GetString() ?? "", @"^role/[a-z0-9][a-z0-9-]*$"))
+            {
+                findings.Add(new Finding("field-invalid", $"Record '{record.Id}' holds '{entry.GetString()}' in {RecordFields.Holds}, which is not a role identifier.", record.File, record.Line, SubjectOf(record)));
+            }
         }
     }
 

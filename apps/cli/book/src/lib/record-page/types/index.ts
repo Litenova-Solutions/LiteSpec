@@ -39,12 +39,14 @@ import Setting from "./Setting.svelte";
 import Term from "./Term.svelte";
 import Test from "./Test.svelte";
 import UseCase from "./UseCase.svelte";
+import Vision from "./Vision.svelte";
 
 export type TypeProps = { id: string; r: BookRecord };
 
 export const TYPES: Record<string, Component<TypeProps>> = {
   product: Product,
   goal: Goal,
+  vision: Vision,
   problem: Problem,
   feature: Feature,
   requirement: Requirement,

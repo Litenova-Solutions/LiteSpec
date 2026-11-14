@@ -96,6 +96,7 @@ internal static class StandardsValidator
         }
 
         context.Repository.CheckPageIdentity(parsedPages);
+        context.Repository.CheckPackagedPathLength();
 
         var activeIds = new HashSet<string>(context.GlobalIds.Keys, StringComparer.Ordinal);
         context.Repository.CheckCitations(parsedPages, activeIds);
@@ -182,6 +183,7 @@ internal static class StandardsValidator
         // reads exactly like a correct one. (litespec/core/principles#keep-one-authored-source)
         context.Templates.CheckTemplateIndex();
         context.Templates.CheckConsumerTemplates();
+        context.Templates.CheckTemplateSources();
         context.Repository.CheckGeneratedCounts(parsedPages);
         context.ValueStyle.CheckValueStyle();
 

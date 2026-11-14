@@ -1,10 +1,11 @@
-# yaml-language-server: $schema=https://litespec.dev/5.2.0/schemas/glossary.schema.yaml
+# yaml-language-server: $schema=https://litespec.dev/6.0.0/schemas/glossary.schema.yaml
 schemaVersion: 2
 terms:
   - id: term/<name>
     term: <English label>
     meaning: <A noun phrase starting with A, An or The, at most 25 words>
     layer: <intent|behavior>
+    verbKind: <command|query|either, or remove this line>
     aliases:
       - <established synonym, or remove this line>
     labels:

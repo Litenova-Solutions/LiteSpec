@@ -50,7 +50,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** goal, problem, feature, journey.
 
-**Differs:** LiteSpec fixes the map as typed records and links: a feature solves problems and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
+**Differs:** LiteSpec fixes the map as typed records and links: a feature answers one problem and advances goals, and a journey holds product sentences with ids toward one goal. Use cases point up to the steps they serve; a step never names a use case. There is no map to draw; the tree is the map, and the builder checks its links.
 
 ## Decision Records
 
@@ -66,7 +66,7 @@ LiteSpec borrows its words from established practices: each borrowed concept kee
 
 **Words:** actor, role, permission.
 
-**Differs:** An actor holds a role at a scope, and a use case declares its access as a grant and a tenant scope, so access reads as one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code, checked by tools. Generic refusals derive from access and input instead of being written on every use case.
+**Differs:** An actor holds a role, and a use case declares its access as a grant and a tenant scope, so access reads as one chain from actor to use case. Deriving the actor from verified claims is Implementation: stack code, checked by tools. Generic refusals derive from access and input instead of being written on every use case.
 
 ## Design by Contract
 

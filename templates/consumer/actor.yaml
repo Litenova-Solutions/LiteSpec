@@ -1,11 +1,8 @@
 type: actor
 id: actor/employee
 title: Employee
-summary: The employee submits expenses and receives reimbursement.
+summary: An employee submits expenses and attaches receipts.
 kind: person
 belongsToTeam: false
 holds:
-  - role: role/employee
-    scope: self
-terms:
-  - term/expense
+- role/employee

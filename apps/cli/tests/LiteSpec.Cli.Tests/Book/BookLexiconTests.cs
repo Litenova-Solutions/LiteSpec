@@ -15,12 +15,12 @@ public sealed class BookLexiconTests
         using var temp = TestCli.Temp("book-lexicon");
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
         var links = lexicon.ToJson()["links"]!.AsArray();
-        var solves = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "solves")!.AsObject();
-        Assert.Equal("solves", solves["forward"]!.GetValue<string>());
-        Assert.Equal("is solved by", solves["inverse"]!.GetValue<string>());
+        var answers = links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == "folder")!.AsObject();
+        Assert.Equal("answers", answers["forward"]!.GetValue<string>());
+        Assert.Equal("is answered by", answers["inverse"]!.GetValue<string>());
         Assert.Equal(
             new List<string> { "feature" },
-            solves["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+            answers["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
     }
 
     /// <summary>An aggregate transition mover reads as its transitions row, with or without the leading record type.</summary>
@@ -63,7 +63,7 @@ public sealed class BookLexiconTests
         Assert.False(lexicon.TryPhrase("except.fallback", "requirement", out _, out _));
     }
 
-    /// <summary>The actor row's two readings split by carrier: a journey is walked by, an external system acts as.</summary>
+    /// <summary>The actor row's two readings split by carrier: a journey is taken by, an external system acts as.</summary>
     /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
     [Fact]
     public void ActorRowSplitsByCarrier()
@@ -72,8 +72,8 @@ public sealed class BookLexiconTests
         var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
 
         Assert.True(lexicon.TryPhrase("actor", "journey", out var forward, out var inverse));
-        Assert.Equal("is walked by", forward);
-        Assert.Equal("walks", inverse);
+        Assert.Equal("is taken by", forward);
+        Assert.Equal("takes", inverse);
 
         Assert.True(lexicon.TryPhrase("actor", "external-system", out forward, out inverse));
         Assert.Equal("acts as", forward);
@@ -491,13 +491,13 @@ public sealed class BookLexiconTests
 
         | Field | Written on | Points at | Reads as | Read back as |
         |:---|:---|:---|:---|:---|
-        | `solves` | feature | Problems | solves | is solved by |
+        | folder | feature | Problems | answers | is answered by |
         | `serves` | use case, reaction, job | Journey steps | serves | is served by |
-        | `serves` | journey | The goal it walks toward | serves | is served by |
+        | `serves` | journey | The goal it leads toward | serves | is served by |
         | `effects` | use case, reaction, job | Use cases, notifications, integration events, operations | effects | is effected by |
         | `transitions.by` | aggregate | The use case that moves the transition | is moved by | moves |
         | `access.grant` | use case | A permission | is granted through | grants |
-        | `actor` | journey, external system | The actor walking; the actor acted as | is walked by / acts as | walks / is acted as by |
+        | `actor` | journey, external system | The actor taking the journey; the actor acted as | is taken by / acts as | takes / is acted as by |
         | `terms` | any record | Terms | uses | is used by |
         | `basedOn` | decision, data class | Constraints | is based on | is a basis for |
 

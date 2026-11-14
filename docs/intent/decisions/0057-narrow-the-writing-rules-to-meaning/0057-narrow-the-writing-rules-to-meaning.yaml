@@ -1,0 +1,16 @@
+type: decision
+id: decision/0057-narrow-the-writing-rules-to-meaning
+title: Narrow the Writing Rules to Meaning
+options:
+  - name: "Actor-first for actions only, the stake in the opening paragraph only, and an advisory 25-word bound"
+    pros: "A fact or calculation reads with its object as subject, the stake appears once, and a writer keeps the conditions a long sentence needs."
+    cons: "A reviewer judges which sentences describe an action, and the 25-word bound becomes an advisory finding that a writer may leave."
+  - name: "Keep every rule required"
+    pros: "Every sentence follows the same subject rule and the same length bound, so one check and one review apply one rule."
+    cons: "A fact reads awkwardly with its actor forced in, the stake repeats in every section, and the length bound pushes writers to drop conditions."
+  - name: "Drop the sentence bound entirely"
+    pros: "No writer is told to shorten a sentence, and the conditions stay in place."
+    cons: "Long glossary meanings and summaries reach a reader without any check, and a reader scanning a record loses the short sentences the bound encourages."
+choice: "Actor-first for actions only, the stake in the opening paragraph only, and an advisory 25-word bound"
+consequences: "`litespec/core/writing#put-the-actor-first` applies to a sentence that describes an action, whose actor is its subject. A sentence that states a fact, a state or a calculation may take its object or condition as its subject. Passive voice that hides who acts stays a finding. `litespec/core/writing#write-for-the-reader-who-arrives-cold` applies to the opening paragraph of a record, an explanation file or a page, and each section answers its own question without repeating the opening. `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words` becomes advisory: a sentence in a statement or summary should stay within 25 words, and a longer sentence that keeps a condition is not a defect. The 25-word limit on a glossary meaning becomes an advisory finding in place of `field-invalid`. `litespec/core/writing#keep-the-conditions-when-shortening` wins whenever the two pull apart. The rationales state the house limits as choices made for scanning, not as facts about readers. The eight-word title bound stays required, and the one-sentence rule for a statement stays required."
+reopenedWhen: "Advisory bounds are ignored so often that the finding has no effect, or a reviewer cannot tell which sentences describe an action because the actor-first rule is applied to facts."

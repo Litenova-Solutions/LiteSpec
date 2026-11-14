@@ -1,0 +1,35 @@
+type: use-case
+id: use-case/spending.erase-personal-data
+title: Erase Personal Data
+summary: Finance erases the personal data of an old expense so nothing personal is kept past its need.
+exposure: "Personal data is erased here: erasing the wrong expense cannot be undone. Finance names one expense at a time, and only past its retention."
+kind: command
+access:
+  grant: permission/remove-personal-data
+  tenant: own
+fulfills:
+- requirement/approval.erased-after-retention
+reachedThrough:
+- entry-point/claimwick-app
+raises: []
+changes:
+- aggregate/spending.expense
+idempotency:
+  mode: none
+  reason: the first call deletes the expense, so a repeat finds nothing to erase
+audit:
+  level: none
+  target: no audit trail; the example stores no audit entry
+records:
+- type: result
+  id: result/erase-personal-data.erased
+  title: Erased
+  outcome: success
+  meaning: The personal data of the expense is erased.
+- type: scenario
+  id: scenario/erase-personal-data.erasing-personal-data-succeeds
+  title: Erasing Personal Data Succeeds
+  given: An expense was reimbursed and its retention ended.
+  when: Finance erases the personal data of the expense.
+  then: The personal data of the expense is erased.
+  result: result/erase-personal-data.erased

@@ -40,7 +40,7 @@
       "decideBy": null,
       "file": ".litespec/product/goals/faster-borrowing.yaml",
       "line": 3,
-      "explanation": "# Faster Borrowing\n\n## Why It Matters\n\nShort waits bring members back.",
+      "explanation": "# Faster Borrowing\n\n## Target\n\nShort waits bring members back.",
       "fields": {
         "type": "goal",
         "id": "goal/faster-borrowing",
@@ -51,6 +51,22 @@
         "measure": "p95 desk wait",
         "target": "under 2 minutes",
         "dueBy": "2026-12-31"
+      },
+      "links": {}
+    },
+    {
+      "type": "vision",
+      "id": "vision/any-branch-lending",
+      "title": "Any Branch Lending",
+      "file": ".litespec/intent/visions/any-branch-lending.yaml",
+      "line": 1,
+      "explanation": "# Any Branch Lending\n\n## Direction\n\nMembers move between branches.",
+      "fields": {
+        "type": "vision",
+        "id": "vision/any-branch-lending",
+        "title": "Any Branch Lending",
+        "summary": "Members visit several branches and want to borrow and return anywhere.",
+        "statement": "Members borrow at one branch and return at any other."
       },
       "links": {}
     },
@@ -109,7 +125,7 @@
       "effectiveStatus": "draft",
       "decider": "Ada",
       "decideBy": "2026-11-15",
-      "file": ".litespec/intent/modules/lending/features/self-checkout.yaml",
+      "file": ".litespec/intent/problems/slow-desk-queues/features/self-checkout/self-checkout.yaml",
       "line": 3,
       "explanation": "# Self Checkout\n\n## Offering\n\nMembers scan and go; the desk keeps helping with holds.",
       "fields": {
@@ -122,9 +138,6 @@
         "decideBy": "2026-11-15",
         "lifecycle": "planned",
         "plannedFor": "2026-12-31",
-        "solves": [
-          "problem/slow-desk-queues"
-        ],
         "advances": [
           "goal/faster-borrowing"
         ],
@@ -410,7 +423,7 @@
       "decideBy": null,
       "file": ".litespec/behavior/modules/lending/module.yaml",
       "line": 3,
-      "explanation": "# Lending\n\n## Known Limits\n\nThe branch lends its own copies only.",
+      "explanation": "# Lending\n\n## Boundaries\n\nThe branch lends its own copies only.",
       "fields": {
         "type": "module",
         "id": "module/lending",
@@ -430,7 +443,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 3,
       "explanation": "# Loan\n\n## Bounds\n\nA loan covers **one copy** and *one member*. The desk kiosk prints the due slip; see use-case/lending.borrow-copy for the flow.\n\nBorrowing rules:\n\n- One copy lends to one member at a time.\n- A loan lasts `three weeks`.\n\nCounts:\n\n1. Scan the member card.\n2. Scan the copy.\n\n| Week | Loans |\n| --- | ---: |\n| First | 120 |\n| Second | 140 |\n\n```\nscan member, scan copy, print slip\n```\n\n> A loan is a promise to bring the copy back.\n\n---\n\nRead the [lending guide](https://example.com/lending) or visit https://example.com/desks.",
       "fields": {
@@ -495,7 +508,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -536,7 +549,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/rule.yaml",
       "line": 30,
       "fields": {
         "type": "rule",
@@ -572,7 +585,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 3,
       "explanation": "# Borrow Copy\n\n## Example\n\nThe member leaves the desk with the copy in under two minutes.\n\n## Notes\n\nThe kiosk scans the member card and the copy, then prints the due slip.",
       "fields": {
@@ -641,7 +654,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/return-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -750,7 +763,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 14,
       "fields": {
         "type": "result",
@@ -771,7 +784,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 20,
       "fields": {
         "type": "result",
@@ -793,7 +806,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -833,7 +846,7 @@
       "effectiveStatus": "draft",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 44,
       "fields": {
         "type": "scenario",
@@ -861,7 +874,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
       "line": 52,
       "fields": {
         "type": "event",
@@ -886,7 +899,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
       "line": 60,
       "fields": {
         "type": "event",
@@ -1101,7 +1114,9 @@
         "title": "Kiosk Cache",
         "owner": "lending-team",
         "status": "approved",
-        "covers": ["litespec/ext/cache#define-cache-invalidation"],
+        "covers": [
+          "litespec/ext/cache#define-cache-invalidation"
+        ],
         "subject": [
           "feature/self-checkout"
         ],

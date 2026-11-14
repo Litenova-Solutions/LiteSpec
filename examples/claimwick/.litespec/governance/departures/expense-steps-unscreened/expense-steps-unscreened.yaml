@@ -1,0 +1,16 @@
+type: departure
+id: departure/expense-steps-unscreened
+title: Expense Steps Unscreened
+summary: The web app holds the expense list only, so six journey steps served through the browser have no screen.
+covers:
+- step-screen-missing
+subject:
+- journey/submit-and-reimburse#s1
+- journey/submit-and-reimburse#s2
+- journey/submit-and-reimburse#s3
+- journey/submit-and-reimburse#s4
+- journey/export-approved-expenses#s1
+- journey/set-receipt-threshold#s1
+reason: The web app holds the expense list only, so six journey steps served through the browser have no screen.
+exit: Six journey steps are served by browser-reached use cases that no screen offers yet, because the web app holds the expense list only. The gap closes when each step's use case gains its screen, the same work that closes `departure/expense-screens-unimplemented`.
+expiresOn: 2027-06-01

@@ -34,7 +34,7 @@ Values live in the global CSS entry. Change them there. A color written into a c
 
 The composites applications compose from, listed by the entry point that exports each one. Name the ones a page reaches for, one sentence each.
 
-- A `button` is the only clickable element. A `div` carrying an `onClick` is refused.
+- A `button` runs an action on the page, and a link moves the reader to another place. A clickable element that is neither carries its role, its keyboard behavior and its focus state.
 - A `badge` is a state in one word, and its tone is one of five.
 - A `card` is a grouped fact set, never a screen.
 
@@ -57,15 +57,17 @@ The floorplans this package provides. A route composes exactly one of them, or n
 
 - Do not decorate. A border earns its place, a color earns its place, and nothing else does.
 - Do not nest a card inside a card.
-- Do not ship a button whose success is a paragraph. Success is a `role=status` announcement, and failure is `role=alert`.
+- Do not ship a button whose success is a paragraph. Announce a result through `role=status`, and use `role=alert` only for a failure that needs the reader to act now.
 
 ## Motion
 
 | Name | Duration | Where |
 |:---|:---|:---|
-| instant | 0ms | Any state change a button causes. |
+| instant | 0ms | The default for a state change a button causes. |
 | quick | 120ms | Row hover, badge change, focus ring. |
 | slow | 240ms | Drawer open, mobile navigation. |
+
+These timings are defaults. A product may set its own, within the reduced-motion limit below.
 
 When the reader asks for reduced motion, `quick` and `slow` become a fade of at most 120ms, and nothing slides, scales or loops.
 

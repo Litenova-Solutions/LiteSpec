@@ -1,4 +1,4 @@
-.litespec/intent/modules/lending/features/hold-queue.yaml
-.litespec/intent/modules/lending/features/hold-queue.md
-.litespec/intent/modules/lending/features/borrowing.yaml
-.litespec/intent/modules/lending/features/borrowing.md
+.litespec/intent/problems/overdue-loans-pile-up/features/hold-queue/hold-queue.yaml
+.litespec/intent/problems/overdue-loans-pile-up/features/hold-queue/hold-queue.md
+.litespec/intent/problems/overdue-loans-pile-up/features/borrowing/borrowing.yaml
+.litespec/intent/problems/overdue-loans-pile-up/features/borrowing/borrowing.md

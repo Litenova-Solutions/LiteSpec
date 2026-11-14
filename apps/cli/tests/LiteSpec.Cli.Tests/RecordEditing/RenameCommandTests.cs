@@ -29,16 +29,16 @@ public sealed class RenameCommandTests
     public void RenameRewritesLinksToTheMovedPage()
     {
         using var fixture = ModelFixture.Prepare("small");
-        var loans = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "loans");
+        var loans = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases");
         var linking = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "notes.md");
         File.WriteAllText(linking, "---\ntype: reference\nid: notes\ntitle: Notes\n---\n\n# Notes\n\nSee [borrowing](use-case/lending.borrow-copy).\n");
 
         var result = TestCli.Run("rename", "use-case/lending.borrow-copy", "use-case/lending.borrow-item", "--root", fixture.Path);
 
         Assert.Equal(0, result.Status);
-        Assert.True(File.Exists(Path.Combine(loans, "borrow-item.yaml")));
-        Assert.False(File.Exists(Path.Combine(loans, "borrow-copy.yaml")));
-        Assert.True(File.Exists(Path.Combine(loans, "borrow-item.md")));
+        Assert.True(File.Exists(Path.Combine(loans, "borrow-item", "borrow-item.yaml")));
+        Assert.False(File.Exists(Path.Combine(loans, "borrow-copy", "borrow-copy.yaml")));
+        Assert.True(File.Exists(Path.Combine(loans, "borrow-item", "borrow-item.md")));
         Assert.Contains("[borrowing](use-case/lending.borrow-item)", File.ReadAllText(linking));
     }
 }

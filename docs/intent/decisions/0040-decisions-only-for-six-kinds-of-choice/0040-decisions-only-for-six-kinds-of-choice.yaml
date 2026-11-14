@@ -1,0 +1,16 @@
+type: decision
+id: decision/0040-decisions-only-for-six-kinds-of-choice
+title: Require Decisions Only for Six Kinds of Choice
+options:
+  - name: "Record a technical decision only for a choice of one of six kinds, and carry standing rules as conventions"
+    pros: "A reader meets only expensive-to-reverse choices, each with its kind, its followers, and what would reopen it."
+    cons: "Each existing technical decision needs its kind, and each standing rule moves to the conventions folder."
+  - name: "Keep a decision for every technical choice that code follows"
+    pros: "No record moves, and every technical class keeps a decision to point at."
+    cons: "Decisions restate provisions and describe single classes, and nothing separates the expensive choices from the local notes."
+  - name: "Group decisions in folders by category"
+    pros: "A reader opens one folder per category."
+    cons: "A decision often fits several categories, and each recategorization churns history."
+choice: "Record a technical decision only for a choice of one of six kinds, and carry standing rules as conventions"
+consequences: "A technical decision carries `kind`, one of `provider`, `package`, `format`, `boundary`, `topology` or `replacement`. The field is optional: a technical decision without one reports `decision-kind-missing`, and a choice of no kind states its reason in the class documentation instead. `litespec/core/model#record-each-technical-choice-as-a-decision` requires a decision only for a choice of one of the six kinds. `litespec/core/agent#search-the-provisions-before-recording-a-decision` asks an agent to query `rules` for the subject first, and `litespec new decision <name>` prints the provisions whose statement matches the name before it writes. A technical decision whose followers all sit in one module and each already carry an `implements` mark reports `decision-scope-invalid`. A `follows` or `proves` mark may name a project convention as `<project>/conventions#<slug>`, resolved through the loaded conventions, and an unknown convention reports `mark-unknown`. A Markdown file under `.litespec/` outside `governance/conventions/` that carries a convention `**ID:**` line reports `convention-folder-invalid`. A convention `Applies to` takes a path glob or the scope keys provisions use, and anything else reports `convention-scope-invalid`. Folders carry ownership and layer only. A decision concern is computed from the concerns of its followers paths, and nobody writes it. `litespec model render` writes a `decision-index` region grouped by kind then concern, and a `departure-index` region grouped by gap or permanent and ordered by `expiresOn`. The book groups its decision chapter the same way, lists each decision followers by module, and shows the provider decision on each external-system page. A decision kept at a level its followers do not match reports `decision-home-drift`. Every new finding is advisory. `templates/consumer/decision.yaml` carries `kind`, and each Claimwick technical decision states its kind: `0005-render-receipts-as-pdf` reads `package`."
+reopenedWhen: "A technical choice outside the six kinds proves expensive to reverse."

@@ -61,7 +61,7 @@ public sealed class DecisionIndexTests
         GeneratedRegions.Render(model);
         var line = File.ReadAllLines(readme).Single(candidate => candidate.Contains("0005 Render Receipts as PDF", StringComparison.Ordinal));
 
-        Assert.Contains("[0005 Render Receipts as PDF](0005-render-receipts-as-pdf.yaml)", line);
+        Assert.Contains("[0005 Render Receipts as PDF](0005-render-receipts-as-pdf/0005-render-receipts-as-pdf.yaml)", line);
         Assert.Contains("| package |", line);
         Assert.Contains("| application |", line);
         Assert.Contains("| PDF library |", line);
@@ -119,7 +119,7 @@ public sealed class DecisionIndexTests
         Assert.Contains("### Permanent", rendered);
         Assert.True(rendered.IndexOf("### Gaps", StringComparison.Ordinal) < rendered.IndexOf("### Permanent", StringComparison.Ordinal), rendered);
         Assert.True(rendered.IndexOf("Screens Unwatched", StringComparison.Ordinal) < rendered.IndexOf("Polish Unfinished", StringComparison.Ordinal), rendered);
-        Assert.Contains("[Screens Unwatched](screens-unwatched.yaml)", rendered);
+        Assert.Contains("[Screens Unwatched](screens-unwatched/screens-unwatched.yaml)", rendered);
         Assert.Contains("| 2026-01-01 | `quality-alert-missing` |", rendered);
         Assert.Contains("`litespec/quality/security#authorize-each-target-resource`", rendered);
     }
@@ -136,7 +136,7 @@ public sealed class DecisionIndexTests
         var model = TestModel.Model(
             config,
             TestModel.Record("decision", "decision/0008-store-loans-as-documents", DecisionFile(config, "0008-store-loans-as-documents"), DecisionJson("Store Loans as Documents", "package", "Documents", "Queries pass one hundred a day.", "constraint/receipts-stay-in-the-eu")),
-            TestModel.Record("decision", "decision/0001-receipt-threshold", Path.Combine(config.Root, ".litespec", "intent", "decisions", "0001-receipt-threshold.yaml"), DecisionJson("Receipt Threshold", null, "Always", "Paper costs double.", null)),
+            TestModel.Record("decision", "decision/0001-receipt-threshold", Path.Combine(config.Root, ".litespec", "intent", "decisions", "0001-receipt-threshold", "0001-receipt-threshold.yaml"), DecisionJson("Receipt Threshold", null, "Always", "Paper costs double.", null)),
             TestModel.Record("constraint", "constraint/receipts-stay-in-the-eu", Path.Combine(temp.Path, "retention.yaml"), """{"authority": "Tax code, article 9.", "kind": "technical", "applies": true, "appliesBecause": "The shop stores receipts."}"""));
 
         GeneratedRegions.Render(model);
@@ -244,12 +244,12 @@ public sealed class DecisionIndexTests
     /// <param name="name">The decision file name without its folder.</param>
     /// <returns>The full path to the decision file.</returns>
     static string DecisionFile(ConsumerConfig config, string name) =>
-        Path.Combine(config.Root, ".litespec", "implementation", "decisions", $"{name}.yaml");
+        Path.Combine(config.Root, ".litespec", "implementation", "decisions", name, $"{name}.yaml");
 
-    /// <summary>A departure file under the product departures folder.</summary>
+    /// <summary>A departure file under the product departures folder, in its own folder.</summary>
     /// <param name="config">The consumer config carrying the root folder.</param>
-    /// <param name="name">The departure file name without its folder.</param>
+    /// <param name="name">The departure name, which names its folder and file.</param>
     /// <returns>The full path to the departure file.</returns>
     static string DepartureFile(ConsumerConfig config, string name) =>
-        Path.Combine(config.Root, ".litespec", "governance", "departures", $"{name}.yaml");
+        Path.Combine(config.Root, ".litespec", "governance", "departures", name, $"{name}.yaml");
 }

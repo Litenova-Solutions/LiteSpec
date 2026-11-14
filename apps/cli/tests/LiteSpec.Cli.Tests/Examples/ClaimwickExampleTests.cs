@@ -18,9 +18,11 @@ public sealed class ClaimwickExampleTests
     {
         var result = TestCli.Run("model", "check", "--root", Root);
         AssertPasses(result);
-        // 17 long-standing covered findings plus the 9 use-case-unverified findings the
-        // no-test-run departure holds: the example ships code and proofs but no run.
-        Assert.Contains("0 findings, 0 blocking, 26 covered.", result.Output);
+        // 16 long-standing covered findings plus the 9 use-case-unverified findings the
+        // no-test-run departure holds: the example ships code and proofs but no run. The
+        // journey split of the submit-and-reimburse steps leaves six unscreened steps where
+        // seven were covered, so the total is one lower than before the split.
+        Assert.Contains("0 findings, 0 blocking, 25 covered.", result.Output);
     }
 
     static void AssertPasses(CliResult result) => Assert.True(result.Status == 0, result.Output);

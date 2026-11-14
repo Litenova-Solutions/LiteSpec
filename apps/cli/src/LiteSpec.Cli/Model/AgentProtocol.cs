@@ -43,7 +43,8 @@ static partial class AgentProtocol
         {
             var fresh = Fill(
                 release.Template,
-                release.Version,
+                release.Release,
+                release.Package,
                 config.Size,
                 config.Shape,
                 FormatStacks(config.Stacks),
@@ -65,7 +66,8 @@ static partial class AgentProtocol
         var newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         var filled = Fill(
             body,
-            release.Version,
+            release.Release,
+            release.Package,
             config.Size,
             config.Shape,
             FormatStacks(config.Stacks),
@@ -139,7 +141,7 @@ static partial class AgentProtocol
 
         try
         {
-            return SkillFiles.Render(Path.Combine(home, "templates"), version);
+            return SkillFiles.Render(Path.Combine(home, "templates"), ReleaseVersion.PackageOf(version));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -196,7 +198,10 @@ static partial class AgentProtocol
                 return true;
             }
 
-            if (!string.Equals(have, want, StringComparison.Ordinal))
+            var release = LiteSpecHome.Version ?? string.Empty;
+
+            // A candidate and its final release write the same copy apart from the version suffix.
+            if (!string.Equals(ReleaseVersion.WithoutCandidateSuffix(have, release), ReleaseVersion.WithoutCandidateSuffix(want, release), StringComparison.Ordinal))
             {
                 return true;
             }
@@ -229,7 +234,8 @@ static partial class AgentProtocol
         var config = model.Config;
         var filled = Fill(
             body,
-            release.Version,
+            release.Release,
+            release.Package,
             config.Size,
             config.Shape,
             FormatStacks(config.Stacks),
@@ -241,14 +247,14 @@ static partial class AgentProtocol
         return BuildRegion(filled, "\n");
     }
 
-    /// <summary>The release version and the agent context template text, or null when the release carries no readable template.</summary>
-    /// <returns>The version and the template text, or null.</returns>
-    private static (string Version, string Template)? ReleaseTemplate()
+    /// <summary>The release version, the package version and the agent context template text, or null when the release carries no readable template.</summary>
+    /// <returns>The release, the package version and the template text, or null.</returns>
+    private static (string Release, string Package, string Template)? ReleaseTemplate()
     {
         var home = LiteSpecHome.Root;
-        var version = LiteSpecHome.Version;
+        var release = LiteSpecHome.Version;
 
-        if (home is null || version is null)
+        if (home is null || release is null)
         {
             return null;
         }
@@ -262,7 +268,7 @@ static partial class AgentProtocol
 
         try
         {
-            return (version, File.ReadAllText(templatePath));
+            return (release, ReleaseVersion.PackageOf(release), File.ReadAllText(templatePath));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -376,7 +382,8 @@ static partial class AgentProtocol
 
     /// <summary>Replaces every region placeholder in a text with its value.</summary>
     /// <param name="text">The template text with placeholders.</param>
-    /// <param name="version">The LiteSpec release version.</param>
+    /// <param name="version">The LiteSpec release version, which names the schemas, selection indexes and links.</param>
+    /// <param name="packageVersion">The LiteSpec package version the project follows, with a release candidate's suffix.</param>
     /// <param name="size">The project size, small or large.</param>
     /// <param name="shape">The project shape, server or client-only.</param>
     /// <param name="stacks">The selected stack keys, comma and space separated, or none.</param>
@@ -385,8 +392,9 @@ static partial class AgentProtocol
     /// <param name="selectionKey">The site's selection key for the selection page URL.</param>
     /// <param name="command">The command that runs the CLI in the project: dotnet litespec or litespec.</param>
     /// <returns>The text with each placeholder replaced by its value.</returns>
-    internal static string Fill(string text, string version, string size, string shape, string stacks, string extensions, string layers, string selectionKey, string command) =>
-        text.Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
+    internal static string Fill(string text, string version, string packageVersion, string size, string shape, string stacks, string extensions, string layers, string selectionKey, string command) =>
+        text.Replace("__LITESPEC_PACKAGE_VERSION__", packageVersion, StringComparison.Ordinal)
+            .Replace("__LITESPEC_VERSION__", version, StringComparison.Ordinal)
             .Replace("__SIZE__", size, StringComparison.Ordinal)
             .Replace("__SHAPE__", shape, StringComparison.Ordinal)
             .Replace("__STACKS__", stacks, StringComparison.Ordinal)

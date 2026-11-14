@@ -1,5 +1,6 @@
 using LiteSpec.Cli.Skill;
 using LiteSpec.Model;
+using LiteSpec.Standards;
 using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.Governance;
@@ -61,9 +62,12 @@ internal static class AgentProtocolChecks
         }
 
         // Both sides are compared with LF endings, so a CRLF page never drifts on its line endings alone.
-        var actual = match.Value.Replace("\r\n", "\n", StringComparison.Ordinal);
+        // A candidate and its final release render the same region apart from the version suffix, so neither drifts on it.
+        var release = LiteSpecHome.Version ?? string.Empty;
+        var actual = ReleaseVersion.WithoutCandidateSuffix(match.Value.Replace("\r\n", "\n", StringComparison.Ordinal), release);
+        var wanted = ReleaseVersion.WithoutCandidateSuffix(expected.Replace("\r\n", "\n", StringComparison.Ordinal), release);
 
-        if (actual != expected.Replace("\r\n", "\n", StringComparison.Ordinal))
+        if (actual != wanted)
         {
             findings.Add(new Finding(DriftCode, "The agent-protocol region in AGENTS.md differs from what model render writes.", file, LineOf(LineStarts(text), match.Index), null));
         }

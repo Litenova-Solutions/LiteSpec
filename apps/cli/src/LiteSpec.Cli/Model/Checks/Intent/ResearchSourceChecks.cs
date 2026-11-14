@@ -8,16 +8,16 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The research source checks: a research explanation cites every source by key and links no URL directly.</summary>
+/// <summary>The source checks: a research or constraint explanation cites every source by key and links no URL directly.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class ResearchSourceChecks
 {
-    /// <summary>Reports source-link-bare, source-key-unknown and source-unused.</summary>
+    /// <summary>Reports source-link-bare, source-key-unknown and source-unused on research and constraint explanations.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Research && !record.IsEntry))
+        foreach (var record in model.Records.Where(record => (record.Type is RecordTypes.Research or RecordTypes.Constraint) && !record.IsEntry))
         {
             if (record.ExplanationFile is not { } explanationFile || record.Explanation is not { } explanation)
             {
@@ -27,7 +27,7 @@ internal static class ResearchSourceChecks
             var sources = SourceKeysOf(record);
             var declared = new HashSet<string>(sources, StringComparer.OrdinalIgnoreCase);
             var cited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var prose = LinkChecks.WithoutCode(explanation);
+            var prose = LinkChecks.WithoutCode(SourceLinks.Strip(explanation));
             var starts = LineStarts(explanation);
 
             // A reference link cites its source by key even when its label shows the URL,
@@ -57,15 +57,55 @@ internal static class ResearchSourceChecks
                 }
             }
 
+            if (record.Type == RecordTypes.Research && SectionOf(prose, FindingsSection) is { } findingsBody)
+            {
+                CheckFindingSources(record, explanationFile, prose, findingsBody, starts, findings);
+            }
+
             foreach (var key in sources.Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 if (!cited.Contains(key))
                 {
-                    findings.Add(new Finding("source-unused", $"Research '{record.Id}' names source key '{key}', which its explanation cites nowhere.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("source-unused", $"Record '{record.Id}' names source key '{key}', which its explanation cites nowhere.", record.File, record.Line, SubjectOf(record)));
                 }
             }
         }
     }
+
+    /// <summary>Reports finding-source-missing for each Findings paragraph that cites no source key with a reference link.</summary>
+    /// <param name="record">The research record whose Findings are read.</param>
+    /// <param name="explanationFile">The explanation file the Findings sit in.</param>
+    /// <param name="prose">The explanation prose with code and the generated region blanked, offset for offset.</param>
+    /// <param name="findingsBody">The text of the Findings section.</param>
+    /// <param name="starts">The line starts of the explanation, for line numbers.</param>
+    /// <param name="findings">The list that receives each finding this check raises.</param>
+    private static void CheckFindingSources(Record record, string explanationFile, string prose, string findingsBody, int[] starts, List<Finding> findings)
+    {
+        foreach (var paragraph in BlankLine.Split(findingsBody.Trim()))
+        {
+            var text = paragraph.Trim();
+
+            if (text.Length == 0 || text.StartsWith('#') || text.StartsWith("<!--", StringComparison.Ordinal) || ReferenceLink.IsMatch(text))
+            {
+                continue;
+            }
+
+            var line = LineOf(starts, prose.IndexOf(text, StringComparison.Ordinal));
+
+            findings.Add(new Finding(
+                "finding-source-missing",
+                $"Research '{record.Id}' states a finding with no source link: '{Excerpt(text)}'.",
+                explanationFile,
+                line,
+                SubjectOf(record)));
+        }
+    }
+
+    /// <summary>The first words of a paragraph, for a finding message.</summary>
+    /// <param name="text">The paragraph text.</param>
+    /// <returns>The first 60 characters, with an ellipsis when the paragraph is longer.</returns>
+    private static string Excerpt(string text) =>
+        text.Length <= 60 ? text : text[..60] + "...";
 
     /// <summary>The source keys a research record declares.</summary>
     /// <param name="record">The research record whose sources are read.</param>
@@ -92,6 +132,12 @@ internal static class ResearchSourceChecks
 
         return keys;
     }
+
+    /// <summary>Splits a text at each blank line, the boundary of one paragraph.</summary>
+    private static readonly Regex BlankLine = new(@"\n[ \t]*\n", RegexOptions.Compiled);
+
+    /// <summary>The H2 heading of the section that holds a research record's findings.</summary>
+    private const string FindingsSection = "Findings";
 
     /// <summary>Finds each URL outside code in a research explanation.</summary>
     private static readonly Regex BareUrl = new(@"https?://[^\s<>""')\]]+", RegexOptions.Compiled);

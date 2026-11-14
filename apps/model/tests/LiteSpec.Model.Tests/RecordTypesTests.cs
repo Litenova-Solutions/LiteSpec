@@ -20,13 +20,13 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("requirement-page", RecordTypes.PageStyles);
     }
 
-    /// <summary>Cites links the six reason types and the requirements a journey shows.</summary>
+    /// <summary>Cites links the seven reason types and the requirements a journey shows.</summary>
     /// <proves>litespec/core/intent#cite-the-reasons-of-every-requirement</proves>
     [Fact]
     public void CitesLinksReasonsAndRequirements()
     {
         Assert.True(RecordTypes.LinkTargets["cites"].SetEquals(
-            ["goal", "problem", "feature", "constraint", "research", "decision", "requirement"]));
+            ["goal", "vision", "problem", "feature", "constraint", "research", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("features"));
     }
 
@@ -107,7 +107,7 @@ public sealed class RecordTypesTests
     public void BasedOnLinksLimitsAndChoices()
     {
         Assert.True(RecordTypes.LinkTargets["basedOn"].SetEquals(
-            ["constraint", "research", "decision", "requirement"]));
+            ["constraint", "research", "vision", "decision", "requirement"]));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("acceptedBy"));
         Assert.False(RecordTypes.LinkTargets.ContainsKey("entryPoint"));
     }

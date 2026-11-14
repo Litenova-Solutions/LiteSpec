@@ -1,3 +1,6 @@
+@layer base, components, pages;
+
+@layer components {
 /* Highlighted code blocks: a bordered figure with a header strip showing the
    language name and a copy button, and the Shiki-highlighted listing below.
    Shiki emits its themes as custom properties only, so this file picks the
@@ -32,14 +35,14 @@
 
 .prose .code-block .code-lang {
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted-fg);
   white-space: nowrap;
 }
 
 .prose .code-block .code-copy {
-  margin-left: auto;
+  margin-inline-start: auto;
   flex: none;
   color: var(--muted-fg);
 }
@@ -53,23 +56,12 @@
   color: var(--accent-text);
 }
 
-/* Token colors: Shiki writes both themes as custom properties on each
-   element, and this file selects the one for the active color scheme. */
+/* Token colors: Shiki writes both themes as custom properties on each element.
+   light-dark() picks the one for the color scheme the page is in, which the
+   site sets on :root (and on data-theme), so no media query repeats it. */
 .prose .code-block .astro-code,
 .prose .code-block .astro-code span {
-  color: var(--shiki-light);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .prose .code-block .astro-code,
-  :root:not([data-theme="light"]) .prose .code-block .astro-code span {
-    color: var(--shiki-dark);
-  }
-}
-
-:root[data-theme="dark"] .prose .code-block .astro-code,
-:root[data-theme="dark"] .prose .code-block .astro-code span {
-  color: var(--shiki-dark);
+  color: light-dark(var(--shiki-light), var(--shiki-dark));
 }
 
 .prose .code-block pre.astro-code {
@@ -79,8 +71,8 @@
   background: var(--code-bg);
   padding: var(--pad-box-y) var(--pad-box-x);
   font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   overflow-x: auto;
   max-width: 100%;
   tab-size: 4;
@@ -129,4 +121,5 @@
   .prose .code-block pre.astro-code {
     overflow-x: auto;
   }
+}
 }

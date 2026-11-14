@@ -32,22 +32,22 @@ The command lists the provisions grouped by strength, as one-line statements, wi
 
 ### The Published Site
 
-An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/5.2.0/select/) renders the same agent protocol that `litespec init` writes into a new project's `AGENTS.md`, filled for the chosen selection:
+An agent that can fetch URLs reads the standard from litespec.dev. The [selection page](https://litespec.dev/6.0.0/select/) renders the same agent protocol that `litespec init` writes into a new project's `AGENTS.md`, filled for the chosen selection:
 
 ```markdown
 <!-- generated:agent-protocol -->
 When this file disagrees with `dotnet litespec rules`, `dotnet litespec model query` or a record, the tool output and the record win; this file only points to them.
 
-This project follows LiteSpec 5.2.0: size small, shape server, stacks dotnet, react, extensions none.
+This project follows LiteSpec 6.0.0: size small, shape server, stacks dotnet, react, extensions none.
 Layers: intent and behavior: litespec, implementation and proof: litespec.
-Before a task, read https://litespec.dev/5.2.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
+Before a task, read https://litespec.dev/6.0.0/select/server.dotnet.react/llms.txt and fetch only the pages the task touches.
 ...
 <!-- /generated:agent-protocol -->
 ```
 
 The region opens with a precedence sentence: when the file disagrees with tool output or a record, the tool output and the record win. `litespec model render` rewrites the region from the project's release and selection, and `litespec model check` reports drift when a hand edit changed it.
 
-That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/5.2.0/backend/domain.md`.
+That index lists every page the selection applies, with a one-line description and a raw Markdown link for each. An agent reads the index, then fetches the few pages a task needs. Every page also exists as plain Markdown at the same path with an `.md` extension, such as `https://litespec.dev/6.0.0/backend/domain.md`.
 
 ## The LiteSpec Skill
 

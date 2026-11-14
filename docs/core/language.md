@@ -17,7 +17,7 @@ Every field name belongs to one of eight word classes. The class decides the nam
 | Class | Form | Reading test | Examples |
 |:---|:---|:---|:---|
 | 1. Identity | fixed words | none | `type`, `id`, `title`, `terms`, `records` |
-| 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `solves`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
+| 2. Link to many records | active present-tense verb | "journey serves goal" | `serves`, `fulfills`, `advances`, `cites`, `governs`, `raises`, `reads`, `changes`, `covers`, `addresses` |
 | 3. Link to one record in a role | singular noun naming the role | "the journey's actor is traveller" | `actor`, `fallback`, `runbook`, `result`, `host`, `refusal` |
 | 4. Link where the target acts on this record | `<participle>By`, and `basedOn` | "the rule is enforcedBy the aggregate" | `basedOn`, `enforcedBy`, `releasedBy`, `computedBy`, `triggeredBy` |
 | 5. Closed set of values | noun naming the dimension; `kind` only for the record's own subtype | "its mode is atomic" | `kind`, `mode`, `direction`, `trust`, `reach`, `lifecycle`, `level` |
@@ -57,6 +57,7 @@ Each value below takes the written form its row gives. The last column names the
 |:---|:---|:---|
 | `statement` (requirement, rule) | One present-tense declarative sentence, third person, product words, ending in a period | Ends in a period; no modal word in lower case such as "should" |
 | `statement` (goal) | The outcome as a present-tense fact about the world | Ends in a period |
+| `statement` (vision) | Where the product heads, as a present-tense fact about the product once it is there | Ends in a period |
 | `statement` (problem) | The pain as it happens today, present tense | Ends in a period |
 | step `statement` | Actor first, present tense: "The traveller pays for the booking." | Starts with "The" or an actor title; ends in a period |
 | `meaning` | A noun phrase starting with "A" or "An", no leading verb, at most 25 words | Starts with A, An or The; word count |
@@ -72,6 +73,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | Type | Name form | Example |
 |:---|:---|:---|
 | goal | outcome noun phrase | `more-completed-bookings` |
+| vision | the destination as a noun phrase | `group-bookings` |
 | problem | the pain as a short clause | `rooms-sell-out-at-checkout` |
 | feature | the offer as a noun phrase | `room-hold` |
 | requirement | the assertion | `room-held-during-checkout` |
@@ -149,6 +151,9 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
+| `unlisted` | a citing thing is missing from the list that should name it | `constraint-effect-unlisted` |
+| `uncited` | a named thing does not cite back | `constraint-effect-uncited` |
+| `unchanged` | a value still holds what its template wrote | `template-value-unchanged` |
 | `break` | a contract the base published no longer holds | `contract-break` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
@@ -195,7 +200,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a departure ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
 
-**Example:** A Claimwick constraint carries `readOn` with the date its authority was read, and a departure carries `expiresOn` with the date it ends.
+**Example:** A Claimwick constraint carries `readOn` on each source with the date the source was read, and a departure carries `expiresOn` with the date it ends.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 

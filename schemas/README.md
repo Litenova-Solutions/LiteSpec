@@ -42,7 +42,7 @@ The shared evaluator lives in `apps/model/src/LiteSpec.Standards/Schemas/`: `Jso
 
 ### Record Schema
 
-`record.schema.yaml` owns the record file of every consumer record page: 35 page shapes from product brief through aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference, each with its entry records for requirements, permissions, rules, events, results, scenarios, entry points, and settings. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
+`record.schema.yaml` owns the record file of every consumer record page: 38 page shapes from product brief through feature, requirement, aggregate, use case, reaction, job, notification, setting, screen, and integration event to reference. A requirement is a page of its own in its feature's folder. The other entry records, for permissions, rules, results, scenarios, events, entry points, and settings, sit on the page that holds them. `litespec model check` validates each record file through it and then checks the sections the schema cannot see.
 
 ### Language Schema
 

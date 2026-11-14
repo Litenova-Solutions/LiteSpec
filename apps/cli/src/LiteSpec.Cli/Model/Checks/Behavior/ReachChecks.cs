@@ -13,7 +13,7 @@ namespace LiteSpec.Cli.Model.Checks.Behavior;
 /// <follows>litespec/core/model#connect-every-behavior-record-to-intent</follows>
 /// <follows>litespec/core/layers#write-each-layer-from-the-layer-above-it</follows>
 /// <follows>litespec/core/intent#reach-every-intent-record-with-behavior</follows>
-/// <follows>litespec/core/access#record-every-role-hold-with-its-scope</follows>
+/// <follows>litespec/core/access#record-every-role-an-actor-holds</follows>
 /// <follows>litespec/core/access#grant-permissions-through-roles</follows>
 /// <follows>litespec/core/model#follow-the-authority-order</follows>
 internal static class ReachChecks
@@ -79,6 +79,7 @@ internal static class ReachChecks
     internal static void RunIntentUnreached(ProjectModel model, List<Finding> findings)
     {
         // Goals and constraints keep their own codes, so this check covers the other five.
+        // A vision promises nothing and reaches no Behavior by design, so no check reads it.
         var fulfilled = model.Records
             .Where(record => RecordTypes.FulfillingTypes.Contains(record.Type, StringComparer.Ordinal))
             .SelectMany(record => record.Ids(RecordFields.Fulfills))
@@ -117,7 +118,9 @@ internal static class ReachChecks
 
         var solvedProblems = model.Records
             .Where(record => record.Type == RecordTypes.Feature && reachingFeatures.Contains(record.Id))
-            .SelectMany(record => record.Ids(RecordFields.Solves))
+            .Select(record => RecordPlacement.ProblemOf(record.File))
+            .OfType<string>()
+            .Select(name => $"problem/{name}")
             .ToHashSet(StringComparer.Ordinal);
 
         var citedProblems = model.Records
@@ -320,7 +323,7 @@ internal static class ReachChecks
         }
     }
 
-    /// <summary>The requirements a feature holds, by carrying page or by identifier home.</summary>
+    /// <summary>The requirements a feature holds, by the feature folder that holds them or by identifier home.</summary>
     /// <param name="featureId">The feature identifier.</param>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The identifiers of the requirements the feature holds.</returns>
@@ -335,15 +338,12 @@ internal static class ReachChecks
 
         foreach (var requirement in model.Records.Where(record => record.Type == RecordTypes.Requirement))
         {
-            if (string.Equals(requirement.PageId, featureId, StringComparison.Ordinal))
-            {
-                found.Add(requirement.Id);
-                continue;
-            }
+            // The feature whose folder holds the requirement's folder, or the identifier home when no folder names it.
+            var folder = Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(requirement.File)) ?? "");
 
-            if (requirement.PageId is null
-                && Identifiers.TrySplit(requirement.Id, out _, out var home, out _)
-                && string.Equals(home, featureName, StringComparison.Ordinal))
+            if (string.Equals(folder, featureName, StringComparison.Ordinal)
+                || (Identifiers.TrySplit(requirement.Id, out _, out var home, out _)
+                    && string.Equals(home, featureName, StringComparison.Ordinal)))
             {
                 found.Add(requirement.Id);
             }
@@ -378,40 +378,10 @@ internal static class ReachChecks
             || (record.Type == RecordTypes.Journey && journeys.Contains(id));
     }
 
-    /// <summary>The roles an actor holds, from its holds entries.</summary>
+    /// <summary>The roles an actor holds, from its holds list.</summary>
     /// <param name="actor">The actor record whose holds field is read.</param>
     /// <returns>The role identifiers the actor holds.</returns>
-    private static List<string> HoldsOf(Record actor)
-    {
-        if (actor.Raw.ValueKind != JsonValueKind.Object
-            || !actor.Raw.TryGetProperty(RecordFields.Holds, out var holds))
-        {
-            return [];
-        }
-
-        if (holds.ValueKind == JsonValueKind.Object)
-        {
-            return Str(holds, RecordFields.Role) is { Length: > 0 } single ? [single] : [];
-        }
-
-        if (holds.ValueKind != JsonValueKind.Array)
-        {
-            return [];
-        }
-
-        var found = new List<string>();
-
-        foreach (var entry in holds.EnumerateArray())
-        {
-            if (entry.ValueKind == JsonValueKind.Object
-                && Str(entry, RecordFields.Role) is { Length: > 0 } role)
-            {
-                found.Add(role);
-            }
-        }
-
-        return found;
-    }
+    private static List<string> HoldsOf(Record actor) => actor.Ids(RecordFields.Holds).ToList();
 
     /// <summary>The route template with parameter constraints removed, so `{id:guid}` reads `{id}`.</summary>
     /// <param name="route">The route template whose parameter constraints are removed.</param>

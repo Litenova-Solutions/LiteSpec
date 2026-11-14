@@ -198,5 +198,5 @@ public sealed class CompletionTests
         TestModel.Record("use-case", id, Path.Combine(root, id.Replace('/', '.') + ".yaml"), fields);
 
     static LiteSpec.Cli.Model.Records.Record Feature(string root) =>
-        TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"solves": ["problem/slow-loans"], "advances": ["goal/borrow"]}""");
+        TestModel.Record("feature", "feature/borrowing", Path.Combine(root, "feature.yaml"), """{"advances": ["goal/borrow"]}""");
 }

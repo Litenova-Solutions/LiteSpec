@@ -1,56 +1,17 @@
 type: job
-id: job/spending.send-approver-reminders
-title: Send Approver Reminders
-summary: No expense waits past its decision deadline.
+id: job/spending.erase-expired-personal-data
+title: Erase Expired Personal Data
+summary: Each night the job erases the personal data of decided expenses past their retention. The bare business facts stay for the tax file.
 kind: scheduled
 schedule:
-  every: PT1H
-selection: Expenses undecided for five days.
-batchSize: 500
-lease:
-  name: send-approver-reminders
-  duration: PT15M
-cursor: The reminder ledger holds the last run.
+  every: P1D
+  timezone: Europe/Amsterdam
+selection: Decided expenses past their retention.
 runbook: runbook/clear-stuck-reimbursements
-runsWhere: The API worker.
-guard: The operator confirms the batch.
-serviceLevel: Reminders leave within one hour of schedule.
-evidence: Each run logs the reminded expenses.
 effects:
-  - sends: notification/spending.approval-reminder
-    timing: async
+- runs: use-case/spending.erase-personal-data
+  timing: async
 fulfills:
-  - requirement/approval-reminders.decided-within-five-days
-serves:
-  - journey/submit-and-reimburse#s2
-onFailure:
-  mode: retry
-  retry:
-    maxAttempts: 3
-    initialDelay: PT10S
-    maxDelay: PT5M
-    backoff: exponential
-  then: dead-letter
-  deadLetter:
-    after: P30D
-    action: The on-call engineer replays the dead letter.
-  surfacesIn: entry-point/claimwick-app
-  runbook: runbook/clear-stuck-reimbursements
-idempotency:
-  mode: key
-  key: reminder-{expenseId}
-  scope: tenant
+- requirement/approval.erased-after-retention
 reads:
-  - aggregate/spending.expense
-changes:
-  - aggregate/spending.expense
-terms:
-  - term/expense
-records:
-  - type: scenario
-    id: scenario/send-approver-reminders.undecided-expenses-reminded
-    title: Undecided Expenses Reminded
-    given: Undecided expenses pass five days.
-    when: The schedule fires.
-    then: The approvers receive reminders.
-    result: result/submit-expense.submitted
+- aggregate/spending.expense

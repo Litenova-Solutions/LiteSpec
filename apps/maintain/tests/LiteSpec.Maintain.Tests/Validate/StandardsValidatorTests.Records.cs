@@ -115,7 +115,7 @@ public sealed partial class StandardsValidatorTests
     /// <proves>litespec/core/maintaining#record-the-reasoning-behind-each-release</proves>
     [Fact(DisplayName = "research carrying an invented section")]
     public void ResearchCarryingAnInventedSection() => Check(
-        root => StandardsFixture.WriteResearch(root, explanation: StandardsFixture.ReplaceFirst(StandardsFixture.ResearchExplanation, "## Notes on Sources", "## Conclusion\n\nAn invented section.\n\n## Notes on Sources")),
+        root => StandardsFixture.WriteResearch(root, explanation: StandardsFixture.ReplaceFirst(StandardsFixture.ResearchExplanation, "## Source Notes", "## Conclusion\n\nAn invented section.\n\n## Source Notes")),
         [MaintainerDiagnostics.Codes.PageUnknownSection]);
 
     /// <summary>Decision record citing a provision the standards lack.</summary>

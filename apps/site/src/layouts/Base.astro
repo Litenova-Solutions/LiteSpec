@@ -120,7 +120,7 @@ const current = fromPath ?? active;
             <ThemeSwitcher />
             <details class="site-menu">
               <summary class="btn btn-ghost btn-icon" aria-label="Menu"><Icon name="menu" /></summary>
-              <nav class="site-menu-panel" aria-label="Site">
+              <nav class="site-menu-panel" aria-label="Site menu">
                 {links.map((link) => (
                   <a href={link.href} aria-current={current === link.key ? "page" : undefined}>{link.label}</a>
                 ))}

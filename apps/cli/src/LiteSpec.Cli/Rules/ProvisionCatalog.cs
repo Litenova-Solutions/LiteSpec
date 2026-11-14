@@ -447,11 +447,11 @@ internal sealed class ProvisionCatalog
 
             if (segment.StartsWith("artifact:", StringComparison.OrdinalIgnoreCase))
             {
-                artifact = StripArtifact(segment["artifact:".Length..]);
+                artifact = StripArtifactList(segment["artifact:".Length..]);
             }
             else if (segment.StartsWith("record:", StringComparison.OrdinalIgnoreCase))
             {
-                artifact = StripArtifact(segment);
+                artifact = StripArtifactList(segment);
             }
             else if (artifact.Length == 0 && !segment.Contains(':', StringComparison.Ordinal))
             {
@@ -511,6 +511,14 @@ internal sealed class ProvisionCatalog
 
         return text.ToLowerInvariant();
     }
+
+    /// <summary>Strips the artifact and record prefixes from every value of a comma-separated artifact list.</summary>
+    /// <param name="list">The raw artifact list, such as <c>record:use-case, record:job</c>.</param>
+    /// <returns>The normalized values joined by a comma and a space.</returns>
+    static string StripArtifactList(string list) =>
+        string.Join(", ", list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(StripArtifact)
+            .Where(value => value.Length > 0));
 
     /// <summary>Collapses whitespace runs to single spaces.</summary>
     /// <param name="value">The raw value.</param>

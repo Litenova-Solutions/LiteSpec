@@ -9,8 +9,8 @@ using LiteSpec.Standards;
 namespace LiteSpec.Cli.RecordEditing;
 
 /// <summary>
-///     The <c>litespec new entry</c> append path: one requirement, rule,
-///     permission, or setting entry goes onto its owning list file's records,
+///     The <c>litespec new entry</c> append path: one rule, permission, or
+///     setting entry goes onto its owning list file's records,
 ///     last, and the file is written back in canonical form. List files carry
 ///     no record identifier, so the file argument is the file's
 ///     consumer-relative path.
@@ -37,9 +37,15 @@ static class AppendListEntry
             }
         }
 
+        if (entryType == RecordTypes.Requirement)
+        {
+            CliHost.Error.WriteLine($"A requirement is a page of its own, not an entry: use litespec new requirement <feature>.{name}.");
+            return 2;
+        }
+
         if (OwnerOf(entryType) is null)
         {
-            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use requirement, rule, permission, or setting.");
+            CliHost.Error.WriteLine($"Unknown entry type '{entryType}'. Use rule, permission, or setting.");
             return 2;
         }
 
@@ -109,7 +115,6 @@ static class AppendListEntry
             CliHost.Error.WriteLine(entryType switch
             {
                 "setting" => $"The file '{PathText.Relative(config.Root, pageFile)}' sits outside a modules folder and holds no setting to take the module from.",
-                "requirement" => $"The file '{PathText.Relative(config.Root, pageFile)}' names no feature to take the home from.",
                 _ => $"The file '{PathText.Relative(config.Root, pageFile)}' holds no rule to take the home from.",
             });
             return 2;
@@ -155,11 +160,10 @@ static class AppendListEntry
     }
 
     /// <summary>The page style owning the entry type, or null for an unknown type.</summary>
-    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <param name="entryType">The entry type name from the command line, such as rule or permission.</param>
     /// <returns>The page style that owns the entry type, or null when the type is unknown.</returns>
     static string? PageOf(string entryType) => entryType switch
     {
-        "requirement" => "feature",
         "rule" => "rule-set",
         "permission" => "permission-list",
         "setting" => "setting-set",
@@ -167,11 +171,10 @@ static class AppendListEntry
     };
 
     /// <summary>Where the entry type belongs, for the refusal message, or null for an unknown type.</summary>
-    /// <param name="entryType">The entry type name from the command line, such as requirement or permission.</param>
+    /// <param name="entryType">The entry type name from the command line, such as rule or permission.</param>
     /// <returns>The description of where the entry type belongs for the refusal message, or null when the type is unknown.</returns>
     static string? OwnerOf(string entryType) => entryType switch
     {
-        "requirement" => "a feature file",
         "rule" => "a rule-set file",
         "permission" => "the permission list",
         "setting" => "a setting set",
@@ -180,7 +183,7 @@ static class AppendListEntry
 
     /// <summary>
     ///     The new entry's home: the uniform home of the file's existing entries
-    ///     of the same type, else the file stem for a requirement or rule,
+    ///     of the same type, else the file stem for a rule,
     ///     else the parent modules folder for a setting.
     /// </summary>
     /// <param name="root">The parsed record object of the list file.</param>
@@ -278,15 +281,6 @@ static class AppendListEntry
     /// <returns>The entry object for its type, with every required field filled.</returns>
     static JsonObject EntryFields(string entryType, string id, string title) => entryType switch
     {
-        "requirement" => new JsonObject
-        {
-            ["type"] = "requirement",
-            ["id"] = id,
-            ["title"] = title,
-            ["kind"] = "functional",
-            ["statement"] = "The product keeps this commitment.",
-            ["rationale"] = "The business needs this commitment.",
-        },
         "rule" => new JsonObject
         {
             ["type"] = "rule",

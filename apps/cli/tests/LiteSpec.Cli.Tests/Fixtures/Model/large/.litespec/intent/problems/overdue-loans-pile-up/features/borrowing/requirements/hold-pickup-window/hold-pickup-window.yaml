@@ -1,0 +1,8 @@
+type: requirement
+id: requirement/borrowing.hold-pickup-window
+title: Hold pickup window
+kind: functional
+statement: A ready hold waits seven days.
+rationale: A week gives readers time to reach the desk before the hold lapses.
+cites:
+- research/loan-period-benchmarks

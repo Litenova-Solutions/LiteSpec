@@ -86,7 +86,7 @@ public sealed class BookViewsTests
         }
 
         // Spot placements across the parent rules.
-        Assert.Equal("module/lending", Str(details["feature/self-checkout"], "parent"));
+        Assert.Equal("problem/slow-desk-queues", Str(details["feature/self-checkout"], "parent"));
         Assert.Equal("feature/self-checkout", Str(details["requirement/self-checkout.max-wait"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.borrow-copy"], "parent"));
         Assert.Equal("aggregate/lending.loan", Str(details["use-case/lending.return-copy"], "parent"));
@@ -341,8 +341,8 @@ public sealed class BookViewsTests
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "requirement"));
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "journey"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
-        Assert.Equal(("solves", "is solved by"), Phrases(links, "solves", "feature"));
-        Assert.Equal(("is walked by", "walks"), Phrases(links, "actor", "journey"));
+        Assert.Equal(("answers", "is answered by"), Phrases(links, "folder", "feature"));
+        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "journey"));
         Assert.Equal(("acts as", "is acted as by"), Phrases(links, "actor", "external-system"));
 
         // Each edge key below joins to its row by the field after the carrier prefix.
@@ -670,10 +670,10 @@ public sealed class BookViewsTests
         Assert.True(HasString(Arr(details["aggregate/lending.loan"], "lacks"), "not coded"));
     }
 
-    /// <summary>The Why block inputs split from the explanation: the intro stays prose and Why sections list by heading.</summary>
+    /// <summary>The explanation splits into its intro and its sections, and each section lists by its heading.</summary>
     /// <proves>litespec/core/model#explain-the-book-from-litespec-definitions</proves>
     [Fact]
-    public void WhyBlockPlacement()
+    public void ExplanationSectionsListByHeading()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
@@ -682,7 +682,7 @@ public sealed class BookViewsTests
         Assert.Equal("", Str(goal, "intro"));
         var why = goal["list"]!.AsArray();
         Assert.Single(why);
-        Assert.Equal("Why It Matters", Str(why[0]!.AsObject(), "h"));
+        Assert.Equal("Target", Str(why[0]!.AsObject(), "h"));
         Assert.Contains("Short waits bring members back.", Str(why[0]!.AsObject(), "html") ?? "", StringComparison.Ordinal);
 
         var useCase = Obj(details["use-case/lending.borrow-copy"], "sections");
@@ -700,7 +700,6 @@ public sealed class BookViewsTests
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
-        Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "problem/slow-desk-queues", "feature.solves"));
         Assert.True(HasEdge(Arr(details["feature/self-checkout"], "out"), "goal/faster-borrowing", "feature.advances"));
         Assert.Equal(
             "A member waits less than two minutes at the desk.",
@@ -725,7 +724,6 @@ public sealed class BookViewsTests
         BookTestBooks.Write(BookTestBooks.LoadFixture("Book/review.json"), temp.Path, temp.Path);
         var details = ReadRecords(Path.Combine(temp.Path, "data"));
         Assert.True(HasEdge(Arr(details["goal/faster-borrowing"], "in"), "feature/self-checkout", "feature.advances"));
-        Assert.True(HasEdge(Arr(details["problem/slow-desk-queues"], "in"), "feature/self-checkout", "feature.solves"));
         foreach (var id in new[]
         {
             "requirement/self-checkout.max-wait",

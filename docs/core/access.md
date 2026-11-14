@@ -11,19 +11,19 @@ Who may act in the product and how they reach it: actors, roles, permissions, th
 
 ### The Permission Chain
 
-Access follows one chain from actor to use case: an actor holds a role at a scope, the role allows permissions, and the use case declares the grant it checks. The chain answers every access question in one place: which actor held which role at which scope, which permission the role allowed, and which use case declared it. The chain is role-based access control: permissions attach to roles, never to actors directly, and scopes bound each hold to one reach. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
+Access follows one chain from actor to use case: an actor holds a role, the role carries its one scope and allows permissions, and the use case declares the grant it checks. The chain answers every access question in one place: which actor held which role, at which scope the role reaches, which permission the role allowed, and which use case declared it. The chain is role-based access control: permissions attach to roles, never to actors directly, and the role's scope bounds its reach. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link from Intent to Behavior.
 
 ### Actors, Roles, and Scopes
 
 An actor is one party that acts in the product. Its kind is person for a human acting directly, or organization for a company or group acting as one party. Software is no actor: an external system stands alone, and internal machinery is never an actor. Each actor states in `belongsToTeam` whether it belongs to the team building and running the product.
 
-A role is one named set of permissions granted together. Its scope is a kebab-case level naming the reach of the grant, such as platform, tenant, or self. An actor records each grant in `holds` as the role with the scope at which it holds it, so the same role grants different reach in different places.
+A role is one named set of permissions granted together, and it holds the one scope of its grant: a kebab-case level naming the reach, such as platform, tenant, or self. The role is the scope's only home. Each scope level a role names has a glossary term that states what the level covers in this product, such as every business in one installation. An actor lists each role it holds in `holds` by identifier. Which tenant or team a person holds a role for is runtime data, held by role assignments, so a role reaches the same level wherever an actor holds it. A permission that two roles allow at different levels takes its reach from the role the caller holds.
 
 ### Permissions
 
 A permission is one allowed action. Each module keeps its permissions in `modules/<m>/permissions.yaml`, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from those lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
-Each permission names in `scope` the reach at which a role grants it, using the same levels a role scope uses, such as `platform`, `tenant`, or `self`, or levels the project names itself. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in the use-case verb table on the [use-cases page](use-cases.md). A permission name may also open with `manage`, which allows every changing use case on what it names, so it never only reads.
+A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), a glossary verb of kind command or either, or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in that table or in its glossary verb term. A permission name that opens with `manage` allows every changing use case on what it names, so it never only reads.
 
 ### The Access Field
 
@@ -31,7 +31,7 @@ Each use case declares `access` with two parts: what grant the call checks and w
 
 ### Generic Refusals
 
-Refusals that follow from access and input need no written result. A call without the grant ends in the derived forbidden result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them.
+Refusals that follow from access and input need no written result. A call without the grant ends in the derived forbidden result, and a call with input that breaks its rules ends in the derived invalid input result. [Derive Generic Refusals Instead of Writing Them](use-cases.md#derive-generic-refusals-instead-of-writing-them) states the rule, and scenarios point at the derived results without anyone writing them. A permission allows a call, and the call still meets every rule, so holding a permission never bypasses a rule refusal. This is stated once here, not in each role.
 
 ### Tenant Scope and Cross Tenant Access
 
@@ -65,7 +65,7 @@ Each access record lives in one home, and the [model page](model.md) states the 
 | `entry-point` | page | The Behavior entry points home |
 | `external-system` | page | The Behavior systems home, at product or module level |
 
-An actor, role, or external system page carries a `summary` field stating what the record is for. Each module permissions file holds entries only.
+An actor, role, or external system page carries a `summary` field stating what the record is for. Each module permissions file holds its permission entries, and its explanation file states the risks and boundaries of those entries.
 
 ## Standards
 
@@ -99,27 +99,27 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Checked by:** `litespec model check` reports `record-invalid` for an actor without `kind` and `field-invalid` for a kind outside person and organization.
 
-### Record Every Role Hold with Its Scope
+### Record Every Role an Actor Holds
 
-**ID:** `litespec/core/access#record-every-role-hold-with-its-scope`
+**ID:** `litespec/core/access#record-every-role-an-actor-holds`
 
 **Strength:** required
 
 **Applies to:** artifact: record:actor
 
-**Statement:** An actor that acts through a role MUST record the hold in `holds`.
+**Statement:** An actor that acts through a role MUST list the role's identifier in `holds`.
 
-**Rationale:** The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The scope bounds each grant, so one role grants platform reach to one actor and self reach to another.
+**Rationale:** The hold is the grant: without it, the actor and the role sit on separate pages with no stated connection, and no reviewer can tell what the actor is allowed to do. The hold names only the role, because the role holds the scope of its grant, so one actor's hold cannot widen or narrow the reach the role states. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
 **Example:**
 
 ```json
-"holds": [{ "role": "role/employee", "scope": "self" }]
+"holds": ["role/employee"]
 ```
 
-**Checked by:** `litespec model check` reports `role-orphaned` for a role held by no actor.
+**Checked by:** `litespec model check` reports `role-orphaned` for a role held by no actor, and `record-invalid` for a hold that is not a role identifier, such as a hold carrying a scope.
 
-### Scope Every Role
+### Scope Every Role to Its One Reach
 
 **ID:** `litespec/core/access#scope-every-role`
 
@@ -127,13 +127,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Applies to:** artifact: record:role
 
-**Statement:** A role MUST name its scope in `scope`.
+**Statement:** A role MUST name its one scope in `scope`.
 
-**Rationale:** The scope bounds what the role reaches: the same permission allows platform-wide action in one grant and own-record action in another. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach.
+**Rationale:** The role is the only home of a grant's reach. The scope bounds what the role reaches: the same permission allows platform-wide action in one grant and own-record action in another. A scope on each hold or each permission would state the reach again, and three copies of one value drift apart, so the role states it once and every permission reads its reach from the roles that allow it. Without a named scope, every grant reads as product-wide, and the narrowest grant gets the widest reach. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
 **Example:** A scope of `team` bounds the role to one team, while `platform` bounds it to the whole product.
 
-**Checked by:** `litespec model check` reports `record-invalid` for a role without `scope` and `field-invalid` for a scope outside kebab-case form.
+**Checked by:** `litespec model check` reports `record-invalid` for a role without `scope` and `field-invalid` for a scope outside kebab-case form. A `scope` on a permission entry or on a hold fails the schema as an unknown property.
 
 ### Grant Permissions Through Roles
 
@@ -147,7 +147,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The allows list is the middle of the chain: it joins the actors that hold the role to the use cases that cite its permissions in their grants. The role lives in Intent and the permission lives in Behavior, so `allows` is a declared down-link. A role that names no permission grants nothing, so every use case its holders run breaks the chain at the middle link.
 
-**Example:** `role/employee` allows `permission/submit-expense`, which the submit use case cites in its grant.
+**Example:** `role/employee` allows `permission/request-expense`, which the submit use case cites in its grant.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a role with no `allows` entry, and `permission-orphan` for a permission allowed by no role.
 
@@ -163,25 +163,9 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Rationale:** The meaning is the one sentence a reviewer reads to decide whether the grant fits the role: a name alone carries no boundary. Two permissions with the same name pattern and no meanings drift into overlapping grants that no audit can separate.
 
-**Example:** `permission/submit-expense` carries "Submit an expense for reimbursement."
+**Example:** `permission/request-expense` carries "Submit an expense for reimbursement."
 
 **Checked by:** `litespec model check` reports `record-invalid` for a permission without `meaning`.
-
-### State the Scope of Every Permission
-
-**ID:** `litespec/core/access#state-the-scope-of-every-permission`
-
-**Strength:** required
-
-**Applies to:** artifact: record:permission
-
-**Statement:** Each permission MUST state the scope at which a role grants it.
-
-**Rationale:** A grant without a named reach is decided in code: each check looks up the reach beside the permission list, and code then holds a second list of permissions.
-
-**Example:** `permission/manage-copies` carries `scope: platform`, the same level as the librarian role that grants it.
-
-**Checked by:** `litespec model check` reports `record-invalid` for a permission entry without `scope`.
 
 ### Declare Access on Every Use Case
 
@@ -391,6 +375,38 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Checked by:** `litespec model check` reports `prose-missing` for an external system page without `summary`.
 
+### Define Each Scope Level in the Glossary
+
+**ID:** `litespec/core/access#define-each-scope-level-in-the-glossary`
+
+**Strength:** required
+
+**Applies to:** artifact: record:role
+
+**Statement:** Each scope level a role names MUST have a glossary term titled with the level and Scope, stating what the level covers in this product.
+
+**Rationale:** A bare level such as `platform` or `tenant` reads the same in every product, and each product means a different reach by it. The glossary term states that reach once, so a reviewer reads what `platform` covers in this product rather than guessing it from the word. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
+
+**Example:** Claimwick's `platform` scope has a glossary term, Platform Scope, that states it covers every expense in the Claimwick installation.
+
+**Checked by:** `litespec model check` reports `scope-term-missing` for a role scope with no glossary term titled with the level and Scope.
+
+### Name Each Permission by a Use-Case Verb
+
+**ID:** `litespec/core/access#name-each-permission-by-a-use-case-verb`
+
+**Strength:** required
+
+**Applies to:** artifact: record:permission
+
+**Statement:** Each permission name MUST open with a verb from the use-case verb table, a glossary verb of kind command or either, or with `manage`.
+
+**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
+
+**Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/submit-expense` opens with the glossary verb `submit` and passes. `permission/handle-documents` opens with a word neither list states, so it is reported.
+
+**Checked by:** `litespec model check` reports `permission-verb-unknown` for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
+
 ### Keep Permission Lists to Entries
 
 **ID:** `litespec/core/access#keep-permission-lists-to-entries`
@@ -399,11 +415,11 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Applies to:** artifact: record:permission-list
 
-**Statement:** A module permissions file MUST hold entries only.
+**Statement:** A module permissions file MUST hold permission entries only, and its explanation states only the risks and boundaries of those entries, without restating a permission's meaning or adding a grant.
 
-**Rationale:** The file holds entries only: each permission is one row with its fields, and prose around them would restate the meanings the entries already carry. A file with entries only stays readable as a list even as entries grow.
+**Rationale:** Each permission is defined once, in its entry: its `meaning` is the one statement of what it allows, and prose that repeats it drifts from the entry. A boundary is what a reader might assume a permission allows but it does not, which the meaning does not say, so the explanation holds what the entries cannot. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
 
-**Reviewed for:** Which module permissions files carry an explanation file? Look beside each permissions file for a `.md` file with its name.
+**Reviewed for:** Which explanation files beside a permissions file restate a permission's meaning, add a grant, or name a future role? Look at the Risk and Boundaries sections beside each permissions file.
 
 ## Conventions
 

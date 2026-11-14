@@ -346,7 +346,7 @@ Source: plain English.
 
 ### Examples Table
 
-One table of rows a scenario walks through, holding the values the parts argue about.
+One table of rows a scenario reads through, holding the values the parts argue about.
 
 Source: BDD.
 
@@ -368,7 +368,7 @@ Source: LiteSpec.
 
 ### Feature
 
-One answer to a problem under a module, advancing a goal and solving a problem.
+One answer to a problem, advancing a goal. It sits in the features folder of the one problem it answers.
 
 Layer: Intent.
 
@@ -458,7 +458,15 @@ Source: LiteSpec.
 
 ### Journey
 
-The ordered steps by which one actor reaches one goal, with a description of who walks, what starts it, what good looks like and why it matters. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
+The ordered steps by which one actor reaches one goal, with a description of who takes it, what starts it, what good looks like and the consequence at stake. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
+
+Layer: Intent.
+
+Source: plain English.
+
+### Journey Branch
+
+A path that leaves the order of a journey's steps at one step, named by the step it leaves, the condition under which it leaves, and the step it continues at, or end. A branch states no action of its own; an action is always a step.
 
 Layer: Intent.
 
@@ -658,7 +666,7 @@ Source: the GDPR.
 
 ### Role
 
-One named set of permissions granted to an actor at a scope.
+One named set of permissions granted together, at the one scope the role holds.
 
 Layer: Intent.
 
@@ -790,6 +798,14 @@ Layer: Behavior.
 
 Source: LiteSpec.
 
+### Vision
+
+Where the product is heading beyond what it promises now, stated without a date or priority, which a decision keeping it open cites and nothing builds from.
+
+Layer: Intent.
+
+Source: product vision practice.
+
 ## Standard Terms
 
 These terms name the parts of the LiteSpec standard itself.
@@ -832,7 +848,7 @@ Source: LiteSpec.
 
 ### Background-Only
 
-The computed state of a use case a reaction or job runs, needing no journey to walk it.
+The computed state of a use case a reaction or job runs, needing no journey to reach it.
 
 Source: LiteSpec.
 

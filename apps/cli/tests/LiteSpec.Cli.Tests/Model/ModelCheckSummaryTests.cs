@@ -142,7 +142,7 @@ public sealed partial class ModelCheckSummaryTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
-        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-refused-scenario.yaml", """
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-refused-scenario.yaml", """
             {
               "type": "scenario",
               "id": "scenario/borrow-copy.borrowing-an-unavailable-copy-is-refused",
@@ -153,7 +153,7 @@ public sealed partial class ModelCheckSummaryTests
               "then": "The loan is refused."
             }
             """);
-        TestRecords.Explain(root, ".litespec/behavior/modules/lending/loans/borrow-copy-refused-scenario.md", """
+        TestRecords.Explain(root, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-refused-scenario.md", """
             # Borrowing an unavailable copy is refused
 
             A reader borrows a copy that is on loan.

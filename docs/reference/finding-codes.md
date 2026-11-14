@@ -9,11 +9,15 @@ Use this generated page to read what a finding code means and how to resolve it.
 | Code | Level | Layer | Trace | Extension | Meaning | Fix |
 |:---|:---|:---|:---|:---|:---|:---|
 | `record-invalid` | G | any | no | - | A record file fails to parse, or a record fails the shape its type requires. | Correct the file so it parses and matches the shape its type requires. |
-| `identifier-invalid` | G | any | no | - | An identifier breaks the form its type requires. | Rename the identifier to the required form. |
+| `identifier-invalid` | G | any | no | - | An identifier breaks the form its type requires, or a requirement names a feature other than the one whose folder holds it. | Rename the identifier to the required form. |
 | `identifier-duplicate` | G | any | no | - | One identifier names two records. | Give one of the records a new identifier. |
 | `identifier-folder-drift` | G | any | no | - | An identifier's module segment disagrees with its folder. | Rename the identifier to its folder's module and update every citation. |
+| `identifier-title-invalid` | G | any | no | - | A page record's identifier name is no word subsequence of its title, or its record file is named for neither its identifier name nor the fixed file name of its type. | Take the identifier name from the title's words in title order, or name the record file for the identifier. |
 | `name-duplicate` | G | any | no | - | One name segment names two records in the product. | Give one of the records a new name. |
+| `record-key-duplicate` | G | any | no | - | Two entries of one record share a key, such as a source key, a step id, a branch, an operation name or a field name. | Give one of the entries a new key. |
 | `field-invalid` | G | any | no | - | A field holds a value outside its shape. | Write the field in its declared shape. |
+| `term-meaning-invalid` | A | any | no | - | A glossary term's meaning holds more than 25 words. | Shorten the meaning to the definition, and move the rest to the record that uses the term. |
+| `term-verb-duplicate` | G | any | no | - | A glossary verb term restates a verb of the use-case verb table. | Remove the verb term from the glossary; a project never redefines a baseline verb. |
 | `reference-unknown` | G | any | no | - | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | any | no | - | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
 | `product-count-invalid` | G | any | no | - | The project holds no single product record. | Write one product record. |
@@ -22,14 +26,18 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `requirement-measure-missing` | G | proof | yes | - | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
 | `requirement-cites-missing` | A | any | no | - | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | any | no | - | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
-| `intent-unreached` | G | behavior | no | - | An Intent record reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
+| `constraint-effect-unlisted` | G | any | no | - | A requirement cites a constraint, but the constraint's Effect on the Product section does not name the requirement. | Name the requirement by its identifier in the Effect on the Product section, with the effect it holds. |
+| `constraint-effect-uncited` | G | any | no | - | The Effect on the Product section of a constraint names a requirement that does not cite the constraint. | Cite the constraint from the requirement in `cites`, or remove the requirement from the section. |
+| `intent-unreached` | G | behavior | no | - | An Intent record other than a vision reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
 | `decision-decides-missing` | G | any | no | - | A product decision names nothing it decides. | Name the records the decision decides. |
 | `decision-number-duplicate` | G | any | no | - | Two decisions share one number. | Give one decision the next free number. |
 | `decision-decides-duplicate` | G | any | no | - | Two decisions decide one record. | Keep one decision on the record and move the other. |
-| `use-case-journey-missing` | G | any | no | - | A public use case sits in no journey, and no reaction, job or other use case runs it. It runs at large size only. | Walk the use case in a journey, or name what runs it. |
+| `use-case-journey-missing` | G | any | no | - | A public use case sits in no journey, and no reaction, job or other use case runs it. It runs at large size only. | Serve a journey step with the use case, or name what runs it. |
 | `state-unreached` | G | any | no | - | A state is reached by no transition. | Add a transition that reaches the state, or remove the state. |
 | `transition-unknown` | G | any | no | - | A transition names a missing state or use case. | Point the transition at a written state and a written use case. |
 | `use-case-success-missing` | G | any | no | - | A use case ends with no success result. | Add the success result to the use case. |
+| `use-case-verb-unknown` | G | any | no | - | A use-case name opens with a verb neither the use-case verb table nor the project glossary declares. | Open the use-case name with a verb from the table, or declare the verb as a glossary verb term. |
+| `use-case-verb-invalid` | G | any | no | - | A use case opens with a verb of the other kind: a query with a command verb, or a command with a query verb. | Open the use case with a verb of its own kind, or with an either verb. |
 | `scenario-result-unknown` | G | any | no | - | A scenario ends in a result outside its own use case and outside the derived results. | End the scenario in a result of its own use case. |
 | `calculation-table-missing` | G | any | no | - | A calculation rule has no scenario examples. | Add the scenario examples to the rule. |
 | `rule-name-invalid` | G | any | no | - | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
@@ -42,15 +50,18 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `reaction-trigger-unknown` | G | any | no | - | A reaction names a trigger no domain event or integration event carries. | Point the trigger at a written domain event or integration event. |
 | `erasure-undeclared` | G | any | no | - | A personal or sensitive field stands outside a declared erasure position. | Declare the erasure position of the field. |
 | `record-link-missing` | G | any | no | - | A use case, reaction, job, notification or setting names neither `serves` nor `fulfills`. | Link the record with `serves` or `fulfills`. |
-| `record-parent-missing` | G | any | no | - | A feature `solves` names no problem, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
+| `record-parent-missing` | G | any | no | - | A feature sits outside a problem's `features` folder or in the folder of no problem record, a journey `serves` names no goal, a scenario names no result, a screen `entryPoint` names no entry point, or a result, rule, event, or module-homed record names an identifier home no record holds. | Name the missing parent. |
 | `folder-invalid` | G | any | no | - | A folder sits outside the closed set of its layer and level. | Move the folder into the closed set its layer and level allow, or remove it. |
 | `module-undeclared` | G | any | no | - | A `modules/<m>/` folder names no declared module. | Declare the module with a module record, or remove the folder. |
 | `record-placement-invalid` | G | any | no | - | A record sits outside the folder and level its type allows, or a `module.yaml` holds rules. | Move the record to its home, or move the rules to a rule-set file. |
+| `record-folder-drift` | G | any | no | - | A record's folder name differs from the stem of its record file. | Rename the folder or the file so both carry the record's name. |
 | `role-orphaned` | G | any | no | - | A role is held by no actor. | Hold the role from an actor, or remove the role. |
 | `permission-orphaned` | G | any | no | - | A permission is allowed by no role. | Allow the permission from a role, or remove the permission. |
+| `scope-term-missing` | A | any | no | - | A role names a scope with no glossary term titled with the level and Scope, such as Platform Scope. | Add a glossary term titled '<Level> Scope' that states what the level covers in this product. |
+| `permission-verb-unknown` | A | any | no | - | A permission name opens with no verb of the use-case verb table, no glossary verb of kind command or either, and not with manage. | Rename the permission to open with a verb from the use-case verb table, with a glossary verb of kind command or either, or with manage. |
 | `problem-sufferer-invalid` | G | any | no | - | A problem names a sufferer outside the actors. | Name a sufferer the actors hold. |
 | `problem-evidence-missing` | G | any | no | - | A problem cites no evidence. | Cite the evidence of the problem. |
-| `actor-unused` | A | any | no | - | An actor is named by no journey or problem. | Walk the actor in a journey, name it in a problem, or remove the actor. |
+| `actor-unused` | A | any | no | - | An actor is named by no journey or problem. | Give the actor a journey, name it in a problem, or remove the actor. |
 | `goal-mover-missing` | G | behavior | no | - | No use case moves the goal measure. | Move the measure from a use case. |
 | `term-missing` | A | any | no | - | A glossary term appears in no record summary or statement. | Use the term in a summary or statement, or remove it. |
 | `result-scenario-missing` | A | any | no | - | A written result is shown by no scenario; a success result reports at level G. | Write a scenario that shows the result. |
@@ -120,13 +131,19 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `write-undeclared` | S | implementation | yes | - | The code writes an aggregate outside `changes`. | Declare the aggregate in `changes`, or stop writing it. |
 | `result-undeclared` | S | implementation | yes | - | The code returns an outcome no result declares. | Declare the outcome in a result, or stop returning it. |
 | `effect-undeclared` | S | implementation | yes | - | The code takes an edge no record declares, naming a one-hop helper as `via 'Type.Method'`. | Declare the edge on the record, or stop taking it. |
-| `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
+| `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, vision, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | A | any | no | - | A `.md` file under a record root has no frontmatter and no record file beside it, and is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
-| `explanation-missing` | A | any | no | - | A research or decision record has no explanation file, or its explanation lacks a required section. | Write the explanation file with its required sections. |
+| `explanation-missing` | A | any | no | - | A record that needs an explanation file has none, or its explanation lacks a required section or holds its sections out of order. | Write the explanation file with its fixed sections, in the order the section table gives. |
+| `explanation-opening-missing` | A | any | no | - | An explanation file holds no paragraph between its H1 and its first H2. | Write the opening paragraph: what the record is, who it concerns and the consequence at stake. |
+| `explanation-section-unknown` | A | any | no | - | An explanation file holds an H2 section ahead of its fixed sections that its record type's section table does not state. | Move the section after the fixed sections, or move its text into the section the table gives. |
+| `template-value-unchanged` | A | any | no | - | A record `litespec new` scaffolded keeps a text or number its template copied from the example, such as a period or a statement. | Replace each copied value with the record's own, or remove the scaffold line the record opens with. |
 | `format-drift` | A | any | no | - | A record file differs from canonical form. | Run `litespec model format`. |
 | `source-link-bare` | A | any | no | - | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |
 | `source-key-unknown` | A | any | no | - | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |
-| `source-unused` | A | any | no | - | A research source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
+| `source-unused` | A | any | no | - | A research or constraint source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
+| `finding-source-missing` | A | any | no | - | A Findings paragraph of a research explanation cites no source key with a reference link. | Cite the source that states the finding with a `[text][key]` reference link, and say whether the source states it or the writer infers it. |
+| `source-links-missing` | A | any | no | - | A research or constraint explanation that declares sources holds no generated source-links region. | Run `litespec model render` to write the region at the end of the explanation. |
+| `source-links-drift` | A | any | no | - | The generated source-links region of a research or constraint explanation differs from the sources its record declares. | Run `litespec model render`, and change the sources in the record file, not the region. |
 | `atomic-group-duplicate` | A | any | no | - | One command saves more than one atomic write group. | Save one atomic write group per command, or split the work into use cases that react to each other's events. |
 | `operation-id-duplicate` | S | implementation | no | - | Two endpoints declare one operation id, which the API document and every generated client refuse. | Give one endpoint a new operation id. |
 | `operation-use-case-drift` | S | implementation | no | - | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. | Name the endpoint use case in `x-litespec-use-case`, or fix the unreadable contract. |

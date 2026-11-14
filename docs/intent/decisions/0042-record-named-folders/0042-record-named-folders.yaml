@@ -1,0 +1,16 @@
+type: decision
+id: decision/0042-record-named-folders
+title: Keep Each Named Record in Its Own Folder
+options:
+  - name: "Keep one flat file per named record, with its explanation file beside it in the type's folder"
+    pros: "Every type's records sit in one list, and a new record needs no folder."
+    cons: "A record and its explanation share a folder with every other record of the type, so a reader finds a pair only by its name, and a tool cannot tell a record's own files from another record's files."
+  - name: "Keep one folder per named record, with the record file and its explanation file inside it"
+    pros: "Each record is one folder holding its record file and its explanation and nothing else, so a reader opens one folder to read a whole record, and a tool finds the pair from the folder name."
+    cons: "Each record adds a folder and one more level of path, and a check must match each folder name to its file stem."
+  - name: "Keep one folder per record type, with each record as a pair of files named by a scheme"
+    pros: "One folder per type holds every record of the type, and no record adds a folder."
+    cons: "The pair shares its folder with every other record of the type, so the scheme alone ties the two files together, and a second file for a record has no folder to join."
+choice: "Keep one folder per named record, with the record file and its explanation file inside it"
+consequences: "A named record lives at `<container>/<name>/<name>.yaml`, and its explanation file `<name>.md` sits in the same folder. The folder name equals the file stem, and a mismatch is a `record-folder-drift` finding. A named record placed flat is a `record-placement-invalid` finding, and fixed-name files, list files and child records keep their places. `litespec new` writes the folder layout and `litespec rename` moves a record with its folder. No migration tool and no compatibility path ship, so each consumer moves its own records. `litespec/core/model#explain-each-record-beside-its-record-file` and the placement table state the layout."
+reopenedWhen: "A named record needs more than the record file and one explanation file, such as a second explanation beside the same record or a record split across files."

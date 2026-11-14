@@ -25,7 +25,7 @@ internal static class PageText
     /// <summary>Gets the action verbs a provision heading may start with.</summary>
     public static readonly HashSet<string> ActionVerbs = new(
         ("Accept Activate Add Observe Seed Advance Describe Order Prefetch Reuse Sanitize Share Take Align Anchor Announce Answer Apply Approve Ask Assert Assign Attach Audit " +
-        "Authenticate Author Authorize Avoid Await Back Bind Bound Build Call Canonicalize Centralize Check Cite Claim Classify " +
+        "Authenticate Author Authorize Avoid Await Back Bind Bound Branch Build Call Canonicalize Centralize Check Cite Claim Classify " +
         "Co-locate Collect Commit Compare Complete Compose Compute Configure Confirm Connect Control Copy Cover Create " +
         "Declare Default Defer Define Delay Deliver Depart Deploy Deprecate Derive Diff Discard Dispatch Distinguish Document " +
         "Drive Emit End Enforce Escalate Escape Evolve Exclude Exercise Explain Expose Express Finish Follow Format Gate Generate " +

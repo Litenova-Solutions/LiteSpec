@@ -1,17 +1,11 @@
-# Submit and Reimburse
+# Record Title
 
-## Who Walks and Why
-
-Name the actor who walks this journey and the outcome they walk toward.
-
-## Before It Starts
-
-Optional. State what holds before the first step, and remove this section when the walk starts from nothing.
+Say who takes this journey and what they reach by its end, in plain words. A reader who has read nothing else should understand the journey from this paragraph.
 
 ## Example
 
-Walk one concrete pass through every step, with the people, dates, and amounts from the example cast.
+Describe one concrete run of the journey from `startedWhen` to `finishedWhen`, taking each step in order, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
 
-## What It Connects To
+## Branches
 
-Name the records this journey advances or serves, with what each connection carries.
+Optional. Name each step where the journey can leave its order, and say where it continues.

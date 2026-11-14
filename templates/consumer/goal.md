@@ -1,13 +1,11 @@
-# Faster Reimbursement
+# Record Title
 
-## Why It Matters
+Say what outcome this goal names, who gains when it holds, and the consequence at stake for them. A reader who has read nothing else should understand the goal from this paragraph.
 
-State who gains when this outcome holds, and what it costs them while it does not.
+## Target
 
-## What Counts as Done
+State the target number, the population it counts and the date it applies to, in one or two sentences.
 
-State the measurable line that marks this goal done, with its number and date.
+## Measurement
 
-## What It Connects To
-
-Name the records that advance this goal, with what each one contributes.
+Say the start and end events of the measured period, the measurement window, what is excluded from the count, and the baseline today.

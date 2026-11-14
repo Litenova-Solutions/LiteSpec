@@ -8,26 +8,16 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 /// <summary>Tests for <c>litespec new entry</c> and the release record template.</summary>
 public sealed class NewEntryTests
 {
-    const string RequirementPage = ".litespec/intent/features/approval.yaml";
+    const string RequirementPage = ".litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml";
     const string RulePage = ".litespec/behavior/rules/spending-rules.yaml";
     const string PermissionPage = ".litespec/behavior/access/permissions.yaml";
     const string SettingPage = ".litespec/behavior/modules/spending/settings.yaml";
 
-    const string RequirementJson = """
+    const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/approval",
-          "title": "Approval",
-          "records": [
-            {
-              "type": "requirement",
-              "id": "requirement/approval.no-self-approval",
-              "title": "No self approval",
-              "kind": "functional",
-              "statement": "Nobody approves their own expense.",
-              "rationale": "Self approval invites fraud."
-            }
-          ]
+          "title": "Approval"
         }
         """;
 
@@ -79,10 +69,10 @@ public sealed class NewEntryTests
         }
         """;
 
-    /// <summary>New entry appends a requirement last and reserves its identifier.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry appends a requirement last and reserves its identifier")]
-    public void AppendsRequirementLast()
+    /// <summary>New entry refuses a requirement and names the command that writes one.</summary>
+    /// <proves>litespec/core/intent#identify-every-requirement</proves>
+    [Fact(DisplayName = "new entry refuses a requirement and names new requirement")]
+    public void RefusesRequirementEntry()
     {
         using var consumer = Consumer();
         var page = Path.Combine(consumer.Path, RequirementPage);
@@ -92,18 +82,9 @@ public sealed class NewEntryTests
             "new", "entry", RequirementPage, "requirement", "decided-within-five-days",
             "--root", consumer.Path);
 
-        Assert.Equal(0, result.Status);
-        Assert.Contains("Appended requirement/approval.decided-within-five-days to ", result.Stdout);
-
-        var after = File.ReadAllText(page);
-        var inserted = AssertSingleInsertion(before, after, "id: requirement/approval.decided-within-five-days");
-        Assert.Contains("kind: functional", inserted);
-        Assert.Contains("statement: The product keeps this commitment.", inserted);
-        Assert.Contains("rationale: The business needs this commitment.", inserted);
-
-        var existing = after.IndexOf("requirement/approval.no-self-approval", StringComparison.Ordinal);
-        var added = after.IndexOf("requirement/approval.decided-within-five-days", StringComparison.Ordinal);
-        Assert.True(0 <= existing && existing < added);
+        Assert.Equal(2, result.Status);
+        Assert.Contains("litespec new requirement <feature>.decided-within-five-days", result.Output);
+        Assert.Equal(before, File.ReadAllText(page));
     }
 
     /// <summary>New entry appends a rule under the page's existing home.</summary>
@@ -172,24 +153,6 @@ public sealed class NewEntryTests
         Assert.Contains("setBy: product", inserted);
     }
 
-    /// <summary>New entry refuses a taken requirement id and leaves the page alone.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry refuses a taken requirement id and leaves the page alone")]
-    public void RefusesTakenRequirementId()
-    {
-        using var consumer = Consumer();
-        var page = Path.Combine(consumer.Path, RequirementPage);
-        var before = File.ReadAllText(page);
-
-        var result = TestCli.Run(
-            "new", "entry", RequirementPage, "requirement", "no-self-approval",
-            "--root", consumer.Path);
-
-        Assert.Equal(2, result.Status);
-        Assert.Contains("already taken", result.Output);
-        Assert.Equal(before, File.ReadAllText(page));
-    }
-
     /// <summary>New entry refuses a taken rule id and leaves the page alone.</summary>
     /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
     [Fact(DisplayName = "new entry refuses a taken rule id and leaves the page alone")]
@@ -242,26 +205,6 @@ public sealed class NewEntryTests
         Assert.Equal(2, result.Status);
         Assert.Contains("already taken", result.Output);
         Assert.Equal(before, File.ReadAllText(page));
-    }
-
-    /// <summary>New entry takes the requirement home from an empty page's file stem.</summary>
-    /// <proves>litespec/core/model#scaffold-pages-and-reserve-identifiers</proves>
-    [Fact(DisplayName = "new entry takes the requirement home from an empty page's file stem")]
-    public void DerivesRequirementHomeFromFileStem()
-    {
-        using var consumer = Consumer();
-        const string relative = ".litespec/intent/features/fees.yaml";
-        WritePage(consumer.Path, relative, "feature", "Fees");
-
-        var result = TestCli.Run(
-            "new", "entry", relative, "requirement", "late-fee-cap",
-            "--root", consumer.Path);
-
-        Assert.Equal(0, result.Status);
-        Assert.Contains("Appended requirement/fees.late-fee-cap to ", result.Stdout);
-        Assert.Contains(
-            "id: requirement/fees.late-fee-cap",
-            File.ReadAllText(Path.Combine(consumer.Path, relative)));
     }
 
     /// <summary>New entry takes the setting home from the parent modules folder.</summary>
@@ -345,7 +288,7 @@ public sealed class NewEntryTests
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--result", "result/x.y"] },
-        { ["entry", RequirementPage, "requirement", "no-self-approval"] },
+        { ["entry", RequirementPage, "requirement", "nobody-approves-own-expense"] },
         { ["entry", PermissionPage, "permission", "submit-expense"] },
     };
 
@@ -420,7 +363,17 @@ public sealed class NewEntryTests
     {
         var temp = TestCli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
-        TestRecords.Write(temp.Path, RequirementPage, RequirementJson);
+        TestRecords.Write(temp.Path, RequirementPage, FeatureJson);
+        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml", """
+            {
+              "type": "requirement",
+              "id": "requirement/approval.nobody-approves-own-expense",
+              "title": "Nobody Approves Their Own Expense",
+              "kind": "functional",
+              "statement": "Nobody approves their own expense.",
+              "rationale": "Self approval invites fraud."
+            }
+            """);
         TestRecords.Write(temp.Path, RulePage, RuleJson);
         TestRecords.Write(temp.Path, PermissionPage, PermissionJson);
         TestRecords.Write(temp.Path, SettingPage, SettingJson);

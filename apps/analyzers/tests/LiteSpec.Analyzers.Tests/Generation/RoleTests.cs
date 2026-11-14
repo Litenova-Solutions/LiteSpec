@@ -121,7 +121,7 @@ public sealed class RoleTests
                 "xml",
                 ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/submit-expense", "permission/mint-money"])),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/submit-expense", "self")))),
+                    RecordPages.PermissionEntry("permission/submit-expense")))),
             assemblyName: "Shop.Application");
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
@@ -145,7 +145,7 @@ public sealed class RoleTests
                 ("a-b.yaml", RecordPages.RolePage("role/a-b", "self")),
                 ("a--b.yaml", RecordPages.RolePage("role/a--b", "self")),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/read-loans", "tenant")))),
+                    RecordPages.PermissionEntry("permission/read-loans")))),
             assemblyName: "Shop.Application");
 
         var diagnostic = Assert.Single(run.ReportedDiagnostics);
@@ -170,7 +170,7 @@ public sealed class RoleTests
                 "xml",
                 ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/list-expenses", "self")))),
+                    RecordPages.PermissionEntry("permission/list-expenses")))),
             assemblyName: "Shop.Domain");
 
         Assert.True(run.Sources.ContainsKey("LiteSpecRoles.g.cs"), "The roles source is missing.");
@@ -190,7 +190,7 @@ public sealed class RoleTests
                 "xml",
                 ("employee.yaml", RecordPages.RolePage("role/employee", "self", ["permission/list-expenses"])),
                 ("permissions.yaml", RecordPages.PermissionFactsPage(
-                    RecordPages.PermissionEntry("permission/list-expenses", "self")))),
+                    RecordPages.PermissionEntry("permission/list-expenses")))),
             assemblyName: "Shop.Core",
             layout: "layer-projects");
 
@@ -208,13 +208,13 @@ public sealed class RoleTests
             ("approver.yaml", RecordPages.RolePage("role/approver", "team", ["permission/approve-expense", "permission/list-expenses", "permission/manage-policy"])),
             ("finance.yaml", RecordPages.RolePage("role/finance", "platform", ["permission/reimburse-expense", "permission/list-expenses", "permission/export-expenses", "permission/erase-personal-data"])),
             ("permissions.yaml", RecordPages.PermissionFactsPage(
-                RecordPages.PermissionEntry("permission/submit-expense", "self"),
-                RecordPages.PermissionEntry("permission/list-expenses", "self"),
-                RecordPages.PermissionEntry("permission/approve-expense", "team"),
-                RecordPages.PermissionEntry("permission/manage-policy", "platform"),
-                RecordPages.PermissionEntry("permission/reimburse-expense", "platform"),
-                RecordPages.PermissionEntry("permission/export-expenses", "platform"),
-                RecordPages.PermissionEntry("permission/erase-personal-data", "platform"))));
+                RecordPages.PermissionEntry("permission/submit-expense"),
+                RecordPages.PermissionEntry("permission/list-expenses"),
+                RecordPages.PermissionEntry("permission/approve-expense"),
+                RecordPages.PermissionEntry("permission/manage-policy"),
+                RecordPages.PermissionEntry("permission/reimburse-expense"),
+                RecordPages.PermissionEntry("permission/export-expenses"),
+                RecordPages.PermissionEntry("permission/erase-personal-data"))));
 
     private static object? Property(object entry, string name)
     {

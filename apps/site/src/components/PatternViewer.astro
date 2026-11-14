@@ -2,7 +2,7 @@
 import Icon from "./Icon.astro";
 ---
 
-<dialog class="pattern-viewer" data-pattern-viewer aria-label="Option viewer">
+<dialog class="pattern-viewer" id="pattern-viewer" data-pattern-viewer aria-label="Option viewer" closedby="any">
   <div class="pattern-viewer-top">
     <div class="pattern-viewer-title">
       <div class="pattern-viewer-line">
@@ -21,12 +21,14 @@ import Icon from "./Icon.astro";
       <button type="button" class="btn btn-outline btn-icon" data-pattern-link data-copy="" aria-label="Copy link to this option"><Icon name="link" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-prev aria-label="Previous option"><Icon name="arrow-left" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-next aria-label="Next option"><Icon name="arrow" class="icon-sm" /></button>
-      <button type="button" class="btn btn-outline btn-sm" data-pattern-close><Icon name="close" class="icon-sm" />Close</button>
+      <button type="button" class="btn btn-outline btn-sm" data-pattern-close command="close" commandfor="pattern-viewer"><Icon name="close" class="icon-sm" />Close</button>
     </div>
   </div>
   <div class="pattern-viewer-body" data-pattern-body></div>
 </dialog>
 <style>
+@layer base, components, pages;
+@layer components {
   .pattern-viewer {
     width: calc(100vw - 32px);
     height: calc(100dvh - 32px);
@@ -76,7 +78,7 @@ import Icon from "./Icon.astro";
   }
   .pattern-viewer-title code {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--muted-fg);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -84,7 +86,7 @@ import Icon from "./Icon.astro";
   }
   .pattern-viewer-name {
     font-weight: 600;
-    font-size: 14.5px;
+    font-size: 0.90625rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -93,7 +95,7 @@ import Icon from "./Icon.astro";
     display: none;
   }
   .pattern-viewer-pos {
-    font-size: 13px;
+    font-size: 0.8125rem;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
@@ -115,7 +117,7 @@ import Icon from "./Icon.astro";
     border-radius: 4px;
     background: transparent;
     color: var(--muted-fg);
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 500;
     white-space: nowrap;
     cursor: pointer;
@@ -196,18 +198,18 @@ import Icon from "./Icon.astro";
     padding: var(--pad-box-y) var(--pad-box-x);
     border-bottom: 1px solid var(--border);
     background: var(--muted-strong);
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: var(--muted-fg);
   }
   :global(.pattern-viewer-code-head .btn) {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
   :global(.pattern-viewer-code pre) {
     margin: 0;
     padding: var(--space-4);
     font-family: var(--mono);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 0.875rem;
+    line-height: 1.5;
     overflow-x: auto;
     background: var(--bg);
   }
@@ -239,6 +241,7 @@ import Icon from "./Icon.astro";
       margin: var(--space-3);
     }
   }
+}
 </style>
 <script>
   (function () {
@@ -452,13 +455,12 @@ import Icon from "./Icon.astro";
       step(1);
     });
 
-    closeBtn.addEventListener("click", function () {
-      dialog.close();
-    });
-
-    dialog.addEventListener("click", function (event) {
-      if (event.target === dialog) dialog.close();
-    });
+    // closedby="any" closes the modal on a click outside it; a browser without it keeps the listener.
+    if (!("closedBy" in HTMLDialogElement.prototype)) {
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+    }
 
     dialog.addEventListener("close", function () {
       if (opener && document.contains(opener)) opener.focus();

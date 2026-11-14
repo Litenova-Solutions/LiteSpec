@@ -1,0 +1,8 @@
+type: requirement
+id: requirement/approval.nobody-approves-own-expense
+title: Nobody Approves Their Own Expense
+kind: functional
+statement: Nobody approves their own expense.
+rationale: A second person checks each expense before it is paid.
+cites:
+- feature/approval-reminders

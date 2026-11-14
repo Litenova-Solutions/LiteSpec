@@ -93,9 +93,27 @@ static class UseCaseQueries
             return null;
         }
 
-        return model.AggregatesByFolder.TryGetValue(Path.GetDirectoryName(useCase.File) ?? "", out var aggregate)
-            ? aggregate
-            : null;
+        if (RecordFile.ContainerOf(useCase.File) is not { } folder)
+        {
+            return null;
+        }
+
+        if (model.AggregatesByFolder.TryGetValue(folder, out var direct))
+        {
+            return direct;
+        }
+
+        // A use case sits in its own folder inside the use-cases folder of its aggregate, so the
+        // aggregate's folder is the parent of the container. A module-level use case sits under the
+        // module's own use-cases folder, whose parent holds no aggregate.
+        if (string.Equals(Path.GetFileName(folder), "use-cases", StringComparison.Ordinal)
+            && Path.GetDirectoryName(folder) is { } parent
+            && model.AggregatesByFolder.TryGetValue(parent, out var aggregate))
+        {
+            return aggregate;
+        }
+
+        return null;
     }
 
     /// <summary>The use case's access grant as written.</summary>

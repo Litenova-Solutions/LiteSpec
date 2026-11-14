@@ -3,6 +3,7 @@
 // serves the App alone.
 
 export { default as TopBar } from "./TopBar.svelte";
+export { NavDrawer } from "./nav-drawer.svelte";
 export {
   delegatedRecordId,
   openRecord,

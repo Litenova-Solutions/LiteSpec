@@ -74,10 +74,10 @@ const sidebar = groups
   .join("");
 ---
 
-<dialog class="side-dialog" id="docs-drawer" aria-label="Browse docs">
+<dialog class="side-dialog" id="docs-drawer" aria-label="Browse docs" closedby="any">
   <div class="drawer-head">
     <input type="search" data-docs-filter placeholder="Filter pages" aria-label="Filter pages" autocomplete="off" />
-    <button type="button" class="btn btn-ghost btn-icon" data-docs-close aria-label="Close"><Icon name="close" /></button>
+    <button type="button" class="btn btn-ghost btn-icon" command="close" commandfor="docs-drawer" aria-label="Close"><Icon name="close" /></button>
   </div>
   <nav class="side" aria-label="Documentation" set:html={sidebar}></nav>
   <script is:inline>
@@ -86,11 +86,12 @@ const sidebar = groups
       if (!(dialog instanceof HTMLDialogElement)) return;
       var on = dialog.querySelector("a.on");
       if (on && on.scrollIntoView) on.scrollIntoView({ block: "nearest" });
-      var close = dialog.querySelector("[data-docs-close]");
-      if (close) close.addEventListener("click", function () { dialog.close(); });
-      dialog.addEventListener("click", function (event) {
-        if (event.target === dialog) dialog.close();
-      });
+      // closedby="any" closes a modal on a click outside it; a browser without it keeps the listener.
+      if (!("closedBy" in HTMLDialogElement.prototype)) {
+        dialog.addEventListener("click", function (event) {
+          if (event.target === dialog) dialog.close();
+        });
+      }
       var input = dialog.querySelector("[data-docs-filter]");
       if (!(input instanceof HTMLInputElement)) return;
       var saved = null;

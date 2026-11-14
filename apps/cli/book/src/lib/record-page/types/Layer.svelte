@@ -87,7 +87,8 @@
 {/if}
 {#if typeRows.length}
   <PageSection blockKey="types" heading="Record types" count={typeRows.length}>
-    <table class="w-full overflow-hidden rounded-lg border border-border text-sm">
+    <div class="max-w-full overflow-x-auto rounded-lg border border-border">
+    <table class="w-full text-sm [overflow-wrap:normal]">
       <thead>
         <tr>
           <th class="border-b border-border bg-muted px-3.5 py-2 text-left text-[0.71875rem] font-medium tracking-[0.06em] text-muted-foreground uppercase">
@@ -121,5 +122,6 @@
         {/each}
       </tbody>
     </table>
+    </div>
   </PageSection>
 {/if}

@@ -1,0 +1,63 @@
+# Intent Hierarchy Evidence
+
+The Intent layer holds the reasons a product exists, such as the product, its goals, problems, features, requirements, constraints, research, decisions and journeys. This research record checks which links connect Intent records, which of them LiteSpec requires and checks, and how other tools and the largest consumer group their requirements. The largest consumer is a project that uses LiteSpec. It matters because 719 of 928 requirements in that consumer name no origin, and the current rules do not count that as a defect.
+
+## Findings
+
+Above the requirements, LiteSpec's hierarchy rests on rationale prose rather than on required or checked links. In the largest consumer, 719 of 928 requirements name no origin. The record states that every enforced Intent check passes in that consumer.
+
+Only 4 Intent links are required by the schema, and a check enforces each of them. They are `product.audience`, `journey.actor`, a requirement's `except` entry to its `fallback`, and `decision.decides` on product decisions. The provision and the check require `decision.decides` even though the schema leaves it optional. Every other link above the requirements is optional in the schema, is mentioned only in the provision's rationale and is unchecked. The record gives high confidence for this claim, because it read each cell from the schema, the provision text and the check table.
+
+One layer below Intent, LiteSpec already applies the principle that every record points up. A use case with neither `serves` nor `fulfills` fails `record-link-missing` at tier G. The principle was never applied inside Intent. The record gives high confidence for this claim.
+
+The central measured gap is that 719 of 928 requirements name neither `feature` nor `basedOn`. Of 928 requirements, 56 name a `feature`, 164 name `basedOn`, and 11 carry both. The absence of `feature` alone is not a defect, because the field is defined narrowly. It names the feature that carries the requirement in a named phase, so a built requirement correctly carries none. The record gives no confidence for this claim.
+
+The combined absence is still not a conformance defect today. The provision puts the expectation in its rationale. Its statement and its check require only the identifier, `kind`, `statement` and dated applied values. So the record counts the 719 as specification-tolerated traceability defects. They are the fault of LiteSpec's missing obligation and missing check, not of the consumer's authors. The record gives no confidence for this claim.
+
+One measured signal shows that the anchor already matters in practice. Of 150 requirements that nothing below fulfills, all 100 without a `feature` appear as known `requirement-fulfillment-missing` findings. None of the 50 with a `feature` produced such a finding. The record gives no confidence for this claim.
+
+Requirements are grouped in 3 different ways, so one feature's story spreads over 3 files. A requirement page groups commitments by area. A feature groups an offer under a problem. A journey groups steps under a goal. The parent of a requirement is its feature, the file that holds it is the requirement page, and the journey that walks it sits under a third record. The record gives no confidence for this claim.
+
+The 3 agent-driven peers group records by the unit the author writes. GitHub Spec Kit keeps one spec file per feature, with user scenarios, numbered functional requirements and success criteria. OpenSpec keeps one spec per capability, with Requirement blocks and Scenario examples. Kiro keeps one requirements file per spec, with user stories and EARS acceptance criteria. The record gives high confidence for this claim, because it read the shape from each tool's own concept pages.
+
+The largest consumer shows that authors follow the page, not the parent. Its 719 requirements name no origin. All 112 goal sentences are distinct, and none contains a goal record's title. The record gives high confidence for this claim, because the consumer counts are measured, not sampled.
+
+The record proposes that each feature hold its requirements as entries. The identifier `requirement/<feature>.<name>` already names the feature. A requirement whose feature segment differs from its file's feature is an identifier-invalid finding. A reader cannot see what was promised for one offer from one place today. The parent rule also produces hundreds of missing-parent findings that authors did not see as mistakes. The record gives no confidence for this proposal.
+
+A requirement has 3 origin fields with a precedence rule, where one ordered list would do. The origin is the first `features` entry, otherwise the first `basedOn` entry, otherwise a decision that names the requirement in `decides`. A goal cannot be a requirement's reason at all. The record gives no confidence for this claim.
+
+Goal-oriented practice refines goals directly into requirements. KAOS refines goals into requirements, and impact mapping traces deliverables to a goal through an actor and an impact. With the feature as the parent, the precedence rule has no work left. So the record proposes that a requirement name its reasons in one `cites` list. The list holds any of goal, problem, feature, constraint, research and decision, in no order of precedence. A requirement that cites nothing fails `requirement-cites-missing` at tier G. The record gives no confidence for this proposal.
+
+Fulfilment and constraint answers each get one home. A journey alone clears `requirement-fulfillment-missing` today, because the checker counts rule, use case and journey as fulfilling. The record proposes that only Behavior records fulfil a requirement. Those are the rule, use case, reaction, job, notification and setting. A journey names the requirements it shows in `cites`. The record gives no confidence for this proposal.
+
+A constraint's answer is written twice, once as prose under What It Requires and once as requirement entries that cite the constraint. Of 29 constraints, 5 are cited by none. So the record proposes that What It Requires become a generated region that lists the requirements citing the constraint. A constraint with `applies` set to true that no requirement cites is `constraint-unreached` at tier G. Volere supports this shape by treating a mandated constraint as a requirement with its own rationale and fit criterion. The record gives no confidence for these claims.
+
+Names should follow outside meaning. LiteSpec's `kind` for business requirements holds dated values, such as a receipt threshold or a price. ISO/IEC/IEEE 29148 names the Business Requirements Specification as the business or mission level above stakeholder requirements. Wiegers and Beatty use business requirements for why the organization builds the system. So the record proposes that the kind become `policy`, and that the constraint kind gain `legal` for laws. The record gives no confidence for this proposal.
+
+The word journey stretches over scheduled work that nobody walks. Story mapping and use-case narratives walk a person through activities toward a goal. So the record proposes that journeys walk a person only. Scheduled promises become requirements that jobs fulfil. A journey drops `aim`, because its 112 sentences match no goal title and drift from `serves`. A step's sentence becomes `statement`, and its failure text becomes `failure`. The record gives no confidence for these proposals.
+
+The Intent page never says why each record type exists or when not to use it. It has 11 similar types, each with one line and no write-when, skip-when or familiar name. Each comparable method teaches a chain of questions. Impact mapping asks why, who, how and what, and the opportunity solution tree asks about outcome, opportunity and solution. So the record proposes a Concepts section that opens with a table of the questions Intent answers. The record gives no confidence for this proposal.
+
+Tracing above the requirements costs more than it returns today. Teams skip the tracing for effort without a direct benefit, and the links go stale. The record proposes that strict parents stay where checks read them, which are the requirement and the journey step. Links above them stay advisory. The record gives no confidence for this proposal.
+
+The top of the chain is split. All 40 features carry `solves`, and all 8 goals are served by 16 `serves` links from 12 features. The gap is that 28 of 40 features name no goal. Journeys name their goal as prose in all 112 cases. The schema requires a string, the provision requires the goal in words, and the Links table holds no journey-to-goal edge. The record gives high confidence for the `solves` count, because the counts are measured. It gives no confidence for the journey claims.
+
+A migration warning follows from the measurements. All 112 goal sentences are distinct, and none contains a goal record's title. So no mechanical mapping from the sentences to the 8 goals exists. The record gives no confidence for this warning.
+
+Several other populations are tolerated or left by design. Of 29 constraints, 5 are cited by no `basedOn`, and of 29 research records, 15 are. No rule requires citation, so they form a pool of bases. The record notes that 15 of 29 suggests the pool is written faster than decisions consume it. All 3 product decisions decide, with 2, 65 and 4 targets. The 71 technical decisions carry no `decides` by design, and they govern code instead. Of them, 8 draw `decision-unimplemented`, and 15 draw the advisory `decision-basis-missing`. The record gives no confidence for these claims.
+
+Other cases are also tolerated. One of 30 problems is solved by no feature, which the record treats as deliberate. Exactly one actor, `actor/report-recipient`, is named by nothing, which the record calls a genuine but minor orphan. Of 164 intent-layer terms, 14 are cited by no record, and the record tolerates that. The record could not judge requirement-page container conformance from the model, because the builder emits zero `requirement-page` records. That needs the consumer validation run. The record gives no confidence for these claims.
+
+The investigation tested its recommendation clause by clause. It supports the requirement origin clause with one amendment. The wording keeps `feature` and `basedOn` distinct, the anchor found is reported as one finding, and a requirement settled by a decision counts as anchored. The feature clause is supported for `solves`, because all 40 features already comply. `serves` should stay advisory, because with only 8 goals, forcing one goal per feature produces vague claims. The expectation should attach to dated features, where it informs sequencing. The record gives no confidence for these verdicts.
+
+The journey goal clause is argued against as a replacement and supported as an added optional link. The sentence in words lets a reader judge a journey chapter without opening a goal page. The advice-first checks are supported with a written promotion trigger. The trigger has 3 parts: zero advisory findings on merged records, checks that land one slice at a time, and promotion through the waiver mechanism with an end date. The record gives no confidence for these verdicts.
+
+## Source Notes
+
+The Spec Kit wording is second-hand, through a Mintlify mirror, and the record keeps it marked as secondary. The Wiegers and Beatty usage comes from the reviewer's memory of the book, and the review did not re-read it. The ISO/IEC/IEEE 29148 level names rest on INCOSE conference slides and ReqView template pages, not on the paywalled standard. The Volere claims rest on a 2004 university copy of version 9 of the template.
+
+The method summaries for impact mapping, opportunity solution trees and story mapping come from practitioner and vendor pages, not from the originators' books. The traceability cost claims come from a Springer article that the record identifies as Ruiz et al. 2023.
+
+The web sources carry the review's read date of 30 October 2026. The record re-read the repository paths on 31 October 2026, and it carried the web citations forward. The repository sources are the Intent core page (`docs/core/intent.md`), the core model page (`docs/core/model.md`), the model tool page (`docs/tools/model.md`) and the record schema (`schemas/record.schema.yaml`). The record does not say which claim each source supports.
+
+The record could not confirm the Wiegers and Beatty usage, because it did not re-read them. It also could not confirm the Volere claims beyond the 2004 copy. The record names no disagreement between its sources.

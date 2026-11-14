@@ -381,7 +381,8 @@ public sealed class OperationsCheckTests
     // fulfills it, so the requirement reaches Behavior as every Intent record must.
     static void WriteLatencyRequirement(string root)
     {
-        WriteRecord(root, RequirementFile, RequirementJson, RequirementExplanation);
+        WriteRecord(root, FeatureFile, FeatureJson, RequirementExplanation);
+        WriteRecord(root, RequirementFile, RequirementJson);
         WriteRecord(root, OriginFile, OriginJson, OriginExplanation);
         var useCase = Path.Combine(root, ListLoansFile);
         var text = File.ReadAllText(useCase).Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -452,42 +453,43 @@ public sealed class OperationsCheckTests
         }
     }
 
-    const string RequirementFile = ".litespec/intent/modules/lending/features/performance.yaml";
-    const string ListLoansFile = ".litespec/behavior/modules/lending/loans/list-loans.yaml";
-    const string RunbookFile = ".litespec/implementation/runbooks/slow-listings.yaml";
-    const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing.yaml";
+    const string FeatureFile = ".litespec/intent/problems/slow-desk-loans/features/performance/performance.yaml";
+    const string RequirementFile = ".litespec/intent/problems/slow-desk-loans/features/performance/requirements/list-loans-latency/list-loans-latency.yaml";
+    const string ListLoansFile = ".litespec/behavior/modules/lending/aggregates/loans/use-cases/list-loans/list-loans.yaml";
+    const string RunbookFile = ".litespec/implementation/runbooks/slow-listings/slow-listings.yaml";
+    const string OriginFile = ".litespec/intent/decisions/0003-term-start-listing/0003-term-start-listing.yaml";
 
-    const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index.yaml";
+    const string DecisionFile = ".litespec/implementation/decisions/0002-loan-index/0002-loan-index.yaml";
     const string AlertFile = "deploy/alerts/lending.yaml";
     const string AlertDir = "deploy/alerts";
     const string ResultFile = ".litespec/proof/checks/2026-11-20-list-loans-load.json";
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched.yaml";
+    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
 
-    const string RequirementJson = """
+    const string FeatureJson = """
         {
           "type": "feature",
           "id": "feature/performance",
           "title": "Performance",
-          "offering": "Loan listings answer within 300 milliseconds at p95 during term start.",
-          "solves": ["problem/slow-desk-loans"],
-          "records": [
-            {
-              "type": "requirement",
-              "id": "requirement/performance.list-loans-latency",
-              "title": "List loans latency",
-              "kind": "quality",
-              "statement": "Listing loans answers within 300 milliseconds at p95.",
-              "rationale": "Term start floods the listing.",
-              "stimulus": "Two hundred readers list their loans in the first hour of the term.",
-              "environment": "Normal operation, the search index warm.",
-              "response": "Each listing answers from the index.",
-              "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
-              "check": "list-loans-load"
-            }
-          ]
+          "offering": "Loan listings answer within 300 milliseconds at p95 during term start."
+        }
+        """;
+
+    const string RequirementJson = """
+        {
+          "type": "requirement",
+          "id": "requirement/performance.list-loans-latency",
+          "title": "List loans latency",
+          "kind": "quality",
+          "statement": "Listing loans answers within 300 milliseconds at p95.",
+          "rationale": "Term start floods the listing.",
+          "stimulus": "Two hundred readers list their loans in the first hour of the term.",
+          "environment": "Normal operation, the search index warm.",
+          "response": "Each listing answers from the index.",
+          "measure": "Share of listings answered within 300 milliseconds: at least 99 percent.",
+          "check": "list-loans-load"
         }
         """;
 
@@ -537,6 +539,8 @@ public sealed class OperationsCheckTests
     const string OriginExplanation = """
         # Term Start Listing
 
+        Term start is the busiest week of the loan listing.
+
         ## Context
 
         Term start floods the loan listing.
@@ -549,9 +553,17 @@ public sealed class OperationsCheckTests
 
         Listing loans answers within 300 milliseconds at p95.
 
+        ## Consequences
+
+        The listing keeps one warm index that the loan writes update.
+
         ## Evidence
 
         Term start drill, November 2026.
+
+        ## Revisit Conditions
+
+        Term start traffic grows past the drill's load.
         """;
 
     const string DecisionJson = """
@@ -599,6 +611,8 @@ public sealed class OperationsCheckTests
     const string DecisionExplanation = """
         # Loan Index
 
+        The loan index decides how listings find loans.
+
         ## Context
 
         Listings read loans one by one today.
@@ -611,9 +625,17 @@ public sealed class OperationsCheckTests
 
         Listings read from one warm search index.
 
+        ## Consequences
+
+        Listings read one index that the loan writes keep current.
+
         ## Evidence
 
         Term start drill, November 2026.
+
+        ## Revisit Conditions
+
+        Listings slow down past the index's size.
         """;
 
     const string AlertPassing = """
