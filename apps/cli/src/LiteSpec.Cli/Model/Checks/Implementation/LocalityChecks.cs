@@ -225,7 +225,7 @@ internal static class LocalityChecks
     /// </summary>
     /// <param name="model">The loaded project model that holds every integration event and use case.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-effects</follows>
+    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</follows>
     private static void CheckPublishers(ProjectModel model, List<Finding> findings)
     {
         var publishers = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);

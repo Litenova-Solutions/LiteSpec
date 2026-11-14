@@ -121,7 +121,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 ### Scope Every Role to Its One Reach
 
-**ID:** `litespec/core/access#scope-every-role`
+**ID:** `litespec/core/access#scope-every-role-to-its-one-reach`
 
 **Strength:** required
 

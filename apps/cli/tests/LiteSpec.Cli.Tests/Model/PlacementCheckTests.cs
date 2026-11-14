@@ -315,7 +315,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A reaction that only sends a notification, in the module Notifications folder of that notification, reports nothing.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ModuleLayoutSendOnlyReactionInNotificationFolderReportsNothing()
     {
@@ -330,7 +330,7 @@ public sealed class PlacementCheckTests
     }
 
     /// <summary>A reaction that runs a use case, in a module Notifications folder, reports the use case Application folder it belongs in.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ModuleLayoutRunningReactionInNotificationFolderReportsTriggerDrift()
     {

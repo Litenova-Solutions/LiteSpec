@@ -580,7 +580,7 @@ public sealed class BookEnrichTests
     }
 
     /// <summary>A use case publishes each outbound integration event that translates an event it raises, and the edge is computed from raises and translates.</summary>
-    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-effects</proves>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</proves>
     [Fact]
     public void PublishEdgeComesFromRaisesAndTranslates()
     {

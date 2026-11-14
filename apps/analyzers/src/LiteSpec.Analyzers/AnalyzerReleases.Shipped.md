@@ -53,7 +53,7 @@ LS5009 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 LS5011 | LiteSpec.Traceability | Error | Descriptors
 LS5012 | LiteSpec.Traceability | Error | GeneratorDiagnostics
 
-## Release 6.1.0
+## Release 7.0.0
 
 ### New Rules
 

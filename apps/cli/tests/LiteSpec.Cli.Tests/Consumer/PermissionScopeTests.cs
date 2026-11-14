@@ -84,7 +84,7 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>A permission entry without scope, with its group, passes.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry without scope, with its group")]
     public void PermissionEntryWithoutScopeWithItsGroup()
     {
@@ -97,7 +97,7 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>A permission entry carrying scope is refused, because the role holds the scope.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry carrying scope")]
     public void PermissionEntryCarryingScope()
     {
@@ -110,7 +110,7 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>Permission entry with an unknown property.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "permission entry with an unknown property")]
     public void PermissionEntryWithAnUnknownProperty()
     {
@@ -123,7 +123,7 @@ public sealed class PermissionScopeTests
     }
 
     /// <summary>A role without its scope fails, because the scope is the role's only home.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "role without its scope")]
     public void RoleWithoutItsScope()
     {

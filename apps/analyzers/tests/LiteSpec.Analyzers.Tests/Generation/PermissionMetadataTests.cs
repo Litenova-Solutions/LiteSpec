@@ -12,7 +12,7 @@ public sealed class PermissionMetadataTests
 {
     /// <summary>The entry takes its scope from the role that allows it, and carries group and risks from the record.</summary>
     /// <proves>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</proves>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "The entry takes its scope from the role that allows it and carries group and risks")]
     public void EntryCarriesFactsFromTheRecord()
     {
@@ -33,7 +33,7 @@ public sealed class PermissionMetadataTests
     }
 
     /// <summary>A permission that roles allow at more than one scope carries an empty scope, because the caller's role decides its reach.</summary>
-    /// <proves>litespec/core/access#scope-every-role</proves>
+    /// <proves>litespec/core/access#scope-every-role-to-its-one-reach</proves>
     [Fact(DisplayName = "A permission allowed at more than one scope carries an empty scope")]
     public void PermissionAllowedAtSeveralScopesCarriesNoScope()
     {

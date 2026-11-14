@@ -10,7 +10,7 @@ namespace LiteSpec.Cli.Model.Checks.Implementation.Placement;
 /// <summary>The closed-folder check: the shared kernel, the modules root, each module, aggregate and use case folder, and each frontend modules root hold only their fixed folders and the folders a declared record names.</summary>
 /// <follows>litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level</follows>
 /// <follows>litespec/backend/application#use-this-use-case-layout</follows>
-/// <follows>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</follows>
+/// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
 internal static class ClosedFolderChecks
 {
     /// <summary>Fixed folders at the modules root, whatever its modules declare.</summary>
@@ -548,7 +548,7 @@ internal static class ClosedFolderChecks
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <returns>The module, container and folder name of each trigger and view placed in a module folder.</returns>
-    /// <follows>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</follows>
+    /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
     /// <follows>litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder</follows>
     private static List<(string Module, string Container, string Folder)> DeclaredTriggerHomes(ProjectModel model)
     {

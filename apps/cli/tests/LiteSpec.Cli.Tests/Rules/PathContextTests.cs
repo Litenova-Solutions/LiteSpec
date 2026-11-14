@@ -70,7 +70,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A reaction handler in the Application folder of the use case it runs derives the reaction artifact.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void RulesReactionInUseCaseApplicationFolderDerivesReactionArtifact()
     {
@@ -86,7 +86,7 @@ public sealed class PathContextTests
     }
 
     /// <summary>A reaction handler in a Notifications folder derives the reaction artifact.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void RulesReactionInNotificationsFolderDerivesReactionArtifact()
     {

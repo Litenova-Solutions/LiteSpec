@@ -129,7 +129,7 @@ public sealed class OneActTests
                     "dotnet"
                   ],
                   "layers": {"intent": "litespec", "behavior": "litespec", "implementation": "litespec", "proof": "litespec"},
-                  "reviewedLiteSpecVersion": "6.1.0",
+                  "reviewedLiteSpecVersion": "7.0.0",
                   "owners": [
                     "lending-team"
                   ],

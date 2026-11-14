@@ -163,7 +163,7 @@ It switches on `scenario`, so its BDD scenarios prove scenario records.
 
 ### Group Feature Classes by Module
 
-**ID:** `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module`
+**ID:** `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`
 
 **Strength:** default
 

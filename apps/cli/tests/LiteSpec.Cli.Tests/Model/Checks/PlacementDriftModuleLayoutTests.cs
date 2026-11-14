@@ -319,7 +319,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A reaction that runs a use case, in that use case's Application folder, reports nothing.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ReactionInItsUseCaseApplicationFolderReportsNothing()
     {
@@ -335,7 +335,7 @@ public sealed class PlacementDriftModuleLayoutTests
     }
 
     /// <summary>A reaction in a module UseCases On fact folder reports the Application folder its effects name, and the folder that names no use case.</summary>
-    /// <proves>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</proves>
+    /// <proves>litespec/workspace/naming#place-each-trigger-with-what-it-runs</proves>
     [Fact]
     public void ReactionInOnFactFolderReportsTriggerDrift()
     {

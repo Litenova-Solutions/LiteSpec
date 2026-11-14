@@ -76,7 +76,7 @@ static class BookEdges
     /// </summary>
     /// <param name="index">The model index.</param>
     /// <param name="outs">The outgoing edges per record id, extended in place.</param>
-    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-effects</follows>
+    /// <follows>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</follows>
     static void AddPublishEdges(BookIndex index, Dictionary<string, List<BookEdge>> outs)
     {
         var publishers = new Dictionary<string, List<string>>(StringComparer.Ordinal);

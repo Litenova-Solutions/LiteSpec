@@ -84,7 +84,7 @@ An external system is one system outside the bounded context the product exchang
 
 ### Publish Every Outbound Integration Event from the Event It Translates
 
-**ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
+**ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
 
 **Strength:** required
 

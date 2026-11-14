@@ -119,7 +119,7 @@ public sealed record ExpenseReimbursed(ExpenseId ExpenseId, EmployeeId EmployeeI
 
 **Statement:** A reaction MUST run in one class carrying one mark naming its reaction record.
 
-**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of what it only sends or calls, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#keep-reaction-implementations-explicit` for .NET.
+**Rationale:** One class per reaction answers the trigger the record names in `triggeredBy` and dispatches only through its `effects` entries. The class carries the mark `reaction/<module>.<name>` in the declared style, so the stack reader links it without guessing. It lives in the `Application/` folder of the use case it runs, or in the module `Notifications/` or `ExternalSystems/` folder of what it only sends or calls, under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record's `reads`, its idempotency, and its `onFailure`. This provision binds `litespec/backend/application#keep-reaction-implementations-explicit` for .NET.
 
 **Example:**
 
@@ -187,7 +187,7 @@ internal sealed class EraseExpiredPersonalDataHost(...)
 
 **Replacement:** A project names its use case layout in its Application documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case gets a folder below its `UseCases/` folder: its own models stay in it under `litespec/backend/architecture#give-each-use-case-its-own-models`, any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and the event handlers and job that run it sit in its `Application/` folder under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
+**Rationale:** The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case gets a folder below its `UseCases/` folder: its own models stay in it under `litespec/backend/architecture#give-each-use-case-its-own-models`, any other type sits flat in the layer folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and the event handlers and job that run it sit in its `Application/` folder under `litespec/workspace/naming#place-each-trigger-with-what-it-runs`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
 
 **Example:** The use case folder layout is:
 
@@ -285,7 +285,7 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
 
 ## Reference Example
 
-This informative example demonstrates `litespec/backend/dotnet/architecture#keep-implementation-types-internal`, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`, and `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`.
+This informative example demonstrates `litespec/backend/dotnet/architecture#keep-implementation-types-internal`, `litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/dotnet/application#dispatch-declared-effects-through-their-entry-points`, and `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
 
 ```csharp
 public sealed record CreateDraftCommand(

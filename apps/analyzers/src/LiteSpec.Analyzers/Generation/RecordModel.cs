@@ -16,7 +16,7 @@ namespace LiteSpec.Analyzers.Generation;
 /// </summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
 /// <follows>litespec/backend/dotnet/stack#generate-the-registry-permissions-and-roles-from-the-records</follows>
-/// <follows>litespec/core/access#scope-every-role</follows>
+/// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 /// <follows>litespec/core/system#point-code-and-tests-up-to-records</follows>
 internal sealed class RecordModel : IEquatable<RecordModel>
 {

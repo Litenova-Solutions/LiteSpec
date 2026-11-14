@@ -6,7 +6,7 @@ namespace LiteSpec.Analyzers.Generation;
 
 /// <summary>One permission with the facts the generated entry carries.</summary>
 /// <follows>litespec/backend/dotnet/stack#generate-runtime-values-from-the-records</follows>
-/// <follows>litespec/core/access#scope-every-role</follows>
+/// <follows>litespec/core/access#scope-every-role-to-its-one-reach</follows>
 internal sealed class PermissionFacts : IEquatable<PermissionFacts>
 {
     /// <summary>Initializes a new instance of the <see cref="PermissionFacts"/> class.Creates permission facts.</summary>

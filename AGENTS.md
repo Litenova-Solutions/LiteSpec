@@ -4,7 +4,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 6.1.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
+LiteSpec 7.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
@@ -61,6 +61,14 @@ When guidance overlaps, apply it in this order: a project departure, a selected 
 If two requirements conflict and nothing above decides, stop. Quote both provision IDs and their paths, and ask for a decision.
 
 Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#stop-on-unresolved-conflict`, `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`.
+
+## Placing Records
+
+A record's folder says where its content belongs, and a link field says why the record exists. Nest a record under another record only when its whole content lies within that record, as a feature lies within its problem. A record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field: a journey cites requirements of several features and is served by use cases in several modules, so it sits under the product and names its goal in `serves`.
+
+Apply this when you add a record type, give a type a new parent or home in the Placement Table, or choose between the homes a type allows. A folder chosen for the reason a record exists, rather than for its content, is the defect.
+
+Sources: `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`, `litespec/core/model#give-every-record-one-parent`, `litespec/core/model#write-links-on-the-record-that-points`, `litespec/core/model#place-child-records-in-typed-folders`.
 
 ## Making a Change
 
@@ -120,7 +128,7 @@ Read the full provision before you apply any of these:
 - Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
 - Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize code by module, aggregate and use case, with `Application/` and `WebApi/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`)
+- Organize code by module, aggregate and use case, with `Application/` and `WebApi/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#place-each-trigger-with-what-it-runs`)
 - Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
 - Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#emit-declared-integration-events-after-commit`)
 - Read another module's state through the module's own view, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-view`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)

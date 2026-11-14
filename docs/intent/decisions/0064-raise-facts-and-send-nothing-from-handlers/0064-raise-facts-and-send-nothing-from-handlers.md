@@ -28,7 +28,7 @@ A module publishes its typed identifiers, its integration events and its ports. 
 
 `sharesTransaction` and inline `runs` leave the schema. Atomic consistency stays inside the writes of one use case. LS2021 reports a mediator held by a type that is not an entry point, and LS2022 reports an event published by user code. `event-publisher-invalid` derives publishers from `raises` and `translates`.
 
-Four provisions keep their identifiers through the 6.x line and state the new rules under new headings: `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`, `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`, `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` and `litespec/core/edges#publish-every-outbound-integration-event-from-effects`.
+Four provisions state the new rules, each under an identifier that names its rule: `litespec/core/principles#share-no-transaction-across-an-edge`, `litespec/core/principles#confine-atomic-consistency-to-one-use-case`, `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs` and `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
 
 A consumer rewrites each inline edge as a reaction. Where the old edge relied on one transaction, the consumer writes a state guard, such as an order that waits for its hold before it takes payment.
 

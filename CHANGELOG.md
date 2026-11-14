@@ -1,8 +1,8 @@
 # Changelog
 
-## v6.1.0
+## v7.0.0
 
-LiteSpec 6.1.0 makes each use case own its folder, its models and everything that starts it. A use-case folder holds `Application/` and `WebApi/` folders, and each reaction and job sits with the use case it runs. A handler sends no command, query or event, a reaction or job runs at most one use case, and the pipeline publishes each integration event from the domain event it translates. A module reads another module's state through a new `view` record built from published integration events, asks one current-value question through a decision port, or composes a screen from each owner's query. It is a minor release: every provision identifier of 6.0.0 still resolves, and five of them state a new rule under a new heading, as Part H lists. The record schema and the .NET folder layout change, so a consumer moves its code and edits its records as Part I states.
+LiteSpec 7.0.0 makes each use case own its folder, its models and everything that starts it. A use-case folder holds `Application/` and `WebApi/` folders, and each reaction and job sits with the use case it runs. A handler sends no command, query or event, a reaction or job runs at most one use case, and the pipeline publishes each integration event from the domain event it translates. A module reads another module's state through a new `view` record built from published integration events, asks one current-value question through a decision port, or composes a screen from each owner's query. It is a major release: seven provision identifiers change to name the rules their headings state, as Part H lists. The record schema and the .NET folder layout change, so a consumer moves its code, edits its records and replaces each renamed citation as Part I states.
 
 ### Part A: Each Use Case Owns Its Folder
 
@@ -67,20 +67,24 @@ The new rules are `litespec/core/automation#declare-each-view-field-from-a-publi
 
 ### Part H: Provision Changes Since v6.0.0
 
-A minor release keeps every provision identifier, so five identifiers keep their ID line and state a new rule under a new heading:
+Seven provisions take the identifier their heading derives, so each identifier names the rule it states:
 
-- `litespec/core/principles#state-transaction-sharing-on-every-inline-edge` is now Share No Transaction Across an Edge.
-- `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges` is now Confine Atomic Consistency to One Use Case.
-- `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` is now Run Follow-On Work Only from Reactions and Jobs.
-- `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle` is now Place Each Trigger with What It Runs.
-- `litespec/core/edges#publish-every-outbound-integration-event-from-effects` is now Publish Every Outbound Integration Event from the Event It Translates.
+- `litespec/core/principles#state-transaction-sharing-on-every-inline-edge` is now `litespec/core/principles#share-no-transaction-across-an-edge`.
+- `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges` is now `litespec/core/principles#confine-atomic-consistency-to-one-use-case`.
+- `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` is now `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`.
+- `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle` is now `litespec/workspace/naming#place-each-trigger-with-what-it-runs`.
+- `litespec/core/edges#publish-every-outbound-integration-event-from-effects` is now `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`.
+- `litespec/core/access#scope-every-role` is now `litespec/core/access#scope-every-role-to-its-one-reach`.
+- `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` is now `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`.
+
+The new provision `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason` nests a record under another record only when its whole content lies within that record; a record whose content spans several records sits at the lowest node that holds all of it and names the record it exists for in a link field.
 
 Four finding codes are new: `view-source-unknown`, `view-erasure-missing`, `view-key-invalid` and `view-unused`.
 
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (11):
+Added (17):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#read-another-modules-state-through-a-view`
@@ -90,17 +94,28 @@ Added (11):
 - `litespec/core/automation#declare-each-view-field-from-a-published-field`
 - `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`
 - `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
+- `litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates`
+- `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
+- `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
+- `litespec/core/principles#share-no-transaction-across-an-edge`
+- `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`
 - `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from`
 - `litespec/frontend/data#brand-every-identifier-from-the-contract`
 - `litespec/frontend/data#compose-a-screen-from-each-owners-query`
+- `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
-Removed (0):
+Removed (5):
 
-None.
+- `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
+- `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
+- `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
+- `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
+- `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
-Renamed (0):
+Renamed (2):
 
-None.
+- `litespec/backend/dotnet/ext/bdd#group-feature-files-by-module` to `litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module`
+- `litespec/core/access#scope-every-role` to `litespec/core/access#scope-every-role-to-its-one-reach`
 
 Extensions added (0):
 
@@ -116,16 +131,17 @@ None.
 
 LiteSpec does no migration. Each step below is a manual edit, in the order given.
 
-1. Install `LiteSpec.Cli` 6.1.0 (`dotnet tool update LiteSpec.Cli --version 6.1.0`) or rerun the install script, set `reviewedLiteSpecVersion: 6.1.0` in `.litespec/project.yaml`, and move `LiteSpec.Analyzers` to 6.1.0.
-2. Remove `emits` from every effect entry and `sharesTransaction` from every inline edge. Give each outbound integration event a `translates` naming the domain event it carries, and make sure the use case raising it lists that event in `raises`.
-3. Rewrite each use-case `runs` effect as a reaction record: the reaction is triggered by the event the use case raises, or by the integration event translating it when the run use case sits in another module, and runs the use case. Where the old edge relied on one transaction, write the state guard on the later act and rewrite the rule it cited. Split a reaction or job that runs two use cases into two.
-4. Split each use-case folder into `Application/` and `WebApi/`, and fix the namespaces.
-5. Move each event handler out of its `On{Fact}/` folder, and each job out of the module `Jobs/` folder, into the `Application/` folder of the use case it runs, or into `Notifications/<Notification>/` or `ExternalSystems/<System>/` when it runs none.
-6. Move each message, result and transport model out of aggregate and module folders into the use case that owns it; where two use cases shared one, give each its own copy. Remove module and aggregate `WebApi/` folders.
-7. Remove `Contracts/Commands/` and `Contracts/Exceptions/`. Another module's use of a command becomes a fact that the owning module's reaction answers; another module's refusal becomes the reading module's own declared refusal.
-8. Remove every mediator from command handlers, query handlers, validators, steps and domain types, and every publisher call from module code. Build each integration event from its domain event alone in the shared kernel's staging step, and turn each batch command that loops and sends commands into a job that sends one command per item.
-9. For each cross-module reader, decide per caller: a view the reading module writes with `litespec new view`, a decision port with one method, or a screen that calls each owner's query.
-10. Run `dotnet build` and fix `LS2019`, `LS2021` and `LS2022`, then run `litespec model check` and fix `record-invalid`, `code-placement-drift`, `mark-folder-drift`, `effect-undeclared` and the `view-*` findings.
+1. Install `LiteSpec.Cli` 7.0.0 (`dotnet tool update LiteSpec.Cli --version 7.0.0`) or rerun the install script, set `reviewedLiteSpecVersion: 7.0.0` in `.litespec/project.yaml`, and move `LiteSpec.Analyzers` to 7.0.0.
+2. Replace each citation of an identifier Part H renames, in code marks, records, departures, conventions and `AGENTS.md`, with its new identifier.
+3. Remove `emits` from every effect entry and `sharesTransaction` from every inline edge. Give each outbound integration event a `translates` naming the domain event it carries, and make sure the use case raising it lists that event in `raises`.
+4. Rewrite each use-case `runs` effect as a reaction record: the reaction is triggered by the event the use case raises, or by the integration event translating it when the run use case sits in another module, and runs the use case. Where the old edge relied on one transaction, write the state guard on the later act and rewrite the rule it cited. Split a reaction or job that runs two use cases into two.
+5. Split each use-case folder into `Application/` and `WebApi/`, and fix the namespaces.
+6. Move each event handler out of its `On{Fact}/` folder, and each job out of the module `Jobs/` folder, into the `Application/` folder of the use case it runs, or into `Notifications/<Notification>/` or `ExternalSystems/<System>/` when it runs none.
+7. Move each message, result and transport model out of aggregate and module folders into the use case that owns it; where two use cases shared one, give each its own copy. Remove module and aggregate `WebApi/` folders.
+8. Remove `Contracts/Commands/` and `Contracts/Exceptions/`. Another module's use of a command becomes a fact that the owning module's reaction answers; another module's refusal becomes the reading module's own declared refusal.
+9. Remove every mediator from command handlers, query handlers, validators, steps and domain types, and every publisher call from module code. Build each integration event from its domain event alone in the shared kernel's staging step, and turn each batch command that loops and sends commands into a job that sends one command per item.
+10. For each cross-module reader, decide per caller: a view the reading module writes with `litespec new view`, a decision port with one method, or a screen that calls each owner's query.
+11. Run `dotnet build` and fix `LS2019`, `LS2021` and `LS2022`, then run `litespec model check` and fix `record-invalid`, `code-placement-drift`, `mark-folder-drift`, `effect-undeclared` and the `view-*` findings.
 
 ## v6.0.0
 

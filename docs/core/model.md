@@ -72,7 +72,7 @@ Every record states something the software does, holds, refuses at runtime or ru
 
 ### Placement Principles
 
-The placement of every record follows nine principles, from the product root down to a test.
+The placement of every record follows ten principles, from the product root down to a test.
 
 1. **One tree from the product.** Every record has exactly one parent, and only the product has none. Every other link is a connection, and every inverse link is computed.
 2. **The container is the parent.** An entry's parent is the record file that holds it, except a scenario, whose parent is its result. A record file's parent is its folder node: the product, a module, an aggregate or an entry point. No record writes an up-link that its location already states.
@@ -83,6 +83,7 @@ The placement of every record follows nine principles, from the product root dow
 7. **One name per module in every layer and in code.** `behavior/modules/finance/`, the backend source trees, the test projects and the frontend modules all use the declared module name.
 8. **Code and tests follow the identifier.** The folder and namespace of code and tests that mark a record match that record's identifier and module.
 9. **Computed stays computed.** Proof and the generated folders hold no authored records.
+10. **The folder holds the content, the link names the reason.** A record nests under another record only when its whole content lies within that record, as a feature lies within its problem. A record whose content spans several records sits at the lowest node that holds all of it, and names the record it exists for in a link field.
 
 ### The Placement Table
 
@@ -655,6 +656,22 @@ The book renders the in-memory model only and judges nothing itself.
 **Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/problems/expenses-wait-weeks/features/approval-reminders/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits under `result/submit-expense.submitted`.
 
 **Checked by:** `litespec model check` reports `record-parent-missing` (level G) for a record whose required parent is missing.
+
+### Place a Record by Its Content and Link It by Its Reason
+
+**ID:** `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** A record MUST nest under another record only when its whole content lies within that record, and otherwise sit at the lowest node that holds all of its content and name the record it exists for in a link field.
+
+**Rationale:** A folder states that everything inside it belongs to the record above it. A record filed under one of several records its content spans claims a scope it does not have, and a reader who wants every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line, where a folder would move the record. A feature answers its problem through its folder because the two coincide: its offering and its requirements concern that problem alone.
+
+**Example:** In the Claimwick product, `feature/approval-reminders` sits in `intent/problems/expenses-wait-weeks/features/` because its whole content concerns that problem, while `journey/submit-and-reimburse` cites requirements of both `feature/approval` and `feature/approval-reminders`, so it sits in `intent/journeys/` under the product and names its goal in `serves`.
+
+**Reviewed for:** Which records sit under a record that holds only part of their content, and which record types in the Placement Table take a parent whose scope is narrower than their content? Look at each record's folder beside the records it cites and the records that serve it.
 
 ### Move Each Identifier with Its Module
 

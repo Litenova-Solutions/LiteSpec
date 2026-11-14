@@ -1144,7 +1144,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A reaction implementation MUST answer the trigger its reaction record names, in one class carrying one mark naming that record.",
-      "rationale": "A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in \u0060triggeredBy\u0060, whether a domain event or an integration event, and dispatches only through the record\u0027s \u0060effects\u0060 entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060, and the mark is the link the stack reader follows. A conflict refusal from the command it runs is transient, so the reaction retries it under its \u0060onFailure\u0060; a declared final refusal ends the reaction without a retry. The class lives in the \u0060Application/\u0060 folder of the use case it runs, or with the notification it sends or the system it calls, under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060. The [automation page](../core/automation.md) states the trigger fields. An entry with \u0060after-commit\u0060 timing uses durable delivery through the outbox extension.",
+      "rationale": "A reaction without an explicit implementation leaves its trigger, its target, and its failure handling to whoever reads the code. One event handler class per reaction record answers the trigger the record names in \u0060triggeredBy\u0060, whether a domain event or an integration event, and dispatches only through the record\u0027s \u0060effects\u0060 entries, sending at most one command. The class never writes an aggregate directly: an event handler that needs a write runs a command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060, and the mark is the link the stack reader follows. A conflict refusal from the command it runs is transient, so the reaction retries it under its \u0060onFailure\u0060; a declared final refusal ends the reaction without a retry. The class lives in the \u0060Application/\u0060 folder of the use case it runs, or with the notification it sends or the system it calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. The [automation page](../core/automation.md) states the trigger fields. An entry with \u0060after-commit\u0060 timing uses durable delivery through the outbox extension.",
       "example": "The class \u0060SendDueNoticeOnLoanBorrowedHandler\u0060 in \u0060Lending/Notifications/LoanDue/\u0060 carries one mark naming \u0060reaction/lending.send-due-notice-on-loan-borrowed\u0060, answers \u0060event/loan.loan-borrowed\u0060, and sends \u0060notification/lending.loan-due\u0060."
     },
     {
@@ -1559,7 +1559,7 @@
       "strength": "default",
       "statement": "Place each use case in a folder named for it inside the \u0060UseCases/\u0060 folder of its module and aggregate, holding an \u0060Application/\u0060 folder with its message, result, handler, validator, pipeline definitions, own steps and triggers, and a \u0060WebApi/\u0060 folder with its endpoint and transport models when it has an endpoint.",
       "rationale": "One folder per use case inside its \u0060UseCases/\u0060 folder holds everything a reviewer needs to judge it in one place, and the module tree lets a reader move from a handler to its endpoint without a map. Two layer folders inside it state each file\u0027s layer in the path, keep a large use case\u0027s listing readable, and show by their presence whether the use case has an endpoint. The reactions and job that run the use case sit in its \u0060Application/\u0060 folder, so the folder shows every way the use case starts. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
-      "example": "The layout reads as follows:\n\n\u0060\u0060\u0060text\n{Product}/\n  Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else\n  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    Application/                          a port several Posts use cases name sits here\n    UseCases/\n      CreateDraft/\n        Application/                      Command, Result, Handler, Validator, mapping\n        WebApi/                           Endpoint, RequestModel, ResponseModel\n      GetPost/\n        Application/\n        WebApi/\n      ListPosts/\n        Application/\n          ListPostsQueryResultItem        a result part named after its result\n        WebApi/\n      ArchiveStalePost/\n        Application/                      no WebApi folder: no endpoint reaches this use case\n          ArchiveStalePostsJob            the job that runs this use case once per stale post\n          ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case\n    Notifications/\n      NewPost/\n        NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification\n  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    CustomerAccounts/\n      Application/                        aggregate-owned behavior sits in the aggregate layer folder\n      UseCases/\n        RestrictAccount/\n          Application/  WebApi/\n    Consents/\n      UseCases/\n        GrantConsent/\n          Application/  WebApi/\n    UseCases/                             use cases no single aggregate owns\n    Views/\n      OrderHistories/                     a view of another module\u0027s published facts\n\u0060\u0060\u0060\n\nModule, aggregate, and use case order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060.\n\nOnly a use case gets a folder below its \u0060UseCases/\u0060 folder, so every folder name there names one use case. A use case\u0027s own models stay in its folder under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, and any other type sits in the node layer folder that owns it, chosen by \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job lives with what it runs, under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060, with its mark under \u0060litespec/backend/application#keep-reaction-implementations-explicit\u0060. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention."
+      "example": "The layout reads as follows:\n\n\u0060\u0060\u0060text\n{Product}/\n  Application/                            product layer folder: pipeline positions and pipeline stages, and nothing else\n  Posts/                                  single aggregate whose name matches the module: use cases sit in the module UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    Application/                          a port several Posts use cases name sits here\n    UseCases/\n      CreateDraft/\n        Application/                      Command, Result, Handler, Validator, mapping\n        WebApi/                           Endpoint, RequestModel, ResponseModel\n      GetPost/\n        Application/\n        WebApi/\n      ListPosts/\n        Application/\n          ListPostsQueryResultItem        a result part named after its result\n        WebApi/\n      ArchiveStalePost/\n        Application/                      no WebApi folder: no endpoint reaches this use case\n          ArchiveStalePostsJob            the job that runs this use case once per stale post\n          ArchiveStalePostOnPostReportedHandler   a reaction that runs this use case\n    Notifications/\n      NewPost/\n        NotifySubscribersOnPostPublishedHandler   a reaction that only sends the new-post notification\n  Customers/                              two aggregates: use cases nest under each aggregate UseCases folder\n    Contracts/\n      Identifiers/  IntegrationEvents/  Ports/\n    CustomerAccounts/\n      Application/                        aggregate-owned behavior sits in the aggregate layer folder\n      UseCases/\n        RestrictAccount/\n          Application/  WebApi/\n    Consents/\n      UseCases/\n        GrantConsent/\n          Application/  WebApi/\n    UseCases/                             use cases no single aggregate owns\n    Views/\n      OrderHistories/                     a view of another module\u0027s published facts\n\u0060\u0060\u0060\n\nModule, aggregate, and use case order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060.\n\nOnly a use case gets a folder below its \u0060UseCases/\u0060 folder, so every folder name there names one use case. A use case\u0027s own models stay in its folder under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, and any other type sits in the node layer folder that owns it, chosen by \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job lives with what it runs, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060, with its mark under \u0060litespec/backend/application#keep-reaction-implementations-explicit\u0060. A folder named for a fact, a service, a technical kind, or a caller breaks that reading; it is drift rather than a second convention."
     },
     {
       "id": "litespec/backend/application#validate-query-input",
@@ -2675,7 +2675,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A reaction MUST run in one class carrying one mark naming its reaction record.",
-      "rationale": "One class per reaction answers the trigger the record names in \u0060triggeredBy\u0060 and dispatches only through its \u0060effects\u0060 entries. The class carries the mark \u0060reaction/\u003Cmodule\u003E.\u003Cname\u003E\u0060 in the declared style, so the stack reader links it without guessing. It lives in the \u0060Application/\u0060 folder of the use case it runs, or in the module \u0060Notifications/\u0060 or \u0060ExternalSystems/\u0060 folder of what it only sends or calls, under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060. It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060. This provision binds \u0060litespec/backend/application#keep-reaction-implementations-explicit\u0060 for .NET.",
+      "rationale": "One class per reaction answers the trigger the record names in \u0060triggeredBy\u0060 and dispatches only through its \u0060effects\u0060 entries. The class carries the mark \u0060reaction/\u003Cmodule\u003E.\u003Cname\u003E\u0060 in the declared style, so the stack reader links it without guessing. It lives in the \u0060Application/\u0060 folder of the use case it runs, or in the module \u0060Notifications/\u0060 or \u0060ExternalSystems/\u0060 folder of what it only sends or calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. It never writes an aggregate directly: a reaction that needs a write sends one command. It honors the record\u0027s \u0060reads\u0060, its idempotency, and its \u0060onFailure\u0060. This provision binds \u0060litespec/backend/application#keep-reaction-implementations-explicit\u0060 for .NET.",
       "example": "\u0060\u0060\u0060csharp\n// Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler.cs\n/// \u003Cimplements\u003Ereaction/lending.send-due-notice-on-loan-borrowed\u003C/implements\u003E\ninternal sealed class SendDueNoticeOnLoanBorrowedHandler(...)\n{\n    // Answers event/loan.loan-borrowed by sending notification/lending.loan-due.\n}\n\u0060\u0060\u0060"
     },
     {
@@ -2729,7 +2729,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Place each use case in a folder named for it inside the \u0060UseCases/\u0060 folder of its module and aggregate, with the files this provision names in its \u0060Application/\u0060 and \u0060WebApi/\u0060 folders.",
-      "rationale": "The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so \u0060use-case/spending.submit-expense\u0060 owns \u0060SubmitExpenseCommand\u0060 under \u0060litespec/workspace/naming#use-architectural-suffixes\u0060. Only a use case gets a folder below its \u0060UseCases/\u0060 folder: its own models stay in it under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, any other type sits flat in the layer folder that owns it under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060, and the event handlers and job that run it sit in its \u0060Application/\u0060 folder under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060. Each result type carries one case per result, and each refusal carries the refusal \u0060code\u0060 from its result record. A query result type carries one member per declared \u0060include\u0060 group, and each result part is named after its result under \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060.",
+      "rationale": "The folder path matches the specification path, so a reader locates a use case from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so \u0060use-case/spending.submit-expense\u0060 owns \u0060SubmitExpenseCommand\u0060 under \u0060litespec/workspace/naming#use-architectural-suffixes\u0060. Only a use case gets a folder below its \u0060UseCases/\u0060 folder: its own models stay in it under \u0060litespec/backend/architecture#give-each-use-case-its-own-models\u0060, any other type sits flat in the layer folder that owns it under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060, and the event handlers and job that run it sit in its \u0060Application/\u0060 folder under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. Each result type carries one case per result, and each refusal carries the refusal \u0060code\u0060 from its result record. A query result type carries one member per declared \u0060include\u0060 group, and each result part is named after its result under \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060.",
       "example": "The use case folder layout is:\n\n\u0060\u0060\u0060text\n{Product}.SharedKernel/\n  Application/                      product plumbing: pipeline positions, clock, failures, validation\n    Pipeline/                       the pipeline own stages, and nothing else\n      ApplicationPipeline.cs\n      AuthorizationGuard.cs\n    Clock/\n      IClock.cs\n    Failures/\n      ResourceNotFoundException.cs\n      UseCaseForbiddenException.cs\n      UseCaseConflictException.cs\n    Validation/\n      ValidationErrors.cs\n{Product}.Modules/\n  Posts/                            single aggregate whose name matches the module: use cases sit in the module UseCases folder\n    Application/\n      IPostArchive.cs               a port several Posts use cases name\n    UseCases/\n      CreateDraft/\n        Application/\n          CreateDraftCommand.cs\n          CreateDraftCommandResult.cs\n          CreateDraftCommandValidator.cs\n          CreateDraftCommandHandler.cs\n        WebApi/\n          CreateDraftEndpoint.cs\n          CreateDraftRequestModel.cs\n          CreateDraftResponseModel.cs\n      GetPost/\n        Application/\n          GetPostQuery.cs\n          GetPostQueryResult.cs\n          GetPostQueryValidator.cs\n          GetPostQueryHandler.cs\n        WebApi/\n          GetPostEndpoint.cs\n      ListPosts/\n        Application/\n          ListPostsQuery.cs\n          ListPostsQueryResult.cs\n          ListPostsQueryResultItem.cs\n          ListPostsQueryValidator.cs\n          ListPostsQueryHandler.cs\n        WebApi/\n          ListPostsEndpoint.cs\n      ArchivePost/\n        Application/                no WebApi folder: only its reaction runs it\n          ArchivePostCommand.cs\n          ArchivePostCommandHandler.cs\n          ArchivePostOnAuthorBannedHandler.cs   the reaction that runs this use case\n    Notifications/\n      NewPost/\n        NotifySubscribersOnPostPublishedHandler.cs  a reaction that only sends the new-post notification\n        IPostPublicationNotifier.cs a port only this notification names\n  Customers/                        two aggregates: use cases nest under each aggregate UseCases folder\n    CustomerAccounts/\n      Application/\n        CustomerAccountScopeLookup.cs aggregate-owned, so it sits with the aggregate\n      UseCases/\n        RestrictAccount/\n          Application/\n            RestrictAccountCommand.cs\n            RestrictAccountCommandHandler.cs\n    Consents/\n      UseCases/\n        GrantConsent/\n          Application/\n            GrantConsentCommand.cs\n            GrantConsentCommandHandler.cs\n\u0060\u0060\u0060\n\nModule and aggregate order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060. A use case file sits in the layer folder its role suffix names under \u0060litespec/backend/dotnet/architecture#keep-closed-folder-sets-at-every-level\u0060."
     },
     {
@@ -3453,7 +3453,7 @@
       "example": ""
     },
     {
-      "id": "litespec/backend/dotnet/ext/bdd#group-feature-files-by-module",
+      "id": "litespec/backend/dotnet/ext/bdd#group-feature-classes-by-module",
       "heading": "Group Feature Classes by Module",
       "page": "docs/backend/dotnet/ext/bdd.md",
       "anchor": "group-feature-classes-by-module",
@@ -3845,7 +3845,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Place each operation in a folder named for its use case under its module and aggregate, with the files this provision names.",
-      "rationale": "The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so \u0060use-case/spending.submit-expense\u0060 owns \u0060SubmitExpenseCommand\u0060 under \u0060litespec/workspace/naming#use-architectural-suffixes\u0060. Only a use case gets an operation folder: any other type sits flat in the folder that owns it under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job that runs a use case sits in that use case\u0027s operation folder; one that runs none sits in the module \u0060Notifications/\u0060 or \u0060ExternalSystems/\u0060 folder named for what it sends or calls, under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060. Each result type carries one case per result, and each refusal carries the refusal \u0060code\u0060 from its result record. A query result type carries one member per declared \u0060include\u0060 group, and each result part is named after its result under \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060.",
+      "rationale": "The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so \u0060use-case/spending.submit-expense\u0060 owns \u0060SubmitExpenseCommand\u0060 under \u0060litespec/workspace/naming#use-architectural-suffixes\u0060. Only a use case gets an operation folder: any other type sits flat in the folder that owns it under \u0060litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers\u0060. An event handler or job that runs a use case sits in that use case\u0027s operation folder; one that runs none sits in the module \u0060Notifications/\u0060 or \u0060ExternalSystems/\u0060 folder named for what it sends or calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. Each result type carries one case per result, and each refusal carries the refusal \u0060code\u0060 from its result record. A query result type carries one member per declared \u0060include\u0060 group, and each result part is named after its result under \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060.",
       "example": "The operation layout is:\n\n\u0060\u0060\u0060text\n{ProjectName}.Application.Abstractions/     contracts more than one module names\n  Clock/\n    IClock.cs\n  Failures/\n    ResourceNotFoundException.cs\n    UseCaseForbiddenException.cs\n    UseCaseConflictException.cs\n  Validation/\n    ValidationErrors.cs\n{ProjectName}.Application/\n  Pipeline/                         the pipeline\u0027s own stages, and nothing else\n    ApplicationPipeline.cs\n    AuthorizationGuard.cs\n  Posts/                            single aggregate whose name matches the module: operations sit directly under the module\n    IPostArchive.cs                 a port several Posts use cases name\n    CreateDraft/\n      CreateDraftCommand.cs\n      CreateDraftCommandResult.cs\n      CreateDraftCommandValidator.cs\n      CreateDraftCommandHandler.cs\n      CreateDraftOnAuthorRegisteredHandler.cs   the reaction that runs this use case\n    GetPost/\n      GetPostQuery.cs\n      GetPostQueryResult.cs\n      GetPostQueryValidator.cs\n      GetPostQueryHandler.cs\n    ListPosts/\n      ListPostsQuery.cs\n      ListPostsQueryResult.cs\n      ListPostsQueryResultItem.cs\n      ListPostsQueryValidator.cs\n      ListPostsQueryHandler.cs\n    Notifications/\n      SubscriberDigest/             a reaction that only sends this notification\n        SendDigestOnPostPublishedHandler.cs\n    ExternalSystems/\n      SearchIndex/                  a reaction that only calls this system\n        IndexPostOnPostPublishedHandler.cs\n  Customers/                        two aggregates: operations nest under each aggregate\n    CustomerAccounts/\n      CustomerAccountScopeLookup.cs aggregate-owned, so it sits with the aggregate\n      RestrictAccount/\n        RestrictAccountCommand.cs\n        RestrictAccountCommandHandler.cs\n    Consents/\n      GrantConsent/\n        GrantConsentCommand.cs\n        GrantConsentCommandHandler.cs\n\u0060\u0060\u0060\n\nModule and aggregate order, including the single-aggregate flat form, follow \u0060litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case\u0060."
     },
     {
@@ -5542,7 +5542,7 @@
       "example": "An expense report names \u0060own\u0060, a staff search across tenants names \u0060cross\u0060, a public catalog names \u0060public\u0060, and a health check names \u0060none\u0060."
     },
     {
-      "id": "litespec/core/access#scope-every-role",
+      "id": "litespec/core/access#scope-every-role-to-its-one-reach",
       "heading": "Scope Every Role to Its One Reach",
       "page": "docs/core/access.md",
       "anchor": "scope-every-role-to-its-one-reach",
@@ -6906,7 +6906,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.",
-      "rationale": "Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler or job class lives in that module\u0027s code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (\u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060). The trigger page lists the reactions answering its event, derived from records.",
+      "rationale": "Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler or job class lives in that module\u0027s code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (\u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060). The trigger page lists the reactions answering its event, derived from records.",
       "example": ""
     },
     {
@@ -7846,7 +7846,7 @@
       "example": "\u0060expense-reimbursement-requested\u0060 names the requested reimbursement; \u0060expense-reimbursement-staged\u0060 names the staging step and is reported."
     },
     {
-      "id": "litespec/core/edges#publish-every-outbound-integration-event-from-effects",
+      "id": "litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates",
       "heading": "Publish Every Outbound Integration Event from the Event It Translates",
       "page": "docs/core/edges.md",
       "anchor": "publish-every-outbound-integration-event-from-the-event-it-translates",
@@ -10384,6 +10384,24 @@
       "example": "In the Claimwick product, \u0060use-case/spending.submit-expense\u0060 sits under Behavior, its module and its aggregate; its results under it; each scenario under the result it shows; and the handler that carries its mark under Implementation."
     },
     {
+      "id": "litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason",
+      "heading": "Place a Record by Its Content and Link It by Its Reason",
+      "page": "docs/core/model.md",
+      "anchor": "place-a-record-by-its-content-and-link-it-by-its-reason",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which records sit under a record that holds only part of their content, and which record types in the Placement Table take a parent whose scope is narrower than their content? Look at each record\u0027s folder beside the records it cites and the records that serve it.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A record MUST nest under another record only when its whole content lies within that record, and otherwise sit at the lowest node that holds all of its content and name the record it exists for in a link field.",
+      "rationale": "A folder states that everything inside it belongs to the record above it. A record filed under one of several records its content spans claims a scope it does not have, and a reader who wants every record of its type must search the folder of every possible parent. The reason a record exists can change while its content stays the same, so a link field keeps that change to one line, where a folder would move the record. A feature answers its problem through its folder because the two coincide: its offering and its requirements concern that problem alone.",
+      "example": "In the Claimwick product, \u0060feature/approval-reminders\u0060 sits in \u0060intent/problems/expenses-wait-weeks/features/\u0060 because its whole content concerns that problem, while \u0060journey/submit-and-reimburse\u0060 cites requirements of both \u0060feature/approval\u0060 and \u0060feature/approval-reminders\u0060, so it sits in \u0060intent/journeys/\u0060 under the product and names its goal in \u0060serves\u0060."
+    },
+    {
       "id": "litespec/core/model#place-child-records-in-typed-folders",
       "heading": "Place Child Records in Typed Folders",
       "page": "docs/core/model.md",
@@ -10906,7 +10924,7 @@
       "example": ""
     },
     {
-      "id": "litespec/core/principles#confine-atomic-consistency-to-synchronous-edges",
+      "id": "litespec/core/principles#confine-atomic-consistency-to-one-use-case",
       "heading": "Confine Atomic Consistency to One Use Case",
       "page": "docs/core/principles.md",
       "anchor": "confine-atomic-consistency-to-one-use-case",
@@ -11176,6 +11194,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/principles#share-no-transaction-across-an-edge",
+      "heading": "Share No Transaction Across an Edge",
+      "page": "docs/core/principles.md",
+      "anchor": "share-no-transaction-across-an-edge",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an effect entry that names \u0060sharesTransaction\u0060 or a use case that \u0060runs\u0060 another use case.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "An edge between records MUST NOT share a transaction, so each use case commits only its own writes.",
+      "rationale": "An edge that shares its caller\u0027s transaction makes two use cases one unit of work: the called use case rides on a commit it does not own, a failure in either rolls back both, and the record of each use case no longer says what it commits. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling and its own record. The schema holds no field for transaction sharing, so the rule is checked by construction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
+      "example": "Reimbursing an expense commits the expense and raises its reimbursed fact; a reaction in the reporting module answers the published fact in its own transaction."
+    },
+    {
       "id": "litespec/core/principles#state-the-strength-of-every-provision",
       "heading": "State the Strength of Every Provision",
       "page": "docs/core/principles.md",
@@ -11192,24 +11228,6 @@
       "statement": "Every provision MUST state whether it is required, a default, or advisory, and where it applies.",
       "rationale": "Strength words work only when each one means exactly one thing: an agent tells binding from advisory without a check existing. A check is an aid where one is cheap and sure, never the condition for a provision to exist.",
       "example": ""
-    },
-    {
-      "id": "litespec/core/principles#state-transaction-sharing-on-every-inline-edge",
-      "heading": "Share No Transaction Across an Edge",
-      "page": "docs/core/principles.md",
-      "anchor": "share-no-transaction-across-an-edge",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an effect entry that names \u0060sharesTransaction\u0060 or a use case that \u0060runs\u0060 another use case.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "any",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "An edge between records MUST NOT share a transaction, so each use case commits only its own writes.",
-      "rationale": "An edge that shares its caller\u0027s transaction makes two use cases one unit of work: the called use case rides on a commit it does not own, a failure in either rolls back both, and the record of each use case no longer says what it commits. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling and its own record. The schema holds no field for transaction sharing, so the rule is checked by construction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
-      "example": "Reimbursing an expense commits the expense and raises its reimbursed fact; a reaction in the reporting module answers the published fact in its own transaction."
     },
     {
       "id": "litespec/core/principles#take-every-name-from-the-intent-above-it",
@@ -13181,6 +13199,24 @@
       "example": "The retired \u0060spending.receipt-missing\u0060 result names \u0060spending.receipt-absent\u0060 as its replacement, and no later refusal reuses the old code."
     },
     {
+      "id": "litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs",
+      "heading": "Run Follow-On Work Only from Reactions and Jobs",
+      "page": "docs/core/use-cases.md",
+      "anchor": "run-follow-on-work-only-from-reactions-and-jobs",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a use-case effect that names \u0060runs\u0060, \u0060emits\u0060 or \u0060sharesTransaction\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:use-case",
+      "layer": "behavior",
+      "trace": false,
+      "strength": "required",
+      "statement": "A use case MUST NOT run another use case, so each follow-on act runs from a reaction to the fact the use case raised, or from a job.",
+      "rationale": "A use case that runs another use case nests one command inside another: the inner command rides on the outer commit, its failure rolls back work that had no reason to fail, and its record no longer states what it commits. A reaction to the raised fact runs the follow-on act in its own transaction, with its own failure handling and retry, so each record states one unit of work. The caller learns the outcome from the later fact instead of from the call. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
+      "example": "In the library product, borrowing a copy raises the loan-borrowed fact, and the send-due-notice reaction answers it in its own transaction instead of the borrow command sending the notice."
+    },
+    {
       "id": "litespec/core/use-cases#share-scenario-setup-in-background",
       "heading": "Share Scenario Setup in Background",
       "page": "docs/core/use-cases.md",
@@ -13252,24 +13288,6 @@
       "statement": "Each use case MUST declare its write consistency in \u0060consistency\u0060.",
       "rationale": "Consistency left unsaid defaults to hope: a multi-aggregate write is read as atomic until it fails halfway. Declaring the mode states the promise: \u0060atomic\u0060 commits every write in \u0060changes\u0060 as one group, \u0060per-record\u0060 commits each write on its own, and \u0060compensated\u0060 names the undo of each write. An atomic write across aggregates cites its \u0060atomicity\u0060 rule in \u0060cites\u0060, and \u0060changes\u0060 holds exactly the aggregates the rule binds; a group above 4 aggregates is reported. Atomic consistency never spans an \u0060async\u0060 edge. The [Domain Model page](domain-model.md) states the \u0060atomicity\u0060 rule. The \u0060consistency-cites-missing\u0060 check reports an atomic multi-aggregate write with no \u0060cites\u0060, \u0060atomic-group-drift\u0060 reports \u0060changes\u0060 differing from the bound group, and \u0060atomic-group-invalid\u0060 reports a group above 4 aggregates.",
       "example": "The reimburse-expense command declares atomic consistency citing the reimbursed-once rule, while the self-checkout scan declares per-record consistency across its attempts."
-    },
-    {
-      "id": "litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call",
-      "heading": "Run Follow-On Work Only from Reactions and Jobs",
-      "page": "docs/core/use-cases.md",
-      "anchor": "run-follow-on-work-only-from-reactions-and-jobs",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a use-case effect that names \u0060runs\u0060, \u0060emits\u0060 or \u0060sharesTransaction\u0060.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:use-case",
-      "layer": "behavior",
-      "trace": false,
-      "strength": "required",
-      "statement": "A use case MUST NOT run another use case, so each follow-on act runs from a reaction to the fact the use case raised, or from a job.",
-      "rationale": "A use case that runs another use case nests one command inside another: the inner command rides on the outer commit, its failure rolls back work that had no reason to fail, and its record no longer states what it commits. A reaction to the raised fact runs the follow-on act in its own transaction, with its own failure handling and retry, so each record states one unit of work. The caller learns the outcome from the later fact instead of from the call. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).",
-      "example": "In the library product, borrowing a copy raises the loan-borrowed fact, and the send-due-notice reaction answers it in its own transaction instead of the borrow command sending the notice."
     },
     {
       "id": "litespec/core/use-cases#state-the-unit-of-every-quantity-setting",
@@ -18327,7 +18345,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Place each job handler in the \u0060Application/\u0060 folder of the use case it runs, or with the notification it sends or the system it calls when it runs none.",
-      "rationale": "A job handler lives in the \u0060Application/\u0060 folder of the use case its \u0060runs\u0060 entry names, so the use case folder shows every way the use case starts; one that runs none lives in the module \u0060Notifications/\u0060 folder of the notification it sends or the \u0060ExternalSystems/\u0060 folder of the system it calls, under \u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.",
+      "rationale": "A job handler lives in the \u0060Application/\u0060 folder of the use case its \u0060runs\u0060 entry names, so the use case folder shows every way the use case starts; one that runs none lives in the module \u0060Notifications/\u0060 folder of the notification it sends or the \u0060ExternalSystems/\u0060 folder of the system it calls, under \u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.",
       "example": ""
     },
     {
@@ -30321,24 +30339,6 @@
       "example": ""
     },
     {
-      "id": "litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle",
-      "heading": "Place Each Trigger with What It Runs",
-      "page": "docs/workspace/naming.md",
-      "anchor": "place-each-trigger-with-what-it-runs",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060code-placement-drift\u0060 (level S) for an event handler or job class outside the folder its record\u0027s effects name.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "reaction, job",
-      "layer": "implementation",
-      "trace": false,
-      "strength": "required",
-      "statement": "Each event handler and job class MUST live in the \u0060Application/\u0060 folder of the use case its record runs, or, when it runs none, in the module \u0060Notifications/\u0060 folder named for the notification it sends or the module \u0060ExternalSystems/\u0060 folder named for the system it calls, with an event handler named \u0060{Action}On{Fact}Handler\u0060.",
-      "rationale": "A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names that use case\u0027s command from inside the use case\u0027s folder, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact made one folder name several use cases\u0027 commands, and it never showed every reaction to the fact, because those reactions span modules. \u0022What happens when this fact is recorded?\u0022 is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
-      "example": "\u0060Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler\u0060 runs the expire-hold use case when a loan is returned, and \u0060Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler\u0060 only sends the due notice."
-    },
-    {
       "id": "litespec/workspace/naming#keep-namespaces-aligned-with-folders",
       "heading": "Keep Namespaces Aligned with Folders",
       "page": "docs/workspace/naming.md",
@@ -30429,6 +30429,24 @@
       "example": "\u0060ListPostsQueryResultItem\u0060 belongs to \u0060ListPostsQueryResult\u0060, and \u0060ReadLoanQueryResultHold\u0060 belongs to \u0060ReadLoanQueryResult\u0060."
     },
     {
+      "id": "litespec/workspace/naming#place-each-trigger-with-what-it-runs",
+      "heading": "Place Each Trigger with What It Runs",
+      "page": "docs/workspace/naming.md",
+      "anchor": "place-each-trigger-with-what-it-runs",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060code-placement-drift\u0060 (level S) for an event handler or job class outside the folder its record\u0027s effects name.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "reaction, job",
+      "layer": "implementation",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each event handler and job class MUST live in the \u0060Application/\u0060 folder of the use case its record runs, or, when it runs none, in the module \u0060Notifications/\u0060 folder named for the notification it sends or the module \u0060ExternalSystems/\u0060 folder named for the system it calls, with an event handler named \u0060{Action}On{Fact}Handler\u0060.",
+      "rationale": "A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names that use case\u0027s command from inside the use case\u0027s folder, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact made one folder name several use cases\u0027 commands, and it never showed every reaction to the fact, because those reactions span modules. \u0022What happens when this fact is recorded?\u0022 is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).",
+      "example": "\u0060Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler\u0060 runs the expire-hold use case when a loan is returned, and \u0060Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler\u0060 only sends the due notice."
+    },
+    {
       "id": "litespec/workspace/naming#use-architectural-suffixes",
       "heading": "Use Architectural Suffixes",
       "page": "docs/workspace/naming.md",
@@ -30444,7 +30462,7 @@
       "strength": "required",
       "statement": "An architectural type MUST carry the suffix its role assigns in the Role Suffixes table.",
       "rationale": "",
-      "example": "An event handler names its act and the business fact without the \u0060Event\u0060 suffix: \u0060NotifySubscribersOnPostPublishedHandler\u0060 answers \u0060PostPublishedEvent\u0060 and sits with what it runs (\u0060litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle\u0060). The name carries no technical suffix for the fact, so \u0060NotifySubscribersOnPostPublishedEventHandler\u0060 is wrong. The event type keeps its \u0060Event\u0060 suffix (\u0060litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root\u0060).\n\nApplication types keep their full suffix: \u0060{UseCase}Result\u0060, \u0060{UseCase}Handler\u0060, and \u0060{UseCase}Validator\u0060 shorten away the command-or-query distinction the full name carries. A result part carries the full name of its result, as \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060 states, not a bare summary name like \u0060PostSummary\u0060. The full role suffix distinguishes command coordination from query projection without opening the file.\n\nHTTP transport types keep their full suffix too: \u0060{UseCase}Request\u0060 and \u0060{UseCase}Response\u0060 shorten away the boundary marking. \u0060Model\u0060 marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in \u0060Model\u0060, such as \u0060ListPostsResponseItemModel\u0060 or \u0060PaginationModel\u0060.\n\nA polymorphic transport model mirrors a Domain discriminated union (\u0060litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape\u0060). Its abstract base names the concept and each sealed case names its case, with both ending in \u0060Model\u0060: \u0060FulfillmentOutcomeModel\u0060 and \u0060ShippedFulfillmentOutcomeModel\u0060.\n\nThe transport name drops the Domain union\u0027s aggregate prefix, such as \u0060OrderFulfillmentOutcome\u0060, while its discriminator string keeps the Domain union\u0027s stable case code unchanged."
+      "example": "An event handler names its act and the business fact without the \u0060Event\u0060 suffix: \u0060NotifySubscribersOnPostPublishedHandler\u0060 answers \u0060PostPublishedEvent\u0060 and sits with what it runs (\u0060litespec/workspace/naming#place-each-trigger-with-what-it-runs\u0060). The name carries no technical suffix for the fact, so \u0060NotifySubscribersOnPostPublishedEventHandler\u0060 is wrong. The event type keeps its \u0060Event\u0060 suffix (\u0060litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root\u0060).\n\nApplication types keep their full suffix: \u0060{UseCase}Result\u0060, \u0060{UseCase}Handler\u0060, and \u0060{UseCase}Validator\u0060 shorten away the command-or-query distinction the full name carries. A result part carries the full name of its result, as \u0060litespec/workspace/naming#name-result-parts-after-their-result\u0060 states, not a bare summary name like \u0060PostSummary\u0060. The full role suffix distinguishes command coordination from query projection without opening the file.\n\nHTTP transport types keep their full suffix too: \u0060{UseCase}Request\u0060 and \u0060{UseCase}Response\u0060 shorten away the boundary marking. \u0060Model\u0060 marks the type as passive boundary data rather than an operation or rich business object. Other project-owned, passive HTTP DTOs also name their concrete role and end in \u0060Model\u0060, such as \u0060ListPostsResponseItemModel\u0060 or \u0060PaginationModel\u0060.\n\nA polymorphic transport model mirrors a Domain discriminated union (\u0060litespec/backend/api#mirror-a-domain-closed-set-as-a-transport-model-of-the-same-shape\u0060). Its abstract base names the concept and each sealed case names its case, with both ending in \u0060Model\u0060: \u0060FulfillmentOutcomeModel\u0060 and \u0060ShippedFulfillmentOutcomeModel\u0060.\n\nThe transport name drops the Domain union\u0027s aggregate prefix, such as \u0060OrderFulfillmentOutcome\u0060, while its discriminator string keeps the Domain union\u0027s stable case code unchanged."
     },
     {
       "id": "litespec/workspace/naming#use-current-language-features",

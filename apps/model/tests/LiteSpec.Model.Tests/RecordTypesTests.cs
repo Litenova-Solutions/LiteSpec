@@ -67,7 +67,7 @@ public sealed class RecordTypesTests
 
     /// <summary>The effect verbs link the records each effect reaches, and an event publish is no verb.</summary>
     /// <proves>litespec/core/model#write-links-on-the-record-that-points</proves>
-    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-effects</proves>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</proves>
     [Fact]
     public void EffectVerbsLinkTheirTargets()
     {

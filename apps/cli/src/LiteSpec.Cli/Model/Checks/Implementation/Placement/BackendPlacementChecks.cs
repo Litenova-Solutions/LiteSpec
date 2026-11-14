@@ -386,7 +386,7 @@ internal static class BackendPlacementChecks
     /// <param name="path">The module, aggregate and name the record's folder path states.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     /// <returns>True when the folder was reported, so the namespace stays silent for the same mark.</returns>
-    /// <follows>litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle</follows>
+    /// <follows>litespec/workspace/naming#place-each-trigger-with-what-it-runs</follows>
     private static bool CheckTriggerFolder(ConsumerConfig config, MarkedElement element, CodeMark mark, Record record, PlacementPath path, List<Finding> findings)
     {
         if (!SourceRoots.IsProductRoot(config.ModulesRoot)

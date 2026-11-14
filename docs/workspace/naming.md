@@ -76,7 +76,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **Example:**
 
-An event handler names its act and the business fact without the `Event` suffix: `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and sits with what it runs (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong. The event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
+An event handler names its act and the business fact without the `Event` suffix: `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and sits with what it runs (`litespec/workspace/naming#place-each-trigger-with-what-it-runs`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong. The event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
 
 Application types keep their full suffix: `{UseCase}Result`, `{UseCase}Handler`, and `{UseCase}Validator` shorten away the command-or-query distinction the full name carries. A result part carries the full name of its result, as `litespec/workspace/naming#name-result-parts-after-their-result` states, not a bare summary name like `PostSummary`. The full role suffix distinguishes command coordination from query projection without opening the file.
 
@@ -106,7 +106,7 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 ### Place Each Trigger with What It Runs
 
-**ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
+**ID:** `litespec/workspace/naming#place-each-trigger-with-what-it-runs`
 
 **Strength:** required
 

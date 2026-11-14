@@ -200,7 +200,7 @@ public sealed class CodeCheckTests
     }
 
     /// <summary>A publish call in a handler reports undeclared, because no record declares an event publish.</summary>
-    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-effects</proves>
+    /// <proves>litespec/core/edges#publish-every-outbound-integration-event-from-the-event-it-translates</proves>
     [Fact]
     public void HandlerPublishingAnEventReportsUndeclared()
     {

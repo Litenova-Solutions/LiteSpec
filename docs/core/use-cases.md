@@ -346,7 +346,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 ### Run Follow-On Work Only from Reactions and Jobs
 
-**ID:** `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
+**ID:** `litespec/core/use-cases#run-follow-on-work-only-from-reactions-and-jobs`
 
 **Strength:** required
 

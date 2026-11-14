@@ -170,7 +170,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 ### Share No Transaction Across an Edge
 
-**ID:** `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
+**ID:** `litespec/core/principles#share-no-transaction-across-an-edge`
 
 **Strength:** required
 
@@ -186,7 +186,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 ### Confine Atomic Consistency to One Use Case
 
-**ID:** `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
+**ID:** `litespec/core/principles#confine-atomic-consistency-to-one-use-case`
 
 **Strength:** required
 
