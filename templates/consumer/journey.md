@@ -1,11 +1,11 @@
 # Record Title
 
-Say what the actor does on this journey and which goal it serves. A reader who has read nothing else should understand the journey from this paragraph.
+Say who takes this journey and what they reach by its end, in plain words. A reader who has read nothing else should understand the journey from this paragraph.
 
 ## Example
 
-Show every step of the journey once, with the example cast and the numbers worked through.
+Describe one concrete run of the journey with the names from the example cast and real numbers.
 
 ## Branches
 
-Optional. Describe when each branch happens and why, with an occasion. The fields hold each branch; do not restate them here.
+Optional. Name each step where the journey can leave its order, and say where it continues.

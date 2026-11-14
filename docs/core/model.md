@@ -1264,9 +1264,9 @@ The figures below render from the retention schedule at build time.
 
 **Applies to:** artifact: any
 
-**Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link.
+**Statement:** An author MUST rename a record identifier with `litespec rename <old> <new>`, which rewrites every link and keeps the record at its level and in its owner's folder unless `--move` names another owner.
 
-**Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.
+**Rationale:** An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together. A plain rename changes no owner, so a record never changes level by accident, and a move to another owner is an explicit choice. Proposed by [decision/0060-put-child-records-in-typed-folders](../intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders.md).
 
 **Example:** `litespec rename use-case/spending.close-run use-case/spending.complete-run` updates the page and every citation together.
 

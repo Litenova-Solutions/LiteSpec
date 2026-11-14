@@ -10361,8 +10361,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An author MUST rename a record identifier with \u0060litespec rename \u003Cold\u003E \u003Cnew\u003E\u0060, which rewrites every link.",
-      "rationale": "An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together.",
+      "statement": "An author MUST rename a record identifier with \u0060litespec rename \u003Cold\u003E \u003Cnew\u003E\u0060, which rewrites every link and keeps the record at its level and in its owner\u0027s folder unless \u0060--move\u0060 names another owner.",
+      "rationale": "An identifier rename touches the record file, its explanation file, and every record that points at it. Rewriting every link in the same command leaves no citation pointing at the old name, so the repository stays resolvable at every commit. When the file name follows the identifier, both files move together. A plain rename changes no owner, so a record never changes level by accident, and a move to another owner is an explicit choice. Proposed by [decision/0060-put-child-records-in-typed-folders](../intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders.md).",
       "example": "\u0060litespec rename use-case/spending.close-run use-case/spending.complete-run\u0060 updates the page and every citation together."
     },
     {

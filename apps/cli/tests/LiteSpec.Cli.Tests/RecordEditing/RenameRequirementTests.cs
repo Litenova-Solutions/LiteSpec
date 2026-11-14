@@ -19,9 +19,9 @@ public sealed class RenameRequirementTests
             "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var moved = Path.Combine(consumer.Path, Feature, "self-approval-refused", "self-approval-refused.yaml");
+        var moved = Path.Combine(consumer.Path, Feature, "requirements", "self-approval-refused", "self-approval-refused.yaml");
         Assert.True(File.Exists(moved), result.Output);
-        Assert.False(Directory.Exists(Path.Combine(consumer.Path, Feature, "no-self-approval")));
+        Assert.False(Directory.Exists(Path.Combine(consumer.Path, Feature, "requirements", "no-self-approval")));
         Assert.Contains("id: requirement/approval.self-approval-refused", File.ReadAllText(moved));
     }
 
@@ -43,7 +43,7 @@ public sealed class RenameRequirementTests
         Assert.Contains("id: feature/expense-approval", File.ReadAllText(feature));
         Assert.False(Directory.Exists(Path.Combine(features, "approval")));
 
-        var requirement = Path.Combine(features, "expense-approval", "no-self-approval", "no-self-approval.yaml");
+        var requirement = Path.Combine(features, "expense-approval", "requirements", "no-self-approval", "no-self-approval.yaml");
         Assert.True(File.Exists(requirement), result.Output);
         Assert.Contains("id: requirement/expense-approval.no-self-approval", File.ReadAllText(requirement));
     }
@@ -61,7 +61,7 @@ public sealed class RenameRequirementTests
               "title": "Approval"
             }
             """);
-        TestRecords.Write(temp.Path, $"{Feature}/no-self-approval/no-self-approval.yaml", """
+        TestRecords.Write(temp.Path, $"{Feature}/requirements/no-self-approval/no-self-approval.yaml", """
             {
               "type": "requirement",
               "id": "requirement/approval.no-self-approval",

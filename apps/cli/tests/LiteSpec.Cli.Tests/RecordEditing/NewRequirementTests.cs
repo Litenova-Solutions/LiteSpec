@@ -23,7 +23,7 @@ public sealed class NewRequirementTests
         Assert.True(File.Exists(file), result.Output);
         var text = File.ReadAllText(file);
         Assert.Contains("id: requirement/approval.decided-within-five-days", text);
-        Assert.Contains("title: Decided within five days", text);
+        Assert.Contains("title: Decided Within Five Days", text);
         Assert.False(File.Exists(Path.ChangeExtension(file, ".md")));
     }
 

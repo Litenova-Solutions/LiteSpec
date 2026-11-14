@@ -181,7 +181,7 @@ public sealed class NewExplanationTests
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
         AssertSections(explanation, ["Trigger and Effect", "Failure Handling", "Example"]);
-        Assert.Contains("# Notify approver", File.ReadAllText(explanation));
+        Assert.Contains("# Notify Approver", File.ReadAllText(explanation));
     }
 
     /// <summary>New constraint writes the constraint explanation with its own sections when intent is listed.</summary>

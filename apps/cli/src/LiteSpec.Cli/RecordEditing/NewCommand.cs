@@ -33,16 +33,18 @@ static class NewCommand
         identifier twice. <type> is the record type, such as use-case, reaction,
         or decision. <id> is the home.name part of the identifier, such as
         lending.notify-reader; the full identifier is <type>/<id>. The file is
-        written at the home its type owns: a reaction under
+        written at the home its type owns, under behavior/: a reaction under
         modules/<module>/reactions/, a job under modules/<module>/jobs/,
         a notification under modules/<module>/notifications/, a decision under
         the decisions folder. A named record is written in its own folder beside
         its explanation file: modules/<module>/reactions/<name>/<name>.yaml and
         modules/<module>/reactions/<name>/<name>.md. A module file is
         modules/<module>/module.yaml; an aggregate file is
-        modules/<module>/<aggregate>/aggregate.yaml. A use-case file starts
-        under use-cases/<name>/<name>.yaml beside its module; move the folder
-        beside its aggregate once the use case names one. For an article type
+        modules/<module>/aggregates/<aggregate>/aggregate.yaml. A use-case file starts
+        under modules/<module>/use-cases/<name>/<name>.yaml; move the folder
+        under its aggregate's use-cases/ folder once the use case names one. The
+        title is one Title Case title, written to the YAML title and to the
+        explanation H1. For an article type
         (research or decision) or for a type on a layer listed in
         explanations.layers, the command also writes the explanation file beside
         the record, from the template for its type (templates/consumer/<type>.md),
@@ -50,7 +52,7 @@ static class NewCommand
         refuses an identifier a record already carries.
 
         new requirement <feature>.<name> writes a requirement file of its own in its
-        feature's folder: modules/<module>/features/<feature>/<name>/<name>.yaml. The
+        feature's requirements/ folder: intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml. The
         feature record <feature> must exist; the command refuses an unknown feature.
         A requirement takes no explanation file, because its statement is its lead;
         add <name>.md beside it only when the requirement needs an example.
@@ -306,11 +308,15 @@ static class NewCommand
             return 1;
         }
 
+        // One title serves the YAML title and the explanation H1, so the two cannot differ. A decision's
+        // title leaves out the number the tool allocates.
+        var title = RecordTitle(isDecision ? id : name);
+
         node["id"] = full;
 
-        if (type == RecordTypes.Requirement)
+        if (node.ContainsKey("title"))
         {
-            node["title"] = AppendEntry.TitleFrom(name);
+            node["title"] = title;
         }
 
         var filled = RecordFile.Write(node);
@@ -329,7 +335,7 @@ static class NewCommand
                 return 1;
             }
 
-            explanation = FillTitle(explanationTemplate, AppendEntry.TitleFrom(name));
+            explanation = FillTitle(explanationTemplate, title);
         }
 
         var target = requirementFolder is null
@@ -476,6 +482,41 @@ static class NewCommand
             return null;
         }
     }
+
+    /// <summary>
+    ///     The one title a new record takes: its kebab-case name in Title Case, the first word capitalized and
+    ///     the minor words lowercase, as the consumer templates carry it.
+    /// </summary>
+    /// <param name="name">The kebab-case name of the record, without the decision number.</param>
+    /// <returns>The title, with its words separated by spaces.</returns>
+    static string RecordTitle(string name)
+    {
+        var words = name.Split('-', StringSplitOptions.RemoveEmptyEntries);
+
+        if (words.Length == 0)
+        {
+            return name;
+        }
+
+        for (var at = 0; at < words.Length; at++)
+        {
+            if (at > 0 && MinorTitleWords.Contains(words[at]))
+            {
+                continue;
+            }
+
+            words[at] = char.ToUpperInvariant(words[at][0]) + words[at][1..];
+        }
+
+        return string.Join(' ', words);
+    }
+
+    /// <summary>The words a Title Case title keeps lowercase unless they open it.</summary>
+    static readonly HashSet<string> MinorTitleWords = new(StringComparer.Ordinal)
+    {
+        "a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "nor",
+        "of", "on", "or", "the", "to", "vs", "with",
+    };
 
     /// <summary>Whether the decision name already carries a number: four digits and a hyphen first.</summary>
     /// <param name="name">The name from the command line.</param>

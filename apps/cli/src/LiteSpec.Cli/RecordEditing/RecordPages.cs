@@ -20,7 +20,7 @@ static class RecordPages
         "product", "goal", "vision", "problem", "feature", "requirement", "constraint", "research",
         "decision", "journey", "actor", "module", "aggregate", "use-case",
         "reaction", "job", "notification", "role", "external-system",
-        "runbook", "departure",
+        "runbook", "departure", "screen",
     };
 
     /// <summary>Document styles <c>litespec new</c> scaffolds as a Markdown document.</summary>
@@ -105,61 +105,52 @@ static class RecordPages
     }
 
     /// <summary>
-    ///     The file a renamed record moves to, or null when the file stays where
-    ///     it is. A file that already sits inside its home's module area keeps its
-    ///     folder and takes the new file name, so a use case beside its aggregate
-    ///     is not dragged back under <c>reads/</c> by its own rename.
+    ///     The stem a record's file takes at its identifier: the name the scaffold pattern gives the file, such as
+    ///     <c>library-app.loan-list</c> for a screen, or the bare name for a type whose file takes the name.
+    /// </summary>
+    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
+    /// <param name="type">The record type.</param>
+    /// <param name="home">The identifier home, or null for a type without a home.</param>
+    /// <param name="name">The identifier name.</param>
+    /// <returns>The file stem the record takes, which also names its own folder.</returns>
+    public static string StemOf(ConsumerConfig config, string type, string? home, string name)
+    {
+        if (!RecordFolders.Scaffolds(type) || (RecordFolders.NeedsHome(type) && home is null))
+        {
+            return name;
+        }
+
+        return Path.GetFileNameWithoutExtension(PagePath(config, type, home, name));
+    }
+
+    /// <summary>
+    ///     The folder a record's own folder sits in once a rename moves the record to the home its new identifier
+    ///     names. A plain rename does not call this: it keeps the folder the record already sits in.
     /// </summary>
     /// <param name="config">The consumer configuration that holds the documentation roots.</param>
     /// <param name="type">The record type that owns the file.</param>
-    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
     /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
     /// <param name="newName">The identifier name after the rename.</param>
     /// <param name="oldFile">The current absolute path of the file.</param>
-    /// <returns>The absolute path the file moves to, or null when the file stays at its current path.</returns>
-    public static string? RenameTarget(
-        ConsumerConfig config, string type, string? oldHome, string? newHome, string newName, string oldFile)
+    /// <returns>The absolute path of the folder that holds the record's own folder at its new home.</returns>
+    public static string? OwnerContainer(ConsumerConfig config, string type, string? newHome, string newName, string oldFile)
     {
-        var oldContainer = ContainerOf(oldFile);
-
-        if (oldContainer is null)
+        // A technical decision lives under Implementation and stays there when renamed.
+        if (type == "decision" && IsTechnicalDecision(config, oldFile))
         {
-            return null;
+            return Path.Combine(DocsRoot(config), "implementation", "decisions");
         }
 
-        string container;
-        var stem = newName;
-
-        // A type whose identifier carries no home, such as an integration event, which lives under a
-        // module folder its id does not name, stays in the container it already sits in.
+        // A type whose identifier carries no home, such as an integration event, keeps the folder it sits in.
         if (newHome is null && RecordFolders.NeedsHome(type))
         {
-            container = oldContainer;
-        }
-        else
-        {
-            // The placed path is <container>/<stem>/<stem>.yaml, so the container is two folders up. The
-            // stem is the name the home rule gives the file: a screen's is <home>.<name>, other types use the name.
-            var placed = PagePath(config, type, newHome, newName);
-            container = Path.GetDirectoryName(Path.GetDirectoryName(placed))!;
-            stem = Path.GetFileNameWithoutExtension(placed);
-
-            // A technical decision lives under Implementation and stays there when renamed.
-            if (type == "decision" && IsTechnicalDecision(config, oldFile))
-            {
-                container = Path.Combine(DocsRoot(config), "implementation", "decisions");
-            }
-
-            if (!string.Equals(container, oldContainer, StringComparison.Ordinal)
-                && StaysInFolder(config, type, oldHome, newHome, oldContainer))
-            {
-                container = oldContainer;
-            }
+            return ContainerOf(oldFile);
         }
 
-        var target = PlaceIn(container, stem, Path.GetExtension(oldFile));
+        // The placed path is <container>/<name>/<file>, so the container is two folders up.
+        var placed = PagePath(config, type, newHome, newName);
 
-        return string.Equals(target, oldFile, StringComparison.Ordinal) ? null : target;
+        return Path.GetDirectoryName(Path.GetDirectoryName(placed));
     }
 
     /// <summary>The path of a named record's file: its own folder under the container, holding the file that carries the name.</summary>
@@ -210,44 +201,6 @@ static class RecordPages
     /// <returns>True when the file sits under the implementation decisions folder; otherwise false.</returns>
     static bool IsTechnicalDecision(ConsumerConfig config, string file) =>
         file.StartsWith(Path.Combine(DocsRoot(config), "implementation", "decisions") + Path.DirectorySeparatorChar, StringComparison.Ordinal);
-
-    /// <summary>
-    ///     The folder a renamed module or aggregate file moves to. The folder moves
-    ///     whole, so the use cases beside a renamed aggregate move with it.
-    /// </summary>
-    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the folder, either module or aggregate.</param>
-    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
-    /// <param name="newName">The identifier name after the rename.</param>
-    /// <returns>The absolute path of the folder the file moves to after the rename.</returns>
-    public static string RenameFolderTarget(ConsumerConfig config, string type, string? newHome, string newName) =>
-        type == RecordTypes.Aggregate
-            ? Path.Combine(config.BehaviorDocs, "modules", newHome!, "aggregates", newName)
-            : Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
-
-    /// <summary>
-    ///     Whether the renamed file keeps its folder: the home is unchanged and the
-    ///     folder sits inside that home's module area.
-    /// </summary>
-    /// <param name="config">The consumer configuration that holds the documentation roots.</param>
-    /// <param name="type">The record type that owns the file.</param>
-    /// <param name="oldHome">The identifier home before the rename, or null for a type without a home.</param>
-    /// <param name="newHome">The identifier home after the rename, or null for a type without a home.</param>
-    /// <param name="folder">The folder that currently holds the file.</param>
-    /// <returns>True when the home is unchanged and the folder sits inside that home module area; otherwise false.</returns>
-    static bool StaysInFolder(ConsumerConfig config, string type, string? oldHome, string? newHome, string folder)
-    {
-        if (type is "module" or "aggregate"
-            || oldHome is null || newHome is null
-            || !string.Equals(oldHome, newHome, StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        var area = Path.Combine(config.BehaviorDocs, "modules", newHome) + Path.DirectorySeparatorChar;
-
-        return (folder + Path.DirectorySeparatorChar).StartsWith(area, StringComparison.Ordinal);
-    }
 
     /// <summary>
     ///     The grammar error in an identifier's home and name, or null when both

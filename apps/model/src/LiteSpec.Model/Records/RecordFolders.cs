@@ -57,7 +57,7 @@ public static class RecordFolders
         Scaffold("role", "intent/roles/{name}", "{name}.yaml"),
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
         At("term", "", "glossary.yaml"),
-        At("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
+        Scaffold("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
         At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
         At("result", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
@@ -133,6 +133,12 @@ public static class RecordFolders
     /// <returns>True when a named home holds the folder; otherwise false.</returns>
     public static bool IsRecordFolder(IReadOnlyList<string> folders) =>
         Table.Any(home => NamesFolder(home) && Holds(home, folders));
+
+    /// <summary>Whether a record type owns a scaffolded home, which <c>litespec new</c> and <c>litespec rename</c> write.</summary>
+    /// <param name="type">The record type.</param>
+    /// <returns>True when the type owns a scaffolded home; otherwise false.</returns>
+    public static bool Scaffolds(string type) =>
+        Table.Any(entry => entry.Type == type && entry.Scaffold);
 
     /// <summary>Whether a record type may be scaffolded: it owns a home that <c>litespec new</c> writes.</summary>
     /// <param name="type">The record type.</param>
