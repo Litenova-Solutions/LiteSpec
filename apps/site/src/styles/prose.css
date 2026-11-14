@@ -3,9 +3,10 @@
    tables, code and wireframe option cards. */
 
 .prose {
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   min-width: 0;
+  text-wrap: pretty;
 }
 
 .prose > :first-child {
@@ -18,7 +19,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: var(--space-section) 0 var(--space-heading);
@@ -33,7 +34,7 @@
 }
 
 .prose h3 {
-  font-size: 17px;
+  font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: var(--space-8) 0 var(--space-3);
@@ -41,7 +42,7 @@
 }
 
 .prose h4 {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   margin: var(--space-6) 0 var(--space-2);
   scroll-margin-top: calc(var(--top) + var(--space-4));
@@ -132,7 +133,7 @@
 
 .prose code {
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 0.8125rem;
   background: var(--code-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -145,8 +146,8 @@
   border-radius: var(--radius);
   padding: var(--pad-box-y) var(--pad-box-x);
   font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   overflow-x: auto;
   margin: 0 0 var(--space-block);
 }
@@ -171,13 +172,13 @@
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 0.875rem;
   margin: 0;
 }
 
 .prose thead th {
   background: var(--muted);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -206,7 +207,7 @@
 
 .prose .table-provisions tbody td:first-child {
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: 0.78125rem;
   overflow-wrap: anywhere;
 }
 
@@ -232,7 +233,7 @@
 }
 
 .prose .provision-head h3 {
-  font-size: 16px;
+  font-size: 1rem;
   margin: 0;
 }
 
@@ -262,7 +263,7 @@
 }
 
 .prose .provision-hash {
-  font: 600 12px var(--mono);
+  font: 600 0.75rem var(--mono);
   color: var(--accent-text);
 }
 
@@ -271,7 +272,7 @@
   border: 0;
   border-radius: 0;
   padding: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--muted-fg);
   min-width: 0;
   overflow-wrap: anywhere;
@@ -307,7 +308,7 @@
 
 .prose .provision-eyebrow {
   display: block;
-  font: 600 11px var(--sans);
+  font: 600 0.6875rem var(--sans);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--accent-text);
@@ -320,14 +321,14 @@
 
 .prose .provision-statement p {
   margin: 0;
-  font-size: 16.5px;
-  line-height: 1.55;
+  font-size: 1.03125rem;
+  line-height: 1.5;
   font-weight: 500;
 }
 
 .prose .provision-statement .provision-sub {
   margin-top: var(--space-2);
-  font-size: 14.5px;
+  font-size: 0.90625rem;
   font-weight: 400;
   color: var(--muted-fg);
 }
@@ -343,7 +344,7 @@
   align-items: center;
   gap: var(--gap-inline);
   padding: var(--space-2) var(--pad-card-x);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--muted-fg);
 }
@@ -423,7 +424,7 @@
 
 .prose .pattern-facts dt {
   padding-top: 3px;
-  font-size: 11.5px;
+  font-size: 0.71875rem;
   font-weight: 600;
   letter-spacing: .07em;
   text-transform: uppercase;
@@ -448,7 +449,7 @@
   padding-top: var(--space-2);
   border-top: 1px solid var(--border);
   color: var(--fg-2);
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .prose .pattern-facts + .option,
@@ -458,7 +459,7 @@
 }
 
 .prose .lbl {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -513,7 +514,7 @@
 
 .prose .option-name {
   font-weight: 600;
-  font-size: 14.5px;
+  font-size: 0.90625rem;
 }
 
 .prose .option-head .option-slug {
@@ -521,7 +522,7 @@
   border: 0;
   border-radius: 0;
   padding: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--muted-fg);
   overflow-wrap: anywhere;
 }
@@ -557,7 +558,7 @@
   border-radius: 4px;
   background: transparent;
   color: var(--muted-fg);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -643,7 +644,7 @@
   align-items: center;
   gap: var(--gap-inline);
   padding: var(--space-2) var(--pad-card-x);
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted-fg);
 }
 
@@ -710,7 +711,7 @@
   margin-top: var(--gap-stack);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border);
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--muted-fg);
 }
@@ -764,7 +765,7 @@
   padding: 1px var(--space-2);
   border: 1px solid var(--border);
   border-radius: 999px;
-  font: 600 11px/18px var(--sans);
+  font: 600 0.6875rem/1.125rem var(--sans);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   text-align: center;
@@ -791,7 +792,7 @@
 }
 
 .prose .trail-text {
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 20px;
   color: var(--fg);
   min-width: 0;
@@ -816,7 +817,7 @@
 
 .prose .trail-facet dt {
   margin: 0 0 var(--space-2);
-  font: 600 11px var(--sans);
+  font: 600 0.6875rem var(--sans);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--muted-fg);
@@ -831,7 +832,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 20px;
   color: var(--fg);
 }
@@ -888,14 +889,14 @@
 
 /* Wide screens: body text and headings one step larger. */
 @media (min-width: 100rem) {
-  .prose { font-size: 16px; }
-  .prose h2 { font-size: 22px; }
-  .prose h3 { font-size: 18px; }
-  .prose h4 { font-size: 16px; }
-  .prose .provision-head h3 { font-size: 17px; }
-  .prose .provision-statement p { font-size: 17.5px; }
-  .prose .provision-part > summary { font-size: 14px; }
-  .prose .pattern-facts-more { font-size: 15px; }
+  .prose { font-size: 1rem; }
+  .prose h2 { font-size: 1.375rem; }
+  .prose h3 { font-size: 1.125rem; }
+  .prose h4 { font-size: 1rem; }
+  .prose .provision-head h3 { font-size: 1.0625rem; }
+  .prose .provision-statement p { font-size: 1.09375rem; }
+  .prose .provision-part > summary { font-size: 0.875rem; }
+  .prose .pattern-facts-more { font-size: 0.9375rem; }
 }
 
 /* Motion: cards and code blocks rise into place as they scroll into view,

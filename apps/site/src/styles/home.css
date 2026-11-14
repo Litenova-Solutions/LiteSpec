@@ -46,7 +46,7 @@
   border-radius: 999px;
   background: var(--rule-bg);
   color: var(--rule-fg);
-  font: 500 13px var(--mono);
+  font: 500 0.8125rem var(--mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -72,7 +72,7 @@
 }
 
 .hero h1 {
-  font-size: clamp(36px, 3.6vw, 60px);
+  font-size: clamp(2.25rem, 3.6vw, 3.75rem);
   line-height: 1.06;
   letter-spacing: -0.04em;
   font-weight: 600;
@@ -81,8 +81,8 @@
 }
 
 .tagline {
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  line-height: 1.5;
   color: var(--fg-2);
   max-width: 60ch;
 }
@@ -97,7 +97,7 @@
 .btn-lg {
   height: 46px;
   padding: 0 var(--space-6);
-  font-size: 15px;
+  font-size: 0.9375rem;
 }
 
 /* Motion: the hero's parts rise in turn on the first paint, and the grid
@@ -116,10 +116,10 @@
 /* Wide screens: the hero grows with the wider frame. */
 @media (min-width: 100rem) {
   .hero-body { padding: 0 var(--space-24); }
-  .hero h1 { font-size: clamp(60px, 3.6vw, 80px); }
-  .tagline { font-size: 21px; }
-  .hero-ver { height: 34px; font-size: 14px; }
-  .btn-lg { height: 52px; padding: 0 var(--space-8); font-size: 16px; }
+  .hero h1 { font-size: clamp(3.75rem, 3.6vw, 5rem); }
+  .tagline { font-size: 1.3125rem; }
+  .hero-ver { height: 34px; font-size: 0.875rem; }
+  .btn-lg { height: 52px; padding: 0 var(--space-8); font-size: 1rem; }
 }
 
 @media (max-width: 760px) {
@@ -133,7 +133,7 @@
   }
 
   .tagline {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .actions .btn {

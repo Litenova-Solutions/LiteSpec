@@ -105,7 +105,7 @@
 html { scroll-padding-top: calc(var(--top) + var(--space-4)); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--fg); overflow-x: clip;
-  font-family: var(--sans); font-size: 15px; line-height: 1.65;
+  font-family: var(--sans); font-size: 0.9375rem; line-height: 1.5;
   font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
@@ -143,7 +143,7 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .site-foot::before { top: -1px; }
 .site-top .wrap { height: 100%; display: flex; align-items: center; gap: var(--space-8); }
 .logo { display: flex; align-items: center; }
-.site-nav { display: flex; gap: var(--space-6); font-size: 14px; color: var(--muted-fg); }
+.site-nav { display: flex; gap: var(--space-6); font-size: 0.875rem; color: var(--muted-fg); }
 .site-nav a { position: relative; height: var(--top); display: flex; align-items: center; }
 .site-nav a:hover { color: var(--fg); }
 .site-nav a[aria-current="page"] { color: var(--fg); font-weight: 500; }
@@ -154,12 +154,12 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .site-menu > summary { list-style: none; }
 .site-menu > summary::-webkit-details-marker { display: none; }
 .site-menu-panel { position: absolute; right: 0; top: var(--space-10); min-width: 200px; padding: var(--space-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); display: grid; }
-.site-menu-panel a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); font-size: 14px; }
+.site-menu-panel a { padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); font-size: 0.875rem; }
 .site-menu-panel a:hover, .site-menu-panel a[aria-current="page"] { background: var(--muted); }
 
 /* Footer */
 
-.site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 13px; color: var(--muted-fg); }
+.site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 0.8125rem; color: var(--muted-fg); }
 .site-foot .brand { display: flex; align-items: center; gap: var(--gap-inline); }
 .site-foot .spacer { margin-left: auto; }
 .site-foot a:hover { color: var(--fg); }
@@ -173,21 +173,21 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
   display: inline-flex; align-items: center; justify-content: center; gap: var(--gap-inline);
   height: 40px; padding: 0 var(--space-4); border-radius: var(--radius); cursor: pointer;
   border: 1px solid var(--primary); background: var(--primary); color: var(--primary-fg);
-  font: 500 14px var(--sans); white-space: nowrap;
+  font: 500 0.875rem var(--sans); white-space: nowrap;
 }
 .btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
 .btn-outline { background: var(--bg); color: var(--fg); border-color: var(--border); }
 .btn-outline:hover { background: var(--muted); border-color: var(--border); }
 .btn-ghost { background: transparent; color: var(--fg); border-color: transparent; }
 .btn-ghost:hover { background: var(--muted); border-color: transparent; }
-.btn-sm { height: 32px; padding: 0 var(--space-3); font-size: 13px; }
+.btn-sm { height: 32px; padding: 0 var(--space-3); font-size: 0.8125rem; }
 .btn-icon { width: 32px; height: 32px; padding: 0; }
 
 /* Badges and keys */
 .badge {
   display: inline-flex; align-items: center; gap: var(--gap-inline); height: 22px; padding: 0 var(--space-2);
   border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font: 500 12px var(--sans); color: var(--muted-fg); white-space: nowrap; font-variant-numeric: tabular-nums;
+  font: 500 0.75rem var(--sans); color: var(--muted-fg); white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 .badge-rule, .badge-strength-required { background: var(--rule-bg); border-color: var(--rule-bd); color: var(--rule-fg); }
 .badge-convention, .badge-strength-default { background: var(--conv-bg); border-color: var(--conv-bd); color: var(--conv-fg); }
@@ -198,10 +198,10 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .ver {
   display: inline-flex; align-items: center; gap: var(--gap-inline); height: 22px; padding: 0 var(--space-2);
   border: 1px solid var(--rule-bd); background: var(--rule-bg); color: var(--rule-fg);
-  border-radius: var(--radius-sm); font: 500 12px var(--mono); font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-sm); font: 500 0.75rem var(--mono); font-variant-numeric: tabular-nums;
 }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--accent-ink); }
-.kbd { font: 500 11px var(--mono); border: 1px solid var(--border); border-radius: 4px; padding: 0 var(--space-1); color: var(--muted-fg); background: var(--muted); }
+.kbd { font: 500 0.6875rem var(--mono); border: 1px solid var(--border); border-radius: 4px; padding: 0 var(--space-1); color: var(--muted-fg); background: var(--muted); }
 .must { color: var(--accent-text); font-weight: 700; letter-spacing: .02em; }
 .muted { color: var(--muted-fg); }
 
@@ -225,12 +225,12 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
    Litenova Solutions site. Page styles add their own wide-screen sizes. */
 @media (min-width: 100rem) {
   :root { --frame: 1440px; --top: 60px; --gutter: var(--space-10); }
-  body { font-size: 16px; }
-  .site-nav { font-size: 15px; gap: var(--space-8); }
-  .btn { height: 42px; font-size: 15px; }
-  .btn-sm { height: 34px; font-size: 14px; }
+  body { font-size: 1rem; }
+  .site-nav { font-size: 0.9375rem; gap: var(--space-8); }
+  .btn { height: 42px; font-size: 0.9375rem; }
+  .btn-sm { height: 34px; font-size: 0.875rem; }
   .btn-icon { width: 34px; height: 34px; }
-  .site-foot .wrap { min-height: 72px; font-size: 14px; }
+  .site-foot .wrap { min-height: 72px; font-size: 0.875rem; }
 }
 @media (min-width: 140rem) {
   :root { --frame: 1600px; }

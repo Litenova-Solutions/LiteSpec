@@ -32,7 +32,7 @@
 
 .prose .code-block .code-lang {
   font-family: var(--sans);
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted-fg);
   white-space: nowrap;
@@ -79,8 +79,8 @@
   background: var(--code-bg);
   padding: var(--pad-box-y) var(--pad-box-x);
   font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   overflow-x: auto;
   max-width: 100%;
   tab-size: 4;

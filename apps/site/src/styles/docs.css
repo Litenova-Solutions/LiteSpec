@@ -29,7 +29,7 @@
   background: transparent;
   color: inherit;
   border: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
@@ -49,7 +49,7 @@
   min-height: 32px;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
@@ -103,7 +103,7 @@ details[open] > .group-h .chev {
   color: var(--muted-fg);
   cursor: pointer;
   line-height: 1.4;
-  font-size: 13.5px;
+  font-size: 0.84375rem;
 }
 
 .tree a:hover,
@@ -134,7 +134,7 @@ details[open] > .group-h .chev {
 .tree .tag {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 0.65625rem;
   font-weight: 500;
   color: var(--muted-fg);
   border: 1px solid var(--border);
@@ -214,7 +214,7 @@ details[open] > .group-h .chev {
 }
 
 .crumb {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted-fg);
 }
 
@@ -263,7 +263,7 @@ details[open] > .group-h .chev {
 }
 
 .content h1 {
-  font-size: 36px;
+  font-size: 2.25rem;
   letter-spacing: -.03em;
   font-weight: 600;
   margin: var(--space-3) 0 var(--space-2);
@@ -277,7 +277,7 @@ details[open] > .group-h .chev {
   flex-wrap: wrap;
   gap: var(--gap-inline);
   margin: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted-fg);
 }
 
@@ -304,8 +304,8 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 .content .page-intro {
   margin-top: var(--space-3);
   margin-bottom: var(--space-2);
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: var(--fg-2);
 }
 
@@ -352,7 +352,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   display: flex;
   align-items: center;
   gap: var(--gap-inline);
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--muted-fg);
 }
 
@@ -363,7 +363,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 .pager b {
   display: block;
   margin-top: var(--space-1);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -.01em;
   overflow-wrap: anywhere;
@@ -386,7 +386,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
    page links below it. */
 .toc {
   padding: var(--space-10) var(--space-6);
-  font-size: 13px;
+  font-size: 0.8125rem;
   position: sticky;
   top: var(--top);
   align-self: start;
@@ -397,7 +397,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .toc .cap {
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--muted-fg);
@@ -455,7 +455,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   gap: var(--gap-inline);
   align-items: center;
   color: var(--muted-fg);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .toc .links a:hover,
@@ -478,7 +478,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
   cursor: pointer;
   list-style: none;
   padding: var(--pad-box-y) var(--pad-box-x);
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
@@ -534,7 +534,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 }
 
 .std-list > li > a {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: -.01em;
   text-decoration: none;
@@ -550,7 +550,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
 
 .std-list > li > p {
   margin: var(--space-1) 0 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--fg-2);
 }
 
@@ -618,7 +618,7 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
     background: var(--bg);
     color: var(--fg);
     font: inherit;
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
 
   .side-dialog .side {
@@ -654,15 +654,15 @@ nav[data-toc][data-enhanced] .toc-list > li[data-open] > ul {
    wider frame in site.css. */
 @media (min-width: 100rem) {
   .doc3 { --side: 296px; --toc: 248px; }
-  .side-dialog { font-size: 15px; }
-  .tree a, .tree summary { font-size: 14.5px; min-height: 32px; }
-  .group-h { font-size: 14px; }
+  .side-dialog { font-size: 0.9375rem; }
+  .tree a, .tree summary { font-size: 0.90625rem; min-height: 32px; }
+  .group-h { font-size: 0.875rem; }
   .content { padding: var(--space-12) var(--space-16); }
-  .content h1 { font-size: 42px; }
-  .content .page-intro { font-size: 16.5px; }
-  .crumb, .page-meta { font-size: 14px; }
-  .toc { font-size: 14px; }
-  .pager b { font-size: 16px; }
+  .content h1 { font-size: 2.625rem; }
+  .content .page-intro { font-size: 1.03125rem; }
+  .crumb, .page-meta { font-size: 0.875rem; }
+  .toc { font-size: 0.875rem; }
+  .pager b { font-size: 1rem; }
 }
 
 /* Motion: the page body settles in on load, and the phone drawer slides in
