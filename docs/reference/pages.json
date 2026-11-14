@@ -1,5 +1,5 @@
 {
-  "version": "6.0.0",
+  "version": "6.1.0",
   "pages": [
     {
       "file": "docs/README.md",
@@ -54,7 +54,7 @@
       "style": "index",
       "area": "analyzers",
       "title": "Overview",
-      "intent": "This index lists the 45 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.",
+      "intent": "This index lists the 47 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.",
       "sections": [
         "Intent",
         "Domain Rules",
@@ -461,6 +461,32 @@
       "area": "analyzers",
       "title": "LS2020: Module Names a Type Outside Another Module\u0027s Contracts",
       "intent": "LS2020 is a compiler check that reports a module naming another module\u0027s type outside its \u0060Contracts/\u0060 folder, because a read past the public surface couples the caller to internals the owner may change. This page states what the rule reports, where the error sits, and how to read through the contracts the owner publishes.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2021.md",
+      "path": "analyzers/rules/ls2021",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2021: Message Sent Outside an Entry Point",
+      "intent": "LS2021 is a compiler check that reports a type holding a command, query or event mediator when the type is not an endpoint, a reaction or a job, because only those three entry points send a use case message. This page states what the rule reports, where the error sits, and how to move the send to the entry point that owns it.",
+      "sections": [
+        "Intent",
+        "Reference",
+        "Notes"
+      ]
+    },
+    {
+      "file": "docs/analyzers/rules/ls2022.md",
+      "path": "analyzers/rules/ls2022",
+      "style": "reference",
+      "area": "analyzers",
+      "title": "LS2022: Event Published by User Code",
+      "intent": "LS2022 is a compiler check that reports user code naming the event mediator or an event publisher, because the pipeline publishes each outbound integration event a use case raises, and a handler that publishes on its own sends an event the record never declared. This page states what the rule reports, where the error sits, and how to let the raised domain event carry the integration event.",
       "sections": [
         "Intent",
         "Reference",
@@ -1000,7 +1026,7 @@
       "style": "standard",
       "area": "core",
       "title": "Automation",
-      "intent": "Automation states the work that runs without a request: the reactions answering events and the jobs running on schedule, once, or by hand. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Automation states the work that runs without a request: the reactions answering events, the jobs running on schedule, once, or by hand, and the views a module keeps current from another module\u0027s published events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1319,6 +1345,7 @@
         "The Entry Point and the Screen",
         "The Reaction, Job, Notification and Settings",
         "The Permissions and the Access Chain",
+        "The Reporting Module",
         "The External System",
         "Counting the Records"
       ]
@@ -1364,7 +1391,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 25 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
+      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
       "sections": [
         "Intent",
         "The Full Check",
@@ -3319,6 +3346,54 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0063-place-each-trigger-with-what-it-runs/0063-place-each-trigger-with-what-it-runs.md",
+      "path": "intent/decisions/0063-place-each-trigger-with-what-it-runs/0063-place-each-trigger-with-what-it-runs",
+      "style": "decision",
+      "area": "intent",
+      "title": "Place Each Trigger with What It Runs",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0064-raise-facts-and-send-nothing-from-handlers/0064-raise-facts-and-send-nothing-from-handlers.md",
+      "path": "intent/decisions/0064-raise-facts-and-send-nothing-from-handlers/0064-raise-facts-and-send-nothing-from-handlers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Raise Facts and Send Nothing from Handlers",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0065-read-another-module-through-a-view/0065-read-another-module-through-a-view.md",
+      "path": "intent/decisions/0065-read-another-module-through-a-view/0065-read-another-module-through-a-view",
+      "style": "decision",
+      "area": "intent",
+      "title": "Read Another Module Through a View",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -3384,6 +3459,18 @@
       "style": "research",
       "area": "intent",
       "title": "Cross-Layer Trace Evidence",
+      "intent": "",
+      "sections": [
+        "Findings",
+        "Source Notes"
+      ]
+    },
+    {
+      "file": "docs/intent/research/cross-module-coupling-practice/cross-module-coupling-practice.md",
+      "path": "intent/research/cross-module-coupling-practice/cross-module-coupling-practice",
+      "style": "research",
+      "area": "intent",
+      "title": "Cross-Module Coupling Practice",
       "intent": "",
       "sections": [
         "Findings",
@@ -4114,7 +4201,7 @@
       "style": "tutorial",
       "area": "tutorial",
       "title": "Model a Behavior Module",
-      "intent": "A behavior module gathers one business area\u0027s glossary terms, aggregates, rules, use cases, reactions, jobs, notifications, settings, events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
+      "intent": "A behavior module gathers one business area\u0027s glossary terms, aggregates, rules, use cases, reactions, jobs, views, notifications, settings, events, and permissions into record files that the model builder, the tool that checks the project, reads. This tutorial works through one kind of record at a time, using the spending module of the Claimwick product as the worked example. Each step names the standard it satisfies, and the tutorial adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",

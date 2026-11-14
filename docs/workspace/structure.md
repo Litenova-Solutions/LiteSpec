@@ -60,7 +60,7 @@ The model builder writes generated working files under `.litespec/model/` while 
       modules/
         {module}/
           permissions.yaml
-          use-cases/ rules/ reactions/ jobs/ notifications/ settings/ integration-events/ external-systems/
+          use-cases/ rules/ reactions/ jobs/ views/ notifications/ settings/ integration-events/ external-systems/
           {aggregate}/
             aggregate.yaml
             {use-case}/{use-case}.yaml  results and scenarios as entries

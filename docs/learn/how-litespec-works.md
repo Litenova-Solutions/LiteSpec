@@ -26,7 +26,7 @@ Every record answers one layer's question, and each layer is written from the la
 | Layer | Question | Records |
 |:--|:--|:--|
 | Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, journey, actor, role |
-| Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, notification, setting, permission, entry point, screen, external system |
+| Behavior | How does the system behave to keep the promises? | Aggregate, rule, event, integration event, use case, result, scenario, reaction, job, view, notification, setting, permission, entry point, screen, external system |
 | Implementation | How is it built? | Code, technical decisions, runbooks |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
 
@@ -98,7 +98,7 @@ A specification is a tree, and no reader reads the whole tree at once.
 
 ### Why Before How
 
-Read Intent before Behavior: start at the product record with its goals, problems, features, constraints, decisions, and research, then read the Behavior modules with their aggregates, rules, use cases, and surrounding reactions, jobs, notifications, and settings. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
+Read Intent before Behavior: start at the product record with its goals, problems, features, constraints, decisions, and research, then read the Behavior modules with their aggregates, rules, use cases, and surrounding reactions, jobs, views, notifications, and settings. Each record names what sits above it, which is why it exists, and what sits below it, which is how it is fulfilled.
 
 ### One Journey End to End
 
@@ -106,7 +106,7 @@ Follow one journey from its goal to its proof: the goal and its requirements, th
 
 ### One Module End to End
 
-Follow one module from its aggregates to its proof: the module page, each aggregate with its states and rules, each use case with its access and scenarios, the reactions, jobs, notifications, and settings around them, and the tests the model links to each scenario. When every scenario in the module is proven, the module holds.
+Follow one module from its aggregates to its proof: the module page, each aggregate with its states and rules, each use case with its access and scenarios, the reactions, jobs, views, notifications, and settings around them, and the tests the model links to each scenario. When every scenario in the module is proven, the module holds.
 
 ### Which Track to Take
 

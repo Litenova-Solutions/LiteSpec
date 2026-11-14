@@ -91,7 +91,7 @@ A fact learned from the world enters Intent as research or a constraint that cit
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case, record:reaction, record:job; layer: implementation; trace: yes
+**Applies to:** artifact: record:use-case, record:reaction, record:job, record:view; layer: implementation; trace: yes
 
 **Statement:** Implementation MUST add only the code shapes its stack pages fix and no observable outcome, edge, write, or access grant its Behavior records leave undeclared.
 

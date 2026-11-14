@@ -221,7 +221,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST dispatch an Application Command or a declared Application port.
 
-**Rationale:** The job record names the use cases it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or a declared Application port. The schedule stays a trigger while the behavior stays owned.
+**Rationale:** The job record names the use case it runs, and the use case boundary lives in Application. Each job therefore dispatches an Application Command or a declared Application port. The schedule stays a trigger while the behavior stays owned.
 
 **Reviewed for:** Which job handlers call something other than an Application Command or a declared Application port? Look at the handler calls.
 
@@ -235,7 +235,7 @@ A listing query states its `claim` mode and its `score`, while a bulk money comm
 
 **Statement:** A scheduled job MUST NOT mutate a Marten session or DbContext directly, bypass Domain behavior, or call WebApi endpoints.
 
-**Rationale:** A job that mutates a Marten session or DbContext directly, bypasses Domain behavior, or calls WebApi endpoints skips the command boundary. That boundary carries authorization, transaction, and validation the job would then lack. Jobs enter through Commands like every other caller.
+**Rationale:** A job that mutates a Marten session or DbContext directly, bypasses Domain behavior, or calls WebApi endpoints skips the command boundary. That boundary carries authorization, transaction, and validation the job would then lack. Jobs enter through use case messages like every other caller.
 
 **Reviewed for:** Which job sources mutate a Marten session or DbContext, or call a WebApi endpoint? Look at the job sources and their imports.
 
@@ -789,13 +789,13 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Applies to:** artifact: job
 
-**Default:** Create one job handler under the module that owns its behavior.
+**Default:** Place each job handler in the `Application/` folder of the use case it runs, or with the notification it sends or the system it calls when it runs none.
 
-**Replacement:** A project keeps job handlers in one shared jobs folder.
+**Replacement:** A project names its own job handler layout in its documentation.
 
-**Rationale:** One job handler lives under the module that owns its behavior. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
+**Rationale:** A job handler lives in the `Application/` folder of the use case its `runs` entry names, so the use case folder shows every way the use case starts; one that runs none lives in the module `Notifications/` folder of the notification it sends or the `ExternalSystems/` folder of the system it calls, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. The module owns both the business action and what its schedule means. A handlers folder far from the behavior separates each schedule from its reason.
 
-**Reviewed for:** Which job handlers sit outside the module that owns their behavior, when the project keeps no shared jobs folder? Look at the handler folders.
+**Reviewed for:** Which job handlers sit outside the folder of what they run, when the project names no other job handler layout? Look at the handler folders beside the project documentation.
 
 ### Use Execution Scopes
 

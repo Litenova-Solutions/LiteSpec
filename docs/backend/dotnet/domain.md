@@ -280,7 +280,7 @@ public sealed record ProfileActiveState : ProfileState;
 
 **Statement:** Domain code MUST model every closed set as an abstract record base with sealed cases exposing one stable `Code`, converting labels through `FromCode`.
 
-**Rationale:** An enum is a named integer: it carries no case data, admits undefined values through a cast, and forces parallel fields when a case later gains data. A record hierarchy carries each case's data in its own sealed record, and a boundary converts a label through `FromCode` instead of `ToString`, so an unrecognized label becomes a validation failure rather than a silent default. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. This provision binds `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` for .NET.
+**Rationale:** An enum is a named integer: it carries no case data, admits undefined values through a cast, and forces parallel fields when a case later gains data. A record hierarchy carries each case's data in its own sealed record, and a boundary converts a label through `FromCode` instead of `ToString`, so an unrecognized label becomes a validation failure rather than a silent default. The C# compiler does not check that a switch over the hierarchy covers every sealed case: a switch expression needs a discard arm to compile without warning CS8509, and a sealed case with no arm of its own reaches that discard arm at run time. `LS1013` reports a switch that leaves a sealed case to its discard arm, and tests cover the discard path for a case added later. This provision binds `litespec/backend/domain#model-every-closed-set-of-domain-values-as-a-closed-type-hierarchy` for .NET. A static class of string constants, such as a set of reason codes, is the same closed set without its cases: the compiler cannot tell a valid code from a typo, so it becomes a record hierarchy too.
 
 **Example:**
 
@@ -824,6 +824,9 @@ if (typeof(IStronglyTypedId).IsAssignableFrom(context.JsonTypeInfo.Type))
         Shipment.cs
         ShipmentId.cs
         IShipmentRepository.cs
+        Parcels/                  the parcel.* part: a child entity and the values only it holds
+          Parcel.cs
+          ParcelWeight.cs
         Outcomes/
           ShipmentOutcome.cs
           ShipmentDeliveredOutcome.cs

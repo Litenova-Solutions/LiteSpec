@@ -127,42 +127,59 @@ The handler maps each known exception type to its status and code, and answers 5
 
 **Applies to:** artifact: endpoint
 
-**Default:** Place each endpoint with its request and response models and mappings flat in its use case folder inside the `UseCases/` folder of its module and aggregate.
+**Default:** Place each endpoint with its request and response models and mappings in the `WebApi/` folder of its use case inside the `UseCases/` folder of its module and aggregate.
 
 **Replacement:** A project names its endpoint layout in its WebApi documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping lives in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Response models carry the query's declared `include` groups. Transport types used by two or more use cases of one aggregate live in the aggregate WebApi folder, and those used by two or more aggregates in the module WebApi folder. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
+**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Transport types take the names their boundary roles assign under `litespec/backend/api#name-transport-types-by-their-boundary-role`, and transport mapping lives in WebApi under `litespec/backend/application#keep-mappings-at-the-owning-boundary`. Response models carry the query's declared `include` groups. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
 **Example:** The endpoint layout is:
 
 ```text
 {Product}.Modules/
   Posts/                            single aggregate whose name matches the module
-    WebApi/
-      PostLinks.cs                  transport types two or more Posts use cases name
     UseCases/
       CreateDraft/
-        CreateDraftEndpoint.cs
-        CreateDraftRequestModel.cs
-        CreateDraftResponseModel.cs
-        CreateDraftApiMappings.cs
+        Application/                message, result, handler, validator
+          CreateDraftCommand.cs
+          CreateDraftCommandResult.cs
+          CreateDraftCommandValidator.cs
+          CreateDraftCommandHandler.cs
+        WebApi/
+          CreateDraftEndpoint.cs
+          CreateDraftRequestModel.cs
+          CreateDraftResponseModel.cs
+          CreateDraftApiMappings.cs
       GetPost/
-        GetPostEndpoint.cs
-        GetPostResponseModel.cs
-        GetPostApiMappings.cs
+        Application/
+          GetPostQuery.cs
+          GetPostQueryResult.cs
+          GetPostQueryHandler.cs
+        WebApi/
+          GetPostEndpoint.cs
+          GetPostResponseModel.cs
+          GetPostApiMappings.cs
   Customers/                        two aggregates: use cases nest under each aggregate UseCases folder
     CustomerAccounts/
       UseCases/
         RestrictAccount/
-          RestrictAccountEndpoint.cs
-          RestrictAccountRequestModel.cs
-          RestrictAccountApiMappings.cs
+          Application/
+            RestrictAccountCommand.cs
+            RestrictAccountCommandHandler.cs
+          WebApi/
+            RestrictAccountEndpoint.cs
+            RestrictAccountRequestModel.cs
+            RestrictAccountApiMappings.cs
     Consents/
       UseCases/
         GrantConsent/
-          GrantConsentEndpoint.cs
-          GrantConsentRequestModel.cs
-          GrantConsentApiMappings.cs
+          Application/
+            GrantConsentCommand.cs
+            GrantConsentCommandHandler.cs
+          WebApi/
+            GrantConsentEndpoint.cs
+            GrantConsentRequestModel.cs
+            GrantConsentApiMappings.cs
 {Product}.WebApi/
   Errors/
     GlobalExceptionHandler.cs
@@ -173,7 +190,7 @@ The handler maps each known exception type to its status and code, and answers 5
   Program.cs
 ```
 
-**Reviewed for:** Which use case folders miss the endpoint, request and response models, or mappings named for the use case? Look at each use case folder.
+**Reviewed for:** Which use case `WebApi/` folders miss the endpoint, request and response models, or mappings named for the use case? Look at each use case folder.
 
 ### Keep Program.cs as Composition
 

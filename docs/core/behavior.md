@@ -51,7 +51,7 @@ The specification names only what carries business meaning. Child entities and v
 | rule, invariant | an invariant checked on every change |
 | rule, precondition | a guard the behavior passes before it runs |
 | rule, calculation | a pure computation on the aggregate or its values |
-| rule, cross-aggregate | a stored constraint, or a reaction or job reaching eventual consistency |
+| rule, cross-aggregate | a stored constraint, or a reaction or job reaching eventual consistency with a state guard |
 | rule, precondition spanning aggregates | a synchronous read of the guarding aggregate named in `reads`, with `consistency: atomic` and the guarding rule in `cites`; use a stored constraint only when the guard is a single stored value, and a reaction or job only when eventual consistency is acceptable |
 | rule, atomicity | one atomic write group across the aggregates it binds |
 | rule, reservation | a held claim with its release |
@@ -65,6 +65,7 @@ The specification names only what carries business meaning. Child entities and v
 | job, scheduled | one job running on its schedule |
 | job, one-off | one job running once |
 | job, manual | one job a person runs |
+| view | one module's copy of another module's published facts, with one projection per source event |
 | notification | one rendered message to the actors it addresses |
 | setting | one tunable value with its range and setter |
 | result | one ending per result, each refusal with its code |

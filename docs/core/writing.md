@@ -28,6 +28,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | use case, job, runbook | Verb first | Approve Expense Claim |
 | rule | The assertion as a clause | A Claim Never Exceeds Its Policy Limit |
 | screen | The place name the user sees | Claim List |
+| view | A noun phrase for what it keeps one row per | Reimbursed Expense |
 
 Eight words is the bound because a title stands alone in book lists, outlines, tabs and search results, where a longer title wraps and stops scanning as one line. The longest form, a problem clause naming the failure and its consequence, fits inside eight words; a title that needs more is stating its statement in the title. Identifiers, acronyms and words with inner capitals keep their written form, and each major part of a hyphenated word is capitalized.
 
@@ -55,6 +56,7 @@ An explanation file beside a record file opens with the record title as its one 
 | rule-set | Rationale, Example (optional) |
 | reaction | Trigger and Effect, Failure Handling, Example (optional) |
 | job | Invocation, Failure Handling, Example (optional) |
+| view | Sources, Freshness, Example (optional) |
 | notification | Content, Delivery, Example |
 | integration-event | Consumers, Compatibility, Example |
 | external-system | Use, Data Shared, Failure Handling |

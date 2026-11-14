@@ -64,13 +64,13 @@ Only provisions on pages the consumer's stacks, shape, and selected extensions a
 List the provisions that govern a handler before editing it:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs
+litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs
 ```
 
 Read the rationale and example behind each returned statement:
 
 ```bash
-litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs --full
+litespec rules --root ../consumer apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs --full
 ```
 
 List the provisions that govern a use case record:

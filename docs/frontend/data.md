@@ -207,6 +207,22 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Reviewed for:** Which screens or components compose Domain calls or write storage instead of invoking an Application handler carrying a `Command` or `Query` role suffix? Look in the screen and component sources.
 
+### Compose a Screen from Each Owner's Query
+
+**ID:** `litespec/frontend/data#compose-a-screen-from-each-owners-query`
+
+**Strength:** required
+
+**Applies to:** artifact: route, component
+
+**Statement:** A screen that shows data from several modules MUST call each owning module's own query and join the answers itself, rather than call one query that reads another module's data.
+
+**Rationale:** A query that exists only to show another module's data couples two modules for the sake of one page: the owner grows a reader method named for that page, and the reading module calls it in its query handler. The screen already knows both answers it needs. Calling each owner's query side by side keeps every query inside its own module, and the screen record's `offers` lists both use cases, so the composition is visible in the model. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+
+**Example:** A finance page that shows each reimbursed expense beside its payout status calls the spending module's list-expenses query and the payout module's list-payouts query, and joins the two lists by expense identifier in the page.
+
+**Reviewed for:** Which queries exist only to show another module's data on one screen, and which screens call such a query instead of each owner's query? Look at each screen's `offers` beside the queries it calls.
+
 ### Classify State
 
 **ID:** `litespec/frontend/data#classify-state`
@@ -379,13 +395,31 @@ The problem carries the trace identifier the API returns for the request, so sup
 
 **Applies to:** artifact: any
 
-**Default:** Keep a form schema or a view model in its owning use-case folder until a second use case needs it.
+**Default:** Keep a form schema or a view model in its owning use-case folder, and let a second use case that needs the same shape declare its own.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** A schema shared before its second use case exists is a contract written for one reader. The second use case then either contorts itself to fit or breaks the first reader by changing the shared shape. Keeping a form schema or view model in its owning use-case folder until a second use case needs it lets the shared shape emerge from two real readers.
+**Rationale:** A schema shared before its second use case exists is a contract written for one reader. The second use case then either contorts itself to fit or breaks the first reader by changing the shared shape. Keeping each form schema or view model in its owning use-case folder, with a copy where a second use case needs the same shape, keeps each use case free to change for its own reasons, as `litespec/backend/architecture#give-each-use-case-its-own-models` states for the server.
 
-**Reviewed for:** Which form schemas or view models sit in a shared location with only one use case reading them? Look in the use-case folders and the shared schema locations.
+**Reviewed for:** Which form schemas or view models sit in a shared location outside their use-case folder? Look in the use-case folders and the shared schema locations.
+
+### Brand Every Identifier from the Contract
+
+**ID:** `litespec/frontend/data#brand-every-identifier-from-the-contract`
+
+**Strength:** default
+
+**Applies to:** artifact: any
+
+**Default:** Give each identifier of the published contract its own branded type in the generated client, from the identifier's named schema component, and parse each route parameter that holds an identifier with the generated schema in the route loader.
+
+**Replacement:** A consumer can replace this default with an explicit local convention that names which identifiers stay plain strings.
+
+**Rationale:** The backend gives every identifier its own type, but a client that types every identifier as `string` lets a caller pass an expense identifier where a receipt identifier belongs; the call compiles and fails at runtime. A branded type per identifier turns that swap into a compile error. Deriving the brands from the contract's named identifier components needs no hand-kept list, so a new identifier is branded the moment the contract names it. Parsing route parameters with the generated schema gives a route the branded value at its edge. The brands stay until the presentation boundary converts them, as `litespec/frontend/components#keep-domain-values-typed-until-display` states.
+
+**Example:** `listExpenseReceipts(expenseId: ExpenseId, receiptId: ReceiptId)` refuses `listExpenseReceipts(receiptId, expenseId)` at compile time, and the receipt route reads `ExpenseIdSchema.parse(params.expenseId)`.
+
+**Reviewed for:** Which generated operations take an identifier as a plain string, and which route loaders pass a route parameter through without the generated identifier schema? Look at the generated client's identifier types and the route loaders.
 
 ### Build a Form on the Shared Form Library
 

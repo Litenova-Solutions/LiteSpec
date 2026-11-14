@@ -34,6 +34,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 | Aggregate state case, nested | `{Aggregate}State.{State}` | `PostState.Published` |
 | Domain event | `{Aggregate}{PastFact}Event` | `PostPublishedEvent` |
 | Event handler | `{Action}On{Fact}Handler` | `NotifySubscribersOnPostPublishedHandler` |
+| View projection | `{View}On{Fact}Projection` | `ReimbursedExpenseOnExpenseReimbursedProjection` |
 | Repository implementation | `{Aggregate}Repository` | `PostRepository` |
 | Endpoint | `{UseCase}Endpoint` | `CreateDraftEndpoint` |
 | HTTP request model | `{UseCase}RequestModel` | `CreateDraftRequestModel` |
@@ -75,7 +76,7 @@ Each architectural role carries a fixed suffix: a command handler ends in `Comma
 
 **Example:**
 
-An event handler folder starts with `On` and names the business fact without the `Event` suffix: `OnPostPublished` holds `NotifySubscribersOnPostPublishedHandler` for `PostPublishedEvent` (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The `On` prefix already marks the handler, and folder names carry no technical suffix, so `OnPostPublishedEvent` is wrong. The event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
+An event handler names its act and the business fact without the `Event` suffix: `NotifySubscribersOnPostPublishedHandler` answers `PostPublishedEvent` and sits with what it runs (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The name carries no technical suffix for the fact, so `NotifySubscribersOnPostPublishedEventHandler` is wrong. The event type keeps its `Event` suffix (`litespec/workspace/naming#anchor-aggregate-owned-types-on-the-aggregate-root`).
 
 Application types keep their full suffix: `{UseCase}Result`, `{UseCase}Handler`, and `{UseCase}Validator` shorten away the command-or-query distinction the full name carries. A result part carries the full name of its result, as `litespec/workspace/naming#name-result-parts-after-their-result` states, not a bare summary name like `PostSummary`. The full role suffix distinguishes command coordination from query projection without opening the file.
 
@@ -103,21 +104,21 @@ The transport name drops the Domain union's aggregate prefix, such as `OrderFulf
 
 **Reviewed for:** Each type nested in a use-case result carries the full result name as its prefix.
 
-### Group Event Handlers by the Fact They Handle
+### Place Each Trigger with What It Runs
 
 **ID:** `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`
 
 **Strength:** required
 
-**Applies to:** artifact: reaction
+**Applies to:** artifact: reaction, job
 
-**Statement:** Each event handler MUST live in a folder named `On{Fact}`, the event name without its `Event` suffix, inside the `UseCases/` folder of the subscriber module, and be named `{Action}On{Fact}Handler`.
+**Statement:** Each event handler and job class MUST live in the `Application/` folder of the use case its record runs, or, when it runs none, in the module `Notifications/` folder named for the notification it sends or the module `ExternalSystems/` folder named for the system it calls, with an event handler named `{Action}On{Fact}Handler`.
 
-**Rationale:** The folder answers "what happens when this fact is recorded?" with one listing: one folder holds every handler of that fact in that module. The subscriber is the module whose records the handler changes, or for a handler that changes nothing, the module that owns the fact. A folder named for the handler instead scatters one fact across as many folders as handlers.
+**Rationale:** A reaction and a job are triggers, like an endpoint, and a trigger belongs to what it triggers. Placed with its use case, the handler names that use case's command from inside the use case's folder, so no command leaves its folder for a caller to reach it, and the folder shows every way the use case starts. A folder named for a fact made one folder name several use cases' commands, and it never showed every reaction to the fact, because those reactions span modules. "What happens when this fact is recorded?" is answered by the model query on the event and by the handler names, which carry the fact. Settled by [decision/0063-place-each-trigger-with-what-it-runs](decision/0063-place-each-trigger-with-what-it-runs).
 
-**Example:** `Lending/UseCases/OnLoanBorrowed/SendDueNoticeOnLoanBorrowedHandler` sends the due notice when a loan is borrowed.
+**Example:** `Lending/Holds/UseCases/ExpireHold/Application/ExpireHoldOnLoanReturnedHandler` runs the expire-hold use case when a loan is returned, and `Lending/Notifications/LoanDue/SendDueNoticeOnLoanBorrowedHandler` only sends the due notice.
 
-**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler declared outside the `On{Fact}` folder its event names.
+**Checked by:** `litespec model check` reports `code-placement-drift` (level S) for an event handler or job class outside the folder its record's effects name.
 
 ### Name Repository Variables After Their Interface
 

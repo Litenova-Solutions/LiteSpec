@@ -11,7 +11,7 @@ Edges and Screens states how the product meets the outside: the integration even
 
 ### Integration Events
 
-An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. An outbound event has exactly one publishing module. Consumers, Compatibility and Example live in the explanation file beside the record file.
+An integration event is a published fact crossing the bounded context in CloudEvents form. Its direction is `out` for facts the product emits and `in` for facts it accepts. Readers place one of two trusts in it: `trigger-only`, where the event wakes a read of the source, or `payload`, where the fields are fit to act on. It carries `summary` and `delivery`: what the event announces with who acts on it, and how the event reaches its readers. An outbound event names in `translates` the one domain event it carries outward, and it is published by the use cases whose `raises` holds that domain event, so it has exactly one publishing module. No record declares the publishing as an effect, and no user code publishes it: the pipeline step that stages raised domain events stages each integration event that translates them, built from the domain event alone. A view in another module may copy its payload fields, as the [Automation page](automation.md#views) states. Consumers, Compatibility and Example live in the explanation file beside the record file.
 
 | Field | Meaning |
 |:---|:---|
@@ -21,7 +21,7 @@ An integration event is a published fact crossing the bounded context in CloudEv
 | `dataschema` | The URL the payload follows, optional. |
 | `trust` | `trigger-only` or `payload`. |
 | `correlation` | How an inbound event is matched, inbound only. |
-| `translates` | The domain event it carries outward, outbound only. |
+| `translates` | The domain event it carries outward, required on an outbound event; the event's publishers are the use cases raising it. |
 | `addresses` | The permission reading it, outbound only, optional. |
 
 ### Notifications
@@ -82,19 +82,21 @@ An external system is one system outside the bounded context the product exchang
 
 **Checked by:** `litespec model check` reports `record-invalid` for an integration event without direction, CloudEvents identity, typed payload, or trust.
 
-### Publish Every Outbound Integration Event from Effects
+### Publish Every Outbound Integration Event from the Event It Translates
 
 **ID:** `litespec/core/edges#publish-every-outbound-integration-event-from-effects`
 
 **Strength:** required
 
-**Applies to:** artifact: record:use-case, record:reaction, record:job
+**Applies to:** artifact: record:integration-event, record:use-case
 
-**Statement:** Each use case, reaction, or job emitting an integration event MUST declare it in its effects as `emits`.
+**Statement:** Each outbound integration event MUST name in `translates` the domain event it carries, and is published only from that domain event, by the pipeline step that stages raised events.
 
-**Rationale:** An emitted fact no edge declares is a hidden coupling: downstream readers depend on a promise the records never made, and the promise breaks without a diff. Declaring each emission as an `emits` effect states the coupling beside the behavior causing it. The `effect-undeclared` check reports an emitted event no record declares.
+**Rationale:** An integration event built by a handler from whatever the aggregate holds after the act publishes state the act never announced, and a second handler can publish the same event with a different payload. Deriving it from the one domain event it translates keeps every published field a field of the fact, and the publishing use cases follow from `raises` with no second declaration to drift. The domain event carries every field its integration events publish. A publish call in user code is an edge no record can declare, so the stack reader reports it. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
-**Checked by:** `litespec model check` reports `effect-undeclared` for an emitted integration event no record declares in effects.
+**Example:** `integration-event/expense-submitted` translates `event/expense.submitted`, so `use-case/spending.submit-expense`, which raises that event, publishes it; its handler publishes nothing.
+
+**Checked by:** `litespec model check` reports `record-invalid` for an outbound integration event without `translates` and `effect-undeclared` for an event a handler, event handler or job publishes itself; `dotnet build` reports `LS2022` for an event published by user code.
 
 ### Name Published Events in the Domain's Words
 

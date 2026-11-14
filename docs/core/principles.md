@@ -28,7 +28,7 @@ One record derives from another: generic refusals derive from access and input, 
 
 ### Declared Edges, Not Mechanism Bans
 
-Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect, as the [system page](system.md#declare-every-edge-between-records) states. The effect graph holds no cycles except through domain events with a stated end condition. An inline edge states whether it shares the caller's transaction, and atomic consistency spans no async edge. A project that wants stricter rules keeps them as a cited convention.
+Every edge between use cases, reactions, jobs, notifications, integration events, and external systems is declared on the record that holds it, and an undeclared edge is the defect, as the [system page](system.md#declare-every-edge-between-records) states. The effect graph holds no cycles except through domain events with a stated end condition. No edge shares a transaction: a use case commits its own writes, and what follows runs from a reaction to the fact it raised. A project that wants stricter rules keeps them as a cited convention.
 
 ### Honest Opinion
 
@@ -168,7 +168,7 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Checked by:** `litespec model check` reports no `effect-loop-invalid` finding on the changed records.
 
-### State Transaction Sharing on Every Inline Edge
+### Share No Transaction Across an Edge
 
 **ID:** `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`
 
@@ -176,15 +176,15 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Applies to:** artifact: any
 
-**Statement:** An inline edge MUST state whether it shares the caller's transaction.
+**Statement:** An edge between records MUST NOT share a transaction, so each use case commits only its own writes.
 
-**Rationale:** Two inline edges that look alike run in one transaction or two, and the difference decides what a failure leaves behind. Stating the sharing on the edge keeps transaction honesty where the edge is declared.
+**Rationale:** An edge that shares its caller's transaction makes two use cases one unit of work: the called use case rides on a commit it does not own, a failure in either rolls back both, and the record of each use case no longer says what it commits. Running every follow-on act from a reaction to the fact the first act raised gives each use case its own commit, its own failure handling and its own record. The schema holds no field for transaction sharing, so the rule is checked by construction. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
-**Example:** An inline runs edge states `sharesTransaction: true`, so a failure in the use case it runs rolls back the caller.
+**Example:** Reimbursing an expense commits the expense and raises its reimbursed fact; a reaction in the reporting module answers the published fact in its own transaction.
 
-**Checked by:** `litespec model check` reports no `record-invalid` finding on the changed inline edges.
+**Checked by:** `litespec model check` reports `record-invalid` for an effect entry that names `sharesTransaction` or a use case that `runs` another use case.
 
-### Confine Atomic Consistency to Synchronous Edges
+### Confine Atomic Consistency to One Use Case
 
 **ID:** `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`
 
@@ -192,11 +192,13 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Atomic consistency MUST NOT span an async edge.
+**Statement:** Atomic consistency MUST cover only the writes of one use case, never an edge to another record.
 
-**Rationale:** An async edge crosses a commit boundary, so work past it can fail after the caller succeeded. Atomic consistency promises one shared outcome, which holds only while every edge stays synchronous.
+**Rationale:** Every edge crosses a commit boundary, so work past it can fail after the caller succeeded. Atomic consistency promises one shared outcome, which holds only inside the one commit a use case owns. A rule that spans two use cases is held by a state guard: the later act refuses until the earlier fact arrived.
 
-**Reviewed for:** Which atomic use cases span an async edge? Look at the consistency and effects fields beside the changed use cases.
+**Example:** An order that waits for its capacity hold stays in an awaiting-hold state, and taking payment refuses until the hold fact arrives.
+
+**Reviewed for:** Which atomic use cases rely on a write another use case makes, and which rules across use cases lack a state guard? Look at the consistency field and the rules it cites beside the reactions that follow.
 
 ### Record Stricter Edge Rules as Conventions
 

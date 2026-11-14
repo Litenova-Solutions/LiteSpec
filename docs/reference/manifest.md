@@ -150,7 +150,7 @@ The `stack` object pins the toolchain this release builds with, and the `package
 | nuget | `LiteBus.Queries.Abstractions` | `7.x` |
 | nuget | `LiteBus.Storage.PostgreSql` | `7.x` |
 | nuget | `LiteBus.Testing.Mediation` | `7.x` |
-| nuget | `LiteSpec.Analyzers` | `6.0.0` |
+| nuget | `LiteSpec.Analyzers` | `6.1.0` |
 | nuget | `Marten` | `9.x` |
 | nuget | `Microsoft.AspNetCore.Authentication.JwtBearer` | `10.x` |
 | nuget | `Microsoft.AspNetCore.DataProtection` | `10.x` |

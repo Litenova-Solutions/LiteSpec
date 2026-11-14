@@ -246,7 +246,7 @@ options.Schema.For<ExpenseDocument>().UseOptimisticConcurrency(true);
     Marten/
       MartenServiceRegistration.cs
       MartenStoreConfiguration.cs
-      Commands/
+      Commit/
         SaveChangesCommandPostHandler.cs
       Events/
         DomainEventBuffer.cs

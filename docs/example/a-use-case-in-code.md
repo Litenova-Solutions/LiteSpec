@@ -59,7 +59,7 @@ The aggregate refuses the expense before it exists, and it raises `ExpenseSubmit
 
 ## The Endpoint
 
-The HTTP endpoint is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal. The submitter is not read from the body. The endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
+The HTTP endpoint is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs`. It maps `POST /api/expenses`, returns 201 Created on success, and returns a problem result with status 422 on a refusal. The submitter is not read from the body. The endpoint reads the employee from the verified claims of the signed-in user, which applies `litespec/backend/application#enforce-target-authorization-in-the-pipeline`:
 
 ```csharp
 // The submitter is the signed-in employee, read from verified claims, never from the request body.
@@ -69,11 +69,11 @@ var result = await mediator.SendAsync(
     cancellationToken);
 ```
 
-The request body is `SubmitExpenseRequestModel`, which holds the amount, the currency and the optional receipt identifier. The response is `SubmitExpenseResponseModel`, which holds the new expense identity. The layer keeps its own types, so the command, the result and the request and response models are separate records in the same folder.
+The request body is `SubmitExpenseRequestModel` in the use case `WebApi/` folder, which holds the amount, the currency and the optional receipt identifier. The response is `SubmitExpenseResponseModel`, which holds the new expense identity. The use case keeps its transport models apart from its messages: `Application/` holds the command, the result and the handler, and `WebApi/` holds the endpoint and the request and response models.
 
 ## The Handler
 
-The handler is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs`. It loads the active policy through `IPolicyRepository`, submits the expense with the policy's threshold, stores it through `IExpenseRepository`, and returns the identity:
+The handler is `apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs`. It loads the active policy through `IPolicyRepository`, submits the expense with the policy's threshold, stores it through `IExpenseRepository`, and returns the identity:
 
 ```csharp
 var policy = await policies.GetActiveAsync(cancellationToken);
@@ -87,7 +87,7 @@ expenses.Store(expense);
 return new SubmitExpenseCommandResult(expense.Id);
 ```
 
-The handler is marked `<implements>use-case/spending.submit-expense</implements>`. The repository interfaces it uses are in `Expenses/Domain/IExpenseRepository.cs` and `Policies/Domain/IPolicyRepository.cs`.
+The handler is marked `<implements>use-case/spending.submit-expense</implements>`. It holds no mediator and publishes no event: `Expense.Submit` raises `ExpenseSubmittedEvent`, and the pipeline stages it with the expense. The repository interfaces it uses are in `Expenses/Domain/IExpenseRepository.cs` and `Policies/Domain/IPolicyRepository.cs`.
 
 ## The Acceptance Tests
 
@@ -127,8 +127,8 @@ Querying the use case shows the links the builder derived from these files. The 
   },
   "implements": [
     "apps/api/src/Claimwick.Modules/Spending/Expenses/Domain/Expense.cs",
-    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseCommandHandler.cs",
-    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/SubmitExpenseEndpoint.cs"
+    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/Application/SubmitExpenseCommandHandler.cs",
+    "apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitExpense/WebApi/SubmitExpenseEndpoint.cs"
   ],
   "proves": [
     {

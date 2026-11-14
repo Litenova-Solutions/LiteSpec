@@ -1,5 +1,132 @@
 # Changelog
 
+## v6.1.0
+
+LiteSpec 6.1.0 makes each use case own its folder, its models and everything that starts it. A use-case folder holds `Application/` and `WebApi/` folders, and each reaction and job sits with the use case it runs. A handler sends no command, query or event, a reaction or job runs at most one use case, and the pipeline publishes each integration event from the domain event it translates. A module reads another module's state through a new `view` record built from published integration events, asks one current-value question through a decision port, or composes a screen from each owner's query. It is a minor release: every provision identifier of 6.0.0 still resolves, and five of them state a new rule under a new heading, as Part H lists. The record schema and the .NET folder layout change, so a consumer moves its code and edits its records as Part I states.
+
+### Part A: Each Use Case Owns Its Folder
+
+- A use-case folder holds `Application/`, with its message, result, result parts, handler, validator, pipeline definitions, own steps and triggers, and, when the use case has an endpoint, `WebApi/`, with its endpoint and transport models. No file sits loose in the use-case folder, and a use case with no `WebApi/` folder has no endpoint.
+- A reaction's event handler and a job class live with what they run: in the `Application/` folder of the use case their record runs; otherwise in the module `Notifications/<Notification>/` folder of the notification they send; otherwise in the module `ExternalSystems/<System>/` folder of the system they call. The `On{Fact}/` folders and the module `Jobs/` folder are removed.
+- The module closed set is `Contracts/`, `Domain/`, `Application/`, `Infrastructure/`, `UseCases/`, `Notifications/`, `ExternalSystems/`, `Views/` and the aggregates; the aggregate closed set is `Domain/`, `Application/`, `Infrastructure/` and `UseCases/`. Module and aggregate `WebApi/` folders are removed, and `Contracts/` holds `Identifiers/`, `IntegrationEvents/` and `Ports/`.
+- A message, result, result part, transport model or mapping belongs to exactly one use case. Two use cases that need the same shape each declare it, and the lowest-folder rule places only behavior such as ports, rule calculations and adapters. A step two use cases share lives once in Domain when it decides something, and each use case holds its own copy when it only coordinates.
+- `code-placement-drift` reads a trigger's folder from its record's effects, reports a file in the wrong layer folder of its use case, and reports a folder under `Notifications/`, `ExternalSystems/` or `Views/` that names no declared record. LS2019 reports any type a use case folder names in another use case folder, with no exception for messages and results.
+- Every folder name is a product noun, a business act, one of the four layers, or a record kind the product speaks; no folder groups by mechanism or by caller.
+
+The new rules are `litespec/backend/architecture#give-each-use-case-its-own-models` and `litespec/backend/architecture#repeat-coordination-never-a-rule`. Decision 0063, Place Each Trigger with What It Runs, records why.
+
+### Part B: Handlers Raise Facts and Send Nothing
+
+- A command handler loads, calls one act and stages; it sends no command, query or event. Only an endpoint, a reaction's event handler and a job send a message, one each. LS2021 reports a mediator held by a type that is none of these.
+- A use case's `effects` hold only `sends` and `calls`. `runs` and `emits` leave the use-case effect entry, `emits` and `sharesTransaction` leave every effect entry, and an old entry is `record-invalid`. A reaction or job holds at most one `runs` entry.
+- No record declares publishing. An outbound integration event names in `translates` the domain event it carries, and the use cases whose `raises` holds that event publish it. One pipeline step stages each raised domain event and each integration event built from it, in the same commit. LS2022 reports an event published by user code, and `effect-undeclared` reports a publish call a handler, event handler or job makes. `event-publisher-invalid` derives the publishing module from `raises` and `translates`.
+- No edge shares a transaction. Atomic consistency covers the writes of one use case, and a rule across use cases is held by a state guard. Every command commits in its own pipeline.
+- A module publishes no command and no refusal. Another module triggers its acts through an integration event its reaction answers, and a use case refuses only with refusals its own module declares. A port in `Contracts/Ports/` only reads.
+- A conflict refusal from the command a reaction runs is transient and retried under the reaction's `onFailure`; a declared final refusal ends the reaction.
+- A job selects its items and sends one command per item; a condition a batch command checked moves into the per-item act.
+
+The new rule is `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`. Decision 0064, Raise Facts and Send Nothing from Handlers, records why.
+
+### Part C: The View Record
+
+- A `view` is a Behavior record at `.litespec/behavior/modules/<module>/views/<name>/<name>.yaml` with the identifier `view/<module>.<name>`: one module's own copy of what it needs about another module's aggregate. It names that aggregate in `keyedBy`, each field's source as `integration-event/<name>#<field>` in `from`, an optional `accumulate` of `latest`, `sum` or `count`, the events that remove a row in `removedBy`, and how stale a reader may see a row in `freshness`. A `personal` or `sensitive` field names its erasing event in `erasedBy`.
+- A use case names a view in `reads`, and a query output group may read one. `litespec new view <module>.<name>` scaffolds a view from `templates/consumer/view.yaml`, and `litespec rename` moves one.
+- `model check` reports `view-source-unknown`, `view-erasure-missing`, `view-key-invalid` and `view-unused`. A view's explanation file carries Sources, Freshness and an optional Example.
+- In .NET a view lives in its module `Views/` folder, one plural folder per view, with the view document, one `{View}On{Fact}Projection` per source event, the reader `I{View}View` and its implementation, each carrying the view's mark. LS2007 does not hold a projection to the reaction naming rule.
+- A command whose decision needs another module's current value asks one question through a decision port with one read-only method. A screen that only shows another module's data calls each owner's own query, and a query handler reads only its own module's store and views. Repositories, outside-system ports and rule calculators stay ports.
+- With the outbox extension, each integration event a view names is kept for as long as a view may rebuild from it, apart from the delivery records.
+- The book lists views under their module, shows each field with the published field it copies and its erasing event, and lists on each integration event the use cases that publish it.
+- Claimwick gains the reporting module with `view/reporting.reimbursed-expense`, built from the new `integration-event/expense-reimbursed` and erased by `integration-event/expense-personal-data-erased`, and the `use-case/reporting.list-reimbursed-expenses` query that reads it.
+
+The new rules are `litespec/core/automation#declare-each-view-field-from-a-published-field`, `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`, `litespec/backend/application#read-another-modules-state-through-a-view`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`, `litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder`, `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from` and `litespec/frontend/data#compose-a-screen-from-each-owners-query`. Decision 0065, Read Another Module Through a View, records why.
+
+### Part D: Domain Parts, Read Shapes and Module Edges
+
+- An aggregate's `Domain/` folder holds one folder per part its record declares as a dotted data group, such as `Parcels/` for `parcel.*`, with the part's child entity and the values only it holds. The part's events and refusals stay in the aggregate's `Events/` and `Exceptions/` folders.
+- A row or projection a read port returns is the port's answer, not a Domain constituent, and sits with its port.
+- A use case maps another module's port answer at its edge and returns it in no result or transport model of its own; only a typed identifier crosses.
+- A domain event carries every field its integration events publish.
+- A static class of string constants is a closed set and becomes a record hierarchy, like any closed set in Domain.
+
+### Part E: Branded Identifiers in the Frontend
+
+- A generated client gives each contract identifier its own branded type from the identifier's named schema component, and a route loader parses each identifier parameter with the generated schema, under the new default `litespec/frontend/data#brand-every-identifier-from-the-contract`.
+- A form schema or view model stays in its use-case folder, and a second use case that needs the same shape declares its own.
+
+### Part F: The Analyzers
+
+- LS2019 drops its exemption for types ending in `Command`, `Query`, `CommandResult` or `QueryResult`.
+- LS2021, Message Sent Outside an Entry Point, reports an `ICommandMediator`, `IQueryMediator` or `IEventMediator` held by a type in the modules project that is not an endpoint, an event handler or a job.
+- LS2022, Event Published by User Code, reports an `IEventMediator` or a type named `*EventPublisher` named anywhere in the modules project.
+- LS2007 ignores an event handler named `*Projection` or placed in a module `Views/` folder.
+
+### Part G: Records in the Book and the Command Line
+
+- The record schema, `litespec new`, `litespec rename`, the folder checks, the parent rules and the placement table carry the `view` type and its `views/` typed folder.
+- The book links `view/...` identifiers in prose, labels the view fields, and drops the `emits` edge label.
+
+### Part H: Provision Changes Since v6.0.0
+
+A minor release keeps every provision identifier, so five identifiers keep their ID line and state a new rule under a new heading:
+
+- `litespec/core/principles#state-transaction-sharing-on-every-inline-edge` is now Share No Transaction Across an Edge.
+- `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges` is now Confine Atomic Consistency to One Use Case.
+- `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` is now Run Follow-On Work Only from Reactions and Jobs.
+- `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle` is now Place Each Trigger with What It Runs.
+- `litespec/core/edges#publish-every-outbound-integration-event-from-effects` is now Publish Every Outbound Integration Event from the Event It Translates.
+
+Four finding codes are new: `view-source-unknown`, `view-erasure-missing`, `view-key-invalid` and `view-unused`.
+
+<!-- generated:provision-diff -->
+### Provision Changes Since v6.0.0
+
+Added (11):
+
+- `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
+- `litespec/backend/application#read-another-modules-state-through-a-view`
+- `litespec/backend/architecture#give-each-use-case-its-own-models`
+- `litespec/backend/architecture#repeat-coordination-never-a-rule`
+- `litespec/backend/dotnet/architecture#place-each-view-in-its-module-views-folder`
+- `litespec/core/automation#declare-each-view-field-from-a-published-field`
+- `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`
+- `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
+- `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from`
+- `litespec/frontend/data#brand-every-identifier-from-the-contract`
+- `litespec/frontend/data#compose-a-screen-from-each-owners-query`
+
+Removed (0):
+
+None.
+
+Renamed (0):
+
+None.
+
+Extensions added (0):
+
+None.
+
+Extensions removed (0):
+
+None.
+
+<!-- /generated:provision-diff -->
+
+### Part I: Upgrading a Consumer
+
+LiteSpec does no migration. Each step below is a manual edit, in the order given.
+
+1. Install `LiteSpec.Cli` 6.1.0 (`dotnet tool update LiteSpec.Cli --version 6.1.0`) or rerun the install script, set `reviewedLiteSpecVersion: 6.1.0` in `.litespec/project.yaml`, and move `LiteSpec.Analyzers` to 6.1.0.
+2. Remove `emits` from every effect entry and `sharesTransaction` from every inline edge. Give each outbound integration event a `translates` naming the domain event it carries, and make sure the use case raising it lists that event in `raises`.
+3. Rewrite each use-case `runs` effect as a reaction record: the reaction is triggered by the event the use case raises, or by the integration event translating it when the run use case sits in another module, and runs the use case. Where the old edge relied on one transaction, write the state guard on the later act and rewrite the rule it cited. Split a reaction or job that runs two use cases into two.
+4. Split each use-case folder into `Application/` and `WebApi/`, and fix the namespaces.
+5. Move each event handler out of its `On{Fact}/` folder, and each job out of the module `Jobs/` folder, into the `Application/` folder of the use case it runs, or into `Notifications/<Notification>/` or `ExternalSystems/<System>/` when it runs none.
+6. Move each message, result and transport model out of aggregate and module folders into the use case that owns it; where two use cases shared one, give each its own copy. Remove module and aggregate `WebApi/` folders.
+7. Remove `Contracts/Commands/` and `Contracts/Exceptions/`. Another module's use of a command becomes a fact that the owning module's reaction answers; another module's refusal becomes the reading module's own declared refusal.
+8. Remove every mediator from command handlers, query handlers, validators, steps and domain types, and every publisher call from module code. Build each integration event from its domain event alone in the shared kernel's staging step, and turn each batch command that loops and sends commands into a job that sends one command per item.
+9. For each cross-module reader, decide per caller: a view the reading module writes with `litespec new view`, a decision port with one method, or a screen that calls each owner's query.
+10. Run `dotnet build` and fix `LS2019`, `LS2021` and `LS2022`, then run `litespec model check` and fix `record-invalid`, `code-placement-drift`, `mark-folder-drift`, `effect-undeclared` and the `view-*` findings.
+
 ## v6.0.0
 
 LiteSpec 6.0.0 gives constraints their sources, scope and rules, and gives journeys a start, steps and branches. It also moves each feature into the problem it answers, declares modules only in Behavior, puts each child record in a typed folder, ties each research finding to its source, and publishes release candidates from release branches. It adds the vision record, puts each named record and each requirement in its own folder, gives every explanation file plain sections behind an opening paragraph, states each problem by its failure cases, and has each feature state its boundaries for the people who build and test it. It is a major release: it changes the record layout, renames and retires the provision IDs that Part H lists, and removes fields, so a consumer moves its records, rewrites its explanation files and follows Part I. It also adds three guides: Write a Constraint, Write a Journey and Write a Research Record.

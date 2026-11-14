@@ -2,7 +2,7 @@
 
 ## Intent
 
-This index lists the 45 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
+This index lists the 47 analyzer rules, one reference page per rule, grouped by the layers each rule runs in. A developer who meets an error opens the page with the same ID to see what the rule reports, where the error sits, and how to fix the code. Each entry carries a 1-line summary of what the rule reports.
 
 ## Domain Rules
 
@@ -24,7 +24,7 @@ Rules `LS1001` to `LS1013` run in Domain only.
 
 ## Outer-Layer Rules
 
-Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2020` run across layers, as each page states.
+Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2022` run across layers, as each page states.
 
 - [LS2001: Implementation Type Is Not Internal Sealed](ls2001.md): reports an implementation type that is not `internal sealed`.
 - [LS2003: WebApi Uses an MVC Controller](ls2003.md): reports an MVC controller.
@@ -42,8 +42,10 @@ Rules `LS2001`, `LS2003` to `LS2007`, and `LS2009` to `LS2020` run across layers
 - [LS2016: Handler Takes a Pipeline-Owned Collaborator](ls2016.md): reports a handler that takes a pipeline-owned collaborator.
 - [LS2017: LiteSpecLayer Names No Known Layer](ls2017.md): reports a declared layer value that names no known layer.
 - [LS2018: File Names a Type Outside Its Layer](ls2018.md): reports a type outside the file's layer.
-- [LS2019: Use Case Names a Type of Another Use Case](ls2019.md): reports a type declared in another use case, reaction, or job folder.
+- [LS2019: Use Case Names a Type of Another Use Case](ls2019.md): reports a type declared in another use case folder.
 - [LS2020: Module Names a Type Outside Another Module's Contracts](ls2020.md): reports a type of another module declared outside its Contracts folder.
+- [LS2021: Message Sent Outside an Entry Point](ls2021.md): reports a command, query, or event mediator held by a type that is not an endpoint, reaction, or job.
+- [LS2022: Event Published by User Code](ls2022.md): reports user code naming the event mediator or an event publisher.
 
 ## Naming and Style Rules
 

@@ -4,7 +4,7 @@ Read this file before you change the LiteSpec repository or a consumer applicati
 
 ## What LiteSpec Covers
 
-LiteSpec 6.0.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
+LiteSpec 6.1.0 is the contract for one bounded-context business application. A project names one size (small or large), one shape (server or client-only), its stacks and the record layers it uses: one backend stack for a server project, and one stack per frontend. The project claims its record layers in `layers`: intent and behavior, and implementation and proof, which each take `litespec` or `own`.
 
 A stack is a folder with a `stack.md` page: `docs/backend/dotnet/`, `docs/frontend/web/react/`, `docs/frontend/web/svelte/`, `docs/frontend/blazor/` and `docs/frontend/mobile/android/`. Selecting a stack applies its folder, every folder above it, and their subfolders that hold no stack. An extension applies only when the project selects it.
 
@@ -114,14 +114,16 @@ Sources: `litespec/core/authoring#publish-each-release-as-a-complete-contract`, 
 Read the full provision before you apply any of these:
 
 - Use the shared kernel and modules projects ordered module, then aggregate, then `UseCases/`, then use case. (`litespec/backend/dotnet/architecture#separate-the-shared-kernel-from-the-modules`)
-- Put a type in the lowest folder that holds every consumer naming it. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`)
+- Put a type that is not a use case's own model in the lowest folder that holds every consumer naming it, and give each use case its own messages, results and transport models. (`litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, `litespec/backend/architecture#give-each-use-case-its-own-models`)
 - Keep Domain free of persistence, web, mediator, logging and dependency injection. (`litespec/backend/architecture#point-dependencies-inward`)
 - Model each aggregate lifecycle with an abstract state and sealed state records. (`litespec/backend/dotnet/domain#model-every-aggregate-lifecycle-with-state-records`)
 - Model each closed set in Domain as a record hierarchy instead of an enum. (`litespec/backend/dotnet/domain#model-every-closed-set-of-domain-values-without-enums`)
 - Give each architecture layer its own messages, results and transport models. (`litespec/backend/architecture#own-each-layers-contract-types`)
 - Give each rejected Domain rule its own exception type and stable refusal code. (`litespec/backend/dotnet/domain#reject-business-violations-with-domain-exceptions`)
-- Organize code by module, aggregate and use case. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`)
-- Write commands through repositories, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
+- Organize code by module, aggregate and use case, with `Application/` and `WebApi/` inside each use case, and place each reaction and job with the use case it runs. (`litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`, `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`)
+- Write commands through repositories, send no message from a handler, and commit once in the command pipeline. (`litespec/backend/application#keep-command-handlers-to-load-call-and-stage`, `litespec/backend/persistence#commit-each-command-pipeline-once`)
+- Publish integration events only from the domain events they translate, never from user code. (`litespec/backend/application#emit-declared-integration-events-after-commit`)
+- Read another module's state through the module's own view, or ask one question through a decision port. (`litespec/backend/application#read-another-modules-state-through-a-view`, `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`)
 - Derive the actor from verified claims, and authorize each target from declared permissions. (`litespec/backend/application#enforce-target-authorization-in-the-pipeline`)
 - Use the controlled shadcn/ui baseline for React and the shadcn-svelte baseline for Svelte. (`litespec/frontend/ui#select-one-visual-authority`, `litespec/frontend/ui#pin-the-baseline-in-the-shared-package`)
 

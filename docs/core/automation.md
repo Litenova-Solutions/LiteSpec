@@ -5,7 +5,7 @@
 
 ## Intent
 
-Automation states the work that runs without a request: the reactions answering events and the jobs running on schedule, once, or by hand. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
+Automation states the work that runs without a request: the reactions answering events, the jobs running on schedule, once, or by hand, and the views a module keeps current from another module's published events. Agents write these records from Intent, and code carries them. The [Behavior overview](behavior.md) maps the five Behavior pages, and the [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -17,7 +17,7 @@ A reaction is work that runs when a domain or integration event arrives. It carr
 |:---|:---|
 | `triggeredBy` | The list of `event/...` or `integration-event/...` ids the reaction answers. |
 | `skippedWhen` | The skip condition in domain words, completing "when ...", optional. |
-| `effects` | `{ runs / sends / emits / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states; a reaction may omit `timing`, which reads as `async`. |
+| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, with at most one `runs` entry; a reaction may omit `timing`, which reads as `async`. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads`, `changes` | The requirements carried, the journey steps served, the failure handling, the idempotency, and the aggregates read and changed, as on a use case. |
 | `onFailure` | `{ mode, retry, then, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `then` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
 | `idempotency` | The idempotency mode, usually `state`; a `key` templates `{field}` placeholders over the triggering event fields, which the record does not list. |
@@ -33,12 +33,27 @@ A job is work that runs on a schedule, once, or by hand. It carries the identifi
 | `kind` | `scheduled`, `one-off`, or `manual`. |
 | `schedule` | The schedule, required with `scheduled`: `{ "every": "PT1M" }`, `{ "cron": "0 3 * * *", "timezone": "..." }`, or `{ "at": "startup" }` for a run once at deployment start. |
 | `selection`, `batchSize`, `lease`, `cursor`, `runbook`, `runsWhere`, `guard`, `serviceLevel`, `evidence` | What each run selects, how many items per batch, the lock with its duration, where resume state lives, the runbook answering the run, where it runs, the guard it runs under, the promised service level, and the evidence the run leaves. `guard` is required with `manual`. |
-| `effects` | `{ runs / sends / emits / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states; a job states `timing` on each entry. |
+| `effects` | `{ runs / sends / calls, timing }` entries with exactly one verb, as the [use-cases page](use-cases.md) states, with at most one `runs` entry; a job states `timing` on each entry. |
 | `fulfills`, `serves`, `onFailure`, `idempotency`, `reads`, `changes` | The requirements carried, the journey steps served, the failure handling, the idempotency, and the aggregates read and changed, as on a use case. |
 | `onFailure` | `{ mode, retry, then, deadLetter, surfacesIn, runbook }`: `mode` is `retry`, `skip-and-log`, or `discard`; `retry` is `{ maxAttempts, initialDelay, maxDelay, backoff }` with `exponential` or `fixed` backoff; `then` is `dead-letter`; `deadLetter` is `{ after, action }`; `surfacesIn` names an `entry-point/...` and `runbook` a `runbook/...`. `retry` and `then` are required with `mode: retry`; `deadLetter`, `surfacesIn`, and `runbook` are optional. Delays and `after` are ISO 8601 durations. |
 | `idempotency` | The idempotency mode, usually `state`; a `key` templates `{field}` placeholders over the run window fields, which the record does not list. |
 
 A job may hold scenario child records ending in a result of a use case its effects run. A job host carries `implements job/<module>.<name>`.
+
+### Views
+
+A view is one module's own copy of what it needs to know about another module's aggregate, kept current from the integration events that module publishes. It carries the identifier `view/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/views/<name>/<name>.yaml`, filed with the module that reads it. A view is named for the thing it keeps one row per, as a singular noun phrase such as `reimbursed-expense`. A use case names the view in `reads`, as it names an aggregate, and reads its own copy instead of calling the owning module. It carries `summary`, and Sources, Freshness and an optional Example live in the explanation file beside the record file.
+
+| Field | Meaning |
+|:---|:---|
+| `keyedBy` | The `aggregate/...` of another module the view keeps one row per. |
+| `fields` | `{ name, meaning, type, of, many, from, accumulate, classification, erasedBy }` entries. `from` names the published field as `integration-event/<name>#<field>`; `accumulate` is `latest` (the default), `sum`, or `count`; `type`, `of`, `many` and `classification` read as on use-case inputs. |
+| `erasedBy` | On a `personal` or `sensitive` field, the `integration-event/...` whose arrival erases the field, required. |
+| `removedBy` | The `integration-event/...` ids whose arrival removes the row, optional. |
+| `freshness` | How stale a reader may see a row, as an ISO 8601 duration, such as `PT5S`. |
+| `fulfills`, `terms` | The requirements carried and the glossary terms used, optional. |
+
+A view's code is a set of projections, one per source integration event, each writing only its view, and the reader its module's use cases call. Each carries `implements view/<module>.<name>`. A decision that cannot accept the view's `freshness` asks the owning module one question through a decision port instead, as the [Application Layer page](../backend/application.md) states. With the outbox extension, each integration event a view names is kept for as long as a view may rebuild from it.
 
 ### Runbook
 
@@ -88,7 +103,7 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each reaction and each job MUST declare its edges in `effects`, with exactly one verb per entry.
 
-**Rationale:** A reaction or job with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `runs`, `sends`, `emits`, or `calls` keeps every consequence of the reaction or job beside its trigger, under one grammar for every record that has edges, as the [use-cases page](use-cases.md) states.
+**Rationale:** A reaction or job with no declared edge observes and never acts, while an edge outside `effects` hides behavior the checks never see. Declaring each edge in `effects` with exactly one verb of `runs`, `sends`, or `calls` keeps every consequence of the reaction or job beside its trigger, under one grammar for every record that has edges, as the [use-cases page](use-cases.md) states.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a reaction or job with no `effects` or with a top-level effect verb.
 
@@ -116,9 +131,57 @@ A runbook is the steps to run or recover the product. It carries the identifier 
 
 **Statement:** Each reaction and each job MUST live with the module whose records it changes, or with the module owning the notification it sends when it only sends.
 
-**Rationale:** Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler lives in that module's code in the `On{Fact}` folder inside the module `UseCases/` folder (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page shows reactions answering its event as a view derived from records.
+**Rationale:** Reactions and jobs filed by trigger scatter: one module behavior hides on a dozen trigger pages, and nobody sees the module whole. Filing each reaction and job with the module it changes keeps each module behavior in one place. Its event handler or job class lives in that module's code with what it runs: in the folder of the use case it runs, or with the notification it sends or the system it calls (`litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`). The trigger page lists the reactions answering its event, derived from records.
 
 **Reviewed for:** Which reaction or job pages sit outside the module they change? Look at the reactions and jobs beside the modules whose records they change.
+
+### Run at Most One Use Case from a Reaction or Job
+
+**ID:** `litespec/core/automation#run-at-most-one-use-case-from-a-reaction-or-job`
+
+**Strength:** required
+
+**Applies to:** artifact: record:reaction, record:job
+
+**Statement:** A reaction or job MUST run at most one use case, a job running it once per selected item.
+
+**Rationale:** A reaction or job is an entry point: it turns one fact or one selected item into one message, as an endpoint turns one request into one message. A reaction that ran two use cases would decide their order and their joint failure in code no record states, and the second would fail after the first committed. Two follow-on acts are two reactions to the same fact, each with its own failure handling. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
+
+**Example:** The erase-expired-personal-data job selects decided expenses past retention and runs `use-case/spending.erase-personal-data` once for each.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a reaction or job with more than one `runs` entry.
+
+### Declare Each View Field from a Published Field
+
+**ID:** `litespec/core/automation#declare-each-view-field-from-a-published-field`
+
+**Strength:** required
+
+**Applies to:** artifact: record:view
+
+**Statement:** Each view MUST name in `keyedBy` an aggregate of another module and, on each field, name in `from` the outbound integration event and the payload field the field comes from.
+
+**Rationale:** A view is a copy, and a copy with no stated source drifts: nobody can tell which event fills a field, so a renamed payload field breaks the view without a finding. Naming the event and its field makes every crossing of the module boundary a declared edge the check reads, the same way an effect names its target. A view keyed by its own module's aggregate copies state the module already reads directly. A use case names the view in `reads`, and a view no use case reads is kept current for no reader. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+
+**Example:** `view/reporting.reimbursed-expense` is keyed by `aggregate/spending.expense`, and its `amount` field comes from `integration-event/expense-reimbursed#amount`.
+
+**Checked by:** `litespec model check` reports `view-source-unknown` (level G) for a `from`, `erasedBy` or `removedBy` naming no outbound integration event or a payload field the event does not carry, `view-key-invalid` (level G) for a `keyedBy` naming an aggregate of the view's own module, and `view-unused` (level A) for a view no use case reads.
+
+### Erase a Viewed Personal Field with Its Owner
+
+**ID:** `litespec/core/automation#erase-a-viewed-personal-field-with-its-owner`
+
+**Strength:** required
+
+**Applies to:** artifact: record:view
+
+**Statement:** Each `personal` or `sensitive` view field MUST name in `erasedBy` the integration event whose arrival erases it.
+
+**Rationale:** A view copies data out of the module that owns its erasure, so a copy without an erasure trigger outlives the owner's erasure and keeps personal data the product promised to remove. Naming the erasing event ties the copy to the owner's erasure position, and the projection for that event clears the field. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+
+**Example:** The `employeeId` field of `view/reporting.reimbursed-expense` is personal, so it names `integration-event/expense-personal-data-erased` in `erasedBy`, and the projection for that event clears it.
+
+**Checked by:** `litespec model check` reports `view-erasure-missing` (level G) for a `personal` or `sensitive` view field with no `erasedBy`.
 
 ### Name Each Reaction for Its Act and Its Trigger
 

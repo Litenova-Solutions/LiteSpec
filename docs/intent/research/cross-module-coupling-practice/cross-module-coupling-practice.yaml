@@ -1,0 +1,27 @@
+type: research
+id: research/cross-module-coupling-practice
+title: Cross-Module Coupling Practice
+sources:
+  - url: https://martinfowler.com/articles/201701-event-driven.html
+    readOn: 2026-11-14
+    key: martinfowler-articles-201701-event-driven
+  - url: https://alistair.cockburn.us/hexagonal-architecture/
+    readOn: 2026-11-14
+    key: cockburn-hexagonal-architecture
+  - url: https://jimmybogard.com/vertical-slice-architecture/
+    readOn: 2026-11-14
+    key: jimmybogard-vertical-slice-architecture
+  - url: https://github.com/kgrzybek/modular-monolith-with-ddd
+    readOn: 2026-11-14
+    key: github-kgrzybek-modular-monolith-with-ddd
+  - path: docs/backend/application.md
+    readOn: 2026-11-14
+    key: application
+  - path: docs/backend/dotnet/architecture.md
+    readOn: 2026-11-14
+    key: dotnet-architecture
+  - path: schemas/record.schema.yaml
+    readOn: 2026-11-14
+    key: record-schema
+question: How do comparable practices keep a slice, a handler and a module from coupling to each other's internals, and what did a large consumer of LiteSpec 5 and 6 show about the shared folders and nested commands the rules allowed?
+conclusion: Outside practice couples within a slice and not between slices, lets a module learn another module's state from published events, and keeps ports for what the core asks of the outside; a large consumer showed that the allowed exemptions grew shared folders, nested commands and cross-module readers, so 6.1 removes the exemptions, places every trigger with what it runs, derives publishing from the translated domain event, and adds the view record.

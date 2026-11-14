@@ -32,11 +32,11 @@ This extension switches on no optional record type: integration events, settings
 
 **Applies to:** artifact: command-handler
 
-**Statement:** A use case declaring `after-commit` `emits` or `runs` effects MUST stage each effect in the outbox in the same transaction as its changes.
+**Statement:** A use case MUST stage each domain event its act raises, and each integration event translating one of them, in the outbox in the same transaction as its changes.
 
-**Rationale:** After-commit timing promises the message follows the commit: staged in the same transaction, the change and its message share one fate. An `emits` effect is a domain event the aggregate raises, and persistence stages that event in the outbox in the same commit as the aggregate, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. An effect sent from memory instead would vanish on a crash between the commit and the send. `litespec/core/use-cases#declare-every-effect-with-one-verb-and-its-timing` states the effect verbs and their timing, and `async` effects dispatch without the transaction.
+**Rationale:** A raised fact promises that what follows it will run: staged in the same transaction, the change and its message share one fate. One global step stages each raised domain event for the reactions of its module and each integration event whose record translates it, built from the domain event alone, as `litespec/backend/application#emit-declared-integration-events-after-commit` requires. No user code stages or publishes, so this step is the one stager. A message sent from memory instead would vanish on a crash between the commit and the send, and every follow-on act runs from a reaction to a staged fact.
 
-**Reviewed for:** Which after-commit `emits` or `runs` effects, or domain events, stage outside the transaction of their aggregate changes? Look at each command handler's effects and the outbox writes beside them.
+**Reviewed for:** Which raised domain events or translated integration events stage outside the transaction of their aggregate changes, or through a stager other than the one global step? Look at the pipeline's staging step and the outbox writes beside it.
 
 ### Declare Published Facts as Integration Events
 
@@ -46,11 +46,27 @@ This extension switches on no optional record type: integration events, settings
 
 **Applies to:** artifact: record:integration-event
 
-**Statement:** Each `emits` effect MUST name an integration-event record carrying direction, payload, and trust.
+**Statement:** Each integration event the outbox delivers MUST have an integration-event record carrying direction, payload, trust and, for an outbound event, the domain event it translates.
 
 **Rationale:** A published fact without a record is a promise nobody versioned: readers depend on fields no page states, and a field change breaks them without a diff. The integration-event record states the direction, the payload with its classifications, and the trust readers place in it. The [edges page](../core/edges.md) states the declaration and the record.
 
-**Reviewed for:** Which `emits` effects name no integration-event record, or one without direction, payload, and trust? Look at each `emits` effect and the integration-event record it names.
+**Reviewed for:** Which delivered integration events have no record, or one without direction, payload, trust or `translates`? Look at each integration event type beside its record.
+
+### Keep Integration Events a View Rebuilds From
+
+**ID:** `litespec/ext/outbox#keep-integration-events-a-view-rebuilds-from`
+
+**Strength:** required
+
+**Applies to:** artifact: record:view, record:integration-event
+
+**Statement:** A project MUST keep every integration event a view names in `from`, `erasedBy` or `removedBy` for as long as a view may need rebuilding from it, apart from the outbox's delivery records.
+
+**Rationale:** A new view, or a changed one, fills from the events the owner already published. An outbox that deletes delivered records after a few days leaves a new view nothing to replay, and every new view then needs a hand-written backfill from the owner's tables, which is the coupling the view exists to remove. Keeping the published events in a log apart from delivery lets a projection replay history. The log holds personal fields, so the erasing event a view names in `erasedBy` also erases the field in the log. Settled by [decision/0065-read-another-module-through-a-view](decision/0065-read-another-module-through-a-view).
+
+**Example:** The reporting module rebuilds its reimbursed-expense view by replaying the kept expense-reimbursed events, while the outbox deletes its delivery records after seven days.
+
+**Reviewed for:** Which integration events a view names are kept only as long as the outbox keeps its delivery records, and which kept logs hold personal fields their erasing event never clears? Look at the event log's retention beside the views that read it.
 
 ### Record Durable Delivery Behavior
 
@@ -88,11 +104,11 @@ This extension switches on no optional record type: integration events, settings
 
 **Applies to:** artifact: reaction, job
 
-**Statement:** A reaction or job the outbox excludes MUST emit after its commit succeeds without staging an outbox record.
+**Statement:** The facts raised by the use case a reaction or job the outbox excludes runs MUST be published after that use case's commit succeeds, without staging an outbox record.
 
-**Rationale:** Without an outbox record, nothing survives a crash between the commit and the emit, so the reaction or job emits immediately after its commit succeeds and accepts the loss. Emitting before the commit risks worse: it fires for a change the database then rolls back.
+**Rationale:** Without an outbox record, nothing survives a crash between the commit and the publish, so the pipeline publishes the raised facts immediately after the commit succeeds and accepts the loss. Publishing before the commit risks worse: it fires for a change the database then rolls back. The reaction or job itself publishes nothing; the pipeline's staging step does.
 
-**Reviewed for:** Which excluded reactions or jobs emit before their commit succeeds, or stage an outbox record? Look at each excluded reaction's and job's emit call.
+**Reviewed for:** Which facts raised under an excluded reaction or job publish before the commit succeeds, or stage an outbox record? Look at the pipeline's publish step for the use cases those reactions and jobs run.
 
 ### Stage Messages with Business Work
 

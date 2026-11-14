@@ -47,11 +47,11 @@ This extension switches on no optional record type.
 
 **Strength:** required
 
-**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`.
+**Statement:** An application MUST place commands, queries, results, validators, handlers, event handler classes, job classes, and module-owned ports in one Application project, and cross-module contracts in Application.Abstractions, or in Application where the project merges them under `litespec/backend/dotnet/ext/layer-projects#use-five-application-projects`.
 
-**Rationale:** Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers live in Application `On{Fact}` folders of the aggregate whose records they change; job host classes live in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
+**Rationale:** Splitting Application into Write, Read, Contracts, and event-handler assemblies would buy a deployment boundary the stack never uses, and every use case would pay for it with a project reference to cross. The separation this stack keeps is the one [Fowler describes as CQRS](https://www.martinfowler.com/bliki/CQRS.html): the command and query models differ, while one assembly holds them. Event handlers and jobs live with the use case they run inside the Application project, in that use case's operation folder; one that runs none lives in the module `Notifications/` folder of the notification it sends or the `ExternalSystems/` folder of the system it calls. Job scheduling stays in Worker or Infrastructure with the scheduling concerns, under `litespec/backend/architecture#declare-the-execution-host-for-work-that-outlives-a-request`.
 
-**Reviewed for:** Which command, query, result, validator, handler, or event handler files escape the Application project, or which cross-module contracts escape Application.Abstractions and the merged Application? Look at the Application project files beside the shared contracts.
+**Reviewed for:** Which command, query, result, validator, handler, event handler, or job files escape the Application project, or which cross-module contracts escape Application.Abstractions and the merged Application? Look at the Application project files beside the shared contracts.
 
 ### Mirror Modules in Folders and Namespaces
 
@@ -370,7 +370,7 @@ Each aggregate-specific repository interface stays with the aggregate it loads. 
 
 **Replacement:** A project names its operation layout in its Application documentation.
 
-**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case or a handled fact gets a folder: any other type sits flat in the folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`, and a handled fact's folder takes the `On{Fact}` name with its marked handler classes. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
+**Rationale:** The folder path matches the specification path, so a reader locates an operation from its use-case identifier without searching. Type names derive from the use-case identifier with the architectural suffix, so `use-case/spending.submit-expense` owns `SubmitExpenseCommand` under `litespec/workspace/naming#use-architectural-suffixes`. Only a use case gets an operation folder: any other type sits flat in the folder that owns it under `litespec/backend/architecture#place-a-type-at-the-lowest-folder-that-holds-its-consumers`. An event handler or job that runs a use case sits in that use case's operation folder; one that runs none sits in the module `Notifications/` or `ExternalSystems/` folder named for what it sends or calls, under `litespec/workspace/naming#group-event-handlers-by-the-fact-they-handle`. Each result type carries one case per result, and each refusal carries the refusal `code` from its result record. A query result type carries one member per declared `include` group, and each result part is named after its result under `litespec/workspace/naming#name-result-parts-after-their-result`.
 
 **Example:** The operation layout is:
 
@@ -395,6 +395,7 @@ Each aggregate-specific repository interface stays with the aggregate it loads. 
       CreateDraftCommandResult.cs
       CreateDraftCommandValidator.cs
       CreateDraftCommandHandler.cs
+      CreateDraftOnAuthorRegisteredHandler.cs   the reaction that runs this use case
     GetPost/
       GetPostQuery.cs
       GetPostQueryResult.cs
@@ -406,9 +407,12 @@ Each aggregate-specific repository interface stays with the aggregate it loads. 
       ListPostsQueryResultItem.cs
       ListPostsQueryValidator.cs
       ListPostsQueryHandler.cs
-    OnPostPublished/   event handlers of one fact: one marked class per reaction
-      NotifySubscribersOnPostPublishedHandler.cs
-      IPostPublicationNotifier.cs   a port one event handler names
+    Notifications/
+      SubscriberDigest/             a reaction that only sends this notification
+        SendDigestOnPostPublishedHandler.cs
+    ExternalSystems/
+      SearchIndex/                  a reaction that only calls this system
+        IndexPostOnPostPublishedHandler.cs
   Customers/                        two aggregates: operations nest under each aggregate
     CustomerAccounts/
       CustomerAccountScopeLookup.cs aggregate-owned, so it sits with the aggregate
@@ -423,7 +427,7 @@ Each aggregate-specific repository interface stays with the aggregate it loads. 
 
 Module and aggregate order, including the single-aggregate flat form, follow `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-**Reviewed for:** Which operation folders miss message, result, validator, or handler files named for the use case, or which event handlers escape their `On{Fact}` folder? Look at each operation folder.
+**Reviewed for:** Which operation folders miss message, result, validator, or handler files named for the use case, or which event handlers and jobs sit outside the folder of what they run? Look at each operation folder.
 
 ### Use the Endpoint Folder Layout
 
@@ -494,7 +498,7 @@ Module and aggregate order, including the single-aggregate flat form, follow `li
     Marten/
       MartenServiceRegistration.cs
       MartenStoreConfiguration.cs
-      Commands/
+      Commit/
         SaveChangesCommandPostHandler.cs
       Events/
         DomainEventBuffer.cs

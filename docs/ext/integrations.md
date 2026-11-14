@@ -14,7 +14,7 @@ Activation scope: `local`.
 
 Applicable specification kinds: `use-case`, `rule`, `journey`.
 
-The consumer enables `integrations` for each use case that calls an external system, emits to one, receives an inbound integration event, or uses a provider SDK.
+The consumer enables `integrations` for each use case that calls an external system, receives an inbound integration event, or uses a provider SDK.
 
 ## Baseline Relationship
 

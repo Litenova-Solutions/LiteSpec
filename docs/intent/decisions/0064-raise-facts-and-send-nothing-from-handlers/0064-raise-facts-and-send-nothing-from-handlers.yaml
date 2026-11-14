@@ -1,0 +1,18 @@
+type: decision
+id: decision/0064-raise-facts-and-send-nothing-from-handlers
+title: Raise Facts and Send Nothing from Handlers
+options:
+  - name: "Handlers raise facts; reactions run what follows; the pipeline publishes"
+    pros: "Every commit belongs to one use case, every follow-on act is a reaction record with its own failure handling, and no user code builds or publishes an integration event."
+    cons: "An edge that ran inline in one transaction becomes eventual, so a consumer writes a state guard where the old edge relied on atomicity, and a caller waits for the later fact."
+  - name: "Keep inline edges that state their transaction sharing"
+    pros: "A caller gets every answer in one round trip, and atomic writes span use cases."
+    cons: "Nested dispatch needs ambient scopes and shared caches, a nested command rides on its caller's commit, and the edge graph hides which use case owns a write."
+  - name: "Allow act ports between modules"
+    pros: "A module changes another module's aggregate through a typed interface instead of a message."
+    cons: "An act port is a nested command through an interface: the same transaction coupling with less visibility in the records."
+choice: "Handlers raise facts; reactions run what follows; the pipeline publishes"
+consequences: "A use case's `effects` hold only `sends` and `calls`. A reaction or job runs at most one use case, and only a reaction or job runs one. No record declares `emits`: an outbound integration event names the domain event it carries in `translates`, and the use cases raising that event publish it through the one pipeline step that stages raised events. `sharesTransaction` is removed, atomic consistency stays inside one use case's writes, and every command commits in its own pipeline. LS2021 reports a mediator held outside an endpoint, event handler or job, and LS2022 reports an event published by user code. A module publishes typed identifiers, integration events and ports, and no command or refusal. The provisions `litespec/core/principles#state-transaction-sharing-on-every-inline-edge`, `litespec/core/principles#confine-atomic-consistency-to-synchronous-edges`, `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call` and `litespec/core/edges#publish-every-outbound-integration-event-from-effects` keep their identifiers for the 6.x line and state the new rules."
+reopenedWhen: "A consumer shows a decision that cannot hold with a state guard and needs two use cases' writes in one transaction, or a caller whose answer cannot wait for a later fact."
+basedOn:
+  - research/cross-module-coupling-practice

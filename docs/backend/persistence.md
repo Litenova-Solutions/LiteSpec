@@ -72,7 +72,7 @@ The manifest pins both providers' packages, because the extension is part of thi
 
 **Statement:** Exactly one global command post-handler MUST commit the session for a command pipeline.
 
-**Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
+**Rationale:** One commit point makes the transaction boundary visible: everything the handler staged succeeds or fails together, and a failed command leaves the session uncommitted. If handlers or repositories committed, a later failure in the same pipeline leaves a partial write behind. Handlers, repositories, validators, reactions, jobs, and endpoints commit nothing. Every command is a top-level pipeline with its own commit, because no handler sends a command: a command never rides on a caller's commit. A declared consistency mode other than `atomic` splits work across commands; each command still commits once.
 
 **Example:** In the Claimwick product, `use-case/spending.submit-expense` stages the expense through its Domain repository, and one post-handler commits once after the handler returns:
 

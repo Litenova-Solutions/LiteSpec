@@ -27,7 +27,7 @@ The `addresses` list names the three actors that hold the product's roles. The a
 
 ## The Spending Module
 
-The product has one module, Spending. A module record names one product area and the records that belong to it. It is declared in Behavior, beside the aggregates it groups, at `.litespec/behavior/modules/spending/module.yaml`:
+The product has two modules, Spending and Reporting. A module record names one product area and the records that belong to it. It is declared in Behavior, beside the aggregates it groups, at `.litespec/behavior/modules/spending/module.yaml`:
 
 ```yaml
 type: module
@@ -166,4 +166,4 @@ Use cases point at these steps: the submit use case serves `journey/submit-and-r
 
 The explanation file, `.litespec/intent/journeys/submit-and-reimburse/submit-and-reimburse.md`, holds the Example and Branches sections, with one worked week of a train fare. The journey starts in `startedWhen`, so the Example begins from that state and does not repeat it as a precondition.
 
-Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them.
+Next, [Modules and Records](modules-and-records.md) specifies this intent in the Spending module: its aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and setting around them. It also covers the Reporting module, which lists the reimbursed expenses from a view.

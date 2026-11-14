@@ -41,6 +41,7 @@ Use this generated page to find the folder and file each record type lives in, r
 | `notification` | `behavior/modules/{module}/notifications/{name}` | `{name}.yaml` |
 | `setting` | `behavior/modules/{module}/settings` | `*` |
 | `integration-event` | `behavior/modules/{module}/integration-events/{name}` | `{name}.yaml` |
+| `view` | `behavior/modules/{module}/views/{name}` | `{name}.yaml` |
 | `permission` | `behavior/modules/{module}` | `permissions.yaml` |
 | `entry-point` | `behavior/entry-points/{entry-point}` | `entry-point.yaml` |
 | `screen` | `behavior/entry-points/{entry-point}/screens/{home}.{name}` | `{home}.{name}.yaml` |

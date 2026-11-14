@@ -59,7 +59,7 @@ A decision whose source is `recommended` stands until an owner chooses otherwise
 
 ## What the Model Checks
 
-`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract and the one frontend, `web`, which declares `platform: svelte`. Three lines from the run show the shape of the result, one at each finding level; the full 26-line output is in [The Model and Its Checks](model-and-checks.md#the-full-check):
+`litespec model check --root examples/claimwick` runs the controlled UI pass over the package, its source lock, its design contract and the one frontend, `web`, which declares `platform: svelte`. Three lines from the run show the shape of the result, one at each finding level; the covered findings are listed in [The Model and Its Checks](model-and-checks.md#the-full-check):
 
 ```text
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unreached] Use case 'use-case/spending.submit-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.

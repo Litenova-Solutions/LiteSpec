@@ -11,26 +11,28 @@ Use Cases states what the system does and what it answers: the commands and quer
 
 ### Use Cases
 
-A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results.
+A use case is one goal a single test proves through the public boundary: a page beside its aggregate with one kind. A command changes the product; a query reads without changing. Each use case names the journey steps it serves in `serves`, the requirements it carries in `fulfills`, who may act in `access`, the entry points reaching it in `reachedThrough`, the aggregates and views it touches in `changes` and `reads`, the events it raises in `raises`, and how it ends in its results.
 
 | Field | Meaning |
 |:---|:---|
 | `access` | `{ grant, tenant }`: grant of `permission/<name>`, `self(permission/<name>)`, `anonymous`, or `system`; tenant of `own`, `cross`, `public`, or `none`. The door the call arrives through declares `auth`, as the [Access page](access.md) states. |
 | `input` | `{ name, meaning, type, of, many, required, rules, origin, classification }` entries; `type` is `text`, `integer`, `decimal`, `money`, `boolean`, `date`, `date-time`, `duration`, `email`, `choice`, or `id`; `of` names the record an `id` refers to or the choices of a `choice`; `many` is true when the field holds a list of values of its type; `required` states whether the caller sends the field; origin is `caller`, `claim`, or `derived`. |
-| `changes`, `reads` | Aggregate ids changed, and aggregate and setting ids read, including `store` aggregates. |
+| `changes`, `reads` | Aggregate ids changed, and aggregate, view and setting ids read, including `store` aggregates. A view is the module's own copy of another module's state, as the [Automation page](automation.md#views) states. |
 | `consistency` | `{ mode, cites }`: mode of `atomic`, `per-record`, or `compensated`. An atomic write across aggregates cites its `atomicity` rule in `cites`. |
-| `effects` | `{ runs / sends / emits / calls, timing, onFailure, onExhausted, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`. |
+| `effects` | `{ sends / calls, timing, onFailure, onExhausted, before, forEach }` entries with exactly one verb; timing is `inline`, `after-commit`, or `async`, and only a query's `calls` may be `inline`. A use case runs no other use case and declares no integration event: a reaction runs what follows, and an outbound integration event names the event it translates. |
 | `idempotency` | `{ mode, key, scope, reason }`: mode of `key`, `state`, `not-pending`, or `none`; `key` templates `{field}` placeholders over the input field names; `scope` is `tenant`, `account`, `login`, or `global`. |
 | `audit` | `{ level, target }` with level of `required`, `optional`, or `none`, or `{ exempt }` with its justification. A level of `none` is not audited; async work audits at request time. |
 | `background` | The shared Given every scenario starts from, optional. |
 
-Each consistency mode defines its promise and the effect timings it permits:
+Each consistency mode defines its promise for the writes of the one use case:
 
-| Mode | Means | Effects allowed |
-|:---|:---|:---|
-| `atomic` | Every write in `changes` commits as one group | any timing |
-| `per-record` | Each write commits on its own; a failure leaves earlier writes in place | `after-commit`, `async` |
-| `compensated` | Each write names the undo that runs when a later write fails | `after-commit`, `async` |
+| Mode | Means |
+|:---|:---|
+| `atomic` | Every write in `changes` commits as one group |
+| `per-record` | Each write commits on its own; a failure leaves earlier writes in place |
+| `compensated` | Each write names the undo that runs when a later write fails |
+
+No mode reaches past the use case: every edge to another record runs after the commit.
 
 Each effect entry carries the one `onFailure` shape: `{ mode, retry, then, deadLetter, surfacesIn, runbook }` with `mode` of `retry`, `skip-and-log`, or `discard`; `retry` and `then` accompany `mode: retry`, and `deadLetter`, `surfacesIn`, and `runbook` stay optional. `onExhausted` names the act when retries run out. `before` orders the entry ahead of another named target with its reason, and `forEach` names the items the entry repeats over.
 
@@ -253,7 +255,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each use case a caller reaches from outside MUST name the entry points that reach it in `reachedThrough`.
 
-**Rationale:** A use case with no named door is reachable from anywhere or nowhere: readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction, a job, or another use case runs has no door of its own, and its `runs` edge already shows how it is reached.
+**Rationale:** A use case with no named door is reachable from anywhere or nowhere: readers cannot tell a public operation from an internal one. Naming the entry points shows how callers arrive at each behavior. A use case that only a reaction or a job runs has no door of its own, and the `runs` edge of that reaction or job already shows how it is reached.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a live use case that names no entry point and that nothing runs, and `reference-unknown` for a `reachedThrough` entry naming no entry point.
 
@@ -336,13 +338,13 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Statement:** Each effect entry MUST carry exactly one verb and its timing.
 
-**Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. Declaring each edge with exactly one verb of `runs`, `sends`, `emits`, or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling states every coupling as data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. The `effect-undeclared` check reports an edge the records never declared.
+**Rationale:** An edge no record declares is the defect: hidden calls between use cases, reactions, jobs, notifications, integration events, and external systems. A use case declares each edge with exactly one verb of `sends` or `calls`, with its timing of `inline`, `after-commit`, or `async`, and its failure handling, so every coupling is data. Timing is required on every use-case effect. On a command, a `sends` or `calls` effect carries `after-commit` or `async` timing, and an event handler runs the consequence after the commit. A use case declares no `runs` and no `emits`: a reaction to its raised fact runs what follows, and the integration events it publishes follow from `raises` and the `translates` field of each outbound integration event. The `effect-undeclared` check reports an edge the records never declared.
 
-**Example:** The reimburse-expense command emits the reimbursed integration event after commit.
+**Example:** The reimburse-expense command declares no effect: it raises its reimbursed fact, the expense-reimbursed integration event translates that fact, and the reporting module's view answers the published event.
 
 **Checked by:** `litespec model check` reports `effect-undeclared` for an edge the records never declared and `effect-timing-invalid` for a command `sends` or `calls` effect with `inline` timing; `litespec model check` reports `record-invalid` for an effect entry without exactly one verb or its timing.
 
-### State the Transaction Sharing of Every Inline Call
+### Run Follow-On Work Only from Reactions and Jobs
 
 **ID:** `litespec/core/use-cases#state-the-transaction-sharing-of-every-inline-call`
 
@@ -350,11 +352,13 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Applies to:** artifact: record:use-case
 
-**Statement:** Each inline `runs` effect MUST state whether it shares the caller transaction in `sharesTransaction`.
+**Statement:** A use case MUST NOT run another use case, so each follow-on act runs from a reaction to the fact the use case raised, or from a job.
 
-**Rationale:** An inline call without a stated transaction is a coin toss at failure: the caller rolls back while the issued work stands, or the reverse. Stating whether the call shares the caller transaction makes the failure shape reviewable beside the edge.
+**Rationale:** A use case that runs another use case nests one command inside another: the inner command rides on the outer commit, its failure rolls back work that had no reason to fail, and its record no longer states what it commits. A reaction to the raised fact runs the follow-on act in its own transaction, with its own failure handling and retry, so each record states one unit of work. The caller learns the outcome from the later fact instead of from the call. Settled by [decision/0064-raise-facts-and-send-nothing-from-handlers](decision/0064-raise-facts-and-send-nothing-from-handlers).
 
-**Checked by:** `litespec model check` reports `record-invalid` for an inline `runs` effect without `sharesTransaction`.
+**Example:** In the library product, borrowing a copy raises the loan-borrowed fact, and the send-due-notice reaction answers it in its own transaction instead of the borrow command sending the notice.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a use-case effect that names `runs`, `emits` or `sharesTransaction`.
 
 ### Keep the Effect Graph Free of Cycles
 

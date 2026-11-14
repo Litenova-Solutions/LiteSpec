@@ -49,7 +49,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 **Statement:** An endpoint MUST NOT take an aggregate repository, a persistence session or context, a provider client, or an application service.
 
-**Rationale:** An endpoint that took a repository, session, provider, or application service could reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; handlers take mediators and HTTP-boundary services such as an actor accessor.
+**Rationale:** An endpoint that took a repository, session, provider, or application service could reach business state or providers without passing the pipeline. Endpoints hold no request-scoped dependency because the application registers them at startup; they take only mediators and HTTP-boundary services such as an actor accessor. Handlers take neither, since a handler sends no message.
 
 **Reviewed for:** Which endpoint constructors take more than mediators and HTTP-boundary services? Look at the endpoint constructors in the use case folders.
 
@@ -551,34 +551,40 @@ An operation requiring a control header declares it as a required parameter, for
 
 **Applies to:** artifact: endpoint
 
-**Default:** Place each endpoint with its request and response models in its use case folder, shared transport types in the node `WebApi/` folders, and host-only endpoints in the host.
+**Default:** Place each endpoint with its request and response models in the `WebApi/` folder of its use case, and host-only endpoints in the host.
 
 **Replacement:** A project names its endpoint layout in its backend documentation.
 
-**Rationale:** An endpoint in its use case folder makes the folder path match the specification path. A reader locates an operation from its use-case identifier without searching. Transport types used by use cases of two or more aggregates sit in the module or aggregate `WebApi/` folder, while the host keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling.
+**Rationale:** An endpoint in the `WebApi/` folder of its use case makes the folder path match the specification path. A reader locates an operation from its use-case identifier without searching. Each use case owns its transport models, so a shape two use cases need is declared in each under `litespec/backend/architecture#give-each-use-case-its-own-models`. The host keeps the endpoints that have no handler to sit beside: protocol endpoints, static assets, and development-only tooling.
 
-**Example:** The endpoints sit in their use case folders inside the `UseCases/` folder of their module and aggregate:
+**Example:** The endpoints sit in the `WebApi/` folder of their use case inside the `UseCases/` folder of their module and aggregate:
 
 ```text
 {Product}/
   Posts/                            single aggregate whose name matches the module
-    WebApi/                         transport types used by two or more Posts use cases
     UseCases/
-      CreateDraft/                  endpoint, request model, and response model beside the handler
+      CreateDraft/
+        Application/                message, result, handler, validator
+        WebApi/                     endpoint, request model, response model
       GetPost/
+        Application/
+        WebApi/
   Customers/                        two aggregates: operations nest under each aggregate UseCases folder
     CustomerAccounts/
-      WebApi/                       transport types used by two or more CustomerAccounts use cases
       UseCases/
         RestrictAccount/
+          Application/
+          WebApi/
     Consents/
       UseCases/
         GrantConsent/
+          Application/
+          WebApi/
 ```
 
 Module nesting, including the single-aggregate flat form, follows `litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case`.
 
-**Reviewed for:** Which endpoints sit outside their use case folder or the host, or which shared transport types sit outside the node `WebApi/` folders? Look at the endpoints beside the use case folders.
+**Reviewed for:** Which endpoints sit outside the `WebApi/` folder of their use case or the host? Look at the endpoints beside the use case folders.
 
 ### Name Transport Types by Their Boundary Role
 

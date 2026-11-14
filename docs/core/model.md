@@ -17,7 +17,7 @@ Each record layer answers one question, is written from the record layer above i
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
 | Intent | Why build it, and what do we promise? | people and agents | product, goal, vision, problem, feature, requirement, constraint, decision, research, journey, actor, role, term (`layer: intent`) |
-| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
+| Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, event, integration-event, use-case, result, scenario, reaction, job, view, notification, setting, permission, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
 
@@ -53,6 +53,7 @@ Each type answers one question.
 | `integration-event` | behavior | Which facts cross the boundary? |
 | `reaction` | behavior | Which work runs when an event arrives? |
 | `job` | behavior | Which work runs on a schedule, once, or by hand? |
+| `view` | behavior | What does a module keep of another module's published facts? |
 | `notification` | behavior | Which person-facing messages go out? |
 | `setting` | behavior | Which adjustable values hold, and who sets them? |
 | `permission` | behavior | Which single actions are allowed? |
@@ -113,6 +114,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `rule` | Behavior | aggregate, module, product | `behavior/modules/<m>/aggregates/<aggregate>/rules/`, `behavior/modules/<m>/rules/`, `behavior/rules/` | its folder node | `rule/<home>.<name>` |
 | `reaction` | Behavior | module | `behavior/modules/<m>/reactions/<name>/<name>.yaml` | module | `reaction/<module>.<name>` |
 | `job` | Behavior | module | `behavior/modules/<m>/jobs/<name>/<name>.yaml` | module | `job/<module>.<name>` |
+| `view` | Behavior | module | `behavior/modules/<m>/views/<name>/<name>.yaml` | module | `view/<module>.<name>` |
 | `notification` | Behavior | module | `behavior/modules/<m>/notifications/<name>/<name>.yaml` | module | `notification/<module>.<name>` |
 | `setting` | Behavior | module | setting-set pages under `behavior/modules/<m>/settings/` | module | `setting/<module>.<name>` |
 | `integration-event` | Behavior | module | `behavior/modules/<m>/integration-events/<name>/<name>.yaml` | module | `integration-event/<name>` |
@@ -123,7 +125,7 @@ Each parent with child records holds them in a folder named for the child type i
 | `runbook` | Implementation | product, module | `implementation/runbooks/<name>/<name>.yaml`, `implementation/modules/<m>/runbooks/<name>/<name>.yaml` | product or module | `runbook/<name>` |
 | `departure` | Governance | product, module | `governance/departures/<name>/<name>.yaml`, `governance/modules/<m>/departures/<name>/<name>.yaml` | product or module | `departure/<name>` |
 
-Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `notifications/`, `settings/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
+Inside `behavior/modules/<m>/`, the subfolders are the typed folders from the closed set: `aggregates/`, `use-cases/`, `rules/`, `reactions/`, `jobs/`, `views/`, `notifications/`, `settings/`, `integration-events/` and `external-systems/`. Each aggregate sits in `aggregates/<aggregate>/`, and holds its `use-cases/`, `events/` and `rules/` folders. Any other subfolder of a module is a `record-placement-invalid` finding.
 
 `behavior/modules/<m>/` declares a module, and a feature answers a problem through the folder it sits in. A folder under `behavior/modules/` that names no declared module gets a `module-undeclared` finding. A record of a type in the wrong folder and a record type outside its allowed levels are `record-placement-invalid` findings. A child record placed outside its typed folder, such as an aggregate directly in its module folder, is also `record-placement-invalid`. A named record whose folder name differs from its file stem is a `record-folder-drift` finding.
 
@@ -131,7 +133,7 @@ A module, an aggregate, and an entry point is a folder node, and the folder path
 
 A rule home is an aggregate name or a module name. A rule identifier keeps its home segment when the rule moves; only identifiers whose first segment names a module change with a module move. Policy rules are Intent requirements or constraints; an invariant sits under its aggregate or module, and an invariant across modules sits at product level, as the one stated exception. Module-level rules live in `behavior/modules/<m>/rules/` rule-set files; `module.yaml` holds no rules, and a rule in `module.yaml` is a `record-placement-invalid` finding.
 
-An integration event has exactly one publishing module; a second publisher is an `event-publisher-invalid` finding. List records (rule sets, setting sets, the permission list per module) are files whose entries take the file's folder node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
+An integration event has exactly one publishing module: the module of the use cases raising the domain event it translates. A second publishing module is an `event-publisher-invalid` finding. List records (rule sets, setting sets, the permission list per module) are files whose entries take the file's folder node as parent. Each entry point is one record in its own folder, with `screens/` beside it.
 
 `fulfilledBy` does not exist: a use case keeps `fulfills` pointing up to the requirement, and the book computes the inverse. `role.allows` is a declared down-link, like `decides`. Module `dependsOn` may not form a cycle; a `module-dependency-invalid` finding reports one.
 
@@ -240,6 +242,7 @@ An identifier names its record type first, then the record name, with the owning
 | `integration-event` | `integration-event/<name>` | `integration-event/expense-submitted` |
 | `reaction` | `reaction/<module>.<name>` | `reaction/spending.send-approver-reminder-on-expense-submitted` |
 | `job` | `job/<module>.<name>` | `job/spending.expire-lapsed-holds` |
+| `view` | `view/<module>.<name>` | `view/reporting.reimbursed-expense` |
 | `notification` | `notification/<module>.<name>` | `notification/spending.approval-reminder` |
 | `setting` | `setting/<module>.<name>` | `setting/spending.max-open-expenses` |
 | `actor` | `actor/<name>` | `actor/employee` |
@@ -304,8 +307,8 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `serves` | screen | The journey steps it carries a person through | serves | is served by |
 | `floorplan` | screen | The floorplan it composes | is composed from | is composed into |
 | `changes` | use case, reaction, job | Aggregates | changes | is changed by |
-| `reads` | use case, reaction, job | Aggregates, and on a use case the settings it reads | reads | is read by |
-| `effects` | use case, reaction, job | Use cases, notifications, integration events, external system operations | effects | is effected by |
+| `reads` | use case, reaction, job | Aggregates, and on a use case the views and settings it reads | reads | is read by |
+| `effects` | use case, reaction, job | On a reaction or job one use case it runs; notifications and external system operations | effects | is effected by |
 | `triggeredBy` | reaction | Domain events or integration events | answers | is answered by |
 | `binds` | rule | Aggregates | binds | is bound by |
 | `exercises` | scenario | Rules | exercises | is exercised by |
@@ -315,7 +318,11 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `holds` | actor | Roles it holds | holds | is held by |
 | `allows` | role | Permissions | allows | is allowed by |
 | `actor` | journey, external system | The actor taking the journey; the actor the system acts as | is taken by / acts as | takes / is acted as by |
-| `translates` | integration event | Domain events | translates | is translated by |
+| `translates` | integration event | The domain event it carries, whose raising use cases publish it | translates | is translated by |
+| `keyedBy` | view | The aggregate of another module the view keeps one row per | is keyed by | keys |
+| `from` | view field | The integration event and payload field the field copies, as `integration-event/<name>#<field>` | is copied from | is copied into |
+| `erasedBy` | view field | The integration event whose arrival erases the field | is erased by | erases |
+| `removedBy` | view | The integration events whose arrival removes a row | is removed by | removes rows of |
 | `dependsOn` | module | Modules | depends on | is depended on by |
 | `runbook` | job | The runbook answering the job | is answered by | answers |
 | `covers` | departure | The provisions, pages or finding codes the departure sets aside | covers | is covered by |
@@ -324,7 +331,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 
 Behavior records point up: `serves` on a use case, reaction, job, or screen points to journey steps, `serves` on a journey points to its goal, `advances` on a feature points to goals, and `fulfills` points to a requirement. Records never point down, except `decides`, which names the records a decision settles, `allows`, which names the permissions a role grants, and `holds`, which names the roles an actor holds: a journey names no use case, and a requirement names no rule.
 
-Placement needs no link field: it follows the folder. The folder node is the parent, so a feature answers the problem whose folder holds it, and `serves` on a journey remains a connection that carries meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, departure, or project convention that shapes the code, `calls` from a screen to a use case, and `proves` from a test mark to a scenario or rule. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
+Placement needs no link field: it follows the folder. The folder node is the parent, so a feature answers the problem whose folder holds it, and `serves` on a journey remains a connection that carries meaning without deciding placement. The builder computes the remaining links from code, routes, and tests: `implements` from a code mark to the record it names, `follows` from a code mark to the provision, decision, departure, or project convention that shapes the code, `calls` from a screen to a use case, `proves` from a test mark to a scenario or rule, and `publishes` from a use case to each outbound integration event that translates a domain event the use case raises. Code and tests point up to the record they serve through their marks, with each handler implementing exactly one record. The Placement Table above names each record parent.
 
 ### Parents
 
@@ -797,9 +804,9 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** An integration event MUST have exactly one publishing module.
 
-**Rationale:** An event with two publishers has two writers of one fact: readers cannot tell which module states it. One publishing module gives the fact one home, and every other module reads it through the event.
+**Rationale:** An event with two publishers has two writers of one fact: readers cannot tell which module states it. One publishing module gives the fact one home, and every other module reads it through the event. The publishers follow from the records: the use cases whose `raises` holds the domain event the integration event `translates`.
 
-**Example:** `integration-event/expense-submitted` is published from the spending module; a second publisher in the finance module is reported.
+**Example:** `integration-event/expense-submitted` translates `event/expense.submitted`, which only spending use cases raise, so the spending module publishes it.
 
 **Checked by:** `litespec model check` reports `event-publisher-invalid` for an integration event with a second publishing module.
 

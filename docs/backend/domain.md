@@ -197,7 +197,7 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Statement:** The root methods marked with a use case MUST together raise exactly the events that use case lists in `raises`.
 
-**Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep.
+**Rationale:** The use case record states the facts its act leaves behind, and reactions subscribe to those facts. A marked method that raises an event the record does not list starts a consequence nobody reviewed, and a listed event that no marked method raises is a promise the code does not keep. The raised event carries every field its integration events publish, because each integration event is built from its domain event alone under `litespec/backend/application#emit-declared-integration-events-after-commit`.
 
 **Example:** `use-case/spending.submit-expense` raises `event/expense.submitted`, and the `Submit` method marked with it raises `ExpenseSubmittedEvent` and nothing else.
 
@@ -227,11 +227,11 @@ An unapproved expense keeps its state, and the refusal carries the stable code `
 
 **Applies to:** artifact: aggregate
 
-**Statement:** A child entity MUST expose no mutable state outside its aggregate root, surfacing its collection as a read-only view.
+**Statement:** A child entity MUST expose no mutable state outside its aggregate root, surfacing its collection as a read-only collection.
 
-**Rationale:** A child that exposed mutable state would let outside code change aggregate data without passing the root's checks. The root creates, finds, and changes children through business methods, and collections surface as read-only views. A child with lifecycle states uses the same state types and no enumeration.
+**Rationale:** A child that exposed mutable state would let outside code change aggregate data without passing the root's checks. The root creates, finds, and changes children through business methods, and collections surface as read-only collections. A child entity and the values only it holds sit in the part folder its data group names under `litespec/backend/domain#organize-a-module-by-aggregate-and-concept`. A child with lifecycle states uses the same state types and no enumeration.
 
-**Reviewed for:** Which child entities expose mutable state outside their root? Look at the child entities beside their root, including collection views.
+**Reviewed for:** Which child entities expose mutable state outside their root? Look at the child entities beside their root, including their collections.
 
 ### Identify Aggregates with Strongly Typed Version 7 Values
 
@@ -367,9 +367,9 @@ The Infrastructure implementation owns that refusal. The command pipeline owns t
 
 **Applies to:** artifact: any
 
-**Statement:** A Domain constituent type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the `Domain/` folder of the aggregate it belongs to, or in the product `Domain/` folder.
+**Statement:** A Domain constituent type, meaning an identifier, a state type, a closed set, a child entity, a value object, or a repository interface, MUST sit in the `Domain/` folder of the aggregate it belongs to, or in the product `Domain/` folder, and a row or projection a port returns is no constituent.
 
-**Rationale:** A constituent serves no record of its own: it is part of its aggregate, whose record already states the states, transitions, and data the constituent holds. A mark on each would write that fact a second time, and the two copies would drift. The folder already says which aggregate a constituent belongs to, so the builder derives the link from it, and a type in a folder that holds no aggregate root and is not the product `Domain/` folder is the one place the derivation fails. A domain service that holds one rule calculation is not a constituent: it carries its `rule/` mark.
+**Rationale:** A constituent serves no record of its own: it is part of its aggregate, whose record already states the states, transitions, and data the constituent holds. A mark on each would write that fact a second time, and the two copies would drift. The folder already says which aggregate a constituent belongs to, so the builder derives the link from it, and a type in a folder that holds no aggregate root and is not the product `Domain/` folder is the one place the derivation fails. A domain service that holds one rule calculation is not a constituent: it carries its `rule/` mark. A row or projection a read port returns is not a constituent either: it is the port's answer, shaped for a reader, and it sits with its port in Application.
 
 **Example:** Claimwick's `ExpenseState` and `IExpenseRepository` sit beside the `Expense` root in `Spending/Expenses/Domain/` and carry no mark; the builder lists them as constituents of `aggregate/spending.expense`. `Money` sits in the product `Domain/` folder and belongs to no aggregate.
 
@@ -477,11 +477,11 @@ Application validators handle malformed caller input through validity findings. 
 
 **Applies to:** artifact: any
 
-**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding its own states, events, refusals, and concepts.
+**Default:** Give each aggregate a `Domain/` folder named with its plural root name, holding its own states, events, refusals, concepts, and one folder per part its record declares.
 
 **Replacement:** A project names its own module layout in its documentation.
 
-**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. A single aggregate stays flat only when its plural root name equals the module name, and separate aggregates keep separate lifecycle, event, and refusal folders.
+**Rationale:** Each aggregate `Domain/` folder holds everything one aggregate owns: its states, events, refusals, and concepts. A reader finds the full aggregate in one place instead of hunting shared folders. A single aggregate stays flat only when its plural root name equals the module name, and separate aggregates keep separate lifecycle, event, and refusal folders. A part is a data group the aggregate record declares with dotted field names, such as `parcel.*`: its child entity and the values only that child holds sit in a folder named for the part, such as `Parcels/`, while the part's events and refusals stay in the aggregate's `Events/` and `Refusals/` folders. A type that belongs to no part stays at the root.
 
 **Example:**
 
