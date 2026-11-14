@@ -116,7 +116,9 @@ img, svg { display: block; }
 button { font: inherit; color: inherit; }
 code, kbd, pre, .mono { font-family: var(--mono); }
 ::selection { background: var(--accent-soft); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius-sm); }
+/* The focus ring is accent-text, not the amber accent: the accent is about 1.6:1
+   on white and fails the 3:1 contrast the Web Guidance requires for focus. */
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; border-radius: var(--radius-sm); }
 a, button, summary, .btn { transition: color .12s, background-color .12s, border-color .12s; }
 
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -162,6 +164,7 @@ a, button, summary, .btn { transition: color .12s, background-color .12s, border
 .site-foot .wrap { min-height: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-stack) var(--space-6); font-size: 0.8125rem; color: var(--muted-fg); }
 .site-foot .brand { display: flex; align-items: center; gap: var(--gap-inline); }
 .site-foot .spacer { margin-left: auto; }
+.site-foot a { display: inline-flex; align-items: center; min-block-size: 1.5rem; }
 .site-foot a:hover { color: var(--fg); }
 
 /* Icons */

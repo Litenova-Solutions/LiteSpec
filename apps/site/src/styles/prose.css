@@ -54,7 +54,13 @@
   font-size: 0.85em;
 }
 
+/* The heading link is hidden until hover or focus, and is still a 24px target. */
 .prose .anchor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.5rem;
+  min-block-size: 1.5rem;
   opacity: 0;
   color: var(--accent-text);
   text-decoration: none;
@@ -380,7 +386,7 @@
 }
 
 .prose .provision-part > summary:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-text);
   outline-offset: -2px;
 }
 
