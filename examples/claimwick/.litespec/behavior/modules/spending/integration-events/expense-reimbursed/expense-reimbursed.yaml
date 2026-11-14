@@ -1,0 +1,43 @@
+type: integration-event
+id: integration-event/expense-reimbursed
+title: Expense Reimbursed
+summary: The expense-reimbursed event announces a reimbursed expense and the employee it was paid to.
+direction: out
+eventType: com.claimwick.expense.reimbursed
+source: /spending/expenses
+subject: aggregate/spending.expense
+payload:
+- name: expenseId
+  meaning: The reimbursed expense.
+  type: id
+  of: aggregate/spending.expense
+  required: true
+  classification: internal
+- name: employeeId
+  meaning: The employee the expense was reimbursed to.
+  type: id
+  of: actor/employee
+  required: true
+  classification: personal
+- name: amount
+  meaning: The exact amount paid.
+  type: decimal
+  required: true
+  classification: internal
+- name: currency
+  meaning: The ISO 4217 currency code of the amount.
+  type: text
+  required: true
+  classification: internal
+- name: reimbursedAt
+  meaning: The time the payment was posted.
+  type: date-time
+  required: true
+  classification: internal
+delivery: The broker delivers each event at least once, in reimbursement order.
+addresses: permission/post-reimbursement
+trust: payload
+translates: event/expense.reimbursed
+dataschema: https://schemas.claimwick.dev/expense-reimbursed/v1
+terms:
+- term/expense

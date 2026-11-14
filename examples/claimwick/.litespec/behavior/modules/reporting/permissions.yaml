@@ -1,0 +1,9 @@
+type: permission-list
+title: Permissions
+records:
+- type: permission
+  id: permission/list-reimbursed-expenses
+  title: List Reimbursed Expenses
+  meaning: The right to list the reimbursed expenses with the employee each was paid to.
+  risk:
+  - personal-data

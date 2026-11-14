@@ -6,7 +6,7 @@ Erase Expired Personal Data is a scheduled job that erases personal data once it
 
 The job runs every day, in the Europe/Amsterdam time zone. The records set no clock time, so the time of day of each run is not recorded. No reason for the daily interval is recorded. The records do not say whether a run waits for an earlier run still in progress, or where a run resumes after it stops.
 
-Each run selects the decided expenses past their retention. The job runs `use-case/spending.erase-personal-data` asynchronously, so the job does not wait for each erasure to finish.
+Each run selects the decided expenses past their retention. The job sends `use-case/spending.erase-personal-data` once for each selected expense, asynchronously, so the job does not wait for each erasure to finish.
 
 ## Failure Handling
 

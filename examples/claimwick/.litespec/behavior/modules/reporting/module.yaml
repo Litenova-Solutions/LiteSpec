@@ -1,0 +1,6 @@
+type: module
+id: module/reporting
+title: Reporting
+summary: Reporting keeps the reimbursed expenses and lists them for finance.
+dependsOn:
+- module/spending

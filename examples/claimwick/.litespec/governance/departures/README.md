@@ -10,5 +10,6 @@
 | [Expense Steps Unscreened](expense-steps-unscreened/expense-steps-unscreened.yaml) | 2027-06-01 | `step-screen-missing` |
 | [Export Expenses Unexposed](export-expenses-unexposed/export-expenses-unexposed.yaml) | 2027-06-01 | `use-case-endpoint-missing` |
 | [Export Expenses Unimplemented](export-expenses-unimplemented/export-expenses-unimplemented.yaml) | 2027-06-01 | `use-case-unimplemented` |
+| [Reimbursed List Unserved](reimbursed-list-unserved/reimbursed-list-unserved.yaml) | 2027-06-01 | `use-case-journey-missing` |
 | [Use Cases Unverified](use-cases-unverified/use-cases-unverified.yaml) | 2027-06-01 | `use-case-unverified` |
 <!-- /generated:departure-index -->

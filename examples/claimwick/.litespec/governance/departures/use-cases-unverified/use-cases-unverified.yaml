@@ -5,6 +5,7 @@ summary: Claimwick ships no test run, so no scenario has a passing proof.
 covers:
 - use-case-unverified
 subject:
+- use-case/reporting.list-reimbursed-expenses
 - use-case/spending.approve-expense
 - use-case/spending.attach-receipt
 - use-case/spending.change-receipt-threshold

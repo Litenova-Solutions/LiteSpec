@@ -107,7 +107,7 @@ public sealed class Expense : AggregateRoot<Guid>
         }
 
         State = new ExpenseReimbursedState(reimbursedAt);
-        RaiseDomainEvent(new ExpenseReimbursedEvent(Id, Total.Amount, Total.Currency, reimbursedAt));
+        RaiseDomainEvent(new ExpenseReimbursedEvent(Id, EmployeeId, Total.Amount, Total.Currency, reimbursedAt));
     }
 
     /// <summary>Erases the personal data of a decided expense past its retention.</summary>
@@ -115,6 +115,7 @@ public sealed class Expense : AggregateRoot<Guid>
     public void Erase()
     {
         ReceiptId = null;
+        RaiseDomainEvent(new ExpensePersonalDataErasedEvent(Id));
     }
 
     /// <summary>Refuses an export with no approved expense.</summary>

@@ -11,7 +11,8 @@ fulfills:
 - requirement/approval.erased-after-retention
 reachedThrough:
 - entry-point/claimwick-app
-raises: []
+raises:
+- event/expense.personal-data-erased
 changes:
 - aggregate/spending.expense
 idempotency:

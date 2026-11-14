@@ -4,7 +4,7 @@ Erase Personal Data removes the personal data that an old expense holds, once th
 
 ## Flow
 
-Finance names one decided expense. Spending erases the personal data on that expense. The employee field is pseudonymized, and the business facts stay for the tax file. The use case raises no event and stores no audit entry.
+Finance names one decided expense. Spending erases the personal data on that expense. The employee field is pseudonymized, and the business facts stay for the tax file. The use case raises `event/expense.personal-data-erased`, which announces the erasure to other modules. It stores no audit entry.
 
 A repeat call finds nothing left to erase, so the second call changes nothing. The records state one result, Erased, and no refusal. They do not say what happens when the retention has not ended yet, although finance is meant to name only expenses past it.
 
