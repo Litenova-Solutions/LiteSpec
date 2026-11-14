@@ -19,7 +19,7 @@ Every record title uses Title Case, carries no final period, and holds at most e
 | feature | A noun phrase naming the capability | Receipt Capture with Offline Upload |
 | goal | An outcome noun phrase; the number and date stay in fields | Reimbursement Within Five Working Days |
 | vision | A noun phrase naming where the product heads; no date or priority | Contractor Expenses |
-| journey | A verb plus its object: the walker's task | Submit an Expense Claim with Receipts |
+| journey | A verb plus its object: the actor's task | Submit an Expense Claim with Receipts |
 | actor | A role noun phrase | Approver |
 | requirement | A phrase naming the specific behavior or fact it requires, never a bare noun | Expense Above Threshold Carries Receipt |
 | constraint | A subject noun phrase; the authority stays in its field | Receipt Retention Period per Country |
@@ -93,13 +93,13 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Applies to:** artifact: any
 
-**Statement:** Every record, explanation section and documentation page MUST open by naming who it concerns and what is at stake, before any pointer to another page.
+**Statement:** The opening paragraph of every record, explanation file and documentation page MUST name who it concerns and what is at stake, before any pointer to another page.
 
-**Rationale:** Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration.
+**Rationale:** Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. Each section after the opening answers its own question and does not repeat the opening. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** A Claimwick problem opens "Employees wait three weeks for reimbursement while approvers batch decisions monthly." A reader who has opened no other page knows who waits and what it costs them.
 
-**Reviewed for:** Which records, sections and pages open with a pointer, a code or a field name instead of who and what is at stake? Look at the first sentence of each page the change adds.
+**Reviewed for:** Which records, explanation files and pages open with a pointer, a code or a field name instead of who and what is at stake, or repeat the opening in a later section? Look at the first sentence of each page the change adds.
 
 ### Put the Actor First
 
@@ -109,13 +109,13 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Applies to:** artifact: any
 
-**Statement:** Every sentence in a record MUST name its actor as its subject, in the active voice and the present tense.
+**Statement:** Every sentence in a record that describes an action MUST name its actor as its subject, in the active voice and the present tense.
 
-**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states.
+**Rationale:** A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states. A sentence that states a fact, a state or a calculation may take its object or its condition as its subject, as in "The statement closing date determines the comparison date." Passive voice that hides who acts stays a finding. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** Claimwick writes "Finance reimburses the due expense." The actor Finance opens the sentence, and the present tense states what holds.
 
-**Reviewed for:** Which sentences open with a thing instead of an actor, use the passive voice, or promise in the future tense? Look at the statements and summaries the change adds.
+**Reviewed for:** Which sentences that describe an action open with a thing instead of an actor, use the passive voice to hide who acts, or promise in the future tense? Look at the statements and summaries the change adds.
 
 ### Use Literal Words
 
@@ -127,11 +127,11 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Statement:** Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.
 
-**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.
+**Rationale:** A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: "one transfer entry touches both accounts" leaves open what happens to each balance, while "one transfer entry reduces the sending account's balance and increases the receiving account's balance" states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: "It matters because the figures must be correct" names no consequence, while "A wrong box amount means a correction return, and a late return means a fine" names the consequence and who bears it. Each concept keeps its one glossary term, as `litespec/core/authoring#use-one-term-for-one-concept` states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](../intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
 
 **Example:** A Claimwick problem is titled "Expenses Wait Weeks for Reimbursement". The title names the wait and the delay literally, with no figure of speech to decode.
 
-**Reviewed for:** Which titles or sentences use a metaphor, a loose verb, a stock phrase or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.
+**Reviewed for:** Which titles or sentences use a metaphor, a loose verb, a stock phrase such as why it matters, or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.
 
 ### Name Observable Behavior Instead of Intensifiers
 
@@ -153,17 +153,35 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **ID:** `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words`
 
+**Strength:** advisory
+
+**Applies to:** artifact: any
+
+**Statement:** Every sentence in a record `statement` or `summary` SHOULD hold at most 25 words.
+
+**Deviation:** A longer sentence that keeps a condition the shorter form would drop, as `litespec/core/writing#keep-the-conditions-when-shortening` requires.
+
+**Rationale:** A record sentence carries one fact a builder implements, and a sentence past 25 words often carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary `meaning` bound is the same bound, checked by `litespec model check` as the advisory `term-meaning-invalid`. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).
+
+**Example:** "Employees wait three weeks for reimbursement while approvers batch decisions monthly." The sentence holds 11 words and one fact.
+
+**Reviewed for:** Which record statements or summaries carry a sentence past 25 words that holds no condition a shorter sentence would drop? Look at the statements and summaries the change adds.
+
+### Keep the Conditions When Shortening
+
+**ID:** `litespec/core/writing#keep-the-conditions-when-shortening`
+
 **Strength:** required
 
 **Applies to:** artifact: any
 
-**Statement:** Every sentence in a record `statement` or `summary` MUST hold at most 25 words.
+**Statement:** Every `summary`, `conclusion`, `statement` and opening paragraph that shortens a claim MUST keep each condition of the claim it shortens, such as where entitled to deduct, for quarterly filers or to the extent allowed.
 
-**Rationale:** A record sentence carries one fact a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.
+**Rationale:** A shortened form that drops a condition states a wider claim than its source, and a reader builds or decides against the wider claim. Shortening stays the aim, so a form keeps the words that carry a condition and drops the rest. The rule outranks the sentence bound in `litespec/core/writing#keep-each-record-sentence-within-twenty-five-words` whenever the two pull apart. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
 
-**Example:** "Employees wait three weeks for reimbursement while approvers batch decisions monthly." The sentence holds 11 words and one fact.
+**Example:** "Finance reimburses the expense" states more than Claimwick does. "Finance reimburses the approved expense" keeps the condition the policy holds.
 
-**Reviewed for:** Which record statements or summaries carry a sentence past 25 words? Look at the statements and summaries the change adds.
+**Reviewed for:** Which summaries, conclusions, statements or opening paragraphs state a claim without a condition that the source or the record's fields hold? Look at the shortened forms the change adds, beside the claims they shorten.
 
 ### Give Each Paragraph One Idea
 
@@ -269,13 +287,45 @@ A code comment states why the code is as it is, or what the code cannot express 
 
 **Applies to:** artifact: any
 
-**Statement:** Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and why it matters.
+**Statement:** Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and the consequence at stake.
 
-**Rationale:** A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet.
+**Rationale:** A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](../intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md).
 
 **Example:** The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin.
 
 **Checked by:** `litespec model check` reports `explanation-opening-missing` for an explanation file with no prose between its H1 and its first H2.
+
+### Take Each Example Detail from the Cast or a Cited Record
+
+**ID:** `litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every name, date and number in an `Example` section MUST come from the example cast or from a record the explained record cites, each appears only where it shows something about that record, and the `Example` states no rule of its own.
+
+**Rationale:** An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast keeps every Example cumulative, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record's statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+
+**Example:** A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the example cast and the policy record state them, and adds no third amount.
+
+**Reviewed for:** Which Example sections name a person, date or number that neither the example cast nor a record the explained record cites holds, or state a rule? Look at the Example sections the change adds, beside the cast.
+
+### Keep Release Phases and Plans Out of Records
+
+**ID:** `litespec/core/writing#keep-release-phases-and-plans-out-of-records`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Every record MUST state the product as it stands, with no release phase, later step or future plan in its prose.
+
+**Rationale:** A phrase such as "in the first release" or "a later step" dates the record the day the release ships, and it promises a behavior no requirement holds. A destination the product heads for is a vision, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).
+
+**Example:** A permission record states "The role cannot be limited to one business", not that staff will narrow the role in a later release.
+
+**Reviewed for:** Which records name a release phase, a later step or a future plan where the product as it stands, a vision, an owner question or a backlog item belongs? Look at the records the change adds.
 
 ### Write Each Documentation Page as One Kind
 

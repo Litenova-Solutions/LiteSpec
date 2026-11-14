@@ -346,7 +346,7 @@ Source: plain English.
 
 ### Examples Table
 
-One table of rows a scenario walks through, holding the values the parts argue about.
+One table of rows a scenario reads through, holding the values the parts argue about.
 
 Source: BDD.
 
@@ -458,7 +458,7 @@ Source: LiteSpec.
 
 ### Journey
 
-The ordered steps by which one actor reaches one goal, with a description of who walks, what starts it, what good looks like and why it matters. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
+The ordered steps by which one actor reaches one goal, with a description of who takes it, what starts it, what good looks like and the consequence at stake. A step is performed by an actor, or by a named external system, job or reaction when no person acts. Steps name no use case; each serving use case points up with serves.
 
 Layer: Intent.
 
@@ -848,7 +848,7 @@ Source: LiteSpec.
 
 ### Background-Only
 
-The computed state of a use case a reaction or job runs, needing no journey to walk it.
+The computed state of a use case a reaction or job runs, needing no journey to reach it.
 
 Source: LiteSpec.
 

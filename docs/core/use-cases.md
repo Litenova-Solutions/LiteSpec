@@ -670,7 +670,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Rationale:** A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse.
 
-**Example:** The submit-expense summary states that an employee files a work expense for approval, and its Flow section walks validation, storage, and the approver notice in order.
+**Example:** The submit-expense summary states that an employee files a work expense for approval, and its Flow section lists validation, storage, and the approver notice in order.
 
 **Checked by:** `litespec model check` reports `prose-missing` for a use case without `summary`.
 

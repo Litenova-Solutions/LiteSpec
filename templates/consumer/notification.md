@@ -1,6 +1,6 @@
 # Record Title
 
-Say what message the person reads, when they read it and why it matters to them. A reader who has read nothing else should understand the notification from this paragraph.
+Say what message the person reads, when they read it, and the consequence at stake for them. A reader who has read nothing else should understand the notification from this paragraph.
 
 ## Content
 

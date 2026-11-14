@@ -4,7 +4,7 @@ Say what this feature is for and what it covers, for whom. A reader who has read
 
 ## Capabilities
 
-Group what the user can do by task, one short subsection or paragraph per task. Describe only behavior the feature's requirements state, and do not repeat the summary.
+Group what the user can do by task, one short subsection or paragraph per task, and do not repeat the summary.
 
 ## Success Criteria
 
@@ -16,4 +16,4 @@ Say what the feature leaves to other features, which features it depends on, and
 
 ## Example
 
-Optional. Walk one concrete use of the feature with the example cast, with the numbers worked through.
+Optional. One concrete case of the feature with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

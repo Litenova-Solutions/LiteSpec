@@ -125,19 +125,19 @@ Four related rules live on other pages:
 
 **Checked by:** `litespec model check` reports `proves-duplicate` (level A) for a scenario with `proves` marks on more than one test.
 
-### Name the Journey a Journey Test Walks
+### Name the Journey a Journey Test Covers
 
-**ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-walks`
+**ID:** `litespec/frontend/testing#name-the-journey-a-journey-test-covers`
 
 **Strength:** required
 
-**Statement:** A browser test that walks several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
+**Statement:** A browser test that drives several screens MUST carry a `journey` annotation naming the journey and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which walk the test rehearses without claiming that the walk itself is proven.
+**Rationale:** A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The `journey` annotation tells a reader which journey the test rehearses without claiming that the journey itself is proven. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
-**Example:** The submit-and-reimburse walk carries `journey: journey/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
+**Example:** The submit-and-reimburse journey test carries `journey: journey/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
 
-**Reviewed for:** Which browser tests that walk several screens carry a `journey` annotation naming the journey and a `proves` mark for each scenario they drive and assert? Look in the browser tests and their annotations.
+**Reviewed for:** Which browser tests that drive several screens carry a `journey` annotation naming the journey and a `proves` mark for each scenario they drive and assert? Look in the browser tests and their annotations.
 
 ### Test Observable States
 

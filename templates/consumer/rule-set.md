@@ -8,4 +8,4 @@ Give each rule its own H3 under this heading, named by the rule title. Under eac
 
 ## Example
 
-Optional. Walk one case through the rules with the example cast.
+Optional. One concrete case through the rules with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

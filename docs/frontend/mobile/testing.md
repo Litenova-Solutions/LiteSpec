@@ -11,7 +11,7 @@ The mobile app proves its behavior at two boundaries: core tests without a devic
 
 ### Two Boundaries, Two Runners
 
-The core holds no platform type, so its tests run on the plain .NET runner with no emulator. Screens render through the platform toolkit, so their tests drive them on an emulator or a device. The release build adds one human walk on a physical device per platform before publishing.
+The core holds no platform type, so its tests run on the plain .NET runner with no emulator. Screens render through the platform toolkit, so their tests drive them on an emulator or a device. The release build adds one manual run on a physical device per platform before publishing.
 
 ## Standards
 
@@ -59,10 +59,10 @@ The core holds no platform type, so its tests run on the plain .NET runner with 
 
 **Strength:** default
 
-**Default:** Install and walk the release build on one physical device per platform before publishing, and record the device and result.
+**Default:** Install the release build and try it by hand on one physical device per platform before publishing, and record the device and result.
 
 **Replacement:** A consumer can replace this default with an explicit local convention.
 
-**Rationale:** Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Walking the release build on one physical device per platform meets the app as users will, and the recorded device and result make the walk reviewable. A release without that record ships on emulator evidence alone.
+**Rationale:** Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Trying the release build by hand on one physical device per platform meets the app as users will, and the recorded device and result make the check reviewable. A release without that record ships on emulator evidence alone.
 
-**Reviewed for:** Which releases publish without a record naming one physical device per platform and the walk result? Look in the release records.
+**Reviewed for:** Which releases publish without a record naming one physical device per platform and the result of the hand check? Look in the release records.

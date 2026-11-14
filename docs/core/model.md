@@ -280,7 +280,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | folder | feature | Problems | answers | is answered by |
 | `advances` | feature | Goals | advances | is advanced by |
 | `serves` | use case, reaction, job | Journey steps | serves | is served by |
-| `serves` | journey | The goal it walks toward | serves | is served by |
+| `serves` | journey | The goal it leads toward | serves | is served by |
 | `cites` | requirement | Goals, visions, problems, features, constraints, research, and decisions | cites | is cited by |
 | `cites` | journey | Requirements it shows | cites | is cited by |
 | `fulfills` | rule, use case, reaction, job, notification, setting | Requirements | fulfills | is fulfilled by |
@@ -307,7 +307,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | `erasure.event` | aggregate | The integration event carrying the erasure | is erased through | carries the erasure of |
 | `holds` | actor | Roles it holds | holds | is held by |
 | `allows` | role | Permissions | allows | is allowed by |
-| `actor` | journey, external system | The actor walking the journey; the actor the system acts as | is walked by / acts as | walks / is acted as by |
+| `actor` | journey, external system | The actor taking the journey; the actor the system acts as | is taken by / acts as | takes / is acted as by |
 | `translates` | integration event | Domain events | translates | is translated by |
 | `dependsOn` | module | Modules | depends on | is depended on by |
 | `runbook` | job | The runbook answering the job | is answered by | answers |
@@ -728,7 +728,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every journey step MUST have a serving use case, reaction, or job.
 
-**Rationale:** A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the walker through it. `step-use-case-missing` fails a step with no serving use case, reaction, or job. The pair sits side by side: `step-use-case-missing` names a step no use case, reaction, or job serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves.
+**Rationale:** A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the actor through it. `step-use-case-missing` fails a step with no serving use case, reaction, or job. The pair sits side by side: `step-use-case-missing` names a step no use case, reaction, or job serves, and `step-screen-missing` names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Checked by:** `litespec model check` reports `step-use-case-missing` for a journey step with no serving use case, reaction, or job, beside `step-screen-missing` for a step a browser or device use case serves that no screen serves.
 

@@ -157,7 +157,7 @@ public sealed class ReachCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("research", "research/ghost-study", Path.Combine(temp.Path, "ghost-study.yaml"), "{}"),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["research/ghost-study"], "steps": [{"id": "s1", "statement": "Walk."}]}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(temp.Path, "borrow-and-return.yaml"), """{"cites": ["research/ghost-study"], "steps": [{"id": "s1", "statement": "Take the copy."}]}"""),
             TestModel.Record("use-case", "use-case/lending.borrow", Path.Combine(temp.Path, "borrow.yaml"), """{"serves": ["journey/borrow-and-return#s1"]}"""));
 
         Assert.DoesNotContain("intent-unreached", TestModel.Codes(model));

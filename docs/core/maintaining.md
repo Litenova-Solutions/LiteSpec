@@ -101,6 +101,18 @@ These checks report a manifest or schema the release cannot ship, so they are li
 
 **Checked by:** `dotnet test --solution LiteSpec.slnx` fails `ReleaseVersionTests` when the changelog, the template, or either package version differs from the manifest version, and `.github/workflows/release.yml` refuses a tag that does not name the manifest version, a release tag whose commit is not on `main`, and a candidate tag whose commit is not on `release/<version>`.
 
+### Publish Each Release Candidate from Its Release Branch
+
+**ID:** `litespec/core/maintaining#publish-each-release-candidate-from-its-release-branch`
+
+**Strength:** required
+
+**Statement:** Every release candidate MUST publish from its release branch, `release/<version>`, and no candidate publishes from `main`.
+
+**Rationale:** A consumer validates a candidate before the final release reaches `main`, so the candidate must hold the release branch's commit and nothing newer on `main`. Publishing from the branch keeps the packages a consumer tests the packages the release will publish, and the release's final tag still comes from `main`. Proposed by [decision/0059-publish-release-candidates-from-release-branches](decision/0059-publish-release-candidates-from-release-branches).
+
+**Reviewed for:** Which release candidate tags name a commit that is not on `release/<version>`, or publish packages from `main`? Look at the candidate tags and the release workflow runs that published them.
+
 ### List Every Stack Shape and Extension in the Manifest
 
 **ID:** `litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest`

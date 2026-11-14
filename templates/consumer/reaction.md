@@ -12,4 +12,4 @@ Say what happens on a retry, a duplicate and a dead letter, and why each one is 
 
 ## Example
 
-Optional. Walk one concrete event through the reaction with the example cast.
+Optional. One concrete event through the reaction with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

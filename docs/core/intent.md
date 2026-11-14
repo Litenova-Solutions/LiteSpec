@@ -98,15 +98,15 @@ An `except` entry states in product words when the commitment does not hold, and
 
 ### Journeys as Product Sentences
 
-A journey carries `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and `cites`. `serves` names the goal record. `summary` states in up to four sentences who walks, what starts the walk, what good looks like, and why it matters, and the book renders it first on the page. `startedWhen` states the observable state in which the journey starts in one sentence, as `finishedWhen` states the end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the walking actor only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the walk can fail. A step carries exactly one of `actor` and `system`, or neither when the walking actor performs it. `branches` states each path that leaves the order of the steps: the step it leaves, its condition and the step it continues at, or `end`. A step id reads `journey/<name>#s1`.
+A journey carries `actor`, `serves`, `summary`, `startedWhen`, `finishedWhen`, ordered `steps`, optional `branches`, and `cites`. `serves` names the goal record. `summary` states in up to four sentences who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom, and the book renders it first on the page. `startedWhen` states the observable state in which the journey starts in one sentence, as `finishedWhen` states the end in one sentence. Each step carries its `id` (`s1`, `s2`, and so on) and its product sentence in `statement`, names the actor taking the journey only at a handoff in `actor`, or names the system record performing it in `system` when no person acts, and carries its failure text in `failure` where the journey can fail. A step carries exactly one of `actor` and `system`, or neither when the actor taking the journey performs it. `branches` states each path that leaves the order of the steps: the step it leaves, its condition and the step it continues at, or `end`. A step id reads `journey/<name>#s1`.
 
 Steps name no use case. Use cases, reactions, and jobs point up with `serves`, naming the steps they serve. The book shows each journey as record detail: `startedWhen`, the steps as sentences with `failure`, each branch as a sentence after the steps, `finishedWhen`, the requirements it cites with their statements and their `except` and fallback inline, the serving use case goals, and the Then clauses of their scenarios as context. Field names never render literally in journey detail.
 
-A journey walks one actor toward one goal. A step names another actor only at a handoff, and a walk with several goals splits into several journeys.
+A journey leads one actor toward one goal. A step names another actor only at a handoff, and a journey with several goals splits into several journeys.
 
 ### Staff Journeys
 
-Journeys are not only employee walks. A staff journey walks a staff actor, such as finance exporting the approved batch, through the same shape of serves, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
+Journeys are not only employee journeys. A staff actor takes a staff journey, such as finance exporting the approved batch, through the same shape of serves, `startedWhen`, `finishedWhen`, steps, and `branches`. A scheduled promise is a requirement that a job fulfills, not a journey. Staff steps read as product sentences too.
 
 ### Visions
 
@@ -189,7 +189,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A goal MUST state its `summary`, `statement`, `measure`, and `target` in fields.
 
-**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `summary` states what the goal is in one paragraph, the `statement` names the outcome and why it matters, and `measure` and `target` name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict.
+**Rationale:** A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The `summary` states what the goal is in one paragraph, the `statement` names the outcome and the consequence at stake, and `measure` and `target` name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Checked by:** `litespec model check` reports `record-invalid` for a goal record file missing a required field.
 
@@ -203,7 +203,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A goal MUST be moved by a journey serving it or by a quality requirement citing it.
 
-**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the walk that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all.
+**Rationale:** A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the journey that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal.
 
@@ -514,15 +514,31 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Strength:** required
 
-**Applies to:** artifact: record:feature, record:requirement
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:journey, record:actor, record:role
 
-**Statement:** A feature or requirement explanation file MUST describe only behavior that the feature's requirement records state.
+**Statement:** An explanation file of an Intent record MUST describe only behavior that the record's own fields and the records it cites state.
 
-**Rationale:** A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose.
+**Rationale:** A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose. Proposed by [decision/0054-write-each-shared-record-rule-once](decision/0054-write-each-shared-record-rule-once), which widens this rule from features and requirements to every Intent explanation file.
 
 **Example:** A library feature explanation that says renewed copies show their new date in bold states a behavior no requirement holds, so the sentence becomes a requirement or is removed.
 
-**Reviewed for:** Which behaviors in a feature or requirement explanation appear in no requirement statement? Compare each explanation file with the requirements of its feature.
+**Reviewed for:** Which behaviors in an Intent explanation file appear in neither its record's fields nor the records it cites? Compare each explanation file with its record's fields and the records it cites.
+
+### Split Records Whose Parts Change Separately
+
+**ID:** `litespec/core/intent#split-records-whose-parts-change-separately`
+
+**Strength:** required
+
+**Applies to:** artifact: record:constraint, record:research
+
+**Statement:** A constraint or research record MUST hold only claims that share one question or source, one scope and one rate of change, so a claim verified or changed separately sits in its own record.
+
+**Rationale:** A record that bundles a rule from one source with a rule from another cannot be rechecked in one pass, and a change to one rule reopens the whole record. Splitting by the same test keeps each answer one reader can follow. The split stops where the parts of one answer no longer change apart, because an answer spread over several records is as hard to follow as a bundled one. Proposed by [decision/0054-write-each-shared-record-rule-once](decision/0054-write-each-shared-record-rule-once).
+
+**Example:** A constraint holds the seven-year receipt retention rule and its source in one record, and the deduction rule for the same tax in a second record, because the two come from different sources and change on different dates.
+
+**Reviewed for:** Which constraint or research records hold claims with different sources, scopes or rates of change, or split one answer across records a reader cannot follow? Look at the records the change adds.
 
 ### Keep Actors to People and Organizations
 
@@ -534,7 +550,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** An actor MUST carry a `kind` of person or organization and state in `belongsToTeam` whether it belongs to the team building and running the product.
 
-**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and walk a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer.
+**Rationale:** An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a journey. `belongsToTeam` reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** The library reader is an actor of kind person with `belongsToTeam` false. The text gateway is an external system and no actor.
 
@@ -566,7 +582,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Every actor MUST be named by a journey, by a problem in `affects`, or by an access position in `holds`.
 
-**Rationale:** An actor named by nothing is a party nobody suffers as, walks as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the walk it walks, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves.
+**Rationale:** An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the journey it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** The library reader is named by the borrow-and-return journey and by the due-date problem; the librarian is named by the holds of the librarian role.
 
@@ -840,9 +856,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:journey
 
-**Statement:** A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in `serves` and stating each path off that order in `branches`.
+**Statement:** A journey MUST lead one actor toward one goal through ordered steps, naming the goal record in `serves` and stating each path off that order in `branches`.
 
-**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).
+**Rationale:** A journey names its `actor`, its goal record in `serves`, its `finishedWhen`, and its ordered `steps`. One actor means a step names another actor only at a handoff; one goal means a journey with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in `cites` the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with `serves`. `branches` holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night.
 
@@ -856,9 +872,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:journey
 
-**Statement:** A journey MUST state in `summary`, in up to four sentences, who walks, what starts the walk, what good looks like, and why it matters.
+**Statement:** A journey MUST state in `summary`, in up to four sentences, who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom.
 
-**Rationale:** A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the walk in the walker's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks.
+**Rationale:** A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the journey in the actor's terms first, and the book renders it first on the page. `finishedWhen` stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** The library journey to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return.
 
@@ -872,11 +888,11 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:journey
 
-**Statement:** A journey step MUST name at most one performer: another actor in `actor` at a handoff, or the external system, job or reaction in `system` when no person acts, and a step naming neither is performed by the walking actor.
+**Statement:** A journey step MUST name at most one performer: another actor in `actor` at a handoff, or the external system, job or reaction in `system` when no person acts, and a step naming neither is performed by the actor taking the journey.
 
 **Rationale:** A step performed by machinery forced a machine actor into Intent, where it sat beside real people and held no role. Naming the system record that performs the step keeps the actor list to people and organizations, and keeps the performing party one link away. A step naming both an actor and a system names two performers for one act.
 
-**Example:** In the library journey, the step that sends the overdue notice names the text gateway in `system`; the steps the reader walks name no performer.
+**Example:** In the library journey, the step that sends the overdue notice names the text gateway in `system`; the steps the reader takes name no performer.
 
 **Checked by:** `litespec model check` reports `record-invalid` for a journey step carrying both `actor` and `system`; `litespec model check` reports `field-invalid` for such a step or for a `system` naming no external system, job or reaction.
 
@@ -934,7 +950,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** Each journey step MUST carry its `id` and its product sentence in `statement`, naming one act of its performer and no use case.
 
-**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the walking actor only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the walk can fail.
+**Rationale:** A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product's observable response after the performer's act, as in "Finance reimburses the approved expense, and Claimwick pays the amount into the employee's account"; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The `id` (`s1`, `s2`, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with `serves` to `journey/<name>#s1`. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the journey only at a handoff in `actor`, or the system record performing it in `system` when no person acts, and carries `failure` where the journey can fail. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** Step `s4` states `Finance reimburses the approved expense.` in `statement` and names no use case; `use-case/spending.reimburse-expense` names `journey/submit-and-reimburse#s4` in `serves`.
 
@@ -1014,7 +1030,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A journey MUST state its observable end in `finishedWhen`.
 
-**Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished walk from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words.
+**Rationale:** A journey without a stated end can stop anywhere: the reader cannot tell a finished journey from an abandoned one, and serving records cannot tell done from dropped. `finishedWhen` states the observable end in one sentence, in product words. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).
 
 **Example:** `finishedWhen`: the employee holds the reimbursement.
 

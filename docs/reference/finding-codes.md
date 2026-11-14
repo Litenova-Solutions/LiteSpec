@@ -15,6 +15,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `name-duplicate` | G | any | no | - | One name segment names two records in the product. | Give one of the records a new name. |
 | `record-key-duplicate` | G | any | no | - | Two entries of one record share a key, such as a source key, a step id, a branch, an operation name or a field name. | Give one of the entries a new key. |
 | `field-invalid` | G | any | no | - | A field holds a value outside its shape. | Write the field in its declared shape. |
+| `term-meaning-invalid` | A | any | no | - | A glossary term's meaning holds more than 25 words. | Shorten the meaning to the definition, and move the rest to the record that uses the term. |
 | `reference-unknown` | G | any | no | - | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | any | no | - | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
 | `product-count-invalid` | G | any | no | - | The project holds no single product record. | Write one product record. |
@@ -29,7 +30,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `decision-decides-missing` | G | any | no | - | A product decision names nothing it decides. | Name the records the decision decides. |
 | `decision-number-duplicate` | G | any | no | - | Two decisions share one number. | Give one decision the next free number. |
 | `decision-decides-duplicate` | G | any | no | - | Two decisions decide one record. | Keep one decision on the record and move the other. |
-| `use-case-journey-missing` | G | any | no | - | A public use case sits in no journey, and no reaction, job or other use case runs it. It runs at large size only. | Walk the use case in a journey, or name what runs it. |
+| `use-case-journey-missing` | G | any | no | - | A public use case sits in no journey, and no reaction, job or other use case runs it. It runs at large size only. | Serve a journey step with the use case, or name what runs it. |
 | `state-unreached` | G | any | no | - | A state is reached by no transition. | Add a transition that reaches the state, or remove the state. |
 | `transition-unknown` | G | any | no | - | A transition names a missing state or use case. | Point the transition at a written state and a written use case. |
 | `use-case-success-missing` | G | any | no | - | A use case ends with no success result. | Add the success result to the use case. |
@@ -56,7 +57,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `permission-verb-unknown` | A | any | no | - | A permission name opens with no verb from the use-case verb table and not with manage. | Rename the permission to open with a verb from the use-case verb table, or with manage. |
 | `problem-sufferer-invalid` | G | any | no | - | A problem names a sufferer outside the actors. | Name a sufferer the actors hold. |
 | `problem-evidence-missing` | G | any | no | - | A problem cites no evidence. | Cite the evidence of the problem. |
-| `actor-unused` | A | any | no | - | An actor is named by no journey or problem. | Walk the actor in a journey, name it in a problem, or remove the actor. |
+| `actor-unused` | A | any | no | - | An actor is named by no journey or problem. | Give the actor a journey, name it in a problem, or remove the actor. |
 | `goal-mover-missing` | G | behavior | no | - | No use case moves the goal measure. | Move the measure from a use case. |
 | `term-missing` | A | any | no | - | A glossary term appears in no record summary or statement. | Use the term in a summary or statement, or remove it. |
 | `result-scenario-missing` | A | any | no | - | A written result is shown by no scenario; a success result reports at level G. | Write a scenario that shows the result. |
@@ -129,7 +130,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `prose-missing` | A | any | no | - | A record holds no `summary` field, or a goal, vision, problem, requirement or rule holds no `statement` field. | Write the missing `summary` or `statement` field. |
 | `explanation-orphaned` | A | any | no | - | A `.md` file under a record root has no frontmatter and no record file beside it, and is not `README.md`. | Pair the file with a record file of the same name, or give it a document frontmatter block. |
 | `explanation-missing` | A | any | no | - | A record that needs an explanation file has none, or its explanation lacks a required section or holds its sections out of order. | Write the explanation file with its fixed sections, in the order the section table gives. |
-| `explanation-opening-missing` | A | any | no | - | An explanation file holds no paragraph between its H1 and its first H2. | Write the opening paragraph: what the record is, who it concerns and why it matters. |
+| `explanation-opening-missing` | A | any | no | - | An explanation file holds no paragraph between its H1 and its first H2. | Write the opening paragraph: what the record is, who it concerns and the consequence at stake. |
 | `explanation-section-unknown` | A | any | no | - | An explanation file holds an H2 section ahead of its fixed sections that its record type's section table does not state. | Move the section after the fixed sections, or move its text into the section the table gives. |
 | `format-drift` | A | any | no | - | A record file differs from canonical form. | Run `litespec model format`. |
 | `source-link-bare` | A | any | no | - | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |

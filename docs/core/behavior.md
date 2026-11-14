@@ -114,13 +114,13 @@ The specification names only what carries business meaning. Child entities and v
 
 **Applies to:** artifact: record:use-case, record:module, record:aggregate
 
-**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no walk adds to the records.
+**Default:** Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no case adds to the records.
 
 **Replacement:** A project names the records that carry an Example section in its documentation.
 
 **Rationale:** Every field states a rule, a state, or a mapping; none says when the behavior happens or who is under pressure while it does. An occasion drawn from the one shared cast lets a reviewer judge whether the behavior fits the world it serves, and lets readers carry the same people and figures from page to page.
 
-**Reviewed for:** Which module, aggregate, and use-case explanation files lack an Example section from the cast where a walk would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.
+**Reviewed for:** Which module, aggregate, and use-case explanation files lack an Example section from the cast where a case would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.
 
 ### Group Cross-Aggregate Rules by Theme
 

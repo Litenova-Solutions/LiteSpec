@@ -782,7 +782,7 @@
       "when": "query",
       "strength": "required",
       "statement": "A paging cursor MUST carry a version and the last stable sort values, including a unique tie-breaker, and no sensitive value in readable form.",
-      "rationale": "Paging walks a sorted sequence, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the walk exact when values repeat. The tie-breaker matches the query\u0027s stable order under \u0060litespec/backend/api#bound-collection-queries\u0060. No sensitive value travels in readable form, because callers store and replay cursors.",
+      "rationale": "Paging reads a sorted sequence in order, so the cursor names exactly where the last page stopped: the version lets the sort evolve without breaking stored cursors, and the last stable sort values with a unique tie-breaker keep the read exact when values repeat. The tie-breaker matches the query\u0027s stable order under \u0060litespec/backend/api#bound-collection-queries\u0060. No sensitive value travels in readable form, because callers store and replay cursors.",
       "example": ""
     },
     {
@@ -6970,14 +6970,14 @@
       "anchor": "illustrate-pages-with-examples-from-the-cast",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Which module, aggregate, and use-case explanation files lack an Example section from the cast where a walk would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.",
+      "evidence": "Which module, aggregate, and use-case explanation files lack an Example section from the cast where a case would add to the records, without a recorded project convention? Look at the Example sections beside the module, aggregate, and use-case record files.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case, record:module, record:aggregate",
       "layer": "behavior",
       "trace": false,
       "strength": "default",
-      "statement": "Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no walk adds to the records.",
+      "statement": "Each module, aggregate, and use-case explanation file carries an Example section drawn from the example cast, removed where no case adds to the records.",
       "rationale": "Every field states a rule, a state, or a mapping; none says when the behavior happens or who is under pressure while it does. An occasion drawn from the one shared cast lets a reviewer judge whether the behavior fits the world it serves, and lets readers carry the same people and figures from page to page.",
       "example": ""
     },
@@ -7798,15 +7798,15 @@
       "anchor": "add-no-behavior-in-an-explanation-file",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which behaviors in a feature or requirement explanation appear in no requirement statement? Compare each explanation file with the requirements of its feature.",
+      "evidence": "Which behaviors in an Intent explanation file appear in neither its record\u0027s fields nor the records it cites? Compare each explanation file with its record\u0027s fields and the records it cites.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:feature, record:requirement",
+      "artifact": "record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:journey, record:actor, record:role",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A feature or requirement explanation file MUST describe only behavior that the feature\u0027s requirement records state.",
-      "rationale": "A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose.",
+      "statement": "An explanation file of an Intent record MUST describe only behavior that the record\u0027s own fields and the records it cites state.",
+      "rationale": "A requirement statement is the one authoritative form of a commitment. A rule that appears only in prose, such as differences above 10 EUR showing in red, is a second requirement that no record states: no Behavior fulfills it, no check reaches it, and it drifts from the records. The explanation clarifies the requirements with context and an example; a new behavior becomes a requirement or leaves the prose. Proposed by [decision/0054-write-each-shared-record-rule-once](decision/0054-write-each-shared-record-rule-once), which widens this rule from features and requirements to every Intent explanation file.",
       "example": "A library feature explanation that says renewed copies show their new date in bold states a behavior no requirement holds, so the sentence becomes a requirement or is removed."
     },
     {
@@ -8021,8 +8021,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A journey MUST state in \u0060summary\u0060, in up to four sentences, who walks, what starts the walk, what good looks like, and why it matters.",
-      "rationale": "A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the walk in the walker\u0027s terms first, and the book renders it first on the page. \u0060finishedWhen\u0060 stays the checkable end state; the summary carries the purpose no field checks.",
+      "statement": "A journey MUST state in \u0060summary\u0060, in up to four sentences, who takes the journey, what starts it, what good looks like, and the consequence at stake and for whom.",
+      "rationale": "A journey page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the journey in the actor\u0027s terms first, and the book renders it first on the page. \u0060finishedWhen\u0060 stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "The library journey to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return."
     },
     {
@@ -8130,7 +8130,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An actor MUST carry a \u0060kind\u0060 of person or organization and state in \u0060belongsToTeam\u0060 whether it belongs to the team building and running the product.",
-      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and walk a journey. \u0060belongsToTeam\u0060 reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer.",
+      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a journey. \u0060belongsToTeam\u0060 reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "The library reader is an actor of kind person with \u0060belongsToTeam\u0060 false. The text gateway is an external system and no actor."
     },
     {
@@ -8256,7 +8256,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A goal MUST be moved by a journey serving it or by a quality requirement citing it.",
-      "rationale": "A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the walk that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all.",
+      "rationale": "A goal no journey serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A journey serving the goal shows the journey that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "The library goal of faster pickup is moved by the borrow-and-return journey serving it; a goal of higher membership sales is moved by no journey and is no product goal."
     },
     {
@@ -8274,7 +8274,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every actor MUST be named by a journey, by a problem in \u0060affects\u0060, or by an access position in \u0060holds\u0060.",
-      "rationale": "An actor named by nothing is a party nobody suffers as, walks as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the walk it walks, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves.",
+      "rationale": "An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the journey it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "The library reader is named by the borrow-and-return journey and by the due-date problem; the librarian is named by the holds of the librarian role."
     },
     {
@@ -8345,8 +8345,8 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A journey MUST walk one actor toward one goal through ordered steps, naming the goal record in \u0060serves\u0060 and stating each path off that order in \u0060branches\u0060.",
-      "rationale": "A journey names its \u0060actor\u0060, its goal record in \u0060serves\u0060, its \u0060finishedWhen\u0060, and its ordered \u0060steps\u0060. One actor means a step names another actor only at a handoff; one goal means a walk with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).",
+      "statement": "A journey MUST lead one actor toward one goal through ordered steps, naming the goal record in \u0060serves\u0060 and stating each path off that order in \u0060branches\u0060.",
+      "rationale": "A journey names its \u0060actor\u0060, its goal record in \u0060serves\u0060, its \u0060finishedWhen\u0060, and its ordered \u0060steps\u0060. One actor means a step names another actor only at a handoff; one goal means a journey with several goals splits into several journeys. The order shows how the steps join toward the goal, so a step that fits nowhere is visible. The journey names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "The largest consumer held a 21-step journey with five actors, from creating the organizer to closing the books. Split by goal, it is four journeys: set up and sell an event; buy a ticket; admit the crowd; close the night."
     },
     {
@@ -8363,9 +8363,9 @@
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A journey step MUST name at most one performer: another actor in \u0060actor\u0060 at a handoff, or the external system, job or reaction in \u0060system\u0060 when no person acts, and a step naming neither is performed by the walking actor.",
+      "statement": "A journey step MUST name at most one performer: another actor in \u0060actor\u0060 at a handoff, or the external system, job or reaction in \u0060system\u0060 when no person acts, and a step naming neither is performed by the actor taking the journey.",
       "rationale": "A step performed by machinery forced a machine actor into Intent, where it sat beside real people and held no role. Naming the system record that performs the step keeps the actor list to people and organizations, and keeps the performing party one link away. A step naming both an actor and a system names two performers for one act.",
-      "example": "In the library journey, the step that sends the overdue notice names the text gateway in \u0060system\u0060; the steps the reader walks name no performer."
+      "example": "In the library journey, the step that sends the overdue notice names the text gateway in \u0060system\u0060; the steps the reader takes name no performer."
     },
     {
       "id": "litespec/core/intent#reach-each-finish-condition-through-a-step",
@@ -8494,6 +8494,24 @@
       "example": ""
     },
     {
+      "id": "litespec/core/intent#split-records-whose-parts-change-separately",
+      "heading": "Split Records Whose Parts Change Separately",
+      "page": "docs/core/intent.md",
+      "anchor": "split-records-whose-parts-change-separately",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which constraint or research records hold claims with different sources, scopes or rates of change, or split one answer across records a reader cannot follow? Look at the records the change adds.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:constraint, record:research",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "A constraint or research record MUST hold only claims that share one question or source, one scope and one rate of change, so a claim verified or changed separately sits in its own record.",
+      "rationale": "A record that bundles a rule from one source with a rule from another cannot be rechecked in one pass, and a change to one rule reopens the whole record. Splitting by the same test keeps each answer one reader can follow. The split stops where the parts of one answer no longer change apart, because an answer spread over several records is as hard to follow as a bundled one. Proposed by [decision/0054-write-each-shared-record-rule-once](decision/0054-write-each-shared-record-rule-once).",
+      "example": "A constraint holds the seven-year receipt retention rule and its source in one record, and the deduction rule for the same tax in a second record, because the two come from different sources and change on different dates."
+    },
+    {
       "id": "litespec/core/intent#state-each-constraint-rule-with-its-condition",
       "heading": "State Each Constraint Rule with Its Condition",
       "page": "docs/core/intent.md",
@@ -8580,7 +8598,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A goal MUST state its \u0060summary\u0060, \u0060statement\u0060, \u0060measure\u0060, and \u0060target\u0060 in fields.",
-      "rationale": "A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The \u0060summary\u0060 states what the goal is in one paragraph, the \u0060statement\u0060 names the outcome and why it matters, and \u0060measure\u0060 and \u0060target\u0060 name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict.",
+      "rationale": "A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The \u0060summary\u0060 states what the goal is in one paragraph, the \u0060statement\u0060 names the outcome and the consequence at stake, and \u0060measure\u0060 and \u0060target\u0060 name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": ""
     },
     {
@@ -8832,7 +8850,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A journey MUST state its observable end in \u0060finishedWhen\u0060.",
-      "rationale": "A journey without a stated end can stop anywhere: the reader cannot tell a finished walk from an abandoned one, and serving records cannot tell done from dropped. \u0060finishedWhen\u0060 states the observable end in one sentence, in product words.",
+      "rationale": "A journey without a stated end can stop anywhere: the reader cannot tell a finished journey from an abandoned one, and serving records cannot tell done from dropped. \u0060finishedWhen\u0060 states the observable end in one sentence, in product words. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "\u0060finishedWhen\u0060: the employee holds the reimbursement."
     },
     {
@@ -8904,7 +8922,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each journey step MUST carry its \u0060id\u0060 and its product sentence in \u0060statement\u0060, naming one act of its performer and no use case.",
-      "rationale": "A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product\u0027s observable response after the performer\u0027s act, as in \u0022Finance reimburses the approved expense, and Claimwick pays the amount into the employee\u0027s account\u0022; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The \u0060id\u0060 (\u0060s1\u0060, \u0060s2\u0060, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with \u0060serves\u0060 to \u0060journey/\u003Cname\u003E#s1\u0060. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the walking actor only at a handoff in \u0060actor\u0060, or the system record performing it in \u0060system\u0060 when no person acts, and carries \u0060failure\u0060 where the walk can fail.",
+      "rationale": "A step written as a product sentence reads in journey detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product\u0027s observable response after the performer\u0027s act, as in \u0022Finance reimburses the approved expense, and Claimwick pays the amount into the employee\u0027s account\u0022; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The \u0060id\u0060 (\u0060s1\u0060, \u0060s2\u0060, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with \u0060serves\u0060 to \u0060journey/\u003Cname\u003E#s1\u0060. A step that names its use case drags Behavior into Intent and breaks the journey detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the journey only at a handoff in \u0060actor\u0060, or the system record performing it in \u0060system\u0060 when no person acts, and carries \u0060failure\u0060 where the journey can fail. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": "Step \u0060s4\u0060 states \u0060Finance reimburses the approved expense.\u0060 in \u0060statement\u0060 and names no use case; \u0060use-case/spending.reimburse-expense\u0060 names \u0060journey/submit-and-reimburse#s4\u0060 in \u0060serves\u0060."
     },
     {
@@ -9589,6 +9607,24 @@
       "strength": "required",
       "statement": "A LiteSpec tag that publishes MUST be \u0060v\u003Cversion\u003E\u0060 on \u0060main\u0060, or a release candidate \u0060v\u003Cversion\u003E-rc.\u003Cn\u003E\u0060 on \u0060release/\u003Cversion\u003E\u0060, and the changelog entry, the consumer template version, and the tool and analyzer package versions name the same manifest version.",
       "rationale": "A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing. A candidate lets a consumer test the packages a release will publish before the release branch merges. Its suffix keeps its packages apart from the release\u0027s, and the committed files keep the plain version, so a candidate never changes what \u0060main\u0060 names. Each release publishes the CLI as one native executable per platform, in the tool packages and in standalone archives, so the version reaches a consumer with or without .NET, settled by [decision/0021-native-command-line](decision/0021-native-command-line) on the evidence in [research/native-command-line-evidence](research/native-command-line-evidence).",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/maintaining#publish-each-release-candidate-from-its-release-branch",
+      "heading": "Publish Each Release Candidate from Its Release Branch",
+      "page": "docs/core/maintaining.md",
+      "anchor": "publish-each-release-candidate-from-its-release-branch",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which release candidate tags name a commit that is not on \u0060release/\u003Cversion\u003E\u0060, or publish packages from \u0060main\u0060? Look at the candidate tags and the release workflow runs that published them.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every release candidate MUST publish from its release branch, \u0060release/\u003Cversion\u003E\u0060, and no candidate publishes from \u0060main\u0060.",
+      "rationale": "A consumer validates a candidate before the final release reaches \u0060main\u0060, so the candidate must hold the release branch\u0027s commit and nothing newer on \u0060main\u0060. Publishing from the branch keeps the packages a consumer tests the packages the release will publish, and the release\u0027s final tag still comes from \u0060main\u0060. Proposed by [decision/0059-publish-release-candidates-from-release-branches](decision/0059-publish-release-candidates-from-release-branches).",
       "example": ""
     },
     {
@@ -10398,7 +10434,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every journey step MUST have a serving use case, reaction, or job.",
-      "rationale": "A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the walker through it. \u0060step-use-case-missing\u0060 fails a step with no serving use case, reaction, or job. The pair sits side by side: \u0060step-use-case-missing\u0060 names a step no use case, reaction, or job serves, and \u0060step-screen-missing\u0060 names a step a browser or device use case serves that no screen serves.",
+      "rationale": "A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the actor through it. \u0060step-use-case-missing\u0060 fails a step with no serving use case, reaction, or job. The pair sits side by side: \u0060step-use-case-missing\u0060 names a step no use case, reaction, or job serves, and \u0060step-screen-missing\u0060 names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
       "example": ""
     },
     {
@@ -13107,7 +13143,7 @@
       "strength": "required",
       "statement": "Each use case MUST carry \u0060summary\u0060.",
       "rationale": "A use case states what it is in one paragraph, so a reader landing cold learns the act before its fields. The steps live under Flow in the explanation file beside a command, where they stay readable without a shape a check must parse.",
-      "example": "The submit-expense summary states that an employee files a work expense for approval, and its Flow section walks validation, storage, and the approver notice in order."
+      "example": "The submit-expense summary states that an employee files a work expense for approval, and its Flow section lists validation, storage, and the approver notice in order."
     },
     {
       "id": "litespec/core/writing#apply-plain-mechanics",
@@ -13206,16 +13242,52 @@
       "anchor": "keep-each-record-sentence-within-twenty-five-words",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which record statements or summaries carry a sentence past 25 words? Look at the statements and summaries the change adds.",
+      "evidence": "Which record statements or summaries carry a sentence past 25 words that holds no condition a shorter sentence would drop? Look at the statements and summaries the change adds.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "Every sentence in a record \u0060statement\u0060 or \u0060summary\u0060 SHOULD hold at most 25 words.",
+      "rationale": "A record sentence carries one fact a builder implements, and a sentence past 25 words often carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is a house limit chosen for scanning, not a measured limit of what readers parse, and the count is mechanical so every record is counted the same way. The glossary \u0060meaning\u0060 bound is the same bound, checked by \u0060litespec model check\u0060 as the advisory \u0060term-meaning-invalid\u0060. A longer explanation belongs in the explanation file, split into sentences that each carry one fact. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
+      "example": "\u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 The sentence holds 11 words and one fact."
+    },
+    {
+      "id": "litespec/core/writing#keep-release-phases-and-plans-out-of-records",
+      "heading": "Keep Release Phases and Plans Out of Records",
+      "page": "docs/core/writing.md",
+      "anchor": "keep-release-phases-and-plans-out-of-records",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which records name a release phase, a later step or a future plan where the product as it stands, a vision, an owner question or a backlog item belongs? Look at the records the change adds.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every sentence in a record \u0060statement\u0060 or \u0060summary\u0060 MUST hold at most 25 words.",
-      "rationale": "A record sentence carries one fact a builder implements, and a sentence past 25 words usually carries two facts joined by a comma, so the reader weighs both at once or misses the second. Twenty-five words is the longest sentence a reader parses once, and the bound is mechanical, so a check counts it the same way on every record. A longer explanation belongs in the explanation file, split into sentences that each carry one fact.",
-      "example": "\u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 The sentence holds 11 words and one fact."
+      "statement": "Every record MUST state the product as it stands, with no release phase, later step or future plan in its prose.",
+      "rationale": "A phrase such as \u0022in the first release\u0022 or \u0022a later step\u0022 dates the record the day the release ships, and it promises a behavior no requirement holds. A destination the product heads for is a vision, an open choice is an owner question or a backlog item, and a limit of the current product is stated as a limit, not as a plan to lift it. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
+      "example": "A permission record states \u0022The role cannot be limited to one business\u0022, not that staff will narrow the role in a later release."
+    },
+    {
+      "id": "litespec/core/writing#keep-the-conditions-when-shortening",
+      "heading": "Keep the Conditions When Shortening",
+      "page": "docs/core/writing.md",
+      "anchor": "keep-the-conditions-when-shortening",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which summaries, conclusions, statements or opening paragraphs state a claim without a condition that the source or the record\u0027s fields hold? Look at the shortened forms the change adds, beside the claims they shorten.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every \u0060summary\u0060, \u0060conclusion\u0060, \u0060statement\u0060 and opening paragraph that shortens a claim MUST keep each condition of the claim it shortens, such as where entitled to deduct, for quarterly filers or to the extent allowed.",
+      "rationale": "A shortened form that drops a condition states a wider claim than its source, and a reader builds or decides against the wider claim. Shortening stays the aim, so a form keeps the words that carry a condition and drops the rest. The rule outranks the sentence bound in \u0060litespec/core/writing#keep-each-record-sentence-within-twenty-five-words\u0060 whenever the two pull apart. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
+      "example": "\u0022Finance reimburses the expense\u0022 states more than Claimwick does. \u0022Finance reimburses the approved expense\u0022 keeps the condition the policy holds."
     },
     {
       "id": "litespec/core/writing#name-observable-behavior-instead-of-intensifiers",
@@ -13249,8 +13321,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and why it matters.",
-      "rationale": "A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet.",
+      "statement": "Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and the consequence at stake.",
+      "rationale": "A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](../intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md).",
       "example": "The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin."
     },
     {
@@ -13278,15 +13350,15 @@
       "anchor": "put-the-actor-first",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which sentences open with a thing instead of an actor, use the passive voice, or promise in the future tense? Look at the statements and summaries the change adds.",
+      "evidence": "Which sentences that describe an action open with a thing instead of an actor, use the passive voice to hide who acts, or promise in the future tense? Look at the statements and summaries the change adds.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every sentence in a record MUST name its actor as its subject, in the active voice and the present tense.",
-      "rationale": "A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states.",
+      "statement": "Every sentence in a record that describes an action MUST name its actor as its subject, in the active voice and the present tense.",
+      "rationale": "A sentence that opens with its actor states who does what before the reader reaches the verb, and the present tense states what holds today rather than what a plan intends. Passive and future forms hide the actor or promise a behavior no record states. Second person belongs only on tutorial and how-to pages, where the reader is the actor; records stay in the third person, as the text-kind table on the [Record Language](language.md) page states. A sentence that states a fact, a state or a calculation may take its object or its condition as its subject, as in \u0022The statement closing date determines the comparison date.\u0022 Passive voice that hides who acts stays a finding. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
       "example": "Claimwick writes \u0022Finance reimburses the due expense.\u0022 The actor Finance opens the sentence, and the present tense states what holds."
     },
     {
@@ -13308,13 +13380,31 @@
       "example": "Claimwick states \u0022An expense above the threshold carries a receipt.\u0022 The sentence states what holds, with no modal word grading it."
     },
     {
+      "id": "litespec/core/writing#take-each-example-detail-from-the-cast-or-a-cited-record",
+      "heading": "Take Each Example Detail from the Cast or a Cited Record",
+      "page": "docs/core/writing.md",
+      "anchor": "take-each-example-detail-from-the-cast-or-a-cited-record",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which Example sections name a person, date or number that neither the example cast nor a record the explained record cites holds, or state a rule? Look at the Example sections the change adds, beside the cast.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Every name, date and number in an \u0060Example\u0060 section MUST come from the example cast or from a record the explained record cites, each appears only where it shows something about that record, and the \u0060Example\u0060 states no rule of its own.",
+      "rationale": "An Example that brings in a figure no record holds shows the reader a number that rests on a rule nobody states, and the reader takes the number for the rule. A fixed cast keeps every Example cumulative, so one name means one person across the documentation. An Example that states a rule would be a second copy of a record\u0027s statement, which drifts. Proposed by [decision/0054-write-each-shared-record-rule-once](../intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md).",
+      "example": "A Claimwick module example uses the 48.90 EUR fare and the 25 EUR receipt threshold, both as the example cast and the policy record state them, and adds no third amount."
+    },
+    {
       "id": "litespec/core/writing#use-literal-words",
       "heading": "Use Literal Words",
       "page": "docs/core/writing.md",
       "anchor": "use-literal-words",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which titles or sentences use a metaphor, a loose verb, a stock phrase or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.",
+      "evidence": "Which titles or sentences use a metaphor, a loose verb, a stock phrase such as why it matters, or an undefined term where a literal phrase exists? Look at the titles, verbs and first uses the change adds, beside the glossary.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
@@ -13322,7 +13412,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.",
-      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: \u0022one transfer entry touches both accounts\u0022 leaves open what happens to each balance, while \u0022one transfer entry reduces the sending account\u0027s balance and increases the receiving account\u0027s balance\u0022 states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry.",
+      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: \u0022one transfer entry touches both accounts\u0022 leaves open what happens to each balance, while \u0022one transfer entry reduces the sending account\u0027s balance and increases the receiving account\u0027s balance\u0022 states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: \u0022It matters because the figures must be correct\u0022 names no consequence, while \u0022A wrong box amount means a correction return, and a late return means a fine\u0022 names the consequence and who bears it. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-use-literal-journey-words-and-concrete-consequences](../intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
       "example": "A Claimwick problem is titled \u0022Expenses Wait Weeks for Reimbursement\u0022. The title names the wait and the delay literally, with no figure of speech to decode."
     },
     {
@@ -13386,15 +13476,15 @@
       "anchor": "write-for-the-reader-who-arrives-cold",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which records, sections and pages open with a pointer, a code or a field name instead of who and what is at stake? Look at the first sentence of each page the change adds.",
+      "evidence": "Which records, explanation files and pages open with a pointer, a code or a field name instead of who and what is at stake, or repeat the opening in a later section? Look at the first sentence of each page the change adds.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Every record, explanation section and documentation page MUST open by naming who it concerns and what is at stake, before any pointer to another page.",
-      "rationale": "Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration.",
+      "statement": "The opening paragraph of every record, explanation file and documentation page MUST name who it concerns and what is at stake, before any pointer to another page.",
+      "rationale": "Most readers land on one page from a list, a search result or a link, with nothing read before it. A page that opens with its subject and its stake answers that reader on its own; a page that opens with a pointer sends the reader elsewhere before it has given them anything. Each section after the opening answers its own question and does not repeat the opening. The tone throughout is a product explaining itself plainly: plain words, checkable facts and honest roles, with no selling and no decoration. Proposed by [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
       "example": "A Claimwick problem opens \u0022Employees wait three weeks for reimbursement while approvers batch decisions monthly.\u0022 A reader who has opened no other page knows who waits and what it costs them."
     },
     {
@@ -22964,15 +23054,15 @@
       "anchor": "run-the-release-build-before-a-release",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Which releases publish without a record naming one physical device per platform and the walk result? Look in the release records.",
+      "evidence": "Which releases publish without a record naming one physical device per platform and the result of the hand check? Look in the release records.",
       "stack": "any",
       "concern": "tests",
       "artifact": "",
       "layer": "proof",
       "trace": false,
       "strength": "default",
-      "statement": "Install and walk the release build on one physical device per platform before publishing, and record the device and result.",
-      "rationale": "Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Walking the release build on one physical device per platform meets the app as users will, and the recorded device and result make the walk reviewable. A release without that record ships on emulator evidence alone.",
+      "statement": "Install the release build and try it by hand on one physical device per platform before publishing, and record the device and result.",
+      "rationale": "Emulators approximate the device: performance, sensors, and vendor behavior differ on hardware. Trying the release build by hand on one physical device per platform meets the app as users will, and the recorded device and result make the check reviewable. A release without that record ships on emulator evidence alone.",
       "example": ""
     },
     {
@@ -26918,22 +27008,22 @@
       "example": ""
     },
     {
-      "id": "litespec/frontend/testing#name-the-journey-a-journey-test-walks",
-      "heading": "Name the Journey a Journey Test Walks",
+      "id": "litespec/frontend/testing#name-the-journey-a-journey-test-covers",
+      "heading": "Name the Journey a Journey Test Covers",
       "page": "docs/frontend/testing.md",
-      "anchor": "name-the-journey-a-journey-test-walks",
+      "anchor": "name-the-journey-a-journey-test-covers",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which browser tests that walk several screens carry a \u0060journey\u0060 annotation naming the journey and a \u0060proves\u0060 mark for each scenario they drive and assert? Look in the browser tests and their annotations.",
+      "evidence": "Which browser tests that drive several screens carry a \u0060journey\u0060 annotation naming the journey and a \u0060proves\u0060 mark for each scenario they drive and assert? Look in the browser tests and their annotations.",
       "stack": "any",
       "concern": "tests",
       "artifact": "",
       "layer": "proof",
       "trace": false,
       "strength": "required",
-      "statement": "A browser test that walks several screens MUST carry a \u0060journey\u0060 annotation naming the journey and a \u0060proves\u0060 mark for each scenario it drives and asserts.",
-      "rationale": "A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The \u0060journey\u0060 annotation tells a reader which walk the test rehearses without claiming that the walk itself is proven.",
-      "example": "The submit-and-reimburse walk carries \u0060journey: journey/submit-and-reimburse\u0060 and proves the scenarios it drives and asserts on each screen it reaches."
+      "statement": "A browser test that drives several screens MUST carry a \u0060journey\u0060 annotation naming the journey and a \u0060proves\u0060 mark for each scenario it drives and asserts.",
+      "rationale": "A journey is not a proof target: it is achieved through use cases, so a journey test proves the scenarios it drives, and journey coverage is computed from them. The \u0060journey\u0060 annotation tells a reader which journey the test rehearses without claiming that the journey itself is proven. Reworded by [decision/0049-use-literal-journey-words-and-concrete-consequences](decision/0049-use-literal-journey-words-and-concrete-consequences).",
+      "example": "The submit-and-reimburse journey test carries \u0060journey: journey/submit-and-reimburse\u0060 and proves the scenarios it drives and asserts on each screen it reaches."
     },
     {
       "id": "litespec/frontend/testing#prove-each-scenario-at-one-boundary",

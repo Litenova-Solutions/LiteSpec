@@ -8,7 +8,7 @@
   import { proseOf } from "../page-prose";
   import { stringField } from "../page-values";
 
-  // A goal: why it matters, and the measure with its target and due date.
+  // A goal: the consequence at stake, and the measure with its target and due date.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});

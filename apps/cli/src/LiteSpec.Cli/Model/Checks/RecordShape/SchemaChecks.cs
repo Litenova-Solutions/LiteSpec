@@ -327,7 +327,7 @@ internal static class SchemaChecks
                 }
                 else if (record.Field(RecordFields.Meaning)!.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length > 25)
                 {
-                    findings.Add(new Finding("field-invalid", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
+                    findings.Add(new Finding("term-meaning-invalid", $"Term '{record.Id}' has a meaning over 25 words.", record.File, record.Line, SubjectOf(record)));
                 }
 
                 break;

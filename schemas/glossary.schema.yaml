@@ -43,7 +43,7 @@ $defs:
         type: string
         minLength: 1
       meaning:
-        description: What the term means, in at most 25 words.
+        description: What the term means, in about 25 words; a longer meaning draws an advisory finding.
         type: string
         minLength: 1
       layer:

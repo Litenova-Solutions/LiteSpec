@@ -342,7 +342,7 @@ public sealed class BookViewsTests
         Assert.Equal(("cites", "is cited by"), Phrases(links, "cites", "journey"));
         Assert.Equal(("fulfills", "is fulfilled by"), Phrases(links, "fulfills", "use-case"));
         Assert.Equal(("answers", "is answered by"), Phrases(links, "folder", "feature"));
-        Assert.Equal(("is walked by", "walks"), Phrases(links, "actor", "journey"));
+        Assert.Equal(("is taken by", "takes"), Phrases(links, "actor", "journey"));
         Assert.Equal(("acts as", "is acted as by"), Phrases(links, "actor", "external-system"));
 
         // Each edge key below joins to its row by the field after the carrier prefix.

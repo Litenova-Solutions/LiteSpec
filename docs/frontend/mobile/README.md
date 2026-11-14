@@ -16,7 +16,7 @@ A native app builds each UI pattern it uses from the pattern's Default, with the
 - [Mobile Screens and Navigation](screens.md): native views, one navigation controller, back behavior, insets, motion, and media release.
 - [Mobile Data and State](data.md): application handlers, classified state, the typed store, app-private storage, and the generated client.
 - [Mobile Device Capabilities](device.md): permissionless pickers, point-of-use requests, audio focus, background behavior, and permission declarations.
-- [Mobile Testing](testing.md): plain .NET core tests, device tests for every screen, and the release-device walk.
+- [Mobile Testing](testing.md): plain .NET core tests, device tests for every screen, and the release-device check.
 
 ## Stacks
 

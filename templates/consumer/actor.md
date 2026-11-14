@@ -12,4 +12,4 @@ Say what the product assumes the actor knows, and what it does not assume, as an
 
 ## Example
 
-Optional. Show one occasion of the responsibilities above, using the example cast.
+Optional. One concrete case of the responsibilities above, with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

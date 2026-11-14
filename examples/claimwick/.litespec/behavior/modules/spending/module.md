@@ -18,4 +18,4 @@ Spending therefore holds its own expenses, receipts and policy. The record names
 
 Ava's 48.90 EUR train fare passes through the module 4 times. Ava submits it, Ben decides it, Cara reimburses it, and Cara exports it in a batch with the other approved expenses.
 
-The fare needs a receipt at submission, because 48.90 EUR is above the 25 EUR threshold in the policy. The full walk, with each step and its timing, is in `journey/submit-and-reimburse`.
+The fare needs a receipt at submission, because 48.90 EUR is above the 25 EUR threshold in the policy. The full journey, with each step and its timing, is in `journey/submit-and-reimburse`.

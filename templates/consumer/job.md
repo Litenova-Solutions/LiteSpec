@@ -12,4 +12,4 @@ Say what happens when a run fails, and who learns about it.
 
 ## Example
 
-Optional. Walk one run with the example cast, with the numbers worked through.
+Optional. One concrete run of the job with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

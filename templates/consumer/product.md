@@ -1,6 +1,6 @@
 # Record Title
 
-Say what the product is in plain words, who it concerns and why it matters. A reader who has read nothing else should understand the product from this paragraph.
+Say what the product is in plain words, who it concerns and the consequence at stake. A reader who has read nothing else should understand the product from this paragraph.
 
 ## Scope
 

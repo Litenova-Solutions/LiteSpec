@@ -4,7 +4,7 @@ Say who takes this journey and what they reach by its end, in plain words. A rea
 
 ## Example
 
-Describe one concrete run of the journey with the names from the example cast and real numbers.
+Describe one concrete run of the journey from `startedWhen` to `finishedWhen`, taking each step in order, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
 
 ## Branches
 

@@ -12,4 +12,4 @@ Say what the module leaves to other modules, and why that split holds.
 
 ## Example
 
-Optional. Walk one concrete case through the module with the example cast, with the numbers worked through.
+Optional. One concrete case through the module with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.

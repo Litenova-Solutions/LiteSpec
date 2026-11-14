@@ -340,7 +340,7 @@ export type ProofTargetId =
   | "litespec/frontend/testing#keep-test-support-narrow"
   | "litespec/frontend/testing#mark-the-scenario-a-browser-test-proves"
   | "litespec/frontend/testing#match-test-level-to-risk"
-  | "litespec/frontend/testing#name-the-journey-a-journey-test-walks"
+  | "litespec/frontend/testing#name-the-journey-a-journey-test-covers"
   | "litespec/frontend/testing#prove-each-scenario-at-one-boundary"
   | "litespec/frontend/testing#prove-the-module-mirror-in-a-structure-test"
   | "litespec/frontend/testing#reach-a-screen-that-offers-the-scenarios-use-case"

@@ -92,7 +92,7 @@ A record file carries its record in YAML, with the entries in `records`. A named
 
 ## Explanation Files
 
-An explanation file sits in the record's folder beside its record file, with the same stem. It opens with the record title as its one H1, then an opening paragraph between the H1 and the first H2: what the record is in plain words, who it concerns and why it matters. After that come the fixed H2 sections of its record type, in the order of the table below. Each section holds one line of guidance in its template; replace the guidance with the record's own prose and remove a section whose guidance opens with `Optional.` when it has nothing to say.
+An explanation file sits in the record's folder beside its record file, with the same stem. It opens with the record title as its one H1, then an opening paragraph between the H1 and the first H2: what the record is in plain words, who it concerns and the consequence at stake. After that come the fixed H2 sections of its record type, in the order of the table below. Each section holds one line of guidance in its template; replace the guidance with the record's own prose and remove a section whose guidance opens with `Optional.` when it has nothing to say.
 
 | Record | Sections, in order |
 |:---|:---|

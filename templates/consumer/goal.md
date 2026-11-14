@@ -1,6 +1,6 @@
 # Record Title
 
-Say what outcome this goal names, who gains when it holds and why it matters. A reader who has read nothing else should understand the goal from this paragraph.
+Say what outcome this goal names, who gains when it holds, and the consequence at stake for them. A reader who has read nothing else should understand the goal from this paragraph.
 
 ## Target
 

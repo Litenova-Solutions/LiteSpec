@@ -8,7 +8,7 @@ Describe what happens, in order, and say why each step is there.
 
 ## Example
 
-Optional. Walk one concrete run with real numbers from the example cast.
+Optional. One concrete run with the example cast, using only the names, dates and numbers the case needs, each from the cast or a record this one cites.
 
 ## Edge Cases
 

@@ -2,7 +2,7 @@ type: journey
 id: journey/borrow-and-return
 title: Borrow and return
 actor: actor/reader
-summary: A reader borrows a copy from the shelf and returns it to the desk. The walk starts when the reader takes the copy and ends with the copy back on its shelf. A good walk keeps each loan inside its due date, because overdue loans block the next reader.
+summary: A reader borrows a copy from the shelf and returns it to the desk. The journey starts when the reader takes the copy and ends with the copy back on its shelf. A good journey keeps each loan inside its due date, because overdue loans block the next reader.
 serves:
 - goal/faster-pickup
 startedWhen: The reader stands at the shelf with the copy in view.
