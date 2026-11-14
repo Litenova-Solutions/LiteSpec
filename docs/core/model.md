@@ -592,6 +592,22 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Checked by:** `litespec model check` reports `format-drift` for a record file whose text differs from its canonical form.
 
+### Keep Shape Rules in the Schema
+
+**ID:** `litespec/core/model#keep-shape-rules-in-the-schema`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Each rule on the shape of one record MUST be written in the record schema, and each rule on the graph between records stays in the model check.
+
+**Rationale:** An editor validates a record against the schema alone, so a shape rule the schema lacks lets a record pass in the editor and fail in the check. Graph rules, such as reference resolution, ownership and consistency across records, need every record at once, which a schema cannot read. The schema holds required properties, minimum counts, conditional requirements and allowed values. A list of objects does not use `uniqueItems`, since that compares whole objects, so the model check reports each key that two entries of one record share. Proposed by [decision/0058-keep-shape-rules-in-the-schema](../intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md) on the disagreements between the schema and the check.
+
+**Example:** A Claimwick research record with an empty `sources` list fails the schema in an editor and the model check alike, and a research record that names source key `benchmark-report` twice is reported as `record-key-duplicate`.
+
+**Checked by:** `litespec model check` reports `record-invalid` for a record that breaks a shape rule and `record-key-duplicate` for two entries of one record that share a key, and the parity test `RecordSchemaParityTests` fails when the schema and the model check disagree on a rule both carry.
+
 ### Give Every Record One Parent
 
 **ID:** `litespec/core/model#give-every-record-one-parent`

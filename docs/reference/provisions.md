@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1674 provisions in 4 groups across 6 areas.
+The active release states 1675 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -42,7 +42,7 @@ The active release states 1674 provisions in 4 groups across 6 areas.
 | [core/language](../core/language.md) | 25 | 8 | 32% |
 | [core/layers](../core/layers.md) | 9 | 4 | 44% |
 | [core/maintaining](../core/maintaining.md) | 7 | 5 | 71% |
-| [core/model](../core/model.md) | 50 | 33 | 66% |
+| [core/model](../core/model.md) | 51 | 34 | 67% |
 | [core/principles](../core/principles.md) | 22 | 4 | 18% |
 | [core/privacy](../core/privacy.md) | 15 | 2 | 13% |
 | [core/release](../core/release.md) | 19 | 1 | 5% |
@@ -668,6 +668,7 @@ The active release states 1674 provisions in 4 groups across 6 areas.
 | litespec/core/model#keep-each-name-unique-in-the-product | [Keep Each Name Unique in the Product](../core/model.md#keep-each-name-unique-in-the-product) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `name-duplicate` for a name segment that occurs twice in the product. |
 | litespec/core/model#keep-module-dependencies-free-of-cycles | [Keep Module Dependencies Free of Cycles](../core/model.md#keep-module-dependencies-free-of-cycles) | rule | any | records | record:module | any | no | required | checkable | `litespec model check` reports `module-dependency-invalid` for a module dependency cycle. |
 | litespec/core/model#keep-rules-and-targets-out-of-technical-decisions | [Keep Rules and Targets Out of Technical Decisions](../core/model.md#keep-rules-and-targets-out-of-technical-decisions) | rule | any | records | record:decision | any | no | required | checkable | `litespec model check` reports `decision-basis-missing` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`. |
+| litespec/core/model#keep-shape-rules-in-the-schema | [Keep Shape Rules in the Schema](../core/model.md#keep-shape-rules-in-the-schema) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `record-invalid` for a record that breaks a shape rule and `record-key-duplicate` for two entries of one record that share a key, and the parity test `RecordSchemaParityTests` fails when the schema and the model check disagree on a rule both carry. |
 | litespec/core/model#mark-every-check-with-its-level | [Mark Every Check with Its Level](../core/model.md#mark-every-check-with-its-level) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `reader-missing` (level S) for a frontend whose reader is missing or failing, and prints the level beside each finding. |
 | litespec/core/model#match-each-backend-mark-to-its-folder | [Match Each Backend Mark to Its Folder](../core/model.md#match-each-backend-mark-to-its-folder) | rule | any | records | command-handler, query-handler, endpoint, reaction, job, aggregate | implementation | no | required | checkable | `litespec model check` reports `mark-folder-drift` (level S) for a handler, endpoint, event handler, job host or aggregate root whose mark names a record outside its module and folder, and `code-placement-drift` (level S) for a code element, test, or folder outside the code folder its record's placement names. |
 | litespec/core/model#move-each-identifier-with-its-module | [Move Each Identifier with Its Module](../core/model.md#move-each-identifier-with-its-module) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `identifier-folder-drift` for an identifier whose home segment disagrees with its folder. |
