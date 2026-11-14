@@ -81,7 +81,7 @@ describe("agent protocol region", () => {
     assert.strictEqual(lines[1], precedenceSentence("__LITESPEC_COMMAND__"));
   });
 
-  it("holds exactly the eight known placeholders", () => {
+  it("holds exactly the nine known placeholders", () => {
     const found = [...new Set(loadAgentProtocolRegion().match(/__[A-Z0-9_]+__/g) ?? [])].sort();
     assert.deepStrictEqual(
       found,
@@ -93,6 +93,7 @@ describe("agent protocol region", () => {
     const region = AGENT_PROTOCOL_PLACEHOLDERS.map((entry) => `${entry.placeholder}=${entry.placeholder}`).join("\n");
     const out = renderAgentProtocol(region, {
       version: "$&1.0",
+      packageVersion: "$&1.0-rc.1",
       size: "large",
       shape: "server",
       stacks: "dotnet, react",

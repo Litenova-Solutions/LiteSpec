@@ -187,13 +187,17 @@ static class InitCommand
             return CommandFailure.UsageError(exception.Message, Usage, json: false);
         }
 
-        var version = LiteSpecHome.Version;
+        var release = LiteSpecHome.Version;
 
-        if (version is null)
+        if (release is null)
         {
             CliHost.Error.WriteLine("The LiteSpec release holds no readable version.");
             return 1;
         }
+
+        // The project and the tool manifest name the package version, which a release candidate suffixes.
+        // Links name the release: a candidate's site is not published, so its links keep the base version.
+        var version = ReleaseVersion.PackageOf(release);
 
         JsonObject project;
         JsonObject overlay;
@@ -318,7 +322,7 @@ static class InitCommand
             // The first line names the schema for YAML language servers; the body is the project
             // as YAML, written from the same tree the placeholders were filled in.
             var body = YamlWriter.Write(RecordText.TextOf(project));
-            var header = $"# yaml-language-server: $schema=https://litespec.dev/{version}/schemas/litespec-project.schema.yaml\n";
+            var header = $"# yaml-language-server: $schema=https://litespec.dev/{release}/schemas/litespec-project.schema.yaml\n";
             File.WriteAllText(target, header + (body.EndsWith('\n') ? body : body + "\n"));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
@@ -339,6 +343,7 @@ static class InitCommand
         var layerClaims = LayerClaimsOf(project);
         var filledAgents = AgentProtocol.Fill(
             scaffold["project-agents.md"],
+            release,
             version,
             size,
             shapeText,
@@ -661,9 +666,9 @@ static class InitCommand
     }
 
     /// <summary>The local tool manifest pinning the LiteSpec.Cli tool at the release.</summary>
-    /// <param name="version">The LiteSpec release version to pin in the tool manifest.</param>
+    /// <param name="version">The LiteSpec package version to pin in the tool manifest, with a release candidate's suffix.</param>
     /// <returns>The dotnet-tools manifest JSON text pinning the LiteSpec.Cli tool at that version.</returns>
-    static string ToolManifest(string version) => $$"""
+    internal static string ToolManifest(string version) => $$"""
         {
           "version": 1,
           "isRoot": true,

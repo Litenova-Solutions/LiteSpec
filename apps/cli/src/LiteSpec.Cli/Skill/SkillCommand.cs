@@ -142,7 +142,7 @@ static class SkillCommand
 
         if (!global)
         {
-            release = LiteSpecHome.Version;
+            release = LiteSpecHome.Version is { } carried ? ReleaseVersion.PackageOf(carried) : null;
 
             if (release is null)
             {

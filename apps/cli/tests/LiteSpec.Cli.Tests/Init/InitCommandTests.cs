@@ -201,7 +201,7 @@ public sealed class InitCommandTests
         var tools = Path.Combine(consumer.Path, ".config", "dotnet-tools.json");
         Assert.Contains($"Wrote {tools}.", result.Stdout, StringComparison.Ordinal);
         var manifest = RecordText.Read(tools)!;
-        Assert.Equal(FixtureVersion, manifest["tools"]!["LiteSpec.Cli"]!["version"]!.GetValue<string>());
+        Assert.Equal(ReleaseVersion.PackageOf(FixtureVersion), manifest["tools"]!["LiteSpec.Cli"]!["version"]!.GetValue<string>());
         Assert.Equal("litespec", manifest["tools"]!["LiteSpec.Cli"]!["commands"]![0]!.GetValue<string>());
     }
 
@@ -254,7 +254,7 @@ public sealed class InitCommandTests
         Assert.Contains("Next step: litespec model check", result.Stdout, StringComparison.Ordinal);
 
         var project = RecordText.Read(Path.Combine(consumer.Path, ".litespec", "project.yaml"))!;
-        Assert.Equal(FixtureVersion, project["reviewedLiteSpecVersion"]!.GetValue<string>());
+        Assert.Equal(ReleaseVersion.PackageOf(FixtureVersion), project["reviewedLiteSpecVersion"]!.GetValue<string>());
     }
 
     /// <summary>Init refuses an unknown install with exit code two.</summary>
@@ -527,7 +527,7 @@ public sealed class InitCommandTests
         Assert.Equal(stacks.Split(','), project["stacks"]!.AsArray().Select(node => node!.GetValue<string>()));
         Assert.Equal(size, project["size"]!.GetValue<string>());
         Assert.Equal("testshop", project["project"]!["name"]!.GetValue<string>());
-        Assert.Equal(FixtureVersion, project["reviewedLiteSpecVersion"]!.GetValue<string>());
+        Assert.Equal(ReleaseVersion.PackageOf(FixtureVersion), project["reviewedLiteSpecVersion"]!.GetValue<string>());
 
         var frontends = project["frontends"]!.AsArray();
         var only = Assert.Single(frontends);

@@ -27,7 +27,7 @@ public sealed class SkillCommandTests
             Assert.Contains($"Wrote {folder}.", result.Stdout, StringComparison.Ordinal);
             Assert.Equal(SkillFixture.EntryTemplate.Replace(
                 SkillFixture.PlaceholderLine,
-                $"  litespec-release: {SkillFixture.FixtureVersion}\n",
+                $"  litespec-release: {ReleaseVersion.PackageOf(SkillFixture.FixtureVersion)}\n",
                 StringComparison.Ordinal), File.ReadAllText(Path.Combine(folder, "SKILL.md")));
             Assert.Equal("# Fixture Commands\n", File.ReadAllText(Path.Combine(folder, "references", "commands.md")));
             Assert.Equal("# Fixture Report\n", File.ReadAllText(Path.Combine(folder, "references", "report.md")));
