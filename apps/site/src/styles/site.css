@@ -69,6 +69,7 @@
 
   --radius: 8px; --radius-sm: 6px; --radius-lg: 12px;
   --frame: 1280px; --top: 56px;
+  --measure: 52ch;                   /* the article measure: about 80 characters a line of body text */
   --sans: "Geist", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
   color-scheme: light;

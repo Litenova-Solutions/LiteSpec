@@ -254,12 +254,12 @@ const initialAgents = renderAgentProtocol(
   .select-row:first-child {
     border-top: 0;
   }
-  /* A legend cannot be a grid item, so it floats into the label column and the
-     answer takes the rest of the row. */
+  /* A legend cannot be a grid item. Full width, it sits above its answer and does
+     not break the fieldset's border, which a narrower legend would. */
   .select-label {
-    float: left;
-    width: 220px;
-    margin-inline-end: var(--space-6);
+    float: inline-start;
+    inline-size: 100%;
+    margin-block-end: var(--space-2);
     padding: 0;
     font-size: 0.875rem;
     font-weight: 600;
@@ -272,15 +272,11 @@ const initialAgents = renderAgentProtocol(
     font-weight: 400;
     line-height: 1.5;
   }
-  .select-seg,
-  .select-exts {
-    margin-inline-start: calc(220px + var(--space-6));
-  }
   .select-seg {
     display: flex;
     flex-wrap: wrap;
     width: max-content;
-    max-width: calc(100% - 220px - var(--space-6));
+    max-width: 100%;
     gap: 2px;
     padding: 2px;
     border: 1px solid var(--border);

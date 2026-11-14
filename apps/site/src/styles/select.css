@@ -15,7 +15,7 @@
 
 .select-page {
   width: 100%;
-  max-width: 960px;
+  max-width: var(--measure);
   margin: 0 auto;
   padding: var(--space-10) var(--gutter) var(--space-16);
 }
@@ -33,7 +33,6 @@
   font-size: 1rem;
   text-wrap: pretty;
   margin: 0;
-  max-width: 68ch;
 }
 
 
@@ -85,8 +84,7 @@
 
 .step {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  column-gap: var(--space-5);
+  gap: var(--space-4);
   padding: var(--space-8) 0;
   border-top: 1px solid var(--border);
 }
@@ -123,7 +121,6 @@
 .step-head p {
   color: var(--muted-fg);
   font-size: 0.875rem;
-  max-width: 70ch;
 }
 
 /* The reading list: numbered in reading order, with a reading time each. */

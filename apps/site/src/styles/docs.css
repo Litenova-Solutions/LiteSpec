@@ -190,14 +190,13 @@ details[open] > .group-h .chev {
 }
 
 /* Content column: the phone browse button, the indexed header and body, and the
-   pager pinned to the bottom of the column. The article has one measure, 56ch of
+   pager pinned to the bottom of the column. The article has one measure, 52ch of
    the body font (about 80 characters a line, the Web Guidance limit for running
    text). Every block in the article takes that width, from the title and the
    intro through tables, provision cards, code and diagrams, so they share one
    left edge and one right edge. A table wider than the measure scrolls inside
    its own wrapper. */
 .content {
-  --measure: 56ch;
   padding: var(--space-10) var(--space-12);
   min-width: 0;
   display: flex;
