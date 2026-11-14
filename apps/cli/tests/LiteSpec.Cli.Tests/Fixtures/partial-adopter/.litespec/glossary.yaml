@@ -20,6 +20,20 @@ terms:
     nl: exemplaar
     de: Exemplar
   rejected: []
+- id: term/borrow
+  term: borrow
+  meaning: The act of lending one copy to one reader.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
+- id: term/return
+  term: return
+  meaning: The act of bringing one lent copy back.
+  layer: behavior
+  verbKind: command
+  aliases: []
+  rejected: []
 - id: term/reader
   term: reader
   meaning: A person holding a library card.

@@ -1,5 +1,5 @@
 type: requirement
-id: requirement/approval.no-self-approval
+id: requirement/approval.nobody-approves-own-expense
 title: Nobody Approves Their Own Expense
 kind: functional
 statement: Nobody approves their own expense.

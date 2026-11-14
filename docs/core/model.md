@@ -254,7 +254,7 @@ An identifier names its record type first, then the record name, with the owning
 
 A screen's `<name>` follows the same one-to-six-word rule as every other name; its `<entry-point>` is the name of the entry point it belongs to, and agrees with its folder. A rule home is an aggregate name or a module name. A use case name is unique across the project, so a result or a scenario cites only that name. An aggregate name is unique across the project. A requirement's feature segment names its feature, and the feature's folder holds it. A rule name keeps the negation its statement makes. Every identifier citation resolves to a written record.
 
-The folder wins. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `identifier-folder-drift` finding. Each name segment stays unique in the product, and a `name-duplicate` finding reports a duplicate. Folders do not narrow uniqueness.
+The folder wins. A record that moves to another module changes the module segment of its identifier and every citation in the same change. An identifier whose home segment disagrees with its folder is an `identifier-folder-drift` finding. Each name segment stays unique in the product, and a `name-duplicate` finding reports a duplicate. Folders do not narrow uniqueness. A page record takes its identifier name from its title, with the name words appearing in the title words in the same order.
 
 A journey step id is `journey/<name>#<step-id>`, with step ids `s1`, `s2`, and so on. A derived generic result is `result/<use-case>.forbidden` or `result/<use-case>.invalid-input`. Scenarios can point at derived results. Derived results are never written as records.
 
@@ -697,6 +697,22 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Checked by:** `litespec model check` reports `decision-number-duplicate` for two decisions sharing one number.
 
+### Name Each Identifier from Its Title
+
+**ID:** `litespec/core/model#name-each-identifier-from-its-title`
+
+**Strength:** required
+
+**Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:journey, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:departure
+
+**Statement:** Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.
+
+**Rationale:** Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title's words keeps the identifier, the file and the folder on what the record says. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).
+
+**Example:** Claimwick titles a requirement "Nobody Approves Their Own Expense", so the requirement is `requirement/approval.nobody-approves-own-expense` in `nobody-approves-own-expense/nobody-approves-own-expense.yaml`. The name `no-self-approval` holds words the title does not hold, so it is reported.
+
+**Checked by:** `litespec model check` reports `identifier-title-invalid` for a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.
+
 ### Write Links on the Record That Points
 
 **ID:** `litespec/core/model#write-links-on-the-record-that-points`
@@ -859,7 +875,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advisory, level A, while a product decision that decides nothing blocks at level G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
-**Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/expense-submission.month-end-load` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
+**Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/approval-reminders.month-end-submission` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
 **Checked by:** `litespec model check` reports `decision-basis-missing` (level A) for a technical decision whose `basedOn` names nothing, and counts a quality requirement as fulfilled when a technical decision names it in `basedOn`.
 
@@ -1031,7 +1047,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Rationale:** A test outside the record tree is either proof of something the specification forgot to state or a test that verifies nothing anyone promised. Naming the lowest record it verifies places each test: a scenario or rule for behavior, a quality requirement for how well the product behaves, a technical decision for a technical choice, an external system or integration event for an agreement with the outside, a provision for a structural rule the code must keep, and a project convention for a standing rule the code must keep. A test that verifies a choice no record states shows a missing record, which is written at the level where the choice lives, as safety-critical standards resolve derived requirements; a test that verifies nothing a record should state is deleted. Proof stays layered: only scenario and rule proofs verify a use case, and a passing test that asserts something links to a quality requirement, a technical decision, an external system, an integration event, or a provision marks that record tested, so "the adapter is right" never reads as "the promise is kept". A background use case is verified through the passing proofs of the use cases it serves. A browser success proof asserts the result sentence or the scenario Then text.
 
-**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/expense-submission.month-end-load`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
+**Example:** In Claimwick, the submit-expense acceptance test proves `scenario/submit-expense.submitting-with-a-receipt-succeeds`; a load test of month-end submissions proves `requirement/approval-reminders.month-end-submission`; a receipt-rendering test proves `decision/0005-render-receipts-as-pdf`; and the layering test that Domain references no persistence package proves `litespec/backend/architecture#point-dependencies-inward`.
 
 **Checked by:** `litespec model check` reports `mark-missing` and `mark-unknown` (level S) for a test that names no record or a record of a kind a test does not take.
 

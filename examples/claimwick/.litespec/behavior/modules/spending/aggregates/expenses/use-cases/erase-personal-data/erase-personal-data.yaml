@@ -8,7 +8,7 @@ access:
   grant: permission/remove-personal-data
   tenant: own
 fulfills:
-- requirement/approval.erase-after-retention
+- requirement/approval.erased-after-retention
 reachedThrough:
 - entry-point/claimwick-app
 raises: []

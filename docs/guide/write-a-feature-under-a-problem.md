@@ -35,13 +35,13 @@ Write each link on the feature, the record that points. This satisfies `litespec
 
 ### Write One Requirement per Commitment
 
-Scaffold each commitment the feature makes with `litespec new requirement <feature>.<name>`, such as `litespec new requirement expense-submission.receipt-over-threshold`. The command writes the requirement as its own record at `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. It writes no explanation file. Then fill the record's fields: its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
+Scaffold each commitment the feature makes with `litespec new requirement <feature>.<name>`, such as `litespec new requirement approval.above-threshold-receipt`. The command writes the requirement as its own record at `.litespec/intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml`, with its identifier `requirement/<feature>.<name>` and its title filled. It writes no explanation file. Then fill the record's fields: its kind, `functional`, `quality`, or `policy`, one testable sentence in `statement`, one line of reason in `rationale`, and the records behind it in `cites`. Cite each applying constraint from the requirement it binds. This satisfies `litespec/core/intent#identify-every-requirement`, `litespec/core/intent#state-requirement-kind-and-statement`, `litespec/core/intent#cite-the-reasons-of-every-requirement`, and `litespec/core/intent#cite-each-applying-constraint-from-a-requirement`.
 
 The requirement file holds one mapping at its top level, with no `records` list, because a requirement holds no entries:
 
 ```yaml
 type: requirement
-id: requirement/expense-submission.receipt-over-threshold
+id: requirement/approval.above-threshold-receipt
 title: Expense Above Threshold Carries Receipt
 kind: functional
 statement: Claimwick accepts an expense above the policy threshold only with a receipt attached.
@@ -50,7 +50,7 @@ cites:
   - goal/faster-reimbursement
 except:
   - condition: The amount is under the threshold.
-    fallback: requirement/expense-submission.auto-accepted-under-threshold
+    fallback: requirement/approval.auto-accepted-under-threshold
 setBy: product
 ```
 
@@ -93,7 +93,7 @@ A quality requirement carries the scenario that confirms it: the `stimulus` that
 
 ```yaml
 type: requirement
-id: requirement/expense-submission.reminder-delivery-time
+id: requirement/approval-reminders.reminder-delivered-within-hour
 title: Reminder Delivered Within 1 Hour
 kind: quality
 statement: Claimwick delivers every reminder within 1 hour of its scheduled time.

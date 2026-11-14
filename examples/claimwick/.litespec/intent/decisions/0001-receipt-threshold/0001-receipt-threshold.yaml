@@ -16,5 +16,5 @@ choice: 25 EUR
 consequences: Small expenses stay light to submit.
 reopenedWhen: Finance sees abuse or friction.
 decides:
-- requirement/approval.receipt-over-threshold
+- requirement/approval.above-threshold-receipt
 basedOn: []

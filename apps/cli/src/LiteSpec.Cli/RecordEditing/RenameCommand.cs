@@ -30,10 +30,12 @@ static class RenameCommand
         stays in its feature's requirements folder. A plain rename refuses a new
         identifier that names another owner, such as a use case under a different
         module or a requirement under a different feature. --move accepts that
-        change and moves the record into the folder its new owner holds. The
-        command updates the record file and rewrites every citation of the old
-        identifier, so no link points at the old name after the rename. Both
-        arguments are full record identifiers, such as use-case/lending.borrow-copy.
+        change and moves the record into the folder its new owner holds. Records
+        homed to the renamed record, such as a use case's results and scenarios,
+        take the new name as well. The command updates the record file and rewrites
+        every citation of the old identifier, so no link points at the old name
+        after the rename. Both arguments are full record identifiers, such as
+        use-case/lending.borrow-copy.
         The command checks every destination before it moves anything. A move
         that fails part way is reported, and the command does not roll it back.
         It refuses a new identifier a record already carries and an old
@@ -148,6 +150,17 @@ static class RenameCommand
         // renamed in the citations below, with the feature.
         var renames = new List<(string From, string To)> { (oldId, newId) };
         renames.AddRange(FeatureRequirementRenames(records, old, newName));
+        renames.AddRange(ChildRenames(records, old, newName, new HashSet<string>(renames.Select(pair => pair.From), StringComparer.Ordinal)));
+
+        foreach (var (from, to) in renames.Skip(1))
+        {
+            if (records.Any(record => !record.Derived && record.Id == from)
+                && records.FirstOrDefault(record => !record.Derived && record.Id == to) is { } holder)
+            {
+                CliHost.Error.WriteLine($"Identifier '{to}' is already taken by {PathText.Relative(config.Root, holder.File)}.");
+                return 2;
+            }
+        }
 
         if (!old.IsEntry && MovePage(config, records, oldType, oldHome, newHome, newName, old.File, move) is { } moved)
         {
@@ -687,6 +700,70 @@ static class RenameCommand
             {
                 renames.Add((requirement.Id, $"requirement/{newName}.{requirementName}"));
             }
+        }
+
+        return renames;
+    }
+
+    /// <summary>
+    ///     The record types that take their identifier home from each parent type, from the identifier table: a result
+    ///     and a scenario take the use-case name, an event takes the aggregate name, a rule takes its module,
+    ///     aggregate or product name, a module-homed record takes the module name, a requirement takes the feature
+    ///     name, and a screen takes the entry-point name.
+    /// </summary>
+    static readonly Dictionary<string, HashSet<string>> ChildrenByParent =
+        new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+        {
+            [RecordTypes.UseCase] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Result, RecordTypes.Scenario },
+            [RecordTypes.Aggregate] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Event, RecordTypes.Rule },
+            [RecordTypes.Module] = new HashSet<string>(StringComparer.Ordinal)
+            {
+                RecordTypes.UseCase, RecordTypes.Aggregate, RecordTypes.Reaction, RecordTypes.Job,
+                RecordTypes.Notification, RecordTypes.Setting, RecordTypes.Rule,
+            },
+            [RecordTypes.Feature] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Requirement },
+            [RecordTypes.EntryPoint] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Screen },
+            [RecordTypes.Product] = new HashSet<string>(StringComparer.Ordinal) { RecordTypes.Rule },
+        };
+
+    /// <summary>
+    ///     The identifier renames a rename carries to the records homed to it: each record whose type takes its home
+    ///     from the renamed type and whose home is the old name takes the new name, keeping its own name. The home
+    ///     must equal the old name whole, so renaming <c>post</c> leaves <c>post-entry</c> alone. A record the caller
+    ///     already renames, such as a requirement of a renamed feature, is skipped.
+    /// </summary>
+    /// <param name="records">Every record the model read, before the move.</param>
+    /// <param name="renamed">The record the rename names.</param>
+    /// <param name="newName">The record name after the rename.</param>
+    /// <param name="known">The identifiers already renamed, which are skipped.</param>
+    /// <returns>The old and new identifier of each record homed to the renamed record.</returns>
+    static List<(string From, string To)> ChildRenames(
+        IReadOnlyList<Record> records, Record renamed, string newName, HashSet<string> known)
+    {
+        var renames = new List<(string From, string To)>();
+
+        if (!ChildrenByParent.TryGetValue(renamed.Type, out var children)
+            || !Identifiers.TrySplit(renamed.Id, out _, out _, out var oldName)
+            || oldName == newName)
+        {
+            return renames;
+        }
+
+        foreach (var record in records)
+        {
+            if (record.Id == renamed.Id || !children.Contains(record.Type) || known.Contains(record.Id))
+            {
+                continue;
+            }
+
+            if (!Identifiers.TrySplit(record.Id, out _, out var home, out var name)
+                || home is null
+                || !string.Equals(home, oldName, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            renames.Add((record.Id, $"{record.Type}/{newName}.{name}"));
         }
 
         return renames;

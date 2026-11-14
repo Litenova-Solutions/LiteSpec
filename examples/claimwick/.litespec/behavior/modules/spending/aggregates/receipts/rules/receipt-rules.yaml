@@ -12,4 +12,4 @@ records:
   refusal: result/attach-receipt.expense-decided
   basedOn: []
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt

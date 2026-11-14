@@ -150,13 +150,13 @@ public sealed class TermPhraseTests
         ExplainShared(fixture.Path, """
             # Record
 
-            The team reviews Platform Scope each quarter.
+            The team reviews Archive Annex each quarter.
             """);
 
         var result = TestCli.Run("model", "check", "--root", fixture.Path, "--format", "json");
 
         Assert.Contains("term-missing", result.Output);
-        Assert.Contains("'Platform Scope'", result.Output);
+        Assert.Contains("'Archive Annex'", result.Output);
     }
 
     /// <summary>Writes the same explanation body to the three shared records.</summary>

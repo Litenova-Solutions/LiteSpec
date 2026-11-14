@@ -20,12 +20,13 @@ The product speaks one business language inside one deployment boundary, as the 
 
 ### Glossary
 
-The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states.
+The glossary is the project ubiquitous language: the one word or phrase the project uses for each concept, with its meaning. Each term carries `layer`: intent for business words, behavior for design words such as aggregate, refusal, reaction, and job, and implementation for design words that live in code, such as a read model. Each term lists in `aliases` the established synonyms its readers know, so industry readers find LiteSpec own words: a refusal is a rejection or error, a reaction is a policy, and a compensation is an undo. The `rejected` list still bars the synonyms the project refuses, as the [authoring page](authoring.md) states. A term that declares a project use-case verb carries `verbKind` with the kind it opens: `command`, `query`, or `either`.
 
 | Field | Meaning |
 |:---|:---|
 | `term`, `meaning` | The one word and what it means. |
 | `layer` | `intent`, `behavior`, or `implementation`. |
+| `verbKind` | The use-case kind a verb term opens, where the term declares a verb. |
 | `aliases` | Established synonyms readers know. |
 | `rejected` | Synonyms barred in their scope. |
 | `broader`, `narrower`, `values` | The wider and narrower terms, and the closed values. |

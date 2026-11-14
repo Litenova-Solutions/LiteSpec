@@ -1,5 +1,5 @@
 type: requirement
-id: requirement/approval.erase-after-retention
+id: requirement/approval.erased-after-retention
 title: Personal Data Erased After Retention
 kind: functional
 statement: The personal data of a decided expense is erased after its retention.

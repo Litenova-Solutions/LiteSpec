@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 public sealed class NewRequirementTests
 {
     const string FeatureFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml";
-    const string ExistingFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/no-self-approval/no-self-approval.yaml";
+    const string ExistingFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml";
 
     /// <summary>New requirement writes its own folder beside the feature's record and no explanation file.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
@@ -65,7 +65,7 @@ public sealed class NewRequirementTests
         using var consumer = Consumer();
         var before = File.ReadAllText(Path.Combine(consumer.Path, ExistingFile));
 
-        var result = TestCli.Run("new", "requirement", "approval.no-self-approval", "--root", consumer.Path);
+        var result = TestCli.Run("new", "requirement", "approval.nobody-approves-own-expense", "--root", consumer.Path);
 
         Assert.Equal(2, result.Status);
         Assert.Contains("already taken", result.Output);
@@ -116,8 +116,8 @@ public sealed class NewRequirementTests
         TestRecords.Write(temp.Path, ExistingFile, """
             {
               "type": "requirement",
-              "id": "requirement/approval.no-self-approval",
-              "title": "No self approval",
+              "id": "requirement/approval.nobody-approves-own-expense",
+              "title": "Nobody Approves Their Own Expense",
               "kind": "functional",
               "statement": "Nobody approves their own expense.",
               "rationale": "Self approval invites fraud."

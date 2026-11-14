@@ -1,4 +1,4 @@
-# Send Loan Due Notice
+# Send Due Notice on Loan Borrowed
 
 Every borrowed loan earns one due notice for its reader.
 

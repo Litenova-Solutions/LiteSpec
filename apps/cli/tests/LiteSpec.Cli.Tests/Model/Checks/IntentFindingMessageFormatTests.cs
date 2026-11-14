@@ -74,15 +74,15 @@ public sealed class IntentFindingMessageFormatTests
     {
         return TestModel.Model(
             TestModel.Config(root),
-            TestModel.Record("requirement", "requirement/borrowing.max-5-loans", Path.Combine(root, "borrowing.yaml"), """{"kind": "functional", "statement": "A reader holds at most 5 active loans."}"""),
-            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(root, "charter.yaml"), """{"authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""),
-            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "holds.yaml"), """{"serves": ["goal/faster-checkout"]}"""),
-            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow.yaml"), """{"actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
-            TestModel.Record("use-case", "use-case/lending.fetch-volume", Path.Combine(root, "fetch.yaml"), """{"kind": "command"}"""),
-            TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(root, "notify.yaml"), """{"triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
-            TestModel.Record("rule", "rule/lending.handle-renewal", Path.Combine(root, "rules.yaml"), """{"kind": "calculation", "statement": "The clerk handles the renewal.", "governs": []}"""),
-            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(root, "soldout.yaml"), """{"template": "soldout"}"""),
-            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(root, "sold-out.yaml"), """{"triggeredBy": ["event/sale.sale-ended"]}"""),
-            TestModel.Record("actor", "actor/reader", Path.Combine(root, "reader.yaml"), """{"kind": "person"}"""));
+            TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(root, "max-active-loans.yaml"), """{"title": "Max active loans", "kind": "functional", "statement": "A reader holds at most 5 active loans."}"""),
+            TestModel.Record("constraint", "constraint/library-keeps-records", Path.Combine(root, "library-keeps-records.yaml"), """{"title": "Library keeps records", "authority": "Library charter.", "kind": "organizational", "applies": true, "appliesBecause": "The library keeps records."}"""),
+            TestModel.Record("feature", "feature/hold-requests", Path.Combine(root, "hold-requests.yaml"), """{"title": "Hold requests", "serves": ["goal/faster-checkout"]}"""),
+            TestModel.Record("journey", "journey/borrow-and-return", Path.Combine(root, "borrow-and-return.yaml"), """{"title": "Borrow and return", "actor": ["actor/reader"], "steps": [{"id": "s1", "statement": "The reader borrows the copy."}]}"""),
+            TestModel.Record("use-case", "use-case/lending.fetch-volume", Path.Combine(root, "fetch-volume.yaml"), """{"title": "Fetch volume", "kind": "command"}"""),
+            TestModel.Record("reaction", "reaction/lending.notify-borrower-on-loan-borrowed", Path.Combine(root, "notify-borrower-on-loan-borrowed.yaml"), """{"title": "Notify borrower on loan borrowed", "triggeredBy": ["event/loan.loan-borrowed"], "effects": [{"sends": "notification/lending.loan-due"}]}"""),
+            TestModel.Record("rule", "rule/lending.handle-renewal", Path.Combine(root, "handle-renewal.yaml"), """{"title": "Handle renewal", "kind": "calculation", "statement": "The clerk handles the renewal.", "governs": []}"""),
+            TestModel.Record("notification", "notification/test.send-soldout-notice", Path.Combine(root, "send-soldout-notice.yaml"), """{"title": "Send soldout notice", "template": "soldout"}"""),
+            TestModel.Record("reaction", "reaction/test.send-sold-out-notice-on-sale-ended", Path.Combine(root, "send-sold-out-notice-on-sale-ended.yaml"), """{"title": "Send sold out notice on sale ended", "triggeredBy": ["event/sale.sale-ended"]}"""),
+            TestModel.Record("actor", "actor/reader", Path.Combine(root, "reader.yaml"), """{"title": "Reader", "kind": "person"}"""));
     }
 }

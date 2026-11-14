@@ -12,6 +12,6 @@ effects:
 - runs: use-case/spending.erase-personal-data
   timing: async
 fulfills:
-- requirement/approval.erase-after-retention
+- requirement/approval.erased-after-retention
 reads:
 - aggregate/spending.expense

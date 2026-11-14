@@ -12,10 +12,12 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `identifier-invalid` | G | any | no | - | An identifier breaks the form its type requires, or a requirement names a feature other than the one whose folder holds it. | Rename the identifier to the required form. |
 | `identifier-duplicate` | G | any | no | - | One identifier names two records. | Give one of the records a new identifier. |
 | `identifier-folder-drift` | G | any | no | - | An identifier's module segment disagrees with its folder. | Rename the identifier to its folder's module and update every citation. |
+| `identifier-title-invalid` | G | any | no | - | A page record's identifier name is no word subsequence of its title, or its record file is named for neither its identifier name nor the fixed file name of its type. | Take the identifier name from the title's words in title order, or name the record file for the identifier. |
 | `name-duplicate` | G | any | no | - | One name segment names two records in the product. | Give one of the records a new name. |
 | `record-key-duplicate` | G | any | no | - | Two entries of one record share a key, such as a source key, a step id, a branch, an operation name or a field name. | Give one of the entries a new key. |
 | `field-invalid` | G | any | no | - | A field holds a value outside its shape. | Write the field in its declared shape. |
 | `term-meaning-invalid` | A | any | no | - | A glossary term's meaning holds more than 25 words. | Shorten the meaning to the definition, and move the rest to the record that uses the term. |
+| `term-verb-duplicate` | G | any | no | - | A glossary verb term restates a verb of the use-case verb table. | Remove the verb term from the glossary; a project never redefines a baseline verb. |
 | `reference-unknown` | G | any | no | - | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | any | no | - | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
 | `product-count-invalid` | G | any | no | - | The project holds no single product record. | Write one product record. |
@@ -34,6 +36,8 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `state-unreached` | G | any | no | - | A state is reached by no transition. | Add a transition that reaches the state, or remove the state. |
 | `transition-unknown` | G | any | no | - | A transition names a missing state or use case. | Point the transition at a written state and a written use case. |
 | `use-case-success-missing` | G | any | no | - | A use case ends with no success result. | Add the success result to the use case. |
+| `use-case-verb-unknown` | G | any | no | - | A use-case name opens with a verb neither the use-case verb table nor the project glossary declares. | Open the use-case name with a verb from the table, or declare the verb as a glossary verb term. |
+| `use-case-verb-invalid` | G | any | no | - | A use case opens with a verb of the other kind: a query with a command verb, or a command with a query verb. | Open the use case with a verb of its own kind, or with an either verb. |
 | `scenario-result-unknown` | G | any | no | - | A scenario ends in a result outside its own use case and outside the derived results. | End the scenario in a result of its own use case. |
 | `calculation-table-missing` | G | any | no | - | A calculation rule has no scenario examples. | Add the scenario examples to the rule. |
 | `rule-name-invalid` | G | any | no | - | A rule statement negates what its name does not keep. | Keep the negation word in the rule name. |
@@ -54,7 +58,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `role-orphaned` | G | any | no | - | A role is held by no actor. | Hold the role from an actor, or remove the role. |
 | `permission-orphaned` | G | any | no | - | A permission is allowed by no role. | Allow the permission from a role, or remove the permission. |
 | `scope-term-missing` | A | any | no | - | A role names a scope with no glossary term titled with the level and Scope, such as Platform Scope. | Add a glossary term titled '<Level> Scope' that states what the level covers in this product. |
-| `permission-verb-unknown` | A | any | no | - | A permission name opens with no verb from the use-case verb table and not with manage. | Rename the permission to open with a verb from the use-case verb table, or with manage. |
+| `permission-verb-unknown` | A | any | no | - | A permission name opens with no verb of the use-case verb table, no glossary verb of kind command or either, and not with manage. | Rename the permission to open with a verb from the use-case verb table, with a glossary verb of kind command or either, or with manage. |
 | `problem-sufferer-invalid` | G | any | no | - | A problem names a sufferer outside the actors. | Name a sufferer the actors hold. |
 | `problem-evidence-missing` | G | any | no | - | A problem cites no evidence. | Cite the evidence of the problem. |
 | `actor-unused` | A | any | no | - | An actor is named by no journey or problem. | Give the actor a journey, name it in a problem, or remove the actor. |

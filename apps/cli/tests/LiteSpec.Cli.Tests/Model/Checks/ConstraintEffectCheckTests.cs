@@ -25,7 +25,7 @@ public sealed class ConstraintEffectCheckTests
             Checker.Check(Model(temp.Path, Explanation("A receipt is kept for seven years."), cites: ["constraint/tax-receipt-retention"])).Findings,
             found => found.Code == "constraint-effect-unlisted");
 
-        Assert.Equal("Requirement 'requirement/approval.receipt-over-threshold' cites constraint 'constraint/tax-receipt-retention', but its Effect on the Product section does not name it.", finding.Message);
+        Assert.Equal("Requirement 'requirement/approval.above-threshold-receipt' cites constraint 'constraint/tax-receipt-retention', but its Effect on the Product section does not name it.", finding.Message);
         Assert.Equal("constraint/tax-receipt-retention", finding.Subject);
     }
 
@@ -36,10 +36,10 @@ public sealed class ConstraintEffectCheckTests
     {
         using var temp = TestCli.Temp("checks");
         var finding = Assert.Single(
-            Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.receipt-over-threshold` keeps the receipt."), cites: [])).Findings,
+            Checker.Check(Model(temp.Path, Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."), cites: [])).Findings,
             found => found.Code == "constraint-effect-uncited");
 
-        Assert.Equal("Effect on the Product of 'constraint/tax-receipt-retention' names requirement 'requirement/approval.receipt-over-threshold', which does not cite the constraint.", finding.Message);
+        Assert.Equal("Effect on the Product of 'constraint/tax-receipt-retention' names requirement 'requirement/approval.above-threshold-receipt', which does not cite the constraint.", finding.Message);
     }
 
     /// <summary>An Effect section that names each citing requirement, and no other, reports nothing.</summary>
@@ -50,7 +50,7 @@ public sealed class ConstraintEffectCheckTests
         using var temp = TestCli.Temp("checks");
         var findings = Checker.Check(Model(
             temp.Path,
-            Explanation("The `requirement/approval.receipt-over-threshold` keeps the receipt."),
+            Explanation("The `requirement/approval.above-threshold-receipt` keeps the receipt."),
             cites: ["constraint/tax-receipt-retention"])).Findings;
 
         Assert.DoesNotContain(findings, found => found.Code is "constraint-effect-unlisted" or "constraint-effect-uncited");
@@ -77,8 +77,8 @@ public sealed class ConstraintEffectCheckTests
                 explanation),
             TestModel.Record(
                 "requirement",
-                "requirement/approval.receipt-over-threshold",
-                Path.Combine(root, "receipt-over-threshold.yaml"),
+                "requirement/approval.above-threshold-receipt",
+                Path.Combine(root, "above-threshold-receipt.yaml"),
                 1,
                 $$"""{"kind": "functional", "statement": "An expense above the receipt threshold carries a receipt.", "rationale": "Proof keeps the tax file defensible.", "cites": [{{citesJson}}]}"""));
     }

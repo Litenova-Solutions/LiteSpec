@@ -9,7 +9,7 @@ access:
 serves:
 - journey/submit-and-reimburse#s3
 fulfills:
-- requirement/approval.no-self-approval
+- requirement/approval.nobody-approves-own-expense
 reachedThrough:
 - entry-point/claimwick-app
 raises:

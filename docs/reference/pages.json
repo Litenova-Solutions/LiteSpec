@@ -3289,6 +3289,36 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md",
+      "path": "intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title",
+      "style": "decision",
+      "area": "intent",
+      "title": "Name Each Identifier from Its Title",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0062-declare-project-verbs-in-the-glossary/0062-declare-project-verbs-in-the-glossary.md",
+      "path": "intent/decisions/0062-declare-project-verbs-in-the-glossary/0062-declare-project-verbs-in-the-glossary",
+      "style": "decision",
+      "area": "intent",
+      "title": "Declare Project Verbs in the Glossary",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",

@@ -742,7 +742,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** A statement that leaves out a condition passes in one reading and fails in another. "Each bank account shows its balance beside the closing balance of its last statement" names no date for the book balance, so today's balance meets last month's statement and correct books show a difference. Naming the date, the amount or the condition makes the result decidable. One behavior per requirement lets each one be fulfilled, proven and changed on its own. A requirement is complete when a developer can tell what to build and a tester can tell what passes and what fails.
 
-**Example:** `requirement/approval.receipt-over-threshold` states that an expense above the receipt threshold carries a receipt, and `decision/0001-receipt-threshold` sets the threshold at 25 EUR, so a tester knows which expense passes.
+**Example:** `requirement/approval.above-threshold-receipt` states that an expense above the receipt threshold carries a receipt, and `decision/0001-receipt-threshold` sets the threshold at 25 EUR, so a tester knows which expense passes.
 
 **Reviewed for:** Which requirement statements join two behaviors, or leave out a condition, a date or an amount a tester needs? Look at the statements of each feature's requirements.
 
@@ -758,7 +758,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** A rationale that adds a rule hides a second requirement where no check reads it. A rationale that names one cause where several exist, or claims a comparison nobody measured, misleads the reader who rejudges the requirement later. A difference between two balances can come from a missing entry, a wrong amount, a duplicate or a wrong opening balance, so "a difference means an entry is missing" is too narrow, and "the quickest sign" is unmeasured.
 
-**Example:** The Claimwick rationale for `requirement/approval.no-self-approval` reads "A second person checks each expense before it is paid": it states the reason and adds no rule.
+**Example:** The Claimwick rationale for `requirement/approval.nobody-approves-own-expense` reads "A second person checks each expense before it is paid": it states the reason and adds no rule.
 
 **Reviewed for:** Which rationales add a rule, name one cause where several exist, or claim a comparison nobody measured? Look at the `rationale` of each requirement.
 
@@ -830,7 +830,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Rationale:** "Fast", "secure", or "always available" cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another. The `check` names the probe or test that confirms the measure, and it is required where the requirement carries `measure`. The `target` names the number aimed for, `conditions` names what holds while measuring, `runsOn` names where the check runs, and `evidence` names what the run leaves behind; each applies where the confirmation needs it.
 
-**Example:** `requirement/expense-submission.month-end-submissions` has `kind: quality`, `stimulus` "Five hundred employees submit expenses in the last hour of the month", `environment` "Normal operation, one application instance down", `response` "Each submission is stored and acknowledged", `measure` "Share of submissions acknowledged within two seconds: at least 99 percent", and `check` "month-end acknowledgement probe".
+**Example:** `requirement/approval-reminders.month-end-submission` has `kind: quality`, `stimulus` "Five hundred employees submit expenses in the last hour of the month", `environment` "Normal operation, one application instance down", `response` "Each submission is stored and acknowledged", `measure` "Share of submissions acknowledged within two seconds: at least 99 percent", and `check` "month-end acknowledgement probe".
 
 **Checked by:** `litespec model check` reports `record-invalid` for a quality requirement missing `stimulus`, `environment`, `response`, `measure`, or `check`.
 

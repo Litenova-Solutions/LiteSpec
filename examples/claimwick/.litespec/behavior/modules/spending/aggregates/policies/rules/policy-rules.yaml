@@ -12,4 +12,4 @@ records:
   refusal: result/change-receipt-threshold.negative-threshold
   basedOn: []
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt

@@ -53,16 +53,44 @@ internal static class AccessChecks
     /// <param name="findings">The list that receives each finding this check raises.</param>
     private static void CheckPermissionVerbs(ProjectModel model, List<Finding> findings)
     {
+        var verbs = UseCaseVerbChecks.GlossaryVerbs(model);
+
         foreach (var permission in model.Records.Where(record => record.Type == RecordTypes.Permission && !record.Derived))
         {
-            var verb = VerbOf(permission.Id);
+            var name = NameOf(permission.Id);
 
-            if (verb is null || verb == UseCaseVerbs.Manage || UseCaseVerbs.Baseline.Contains(verb))
+            if (name is null)
             {
                 continue;
             }
 
-            findings.Add(new Finding("permission-verb-unknown", $"Permission '{permission.Id}' opens with '{verb}', which is no verb of the use-case verb table.", permission.File, permission.Line, SubjectOf(permission)));
+            var first = name.Split('-')[0];
+
+            if (first.Length == 0 || first == UseCaseVerbs.Manage)
+            {
+                continue;
+            }
+
+            var verb = UseCaseVerbChecks.DeclaredVerbOf(name, verbs);
+
+            if (verb is null)
+            {
+                findings.Add(new Finding("permission-verb-unknown", $"Permission '{permission.Id}' opens with '{first}', which is no verb of the use-case verb table.", permission.File, permission.Line, SubjectOf(permission)));
+                continue;
+            }
+
+            // A baseline verb of any kind opens a permission; a glossary verb opens one only when it changes.
+            if (UseCaseVerbs.Kinds.ContainsKey(verb))
+            {
+                continue;
+            }
+
+            if (verbs.TryGetValue(verb, out var kind) && kind != "query")
+            {
+                continue;
+            }
+
+            findings.Add(new Finding("permission-verb-unknown", $"Permission '{permission.Id}' opens with '{verb}', which is a glossary verb of kind query.", permission.File, permission.Line, SubjectOf(permission)));
         }
     }
 
@@ -73,10 +101,10 @@ internal static class AccessChecks
         string.Join(' ', scope.Split('-').Select(word => word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..]))
         + " Scope";
 
-    /// <summary>The verb a permission name opens with: the first kebab word after the prefix.</summary>
+    /// <summary>The name a permission identifier carries after the prefix.</summary>
     /// <param name="id">The permission identifier.</param>
-    /// <returns>The opening word, or null when the identifier carries no name.</returns>
-    private static string? VerbOf(string id)
+    /// <returns>The name after the prefix, or null when the identifier carries none.</returns>
+    private static string? NameOf(string id)
     {
         if (!id.StartsWith(PermissionPrefix, StringComparison.Ordinal))
         {
@@ -84,8 +112,7 @@ internal static class AccessChecks
         }
 
         var name = id[PermissionPrefix.Length..];
-        var verb = name.Split('-')[0];
 
-        return verb.Length == 0 ? null : verb;
+        return name.Length == 0 ? null : name;
     }
 }

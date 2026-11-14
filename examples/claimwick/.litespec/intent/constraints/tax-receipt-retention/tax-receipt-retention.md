@@ -12,7 +12,7 @@ The national tax law requires a company to keep its business receipts for seven 
 
 ## Effect on the Product
 
-An expense above the receipt threshold carries its receipt, which the product keeps for the retention period: `requirement/approval.receipt-over-threshold`. The personal data of a decided expense is erased after the retention period: `requirement/approval.erase-after-retention`.
+An expense above the receipt threshold carries its receipt, which the product keeps for the retention period: `requirement/approval.above-threshold-receipt`. The personal data of a decided expense is erased after the retention period: `requirement/approval.erased-after-retention`.
 
 <!-- generated:source-links -->
 [national-tax-law]: https://example.com/national-tax-law "Read on 2026-02-10"

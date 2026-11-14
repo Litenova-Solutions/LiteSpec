@@ -80,6 +80,7 @@ static class Checker
         ReachChecks.RunRoleOrphan,
         ReachChecks.RunPermissionOrphan,
         AccessChecks.Run,
+        UseCaseVerbChecks.Run,
         ReachChecks.RunDecisionConflict,
         FolderChecks.Run,
         LocalityChecks.Run,

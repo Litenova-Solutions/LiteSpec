@@ -20,7 +20,7 @@ access:
 serves:
 - journey/submit-and-reimburse#s1
 fulfills:
-- requirement/approval.receipt-over-threshold
+- requirement/approval.above-threshold-receipt
 reachedThrough:
 - entry-point/claimwick-app
 raises:

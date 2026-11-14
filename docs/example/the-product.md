@@ -68,12 +68,12 @@ The Approval feature, in `.litespec/intent/problems/expenses-wait-weeks/features
 | Requirement ID | Statement |
 |:---|:---|
 | `requirement/approval.decided-within-five-days` | Each submitted expense is decided within five business days. |
-| `requirement/approval.receipt-over-threshold` | An expense above the receipt threshold carries a receipt. |
-| `requirement/approval.no-self-approval` | Nobody approves their own expense. |
-| `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. |
-| `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. |
+| `requirement/approval.above-threshold-receipt` | An expense above the receipt threshold carries a receipt. |
+| `requirement/approval.nobody-approves-own-expense` | Nobody approves their own expense. |
+| `requirement/approval.expense-reimbursed-at-most-once` | An approved expense is reimbursed at most once. |
+| `requirement/approval.erased-after-retention` | The personal data of a decided expense is erased after its retention. |
 
-The Approval Reminders feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and answers the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submissions`, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/requirements/month-end-submissions/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and answers the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submission`, in `.litespec/intent/problems/expenses-wait-weeks/features/approval-reminders/requirements/month-end-submission/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 Each requirement carries its identifier, title, kind, statement, rationale and the records it cites in `cites`. The `cites` list is how the tax file traces back to the constraint below.
 
@@ -119,7 +119,7 @@ choice: 25 EUR
 consequences: Small expenses stay light to submit.
 reopenedWhen: Finance sees abuse or friction.
 decides:
-- requirement/approval.receipt-over-threshold
+- requirement/approval.above-threshold-receipt
 basedOn: []
 ```
 
@@ -129,7 +129,7 @@ The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-re
 
 A constraint states one outside rule, the source it rests on and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years. The record's `sources` list names the law with its key, its URL and the day it was read, and the product applies because it stores receipts for reimbursed expenses.
 
-The explanation file holds Scope, Rules, Effect on the Product and Open Points. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that hold the rule's effect, `requirement/approval.receipt-over-threshold` and `requirement/approval.erase-after-retention`, and each of them cites this constraint, so the retention rule traces to the outside law that demands it.
+The explanation file holds Scope, Rules, Effect on the Product and Open Points. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that hold the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`, and each of them cites this constraint, so the retention rule traces to the outside law that demands it.
 
 ## The Journey
 

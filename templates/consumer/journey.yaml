@@ -31,4 +31,4 @@ branches:
   nextStep: end
 cites:
 - requirement/approval.decided-within-five-days
-- requirement/approval-reminders.month-end-submissions
+- requirement/approval-reminders.month-end-submission

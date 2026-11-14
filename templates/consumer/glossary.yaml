@@ -5,6 +5,7 @@ terms:
     term: <English label>
     meaning: <A noun phrase starting with A, An or The, at most 25 words>
     layer: <intent|behavior>
+    verbKind: <command|query|either, or remove this line>
     aliases:
       - <established synonym, or remove this line>
     labels:

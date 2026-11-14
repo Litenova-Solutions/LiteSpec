@@ -53,7 +53,7 @@ dataClasses:
   enforcedBy: job/spending.erase-expired-personal-data
   purpose: Link each expense to the employee who submitted it.
   basedOn:
-  - requirement/approval.erase-after-retention
+  - requirement/approval.erased-after-retention
 - name: expense-ledger
   classification: internal
   fields:

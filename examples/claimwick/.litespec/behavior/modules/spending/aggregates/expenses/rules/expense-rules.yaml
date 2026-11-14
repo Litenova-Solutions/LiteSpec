@@ -12,7 +12,7 @@ records:
   refusal: result/submit-expense.receipt-missing
   basedOn: []
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt
 - type: rule
   id: rule/expense.approver-is-not-submitter
   title: Approver Is Not Submitter
@@ -23,7 +23,7 @@ records:
   refusal: result/approve-expense.own-expense
   basedOn: []
   fulfills:
-  - requirement/approval.no-self-approval
+  - requirement/approval.nobody-approves-own-expense
 - type: rule
   id: rule/expense.reimbursed-once
   title: Reimbursed Once
@@ -34,7 +34,7 @@ records:
   refusal: result/reimburse-expense.already-reimbursed
   basedOn: []
   fulfills:
-  - requirement/approval.single-reimbursement
+  - requirement/approval.expense-reimbursed-at-most-once
 - type: rule
   id: rule/expense.approved-before-reimbursement
   title: Approved Before Reimbursement
@@ -45,7 +45,7 @@ records:
   refusal: result/reimburse-expense.not-approved
   basedOn: []
   fulfills:
-  - requirement/approval.single-reimbursement
+  - requirement/approval.expense-reimbursed-at-most-once
 - type: rule
   id: rule/expense.decided-from-submitted
   title: Decided from Submitted

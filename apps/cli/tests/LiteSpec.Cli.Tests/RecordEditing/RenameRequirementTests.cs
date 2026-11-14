@@ -15,13 +15,13 @@ public sealed class RenameRequirementTests
         using var consumer = Consumer();
 
         var result = TestCli.Run(
-            "rename", "requirement/approval.no-self-approval", "requirement/approval.self-approval-refused",
+            "rename", "requirement/approval.nobody-approves-own-expense", "requirement/approval.self-approval-refused",
             "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
         var moved = Path.Combine(consumer.Path, Feature, "requirements", "self-approval-refused", "self-approval-refused.yaml");
         Assert.True(File.Exists(moved), result.Output);
-        Assert.False(Directory.Exists(Path.Combine(consumer.Path, Feature, "requirements", "no-self-approval")));
+        Assert.False(Directory.Exists(Path.Combine(consumer.Path, Feature, "requirements", "nobody-approves-own-expense")));
         Assert.Contains("id: requirement/approval.self-approval-refused", File.ReadAllText(moved));
     }
 
@@ -43,9 +43,9 @@ public sealed class RenameRequirementTests
         Assert.Contains("id: feature/expense-approval", File.ReadAllText(feature));
         Assert.False(Directory.Exists(Path.Combine(features, "approval")));
 
-        var requirement = Path.Combine(features, "expense-approval", "requirements", "no-self-approval", "no-self-approval.yaml");
+        var requirement = Path.Combine(features, "expense-approval", "requirements", "nobody-approves-own-expense", "nobody-approves-own-expense.yaml");
         Assert.True(File.Exists(requirement), result.Output);
-        Assert.Contains("id: requirement/expense-approval.no-self-approval", File.ReadAllText(requirement));
+        Assert.Contains("id: requirement/expense-approval.nobody-approves-own-expense", File.ReadAllText(requirement));
     }
 
     /// <summary>A consumer with one feature folder holding one requirement folder.</summary>
@@ -61,11 +61,11 @@ public sealed class RenameRequirementTests
               "title": "Approval"
             }
             """);
-        TestRecords.Write(temp.Path, $"{Feature}/requirements/no-self-approval/no-self-approval.yaml", """
+        TestRecords.Write(temp.Path, $"{Feature}/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml", """
             {
               "type": "requirement",
-              "id": "requirement/approval.no-self-approval",
-              "title": "No self approval",
+              "id": "requirement/approval.nobody-approves-own-expense",
+              "title": "Nobody Approves Their Own Expense",
               "kind": "functional",
               "statement": "Nobody approves their own expense.",
               "rationale": "Self approval invites fraud."

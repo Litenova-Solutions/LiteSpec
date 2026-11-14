@@ -135,7 +135,7 @@ Under Effect on the Product, give each effect the rule has on the product its ow
 
 | Instead of | Write |
 |:---|:---|
-| The product handles receipts correctly under the law. | An expense above the receipt threshold carries its receipt, which the product keeps for the retention period: `requirement/approval.receipt-over-threshold`. |
+| The product handles receipts correctly under the law. | An expense above the receipt threshold carries its receipt, which the product keeps for the retention period: `requirement/approval.above-threshold-receipt`. |
 
 The first version names no requirement and no product choice, so a reader cannot check it. `model check` reports `constraint-effect-unlisted` for a citing requirement this section leaves out, and `constraint-effect-uncited` for a requirement named here that does not cite the constraint. This satisfies `litespec/core/intent#answer-every-constraint`.
 

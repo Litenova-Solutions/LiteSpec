@@ -68,7 +68,7 @@ The first rule in the expense file shows its shape. It names its kind, the use c
   refusal: result/submit-expense.receipt-missing
   basedOn: []
   fulfills:
-  - requirement/approval.receipt-over-threshold
+  - requirement/approval.above-threshold-receipt
 ```
 
 The other expense rules hold that an approver is not the submitter, that an expense is reimbursed once and only after approval, that an expense is decided only from Submitted, and that an export carries only approved expenses. Each rule has a refusal result with a stable code.

@@ -23,7 +23,7 @@ A role is one named set of permissions granted together, and it holds the one sc
 
 A permission is one allowed action. Each module keeps its permissions in `modules/<m>/permissions.yaml`, and each permission states in `meaning` what it allows in one sentence. Roles allow permissions from those lists, and use cases cite them in their grants, so the lists are the one vocabulary both sides share.
 
-A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in that table. A permission name that opens with `manage` allows every changing use case on what it names, so it never only reads.
+A permission name opens with a verb from the use-case verb table on the [use-cases page](use-cases.md), a glossary verb of kind command or either, or with `manage`, so the name says what the permission allows. An optional `group` orders the permission beside its peers in role editors. The `risk` field marks a sensitive permission; it is the only risk field records carry. Whether a permission only reads follows from the kind of its leading verb in that table or in its glossary verb term. A permission name that opens with `manage` allows every changing use case on what it names, so it never only reads.
 
 ### The Access Field
 
@@ -399,13 +399,13 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Applies to:** artifact: record:permission
 
-**Statement:** Each permission name MUST open with a verb from the use-case verb table or with `manage`.
+**Statement:** Each permission name MUST open with a verb from the use-case verb table, a glossary verb of kind command or either, or with `manage`.
 
-**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once).
+**Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary).
 
-**Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/handle-documents` opens with a word the table does not state, so it is reported.
+**Example:** `permission/approve-expense` opens with `approve` and `permission/manage-policy` opens with `manage`, so both pass. `permission/submit-expense` opens with the glossary verb `submit` and passes. `permission/handle-documents` opens with a word neither list states, so it is reported.
 
-**Checked by:** `litespec model check` reports `permission-verb-unknown` for a permission name whose opening verb is neither in the table nor `manage`.
+**Checked by:** `litespec model check` reports `permission-verb-unknown` for a permission name whose opening verb is neither in the table, nor a glossary verb of kind command or either, nor `manage`.
 
 ### Keep Permission Lists to Entries
 

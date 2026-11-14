@@ -1,5 +1,5 @@
 type: requirement
-id: requirement/approval.single-reimbursement
+id: requirement/approval.expense-reimbursed-at-most-once
 title: Approved Expense Reimbursed at Most Once
 kind: functional
 statement: An approved expense is reimbursed at most once.

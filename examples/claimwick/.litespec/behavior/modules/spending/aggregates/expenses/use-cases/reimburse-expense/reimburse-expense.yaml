@@ -10,7 +10,7 @@ access:
 serves:
 - journey/submit-and-reimburse#s4
 fulfills:
-- requirement/approval.single-reimbursement
+- requirement/approval.expense-reimbursed-at-most-once
 reachedThrough:
 - entry-point/claimwick-app
 raises:

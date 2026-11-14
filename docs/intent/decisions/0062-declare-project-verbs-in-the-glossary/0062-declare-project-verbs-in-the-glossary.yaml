@@ -1,0 +1,16 @@
+type: decision
+id: decision/0062-declare-project-verbs-in-the-glossary
+title: Declare Project Verbs in the Glossary
+options:
+  - name: "Glossary verb entries"
+    pros: "One home for product language, and the model check reads the verbs it declares."
+    cons: "Every project verb moves from its convention page into the glossary as a verb term."
+  - name: "A separate typed verb list file"
+    pros: "The verbs are checked data without touching the glossary."
+    cons: "Product words split across two files, and a verb means one thing in each."
+  - name: "Keep the Markdown convention"
+    pros: "No record moves and no check is written."
+    cons: "The verb list stays prose no tool reads, so an undeclared verb passes every check."
+choice: "Glossary verb entries"
+consequences: "A project declares each use-case verb beyond the baseline vocabulary as a verb term in its glossary: the term names the verb, `verbKind` names the kind it opens (`command`, `query`, or `either`), and `meaning` states the act in one sentence. The model check reports `use-case-verb-unknown` for a use-case name opening with a verb neither list declares, `use-case-verb-invalid` for a use case opening with a verb of the other kind, and `term-verb-duplicate` for a verb term restating a baseline verb. The permission check accepts a glossary verb of kind `command` or `either`. A convention states a judgment rule, never a list of words."
+reopenedWhen: "A verb needs a shape the glossary term cannot carry, or a project needs verbs no check should read."

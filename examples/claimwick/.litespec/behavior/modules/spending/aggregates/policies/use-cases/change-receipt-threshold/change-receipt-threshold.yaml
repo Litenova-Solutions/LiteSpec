@@ -9,7 +9,7 @@ access:
 serves:
 - journey/set-receipt-threshold#s1
 fulfills:
-- requirement/approval.receipt-over-threshold
+- requirement/approval.above-threshold-receipt
 reachedThrough:
 - entry-point/claimwick-app
 raises: []

@@ -8,5 +8,5 @@ rows:
   purpose: Keeping the business receipts and expense records for the tax file.
   period: P7Y
   enforcedBy: job/spending.erase-expired-personal-data
-  cites: requirement/approval.erase-after-retention
+  cites: requirement/approval.erased-after-retention
   conflicts: An erasure request waits until the statutory period ends, because the tax law sets that period.

@@ -63,7 +63,7 @@ A technical decision takes no written category. Its concern is the set of concer
 
 ### Decisions and Conventions
 
-A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question names how a reviewer finds a breach. A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.
+A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it. A convention is a standing rule every change follows, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. A convention lives under `.litespec/governance/conventions/`, where `rules` reads it, and code cites it in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`.
 
 ### Changed in Place
 

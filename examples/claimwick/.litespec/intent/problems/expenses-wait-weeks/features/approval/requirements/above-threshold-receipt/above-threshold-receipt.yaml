@@ -1,5 +1,5 @@
 type: requirement
-id: requirement/approval.receipt-over-threshold
+id: requirement/approval.above-threshold-receipt
 title: Expense Above Threshold Carries Receipt
 kind: functional
 statement: An expense above the receipt threshold carries a receipt.

@@ -288,7 +288,7 @@ public sealed class NewEntryTests
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--code", "spending.x"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--outcome", "success"] },
         { ["entry", RequirementPage, "requirement", "decided-within-five-days", "--result", "result/x.y"] },
-        { ["entry", RequirementPage, "requirement", "no-self-approval"] },
+        { ["entry", RequirementPage, "requirement", "nobody-approves-own-expense"] },
         { ["entry", PermissionPage, "permission", "submit-expense"] },
     };
 
@@ -364,11 +364,11 @@ public sealed class NewEntryTests
         var temp = TestCli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, FeatureJson);
-        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/no-self-approval/no-self-approval.yaml", """
+        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/nobody-approves-own-expense/nobody-approves-own-expense.yaml", """
             {
               "type": "requirement",
-              "id": "requirement/approval.no-self-approval",
-              "title": "No self approval",
+              "id": "requirement/approval.nobody-approves-own-expense",
+              "title": "Nobody Approves Their Own Expense",
               "kind": "functional",
               "statement": "Nobody approves their own expense.",
               "rationale": "Self approval invites fraud."

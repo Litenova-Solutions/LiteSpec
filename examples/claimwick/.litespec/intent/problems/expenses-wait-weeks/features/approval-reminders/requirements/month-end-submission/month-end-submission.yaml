@@ -1,5 +1,5 @@
 type: requirement
-id: requirement/approval-reminders.month-end-submissions
+id: requirement/approval-reminders.month-end-submission
 title: Month-End Submission Acknowledged in Two Seconds
 kind: quality
 statement: Each month-end submission is acknowledged within two seconds.

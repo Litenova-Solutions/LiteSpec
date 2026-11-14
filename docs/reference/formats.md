@@ -107,7 +107,7 @@ access:
 | Checked by | `litespec model check` |
 | Published URL | `https://litespec.dev/<version>/schemas/glossary.schema.yaml` |
 
-The top-level properties hold the closed vocabulary. `schemaVersion` is the constant `2`. `terms` holds one entry per concept, each with its `id`, `term`, `meaning`, `layer` of `intent` or `behavior`, `aliases` naming the established synonyms, `labels`, `rejected` synonyms, `broader` and `narrower` terms, and closed-set `values`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
+The top-level properties hold the closed vocabulary. `schemaVersion` is the constant `2`. `terms` holds one entry per concept, each with its `id`, `term`, `meaning`, `layer` of `intent` or `behavior`, `verbKind` of `command`, `query`, or `either` where the term declares a use-case verb, `aliases` naming the established synonyms, `labels`, `rejected` synonyms, `broader` and `narrower` terms, and closed-set `values`. `mannered` holds the metaphor terms the project rejects everywhere, each with its `term` and its `instead`.
 
 The consumer glossary template carries real mannered entries:
 

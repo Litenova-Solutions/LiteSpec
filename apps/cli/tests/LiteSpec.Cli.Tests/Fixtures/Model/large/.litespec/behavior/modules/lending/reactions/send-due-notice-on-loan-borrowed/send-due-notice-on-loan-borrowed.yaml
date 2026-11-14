@@ -1,6 +1,6 @@
 type: reaction
 id: reaction/lending.send-due-notice-on-loan-borrowed
-title: Send loan due notice
+title: Send Due Notice on Loan Borrowed
 triggeredBy:
 - event/loan.loan-borrowed
 effects:

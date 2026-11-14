@@ -22,7 +22,7 @@ The 0 EUR option fails on cost, because filing tiny expenses costs more than the
 
 Expenses above 25 EUR need a receipt.
 
-This amount is the threshold in `requirement/approval.receipt-over-threshold`. Finance chose 25 EUR over 0 EUR and 75 EUR.
+This amount is the threshold in `requirement/approval.above-threshold-receipt`. Finance chose 25 EUR over 0 EUR and 75 EUR.
 
 ## Consequences
 

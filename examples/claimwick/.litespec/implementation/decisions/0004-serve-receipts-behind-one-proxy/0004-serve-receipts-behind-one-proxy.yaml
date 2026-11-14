@@ -14,4 +14,4 @@ choice: One Caddy proxy
 consequences: Receipt traffic shares one entry point with one set of security headers.
 reopenedWhen: Receipt traffic outgrows one proxy.
 basedOn:
-- requirement/approval-reminders.month-end-submissions
+- requirement/approval-reminders.month-end-submission

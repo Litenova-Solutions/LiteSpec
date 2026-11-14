@@ -52,6 +52,13 @@ $defs:
         enum:
         - intent
         - behavior
+      verbKind:
+        description: The use-case kind the verb opens. Present only on a term that declares a project use-case verb.
+        type: string
+        enum:
+        - command
+        - query
+        - either
       aliases:
         description: Other spellings of the term that name the same concept and are allowed.
         type: array

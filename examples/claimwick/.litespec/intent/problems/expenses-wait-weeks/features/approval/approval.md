@@ -9,10 +9,10 @@ The feature lets employees submit expenses with receipts, lets managers decide e
 | Requirement | Rule | Reason |
 |:---|:---|:---|
 | `requirement/approval.decided-within-five-days` | Each expense is decided within 5 business days. | Late decisions stall employees and payouts. |
-| `requirement/approval.receipt-over-threshold` | An expense above the receipt threshold carries a receipt. | Proof above the line keeps the tax file defensible. |
-| `requirement/approval.no-self-approval` | Nobody approves their own expense. | A second person checks each expense before it is paid. |
-| `requirement/approval.single-reimbursement` | An approved expense is reimbursed at most once. | A double payment is hard to take back. |
-| `requirement/approval.erase-after-retention` | The personal data of a decided expense is erased after its retention. | Past its need, personal data is a risk with no use. |
+| `requirement/approval.above-threshold-receipt` | An expense above the receipt threshold carries a receipt. | Proof above the line keeps the tax file defensible. |
+| `requirement/approval.nobody-approves-own-expense` | Nobody approves their own expense. | A second person checks each expense before it is paid. |
+| `requirement/approval.expense-reimbursed-at-most-once` | An approved expense is reimbursed at most once. | A double payment is hard to take back. |
+| `requirement/approval.erased-after-retention` | The personal data of a decided expense is erased after its retention. | Past its need, personal data is a risk with no use. |
 
 The 25 EUR threshold comes from `decision/0001-receipt-threshold`. The 5-day target follows `research/approval-time-benchmarks`, which supports it with one industry study. The acknowledgement of each month-end submission has its own target in `feature/approval-reminders`, which sets it at 2 seconds.
 
