@@ -580,11 +580,25 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:constraint
 
-**Statement:** A constraint MUST state its `authority`, `readOn`, `kind`, `applies`, `appliesBecause`, and `summary` in fields, with What It Requires generated from the requirements that cite it.
+**Statement:** A constraint MUST state its `authority`, `summary`, `sources`, `kind`, `applies`, and `appliesBecause` in fields, and What It Requires is generated from the requirements that cite it.
 
-**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The `kind` is technical, organizational, convention, or legal. `summary` states the rule in the authority's own words, `readOn` states when the outside rule was read, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint.
+**Rationale:** An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The `kind` is technical, organizational, convention, or legal. `authority` names the body that issues the rule in a few words, and `summary` states the rule with its condition and whom it binds, in the form "the authority requires the subject to act when the condition holds". `sources` holds each source with its `key`, `url`, and `readOn`, the shape research uses, so each rule cites its source by key. A rule that stops binding is set `applies: false` with its reason in `appliesBecause`, and no end date is written. What It Requires lists the requirements that cite the constraint, generated at build time. A constraint can state `effectiveFrom`, the date its rule starts to bind, and can name in `basedOn` the research it rests on; a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint that names it in `basedOn`. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
 
-**Checked by:** `litespec model check` reports `record-invalid` for a constraint record file missing a required field; the builder generates What It Requires from citing requirements.
+**Checked by:** `litespec model check` reports `record-invalid` for a constraint record file missing a required field or holding no source, and `field-invalid` for a `basedOn` that names no research record; the builder generates What It Requires from citing requirements.
+
+### Cite a Source for Each Constraint Rule
+
+**ID:** `litespec/core/intent#cite-a-source-for-each-constraint-rule`
+
+**Strength:** required
+
+**Applies to:** artifact: record:constraint
+
+**Statement:** Each rule in a constraint's Rules section MUST cite one of the constraint's `sources` by key with a reference link `[text][key]`, and the explanation holds the generated source-links region that writes each source's link definition.
+
+**Rationale:** A reader who checks a rule needs the source beside it, and a rule with two sources needs a place to show which one holds it. A law that states the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides. `model render` writes each source's link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
+
+**Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `source-key-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
 ### Record Research with Read Sources
 

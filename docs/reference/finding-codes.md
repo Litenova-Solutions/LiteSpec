@@ -129,7 +129,9 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `format-drift` | A | any | no | - | A record file differs from canonical form. | Run `litespec model format`. |
 | `source-link-bare` | A | any | no | - | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |
 | `source-key-unknown` | A | any | no | - | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |
-| `source-unused` | A | any | no | - | A research source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
+| `source-unused` | A | any | no | - | A research or constraint source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
+| `source-links-missing` | A | any | no | - | A research or constraint explanation that declares sources holds no generated source-links region. | Run `litespec model render` to write the region at the end of the explanation. |
+| `source-links-drift` | A | any | no | - | The generated source-links region of a research or constraint explanation differs from the sources its record declares. | Run `litespec model render`, and change the sources in the record file, not the region. |
 | `atomic-group-duplicate` | A | any | no | - | One command saves more than one atomic write group. | Save one atomic write group per command, or split the work into use cases that react to each other's events. |
 | `operation-id-duplicate` | S | implementation | no | - | Two endpoints declare one operation id, which the API document and every generated client refuse. | Give one endpoint a new operation id. |
 | `operation-use-case-drift` | S | implementation | no | - | An operation in the committed contract `paths.contract` names carries no `x-litespec-use-case`, or names another use case than its endpoint's mark; an unreadable contract reports once. | Name the endpoint use case in `x-litespec-use-case`, or fix the unreadable contract. |

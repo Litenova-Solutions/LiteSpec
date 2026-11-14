@@ -57,11 +57,13 @@ const facts: Record<string, FactFn> = {
     if (t) out.push(t);
     return out;
   },
-  constraint: (f) => {
+  constraint: (f, _r, env) => {
     const out: Fact[] = [];
     const kind = kindFact(f);
     if (kind) out.push(kind);
     out.push({ key: "Applies", text: f.applies ? "True" : "False" });
+    const from = stringField(f, "effectiveFrom");
+    if (from) out.push({ key: "Effective from", text: env.fmtDate(from) });
     return out;
   },
   journey: (f, r) => {

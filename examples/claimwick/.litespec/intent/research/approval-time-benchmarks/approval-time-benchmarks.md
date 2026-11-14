@@ -11,3 +11,7 @@ The study is small, so the team holds this finding with medium confidence. A sec
 ## Source Notes
 
 The research rests on one industry study, read on 2026-02-10. The study does not state how many companies it covers; the team calls it small because of that.
+
+<!-- generated:source-links -->
+[example-expense-study]: https://example.com/expense-study "Read on 2026-02-10"
+<!-- /generated:source-links -->

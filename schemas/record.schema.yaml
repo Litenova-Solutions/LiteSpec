@@ -290,6 +290,11 @@ $defs:
       - $ref: '#/$defs/researchId'
       - $ref: '#/$defs/visionId'
       - $ref: '#/$defs/requirementId'
+  researchIdArray:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/researchId'
   citesArray:
     type: array
     uniqueItems: true
@@ -1285,6 +1290,8 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       readOn:
         $ref: '#/$defs/isoDate'
+      publishedOn:
+        $ref: '#/$defs/isoDate'
   appliedValue:
     type: object
     additionalProperties: false
@@ -1946,6 +1953,7 @@ $defs:
     - title
     - summary
     - authority
+    - sources
     - kind
     - applies
     - appliesBecause
@@ -1964,8 +1972,15 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       authority:
         $ref: '#/$defs/nonEmptyString'
-      readOn:
+      sources:
+        type: array
+        minItems: 1
+        items:
+          $ref: '#/$defs/researchSource'
+      effectiveFrom:
         $ref: '#/$defs/isoDate'
+      basedOn:
+        $ref: '#/$defs/researchIdArray'
       kind:
         enum:
         - technical

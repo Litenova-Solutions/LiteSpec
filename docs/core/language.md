@@ -197,7 +197,7 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a departure ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
 
-**Example:** A Claimwick constraint carries `readOn` with the date its authority was read, and a departure carries `expiresOn` with the date it ends.
+**Example:** A Claimwick constraint carries `readOn` on each source with the date the source was read, and a departure carries `expiresOn` with the date it ends.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 

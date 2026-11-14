@@ -27,6 +27,7 @@ internal static class DuplicateKeyChecks
 
             switch (record.Type)
             {
+                case RecordTypes.Constraint:
                 case RecordTypes.Research:
                     CheckKeys(record, ArrayProperty(record.Raw, RecordFields.Sources), RecordFields.Key, "source key", null, findings);
                     break;

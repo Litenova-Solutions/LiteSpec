@@ -19,6 +19,11 @@ public sealed class DuplicateKeyCheckTests
         """{"sources": [{"key": "benchmark-report", "url": "https://example.com/a", "readOn": "2026-10-12"}, {"key": "benchmark-report", "url": "https://example.com/b", "readOn": "2026-10-12"}], "question": "How long do others lend?", "conclusion": "Others lend for three weeks."}""",
         "Record 'research/loan-period-benchmarks' names source key 'benchmark-report' twice.")]
     [InlineData(
+        "constraint",
+        "constraint/library-privacy-law",
+        """{"authority": "City ordinance.", "sources": [{"key": "ordinance", "url": "https://example.com/a", "readOn": "2026-01-10"}, {"key": "ordinance", "url": "https://example.com/b", "readOn": "2026-01-10"}], "kind": "legal", "applies": true, "appliesBecause": "We keep reader records."}""",
+        "Record 'constraint/library-privacy-law' names source key 'ordinance' twice.")]
+    [InlineData(
         "journey",
         "journey/loan-desk",
         """{"actor": "actor/librarian", "steps": [{"id": "scan-copy", "statement": "Scan the copy."}, {"id": "scan-copy", "statement": "Scan it again."}]}""",

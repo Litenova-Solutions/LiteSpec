@@ -274,7 +274,7 @@ Each written link lives as a field on the record it starts from: a decision carr
 | Field | Written on | Points at | Reads as | Read back as |
 |:---|:---|:---|:---|:---|
 | `decides` | decision | Requirements, features, rules, constraints, and the permissions, roles, actors, departures, entry points, settings, or decisions an engineering choice settles | decides | is decided by |
-| `basedOn` | decision, rule, data class, retention processor, external system | Constraints, research, on a decision the visions it keeps open, and on a technical decision the requirements it serves | is based on | is a basis for |
+| `basedOn` | decision, rule, data class, retention processor, external system, constraint | Constraints, research, on a decision the visions it keeps open, and on a technical decision the requirements it serves | is based on | is a basis for |
 | `addresses` | product | Actors | addresses | is addressed by |
 | `affects` | problem | Actors | affects | is affected by |
 | folder | feature | Problems | answers | is answered by |
@@ -1172,7 +1172,7 @@ title: Submit Expense
 
 **Statement:** A consumer page MUST use its record file as its only metadata carrier.
 
-**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.
+**Rationale:** Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value. A generated region that `model render` writes from the record file is not a second carrier, because no person edits it and `model check` reports any drift from the record. The source-links region of a research or constraint explanation is one such region.
 
 **Reviewed for:** Which pages carry field values outside the record file? Look at the explanation files beside the changed record files.
 

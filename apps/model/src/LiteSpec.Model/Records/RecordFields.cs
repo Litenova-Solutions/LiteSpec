@@ -484,6 +484,9 @@ public static class RecordFields
     /// <summary>Gets the name of the `prerequisites` field.</summary>
     public const string Prerequisites = "prerequisites";
 
+    /// <summary>Gets the name of the `publishedOn` field: the date a source states it was published.</summary>
+    public const string PublishedOn = "publishedOn";
+
     /// <summary>Gets the name of the `procedure` field.</summary>
     public const string Procedure = "procedure";
 

@@ -126,7 +126,7 @@ The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-re
 
 ## The Constraint
 
-A constraint states one outside rule and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years, and the product applies because it stores receipts for reimbursed expenses. The receipt requirement cites this constraint, so the retention rule traces to the outside law that demands it.
+A constraint states one outside rule, the source it rests on and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`. The law keeps business receipts for seven years, the record names the law as its source with the day it was read, and the product applies because it stores receipts for reimbursed expenses. The receipt requirement cites this constraint, so the retention rule traces to the outside law that demands it.
 
 ## The Journey
 

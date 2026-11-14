@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1676 provisions in 4 groups across 6 areas.
+The active release states 1677 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -38,7 +38,7 @@ The active release states 1676 provisions in 4 groups across 6 areas.
 | [core/departures](../core/departures.md) | 2 | 2 | 100% |
 | [core/domain-model](../core/domain-model.md) | 21 | 13 | 62% |
 | [core/edges](../core/edges.md) | 17 | 14 | 82% |
-| [core/intent](../core/intent.md) | 52 | 30 | 58% |
+| [core/intent](../core/intent.md) | 53 | 31 | 58% |
 | [core/language](../core/language.md) | 25 | 8 | 32% |
 | [core/layers](../core/layers.md) | 9 | 4 | 44% |
 | [core/maintaining](../core/maintaining.md) | 7 | 5 | 71% |
@@ -554,9 +554,10 @@ The active release states 1676 provisions in 4 groups across 6 areas.
 | litespec/core/edges#use-every-declared-template-parameter | [Use Every Declared Template Parameter](../core/edges.md#use-every-declared-template-parameter) | rule | any | records | record:notification | any | no | required | checkable | `litespec model check` reports `template-param-drift` (level S) for a declared parameter whose placeholder, in the case the stack page states, appears in none of its template's texts. |
 | litespec/core/intent#add-no-behavior-in-an-explanation-file | [Add No Behavior in an Explanation File](../core/intent.md#add-no-behavior-in-an-explanation-file) | rule | any | records | record:feature, record:requirement | intent | no | required | guidance | Which behaviors in a feature or requirement explanation appear in no requirement statement? Compare each explanation file with the requirements of its feature. |
 | litespec/core/intent#admit-only-outside-pains-as-problems | [Admit Only Outside Pains as Problems](../core/intent.md#admit-only-outside-pains-as-problems) | rule | any | records | record:problem | intent | no | required | checkable | `litespec model check` reports `problem-sufferer-invalid` for a problem whose primary sufferer is no person or organization outside the team; `litespec model check` reports `record-invalid` for a problem record file missing `affects`, `summary` or `statement`. |
-| litespec/core/intent#answer-every-constraint | [Answer Every Constraint](../core/intent.md#answer-every-constraint) | rule | any | records | record:constraint | intent | no | required | checkable | `litespec model check` reports `record-invalid` for a constraint record file missing a required field; the builder generates What It Requires from citing requirements. |
+| litespec/core/intent#answer-every-constraint | [Answer Every Constraint](../core/intent.md#answer-every-constraint) | rule | any | records | record:constraint | intent | no | required | checkable | `litespec model check` reports `record-invalid` for a constraint record file missing a required field or holding no source, and `field-invalid` for a `basedOn` that names no research record; the builder generates What It Requires from citing requirements. |
 | litespec/core/intent#answer-one-problem-with-each-feature | [Answer One Problem with Each Feature](../core/intent.md#answer-one-problem-with-each-feature) | rule | any | records | record:feature | intent | no | required | checkable | `litespec model check` reports `record-placement-invalid` for a feature outside a problem's `features` folder, and `record-parent-missing` for a feature whose problem folder holds no problem record. |
 | litespec/core/intent#build-nothing-from-a-vision | [Build Nothing from a Vision](../core/intent.md#build-nothing-from-a-vision) | rule | any | records | record:vision | intent | no | required | guidance | Which Behavior records, code, or tests serve only a vision, with no requirement citing it? Look at the change beside the requirements that cite each vision. |
+| litespec/core/intent#cite-a-source-for-each-constraint-rule | [Cite a Source for Each Constraint Rule](../core/intent.md#cite-a-source-for-each-constraint-rule) | rule | any | records | record:constraint | intent | no | required | checkable | `litespec model check` reports `source-link-bare` for a bare URL, `source-key-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region. |
 | litespec/core/intent#cite-each-applying-constraint-from-a-requirement | [Cite Each Applying Constraint from a Requirement](../core/intent.md#cite-each-applying-constraint-from-a-requirement) | rule | any | records | record:requirement | intent | no | required | checkable | `litespec model check` reports `constraint-unreached` for a constraint with `applies: true` that no requirement cites. |
 | litespec/core/intent#cite-the-reasons-of-every-requirement | [Cite the Reasons of Every Requirement](../core/intent.md#cite-the-reasons-of-every-requirement) | rule | any | records | record:requirement | intent | no | required | checkable | `litespec model check` reports `requirement-cites-missing` for a requirement naming no reason in `cites`. |
 | litespec/core/intent#cite-the-vision-a-decision-keeps-open | [Cite the Vision a Decision Keeps Open](../core/intent.md#cite-the-vision-a-decision-keeps-open) | rule | any | records | record:decision | intent | no | required | guidance | Which decisions made to keep a later destination open name no vision in `basedOn`? Look at each decision's options and consequences beside the visions. |

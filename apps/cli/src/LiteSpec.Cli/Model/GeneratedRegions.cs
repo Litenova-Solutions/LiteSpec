@@ -22,12 +22,21 @@ static partial class GeneratedRegions
     public static IReadOnlyList<string> Render(ProjectModel model)
     {
         var changed = new List<string>();
+        var sourced = model.Records
+            .Where(SourceLinks.Carries)
+            .Where(record => record.ExplanationFile is not null)
+            .ToDictionary(record => Path.GetFullPath(record.ExplanationFile!), StringComparer.OrdinalIgnoreCase);
 
         foreach (var root in model.Config.RecordRoots)
         {
             foreach (var file in SourceTree.Files(root, ".md"))
             {
-                var text = SourceTree.Read(file);
+                var original = SourceTree.Read(file);
+
+                // A research or constraint explanation carries the source-links region the sources state.
+                var text = sourced.TryGetValue(Path.GetFullPath(file), out var record)
+                    ? SourceLinks.Place(original, SourceLinks.Content(record))
+                    : original;
 
                 var rewritten = Region().Replace(text, match =>
                 {
@@ -45,7 +54,7 @@ static partial class GeneratedRegions
                     return $"<!-- generated:{name} -->{newline}{content.ReplaceLineEndings(newline)}{newline}<!-- /generated:{name} -->";
                 });
 
-                if (rewritten != text)
+                if (rewritten != original)
                 {
                     File.WriteAllText(file, rewritten);
                     changed.Add(PathText.Relative(model.Config.Root, file));

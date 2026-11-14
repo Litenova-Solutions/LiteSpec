@@ -8,16 +8,16 @@ using static LiteSpec.Cli.Model.Checks.ProseText;
 
 namespace LiteSpec.Cli.Model.Checks.Intent;
 
-/// <summary>The research source checks: a research explanation cites every source by key and links no URL directly.</summary>
+/// <summary>The source checks: a research or constraint explanation cites every source by key and links no URL directly.</summary>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>
 internal static class ResearchSourceChecks
 {
-    /// <summary>Reports source-link-bare, source-key-unknown and source-unused.</summary>
+    /// <summary>Reports source-link-bare, source-key-unknown and source-unused on research and constraint explanations.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
-        foreach (var record in model.Records.Where(record => record.Type == RecordTypes.Research && !record.IsEntry))
+        foreach (var record in model.Records.Where(record => (record.Type is RecordTypes.Research or RecordTypes.Constraint) && !record.IsEntry))
         {
             if (record.ExplanationFile is not { } explanationFile || record.Explanation is not { } explanation)
             {
@@ -27,7 +27,7 @@ internal static class ResearchSourceChecks
             var sources = SourceKeysOf(record);
             var declared = new HashSet<string>(sources, StringComparer.OrdinalIgnoreCase);
             var cited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            var prose = LinkChecks.WithoutCode(explanation);
+            var prose = LinkChecks.WithoutCode(SourceLinks.Strip(explanation));
             var starts = LineStarts(explanation);
 
             // A reference link cites its source by key even when its label shows the URL,

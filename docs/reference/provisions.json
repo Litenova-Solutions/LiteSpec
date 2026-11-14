@@ -7816,15 +7816,15 @@
       "anchor": "answer-every-constraint",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a constraint record file missing a required field; the builder generates What It Requires from citing requirements.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for a constraint record file missing a required field or holding no source, and \u0060field-invalid\u0060 for a \u0060basedOn\u0060 that names no research record; the builder generates What It Requires from citing requirements.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:constraint",
       "layer": "intent",
       "trace": false,
       "strength": "required",
-      "statement": "A constraint MUST state its \u0060authority\u0060, \u0060readOn\u0060, \u0060kind\u0060, \u0060applies\u0060, \u0060appliesBecause\u0060, and \u0060summary\u0060 in fields, with What It Requires generated from the requirements that cite it.",
-      "rationale": "An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The \u0060kind\u0060 is technical, organizational, convention, or legal. \u0060summary\u0060 states the rule in the authority\u0027s own words, \u0060readOn\u0060 states when the outside rule was read, and What It Requires lists the requirements that cite the constraint, generated at build time. A fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint.",
+      "statement": "A constraint MUST state its \u0060authority\u0060, \u0060summary\u0060, \u0060sources\u0060, \u0060kind\u0060, \u0060applies\u0060, and \u0060appliesBecause\u0060 in fields, and What It Requires is generated from the requirements that cite it.",
+      "rationale": "An unanswered constraint is an outside rule the product can break unknowingly: a law, a regulation, or provider terms the team never examined. Recording each rule with its authority and applicability proves the team asked. The \u0060kind\u0060 is technical, organizational, convention, or legal. \u0060authority\u0060 names the body that issues the rule in a few words, and \u0060summary\u0060 states the rule with its condition and whom it binds, in the form \u0022the authority requires the subject to act when the condition holds\u0022. \u0060sources\u0060 holds each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, the shape research uses, so each rule cites its source by key. A rule that stops binding is set \u0060applies: false\u0060 with its reason in \u0060appliesBecause\u0060, and no end date is written. What It Requires lists the requirements that cite the constraint, generated at build time. A constraint can state \u0060effectiveFrom\u0060, the date its rule starts to bind, and can name in \u0060basedOn\u0060 the research it rests on; a fact learned from the world, such as the payout bank lengthening its settlement window, first lands as research with its source and date, then as a constraint that names it in \u0060basedOn\u0060. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": ""
     },
     {
@@ -7862,6 +7862,24 @@
       "statement": "An agent MUST build no record below Intent, code, or test from a vision until a requirement that cites the vision exists.",
       "rationale": "The specification is closed: an agent builds what Intent promises and nothing more. A vision promises nothing, so building from it adds behavior no requirement asks for. When the destination becomes concrete, the owner\u0027s problem, feature and requirements state the promise, cite the vision, and the agent builds from them. Until then a vision may shape a decision that keeps it open, never the code itself.",
       "example": "An agent asked to add the approval reminders builds them from their requirements, and adds no contractor fields because Claimwick holds a contractor vision."
+    },
+    {
+      "id": "litespec/core/intent#cite-a-source-for-each-constraint-rule",
+      "heading": "Cite a Source for Each Constraint Rule",
+      "page": "docs/core/intent.md",
+      "anchor": "cite-a-source-for-each-constraint-rule",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060source-link-bare\u0060 for a bare URL, \u0060source-key-unknown\u0060 for a key the constraint does not declare, and \u0060source-unused\u0060 for a source no rule cites, on the constraint\u0027s explanation; it reports \u0060source-links-missing\u0060 and \u0060source-links-drift\u0060 for the generated region.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:constraint",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each rule in a constraint\u0027s Rules section MUST cite one of the constraint\u0027s \u0060sources\u0060 by key with a reference link \u0060[text][key]\u0060, and the explanation holds the generated source-links region that writes each source\u0027s link definition.",
+      "rationale": "A reader who checks a rule needs the source beside it, and a rule with two sources needs a place to show which one holds it. A law that states the rule on one public page is its own source, so the source sits on the constraint rather than in a research record of its own, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) decides. \u0060model render\u0060 writes each source\u0027s link definition into the explanation file, so the link resolves in a plain Markdown preview and a reader needs no book. A hand edit to that region is drift, because the record file holds the source. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
+      "example": ""
     },
     {
       "id": "litespec/core/intent#cite-each-applying-constraint-from-a-requirement",
@@ -8905,7 +8923,7 @@
       "strength": "required",
       "statement": "Every date field MUST end in \u0060On\u0060 for a recorded date or carry a name that states what the date does.",
       "rationale": "A recorded date says when something happened or until when it holds: \u0060readOn\u0060 says when an outside source was read, and \u0060expiresOn\u0060 says when a departure ends. \u0060effectiveFrom\u0060 opens a validity span. The shape tells a reader which dates record the world and which open a span.",
-      "example": "A Claimwick constraint carries \u0060readOn\u0060 with the date its authority was read, and a departure carries \u0060expiresOn\u0060 with the date it ends."
+      "example": "A Claimwick constraint carries \u0060readOn\u0060 on each source with the date the source was read, and a departure carries \u0060expiresOn\u0060 with the date it ends."
     },
     {
       "id": "litespec/core/language#name-each-field-by-its-word-class",
@@ -9228,7 +9246,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Behavior that anticipates a regulation with a deadline MUST follow that regulation\u0027s constraint.",
-      "rationale": "A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.",
+      "rationale": "A regulation with a deadline needs working behavior before its requirement exists, so the constraint carries the rule in the meantime, with its statutory date in \u0060effectiveFrom\u0060. The release stays shippable until the statutory date, and only then does the missing behavior block it. Without this path teams either ship late or build the rule where no record owns it.",
       "example": "A privacy regulation that takes effect next year enters as a constraint with its statutory date, and the anticipatory behavior follows that constraint until the requirement exists."
     },
     {
@@ -9245,8 +9263,8 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A fact learned from the world MUST enter Intent as research or a constraint that cites its source and date.",
-      "rationale": "Commitments flow down, and facts from the world flow up: a provider\u0027s behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and date show where the fact came from and when it held, so a later change rechecks the source instead of the memory.",
+      "statement": "A fact learned from the world MUST enter Intent as research, or as a constraint whose \u0060sources\u0060 cite its source with the date it was read.",
+      "rationale": "Commitments flow down, and facts from the world flow up: a provider\u0027s behavior, a regulation, or an incident enters Intent where people can weigh it. The citation and the \u0060readOn\u0060 date show where the fact came from and when someone read it, so a later change rechecks the source instead of the memory. A constraint names the research it rests on in \u0060basedOn\u0060, as [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule) and the constraint fields state. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": "An observed two-day payout settlement window enters as research, then as a constraint citing that research."
     },
     {
@@ -9318,7 +9336,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A changed provider behavior MUST enter as research recording the observed behavior, then as a constraint citing that research.",
-      "rationale": "The provider\u0027s behavior is a fact from the world, and research is where such facts enter. The constraint that follows cites the research, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.",
+      "rationale": "The provider\u0027s behavior is a fact from the world, and research is where such facts enter. The constraint that follows names the research in \u0060basedOn\u0060, so the constraint carries its evidence. Code is not the source: a failed reimbursement in production points at the world, and the world is cited.",
       "example": "A payout provider that starts settling every two days instead of daily enters as research with the observed dates, and a settlement-window constraint cites that research."
     },
     {
@@ -10362,7 +10380,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer page MUST use its record file as its only metadata carrier.",
-      "rationale": "Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value.",
+      "rationale": "Two metadata carriers on one page disagree sooner or later: source links, paths, and evidence drift between the record file and the explanation file. One record file keeps every field a check reads in one place, while the explanation file beside it explains without stating a field value. A generated region that \u0060model render\u0060 writes from the record file is not a second carrier, because no person edits it and \u0060model check\u0060 reports any drift from the record. The source-links region of a research or constraint explanation is one such region.",
       "example": ""
     },
     {

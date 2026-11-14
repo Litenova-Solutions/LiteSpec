@@ -118,6 +118,7 @@ internal static class SchemaChecks
 
             case RecordTypes.Constraint:
                 RequireString(record, RecordFields.Authority, findings);
+                RequireArray(record, RecordFields.Sources, 1, findings);
                 RequireEnum(record, RecordFields.Kind, ["technical", "organizational", "convention", "legal"], findings);
                 RequireBoolean(record, RecordFields.Applies, findings);
                 RequireString(record, RecordFields.AppliesBecause, findings);
