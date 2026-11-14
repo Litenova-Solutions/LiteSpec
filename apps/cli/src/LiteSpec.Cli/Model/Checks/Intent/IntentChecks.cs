@@ -298,6 +298,15 @@ internal static class IntentChecks
             }
         }
 
+        // The example cast names people, businesses and products that examples reuse; they are cast, not terms.
+        foreach (var cast in model.Bodies.Where(body => Path.GetFileName(body.File).Equals("example-cast.md", StringComparison.OrdinalIgnoreCase)))
+        {
+            foreach (var phrase in PhrasesOf(cast.Body))
+            {
+                defined.Add(phrase);
+            }
+        }
+
         var recordsOfPhrase = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
         var recordOfPhrase = new Dictionary<string, Record>(StringComparer.OrdinalIgnoreCase);
 
@@ -345,7 +354,7 @@ internal static class IntentChecks
         }
     }
 
-    /// <summary>Every prose text of a record: its written string values and its explanation without headings.</summary>
+    /// <summary>Every prose text of a record: its written string values and its explanation without headings and table rows.</summary>
     /// <param name="record">The record whose prose is read.</param>
     /// <returns>The prose texts of the record.</returns>
     private static List<string> TextsOf(Record record)
@@ -358,7 +367,9 @@ internal static class IntentChecks
         {
             foreach (var line in explanation.Split('\n'))
             {
-                if (!line.TrimStart().StartsWith('#'))
+                var trimmed = line.TrimStart();
+
+                if (!trimmed.StartsWith('#') && !trimmed.StartsWith('|'))
                 {
                     texts.Add(line);
                 }
@@ -409,16 +420,37 @@ internal static class IntentChecks
     /// <summary>One word token inside prose.</summary>
     private static readonly Regex WordToken = new(@"[A-Za-z][a-zA-Z]*", RegexOptions.Compiled);
 
-    /// <summary>The capitalized phrases of two to four words in one text, with a leading article dropped.</summary>
+    /// <summary>Every explanation section name of every record type, which reads as a heading, not a term.</summary>
+    private static readonly HashSet<string> SectionNames = new(
+        ExplanationSections.ByType.Values.SelectMany(sections => sections.Select(section => section.Name)),
+        StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The capitalized phrases of two to four words in one text, with a leading article dropped. A phrase never spans a sentence stop, a colon, a semicolon, a pipe or a line break, and a word touching a digit or a slash joins no phrase.</summary>
     /// <param name="text">The prose text to scan.</param>
     /// <returns>The capitalized phrases in the text.</returns>
     private static List<string> PhrasesOf(string text)
     {
         var phrases = new List<string>();
         var run = new List<string>();
+        var end = 0;
 
         foreach (Match match in WordToken.Matches(text))
         {
+            if (BreaksRun(text[end..match.Index]))
+            {
+                AddPhrase(phrases, run);
+                run = [];
+            }
+
+            end = match.Index + match.Length;
+
+            if (JoinsNothing(text, match.Index, match.Length))
+            {
+                AddPhrase(phrases, run);
+                run = [];
+                continue;
+            }
+
             if (char.IsUpper(match.Value[0]))
             {
                 run.Add(match.Value);
@@ -441,7 +473,30 @@ internal static class IntentChecks
         return phrases;
     }
 
-    /// <summary>Adds one run as a phrase when it holds two or more words after its article drops.</summary>
+    /// <summary>Whether the gap between two words ends the run: it holds a sentence stop, a colon, a semicolon, a pipe or a line break.</summary>
+    /// <param name="gap">The text between the end of one word and the start of the next.</param>
+    /// <returns>True when the gap ends the run.</returns>
+    private static bool BreaksRun(string gap) =>
+        gap.IndexOfAny(['.', '?', '!', ':', ';', '|', '\n', '\r']) >= 0;
+
+    /// <summary>Whether the word joins no phrase: it touches a digit or a slash, so it is a code or a path, not prose.</summary>
+    /// <param name="text">The prose text holding the word.</param>
+    /// <param name="start">The word's start offset in the text.</param>
+    /// <param name="length">The word's length.</param>
+    /// <returns>True when the word touches a digit or a slash.</returns>
+    private static bool JoinsNothing(string text, int start, int length)
+    {
+        if (start > 0 && (char.IsDigit(text[start - 1]) || text[start - 1] == '/'))
+        {
+            return true;
+        }
+
+        var after = start + length;
+
+        return after < text.Length && (char.IsDigit(text[after]) || text[after] == '/');
+    }
+
+    /// <summary>Adds one run as a phrase when it holds two or more words after its article drops, unless it names an explanation section.</summary>
     /// <param name="phrases">The list receiving the phrase.</param>
     /// <param name="run">The capitalized words of one run.</param>
     private static void AddPhrase(List<string> phrases, List<string> run)
@@ -450,7 +505,12 @@ internal static class IntentChecks
 
         if (words.Count >= 2)
         {
-            phrases.Add(string.Join(" ", words));
+            var phrase = string.Join(" ", words);
+
+            if (!SectionNames.Contains(phrase))
+            {
+                phrases.Add(phrase);
+            }
         }
     }
 

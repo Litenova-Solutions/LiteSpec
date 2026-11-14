@@ -36,6 +36,8 @@ internal static class ParentChecks
             }
         }
 
+        var unreadableModules = UnreadableModules(model);
+
         foreach (var record in model.Records)
         {
             if (record.Derived)
@@ -66,10 +68,10 @@ internal static class ParentChecks
                 case "notification":
                 case "setting":
                 case "aggregate":
-                    CheckModuleHome(model, record, findings);
+                    CheckModuleHome(model, record, unreadableModules, findings);
                     break;
                 case "rule":
-                    CheckRuleHome(model, record, aggregates, findings);
+                    CheckRuleHome(model, record, aggregates, unreadableModules, findings);
                     break;
                 case "event":
                     CheckEventHome(record, aggregates, findings);
@@ -236,11 +238,40 @@ internal static class ParentChecks
         }
     }
 
-    /// <summary>Reports a module-homed record naming a module no record holds.</summary>
+    /// <summary>Modules whose own record file the reader could not read, so their children report no missing parent.</summary>
+    /// <param name="model">The loaded project model whose problems name the files the reader could not read.</param>
+    /// <returns>The module names whose module file carries a record-invalid problem.</returns>
+    private static HashSet<string> UnreadableModules(ProjectModel model)
+    {
+        var unreadable = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var problem in model.Problems)
+        {
+            if (problem.Code != "record-invalid")
+            {
+                continue;
+            }
+
+            if (!string.Equals(Path.GetFileName(problem.Path), "module.yaml", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (RecordPlacement.ModuleOf(problem.Path, model.Config) is { } module)
+            {
+                unreadable.Add(module);
+            }
+        }
+
+        return unreadable;
+    }
+
+    /// <summary>Reports a module-homed record naming a module no record holds, unless the module file could not be read.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="record">The module-homed record whose home is inspected.</param>
+    /// <param name="unreadableModules">The modules whose own record file the reader could not read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckModuleHome(ProjectModel model, Record record, List<Finding> findings)
+    private static void CheckModuleHome(ProjectModel model, Record record, HashSet<string> unreadableModules, List<Finding> findings)
     {
         var label = record.Type switch
         {
@@ -266,18 +297,25 @@ internal static class ParentChecks
             return;
         }
 
+        // The module file carries the defect, so one defect draws one finding.
+        if (unreadableModules.Contains(home))
+        {
+            return;
+        }
+
         findings.Add(new Finding(
             "record-parent-missing",
             $"{label} '{record.Id}' has no parent and its home '{home}' names no module.",
             record.File, record.Line, SubjectOf(record)));
     }
 
-    /// <summary>Reports a rule naming as its home no module, aggregate or product a record holds.</summary>
+    /// <summary>Reports a rule naming as its home no module, aggregate or product a record holds, unless the module file could not be read.</summary>
     /// <param name="model">The loaded project model that resolves the module named by the home.</param>
     /// <param name="record">The rule record whose home is inspected.</param>
     /// <param name="aggregates">The aggregate names held by the project.</param>
+    /// <param name="unreadableModules">The modules whose own record file the reader could not read.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRuleHome(ProjectModel model, Record record, HashSet<string> aggregates, List<Finding> findings)
+    private static void CheckRuleHome(ProjectModel model, Record record, HashSet<string> aggregates, HashSet<string> unreadableModules, List<Finding> findings)
     {
         if (!Identifiers.TrySplit(record.Id, out _, out var home, out _) || home is null)
         {
@@ -289,6 +327,12 @@ internal static class ParentChecks
         }
 
         if (model.ById.ContainsKey($"module/{home}") || aggregates.Contains(home) || model.ById.ContainsKey($"product/{home}"))
+        {
+            return;
+        }
+
+        // The module file carries the defect, so one defect draws one finding.
+        if (unreadableModules.Contains(home))
         {
             return;
         }

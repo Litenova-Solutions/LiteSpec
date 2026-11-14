@@ -33,7 +33,7 @@ Eight words is the bound because a title stands alone in book lists, outlines, t
 
 ### Explanation Sections
 
-An explanation file beside a record file opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order. A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type.
+An explanation file beside a record file opens with the record title as its one H1 and an opening paragraph, then uses the fixed sections of its record type, in this order. A section marked optional is removed when it has nothing to say; every other section stays, even when short. Each section is named by a plain noun, so a reader finds the same kind of content under the same heading on every record of one type. An Example section holds at most 120 words.
 
 | Record type | Sections, in order |
 |:---|:---|

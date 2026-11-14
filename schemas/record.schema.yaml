@@ -1202,7 +1202,9 @@ $defs:
       period:
         $ref: '#/$defs/periodValue'
       enforcedBy:
-        $ref: '#/$defs/enforcedByValue'
+        anyOf:
+        - $ref: '#/$defs/reactionId'
+        - $ref: '#/$defs/jobId'
       purpose:
         $ref: '#/$defs/nonEmptyString'
       cites:

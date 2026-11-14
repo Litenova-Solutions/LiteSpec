@@ -19,6 +19,19 @@ internal static class GateChecks
         "refused", "refuses", "refusal", "forbidden", "blocked", "rejected", "non",
     };
 
+    /// <summary>Words that always open a subordinate clause, so a negation after one states scope, not the rule claim.</summary>
+    private static readonly HashSet<string> SubordinateOpeners = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "when", "where", "while", "if", "unless", "except", "which", "who", "whom", "whose",
+        "because", "since", "although", "though", "whereas", "whether", "after", "before", "until", "once",
+    };
+
+    /// <summary>Words that open a subordinate clause past the segment subject, so the same words as the subject keep the main claim.</summary>
+    private static readonly HashSet<string> MidSegmentOpeners = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "that", "case", "cases",
+    };
+
     /// <summary>Reports decision-decides-missing, decision-basis-missing and rule-name-invalid.</summary>
     /// <param name="model">The loaded project model that holds every record and the project configuration.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
@@ -63,12 +76,76 @@ internal static class GateChecks
                 continue;
             }
 
-            var match = Regex.Match(statement, @"\b(not|no|never|cannot)\b", RegexOptions.IgnoreCase);
-
-            if (match.Success)
+            // Only the main claim counts: a negation inside a subordinate scope clause, such as
+            // "cases this rule does not list", states scope, not the rule.
+            if (StatesClaimNegation(statement) is { } word)
             {
-                findings.Add(new Finding("rule-name-invalid", $"Rule '{rule.Id}' says '{match.Value.ToLowerInvariant()}' but its name keeps no restricting word.", rule.File, rule.Line, SubjectOf(rule)));
+                findings.Add(new Finding("rule-name-invalid", $"Rule '{rule.Id}' says '{word}' but its name keeps no restricting word.", rule.File, rule.Line, SubjectOf(rule)));
             }
         }
+    }
+
+    /// <summary>The first negation word the main claim states, or null when every negation sits in a subordinate scope clause.</summary>
+    /// <param name="statement">The rule statement.</param>
+    /// <returns>The negation word in lowercase, or null.</returns>
+    static string? StatesClaimNegation(string statement)
+    {
+        foreach (Match match in Regex.Matches(statement, @"\b(not|no|never|cannot)\b", RegexOptions.IgnoreCase))
+        {
+            if (NegationStatesClaim(statement, match.Index))
+            {
+                return match.Value.ToLowerInvariant();
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>Whether the negation at the index states the rule claim rather than a subordinate scope note.</summary>
+    /// <param name="statement">The rule statement.</param>
+    /// <param name="index">The index of the negation word.</param>
+    /// <returns>True when no subordinate opener stands between the segment start and the negation.</returns>
+    static bool NegationStatesClaim(string statement, int index)
+    {
+        var segmentStart = 0;
+
+        for (var i = index - 1; i >= 0; i--)
+        {
+            if (statement[i] == ',' || statement[i] == ';' || statement[i] == ':')
+            {
+                segmentStart = i + 1;
+                break;
+            }
+        }
+
+        var before = statement.Substring(segmentStart, index - segmentStart);
+        var words = Regex.Matches(before, @"[A-Za-z]+").Select(word => word.Value).ToList();
+
+        if (words.Count == 0)
+        {
+            return true;
+        }
+
+        if (words.Any(SubordinateOpeners.Contains))
+        {
+            return false;
+        }
+
+        if (words.Skip(1).Any(MidSegmentOpeners.Contains))
+        {
+            return false;
+        }
+
+        var leading = before.Length - before.TrimStart().Length;
+
+        foreach (Match self in Regex.Matches(before, @"\b(this|these)\s+rules?\b", RegexOptions.IgnoreCase))
+        {
+            if (self.Index > leading)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

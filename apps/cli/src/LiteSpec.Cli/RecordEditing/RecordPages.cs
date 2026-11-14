@@ -241,7 +241,9 @@ static class RecordPages
     /// <summary>
     ///     Rewrites every citation of <paramref name="oldId"/> as
     ///     <paramref name="newId"/>. A match inside a longer identifier is left
-    ///     alone; a journey step keeps its fragment.
+    ///     alone; a journey step keeps its fragment. A dot after the match ends
+    ///     the citation unless a name character follows it, so a sentence that
+    ///     ends on the identifier is rewritten.
     /// </summary>
     /// <param name="text">The file text to rewrite.</param>
     /// <param name="oldId">The identifier to replace.</param>
@@ -273,8 +275,16 @@ static class RecordPages
             var before = found > 0 ? text[found - 1] : '\0';
             var afterIndex = found + oldId.Length;
             var after = afterIndex < text.Length ? text[afterIndex] : '\0';
+            var afterNext = afterIndex + 1 < text.Length ? text[afterIndex + 1] : '\0';
 
-            if (IsIdChar(before) || before == '/' || IsIdChar(after) || after == '/')
+            // A dot continues the identifier only before a name character, as
+            // in a home-dot-name identifier. A dot before anything else is
+            // prose punctuation, so the citation before it stands alone.
+            var continues = IsIdChar(before) || before == '/'
+                || after == '/'
+                || (after == '.' ? IsNameChar(afterNext) : IsIdChar(after));
+
+            if (continues)
             {
                 built.Append(text, index, afterIndex - index);
                 index = afterIndex;
@@ -295,6 +305,12 @@ static class RecordPages
     /// <returns>True when the character continues an identifier, covering letters, digits, underscore, hyphen and dot; otherwise false.</returns>
     static bool IsIdChar(char value) =>
         char.IsAsciiLetterOrDigit(value) || value is '_' or '-' or '.';
+
+    /// <summary>Whether the character continues an identifier after a dot: a letter, digit, underscore or hyphen, which a home-dot-name separator joins to the name.</summary>
+    /// <param name="value">The character after the dot.</param>
+    /// <returns>True when the character continues the identifier after the dot; otherwise false.</returns>
+    static bool IsNameChar(char value) =>
+        char.IsAsciiLetterOrDigit(value) || value is '_' or '-';
 
     /// <summary>
     ///     Every file a record identifier can be cited in under the root, in a stable order: record files,

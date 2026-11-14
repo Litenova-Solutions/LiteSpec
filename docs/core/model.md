@@ -177,7 +177,14 @@ The decision type has two layers: a product decision lives under Intent, and a t
 
 ### Record Files
 
-A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. The mapping holds exactly the fields the record schema defines for its type. A record file holds no Markdown and no frontmatter fences. Every `.yaml` file under a record root is a record file, except the glossary file; a file that does not parse, or whose top level names no record type or container page style in `type`, is a `record-invalid` finding. `.yml` files are not read.
+A record file is one file `<name>.yaml` holding one YAML mapping: the page record, or a container page, with its entries in `records`. The mapping holds exactly the fields the record schema defines for its type. A record file holds no Markdown and no frontmatter fences. Every `.yaml` file under a record root is a record file, except the glossary file; a file that does not parse, or whose top level names no record type or container page style in `type`, is a `record-invalid` finding. `.yml` files are not read. Multi-line text uses a `|` block scalar or a plain string, never a folded `>` block, which the reader refuses.
+
+```yaml
+summary: Finance reimburses the approved expense.
+rationale: |
+  Approvers batch decisions monthly.
+  The wait costs more than the money held.
+```
 
 ### Explanation Files
 

@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Model.Configuration;
+using LiteSpec.Model;
 using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Rules;
@@ -6,7 +7,8 @@ namespace LiteSpec.Cli.Rules;
 /// <summary>
 ///     Retrieves the provisions that govern a target: artifact-scoped provisions match
 ///     the target artifact and the marked records, a provision naming the artifact
-///     <c>any</c> and page-scope provisions match the target concern, and conventions
+///     <c>any</c> and page-scope provisions match the target concern, an <c>any</c>
+///     provision of layer <c>any</c> also matches an explanation file, and conventions
 ///     match their scope glob or the scope vocabulary against the target. A live departure whose subject or paths cover the
 ///     target replaces the provision its covers names. Only provisions whose record
 ///     layer the project claims are retrieved, and a code path in a project that claims
@@ -143,6 +145,10 @@ internal static class ProvisionRetriever
             if (entry.Concern.Length > 0 && entry.Concern == target.Concern)
             {
                 reasons.Add($"concern {target.Concern}");
+            }
+            else if (target.IsExplanation && entry.Layer == RecordLayer.Any)
+            {
+                reasons.Add("path match (artifact any)");
             }
         }
         else if (artifacts.Count > 0)
