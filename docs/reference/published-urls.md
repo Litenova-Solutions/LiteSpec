@@ -6,7 +6,7 @@ An agent (software that reads task context, changes files, and runs checks) wire
 
 ## Reference
 
-The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `6.0.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with that version. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
+The site is generated from the standard at the repository root, so the site and the release it is built from state the same contract. The release in this contract is `6.0.0`, taken from the `version` field of `litespec.manifest.yaml`, and every release path below starts with that version. A release candidate, such as `6.0.0-rc.1`, publishes no site: its tool writes links that name the release version, which the site serves once that release ships. [Work with agents](../learn/working-with-agents.md) explains how an agent uses these URLs on a task.
 
 ### Page URLs
 

@@ -9418,15 +9418,15 @@
       "anchor": "publish-a-litespec-release-from-a-tag",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060dotnet test --solution LiteSpec.slnx\u0060 fails \u0060ReleaseVersionTests\u0060 when the changelog, the template, or either package version differs from the manifest version, and \u0060.github/workflows/release.yml\u0060 refuses a tag that does not name the manifest version.",
+      "evidence": "\u0060dotnet test --solution LiteSpec.slnx\u0060 fails \u0060ReleaseVersionTests\u0060 when the changelog, the template, or either package version differs from the manifest version, and \u0060.github/workflows/release.yml\u0060 refuses a tag that does not name the manifest version, a release tag whose commit is not on \u0060main\u0060, and a candidate tag whose commit is not on \u0060release/\u003Cversion\u003E\u0060.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A LiteSpec release MUST carry the highest git tag in the manifest version, the changelog entry, the consumer template version, and the tool and analyzer package versions.",
-      "rationale": "A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing. Each release publishes the CLI as one native executable per platform, in the tool packages and in standalone archives, so the version reaches a consumer with or without .NET, settled by [decision/0021-native-command-line](decision/0021-native-command-line) on the evidence in [research/native-command-line-evidence](research/native-command-line-evidence).",
+      "statement": "A LiteSpec tag that publishes MUST be \u0060v\u003Cversion\u003E\u0060 on \u0060main\u0060, or a release candidate \u0060v\u003Cversion\u003E-rc.\u003Cn\u003E\u0060 on \u0060release/\u003Cversion\u003E\u0060, and the changelog entry, the consumer template version, and the tool and analyzer package versions name the same manifest version.",
+      "rationale": "A git tag is the only durable artifact that names a release: branches move and files change, but the tag stays. Reading the current release from the highest tag gives maintainers, consumers, and tools one shared answer. Writing that version into the manifest, the changelog, the template, and the tool package in the same release keeps the four from disagreeing. A candidate lets a consumer test the packages a release will publish before the release branch merges. Its suffix keeps its packages apart from the release\u0027s, and the committed files keep the plain version, so a candidate never changes what \u0060main\u0060 names. Each release publishes the CLI as one native executable per platform, in the tool packages and in standalone archives, so the version reaches a consumer with or without .NET, settled by [decision/0021-native-command-line](decision/0021-native-command-line) on the evidence in [research/native-command-line-evidence](research/native-command-line-evidence).",
       "example": ""
     },
     {

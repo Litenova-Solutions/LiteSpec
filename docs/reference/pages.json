@@ -3037,6 +3037,216 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0047-cite-a-source-for-each-constraint-rule/0047-cite-a-source-for-each-constraint-rule.md",
+      "path": "intent/decisions/0047-cite-a-source-for-each-constraint-rule/0047-cite-a-source-for-each-constraint-rule",
+      "style": "decision",
+      "area": "intent",
+      "title": "Cite a Source for Each Constraint Rule",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey.md",
+      "path": "intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey",
+      "style": "decision",
+      "area": "intent",
+      "title": "State the Start and Branches of Each Journey",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences.md",
+      "path": "intent/decisions/0049-use-literal-journey-words-and-concrete-consequences/0049-use-literal-journey-words-and-concrete-consequences",
+      "style": "decision",
+      "area": "intent",
+      "title": "Use Literal Journey Words and Concrete Consequences",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0050-put-each-feature-inside-the-problem-it-answers/0050-put-each-feature-inside-the-problem-it-answers.md",
+      "path": "intent/decisions/0050-put-each-feature-inside-the-problem-it-answers/0050-put-each-feature-inside-the-problem-it-answers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Put Each Feature Inside the Problem It Answers",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0051-declare-modules-only-in-behavior/0051-declare-modules-only-in-behavior.md",
+      "path": "intent/decisions/0051-declare-modules-only-in-behavior/0051-declare-modules-only-in-behavior",
+      "style": "decision",
+      "area": "intent",
+      "title": "Declare Modules Only in Behavior",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0052-tie-each-research-finding-to-its-source/0052-tie-each-research-finding-to-its-source.md",
+      "path": "intent/decisions/0052-tie-each-research-finding-to-its-source/0052-tie-each-research-finding-to-its-source",
+      "style": "decision",
+      "area": "intent",
+      "title": "Tie Each Research Finding to Its Source",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0053-describe-actors-by-responsibility-and-knowledge/0053-describe-actors-by-responsibility-and-knowledge.md",
+      "path": "intent/decisions/0053-describe-actors-by-responsibility-and-knowledge/0053-describe-actors-by-responsibility-and-knowledge",
+      "style": "decision",
+      "area": "intent",
+      "title": "Describe Actors by Responsibility and Knowledge",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once.md",
+      "path": "intent/decisions/0054-write-each-shared-record-rule-once/0054-write-each-shared-record-rule-once",
+      "style": "decision",
+      "area": "intent",
+      "title": "Write Each Shared Record Rule Once",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0055-state-each-access-scope-once/0055-state-each-access-scope-once.md",
+      "path": "intent/decisions/0055-state-each-access-scope-once/0055-state-each-access-scope-once",
+      "style": "decision",
+      "area": "intent",
+      "title": "State Each Access Scope Once",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0056-copy-each-template-from-claimwick/0056-copy-each-template-from-claimwick.md",
+      "path": "intent/decisions/0056-copy-each-template-from-claimwick/0056-copy-each-template-from-claimwick",
+      "style": "decision",
+      "area": "intent",
+      "title": "Copy Each Template from Claimwick",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md",
+      "path": "intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning",
+      "style": "decision",
+      "area": "intent",
+      "title": "Narrow the Writing Rules to Meaning",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema.md",
+      "path": "intent/decisions/0058-keep-shape-rules-in-the-schema/0058-keep-shape-rules-in-the-schema",
+      "style": "decision",
+      "area": "intent",
+      "title": "Keep Shape Rules in the Schema",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0059-publish-release-candidates-from-release-branches/0059-publish-release-candidates-from-release-branches.md",
+      "path": "intent/decisions/0059-publish-release-candidates-from-release-branches/0059-publish-release-candidates-from-release-branches",
+      "style": "decision",
+      "area": "intent",
+      "title": "Publish Release Candidates from Release Branches",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
+      "file": "docs/intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders.md",
+      "path": "intent/decisions/0060-put-child-records-in-typed-folders/0060-put-child-records-in-typed-folders",
+      "style": "decision",
+      "area": "intent",
+      "title": "Put Child Records in Typed Folders",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
