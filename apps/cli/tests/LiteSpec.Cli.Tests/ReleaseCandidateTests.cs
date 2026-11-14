@@ -77,4 +77,16 @@ public sealed class ReleaseCandidateTests
 
         Assert.Equal("follows 6.0.0-rc.1; read https://litespec.dev/6.0.0/select/server.dotnet/llms.txt", text);
     }
+
+    /// <summary>Generated text from a candidate and from its final release compares equal apart from the suffix.</summary>
+    /// <param name="text">The generated text.</param>
+    /// <param name="expected">The text with the candidate suffix removed.</param>
+    /// <proves>litespec/core/maintaining#publish-a-litespec-release-from-a-tag</proves>
+    [Theory(DisplayName = "generated text drops a candidate suffix on the release")]
+    [InlineData("follows LiteSpec 6.0.0-rc.1: size large", "follows LiteSpec 6.0.0: size large")]
+    [InlineData("litespec-release: 6.0.0-rc.12\n", "litespec-release: 6.0.0\n")]
+    [InlineData("follows LiteSpec 6.0.0: size large", "follows LiteSpec 6.0.0: size large")]
+    [InlineData("pins 6.0.1-rc.1 and 5.2.0", "pins 6.0.1-rc.1 and 5.2.0")]
+    public void GeneratedTextDropsTheCandidateSuffix(string text, string expected) =>
+        Assert.Equal(expected, ReleaseVersion.WithoutCandidateSuffix(text, "6.0.0"));
 }

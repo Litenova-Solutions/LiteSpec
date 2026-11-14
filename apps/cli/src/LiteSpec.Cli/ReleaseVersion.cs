@@ -31,6 +31,19 @@ static class ReleaseVersion
         return dash < 0 ? version : version[..dash];
     }
 
+    /// <summary>
+    ///     Generated text with every candidate suffix on the release version removed, so a file rendered by a release
+    ///     candidate and one rendered by its final release compare equal, as the manifest check compares base versions.
+    /// </summary>
+    /// <param name="text">The generated text.</param>
+    /// <param name="release">The base version of the release, such as 6.0.0.</param>
+    /// <returns>The text with each <c>release-suffix</c> written as <c>release</c>.</returns>
+    public static string WithoutCandidateSuffix(string text, string release) => release.Length == 0 ? text :
+        System.Text.RegularExpressions.Regex.Replace(
+            text,
+            System.Text.RegularExpressions.Regex.Escape(release) + @"-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*",
+            release.Replace("$", "$$", StringComparison.Ordinal));
+
     /// <summary>Whether a reviewed version names the same release as the installed one, comparing base versions.</summary>
     /// <param name="reviewed">The version a project records as reviewed, which may carry a prerelease suffix.</param>
     /// <param name="installed">The base version of the installed release.</param>

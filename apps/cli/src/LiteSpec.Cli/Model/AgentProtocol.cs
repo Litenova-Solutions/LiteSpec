@@ -198,7 +198,10 @@ static partial class AgentProtocol
                 return true;
             }
 
-            if (!string.Equals(have, want, StringComparison.Ordinal))
+            var release = LiteSpecHome.Version ?? string.Empty;
+
+            // A candidate and its final release write the same copy apart from the version suffix.
+            if (!string.Equals(ReleaseVersion.WithoutCandidateSuffix(have, release), ReleaseVersion.WithoutCandidateSuffix(want, release), StringComparison.Ordinal))
             {
                 return true;
             }
