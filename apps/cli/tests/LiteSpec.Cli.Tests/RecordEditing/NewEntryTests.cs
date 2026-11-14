@@ -364,7 +364,7 @@ public sealed class NewEntryTests
         var temp = TestCli.Temp("new-entry");
         File.WriteAllText(Path.Combine(temp.Path, ".litespec/project.yaml"), "{}");
         TestRecords.Write(temp.Path, RequirementPage, FeatureJson);
-        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/no-self-approval/no-self-approval.yaml", """
+        TestRecords.Write(temp.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/no-self-approval/no-self-approval.yaml", """
             {
               "type": "requirement",
               "id": "requirement/approval.no-self-approval",

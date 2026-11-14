@@ -66,9 +66,9 @@ public sealed class RecordFolderLayoutTests
     public void UseCaseFolderInsideAggregatePasses()
     {
         using var temp = TestCli.Temp("layout");
-        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "entry", "aggregate.yaml");
+        var aggregate = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entry", "aggregate.yaml");
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/books.entry\ntitle: Entry\n");
-        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "entry", "post-entry", "post-entry.yaml");
+        var useCase = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "aggregates", "entry", "use-cases", "post-entry", "post-entry.yaml");
         File.WriteAllText(useCase, "type: use-case\nid: use-case/books.post-entry\ntitle: Post entry\n");
         var moduleFile = PathAt(temp.Path, ".litespec", "behavior", "modules", "books", "module.yaml");
         var model = TestModel.Model(
@@ -95,8 +95,8 @@ public sealed class RecordFolderLayoutTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/books", moduleFile, """{"dependsOn": []}"""));
 
-        var finding = Assert.Single(Run(model), found => found.Code == "folder-invalid");
-        Assert.Equal("Folder '.litespec/behavior/modules/books/post-entry' sits outside the closed folder set of its layer and level.", finding.Message);
+        var finding = Assert.Single(Run(model), found => found.Code == "record-placement-invalid");
+        Assert.Equal("Folder '.litespec/behavior/modules/books/post-entry' is no typed folder of its module; aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/', and the other module children in their named folders.", finding.Message);
     }
 
     /// <summary>A screen folder named for its home and name holds the screen beside it.</summary>

@@ -12,7 +12,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementCarryingItsScenario()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, []));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, []));
         AssertClean(RunConsumer(folder.Path));
     }
 
@@ -28,7 +28,7 @@ public sealed partial class ConsumerValidatorTests
     public void QualityRequirementMissingScenarioField(string field)
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, [field]));
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta => QualityRecord(meta, [field]));
         AssertProblem(RunConsumer(folder.Path), $"missing required property '{field}'");
     }
 
@@ -38,7 +38,7 @@ public sealed partial class ConsumerValidatorTests
     public void FunctionalRequirementWithoutScenarioFields()
     {
         using var folder = ConsumerFixture.Create();
-        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/flat-fee/flat-fee.yaml", meta =>
+        ConsumerFixture.MutateMeta(folder.Path, ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml", meta =>
         {
             var record = meta;
             record["kind"] = "functional";

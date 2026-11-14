@@ -176,10 +176,10 @@ static class RecordPages
     /// </summary>
     /// <param name="records">Every record the model read.</param>
     /// <param name="feature">The feature name the requirement identifier names.</param>
-    /// <returns>The feature's folder, or null when no feature record holds that name.</returns>
+    /// <returns>The requirements folder of that feature, or null when no feature record holds that name.</returns>
     public static string? FeatureFolder(IReadOnlyList<Record> records, string feature) =>
         records.FirstOrDefault(record => !record.Derived && record.Id == $"feature/{feature}") is { } found
-            ? Path.GetDirectoryName(found.File)
+            ? Path.Combine(Path.GetDirectoryName(found.File)!, "requirements")
             : null;
 
     /// <summary>
@@ -221,7 +221,9 @@ static class RecordPages
     /// <param name="newName">The identifier name after the rename.</param>
     /// <returns>The absolute path of the folder the file moves to after the rename.</returns>
     public static string RenameFolderTarget(ConsumerConfig config, string type, string? newHome, string newName) =>
-        Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
+        type == RecordTypes.Aggregate
+            ? Path.Combine(config.BehaviorDocs, "modules", newHome!, "aggregates", newName)
+            : Path.GetDirectoryName(PagePath(config, type, newHome, newName))!;
 
     /// <summary>
     ///     Whether the renamed file keeps its folder: the home is unchanged and the

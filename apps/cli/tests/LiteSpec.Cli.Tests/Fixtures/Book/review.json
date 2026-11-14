@@ -443,7 +443,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/aggregate.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml",
       "line": 3,
       "explanation": "# Loan\n\n## Bounds\n\nA loan covers **one copy** and *one member*. The desk kiosk prints the due slip; see use-case/lending.borrow-copy for the flow.\n\nBorrowing rules:\n\n- One copy lends to one member at a time.\n- A loan lasts `three weeks`.\n\nCounts:\n\n1. Scan the member card.\n2. Scan the copy.\n\n| Week | Loans |\n| --- | ---: |\n| First | 120 |\n| Second | 140 |\n\n```\nscan member, scan copy, print slip\n```\n\n> A loan is a promise to bring the copy back.\n\n---\n\nRead the [lending guide](https://example.com/lending) or visit https://example.com/desks.",
       "fields": {
@@ -508,7 +508,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/rule.yaml",
       "line": 17,
       "fields": {
         "type": "rule",
@@ -549,7 +549,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/rule.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/rule.yaml",
       "line": 30,
       "fields": {
         "type": "rule",
@@ -585,7 +585,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 3,
       "explanation": "# Borrow Copy\n\n## Example\n\nThe member leaves the desk with the copy in under two minutes.\n\n## Notes\n\nThe kiosk scans the member card and the copy, then prints the due slip.",
       "fields": {
@@ -654,7 +654,7 @@
       "decider": null,
       "decideBy": null,
       "aggregate": "aggregate/lending.loan",
-      "file": ".litespec/behavior/modules/lending/loans/return-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/return-copy.yaml",
       "line": 3,
       "fields": {
         "type": "use-case",
@@ -763,7 +763,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 14,
       "fields": {
         "type": "result",
@@ -784,7 +784,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 20,
       "fields": {
         "type": "result",
@@ -806,7 +806,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 28,
       "fields": {
         "type": "scenario",
@@ -846,7 +846,7 @@
       "effectiveStatus": "draft",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
       "line": 44,
       "fields": {
         "type": "scenario",
@@ -874,7 +874,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
       "line": 52,
       "fields": {
         "type": "event",
@@ -899,7 +899,7 @@
       "effectiveStatus": "approved",
       "decider": null,
       "decideBy": null,
-      "file": ".litespec/behavior/modules/lending/loans/event.yaml",
+      "file": ".litespec/behavior/modules/lending/aggregates/loans/event.yaml",
       "line": 60,
       "fields": {
         "type": "event",

@@ -119,7 +119,7 @@ public sealed class DecideTests
     /// <param name="root">The fixture consumer root folder.</param>
     static void WriteScenario(string root)
     {
-        var page = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "loans", "borrow-copy", "borrow-copy.yaml");
+        var page = Path.Combine(root, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases", "borrow-copy", "borrow-copy.yaml");
         var record = JsonNode.Parse(YamlText.Parse(File.ReadAllText(page)).ToJson())!.AsObject();
         record["records"]!.AsArray().Add(JsonNode.Parse("""
             {

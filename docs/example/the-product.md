@@ -37,7 +37,7 @@ summary: Spending submits, decides, reimburses and exports work expenses.
 dependsOn: []
 ```
 
-The one problem, `problem/expenses-wait-weeks`, sits at product level, and its two features sit in the problem's folder, `.litespec/intent/problems/expenses-wait-weeks/features/`. Each requirement sits in its own folder inside its feature's folder. The goal, research, decision and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The Behavior records of the module sit under `.litespec/behavior/modules/spending/`, as [Modules and Records](modules-and-records.md) shows.
+The one problem, `problem/expenses-wait-weeks`, sits at product level, and its two features sit in the problem's folder, `.litespec/intent/problems/expenses-wait-weeks/features/`. Each requirement sits in its own folder inside its feature's `requirements/` folder. The goal, research, decision and constraint records sit at product level under `.litespec/intent/`, where the folder rules allow them. The Behavior records of the module sit under `.litespec/behavior/modules/spending/`, as [Modules and Records](modules-and-records.md) shows.
 
 ## The Goal
 

@@ -73,6 +73,12 @@ internal readonly record struct PlacementPath(string? Module, string? Aggregate,
 
         var next = segments[moduleAt + 2];
 
+        // An aggregate sits in the aggregates folder of its module; the folder after it names the aggregate.
+        if (string.Equals(next, "aggregates", StringComparison.Ordinal))
+        {
+            return moduleAt + 3 < segments.Length ? segments[moduleAt + 3] : null;
+        }
+
         return next.Contains('.', StringComparison.Ordinal) || RecordFolders.BehaviorModuleFolders.Contains(next)
             ? null
             : next;

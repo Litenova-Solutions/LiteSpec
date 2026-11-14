@@ -96,7 +96,7 @@ public sealed class RefusalCodeCheckTests
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.loan",
@@ -142,7 +142,7 @@ public sealed class RefusalCodeCheckTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/aggregate.md", """
                 # Loan
 
                 A loan lends one copy to one reader.

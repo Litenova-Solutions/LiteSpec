@@ -10,17 +10,23 @@ namespace LiteSpec.Model;
 ///     A named record owns a folder named for it, so its record file and explanation sit together
 ///     as <c>&lt;folder&gt;/&lt;name&gt;/&lt;name&gt;.yaml</c>. The folder checks read it to place a record,
 ///     the scaffolder reads it to write one, and the qualifier reads the fixed folders of a behavior
-///     module. A flat home applies only to a module that keeps its records flat.
+///     module.
 /// </summary>
 /// <follows>litespec/core/model#write-every-record-in-its-home</follows>
 /// <follows>litespec/core/model#give-every-record-one-parent</follows>
 public static class RecordFolders
 {
-    /// <summary>The folders a behavior module holds besides its aggregates: any other subfolder of a module is an aggregate.</summary>
+    /// <summary>The typed folders a behavior module holds: aggregates, its module-level use cases, rules and automation, and its edges. Any other subfolder of a module is a placement finding.</summary>
     public static readonly HashSet<string> BehaviorModuleFolders = new(StringComparer.Ordinal)
     {
-        "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
+        "aggregates", "use-cases", "rules", "reactions", "jobs", "notifications", "settings",
         "integration-events", "external-systems",
+    };
+
+    /// <summary>The typed folders an aggregate holds beside its aggregate record: its use cases, its events and its rules.</summary>
+    public static readonly HashSet<string> AggregateFolders = new(StringComparer.Ordinal)
+    {
+        "use-cases", "events", "rules",
     };
 
     /// <summary>Record types whose English plural is the type itself, or that take a singular verb.</summary>
@@ -28,7 +34,7 @@ public static class RecordFolders
 
     /// <summary>
     ///     Every home of every record type. A type with several homes lists them in the order the
-    ///     messages show them; a flat home applies only to a module that keeps its records flat.
+    ///     messages show them.
     /// </summary>
     private static readonly IReadOnlyList<Home> Table =
     [
@@ -40,7 +46,7 @@ public static class RecordFolders
         Scaffold("feature", "intent/problems/{problem}/features/{name}", "{name}.yaml"),
         // A requirement sits in its own folder inside its feature's folder. litespec new and rename place it
         // from the feature record, since the identifier names the feature but not the problem.
-        At("requirement", "intent/problems/{problem}/features/{feature}/{name}", "{name}.yaml"),
+        At("requirement", "intent/problems/{problem}/features/{feature}/requirements/{name}", "{name}.yaml"),
         Scaffold("constraint", "intent/constraints/{name}", "{name}.yaml"),
         Scaffold("decision", "intent/decisions/{name}", "{name}.yaml"),
         At("decision", "implementation/decisions/{name}", "{name}.yaml"),
@@ -51,24 +57,18 @@ public static class RecordFolders
         Scaffold("role", "intent/roles/{name}", "{name}.yaml"),
         Scaffold("module", "behavior/modules/{name}", "module.yaml"),
         At("term", "", "glossary.yaml"),
-        At("aggregate", "behavior/modules/{module}/{aggregate}", "aggregate.yaml"),
-        Flat("aggregate", "behavior/modules/{module}", "aggregate.yaml"),
-        At("use-case", "behavior/modules/{module}/{aggregate}/{name}", "{name}.yaml"),
+        At("aggregate", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
+        At("use-case", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         Scaffold("use-case", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
-        Flat("use-case", "behavior/modules/{module}", "*", "aggregate.yaml", "permissions.yaml"),
-        At("result", "behavior/modules/{module}/{aggregate}/{name}", "{name}.yaml"),
+        At("result", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         At("result", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
-        Flat("result", "behavior/modules/{module}", "*", "aggregate.yaml", "permissions.yaml"),
-        At("scenario", "behavior/modules/{module}/{aggregate}/{name}", "{name}.yaml"),
+        At("scenario", "behavior/modules/{module}/aggregates/{aggregate}/use-cases/{name}", "{name}.yaml"),
         At("scenario", "behavior/modules/{module}/use-cases/{name}", "{name}.yaml"),
-        Flat("scenario", "behavior/modules/{module}", "*", "aggregate.yaml", "permissions.yaml"),
-        At("event", "behavior/modules/{module}/{aggregate}", "aggregate.yaml"),
-        At("event", "behavior/modules/{module}/{aggregate}/events", "*"),
-        Flat("event", "behavior/modules/{module}", "aggregate.yaml"),
-        Flat("event", "behavior/modules/{module}/events", "*"),
+        At("event", "behavior/modules/{module}/aggregates/{aggregate}", "aggregate.yaml"),
+        At("event", "behavior/modules/{module}/aggregates/{aggregate}/events", "*"),
         At("rule", "behavior/rules", "*"),
         At("rule", "behavior/modules/{module}/rules", "*"),
-        At("rule", "behavior/modules/{module}/{aggregate}/rules", "*"),
+        At("rule", "behavior/modules/{module}/aggregates/{aggregate}/rules", "*"),
         Scaffold("reaction", "behavior/modules/{module}/reactions/{name}", "{name}.yaml"),
         Scaffold("job", "behavior/modules/{module}/jobs/{name}", "{name}.yaml"),
         Scaffold("notification", "behavior/modules/{module}/notifications/{name}", "{name}.yaml"),
@@ -89,18 +89,17 @@ public static class RecordFolders
     ///     Every home of every record type in table order, as the folder reference page lists them.
     ///     A type with several homes has one row for each.
     /// </summary>
-    /// <returns>The type, folder, file and flat flag of each home.</returns>
-    public static IReadOnlyList<(string Type, string Folder, string File, bool Flat)> Homes() =>
-        Table.Select(home => (home.Type, home.Folder, home.File, home.Flat)).ToList();
+    /// <returns>The type, folder and file of each home.</returns>
+    public static IReadOnlyList<(string Type, string Folder, string File)> Homes() =>
+        Table.Select(home => (home.Type, home.Folder, home.File)).ToList();
 
     /// <summary>Whether a record file sits in a home of its type.</summary>
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="folders">The folders the record file sits in, from its record layer down.</param>
     /// <param name="fileName">The record file name.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
     /// <returns>True when one home of the type holds the file; otherwise false.</returns>
-    public static bool Places(string type, IReadOnlyList<string> folders, string fileName, HashSet<string> flat) =>
-        Table.Any(home => home.Type == type && Holds(home, folders, flat) && TakesFile(home, fileName));
+    public static bool Places(string type, IReadOnlyList<string> folders, string fileName) =>
+        Table.Any(home => home.Type == type && Holds(home, folders) && TakesFile(home, fileName));
 
     /// <summary>
     ///     Whether a named record file sits in a folder with another name. A home that names its folder
@@ -109,9 +108,8 @@ public static class RecordFolders
     /// <param name="type">The record type, kebab-case.</param>
     /// <param name="folders">The folders the record file sits in, from its record layer down.</param>
     /// <param name="fileName">The record file name.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
     /// <returns>True when a named home holds the file and its folder name differs from the file stem; otherwise false.</returns>
-    public static bool FolderMismatch(string type, IReadOnlyList<string> folders, string fileName, HashSet<string> flat)
+    public static bool FolderMismatch(string type, IReadOnlyList<string> folders, string fileName)
     {
         if (folders.Count == 0)
         {
@@ -121,7 +119,7 @@ public static class RecordFolders
         var named = Table.Any(home => home.Type == type
             && NamesFolder(home)
             && home.File.IndexOf('{') >= 0
-            && Holds(home, folders, flat)
+            && Holds(home, folders)
             && TakesFile(home, fileName));
 
         return named && !string.Equals(folders[folders.Count - 1], StemOf(fileName), StringComparison.Ordinal);
@@ -132,16 +130,15 @@ public static class RecordFolders
     ///     inside an aggregate folder is one of these, and so is a feature folder inside a module.
     /// </summary>
     /// <param name="folders">The folder segments from the record layer down.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
     /// <returns>True when a named home holds the folder; otherwise false.</returns>
-    public static bool IsRecordFolder(IReadOnlyList<string> folders, HashSet<string> flat) =>
-        Table.Any(home => !home.Flat && NamesFolder(home) && Holds(home, folders, flat));
+    public static bool IsRecordFolder(IReadOnlyList<string> folders) =>
+        Table.Any(home => NamesFolder(home) && Holds(home, folders));
 
     /// <summary>Whether a record type may be scaffolded: it owns a home that <c>litespec new</c> writes.</summary>
     /// <param name="type">The record type.</param>
     /// <returns>True when the type owns a file whose folder or name holds a home; otherwise false.</returns>
     public static bool NeedsHome(string type) =>
-        Table.FirstOrDefault(entry => entry.Type == type && entry.Scaffold && !entry.Flat) is { } scaffold && NeedsHome(scaffold);
+        Table.FirstOrDefault(entry => entry.Type == type && entry.Scaffold) is { } scaffold && NeedsHome(scaffold);
 
     /// <summary>The path a new record file of the type starts at, from the record layer down.</summary>
     /// <param name="type">The record type, kebab-case; it must own a scaffolded home.</param>
@@ -152,7 +149,7 @@ public static class RecordFolders
     /// <exception cref="ArgumentException">The type lives under a home, and none is given.</exception>
     public static string ScaffoldPath(string type, string? home, string name)
     {
-        var scaffold = Table.FirstOrDefault(entry => entry.Type == type && entry.Scaffold && !entry.Flat)
+        var scaffold = Table.FirstOrDefault(entry => entry.Type == type && entry.Scaffold)
             ?? throw new ArgumentOutOfRangeException(nameof(type), $"Type '{type}' owns no file.");
 
         if (NeedsHome(scaffold) && home is null)
@@ -172,7 +169,7 @@ public static class RecordFolders
     public static string Phrase(string type)
     {
         var shown = Table
-            .Where(home => home.Type == type && !home.Flat)
+            .Where(home => home.Type == type)
             .Select(Show)
             .ToList();
 
@@ -190,12 +187,11 @@ public static class RecordFolders
         return $"{subject} {(Uncountable.Contains(type) ? "lives" : "live")} in {list}";
     }
 
-    /// <summary>Whether the folders match the home's folder pattern, and the module is flat when the home needs it.</summary>
+    /// <summary>Whether the folders match the home's folder pattern.</summary>
     /// <param name="home">The home under test.</param>
     /// <param name="folders">The folders the record file sits in, from its record layer down.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
     /// <returns>True when the folders match the pattern; otherwise false.</returns>
-    private static bool Holds(Home home, IReadOnlyList<string> folders, HashSet<string> flat)
+    private static bool Holds(Home home, IReadOnlyList<string> folders)
     {
         var pattern = Segments(home.Folder);
 
@@ -216,7 +212,7 @@ public static class RecordFolders
                     module = segment;
                     break;
                 case "{aggregate}":
-                    if (module is null || !IsAggregateName(segment, module, flat))
+                    if (module is null)
                     {
                         return false;
                     }
@@ -233,7 +229,7 @@ public static class RecordFolders
             }
         }
 
-        return !home.Flat || (module is not null && flat.Contains(module));
+        return true;
     }
 
     /// <summary>Whether a home takes a file of the name: a template or any file takes every name the home does not exclude.</summary>
@@ -259,14 +255,6 @@ public static class RecordFolders
 
         return segments.Length > 0 && segments[segments.Length - 1].IndexOf("{name}", StringComparison.Ordinal) >= 0;
     }
-
-    /// <summary>Whether a folder name is an aggregate in a module: not a fixed behavior folder, and not the events folder of a flat module.</summary>
-    /// <param name="name">The folder name under test.</param>
-    /// <param name="module">The module the folder sits in.</param>
-    /// <param name="flat">The modules that keep their records flat.</param>
-    /// <returns>True when the name names an aggregate; otherwise false.</returns>
-    private static bool IsAggregateName(string name, string module, HashSet<string> flat) =>
-        !BehaviorModuleFolders.Contains(name) && (name != "events" || !flat.Contains(module));
 
     /// <summary>The file name without its extension, which is the name a record folder carries.</summary>
     /// <param name="fileName">The record file name.</param>
@@ -330,7 +318,7 @@ public static class RecordFolders
     /// <param name="except">The file names the home does not take.</param>
     /// <returns>The home.</returns>
     private static Home At(string type, string folder, string file, params string[] except) =>
-        new(type, folder, file, false, except, false);
+        new(type, folder, file, except, false);
 
     /// <summary>Builds one home that holds records in every module, which litespec new writes.</summary>
     /// <param name="type">The record type, kebab-case.</param>
@@ -338,16 +326,7 @@ public static class RecordFolders
     /// <param name="file">The file name or template.</param>
     /// <returns>The home.</returns>
     private static Home Scaffold(string type, string folder, string file) =>
-        new(type, folder, file, false, [], true);
-
-    /// <summary>Builds one home that holds records only in a module that keeps its records flat.</summary>
-    /// <param name="type">The record type, kebab-case.</param>
-    /// <param name="folder">The folder pattern.</param>
-    /// <param name="file">The file name or template.</param>
-    /// <param name="except">The file names the home does not take.</param>
-    /// <returns>The home.</returns>
-    private static Home Flat(string type, string folder, string file, params string[] except) =>
-        new(type, folder, file, true, except, false);
+        new(type, folder, file, [], true);
 
     /// <summary>Whether a home entry places its file under a module or entry-point folder, or names it after its home.</summary>
     /// <param name="home">The home entry.</param>
@@ -361,8 +340,7 @@ public static class RecordFolders
     /// <param name="Type">The record type, kebab-case.</param>
     /// <param name="Folder">The folder from the record layer down, with <c>{module}</c>, <c>{aggregate}</c>, <c>{entry-point}</c>, <c>{home}</c> and <c>{name}</c> segments; empty for the record root.</param>
     /// <param name="File">A literal file name, a template such as <c>{name}.yaml</c>, or <c>*</c> for any file.</param>
-    /// <param name="Flat">Whether the home applies only to a module that keeps its records flat.</param>
     /// <param name="Except">The file names the home does not take.</param>
     /// <param name="Scaffold">Whether <c>litespec new</c> writes a record of the type into this home.</param>
-    private sealed record Home(string Type, string Folder, string File, bool Flat, IReadOnlyList<string> Except, bool Scaffold);
+    private sealed record Home(string Type, string Folder, string File, IReadOnlyList<string> Except, bool Scaffold);
 }

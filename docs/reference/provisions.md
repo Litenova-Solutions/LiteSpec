@@ -6,7 +6,7 @@ Use this generated page to resolve a provision ID to its heading, owning page, s
 
 Run `litespec-maintain provisions` after any provision change. The repository validator fails when this page and the active standards disagree.
 
-The active release states 1675 provisions in 4 groups across 6 areas.
+The active release states 1676 provisions in 4 groups across 6 areas.
 
 ## Checked Share by Page
 
@@ -42,7 +42,7 @@ The active release states 1675 provisions in 4 groups across 6 areas.
 | [core/language](../core/language.md) | 25 | 8 | 32% |
 | [core/layers](../core/layers.md) | 9 | 4 | 44% |
 | [core/maintaining](../core/maintaining.md) | 7 | 5 | 71% |
-| [core/model](../core/model.md) | 51 | 34 | 67% |
+| [core/model](../core/model.md) | 52 | 35 | 67% |
 | [core/principles](../core/principles.md) | 22 | 4 | 18% |
 | [core/privacy](../core/privacy.md) | 15 | 2 | 13% |
 | [core/release](../core/release.md) | 19 | 1 | 5% |
@@ -676,6 +676,7 @@ The active release states 1675 provisions in 4 groups across 6 areas.
 | litespec/core/model#name-the-lowest-record-each-test-proves | [Name the Lowest Record Each Test Proves](../core/model.md#name-the-lowest-record-each-test-proves) | rule | any | records | test | any | no | required | checkable | `litespec model check` reports `mark-missing` and `mark-unknown` (level S) for a test that names no record or a record of a kind a test does not take. |
 | litespec/core/model#name-what-every-decision-decides | [Name What Every Decision Decides](../core/model.md#name-what-every-decision-decides) | rule | any | records | record:decision | any | no | required | checkable | `litespec model check` reports `decision-decides-missing` for a product decision with an empty `decides` field, and `decision-decides-duplicate` for two decisions deciding one record. |
 | litespec/core/model#organize-the-book-by-the-record-layers | [Organize the Book by the Record Layers](../core/model.md#organize-the-book-by-the-record-layers) | rule | any | records | any | any | no | required | guidance | Which book headings or groupings are not a record layer, a record type, or a record the identifier names? Look at the book's outline beside this page's record type table. |
+| litespec/core/model#place-child-records-in-typed-folders | [Place Child Records in Typed Folders](../core/model.md#place-child-records-in-typed-folders) | rule | any | records | any | any | no | required | checkable | `litespec model check` reports `record-placement-invalid` for a child record outside its typed folder, and for a module subfolder that names no typed folder. |
 | litespec/core/model#point-every-book-entry-to-its-source | [Point Every Book Entry to Its Source](../core/model.md#point-every-book-entry-to-its-source) | rule | any | records | any | any | no | required | guidance | Which book entries lack a link to their file and line? Look at the book's record, code, test and finding entries. |
 | litespec/core/model#publish-each-integration-event-from-one-module | [Publish Each Integration Event from One Module](../core/model.md#publish-each-integration-event-from-one-module) | rule | any | records | record:integration-event | any | no | required | checkable | `litespec model check` reports `event-publisher-invalid` for an integration event with a second publishing module. |
 | litespec/core/model#record-each-screens-captures-from-the-gallery | [Record Each Screen's Captures from the Gallery](../core/model.md#record-each-screens-captures-from-the-gallery) | rule | any | records | record:screen | any | no | required | guidance | Which screens with a route have no capture? Look at `captureState` `route-not-captured` on screen records in the model. |

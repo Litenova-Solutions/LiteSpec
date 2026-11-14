@@ -35,17 +35,17 @@ public sealed class PlacementTests
             id: feature/payout
             title: Payout
             """);
-        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/request-payout/request-payout.yaml", """
+        Write(temp.Path, ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout/request-payout.yaml", """
             type: requirement
             id: requirement/payout.request-payout
             title: Request payout
             """);
-        Write(temp.Path, ".litespec/behavior/modules/finance/payouts/aggregate.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/finance/aggregates/payouts/aggregate.yaml", """
             type: aggregate
             id: aggregate/finance.payout
             title: Payout
             """);
-        Write(temp.Path, ".litespec/behavior/modules/finance/payouts/request-payout.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout/request-payout.yaml", """
             type: use-case
             id: use-case/finance.request-payout
             title: Request payout
@@ -85,11 +85,11 @@ public sealed class PlacementTests
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
         AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
         AssertPlaced(model, "feature/payout", ".litespec/intent/problems/payouts-wait/features/payout", null);
-        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/payouts-wait/features/payout/request-payout", null);
-        AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/payouts", "finance");
-        AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/payouts", "finance");
-        AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/payouts", "finance");
-        AssertPlaced(model, "scenario/request-payout.requesting-succeeds", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "requirement/payout.request-payout", ".litespec/intent/problems/payouts-wait/features/payout/requirements/request-payout", null);
+        AssertPlaced(model, "aggregate/finance.payout", ".litespec/behavior/modules/finance/aggregates/payouts", "finance");
+        AssertPlaced(model, "use-case/finance.request-payout", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
+        AssertPlaced(model, "result/request-payout.requested", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
+        AssertPlaced(model, "scenario/request-payout.requesting-succeeds", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
         AssertPlaced(model, "permission/approve-expense", ".litespec/behavior/modules/finance", "finance");
         AssertPlaced(model, "entry-point/claimwick-app", ".litespec/behavior/entry-points/claimwick-app", null);
         AssertPlaced(model, "screen/claimwick-app.expense-list", ".litespec/behavior/entry-points/claimwick-app/screens", null);
@@ -120,7 +120,7 @@ public sealed class PlacementTests
     {
         using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
-        Write(temp.Path, ".litespec/behavior/modules/finance/payouts/request-payout.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout/request-payout.yaml", """
             type: use-case
             id: use-case/finance.request-payout
             title: Request payout
@@ -133,8 +133,8 @@ public sealed class PlacementTests
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        AssertPlaced(model, "result/request-payout.forbidden", ".litespec/behavior/modules/finance/payouts", "finance");
-        AssertPlaced(model, "result/request-payout.invalid-input", ".litespec/behavior/modules/finance/payouts", "finance");
+        AssertPlaced(model, "result/request-payout.forbidden", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
+        AssertPlaced(model, "result/request-payout.invalid-input", ".litespec/behavior/modules/finance/aggregates/payouts/use-cases/request-payout", "finance");
     }
 
     /// <summary>Model query resolves a record id and shows its folder and module.</summary>
@@ -144,7 +144,7 @@ public sealed class PlacementTests
     {
         using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
-        Write(temp.Path, ".litespec/behavior/modules/spending/expenses/submit-expense.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml", """
             type: use-case
             id: use-case/spending.submit-expense
             title: Submit expense
@@ -158,7 +158,7 @@ public sealed class PlacementTests
         using var document = JsonDocument.Parse(answer);
 
         Assert.Equal("use-case/spending.submit-expense", document.RootElement.GetProperty("id").GetString());
-        Assert.Equal(".litespec/behavior/modules/spending/expenses", document.RootElement.GetProperty("folder").GetString());
+        Assert.Equal(".litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense", document.RootElement.GetProperty("folder").GetString());
         Assert.Equal("spending", document.RootElement.GetProperty("module").GetString());
         Assert.Null(RecordQuery.Query(model, "spending/expenses/use-case/submit-expense"));
         Assert.Null(RecordQuery.Query(model, "use-case/spending.no-such-case"));
@@ -171,7 +171,7 @@ public sealed class PlacementTests
     {
         using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
-        Write(temp.Path, ".litespec/behavior/modules/spending/expenses/aggregate.yaml", """
+        Write(temp.Path, ".litespec/behavior/modules/spending/aggregates/expenses/aggregate.yaml", """
             type: aggregate
             id: aggregate/spending.expense
             title: Expense
@@ -183,7 +183,7 @@ public sealed class PlacementTests
         var record = document.RootElement.GetProperty("records").EnumerateArray()
             .Single(entry => entry.GetProperty("id").GetString() == "aggregate/spending.expense");
 
-        Assert.Equal(".litespec/behavior/modules/spending/expenses", record.GetProperty("folder").GetString());
+        Assert.Equal(".litespec/behavior/modules/spending/aggregates/expenses", record.GetProperty("folder").GetString());
         Assert.Equal("spending", record.GetProperty("module").GetString());
     }
 

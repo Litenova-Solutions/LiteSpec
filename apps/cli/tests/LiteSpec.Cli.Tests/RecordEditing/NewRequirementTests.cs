@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.RecordEditing;
 public sealed class NewRequirementTests
 {
     const string FeatureFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/approval.yaml";
-    const string ExistingFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/no-self-approval/no-self-approval.yaml";
+    const string ExistingFile = ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/no-self-approval/no-self-approval.yaml";
 
     /// <summary>New requirement writes its own folder beside the feature's record and no explanation file.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
@@ -19,7 +19,7 @@ public sealed class NewRequirementTests
         var result = TestCli.Run("new", "requirement", "approval.decided-within-five-days", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var file = Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/decided-within-five-days/decided-within-five-days.yaml");
+        var file = Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/decided-within-five-days/decided-within-five-days.yaml");
         Assert.True(File.Exists(file), result.Output);
         var text = File.ReadAllText(file);
         Assert.Contains("id: requirement/approval.decided-within-five-days", text);
@@ -38,7 +38,7 @@ public sealed class NewRequirementTests
         var result = TestCli.Run("new", "requirement", "approval.late-fee-cap", "--root", consumer.Path);
 
         Assert.Equal(0, result.Status);
-        var folder = Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/late-fee-cap");
+        var folder = Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/late-fee-cap");
         Assert.True(File.Exists(Path.Combine(folder, "late-fee-cap.yaml")), result.Output);
         Assert.Empty(Directory.GetFiles(folder, "*.md"));
     }
@@ -97,7 +97,7 @@ public sealed class NewRequirementTests
 
         Assert.Equal(2, result.Status);
         Assert.Contains("use litespec new requirement <feature>.late-fee-cap", result.Output);
-        Assert.False(Directory.Exists(Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/late-fee-cap")));
+        Assert.False(Directory.Exists(Path.Combine(consumer.Path, ".litespec/intent/problems/expenses-wait-weeks/features/approval/requirements/late-fee-cap")));
     }
 
     /// <summary>A consumer with one feature folder holding one requirement folder.</summary>

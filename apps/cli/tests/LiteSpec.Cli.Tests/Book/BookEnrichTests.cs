@@ -33,7 +33,7 @@ public sealed class BookEnrichTests
         Assert.Null(fields["decideBy"]);
         Assert.NotNull(fields["summary"]);
         var src = Obj(loan, "src");
-        Assert.Equal(".litespec/behavior/modules/lending/loans/aggregate.yaml", Str(src, "path"));
+        Assert.Equal(".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml", Str(src, "path"));
         Assert.Equal(3, src["line"]?.GetValue<int>());
     }
 

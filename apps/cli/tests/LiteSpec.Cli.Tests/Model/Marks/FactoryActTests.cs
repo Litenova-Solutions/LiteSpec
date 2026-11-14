@@ -85,7 +85,7 @@ public sealed class FactoryActTests
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/aggregate.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/aggregate.yaml", """
                 {
                   "type": "aggregate",
                   "id": "aggregate/lending.order",
@@ -113,12 +113,12 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/aggregate.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/aggregate.md", """
                 # Order
 
                 An order is one purchase a reader placed.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/submit-order.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/submit-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.submit-order",
@@ -144,12 +144,12 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/submit-order.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/submit-order.md", """
                 # Submit order
 
                 A reader submits an order.
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/orders/renew-order.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/renew-order.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.renew-order",
@@ -172,7 +172,7 @@ public sealed class FactoryActTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/orders/renew-order.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/orders/renew-order.md", """
                 # Renew order
 
                 A reader renews an order.

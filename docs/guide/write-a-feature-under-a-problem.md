@@ -2,7 +2,7 @@
 
 ## Purpose
 
-A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at `.litespec/intent/problems/<problem>/features/<feature>/<feature>.yaml` states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder inside the feature's folder. This guide writes those files and the feature's explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.
+A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at `.litespec/intent/problems/<problem>/features/<feature>/<feature>.yaml` states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature's `requirements/` folder. This guide writes those files and the feature's explanation file `<feature>.md`, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 

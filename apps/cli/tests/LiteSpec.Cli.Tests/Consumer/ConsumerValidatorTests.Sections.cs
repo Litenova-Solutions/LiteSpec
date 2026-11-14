@@ -19,7 +19,7 @@ public sealed partial class ConsumerValidatorTests
     const string ReferencePage = ".litespec/reference/ports.md";
     const string ConfigurationPage = ".litespec/tools/configuration.md";
     const string UseCasePage = ".litespec/behavior/modules/orders/cancel-order.yaml";
-    const string AggregateExplanation = ".litespec/behavior/modules/orders/order-claims/aggregate.md";
+    const string AggregateExplanation = ".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.md";
     const string ModuleExplanation = ".litespec/behavior/modules/orders/module.md";
 
     static string ReplaceFirst(string raw, string oldValue, string newValue)

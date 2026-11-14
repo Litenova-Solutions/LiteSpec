@@ -266,8 +266,8 @@ static class BookParents
             return null;
         }
 
-        // A use case or an event sits beside aggregate.yaml; a rule sits one
-        // level down in rules/, so its parent folder holds the aggregate.
+        // An event sits beside aggregate.yaml or in events/, and a rule sits in rules/, so the
+        // parent folder holds the aggregate.
         // The folders match, never their names, so a plural folder still holds
         // the aggregate its aggregate.yaml names.
         var dir = DirOf(file);
@@ -277,7 +277,14 @@ static class BookParents
         }
 
         var parent = dir is null ? null : ParentDirOf(dir);
-        return parent is not null && index.AggregatesByDir.TryGetValue(parent, out var up) ? up : null;
+        if (parent is not null && index.AggregatesByDir.TryGetValue(parent, out var up))
+        {
+            return up;
+        }
+
+        // A use case sits in use-cases/<name>/, two folders below its aggregate.
+        var grand = parent is null ? null : ParentDirOf(parent);
+        return grand is not null && index.AggregatesByDir.TryGetValue(grand, out var above) ? above : null;
     }
 
     /// <summary>Finds the entry-point parent of a record from its file: the entry point whose folder holds it.</summary>
@@ -380,9 +387,10 @@ static class BookParents
             return null;
         }
 
-        // A requirement sits in <feature>/<name>/<name>.yaml, so the feature folder is two levels up.
+        // A requirement sits in <feature>/requirements/<name>/<name>.yaml, so the feature folder is three levels up.
         var dir = DirOf(file);
-        var parent = dir is null ? null : ParentDirOf(dir);
+        var requirements = dir is null ? null : ParentDirOf(dir);
+        var parent = requirements is null ? null : ParentDirOf(requirements);
         return parent is not null && index.FeaturesByDir.TryGetValue(parent, out var feature) ? feature : null;
     }
 

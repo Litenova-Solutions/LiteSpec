@@ -15,7 +15,7 @@ public sealed class UseCaseVerbCheckTests
         WriteProject(temp.Path);
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
-            TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "holds", "expire-holds.yaml"), """{"kind": "command"}"""),
+            TestModel.Record("use-case", "use-case/lending.expire-holds", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "holds", "expire-holds.yaml"), """{"kind": "command"}"""),
             TestModel.Record("job", "job/lending.expire-lapsed-holds", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "jobs", "expire-lapsed-holds.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""),
             TestModel.Record("job", "job/lending.sweep-holds", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "jobs", "sweep-holds.yaml"), """{"kind": "scheduled", "schedule": {"every": "PT1H"}, "effects": [{"runs": "use-case/lending.expire-holds"}]}"""));
 

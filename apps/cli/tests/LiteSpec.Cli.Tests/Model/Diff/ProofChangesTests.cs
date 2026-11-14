@@ -9,7 +9,7 @@ public sealed class ProofChangesTests
 {
     const string Scenario = "scenario/borrow-copy.borrowing-an-available-copy-succeeds";
     const string TestName = "Library.Acceptance.Tests.Proof.ProofScenarios.Borrowing_an_available_copy_succeeds";
-    const string ScenarioPath = ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
+    const string ScenarioPath = ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     /// <summary>A proving test method edited while its scenario held still reports proof-hash-drift as an advisory finding on the scenario.</summary>

@@ -66,7 +66,7 @@ public sealed class IntegrationFactProofTests
     public void ScenarioFactPinningTheMessageTypeConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/TypeofFactTests.cs", TypeofFile);
 
         using var document = Build(temp.Path);
@@ -80,7 +80,7 @@ public sealed class IntegrationFactProofTests
     public void ScenarioFactBuildingANestedValueConfirms()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/success-scenario.yaml", SuccessScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/success-scenario.yaml", SuccessScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/NestedValueFactTests.cs", NestedFile);
 
         using var document = Build(temp.Path);

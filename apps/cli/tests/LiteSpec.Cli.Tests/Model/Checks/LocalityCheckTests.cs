@@ -16,7 +16,7 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml"), """{}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{}"""),
             TestModel.Record("rule", "rule/finance.refund-needs-receipt", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "finance-rules.yaml"), """{"kind": "invariant", "statement": "A refund needs a receipt.", "governs": ["aggregate/lending.loan"]}"""));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "link-locality-invalid");
@@ -35,7 +35,7 @@ public sealed class LocalityCheckTests
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": ["module/lending"]}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml"), """{}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{}"""),
             TestModel.Record("rule", "rule/finance.refund-needs-receipt", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "rules", "finance-rules.yaml"), """{"kind": "invariant", "statement": "A refund needs a receipt.", "governs": ["aggregate/lending.loan"]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
@@ -69,7 +69,7 @@ public sealed class LocalityCheckTests
             TestModel.Record("module", "module/finance", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "module.yaml"), """{"dependsOn": []}"""),
             TestModel.Record("feature", "feature/borrowing", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "features", "borrowing.yaml"), """{}"""),
             TestModel.Record("requirement", "requirement/borrowing.max-active-loans", Path.Combine(temp.Path, ".litespec", "intent", "modules", "lending", "features", "borrowing.yaml"), """{}"""),
-            TestModel.Record("use-case", "use-case/finance.refund-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "refunds", "refund-fine.yaml"), """{"kind": "command", "fulfills": ["requirement/borrowing.max-active-loans"]}"""));
+            TestModel.Record("use-case", "use-case/finance.refund-fine", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "finance", "aggregates", "refunds", "refund-fine.yaml"), """{"kind": "command", "fulfills": ["requirement/borrowing.max-active-loans"]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));
     }
@@ -83,7 +83,7 @@ public sealed class LocalityCheckTests
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("module", "module/lending", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "module.yaml"), """{"dependsOn": []}"""),
-            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "loans", "aggregate.yaml"), """{}"""),
+            TestModel.Record("aggregate", "aggregate/lending.loan", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "aggregate.yaml"), """{}"""),
             TestModel.Record("rule", "rule/lending.copy-barcode-unique", Path.Combine(temp.Path, ".litespec", "behavior", "modules", "lending", "rules", "lending-rules.yaml"), """{"kind": "invariant", "statement": "A copy barcode names one copy.", "governs": ["aggregate/lending.loan"]}"""));
 
         Assert.DoesNotContain("link-locality-invalid", TestModel.Codes(model));

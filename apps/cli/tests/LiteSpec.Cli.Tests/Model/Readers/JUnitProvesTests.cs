@@ -200,7 +200,7 @@ public sealed class JUnitProvesTests
     public void PassingJUnitPropertyConfirmsTheScenarioItNames()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow)));
 
         using var document = Build(temp.Path);
@@ -220,7 +220,7 @@ public sealed class JUnitProvesTests
     public void FailingJUnitPropertyLeavesTheScenarioNotPassing()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-junit-proof-scenario.yaml", ScenarioJson(Borrow, "Borrowing an available copy succeeds", "result/borrow-copy.borrowed"));
         WriteJUnit(temp.Path, "smoke.xml", Case("test_borrow.TestBorrow", "test_borrowing_an_available_copy_succeeds", Proves(Borrow) + Failure));
 
         using var document = Build(temp.Path);

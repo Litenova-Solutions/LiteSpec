@@ -100,7 +100,7 @@ The model builder writes generated working files under `.litespec/model/` while 
 
 A backend stack binding names the files that realize the entries in angle brackets.
 
-The example places neither the backend application nor a frontend application at the workspace root. Under `behavior/modules/`, each module folder holds one folder per aggregate in plural kebab-case form. A module with one aggregate of the module's own name may stay flat.
+The example places neither the backend application nor a frontend application at the workspace root. Under `behavior/modules/`, each module folder holds its typed folders, and `aggregates/` holds one folder per aggregate in plural kebab-case form.
 
 A named record lives in its own folder, `<name>/<name>.yaml`, with its explanation `<name>.md` beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature's folder.
 

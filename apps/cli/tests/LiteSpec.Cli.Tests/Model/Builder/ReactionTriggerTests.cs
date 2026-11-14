@@ -14,7 +14,7 @@ public sealed class ReactionTriggerTests
     public void ReactionWithoutAMarkLinksNothingAndReportsMarkMissing()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/notify-overdue.yaml", UseCaseJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/notify-overdue.yaml", UseCaseJson);
         TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/reactions/send-notice-on-loan-borrowed.yaml", ReactionJson);
         Write(temp.Path, "apps/api/src/Library.Application/Lending/Loans/OnLoanBorrowed/NotifyReaderOnLoanBorrowedHandler.cs", ReactionFile);
 

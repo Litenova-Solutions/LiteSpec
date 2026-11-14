@@ -1329,7 +1329,7 @@
       "style": "explanation",
       "area": "example",
       "title": "A Use Case in Code",
-      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
+      "intent": "This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is \u0060examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml\u0060, and the code and tests are in \u0060examples/claimwick/apps/api/\u0060. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.",
       "sections": [
         "Intent",
         "The Record",
@@ -2335,7 +2335,7 @@
       "style": "how-to",
       "area": "guide",
       "title": "Write a Feature Under a Problem",
-      "intent": "A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder inside the feature\u0027s folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
+      "intent": "A feature is one answer to a problem, advancing a goal. It lives in the features folder of the one problem it answers: one record file at \u0060.litespec/intent/problems/\u003Cproblem\u003E/features/\u003Cfeature\u003E/\u003Cfeature\u003E.yaml\u0060 states the offering and its links. Each commitment the feature makes is a requirement, written as its own record in its own folder in the feature\u0027s \u0060requirements/\u0060 folder. This guide writes those files and the feature\u0027s explanation file \u0060\u003Cfeature\u003E.md\u0060, so a developer can tell what to build and a tester can tell what passes. The writing steps show a weak version and a strong version from the Claimwick expense product. Each step names the provisions it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -3794,7 +3794,7 @@
       "style": "reference",
       "area": "reference",
       "title": "Record Folders",
-      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A named record sits in a folder that carries its name, beside its explanation, so \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060 and \u0060\u003Cname\u003E/\u003Cname\u003E.md\u0060 are the pair. A record in any other folder is a \u0060record-placement-invalid\u0060 finding, a folder whose name differs from its file stem is a \u0060record-folder-drift\u0060 finding. The Flat module column marks a home that applies only to a module that keeps its records flat. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
+      "intent": "Use this generated page to find the folder and file each record type lives in, relative to \u0060.litespec/\u0060. A named record sits in a folder that carries its name, beside its explanation, so \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060 and \u0060\u003Cname\u003E/\u003Cname\u003E.md\u0060 are the pair. A record in any other folder is a \u0060record-placement-invalid\u0060 finding, a folder whose name differs from its file stem is a \u0060record-folder-drift\u0060 finding. Folders carry ownership and layer only, meaning product or module. Categories live in fields and generated indexes, because a record often fits several categories and a folder per category forces one and churns history on every recategorization. Decision numbers stay identity and proposal order only.",
       "sections": [
         "Intent",
         "Reference",

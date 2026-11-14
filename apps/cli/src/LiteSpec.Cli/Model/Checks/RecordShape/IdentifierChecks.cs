@@ -260,7 +260,7 @@ internal static class IdentifierChecks
     /// <returns>The feature folder name, or null when the file sits too shallow.</returns>
     private static string? FeatureFolderOf(string file)
     {
-        var feature = Path.GetDirectoryName(Path.GetDirectoryName(file));
+        var feature = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(file)));
         var name = feature is null ? null : Path.GetFileName(feature);
 
         return string.IsNullOrEmpty(name) ? null : name;

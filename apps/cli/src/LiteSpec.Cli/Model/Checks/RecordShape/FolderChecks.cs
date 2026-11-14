@@ -19,12 +19,6 @@ internal static class FolderChecks
         "goals", "visions", "problems", "constraints", "decisions", "research", "actors", "journeys", "roles",
     };
 
-    /// <summary>Type folders under <c>behavior/modules/&lt;m&gt;/&lt;aggregate&gt;/</c>.</summary>
-    private static readonly HashSet<string> BehaviorAggregateFolders = new(StringComparer.Ordinal)
-    {
-        "rules", "events",
-    };
-
     /// <summary>Folders directly under <c>implementation/</c>.</summary>
     private static readonly HashSet<string> ImplementationRootFolders = new(StringComparer.Ordinal)
     {
@@ -61,10 +55,9 @@ internal static class FolderChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var declared = DeclaredModules(model);
-        var flat = FlatModules(model);
 
-        CheckFolders(model, declared, flat, findings);
-        CheckRecords(model, flat, findings);
+        CheckFolders(model, declared, findings);
+        CheckRecords(model, findings);
     }
 
     /// <summary>The names of the declared modules.</summary>
@@ -88,46 +81,11 @@ internal static class FolderChecks
         return declared;
     }
 
-    /// <summary>The modules that may stay flat: one aggregate carrying the module's own name.</summary>
-    /// <param name="model">The loaded project model that holds every record.</param>
-    /// <returns>Each module name holding exactly one aggregate named for the module.</returns>
-    private static HashSet<string> FlatModules(ProjectModel model)
-    {
-        var names = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-
-        foreach (var record in model.Records)
-        {
-            if (record.Derived || record.Type != RecordTypes.Aggregate)
-            {
-                continue;
-            }
-
-            if (Identifiers.TrySplit(record.Id, out var prefix, out var home, out var name)
-                && prefix == RecordTypes.Aggregate
-                && home is not null)
-            {
-                if (!names.TryGetValue(home, out var grouped))
-                {
-                    grouped = [];
-                    names[home] = grouped;
-                }
-
-                grouped.Add(name);
-            }
-        }
-
-        return names
-            .Where(entry => entry.Value.Count == 1 && entry.Value[0] == entry.Key)
-            .Select(entry => entry.Key)
-            .ToHashSet(StringComparer.Ordinal);
-    }
-
     /// <summary>Reports each folder outside the closed set and each module folder naming no declared module.</summary>
     /// <param name="model">The loaded project model that holds the project configuration.</param>
     /// <param name="declared">The names of the declared modules.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckFolders(ProjectModel model, HashSet<string> declared, HashSet<string> flat, List<Finding> findings)
+    private static void CheckFolders(ProjectModel model, HashSet<string> declared, List<Finding> findings)
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var modules = new List<(string Directory, string Name)>();
@@ -165,8 +123,19 @@ internal static class FolderChecks
                     continue;
                 }
 
-                if (!IsFolder(full, anchored, directory, flat))
+                if (!IsFolder(full, anchored, directory))
                 {
+                    if (full is ["behavior", "modules", _, var sub] && !RecordFolders.BehaviorModuleFolders.Contains(sub))
+                    {
+                        findings.Add(new Finding(
+                            "record-placement-invalid",
+                            $"Folder '{PathText.Relative(model.Config.Root, directory)}' is no typed folder of its module; aggregates live in 'behavior/modules/<m>/aggregates/<aggregate>/', and the other module children in their named folders.",
+                            directory,
+                            1,
+                            null));
+                        continue;
+                    }
+
                     findings.Add(new Finding(
                         "folder-invalid",
                         $"Folder '{PathText.Relative(model.Config.Root, directory)}' sits outside the closed folder set of its layer and level.",
@@ -265,9 +234,8 @@ internal static class FolderChecks
     /// <param name="full">The directory segments anchored at the record layer.</param>
     /// <param name="root">The record root the directory sits under.</param>
     /// <param name="directory">The absolute directory path.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
     /// <returns>True when the folder is allowed; otherwise false.</returns>
-    private static bool IsFolder(string[] full, string root, string directory, HashSet<string> flat)
+    private static bool IsFolder(string[] full, string root, string directory)
     {
         if (full.Length == 0)
         {
@@ -276,7 +244,7 @@ internal static class FolderChecks
 
         // A named record's own folder, such as intent/goals/<name> or a use-case folder inside an
         // aggregate. It holds the record beside its explanation, and the record check reads its name.
-        if (RecordFolders.IsRecordFolder(full, flat))
+        if (RecordFolders.IsRecordFolder(full))
         {
             return true;
         }
@@ -284,7 +252,7 @@ internal static class FolderChecks
         return full[0] switch
         {
             "intent" => IsIntentFolder(full),
-            "behavior" => IsBehaviorFolder(root, directory, full, flat),
+            "behavior" => IsBehaviorFolder(full),
             "implementation" => IsImplementationFolder(full),
             "governance" => IsGovernanceFolder(full),
             _ when GeneratedFolders.Contains(full[0]) || full[0] == "proof" => true,
@@ -305,19 +273,17 @@ internal static class FolderChecks
         // A problem's features sit in its features folder; each feature is a named record folder inside it.
         if (full[1] == "problems" && full.Length > 2)
         {
-            return full.Length == 4 && full[3] == "features";
+            return (full.Length == 4 && full[3] == "features")
+                || (full.Length == 6 && full[3] == "features" && full[5] == "requirements");
         }
 
         return full.Length == 2 && IntentRootFolders.Contains(full[1]);
     }
 
     /// <summary>Whether the folder is one of the closed set of the behavior layer.</summary>
-    /// <param name="root">The record root the directory sits under.</param>
-    /// <param name="directory">The absolute directory path.</param>
     /// <param name="full">The directory segments anchored at the record layer.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
     /// <returns>True when the folder is allowed; otherwise false.</returns>
-    private static bool IsBehaviorFolder(string root, string directory, string[] full, HashSet<string> flat)
+    private static bool IsBehaviorFolder(string[] full)
     {
         if (full.Length == 1)
         {
@@ -333,35 +299,18 @@ internal static class FolderChecks
 
             if (full.Length == 4)
             {
-                if (RecordFolders.BehaviorModuleFolders.Contains(full[3]))
-                {
-                    return true;
-                }
-
-                if (full[3] == "events" && flat.Contains(full[2]))
-                {
-                    return true;
-                }
-
-                return HoldsAggregate(directory);
+                return RecordFolders.BehaviorModuleFolders.Contains(full[3]);
             }
 
-            if (RecordFolders.BehaviorModuleFolders.Contains(full[3]))
+            // A typed child folder of a module is a named record folder, which the record folder check accepts
+            // before this one. Only the aggregates folder holds a folder of its own, and each aggregate holds
+            // its typed folders.
+            if (full[3] != "aggregates")
             {
                 return false;
             }
 
-            if (full[3] == "events" && flat.Contains(full[2]))
-            {
-                return false;
-            }
-
-            if (!HoldsAggregate(ChildPath(root, full, 4)))
-            {
-                return false;
-            }
-
-            return full.Length == 5 && BehaviorAggregateFolders.Contains(full[4]);
+            return full.Length == 5 || (full.Length == 6 && RecordFolders.AggregateFolders.Contains(full[5]));
         }
 
         if (full[1] == "entry-points")
@@ -428,20 +377,6 @@ internal static class FolderChecks
         return full.Length == 2 && full[1] == "departures";
     }
 
-    /// <summary>Whether the folder holds an aggregate: an <c>aggregate.yaml</c> file sits directly under it.</summary>
-    /// <param name="directory">The absolute directory path.</param>
-    /// <returns>True when the folder holds <c>aggregate.yaml</c> directly; otherwise false.</returns>
-    private static bool HoldsAggregate(string directory) =>
-        File.Exists(Path.Combine(directory, "aggregate.yaml"));
-
-    /// <summary>The absolute path of an ancestor of the walked directory.</summary>
-    /// <param name="root">The record root the directory sits under.</param>
-    /// <param name="full">The directory segments anchored at the record layer.</param>
-    /// <param name="take">How many anchored segments the ancestor keeps.</param>
-    /// <returns>The absolute ancestor path.</returns>
-    private static string ChildPath(string root, string[] full, int take) =>
-        Path.Combine([root, .. full.Take(take)]);
-
     /// <summary>Collects the module folder for the declaration check.</summary>
     /// <param name="full">The directory segments anchored at the record layer.</param>
     /// <param name="directory">The absolute directory path.</param>
@@ -457,9 +392,8 @@ internal static class FolderChecks
 
     /// <summary>Reports each record outside the folder and level its type allows.</summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRecords(ProjectModel model, HashSet<string> flat, List<Finding> findings)
+    private static void CheckRecords(ProjectModel model, List<Finding> findings)
     {
         foreach (var record in model.Records)
         {
@@ -478,7 +412,7 @@ internal static class FolderChecks
                 continue;
             }
 
-            CheckRecord(model, record, segments, flat, findings);
+            CheckRecord(model, record, segments, findings);
         }
     }
 
@@ -521,9 +455,8 @@ internal static class FolderChecks
     /// <param name="model">The loaded project model that holds the project configuration.</param>
     /// <param name="record">The record whose file is inspected.</param>
     /// <param name="segments">The record file path as segments anchored at its record layer.</param>
-    /// <param name="flat">The modules that may stay flat.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckRecord(ProjectModel model, Record record, string[] segments, HashSet<string> flat, List<Finding> findings)
+    private static void CheckRecord(ProjectModel model, Record record, string[] segments, List<Finding> findings)
     {
         var fileName = segments[^1];
         var folders = segments[..^1];
@@ -558,7 +491,7 @@ internal static class FolderChecks
                 record.File, record.Line, SubjectOf(record)));
         }
 
-        if (!RecordFolders.Places(record.Type, folders, fileName, flat))
+        if (!RecordFolders.Places(record.Type, folders, fileName))
         {
             findings.Add(new Finding(
                 "record-placement-invalid",
@@ -568,7 +501,7 @@ internal static class FolderChecks
         }
 
         // The entries of a file share its page's file, so the folder finding names the page once.
-        if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName, flat))
+        if (!record.IsEntry && RecordFolders.FolderMismatch(record.Type, folders, fileName))
         {
             findings.Add(new Finding(
                 "record-folder-drift",
@@ -620,6 +553,6 @@ internal static class FolderChecks
     /// <returns>The phrase, from the folder map; a requirement lives in its own folder inside its feature's folder.</returns>
     private static string Expected(string type) =>
         type == RecordTypes.Requirement
-            ? "requirements live in their own folder inside their feature's folder, 'intent/problems/<problem>/features/<feature>/<name>/<name>.yaml'"
+            ? "requirements live in their own folder under their feature's 'requirements/' folder, 'intent/problems/<problem>/features/<feature>/requirements/<name>/<name>.yaml'"
             : RecordFolders.Phrase(type);
 }

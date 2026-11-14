@@ -51,7 +51,7 @@ public sealed class ProofIdentityTests
     }
 
     static void WriteScenario(string root) =>
-        TestRecords.Write(root, ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
+        TestRecords.Write(root, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-proof-scenario.yaml", ScenarioJson);
 
     static void WriteProof(string root) =>
         Write(root, "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs", ProofFile);

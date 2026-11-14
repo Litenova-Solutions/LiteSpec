@@ -29,7 +29,7 @@ public sealed class RenameCommandTests
     public void RenameRewritesLinksToTheMovedPage()
     {
         using var fixture = ModelFixture.Prepare("small");
-        var loans = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "loans");
+        var loans = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "aggregates", "loans", "use-cases");
         var linking = Path.Combine(fixture.Path, ".litespec", "behavior", "modules", "lending", "notes.md");
         File.WriteAllText(linking, "---\ntype: reference\nid: notes\ntitle: Notes\n---\n\n# Notes\n\nSee [borrowing](use-case/lending.borrow-copy).\n");
 

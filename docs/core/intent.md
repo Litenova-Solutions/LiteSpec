@@ -66,9 +66,10 @@ Each record sits in the folder of its parent, and the folder names that parent:
         payout/
           payout.yaml          the feature
           payout.md            its explanation, optional
-          paid-once/           requirement
-            paid-once.yaml
-            paid-once.md       its explanation, optional
+          requirements/
+            paid-once/         requirement
+              paid-once.yaml
+              paid-once.md     its explanation, optional
 ```
 
 Product level holds the product, visions, goals, constraints, decisions, research, actors, roles and journeys. Each problem's folder holds the problem and the features that answer it, and each feature's folder holds its requirements. Journeys cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
@@ -128,7 +129,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder inside its feature's folder.
+**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder in its feature's `requirements/` folder.
 
 **Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors and journeys at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, a problem's folder holds the features that answer it, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0050-put-each-feature-inside-the-problem-it-answers](decision/0050-put-each-feature-inside-the-problem-it-answers) and [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
@@ -923,7 +924,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:journey, record:feature, record:requirement
 
-**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder inside its feature's folder.
+**Default:** Keep the product record at `.litespec/intent/product.yaml`, each product-level goal, problem, constraint, decision, research record, actor and journey in its own folder under `.litespec/intent/`, each feature in the `features/` folder of the problem it answers, `.litespec/intent/problems/<problem>/features/`, and each requirement in its own folder in its feature's `requirements/` folder.
 
 **Replacement:** A project records its own product layout in its documentation index.
 
@@ -945,8 +946,9 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
       features/
         <name>/
           <name>.yaml
-          <requirement>/
-            <requirement>.yaml
+          requirements/
+            <requirement>/
+              <requirement>.yaml
   constraints/
     <name>/
       <name>.yaml

@@ -649,13 +649,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "use-case",
                 "use-case/lending.borrow-copy",
                 "Borrow Copy",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/borrow-copy.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml"),
             Record(
                 "use-case",
                 "use-case/copies.list-loans",
@@ -690,13 +690,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "rule",
                 "rule/lending.discount-rounds-down",
                 "Discount Rounds Down",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/rules/discount-rounds-down.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/rules/discount-rounds-down.yaml"),
             Record(
                 "rule",
                 "rule/loan.shelf-marks-face-out",
@@ -772,7 +772,7 @@ public sealed class BookOutlineTests
                 "aggregate/copies.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "reaction",
                 "reaction/copies.send-due-reminder",
@@ -801,13 +801,13 @@ public sealed class BookOutlineTests
                 "aggregate/lending.loan",
                 "Loan",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/aggregate.yaml"),
+                file: ".litespec/behavior/modules/lending/aggregates/loans/aggregate.yaml"),
             Record(
                 "event",
                 "event/other.loan-borrowed",
                 "Loan Borrowed",
                 "reviewed",
-                file: ".litespec/behavior/modules/lending/loans/events/loan-borrowed.yaml"));
+                file: ".litespec/behavior/modules/lending/aggregates/loans/events/loan-borrowed.yaml"));
 
         Assert.Equal("aggregate/lending.loan", BookParents.ParentOf(model, "event/other.loan-borrowed"));
 

@@ -62,7 +62,7 @@ static class ConsumerFixture
             Alex orders two books on Monday and pays one fee at checkout.
 
             """),
-        new(".litespec/product/pricing/flat-fee/flat-fee.yaml",
+        new(".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml",
             """
             {"type":"requirement","id":"requirement/pricing.flat-fee","title":"Flat fee","kind":"policy","statement":"Every order carries a flat fee of one euro.","rationale":"One fee keeps every receipt readable.","values":[{"value":"EUR 1.00","effectiveFrom":"2026-01-01"}],"cites":["decision/0001-launch"]}
             """,
@@ -136,7 +136,7 @@ static class ConsumerFixture
             The orders module keeps every order claim.
 
             """),
-        new(".litespec/behavior/modules/orders/order-claims/aggregate.yaml",
+        new(".litespec/behavior/modules/orders/aggregates/order-claims/aggregate.yaml",
             """
             {"type":"aggregate","id":"aggregate/orders.order-claim","title":"Order claim","kind":"entity","states":[{"name":"Draft","meaning":"The claim is open for changes."},{"name":"Canceled","meaning":"The customer canceled the claim."}],"transitions":[{"from":"Draft","to":"Canceled","by":"use-case/orders.cancel-order"}],"data":[{"name":"orderId","meaning":"The order this claim states.","classification":"internal"}],"records":[{"type":"rule","id":"rule/order-claim.cancel-before-shipment-only","title":"Cancel before shipment only","kind":"precondition","statement":"A customer cancels an order claim only before its shipment leaves.","governs":["use-case/orders.cancel-order"],"refusal":"result/cancel-order.cancel-refused","basedOn":[],"fulfills":["requirement/pricing.flat-fee"]},{"type":"event","id":"event/order-claim.order-canceled","title":"Order canceled","meaning":"An order claim was canceled.","carries":["orderId"]}]}
             """,

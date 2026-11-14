@@ -16,7 +16,7 @@ public sealed class RefusalProofTests
     public void RefusalStatusAloneConfirmsWhenTheTableMapsIt()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/StatusRefusalScenarios.cs", StatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -31,7 +31,7 @@ public sealed class RefusalProofTests
     public void RefusalClientCodeConfirmsWhenTheMapTranslatesIt()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/AliasRefusalScenarios.cs", AliasFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -46,7 +46,7 @@ public sealed class RefusalProofTests
     public void RefusalWrongStatusDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/WrongStatusScenarios.cs", WrongStatusFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 
@@ -61,7 +61,7 @@ public sealed class RefusalProofTests
     public void RefusalUnmappedClientCodeDoesNotConfirm()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Acceptance.Tests/Strength/UnmappedCodeScenarios.cs", UnmappedFile);
         WriteRefusals(temp.Path, "{}", """{"COPY_UNAVAILABLE": "lending.copy-not-available"}""");
 
@@ -76,7 +76,7 @@ public sealed class RefusalProofTests
     public void RefusalStatusMemberConfirmsAnIntegrationFact()
     {
         using var temp = ModelFixture.Prepare("small");
-        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/refusal-scenario.yaml", RefusalScenarioJson);
+        TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/refusal-scenario.yaml", RefusalScenarioJson);
         Write(temp.Path, "apps/api/tests/Library.Integration.Tests/Strength/StatusMemberRefusalTests.cs", StatusMemberFile);
         WriteRefusals(temp.Path, """{"lending.copy-not-available": 409}""", "{}");
 

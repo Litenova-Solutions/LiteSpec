@@ -101,7 +101,7 @@ public sealed class MarkVerbTests
                 terms: []
                 mannered: []
                 """);
-            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.yaml", """
+            TestRecords.Write(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml", """
                 {
                   "type": "use-case",
                   "id": "use-case/lending.borrow-copy",
@@ -132,7 +132,7 @@ public sealed class MarkVerbTests
                   ]
                 }
                 """);
-            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/loans/borrow-copy.md", """
+            TestRecords.Explain(temp.Path, ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.md", """
                 # Borrow copy
 
                 A reader borrows an available copy.

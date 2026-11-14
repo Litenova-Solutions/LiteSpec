@@ -284,7 +284,7 @@ public sealed class BookClaimTests
             ["tier"] = "S",
             ["message"] = "The reader read no code.",
             ["subject"] = "use-case/lending.borrow-copy",
-            ["path"] = ".litespec/behavior/modules/lending/loans/borrow-copy.yaml",
+            ["path"] = ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy.yaml",
             ["line"] = 3,
         });
         return model;

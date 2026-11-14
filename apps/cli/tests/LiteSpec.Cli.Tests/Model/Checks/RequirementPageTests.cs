@@ -9,8 +9,8 @@ namespace LiteSpec.Cli.Tests.Model.Checks;
 /// <summary>Proves a requirement is a page of its own in its feature's folder: it is refused inside a feature file, its identifier names its folder's feature, its explanation stays optional, and it reaches Behavior and its feature.</summary>
 public sealed class RequirementPageTests
 {
-    const string Requirement = ".litespec/product/pricing/flat-fee/flat-fee.yaml";
-    const string RequirementExplanation = ".litespec/product/pricing/flat-fee/flat-fee.md";
+    const string Requirement = ".litespec/product/pricing/requirements/flat-fee/flat-fee.yaml";
+    const string RequirementExplanation = ".litespec/product/pricing/requirements/flat-fee/flat-fee.md";
 
     /// <summary>A requirement entry left in a feature file is refused with a message naming the folder to use.</summary>
     /// <proves>litespec/core/intent#identify-every-requirement</proves>
@@ -110,7 +110,7 @@ public sealed class RequirementPageTests
             {
               "records": [
                 { "type": "feature", "id": "feature/borrowing", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/borrowing.yaml" },
-                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/max-loans/max-loans.yaml" }
+                { "type": "requirement", "id": "requirement/other.max-loans", "file": ".litespec/intent/problems/slow-desk-loans/features/borrowing/requirements/max-loans/max-loans.yaml" }
               ]
             }
             """)!.AsObject();

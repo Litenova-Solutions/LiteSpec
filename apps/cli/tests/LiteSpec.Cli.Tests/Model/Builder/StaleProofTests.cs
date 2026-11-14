@@ -125,7 +125,7 @@ public sealed class StaleProofTests
         Assert.Empty(HeldBy(rerun.RootElement));
     }
 
-    const string ScenarioPath = ".litespec/behavior/modules/lending/loans/borrow-copy-proof-scenario.yaml";
+    const string ScenarioPath = ".litespec/behavior/modules/lending/aggregates/loans/borrow-copy-proof-scenario.yaml";
     const string ProofPath = "apps/api/tests/Library.Acceptance.Tests/Proof/ProofScenarios.cs";
 
     static bool Verified(JsonElement root) =>

@@ -2,7 +2,7 @@
 
 ## Intent
 
-This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is `examples/claimwick/.litespec/behavior/modules/spending/expenses/submit-expense/submit-expense.yaml`, and the code and tests are in `examples/claimwick/apps/api/`. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.
+This page follows one use case, Submit expense, from its record into the .NET code and the acceptance tests that prove it. The record is `examples/claimwick/.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml`, and the code and tests are in `examples/claimwick/apps/api/`. Every file path and line of code below is copied from that folder, so a reader can check the chain from record to test in one sitting.
 
 ## The Record
 
