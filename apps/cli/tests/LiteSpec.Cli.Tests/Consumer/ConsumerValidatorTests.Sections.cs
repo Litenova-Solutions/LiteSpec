@@ -194,8 +194,35 @@ public sealed partial class ConsumerValidatorTests
         TestRecords.Write(
             folder.Path,
             ".litespec/product/constraints/tax-retention.yaml",
-            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","authority":"Tax office guidance.","sources":[{"key":"tax-guidance","url":"https://example.com/tax","readOn":"2026-01-01"}],"kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'summary'");
+    }
+
+    /// <summary>Constraint that names no source.</summary>
+    /// <proves>litespec/core/intent#cite-a-source-for-each-constraint-rule</proves>
+    [Fact(DisplayName = "constraint that names no source")]
+    public void ConstraintThatNamesNoSource()
+    {
+        using var folder = ConsumerFixture.Create();
+        TestRecords.Write(
+            folder.Path,
+            ".litespec/product/constraints/tax-retention.yaml",
+            """{"type":"constraint","id":"constraint/tax-retention","title":"Tax Retention","summary":"The tax office requires receipts for seven years.","authority":"Tax office guidance.","kind":"technical","applies":true,"appliesBecause":"The shop keeps receipts."}""");
+        AssertProblem(RunConsumer(folder.Path), "missing required property 'sources'");
+    }
+
+    /// <summary>Research whose source publication date is not an ISO date.</summary>
+    /// <proves>litespec/core/intent#record-research-with-read-sources</proves>
+    [Fact(DisplayName = "research whose source publication date is not an ISO date")]
+    public void ResearchWithAPublicationDateThatIsNotADate()
+    {
+        using var folder = ConsumerFixture.Create();
+        TestRecords.Write(
+            folder.Path,
+            ".litespec/research/delivery-benchmarks.yaml",
+            """{"type":"research","id":"research/delivery-benchmarks","title":"Delivery Benchmarks","question":"How fast do rivals deliver?","conclusion":"Rivals deliver in two days.","sources":[{"key":"delivery-benchmarks","url":"https://example.com/benchmarks","readOn":"2026-01-01","publishedOn":"January 2026"}]}""");
+        TestRecords.Explain(folder.Path, ".litespec/research/delivery-benchmarks.md", "# Delivery Benchmarks\n\nRivals deliver in two days.\n\n## Findings\n\nThe benchmarks state it [delivery benchmarks][delivery-benchmarks].\n\n## Source Notes\n\nOne report.\n");
+        AssertProblem(RunConsumer(folder.Path), "publishedOn");
     }
 
     /// <summary>Research that omits its findings.</summary>

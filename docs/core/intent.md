@@ -600,6 +600,20 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Checked by:** `litespec model check` reports `source-link-bare` for a bare URL, `source-key-unknown` for a key the constraint does not declare, and `source-unused` for a source no rule cites, on the constraint's explanation; it reports `source-links-missing` and `source-links-drift` for the generated region.
 
+### State Each Constraint Rule with Its Condition
+
+**ID:** `litespec/core/intent#state-each-constraint-rule-with-its-condition`
+
+**Strength:** required
+
+**Applies to:** artifact: record:constraint
+
+**Statement:** Each rule in a constraint's Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.
+
+**Rationale:** A rule that drops its condition binds more or less than its source says, and a team builds against the wrong reach. A paragraph that states what the product does about the obligation mixes two authors in one rule, so the product's response stays in Effect on the Product, where each effect names the requirement that holds it. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record's Open Questions. Scope says whom the rule covers, and it is separate from `applies`, which says whether the rule binds the product at all. A constraint holds rules that share a source, a scope and a change, so rules that change separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).
+
+**Reviewed for:** Which rule drops the condition it holds under, states a product effect, or states an unverified fact as settled? Look at each paragraph of the Rules section beside its source.
+
 ### Record Research with Read Sources
 
 **ID:** `litespec/core/intent#record-research-with-read-sources`
@@ -610,9 +624,23 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Statement:** A research record MUST state its `question`, state its `conclusion` in one sentence, list each source with its `key`, `url`, and `readOn`, and carry Findings in its explanation file.
 
-**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its `key`, `url`, and `readOn`; the explanation cites a source with a reference link `[text][key]`, and a bare URL, an unknown key, or an unused source is a finding. Findings expands the `conclusion`: what the sources say, claim by claim, with the confidence behind each claim, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).
+**Rationale:** A fact without its source cannot be rechecked when a decision depends on it. `readOn` says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect, because the date a rule starts or the period it covers is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory. The `conclusion` states in one sentence what the sources establish, with the conditions the findings carry, and it leaves out what follows: a consequence for the product belongs to the constraint, decision or requirement that cites the research. Each source carries its `key`, `url`, and `readOn`, and `publishedOn` where the source states its publication date. The explanation cites a source with a reference link `[text][key]`, and a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as `litespec/core/intent#state-each-research-finding-with-its-source` requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
 
 **Checked by:** `litespec model check` reports `record-invalid` for a research record file without `question`, `conclusion`, or `sources`; `litespec model check` reports `explanation-missing` for a research record without Findings in its explanation file, `source-link-bare` for a bare URL, `source-key-unknown` for an unknown key, and `source-unused` for an unused source.
+
+### State Each Research Finding with Its Source
+
+**ID:** `litespec/core/intent#state-each-research-finding-with-its-source`
+
+**Strength:** required
+
+**Applies to:** artifact: record:research
+
+**Statement:** Each paragraph under a research record's Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.
+
+**Rationale:** A reader who rechecks a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence that states it. A finding that drops a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement. The question of the record is the test of the findings: a finding that answers another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).
+
+**Reviewed for:** Which finding states an inference as a source statement, drops a condition the source gives, or answers a question other than the record's `question`? Look at each Findings paragraph beside its source. `litespec model check` reports `finding-source-missing` for a Findings paragraph with no source link, so this review covers the wording only.
 
 ### Shape Each Decision Page
 

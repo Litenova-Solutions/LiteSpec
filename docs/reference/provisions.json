@@ -8382,7 +8382,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A research record MUST state its \u0060question\u0060, state its \u0060conclusion\u0060 in one sentence, list each source with its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and carry Findings in its explanation file.",
-      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. The read date shows when the outside fact was true, so a later reader knows whether to trust or refresh it. Research without sources and dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish and what follows, so a decision can cite it as data. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060; the explanation cites a source with a reference link \u0060[text][key]\u0060, and a bare URL, an unknown key, or an unused source is a finding. Findings expands the \u0060conclusion\u0060: what the sources say, claim by claim, with the confidence behind each claim, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence).",
+      "rationale": "A fact without its source cannot be rechecked when a decision depends on it. \u0060readOn\u0060 says when someone read the source, so a later reader knows how old the reading is and whether to read it again. It does not say when a rule took effect, because the date a rule starts or the period it covers is a claim a finding states with its source. Research without sources and read dates asks every later choice to rest on memory. The \u0060conclusion\u0060 states in one sentence what the sources establish, with the conditions the findings carry, and it leaves out what follows: a consequence for the product belongs to the constraint, decision or requirement that cites the research. Each source carries its \u0060key\u0060, \u0060url\u0060, and \u0060readOn\u0060, and \u0060publishedOn\u0060 where the source states its publication date. The explanation cites a source with a reference link \u0060[text][key]\u0060, and a bare URL, an unknown key, or an unused source is a finding. Findings states each claim with its source, as \u0060litespec/core/intent#state-each-research-finding-with-its-source\u0060 requires. Open Questions holds what the sources do not establish, and Source Notes holds what a later reader needs about each source. Observed provider behavior lands here too, cited and dated, before any constraint or requirement rests on it. Proposed by [decision/0009-research-states-its-conclusion](decision/0009-research-states-its-conclusion) on the evidence in [research/research-conclusion-evidence](research/research-conclusion-evidence), and by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
       "example": ""
     },
     {
@@ -8437,6 +8437,24 @@
       "strength": "required",
       "statement": "A decision MUST state its \u0060choice\u0060 and \u0060consequences\u0060 in fields and carry Context and Decision in its explanation file.",
       "rationale": "Context in the explanation file states the situation that forced the choice, Options compares each real option on the same points, and Decision states the chosen option. The \u0060choice\u0060 field names the chosen option, and \u0060consequences\u0060 states what follows, so each decision reads the same way. Evidence holds the supporting material with its confidence where the choice rests on it. The \u0060reopenedWhen\u0060 condition names what would reopen the choice, so a decision reopened by a condition rather than a date stays stable until the world actually changes. The \u0060basedOn\u0060 link names the constraints and research behind it, and requirements only on a technical decision. The [model page](model.md) requires each product decision to name the records it settles in \u0060decides\u0060.",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/intent#state-each-constraint-rule-with-its-condition",
+      "heading": "State Each Constraint Rule with Its Condition",
+      "page": "docs/core/intent.md",
+      "anchor": "state-each-constraint-rule-with-its-condition",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which rule drops the condition it holds under, states a product effect, or states an unverified fact as settled? Look at each paragraph of the Rules section beside its source.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:constraint",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each rule in a constraint\u0027s Rules section MUST keep the condition under which it holds, and it states only the outside obligation, with no product effect and no unverified fact stated as settled.",
+      "rationale": "A rule that drops its condition binds more or less than its source says, and a team builds against the wrong reach. A paragraph that states what the product does about the obligation mixes two authors in one rule, so the product\u0027s response stays in Effect on the Product, where each effect names the requirement that holds it. A fact the source does not establish, written as settled, sends the team to build on a guess, so that question stays in the research record\u0027s Open Questions. Scope says whom the rule covers, and it is separate from \u0060applies\u0060, which says whether the rule binds the product at all. A constraint holds rules that share a source, a scope and a change, so rules that change separately are separate constraints. Proposed by [decision/0047-cite-a-source-for-each-constraint-rule](decision/0047-cite-a-source-for-each-constraint-rule).",
       "example": ""
     },
     {
@@ -8546,6 +8564,24 @@
       "statement": "A quality requirement MUST state the moment it holds for in \u0060stimulus\u0060 and \u0060environment\u0060, what the product does in \u0060response\u0060, how that is measured in \u0060measure\u0060, and how that is confirmed in \u0060check\u0060, with \u0060target\u0060, \u0060conditions\u0060, \u0060runsOn\u0060, and \u0060evidence\u0060 where they apply.",
       "rationale": "\u0022Fast\u0022, \u0022secure\u0022, or \u0022always available\u0022 cannot be built to or checked. A quality requirement holds only for a moment that can happen: something arrives, under some condition, and the product answers within a measure. Written that way, it tells the builder what to design for and tells a test or a probe what to look for, and a later change in the moment (a bigger on-sale, a new attack) visibly reopens the target. The four fields follow the quality attribute scenario the architecture literature uses, so a reviewer can compare one target with another. The \u0060check\u0060 names the probe or test that confirms the measure, and it is required where the requirement carries \u0060measure\u0060. The \u0060target\u0060 names the number aimed for, \u0060conditions\u0060 names what holds while measuring, \u0060runsOn\u0060 names where the check runs, and \u0060evidence\u0060 names what the run leaves behind; each applies where the confirmation needs it.",
       "example": "\u0060requirement/expense-submission.month-end-submissions\u0060 has \u0060kind: quality\u0060, \u0060stimulus\u0060 \u0022Five hundred employees submit expenses in the last hour of the month\u0022, \u0060environment\u0060 \u0022Normal operation, one application instance down\u0022, \u0060response\u0060 \u0022Each submission is stored and acknowledged\u0022, \u0060measure\u0060 \u0022Share of submissions acknowledged within two seconds: at least 99 percent\u0022, and \u0060check\u0060 \u0022month-end acknowledgement probe\u0022."
+    },
+    {
+      "id": "litespec/core/intent#state-each-research-finding-with-its-source",
+      "heading": "State Each Research Finding with Its Source",
+      "page": "docs/core/intent.md",
+      "anchor": "state-each-research-finding-with-its-source",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which finding states an inference as a source statement, drops a condition the source gives, or answers a question other than the record\u0027s \u0060question\u0060? Look at each Findings paragraph beside its source. \u0060litespec model check\u0060 reports \u0060finding-source-missing\u0060 for a Findings paragraph with no source link, so this review covers the wording only.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:research",
+      "layer": "intent",
+      "trace": false,
+      "strength": "required",
+      "statement": "Each paragraph under a research record\u0027s Findings MUST state one claim with its conditions, cite its source key with a reference link, and say whether the source states the claim or the writer infers it.",
+      "rationale": "A reader who rechecks a finding needs to know whether the source says it or the writer concluded it, so an inference is marked as one in the sentence that states it. A finding that drops a condition the source gives claims more than the source does, and one claim per paragraph keeps each source tied to one statement. The question of the record is the test of the findings: a finding that answers another question belongs in another research record, as [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source) decides. A label such as high or medium confidence does not say what the source states, so the sentence says it instead. Proposed by [decision/0052-tie-each-research-finding-to-its-source](decision/0052-tie-each-research-finding-to-its-source).",
+      "example": ""
     },
     {
       "id": "litespec/core/intent#state-each-vision-in-its-fields",

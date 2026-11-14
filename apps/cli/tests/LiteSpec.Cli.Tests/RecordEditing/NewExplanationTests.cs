@@ -106,8 +106,8 @@ public sealed class NewExplanationTests
         { "goal", ["Target", "Measurement"] },
         { "vision", ["Direction", "Effect on Current Design", "Trigger"] },
         { "problem", ["Affected Users", "Failure Cases", "Example", "Current Workaround", "Cost", "Evidence", "Resolution Criteria"] },
-        { "constraint", ["Source", "Effect on the Product", "Open Points"] },
-        { "research", ["Findings", "Source Notes"] },
+        { "constraint", ["Scope", "Rules", "Effect on the Product", "Open Points"] },
+        { "research", ["Findings", "Open Questions", "Source Notes"] },
         { "decision", ["Context", "Options", "Decision", "Consequences", "Evidence", "Revisit Conditions"] },
         { "module", ["Responsibilities", "Boundaries", "Example"] },
         { "feature", ["Capabilities", "Success Criteria", "Boundaries", "Example"] },
@@ -203,7 +203,7 @@ public sealed class NewExplanationTests
 
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Source", "Effect on the Product", "Open Points"]);
+        AssertSections(explanation, ["Scope", "Rules", "Effect on the Product", "Open Points"]);
     }
 
     /// <summary>New problem writes no explanation file when the project lists no explanation layer.</summary>
@@ -248,7 +248,7 @@ public sealed class NewExplanationTests
 
         var explanation = Path.ChangeExtension(page, ".md");
         Assert.True(File.Exists(explanation), $"Expected the explanation file beside '{page}'.");
-        AssertSections(explanation, ["Findings", "Source Notes"]);
+        AssertSections(explanation, ["Findings", "Open Questions", "Source Notes"]);
     }
 
     /// <summary>A fresh consumer whose project file lists the explanation layers.</summary>

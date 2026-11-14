@@ -5,6 +5,7 @@ sources:
   - key: expense-benchmark-report
     url: https://example.com/expense-benchmark-report
     readOn: 2026-10-12
+    publishedOn: 2026-09-01
 question: How fast do comparable products reimburse expenses?
 conclusion: Comparable products reimburse within three days of approval.
 terms:

@@ -151,6 +151,8 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type or f
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
+| `unlisted` | a citing thing is missing from the list that should name it | `constraint-effect-unlisted` |
+| `uncited` | a named thing does not cite back | `constraint-effect-uncited` |
 | `break` | a contract the base published no longer holds | `contract-break` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.

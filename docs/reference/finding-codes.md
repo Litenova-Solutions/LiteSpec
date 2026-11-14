@@ -23,6 +23,8 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `requirement-measure-missing` | G | proof | yes | - | A measured requirement names no check, or its check has no passing run; a statement naming a number with no `measure` reports at level A. | Name the check and record a passing run, or add the missing `measure`. |
 | `requirement-cites-missing` | A | any | no | - | A requirement cites no goal, problem, feature, constraint, research or decision. | Cite the reason the requirement serves. |
 | `constraint-unreached` | G | any | no | - | A constraint with `applies: true` is cited by no requirement. | Cite the constraint from a requirement, or set `applies` to false. |
+| `constraint-effect-unlisted` | G | any | no | - | A requirement cites a constraint, but the constraint's Effect on the Product section does not name the requirement. | Name the requirement by its identifier in the Effect on the Product section, with the effect it holds. |
+| `constraint-effect-uncited` | G | any | no | - | The Effect on the Product section of a constraint names a requirement that does not cite the constraint. | Cite the constraint from the requirement in `cites`, or remove the requirement from the section. |
 | `intent-unreached` | G | behavior | no | - | An Intent record other than a vision reaches no Behavior. | Reach Behavior from the record, or move the record to the backlog. |
 | `decision-decides-missing` | G | any | no | - | A product decision names nothing it decides. | Name the records the decision decides. |
 | `decision-number-duplicate` | G | any | no | - | Two decisions share one number. | Give one decision the next free number. |
@@ -130,6 +132,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `source-link-bare` | A | any | no | - | A research explanation links a URL directly instead of citing a source key. | Cite the source with a `[text][key]` reference link. |
 | `source-key-unknown` | A | any | no | - | A research explanation cites a source key the record's `sources` do not hold. | Point the link at a declared source key, or add the source. |
 | `source-unused` | A | any | no | - | A research or constraint source's `key` is cited nowhere in its explanation. | Cite the source from the explanation, or remove the source. |
+| `finding-source-missing` | A | any | no | - | A Findings paragraph of a research explanation cites no source key with a reference link. | Cite the source that states the finding with a `[text][key]` reference link, and say whether the source states it or the writer infers it. |
 | `source-links-missing` | A | any | no | - | A research or constraint explanation that declares sources holds no generated source-links region. | Run `litespec model render` to write the region at the end of the explanation. |
 | `source-links-drift` | A | any | no | - | The generated source-links region of a research or constraint explanation differs from the sources its record declares. | Run `litespec model render`, and change the sources in the record file, not the region. |
 | `atomic-group-duplicate` | A | any | no | - | One command saves more than one atomic write group. | Save one atomic write group per command, or split the work into use cases that react to each other's events. |

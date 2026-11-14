@@ -1,11 +1,19 @@
 # Library Privacy Law
 
-Reader records stay private.
+Reader records stay private under the city library privacy ordinance.
 
-## Source
+## Scope
 
-Fixture text for the Source section.
+The reader records the library keeps.
+
+## Rules
+
+The city ordinance keeps reader records private [privacy ordinance][privacy-ordinance].
 
 ## Effect on the Product
 
-Fixture text for the Effect on the Product section.
+`requirement/borrowing.max-active-loans` keeps reader records private.
+
+<!-- generated:source-links -->
+[privacy-ordinance]: https://example.com/privacy-ordinance "Read on 2026-01-10"
+<!-- /generated:source-links -->

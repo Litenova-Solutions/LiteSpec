@@ -205,7 +205,7 @@ public sealed class ResearchSourceCheckTests
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-unused");
         Assert.Equal("A", finding.Tier);
-        Assert.Equal("Research 'research/loan-period-benchmarks' names source key 'unused-key', which its explanation cites nowhere.", finding.Message);
+        Assert.Equal("Record 'research/loan-period-benchmarks' names source key 'unused-key', which its explanation cites nowhere.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(7, finding.Line);
         Assert.Equal("research/loan-period-benchmarks", finding.Subject);

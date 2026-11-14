@@ -84,16 +84,16 @@ A research record states one outside fact that informs a choice. Claimwick keeps
 type: research
 id: research/approval-time-benchmarks
 title: Approval Time Benchmarks
-summary: Small companies decide expenses within one week. The study behind this answer is small but recent, so the five-day target carries medium confidence.
+summary: Small companies decide expenses within one week. The study behind this answer is small but recent.
 sources:
 - url: https://example.com/expense-study
   readOn: 2026-02-10
   key: example-expense-study
 question: How fast do small companies decide expenses?
-conclusion: Small companies decide expenses within one week, so five business days is a defensible target.
+conclusion: According to one small recent industry study, small companies decide expenses within one week.
 ```
 
-Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.md`, has the required Findings and Source Notes sections.
+Research informs the five-day requirement without deciding it. Its explanation file, `.litespec/intent/research/approval-time-benchmarks/approval-time-benchmarks.md`, has the required Findings section, with Open Questions and Source Notes beside it. Each finding cites its source with a reference link and says whether the source states it or the writer infers it.
 
 ## The Decision
 

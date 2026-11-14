@@ -43,8 +43,8 @@ An explanation file beside a record file opens with the record title as its one 
 | goal | Target, Measurement |
 | vision | Direction, Effect on Current Design, Trigger |
 | problem | Affected Users, Failure Cases, Example (optional), Current Workaround, Cost, Evidence, Resolution Criteria |
-| constraint | Source, Effect on the Product, Open Points (optional) |
-| research | Findings, Source Notes (optional) |
+| constraint | Scope, Rules, Effect on the Product, Open Points (optional) |
+| research | Findings, Open Questions (optional), Source Notes (optional) |
 | decision | Context, Options, Decision, Consequences, Evidence (optional), Revisit Conditions |
 | feature | Capabilities, Success Criteria, Boundaries, Example (optional) |
 | requirement | Example (optional); the explanation file itself is optional |
