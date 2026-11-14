@@ -7,7 +7,7 @@ import Icon from "./Icon.astro";
   <span class="search-trigger-label">Search</span>
   <span class="kbd" data-search-kbd aria-hidden="true">Ctrl K</span>
 </button>
-<dialog class="search-dialog" data-search-dialog aria-label="Search the docs">
+<dialog class="search-dialog" data-search-dialog aria-label="Search the docs" closedby="any">
   <div class="search-bar">
     <Icon name="search" />
     <input type="text" data-search-input placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
@@ -353,9 +353,12 @@ import Icon from "./Icon.astro";
 
     trigger.addEventListener("click", open);
 
-    dialog.addEventListener("click", function (event) {
-      if (event.target === dialog) dialog.close();
-    });
+    // closedby="any" closes the modal on a click outside it; a browser without it keeps the listener.
+    if (!("closedBy" in HTMLDialogElement.prototype)) {
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+    }
 
     dialog.addEventListener("close", function () {
       selected = -1;

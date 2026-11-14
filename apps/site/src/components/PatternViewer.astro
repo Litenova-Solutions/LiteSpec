@@ -2,7 +2,7 @@
 import Icon from "./Icon.astro";
 ---
 
-<dialog class="pattern-viewer" data-pattern-viewer aria-label="Option viewer">
+<dialog class="pattern-viewer" id="pattern-viewer" data-pattern-viewer aria-label="Option viewer" closedby="any">
   <div class="pattern-viewer-top">
     <div class="pattern-viewer-title">
       <div class="pattern-viewer-line">
@@ -21,7 +21,7 @@ import Icon from "./Icon.astro";
       <button type="button" class="btn btn-outline btn-icon" data-pattern-link data-copy="" aria-label="Copy link to this option"><Icon name="link" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-prev aria-label="Previous option"><Icon name="arrow-left" class="icon-sm" /></button>
       <button type="button" class="btn btn-outline btn-icon" data-pattern-next aria-label="Next option"><Icon name="arrow" class="icon-sm" /></button>
-      <button type="button" class="btn btn-outline btn-sm" data-pattern-close><Icon name="close" class="icon-sm" />Close</button>
+      <button type="button" class="btn btn-outline btn-sm" data-pattern-close command="close" commandfor="pattern-viewer"><Icon name="close" class="icon-sm" />Close</button>
     </div>
   </div>
   <div class="pattern-viewer-body" data-pattern-body></div>
@@ -452,13 +452,12 @@ import Icon from "./Icon.astro";
       step(1);
     });
 
-    closeBtn.addEventListener("click", function () {
-      dialog.close();
-    });
-
-    dialog.addEventListener("click", function (event) {
-      if (event.target === dialog) dialog.close();
-    });
+    // closedby="any" closes the modal on a click outside it; a browser without it keeps the listener.
+    if (!("closedBy" in HTMLDialogElement.prototype)) {
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog) dialog.close();
+      });
+    }
 
     dialog.addEventListener("close", function () {
       if (opener && document.contains(opener)) opener.focus();
