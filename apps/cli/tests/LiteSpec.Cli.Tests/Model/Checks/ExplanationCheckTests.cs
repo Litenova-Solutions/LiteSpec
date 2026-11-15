@@ -18,7 +18,7 @@ public sealed class ExplanationCheckTests
         var model = TestModel.Model(TestModel.Config(temp.Path));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "explanation-orphaned");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Explanation file '.litespec/stray.md' stands beside no record file.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(1, finding.Line);

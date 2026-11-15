@@ -3,7 +3,7 @@ title: Entry points
 records:
 - type: entry-point
   id: entry-point/library-app
-  title: Library app
-  kind: browser
+  title: Library API
+  kind: api
   auth:
   - session

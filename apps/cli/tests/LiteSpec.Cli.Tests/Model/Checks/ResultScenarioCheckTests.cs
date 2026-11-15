@@ -43,10 +43,10 @@ public sealed class ResultScenarioCheckTests
         Assert.Contains("is shown by no scenario", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Refusal Result With No Scenario Reports At Tier A.</summary>
+    /// <summary>Refusal Result With No Scenario Reports At Tier G.</summary>
     /// <proves>litespec/core/use-cases#end-every-use-case-in-named-results</proves>
     [Fact]
-    public void RefusalResultWithNoScenarioReportsAtTierA()
+    public void RefusalResultWithNoScenarioReportsAtTierG()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
@@ -57,7 +57,7 @@ public sealed class ResultScenarioCheckTests
         var findings = Checker.Check(model).Findings.Where(finding => finding.Code == "result-scenario-missing").ToList();
         var finding = Assert.Single(findings);
 
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Contains("result/submit-expense.receipt-missing", finding.Message, StringComparison.Ordinal);
         Assert.Contains("names code 'spending.receipt-missing'", finding.Message, StringComparison.Ordinal);
     }

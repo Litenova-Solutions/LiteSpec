@@ -153,7 +153,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][no-such-key].\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-key-unknown");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Research explanation cites source key 'no-such-key', which the record's sources do not name.", finding.Message);
         Assert.Equal(explanationFile, finding.Path);
         Assert.Equal(7, finding.Line);
@@ -204,7 +204,7 @@ public sealed class ResearchSourceCheckTests
                 "# Benchmarks\n\nThe benchmarks ask how long others lend.\n\n## Findings\n\nOthers lend for three weeks [per the report][used-key].\n"));
 
         var finding = Assert.Single(Checker.Check(model).Findings, found => found.Code == "source-unused");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
         Assert.Equal("Record 'research/loan-period-benchmarks' names source key 'unused-key', which its explanation cites nowhere.", finding.Message);
         Assert.Equal(file, finding.Path);
         Assert.Equal(7, finding.Line);

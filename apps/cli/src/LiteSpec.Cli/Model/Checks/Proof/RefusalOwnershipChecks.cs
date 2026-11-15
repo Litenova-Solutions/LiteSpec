@@ -35,7 +35,10 @@ internal static class RefusalOwnershipChecks
                 continue;
             }
 
-            if (SourceRoots.ModulePath(model.Config, literal.File) is { } segments
+            // Only LiteSpec's own code layout names the module by the first folder
+            // under the modules root; an own layout carries no module in its folders.
+            if (model.Config.Layers.Implementation == LayerPractice.LiteSpec
+                && SourceRoots.ModulePath(model.Config, literal.File) is { } segments
                 && !SameName(segments[0], owner))
             {
                 findings.Add(new Finding(

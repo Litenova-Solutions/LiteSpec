@@ -149,7 +149,7 @@ public sealed class ReadModelCheckTests
         Assert.DoesNotContain(ReadModelFindings(model), found => found.Code == "read-model-source-unknown");
     }
 
-    /// <summary>A read model no use case reads reports read-model-unused at tier A.</summary>
+    /// <summary>A read model no use case reads reports read-model-unused at tier G.</summary>
     /// <proves>litespec/core/automation#declare-each-read-model-field-from-a-published-field</proves>
     [Fact]
     public void ReadModelReadByNoUseCaseReportsUnread()
@@ -161,7 +161,7 @@ public sealed class ReadModelCheckTests
             ReadModel(temp.Path, EmployeeField));
 
         var finding = Assert.Single(ReadModelFindings(model), found => found.Code == "read-model-unused");
-        Assert.Equal("A", finding.Tier);
+        Assert.Equal("G", finding.Tier);
     }
 
     /// <summary>A read model keyed by an aggregate of its own module reports read-model-key-invalid at tier G.</summary>
