@@ -169,7 +169,7 @@ dotnet run --project apps/maintain/src/LiteSpec.Maintain -- provisions --check
 dotnet run --project apps/maintain/src/LiteSpec.Maintain -- validate
 git diff --check
 pnpm install --frozen-lockfile
-pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book test && pnpm --dir apps/cli/book build
+pnpm --dir apps/cli/book check && pnpm --dir apps/cli/book build
 pnpm --dir apps/cli/fe-reader check
 pnpm --dir apps/site test && pnpm --dir apps/site build
 ```

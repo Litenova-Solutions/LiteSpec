@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { book, inline } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
+  import { RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
-  import Note from "../blocks/Note.svelte";
   import RecordList from "../blocks/RecordList.svelte";
   import SourceList from "../SourceList.svelte";
   import { objectList, stringField } from "../page-values";
@@ -16,7 +17,7 @@
 </script>
 
 <PageSection blockKey="src" heading="authority">
-  <Note kind="quiet" icon="quote">{authority}</Note>
+  <RenderedProse html={inline(book, authority, r.src ?? null)} />
 </PageSection>
 <SourceList {sources} />
 {#if requires.length}

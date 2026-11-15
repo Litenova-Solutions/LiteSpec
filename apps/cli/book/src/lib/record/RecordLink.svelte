@@ -9,7 +9,7 @@
 </script>
 
 {#if book.has(b)}
-  <a href={"#" + encodeURIComponent(b)} data-go={b} class="text-blue-700 underline underline-offset-2">{book.title(b)}</a>
+  <a href={"#" + encodeURIComponent(b)} data-go={b} class="text-link hover:underline">{book.title(b)}</a>
 {:else}
-  <span class="font-mono text-xs text-slate-600" title="No record with this identifier is in the book">{b}</span>
+  <span class="font-mono text-xs text-text-secondary">{b}</span>
 {/if}

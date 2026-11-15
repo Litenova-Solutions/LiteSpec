@@ -76,7 +76,7 @@ function unesc(s: string): string {
 /** One record link in rendered HTML: an anchor the App opens by delegation. */
 export function recordRefHtml(book: Book, id: string, label?: string): string {
   const target = stripStep(id);
-  return `<a href="#${esc(target)}" class="book-ref underline decoration-strong underline-offset-2 hover:decoration-foreground" data-go="${esc(target)}">${esc(label ?? book.title(target))}</a>`;
+  return `<a href="#${esc(target)}" class="book-ref text-link hover:underline" data-go="${esc(target)}">${esc(label ?? book.title(target))}</a>`;
 }
 
 /**
@@ -105,6 +105,6 @@ export function inline(book: Book, s: unknown, curSrc?: SourceRef | null) {
     if (/^[a-z][a-z-]*\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(bid)) return book.has(bid) ? recordRefHtml(book, bid, unesc(text)) : text;
     if (!curSrc?.path) return text;
     const target = srcHref(book, { path: resolvePath(curSrc.path, bid), line: null, litespec: curSrc.litespec });
-    return target ? `<a href="${esc(target)}" title="Open ${esc(href)}">${text}</a>` : text;
+    return target ? `<a href="${esc(target)}">${text}</a>` : text;
   });
 }

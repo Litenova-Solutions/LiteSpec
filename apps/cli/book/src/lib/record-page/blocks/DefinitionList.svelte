@@ -14,11 +14,11 @@
 </script>
 
 {#if pairs ? rows.length > 0 : true}
-  <dl class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-4 gap-y-2 text-sm">
+  <dl class="grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
     {#if pairs}
       {#each rows as p (p.label)}
-        <dt class="text-slate-600">{book.fieldLabel(p.label)}</dt>
-        <dd class="m-0 min-w-0">{@html p.html}</dd>
+        <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">{book.fieldLabel(p.label)}</dt>
+        <dd class="m-0 min-w-0 border-b border-border-subtle py-3">{@html p.html}</dd>
       {/each}
     {:else}
       {@render children?.()}

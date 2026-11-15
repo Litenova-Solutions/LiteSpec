@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { book, formatCount } from "$lib/frame";
+  import { book, cn, formatCount } from "$lib/frame";
   import type { View } from "$lib/frame";
   import { totalRecords } from "./outline-rows";
 
-  // The view tabs: the Outline and the Security view, each with its count.
+  // The view switch: the Outline and the Security view, each with its count.
   // The badge counts the records in the book, the same total the shown line
   // reads. Arrow keys move between tabs and select as they move.
   type Props = { onViewChange: (v: View) => void };
@@ -32,7 +32,7 @@
   }
 </script>
 
-<div role="tablist" aria-label="Views" tabindex="-1" onkeydown={key} class="flex items-center gap-1 rounded-md bg-slate-100 p-1">
+<div role="tablist" aria-label="Views" tabindex="-1" onkeydown={key} class="grid h-8 grid-cols-2 divide-x divide-border-strong overflow-hidden rounded-[4px] border border-border-strong">
   {#each tabs as t (t.key)}
     <button
       type="button"
@@ -42,12 +42,13 @@
       aria-controls="viewpanel"
       tabindex={book.view === t.key ? 0 : -1}
       onclick={() => onViewChange(t.key)}
-      class="inline-flex flex-1 items-center justify-center gap-2 rounded-sm px-2 py-1 text-xs font-medium {book.view === t.key
-        ? 'bg-white text-slate-900 shadow-sm'
-        : 'text-slate-600 hover:text-slate-900'}"
+      class={cn(
+        "inline-flex min-w-0 cursor-pointer items-center justify-center gap-2 px-2 text-sm",
+        book.view === t.key ? "bg-foreground text-background" : "text-text-secondary hover:bg-layer-hover hover:text-foreground",
+      )}
     >
       {t.label}
-      <span class="text-xs tabular-nums opacity-70">{formatCount(t.count)}</span>
+      <span class="text-xs tabular-nums opacity-80">{formatCount(t.count)}</span>
     </button>
   {/each}
 </div>

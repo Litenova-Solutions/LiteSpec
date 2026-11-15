@@ -126,7 +126,7 @@ export type TraceRow =
   | { kind: "rec"; id: string; depth: number; phrase: string; here: boolean; showPh: boolean }
   | { kind: "note"; note: string; depth: number; band: string }
   | { kind: "gap"; gap: string; depth: number; band: string }
-  | { kind: "more"; more: number; depth: number; t: string };
+  | { kind: "more"; more: number; depth: number; t: string; band: string };
 
 /** The stable key for a trace row: the record id, or the band text it shows. */
 export function traceRowKey(row: TraceRow): string {
@@ -201,16 +201,15 @@ export function buildTrace(book: Book, id: string): TraceModel {
           rows.push({ kind: "rec", id: k.id, depth: depth + 1, phrase: k.phrase, here: false, showPh: false });
           walk(k.id, depth + 1);
         } else if (i === 3) {
-          rows.push({ kind: "more", more: entries.length - 3, depth: depth + 1, t });
+          const first = entries[0];
+          rows.push({ kind: "more", more: entries.length - 3, depth: depth + 1, t, band: bandOf(book, first ? first.id : x) });
         }
       });
     }
   };
   walk(id, 0);
   const bands: TraceBand[] = [intentBand, behaviorBand].map((b) => {
-    const here = rows.filter((x) =>
-      x.kind === "note" || x.kind === "gap" ? x.band === b : x.kind === "rec" ? bandOf(book, x.id) === b : false,
-    );
+    const here = rows.filter((x) => (x.kind === "rec" ? bandOf(book, x.id) : x.band) === b);
     let lastPh = "";
     for (const x of here) {
       if (x.kind !== "rec") continue;
@@ -222,4 +221,99 @@ export function buildTrace(book: Book, id: string): TraceModel {
   const shown = new Set<string>();
   for (const x of rows) if (x.kind === "rec") shown.add(x.id);
   return { rows, show: rows.length >= 2, shown, bands };
+}
+
+/** One Trace section group: the rows under one band label. */
+export interface RailGroup {
+  label: string;
+  rows: TraceRow[];
+}
+
+// Record bands read in layer order; the Implementation and Proof groups follow in the section.
+const RAIL_GROUP_ORDER = ["intent", "behavior", "governance"];
+
+/** The Trace section's record groups: the trace's cross-layer rows under their band label, in layer order. Gaps read along even when their band is the open record's. */
+export function railGroups(book: Book, model: TraceModel, openId: string): RailGroup[] {
+  void book.rev;
+  const openBand = bandOf(book, openId);
+  const byLabel = new Map<string, TraceRow[]>();
+  for (const row of model.rows) {
+    const label = row.kind === "rec" ? bandOf(book, row.id) : row.kind === "note" ? null : row.band;
+    if (label === null) continue;
+    if (label === openBand && row.kind !== "gap") continue;
+    const list = byLabel.get(label);
+    if (list) list.push(row);
+    else byLabel.set(label, [row]);
+  }
+  const rank = (label: string): number => {
+    const at = RAIL_GROUP_ORDER.findIndex((key) => (book.layerByKey[key]?.label ?? "") === label);
+    return at < 0 ? RAIL_GROUP_ORDER.length : at;
+  };
+  return [...byLabel]
+    .map(([label, rows]) => ({ label, rows }))
+    .sort((a, b) => rank(a.label) - rank(b.label) || (a.label < b.label ? -1 : a.label > b.label ? 1 : 0));
+}
+
+/** The step suffixes a record carries for a flow, from its serves field. */
+function servedSteps(book: Book, serverId: string, flowId: string): string[] {
+  const raw = book.get(serverId)?.fields?.["serves"];
+  const entries = typeof raw === "string" ? [raw] : Array.isArray(raw) ? raw : [];
+  const out: string[] = [];
+  for (const entry of entries) {
+    const text = String(entry);
+    const hash = text.indexOf("#");
+    if (hash < 0 || stripStep(text) !== flowId) continue;
+    const step = text.slice(hash + 1);
+    if (step && !out.includes(step)) out.push(step);
+  }
+  return out;
+}
+
+/** The identifier a flow step carries, or null when the step names none. */
+function stepIdOf(step: unknown): string | null {
+  if (typeof step !== "object" || step === null || !("id" in step)) return null;
+  const id: unknown = step.id;
+  return typeof id === "string" || typeof id === "number" ? String(id) : null;
+}
+
+/** A step suffix read as a flow step number: its position in the flow's steps, else the number it carries. */
+function flowStepPosition(book: Book, flowId: string, stepId: string): number | null {
+  const steps = book.get(flowId)?.fields?.["steps"];
+  if (Array.isArray(steps)) {
+    const at = steps.findIndex((step) => stepIdOf(step) === stepId);
+    if (at >= 0) return at + 1;
+  }
+  const match = /^s(\d+)$/i.exec(stepId) ?? /^(\d+)$/.exec(stepId);
+  const digits = match?.[1];
+  return digits === undefined ? null : Number(digits);
+}
+
+/** Step numbers read as words: "1 and 6", or "1, 2 and 6". */
+function stepListText(positions: number[]): string {
+  const words = positions.map((n) => String(n));
+  if (words.length < 3) return words.join(" and ");
+  const last = words[words.length - 1] ?? "";
+  return words.slice(0, -1).join(", ") + " and " + last;
+}
+
+/** The step suffix for a trace row: which steps of the flow at one end the record at the other serves, or "" when neither end is a flow step. */
+export function stepSuffixFor(book: Book, rowId: string, openId: string, traceIds: readonly string[]): string {
+  void book.rev;
+  const rowType = book.typeOf(rowId);
+  const openType = book.typeOf(openId);
+  if (rowType !== "flow" && openType !== "flow") return "";
+  const flowId = rowType === "flow" ? rowId : openId;
+  const servers = rowType === "flow" ? [openId, ...traceIds] : [rowId];
+  const positions: number[] = [];
+  for (const server of servers) {
+    for (const stepId of servedSteps(book, server, flowId)) {
+      const at = flowStepPosition(book, flowId, stepId);
+      if (at !== null && !positions.includes(at)) positions.push(at);
+    }
+  }
+  if (!positions.length) return "";
+  positions.sort((a, b) => a - b);
+  const [only] = positions;
+  if (positions.length === 1 && only !== undefined) return "Step " + only;
+  return "Steps " + stepListText(positions);
 }

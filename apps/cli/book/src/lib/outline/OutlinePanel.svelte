@@ -133,20 +133,20 @@
 </script>
 
 <div class="flex h-full flex-col">
-  <div class="border-b border-slate-200 px-4 py-3">
+  <div class="border-b border-border-subtle p-4">
     <ViewTabs onViewChange={(v) => void switchView(v)} />
-    <OutlineTools onRevealRequest={() => outlineState.requestReveal()} />
-    <FilterPanel />
+    <OutlineTools />
+    <FilterPanel onRevealRequest={() => outlineState.requestReveal()} />
   </div>
   <div
     bind:this={scrollEl}
     role="tabpanel"
     id="viewpanel"
     aria-labelledby={book.view === "outline" ? "viewtab-outline" : "viewtab-security"}
-    class="min-h-0 flex-1 overflow-y-auto px-2 py-2"
+    class="min-h-0 flex-1 overflow-y-auto pt-3 pb-6"
   >
     {#if outlineLoading}
-      <p class="mx-2 my-2 text-xs text-slate-600">Loading the outline.</p>
+      <p class="px-4 py-2 text-xs text-text-helper">Loading the outline.</p>
     {:else if book.view === "outline"}
       {@const items = $virtStore.getVirtualItems()}
       <div role="tree" aria-label="Outline" class="relative w-full" style="height: {$virtStore.getTotalSize()}px">

@@ -20,18 +20,14 @@
 </script>
 
 {#if rows.length}
-  <table class="mb-6 w-full border-collapse text-sm">
-    <tbody class="[&_tr:last-child_th]:border-b-0 [&_tr:last-child_td]:border-b-0">
-      {#each rows as row, i (i)}
-        <tr>
-          <th class="w-[180px] border-b border-slate-200 py-2 pr-4 text-left align-top font-medium text-slate-600">
-            {row.label}
-          </th>
-          <td class="border-b border-slate-200 py-2 align-top break-words text-slate-900">
-            {@html row.html}
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+  <dl class="mt-6 grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
+    {#each rows as row, i (i)}
+      <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">
+        {row.label}
+      </dt>
+      <dd class="m-0 min-w-0 border-b border-border-subtle py-3">
+        {@html row.html}
+      </dd>
+    {/each}
+  </dl>
 {/if}

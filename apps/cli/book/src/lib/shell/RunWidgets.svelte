@@ -1,15 +1,10 @@
 <script lang="ts">
   import { book, formatCount } from "$lib/frame";
-  import { RecordIcon } from "$lib/record";
 
-  // The test run and completion widgets. Both read rev so they update as shards load.
-  // The completion total is the manifest total, the same number the outline shows,
-  // so it never changes with the route; done counts the loaded records the store
-  // confirms complete.
-  const run = $derived.by(() => {
-    void book.rev;
-    return book.man?.testRun ?? null;
-  });
+  // The completion meter in the top bar. Done counts the loaded records the
+  // store confirms complete, over the manifest total, the same number the
+  // outline shows, so it never changes with the route. The test run text lives
+  // on About this book now.
   const complete = $derived.by(() => {
     void book.rev;
     const real = [...new Set(book.order)].filter((id) => book.isReal(id));
@@ -21,24 +16,9 @@
   });
 </script>
 
-<button
-  type="button"
-  data-explain="norun"
-  class="inline-flex cursor-help items-center gap-2 text-xs whitespace-nowrap text-slate-600"
->
-  <RecordIcon name="flask" class="size-3.5" />
-  {#if run && run.date}
-    <span
-      >Test run {book.fmtDate(run.date)}: <b class="font-medium text-slate-900 tabular-nums">{formatCount(run.passed ?? 0)}</b> passed{#if run.failed},
-        <b class="font-medium text-destructive tabular-nums">{formatCount(run.failed)}</b> failed{/if}</span
-    >
-  {:else}
-    <span>No test run recorded.</span>
-  {/if}
-</button>
-<span class="inline-flex items-center gap-2 text-xs whitespace-nowrap text-slate-600">
-  <span><b class="font-semibold text-slate-900 tabular-nums">{formatCount(complete.done)}</b> of {formatCount(complete.total)} complete</span>
-  <span class="h-1 w-24 overflow-hidden rounded-full border border-slate-200 bg-slate-100"
-    ><i class="block h-full bg-convention-foreground" style="width: {complete.percent}%"></i></span
+<span class="flex min-w-[220px] shrink-0 flex-col justify-center gap-1.5 border-l border-shell-border px-4 text-xs whitespace-nowrap text-shell-secondary">
+  <span><b class="font-semibold text-shell-foreground tabular-nums">{formatCount(complete.done)}</b> of {formatCount(complete.total)} complete</span>
+  <span class="h-1 w-full overflow-hidden bg-shell-border"
+    ><i class="block h-full bg-shell-interactive" style="width: {complete.percent}%"></i></span
   >
 </span>

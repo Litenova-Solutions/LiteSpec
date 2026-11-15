@@ -39,7 +39,7 @@
   const typeTable = $derived(
     typeRows.map((row) => [
       tdHtml(
-        `<button type="button" class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900" data-go="${esc(row.first)}">${esc(book.pluralName(row.type))}</button>`,
+        `<button type="button" class="cursor-pointer text-link hover:underline" data-go="${esc(row.first)}">${esc(book.pluralName(row.type))}</button>`,
       ),
       tdHtml(String(row.count), "num"),
       tdHtml(esc(book.typeQuestion(row.type))),
@@ -57,7 +57,7 @@
 </script>
 
 {#if unclaimed}
-  <p class="mb-6 max-w-[72ch] text-sm leading-relaxed text-slate-600">Not claimed.</p>
+  <p class="mb-6 max-w-[72ch] text-sm leading-relaxed text-text-secondary">Not claimed.</p>
 {/if}
 {#if coverage && coverage.total > 0}
   <PageSection blockKey="intent-coverage" heading="Intent coverage" count={coverage.total}>
@@ -82,7 +82,7 @@
         {#each reached as entry (entry.id)}
           <li class="py-1">
             <RecordLine id={entry.id} suffix={entry.kind === "step" ? entry.id.slice(entry.id.indexOf("#")) : entry.kind} />
-            <span class="text-xs text-slate-600">reached by {#each entry.reachedBy as rid, j (rid)}{#if j > 0}, {/if}{rid}{#if reachStateWord(entry.claims, rid)} ({reachStateWord(entry.claims, rid)}){/if}{/each}</span>
+            <span class="text-xs text-text-secondary">reached by {#each entry.reachedBy as rid, j (rid)}{#if j > 0}{", "}{/if}{rid}{#if reachStateWord(entry.claims, rid)} ({reachStateWord(entry.claims, rid)}){/if}{/each}</span>
           </li>
         {/each}
       </ul>

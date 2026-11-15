@@ -18,7 +18,6 @@ export { capitalize, dedupe, formatCount, formatLabel, pluralize, stripStep } fr
 export { cn, type WithElementRef, type WithoutChild, type WithoutChildrenOrChild } from "./cn";
 export { duration, esc, inline, recordRefHtml, safeHref, sourceLinkHref, srcHref } from "./html";
 export { startLive } from "./live";
-export { fixtureBook } from "./fixture";
 export { proofLabel, proofRank, proofWord } from "./proof-order";
 export { layerStats } from "./relations";
 export { completionLines, coveragePercent } from "./completion";

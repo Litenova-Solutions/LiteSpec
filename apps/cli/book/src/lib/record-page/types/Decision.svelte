@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { book, dedupe } from "$lib/frame";
+  import { book, dedupe, inline } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RecordIcon, RenderedProse, SourceLink } from "$lib/record";
+  import { RenderedProse, SourceLink } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
-  import Fact from "../blocks/Fact.svelte";
   import { proseOf } from "../page-prose";
   import { objectList, stringField } from "../page-values";
 
@@ -55,9 +54,8 @@
 </script>
 
 {#if choice}
-  <Note kind="info" icon="passing">
-    <b>Choice:</b>{" "}
-    {choice}
+  <Note kind="good" icon="passing">
+    <b>{book.fieldLabel("choice")}</b><br />{choice}
   </Note>
 {/if}
 {#if consequences}
@@ -65,20 +63,18 @@
 {/if}
 {#if opts.length}
   <PageSection blockKey="opts" heading="options" count={opts.length}>
-    <div class="border-t border-slate-200">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] gap-px border border-border-subtle bg-border-subtle">
       {#each opts as o, i (o.name ?? i)}
         {@const chosen = !!choice && String(o.name) === choice}
-        <div class="border-b border-slate-200 py-2.5 {chosen ? 'font-medium' : ''}">
-          <h3 class="m-0 mb-1.5 text-sm leading-snug font-semibold">
-            {String(o.name ?? "")}
-            {#if chosen}{" "}<Fact text="Choice" />{/if}
-          </h3>
-          <div class="grid max-w-[72ch] grid-cols-[18px_1fr] gap-x-1.5 gap-y-1 text-sm leading-snug text-slate-600">
-            <span class="text-convention-foreground"><RecordIcon name="plus" class="size-3.5" /></span>
-            <span>{String(o.pros ?? "")}</span>
-            <span class="text-warn-foreground"><RecordIcon name="minus" class="size-3.5" /></span>
-            <span>{String(o.cons ?? "")}</span>
-          </div>
+        <div class="bg-background p-4 text-sm">
+          <p class="m-0">
+            <b>{String(o.name ?? "")}</b>
+            {#if chosen}{" "}<span class="inline-flex h-[18px] items-center gap-1 rounded-full bg-tag-green px-2 text-xs tracking-[0.32px] text-tag-green-foreground">Chosen</span>{/if}
+          </p>
+          <div class="mt-3 text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel("pros")}</div>
+          <p class="mt-1 mb-0">{String(o.pros ?? "")}</p>
+          <div class="mt-3 text-xs tracking-[0.32px] text-text-secondary">{book.fieldLabel("cons")}</div>
+          <p class="mt-1 mb-0">{String(o.cons ?? "")}</p>
         </div>
       {/each}
     </div>
@@ -86,9 +82,9 @@
 {/if}
 {#if followers.length}
   <PageSection blockKey="fol" heading="Followers" count={followers.length}>
-    <div class="border-t border-slate-200">
+    <div class="border-t border-border-subtle">
       {#each followerGroups as g (g.key || "none")}
-        <div class="border-b border-slate-200 py-2.5">
+        <div class="border-b border-border-subtle py-2.5">
           <h3 class="m-0 mb-1.5 text-sm leading-snug font-semibold">
             {g.label}
           </h3>
@@ -104,6 +100,6 @@
 {/if}
 {#if reopenedWhen}
   <PageSection blockKey="rev" heading="reopenedWhen">
-    <Note kind="quiet" icon="clock">{reopenedWhen}</Note>
+    <RenderedProse html={inline(book, reopenedWhen, r.src ?? null)} />
   </PageSection>
 {/if}

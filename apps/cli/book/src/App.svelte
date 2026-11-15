@@ -12,16 +12,18 @@
     scrollToTop,
     syncDocumentTitle,
     TopBar,
+    AboutBook,
   } from "$lib/shell";
   import * as Tooltip from "$lib/ui/tooltip";
 
   // The shell: the top bar over three desktop columns, the navigation, the
-  // record page and the rail. The Intent tree takes the page and the rail.
+  // record page and the rail. The Intent tree and About this book take the
+  // page and the rail.
   // History runs through popstate alone, so one Back press selects exactly
   // once; the App restores each record's scroll offset itself.
   history.scrollRestoration = "manual";
 
-  let wide = $state(false);
+  let wide = $state<"intent" | "about" | null>(null);
   let railEl = $state<HTMLElement | null>(null);
   const load = $derived(book.load);
 
@@ -47,17 +49,22 @@
     const id = delegatedRecordId(event);
     if (!id) return;
     event.preventDefault();
-    wide = false;
+    wide = null;
     void openRecord(id);
   }
 
   function openIntentTree(): void {
-    wide = true;
+    wide = "intent";
     scrollToTop();
   }
 
   function closeIntentTree(): void {
-    wide = false;
+    wide = null;
+  }
+
+  function openAbout(): void {
+    wide = "about";
+    scrollToTop();
   }
 
   function revealSelected(): void {
@@ -133,36 +140,38 @@
 <Tooltip.Provider delayDuration={300}>
   <!-- The page handles record-link clicks by delegation: data-go buttons and prose anchors alike open their record. -->
   <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-  <div class="min-h-screen bg-slate-100 text-slate-900" onclick={onPageClick}>
+  <div class="min-h-screen bg-background text-foreground" onclick={onPageClick}>
     <p role="status" class="sr-only">{announcement}</p>
-    <TopBar onOpenIntentTree={openIntentTree} onRevealRequest={revealSelected} />
+    <TopBar onOpenIntentTree={openIntentTree} onOpenAbout={openAbout} onRevealRequest={revealSelected} />
     {#if book.buildError}
-      <div role="alert" class="flex items-start gap-3 border-b border-warn-border bg-warn px-4 py-2 text-sm text-warn-foreground">
+      <div role="alert" class="flex items-start gap-3 border-b border-support-error border-l-[3px] bg-note-error px-4 py-2 text-sm">
         <span class="min-w-0 flex-1 break-words">The last build failed: {book.buildError}</span>
         <button type="button" class="shrink-0 underline underline-offset-2 hover:no-underline" onclick={() => (book.buildError = null)}>Dismiss</button>
       </div>
     {/if}
     {#if book.notice}
-      <p role="status" class="border-b border-slate-200 px-4 py-2 text-sm text-slate-600">{book.notice}</p>
+      <p role="status" class="border-b border-border-subtle px-4 py-2 text-sm text-text-secondary">{book.notice}</p>
     {/if}
     {#if load.kind === "failed"}
-      <p class="p-8 text-sm text-slate-600">The book could not be loaded ({load.error}).</p>
+      <p class="p-8 text-sm text-text-secondary">The book could not be loaded ({load.error}).</p>
     {:else if load.kind === "loading"}
-      <p class="p-8 text-sm text-slate-600">Loading the book.</p>
+      <p class="p-8 text-sm text-text-secondary">Loading the book.</p>
     {:else}
-      <div class="grid grid-cols-[minmax(300px,400px)_minmax(0,1fr)_minmax(280px,350px)]">
-        <aside id="book-nav" aria-label="Navigation" class="sticky top-14 h-[calc(100vh-3.5rem)] overflow-hidden border-r border-slate-300 bg-white">
+      <div class="grid grid-cols-[304px_minmax(0,1fr)_304px]">
+        <aside id="book-nav" aria-label="Navigation" class="sticky top-12 h-[calc(100vh-3rem)] overflow-hidden border-r border-border-subtle bg-layer">
           <OutlinePanel />
         </aside>
-        {#if wide}
+        {#if wide === "intent"}
           <section class="col-span-2 min-w-0" aria-label="Intent tree"><IntentTree onClose={closeIntentTree} /></section>
+        {:else if wide === "about"}
+          <main class="col-span-2 min-w-0"><AboutBook onClose={closeIntentTree} /></main>
         {:else}
-          <main class="flex min-h-[calc(100vh-3.5rem)] min-w-0 flex-col">
-            <article class="mx-auto w-full max-w-[800px] flex-1 px-8 py-8 [overflow-wrap:anywhere]">
+          <main class="flex min-h-[calc(100vh-3rem)] min-w-0 flex-col">
+            <article class="w-full max-w-[52rem] flex-1 px-8 pt-6 pb-16 [overflow-wrap:anywhere]">
               <RecordPage />
             </article>
           </main>
-          <aside aria-label="Connections" bind:this={railEl} class="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto border-l border-slate-300 bg-white px-4 py-6">
+          <aside aria-label="Trace and contents" bind:this={railEl} class="sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto border-l border-border-subtle bg-background px-4 py-6">
             <RecordRail />
           </aside>
         {/if}

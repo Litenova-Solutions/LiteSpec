@@ -7,17 +7,17 @@
   type Props = { src: SourceRef | null | undefined };
   let { src }: Props = $props();
   const href = $derived(srcHref(book, src));
-  const text = $derived(src ? (src.litespec ? "LiteSpec " + src.path : src.path + (src.line ? ":" + src.line : "")) : "");
+  const file = $derived(src?.path?.split("/").pop() ?? "");
+  const text = $derived(src ? (src.litespec ? "LiteSpec " + src.path : file + (src.line ? ":" + src.line : "")) : "");
   const icon = $derived(src?.litespec ? "book" : "ext");
 </script>
 
 {#if src?.path}
   {#if href}
     <a
-      class="inline-flex max-w-full items-center gap-2 font-mono text-xs text-slate-600 hover:text-slate-900 hover:underline"
-      {href}
-      title={"Open " + src.path}><RecordIcon name={icon} class="size-3.5 shrink-0" /><span class="min-w-0 break-all">{text}</span></a>
+      class="inline-flex max-w-full items-center gap-1 text-sm text-link hover:underline"
+      {href}><span class="min-w-0 break-all">{text}</span><RecordIcon name={icon} class="size-4 shrink-0" /></a>
   {:else}
-    <span class="inline-flex max-w-full items-center gap-2 font-mono text-xs text-slate-600"><RecordIcon name={icon} class="size-3.5 shrink-0" /><span class="min-w-0 break-all">{text}</span></span>
+    <span class="inline-flex max-w-full items-center gap-1 text-sm text-text-secondary"><span class="min-w-0 break-all">{text}</span><RecordIcon name={icon} class="size-4 shrink-0" /></span>
   {/if}
 {/if}

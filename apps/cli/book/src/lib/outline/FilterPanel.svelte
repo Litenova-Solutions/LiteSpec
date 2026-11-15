@@ -4,10 +4,13 @@
   import { outlineState } from "./outline-state.svelte";
   import { cachedSecurityItems, totalRecords } from "./outline-rows";
 
-  // The filter panel, the active filter chips and the shown line beneath the
-  // navigation tools. One pass over the records caches each record's facet
-  // values, and every facet count reads the cache instead of walking the
-  // store again.
+  // The filter panel, the active filter tags and the count line with the
+  // expand, collapse and reveal buttons beneath the navigation tools. One pass
+  // over the records caches each record's facet values, and every facet count
+  // reads the cache instead of walking the store again.
+  type Props = { onRevealRequest: () => void };
+  let { onRevealRequest }: Props = $props();
+
   interface FacetVal { value: string; name: string; count: number; on: boolean }
   interface FacetModel { key: string; label: string; vals: FacetVal[] }
   interface FilterModel { facets: FacetModel[]; shown: number; total: number }
@@ -86,28 +89,55 @@
       loaded: book.security !== null,
     };
   });
+  const nActive = $derived(chips.length + (book.query ? 1 : 0));
+
+  function expandAndReveal(): void {
+    book.expandAll();
+    onRevealRequest();
+  }
+
+  function revealSelected(): void {
+    if (book.selected) outlineState.expandChain(book.selected);
+    onRevealRequest();
+  }
 </script>
 
 {#if outlineState.facetsOpen}
-  <div id="facetPanel" role="group" aria-label="Filters" class="mt-2 max-h-[52vh] overflow-auto rounded-lg border border-slate-300 bg-white p-3 shadow-sm">
+  <div id="facetPanel" role="group" aria-label="Filters" class="mt-2 grid max-h-[52vh] gap-4 overflow-auto">
+    <div class="flex items-center justify-between">
+      <span class="font-semibold text-foreground">Filters</span>
+      <span class="text-sm text-text-secondary">{nActive} active</span>
+    </div>
     {#each model.facets as f (f.key)}
-      <div class="mb-3 last:mb-0">
-        <h4 class="mb-1.5 text-xs font-medium tracking-wide text-slate-600 uppercase">{f.label}</h4>
-        <div class="flex flex-wrap gap-1">
+      <div class="grid gap-2">
+        <h4 class="text-xs text-text-secondary">{f.label}</h4>
+        <div class="grid gap-2">
           {#each f.vals as v (v.value)}
-            <button
-              type="button"
-              aria-pressed={v.on}
-              disabled={!v.count && !v.on}
-              onclick={() => book.toggleFacet(f.key, v.value)}
-              class={cn(
-                "inline-flex h-7 cursor-pointer items-center gap-2 rounded-md border px-2.5 text-xs disabled:cursor-default disabled:opacity-40",
-                v.on ? "border-blue-700 bg-blue-700 text-white" : "border-slate-300 bg-white text-slate-900 hover:bg-slate-100",
-              )}
-            >
-              {v.name}
-              <span class={cn("text-xs tabular-nums", v.on ? "text-white opacity-75" : "text-slate-600")}>{v.count}</span>
-            </button>
+            {@const off = !v.count && !v.on}
+            <label class={cn("flex min-h-6 cursor-pointer items-center gap-3 text-sm text-foreground", off && "cursor-default opacity-40")}>
+              <input
+                type="checkbox"
+                class="peer sr-only"
+                checked={v.on}
+                disabled={off}
+                onchange={() => book.toggleFacet(f.key, v.value)}
+              />
+              <span
+                aria-hidden="true"
+                class={cn(
+                  "grid size-4 flex-none place-items-center border border-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus",
+                  v.on && "bg-foreground text-background",
+                )}
+              >
+                {#if v.on}
+                  <svg viewBox="0 0 16 16" class="size-3" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3.5 8.5l3.5 3.5 6-8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                {/if}
+              </span>
+              <span class="min-w-0 flex-1 truncate">{v.name}</span>
+              <span class="flex-none text-xs tracking-[0.32px] text-text-helper tabular-nums">{v.count}</span>
+            </label>
           {/each}
         </div>
       </div>
@@ -115,38 +145,51 @@
   </div>
 {/if}
 {#if chips.length || book.query}
-  <div class="mt-2 flex flex-wrap gap-1">
+  <div class="mt-2 flex flex-wrap items-center gap-1">
     {#each chips as c (c.key + "|" + c.value)}
-      <span class="inline-flex h-6 items-center gap-1 rounded-md border border-blue-200 bg-blue-50 pr-1 pl-2.5 text-xs text-slate-900">
+      <span class="inline-flex h-6 items-center gap-1 rounded-full bg-tag-blue py-0 pr-0 pl-3 text-xs tracking-[0.32px] text-tag-blue-foreground">
         {c.label}: {c.name}
-        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-6 cursor-pointer place-items-center rounded-md text-slate-600 hover:bg-blue-100 hover:text-slate-900">
-          <RecordIcon name="x" class="size-3.5" />
+        <button type="button" aria-label="Remove {c.name}" onclick={() => book.toggleFacet(c.key, c.value)} class="grid size-6 flex-none cursor-pointer place-items-center rounded-full hover:bg-hover-wash">
+          <RecordIcon name="x" class="size-3" />
         </button>
       </span>
     {/each}
     {#if book.query}
-      <span class="inline-flex h-6 items-center gap-1 rounded-md border border-blue-200 bg-blue-50 pr-1 pl-2.5 text-xs text-slate-900">
+      <span class="inline-flex h-6 items-center gap-1 rounded-full bg-tag-blue py-0 pr-0 pl-3 text-xs tracking-[0.32px] text-tag-blue-foreground">
         Text: {book.query}
-        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-6 cursor-pointer place-items-center rounded-md text-slate-600 hover:bg-blue-100 hover:text-slate-900">
-          <RecordIcon name="x" class="size-3.5" />
+        <button type="button" aria-label="Clear the text filter" onclick={() => book.setQuery("")} class="grid size-6 flex-none cursor-pointer place-items-center rounded-full hover:bg-hover-wash">
+          <RecordIcon name="x" class="size-3" />
         </button>
       </span>
     {/if}
-    <button type="button" onclick={() => book.clearFilters()} class="inline-flex h-6 cursor-pointer items-center px-1.5 text-xs text-blue-700">Clear all</button>
+    <button type="button" onclick={() => book.clearFilters()} class="inline-flex h-6 cursor-pointer items-center px-2 text-sm text-link hover:underline">Clear all</button>
   </div>
 {/if}
-<div class="mt-2 text-xs text-slate-600">
-  {#if book.view === "security"}
-    {#if !security.loaded}
-      Loading the security items.
+<div class="mt-2 flex items-center gap-2">
+  <p class="min-w-0 flex-1 text-xs tracking-[0.32px] text-text-helper">
+    {#if book.view === "security"}
+      {#if !security.loaded}
+        Loading the security items.
+      {:else if book.anyFilter()}
+        <b class="font-semibold text-foreground tabular-nums">{formatCount(security.shown)}</b> of {formatCount(security.total)} security items match
+      {:else}
+        <b class="font-semibold text-foreground tabular-nums">{formatCount(security.total)}</b> security items
+      {/if}
     {:else if book.anyFilter()}
-      <b class="font-medium text-slate-900 tabular-nums">{formatCount(security.shown)}</b> of {formatCount(security.total)} security items match
+      <b class="font-semibold text-foreground tabular-nums">{formatCount(model.shown)}</b> of {formatCount(model.total)} records match
     {:else}
-      <b class="font-medium text-slate-900 tabular-nums">{formatCount(security.total)}</b> security items
+      <b class="font-semibold text-foreground tabular-nums">{formatCount(model.total)}</b> records in this book.
     {/if}
-  {:else if book.anyFilter()}
-    <b class="font-medium text-slate-900 tabular-nums">{formatCount(model.shown)}</b> of {formatCount(model.total)} records match
-  {:else}
-    <b class="font-medium text-slate-900 tabular-nums">{formatCount(model.total)}</b> records in this book.
+  </p>
+  {#if book.view === "outline"}
+    <button type="button" aria-label="Expand all" onclick={expandAndReveal} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+      <RecordIcon name="expand" class="size-4" />
+    </button>
+    <button type="button" aria-label="Collapse all" onclick={() => book.collapseAll()} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+      <RecordIcon name="collapse" class="size-4" />
+    </button>
   {/if}
+  <button type="button" aria-label="Show the selected record" onclick={revealSelected} class="grid size-8 flex-none cursor-pointer place-items-center text-foreground hover:bg-hover-wash">
+    <RecordIcon name="locate" class="size-4" />
+  </button>
 </div>

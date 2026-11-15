@@ -2,21 +2,22 @@
   import { book } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { glossaryLinks } from "$lib/record";
+  import PageSection from "./blocks/PageSection.svelte";
   import { whyPartsOf } from "./page-prose";
 
-  // The Why sections: the reason fields and the Why explanation sections.
+  // The Why section: the reason fields as a label/value list.
   type Props = { r: BookRecord };
   let { r }: Props = $props();
   const parts = $derived(whyPartsOf(book, r));
 </script>
 
 {#if parts.length}
-  <div class="mb-6 border-l-[3px] border-highlight py-1 pl-4">
-    {#each parts as p, i (i)}
-      <div class={i > 0 ? "mt-2" : ""}>
-        <span class="mb-1 block text-xs font-semibold tracking-[0.05em] text-highlight-foreground uppercase">{p.label}</span>
-        <div class="text-sm text-slate-900" use:glossaryLinks={p.html}>{@html p.html}</div>
-      </div>
-    {/each}
-  </div>
+  <PageSection blockKey="why" heading="Why">
+    <dl class="grid grid-cols-[minmax(9rem,25%)_minmax(0,1fr)] border-t border-border-subtle text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline">
+      {#each parts as p (p.label)}
+        <dt class="border-b border-border-subtle py-3 pr-2 font-semibold">{p.label}</dt>
+        <dd class="m-0 min-w-0 border-b border-border-subtle py-3" use:glossaryLinks={p.html}>{@html p.html}</dd>
+      {/each}
+    </dl>
+  </PageSection>
 {/if}

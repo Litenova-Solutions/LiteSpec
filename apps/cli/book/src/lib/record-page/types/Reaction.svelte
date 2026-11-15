@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RenderedProse } from "$lib/record";
+  import { RecordLink, RenderedProse, TypeTag } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
-  import FactCell from "../blocks/FactCell.svelte";
-  import FactGrid from "../blocks/FactGrid.svelte";
+  import DefinitionList from "../blocks/DefinitionList.svelte";
+  import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTouched from "../shared/DataTouched.svelte";
   import EffectsBlock from "../shared/EffectsBlock.svelte";
   import FailureBlock from "../shared/FailureBlock.svelte";
+  import { idemHint } from "../shared/record-cells";
   import { proseOf } from "../page-prose";
-  import { idemTileOf, reactionFields, triggeredByHtml } from "../page-values";
+  import { idemTileOf, objectField, reactionFields } from "../page-values";
 
   // A reaction: what triggers it, what it does, and what it does when it fails.
   type Props = { id: string; r: BookRecord };
@@ -17,26 +18,41 @@
   const f = $derived(r.fields ?? {});
   const rf = $derived(reactionFields(f));
   const whatHappens = $derived(proseOf(r, "whatHappens"));
-  const trig = $derived(triggeredByHtml(book, rf.triggeredBy));
+  const triggers = $derived.by(() => {
+    const t = rf.triggeredBy;
+    if (!t) return [];
+    return (Array.isArray(t) ? t : [t]).map(String);
+  });
   const idem = $derived(idemTileOf(f));
+  const idemHintHtml = $derived.by(() => {
+    const i = objectField(f, "idempotency");
+    return i ? idemHint(i) : "";
+  });
 </script>
 
 {#if whatHappens}
   <PageSection blockKey="wh" heading="whatHappens"><RenderedProse html={whatHappens} /></PageSection>
 {/if}
-{#if trig || rf.skippedWhen}
+{#if triggers.length || rf.skippedWhen}
   <PageSection blockKey="trig" heading="triggeredBy">
-    {@html trig}
-    {#if rf.skippedWhen}<div class="text-sm">Skipped when {rf.skippedWhen}</div>{/if}
+    {#each triggers as t (t)}
+      <p class="mt-0 mb-2 flex items-center gap-2 last:mb-0">
+        <TypeTag type={book.typeOf(stripStep(t))} /><RecordLink id={t} />
+      </p>
+    {/each}
+    {#if rf.skippedWhen}<p class="mt-1 mb-0 text-sm">Skipped when {rf.skippedWhen}</p>{/if}
   </PageSection>
 {/if}
-<EffectsBlock {f} />
-<PageSection blockKey="guar" heading="idempotency">
-  <FactGrid>
-    {#if idem}
-      <FactCell k="idempotency" html={idem.value} hint={idem.hint} />
-    {/if}
-  </FactGrid>
-</PageSection>
+<EffectsBlock {f} caption={`Effects of ${r.title}`} />
+{#if idem}
+  <PageSection blockKey="guar" heading="idempotency">
+    <DefinitionList>
+      <DefinitionRow label="Idempotency">
+        {@html idem.value}
+        {#if idemHintHtml}<span class="mt-1 block text-xs tracking-[0.32px] text-text-helper">{@html idemHintHtml}</span>{/if}
+      </DefinitionRow>
+    </DefinitionList>
+  </PageSection>
+{/if}
 <FailureBlock {f} />
 <DataTouched {f} />

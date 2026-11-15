@@ -1,12 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { book, capitalize, pluralize, stripStep } from "$lib/frame";
-  import { RecordIcon } from "$lib/record";
-  import { Button } from "$lib/ui/button";
-  import { breaksIntentChain, FEATURE_GAP_TEXT, GAP_TEXT, GOAL_GAP_TEXT, keptBySentence } from "./trace-model";
+  import { RecordIcon, TypeTag } from "$lib/record";
+  import { FEATURE_GAP_TEXT, GAP_TEXT, GOAL_GAP_TEXT, keptBySentence } from "./trace-model";
 
   // The Intent tree: the product down through goals, features, requirements and
-  // flows, and through its visions to the decisions and requirements naming them, one level per click. A box opens the level below it; the ext icon
+  // flows, and through its visions to the decisions and requirements naming them, one level per click. A row opens the level below it; the title
   // opens the record's page. Escape closes the tree and returns focus to the
   // control that opened it.
   type Props = { onClose: () => void };
@@ -54,7 +53,7 @@
 
   const pid = $derived(book.productId());
 
-  // The root lists are read once per data revision, not once per rendered box.
+  // The root lists are read once per data revision, not once per rendered row.
   const roots = $derived.by(() => {
     void book.rev;
     return {
@@ -147,52 +146,54 @@
 
 <svelte:window onkeydowncapture={onKey} />
 
-{#snippet tvnode(id: string, path: string[])}
+{#snippet tvnode(id: string, path: string[], depth: number)}
   {@const group = id.startsWith("tv/")}
-  {@const r = book.get(stripStep(id))}
   {@const kids = path.includes(id) ? [] : tvKids(id)}
   {@const isOpen = !!open[id] && kids.length > 0}
   {@const t = book.typeOf(id)}
-  {@const gap = !group && !!r && breaksIntentChain(book, id, kids.length)}
   {@const meta = tvMeta(id, kids)}
-  {@const tone = gap ? "border-dashed border-warn-border" : isOpen ? "border-slate-900" : "border-slate-300"}
   <li>
-    <!-- A box toggles with click, Enter and Space. It is not a native button because it holds the nested Open link, which a button forbids. -->
+    <!-- A row toggles with click, Enter and Space. It is not a native button because it holds the nested title link, which a button forbids. -->
     <div
       role="button"
       tabindex="0"
       aria-expanded={isOpen}
       onclick={(e) => onBox(e, id)}
       onkeydown={(e) => onBox(e, id)}
-      class="grid w-[270px] flex-none cursor-pointer grid-cols-[18px_minmax(0,1fr)_auto] items-start gap-x-2 rounded-lg border bg-white p-3 text-left text-slate-900 shadow-sm hover:border-slate-900 {tone}"
+      class="flex min-h-10 flex-wrap items-center gap-x-3 gap-y-0.5 border-b border-border-subtle {kids.length ? 'cursor-pointer' : ''}"
     >
-      <RecordIcon name={group ? "folder" : t} class="mt-0.5 size-3.5" />
-      <span class="text-sm leading-snug font-semibold break-words">{group ? "Features that serve no goal" : book.title(id)}</span>
+      {#if kids.length}
+        <RecordIcon name="chev" class="size-4 shrink-0 transition-transform {isOpen ? 'rotate-90' : ''}" />
+      {:else}
+        <span class="size-4 shrink-0"></span>
+      {/if}
+      {#if !group}<TypeTag type={t} />{/if}
       {#if group}
-        <span></span>
+        <span class="font-semibold">Features that serve no goal</span>
       {:else}
         <a
           href={"#" + encodeURIComponent(id)}
           data-go={id}
-          title="Open the page"
-          aria-label="Open the page"
-          class="grid size-6 place-items-center rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-        >
-          <RecordIcon name="ext" class="size-3.5" />
-        </a>
+          class="text-link hover:underline {depth < 2 ? 'font-semibold' : ''}"
+        >{book.title(id)}</a>
       {/if}
-      <span class="col-start-2 col-end-4 font-mono text-xs font-medium text-slate-600">{group ? "group" : book.typeTag(t)}</span>
       {#if meta.text}
-        <span class="col-start-2 col-end-4 text-xs {meta.gap ? 'font-medium text-warn-foreground' : 'text-slate-600'}">{meta.text}</span>
+        {#if meta.gap}
+          <span class="inline-flex items-center gap-2 text-xs text-warning-ink">
+            <RecordIcon name="alert" class="size-4 shrink-0" />{meta.text}
+          </span>
+        {:else}
+          <span class="text-xs text-text-secondary">{meta.text}</span>
+        {/if}
       {/if}
     </div>
     {#if isOpen}
-      <ul class="mt-1 mb-1 ml-3 space-y-2 border-l border-slate-200 py-1 pl-4">
+      <ul class="m-0 ml-3 list-none border-l border-border-subtle p-0 pl-5">
         {#each kids.slice(0, 40) as k (k)}
-          {@render tvnode(k, [...path, id])}
+          {@render tvnode(k, [...path, id], depth + 1)}
         {/each}
         {#if kids.length > 40}
-          <li><span class="py-1 text-xs text-slate-600">and {kids.length - 40} more</span></li>
+          <li><span class="block py-1 text-xs text-text-secondary">and {kids.length - 40} more</span></li>
         {/if}
       </ul>
     {/if}
@@ -200,30 +201,36 @@
 {/snippet}
 
 {#if !loaded}
-  <p class="p-6 text-sm text-slate-600">Loading the Intent tree.</p>
+  <p class="p-6 text-sm text-text-secondary">Loading the Intent tree.</p>
 {:else if !pid}
-  <p class="p-6 text-sm text-slate-600">This book holds no records.</p>
+  <p class="p-6 text-sm text-text-secondary">This book holds no records.</p>
 {:else}
-  <div class="mx-auto w-full max-w-[1100px] px-8 py-8">
-    <div class="mb-4 flex flex-col items-start gap-3 border-b-2 border-slate-900 pb-4">
-      <div>
-        <h1 bind:this={headingEl} tabindex="-1" class="text-2xl font-semibold outline-none">Intent, top down</h1>
-      </div>
-      <div class="flex gap-2">
-        <Button variant="outline" onclick={openTwo}>Open two levels</Button>
-        <Button
-          variant="outline"
-          onclick={() => {
-            open = {};
-          }}>Collapse</Button
-        >
-        <Button onclick={close}>Close</Button>
-      </div>
+  <div class="mx-auto w-full max-w-[60rem] px-8 py-8">
+    <h1 bind:this={headingEl} tabindex="-1" class="text-[32px] leading-10 font-normal outline-none">Intent, top down</h1>
+    <div class="mt-6 flex flex-wrap gap-2">
+      <button
+        type="button"
+        onclick={openTwo}
+        class="inline-flex min-h-8 items-center justify-center border border-interactive px-4 text-sm text-link hover:bg-hover-wash"
+      >Open two levels</button>
+      <button
+        type="button"
+        onclick={() => {
+          open = {};
+        }}
+        class="inline-flex min-h-8 items-center px-4 text-sm text-link hover:bg-hover-wash"
+      >Collapse</button>
+      <button
+        type="button"
+        onclick={close}
+        aria-label="Close"
+        class="grid size-8 place-items-center hover:bg-hover-wash"
+      >
+        <RecordIcon name="x" class="size-4" />
+      </button>
     </div>
-    <div class="overflow-x-auto pt-2 pb-8">
-      <ul class="flex flex-col">
-        {@render tvnode(pid, [])}
-      </ul>
-    </div>
+    <ul class="m-0 mt-6 list-none p-0">
+      {@render tvnode(pid, [], 0)}
+    </ul>
   </div>
 {/if}

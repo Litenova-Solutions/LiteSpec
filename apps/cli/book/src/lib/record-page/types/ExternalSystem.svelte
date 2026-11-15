@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { BookRecord } from "$lib/frame";
+  import type { BookRecord, RecordFields } from "$lib/frame";
   import { book, dedupe, duration, esc, formatLabel, stripStep } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import RecordList from "../blocks/RecordList.svelte";
-  import { badgeHtml, tdHtml } from "../page-html";
-  import { erasureHtml, objectField, objectList, stringField } from "../page-values";
+  import { codeOf, muted, refLink, tag, td, thRow } from "../shared/record-cells";
+  import { objectField, objectList, stringField } from "../page-values";
 
   // An external system: the decision choosing its provider, its operations, and how erasure reaches it.
   type Props = { id: string; r: BookRecord };
@@ -22,6 +22,28 @@
   );
   const ops = $derived(objectList(f, "operations"));
   const erasure = $derived(objectField(f, "erasure"));
+  const erasureImpossible = $derived.by(() => {
+    const mode = stringField(erasure, "mode");
+    return mode !== "call" && mode !== "event";
+  });
+  const erasureHtml = $derived.by(() => {
+    const e = erasure;
+    if (!e) return "";
+    const mode = stringField(e, "mode");
+    if (mode === "call") {
+      const op = String(e.operation ?? "");
+      const tail = op.split("#")[1];
+      return "Calls " + refLink(book, stripStep(op)) + (tail ? ` <span class="font-mono text-xs text-text-helper">${esc(formatLabel(tail))}</span>` : "");
+    }
+    if (mode === "event") return "Forwards through " + refLink(book, stringField(e, "event") ?? "");
+    const reason = stringField(e, "reason");
+    return "Impossible" + (reason ? ", because " + esc(reason) : "");
+  });
+
+  function opCell(o: RecordFields, name: "onTimeout" | "onUnknown"): string {
+    const v = stringField(o, name);
+    return v ? esc(v) : muted("&mdash;");
+  }
 </script>
 
 {#if decidedBy.length}
@@ -32,22 +54,27 @@
 {#if ops.length}
   <PageSection blockKey="ops" heading="operations" count={ops.length}>
     <DataTable
-      head={["Operation", "Timeout", "On timeout", "On unknown"]}
+      head={["Operation", "Direction", "Timeout", "On timeout", "On unknown"]}
+      caption={`Operations of ${r.title}`}
       rows={ops.map((o) => [
-        tdHtml(
-          esc(formatLabel(o.name)) +
-            `<div class="mt-1">${badgeHtml(o.direction === "in" ? "Inbound" : "Outbound")}</div>` +
-            (o.response ? `<div class="mt-1 text-xs whitespace-normal text-slate-600">${esc(String(o.response))}</div>` : ""),
+        thRow(
+          codeOf(String(o.name ?? "")) +
+            (o.response ? muted(esc(String(o.response))) : ""),
         ),
-        tdHtml(duration(stringField(o, "timeout") ?? "")),
-        tdHtml(esc(stringField(o, "onTimeout") ?? "")),
-        tdHtml(esc(stringField(o, "onUnknown") ?? "")),
+        td(tag(o.direction === "in" ? "Inbound" : "Outbound", "cool")),
+        td(esc(duration(stringField(o, "timeout") ?? ""))),
+        td(opCell(o, "onTimeout")),
+        td(opCell(o, "onUnknown")),
       ])}
     />
   </PageSection>
 {/if}
 {#if erasure}
   <PageSection blockKey="er" heading="erasure">
-    <Note kind="quiet" icon="lock" html={erasureHtml(book, erasure)} />
+    {#if erasureImpossible}
+      <Note kind="warn" icon="alert" html={erasureHtml} />
+    {:else}
+      <Note kind="quiet" icon="lock" html={erasureHtml} />
+    {/if}
   </PageSection>
 {/if}

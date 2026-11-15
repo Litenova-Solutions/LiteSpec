@@ -1,11 +1,12 @@
 <script lang="ts">
   import { book } from "$lib/frame";
+  import { pageSections } from "$lib/record";
   import type { Snippet } from "svelte";
 
   // One page section: a heading from the field label, an optional count, and an
   // optional aside. Blocks that only list linked records stay off the page; the
   // rail shows them. A zero count or empty HTML hides the block. The heading
-  // takes focus so the "On this record" pills can land on it.
+  // takes focus so the rail's On this page links can land on it.
   type Props = {
     blockKey: string;
     heading: string;
@@ -33,15 +34,20 @@
       LINKS_IN_RAIL.has(book.fieldLabel(heading).toLowerCase())
     );
   });
+
+  // A shown section lists itself in the rail's On this page.
+  $effect(() => {
+    if (hidden) return;
+    return pageSections.add({ key: blockKey, label: book.fieldLabel(heading), count: count ?? null });
+  });
 </script>
 
 {#if !hidden}
-  <section class="mb-8 scroll-mt-20" id={"b-" + blockKey}>
-    <h2 tabindex="-1" class="mb-3 flex items-center gap-2 text-base font-semibold tracking-tight outline-none">
+  <section class="mt-10 scroll-mt-20" id={"b-" + blockKey}>
+    <h2 tabindex="-1" class="mb-2 flex items-baseline gap-3 text-xl leading-7 font-normal outline-none">
       {book.fieldLabel(heading)}
-      {#if count != null}<span class="text-xs font-normal text-slate-600 tabular-nums">{count}</span>{/if}
-      <span class="h-px flex-1 bg-slate-200" aria-hidden="true"></span>
-      {#if aside}<span class="text-xs font-normal text-slate-600">{aside}</span>{/if}
+      {#if count != null}<span class="text-sm text-text-secondary tabular-nums">{count}</span>{/if}
+      {#if aside}<span class="ml-auto text-xs tracking-[0.32px] text-text-secondary">{aside}</span>{/if}
     </h2>
     {#if html !== null}
       {@html html}

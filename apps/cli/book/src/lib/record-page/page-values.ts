@@ -420,7 +420,7 @@ export function clsBadgeHtml(c: unknown) {
 export function bulletsHtml(list: unknown) {
   const items: unknown[] = typeof list === "string" ? (list ? [list] : []) : Array.isArray(list) ? list : [];
   if (items.length) return "<ul>" + items.map((x) => "<li>" + esc(x) + "</li>").join("") + "</ul>";
-  return '<span class="font-mono text-xs text-slate-600">&ndash;</span>';
+  return '<span class="font-mono text-xs text-text-secondary">&ndash;</span>';
 }
 
 export type EffectVerb = "runs" | "sends" | "calls";

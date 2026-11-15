@@ -36,10 +36,11 @@
 {#if rows.length}
   <PageSection blockKey="links" heading="Links" count={rows.length}>
     {#each groups as g (g.label)}
-      <div class="mb-4 last:mb-0">
-        <h3 class="m-0 mb-2 text-sm font-semibold text-slate-900 tabular-nums">{g.heading} ({g.items.length})</h3>
-        <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />
-      </div>
+      <h3 class="mt-5 flex min-h-8 items-center justify-between border-b border-border-subtle text-sm font-semibold">
+        {g.heading}
+        <span class="font-normal text-text-secondary tabular-nums">{g.items.length}</span>
+      </h3>
+      <RecordList ids={g.items.map((x) => x.id)} limit={8} moreKey={id + "|" + g.label} />
     {/each}
   </PageSection>
 {/if}

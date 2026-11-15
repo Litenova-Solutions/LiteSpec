@@ -3,9 +3,8 @@
   import { book, inline } from "$lib/frame";
   import type { Explanation } from "$lib/frame";
   import * as Popover from "$lib/ui/popover";
-  import RecordIcon from "./RecordIcon.svelte";
 
-  // One explanation popover for the whole book. Any element with data-explain,
+  // One explanation tooltip for the whole book. Any element with data-explain,
   // including ones inside rendered prose, opens it on hover, focus or click; the
   // text always comes from LiteSpec: a glossary term or a section of the model page.
   // This component takes no props.
@@ -59,11 +58,19 @@
 <svelte:document onmouseover={over} onmouseout={out} onclickcapture={click} onfocusin={focusin} />
 
 <Popover.Root bind:open>
-  <Popover.Content customAnchor={anchor} side="bottom" align="start" class="w-80" data-explain-popover onOpenAutoFocus={(e) => e.preventDefault()}>
+  <Popover.Content
+    customAnchor={anchor}
+    side="bottom"
+    align="start"
+    sideOffset={6}
+    class="w-72 rounded-[2px] border-0 bg-tip px-3 py-2 text-tip-foreground shadow-md"
+    data-explain-popover
+    onOpenAutoFocus={(e) => e.preventDefault()}
+  >
     {#if text}
-      <p class="text-sm font-semibold">{text.title}</p>
-      <p class="text-sm leading-relaxed">{@html inline(book, text.text)}</p>
-      <p class="flex items-center gap-2 text-xs text-slate-600"><RecordIcon name="book" class="size-3.5" />From LiteSpec: {text.source}</p>
+      <p class="text-xs font-semibold tracking-[0.32px]">{text.title}</p>
+      <p class="mt-1 text-xs leading-4 tracking-[0.32px]">{@html inline(book, text.text)}</p>
+      <p class="mt-1 text-xs leading-4 tracking-[0.32px] opacity-80">From LiteSpec: {text.source}</p>
     {/if}
   </Popover.Content>
 </Popover.Root>

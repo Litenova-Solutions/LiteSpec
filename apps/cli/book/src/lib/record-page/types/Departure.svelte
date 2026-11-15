@@ -38,6 +38,6 @@
 {/if}
 {#if reason}
   <PageSection blockKey="why" heading="reason">
-    <Note kind="quiet" icon="quote">Because {reason}</Note>
+    <Note kind="warn" icon="alert">Because {reason}</Note>
   </PageSection>
 {/if}

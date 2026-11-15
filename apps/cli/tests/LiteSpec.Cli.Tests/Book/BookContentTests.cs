@@ -78,13 +78,12 @@ public sealed class BookContentTests
         }
     }
 
-    /// <summary>The shortcuts dialog names the two views the keys 1 to 2 switch, Security last.</summary>
+    /// <summary>The client offers only the Outline and Security views: no removed view survives.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
-    public void ShortcutsNameTheTwoViews()
+    public void OnlyTheTwoViewsSurvive()
     {
         var script = Client();
-        Assert.Contains("Outline, Security", script, StringComparison.Ordinal);
         Assert.DoesNotContain("Review queue", script, StringComparison.Ordinal);
         Assert.DoesNotContain("Ballots", script, StringComparison.Ordinal);
     }

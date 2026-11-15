@@ -3,7 +3,6 @@
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import NavigationMap from "../shared/NavigationMap.svelte";
-  import { codeCls } from "../page-html";
   import { screenFields, stringField, stringList } from "../page-values";
 
   // An entry point: the path it serves, and the navigation map of its screens.
@@ -39,12 +38,12 @@
 
 {#if path}
   <PageSection blockKey="path" heading="path">
-    <span class="{codeCls} px-2.5 py-1 text-sm">{path}</span>
+    <span class="bg-layer px-2 py-1 font-mono text-sm">{path}</span>
   </PageSection>
 {/if}
 <PageSection blockKey="map" heading="Navigation map" count={screens.length > 0 ? screens.length : null}>
   {#if screens.length === 0}
-    <p class="text-sm text-slate-600">No screens.</p>
+    <p class="text-sm text-text-secondary">No screens.</p>
   {:else}
     <NavigationMap screens={nodes} {leads} {start} />
   {/if}

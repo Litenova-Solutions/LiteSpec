@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
   import { esc } from "$lib/frame";
-  import { RecordIcon, RecordLink, RenderedProse } from "$lib/record";
+  import { RecordLink, RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { codeCls, tdHtml } from "../page-html";
+  import { codeOf, mutedInline, td, thRow } from "../shared/record-cells";
   import { proseOf } from "../page-prose";
   import { isRecord, objectList, stringField } from "../page-values";
 
@@ -25,16 +25,17 @@
 {#if rawParams.length}
   <PageSection blockKey="params" heading="params" count={rawParams.length}>
     {#if stringParams}
-      <div class="flex flex-wrap gap-1">
-        {#each rawParams as p, i (i)}<span class={codeCls}>{String(p)}</span>{/each}
+      <div class="flex flex-wrap gap-2">
+        {#each rawParams as p, i (i)}<code class="bg-layer px-1 font-mono text-xs">{String(p)}</code>{/each}
       </div>
     {:else}
       <DataTable
         head={["Parameter", "Meaning", "Source"]}
+        caption={`Parameters of ${r.title}`}
         rows={params.map((p: RecordFields) => [
-          tdHtml(esc(stringField(p, "name") ?? ""), "nm"),
-          tdHtml(esc(stringField(p, "meaning") ?? "")),
-          tdHtml(esc(stringField(p, "source") ?? ""), "mut"),
+          thRow(codeOf(stringField(p, "name") ?? "")),
+          td(esc(stringField(p, "meaning") ?? "")),
+          td(mutedInline(esc(stringField(p, "source") ?? ""))),
         ])}
       />
     {/if}
@@ -42,18 +43,18 @@
 {/if}
 {#if claims.length}
   <PageSection blockKey="claims" heading="claims" count={claims.length}>
-    {#each claims as c, i (i)}
-      {@const requirement = stringField(c, "requirement")}
-      <div class="border-b border-slate-200 py-2.5">
-        <div class="flex items-center gap-2 font-medium">
-          <RecordIcon name="quote" class="size-3.5" />{stringField(c, "claim") ?? ""}
-        </div>
-        {#if requirement}
-          <p class="mt-1 mb-0 text-sm text-slate-600">Backed by <RecordLink id={requirement} /></p>
-        {:else}
-          <p class="mt-1 mb-0 text-xs font-medium text-warn-foreground">No requirement backs this claim</p>
-        {/if}
-      </div>
-    {/each}
+    <ul class="grid gap-2">
+      {#each claims as c, i (i)}
+        {@const requirement = stringField(c, "requirement")}
+        <li>
+          {stringField(c, "claim") ?? ""}
+          {#if requirement}
+            Backed by <RecordLink id={requirement} />
+          {:else}
+            <span class="text-sm font-medium text-warning-ink">No requirement backs this claim</span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
   </PageSection>
 {/if}

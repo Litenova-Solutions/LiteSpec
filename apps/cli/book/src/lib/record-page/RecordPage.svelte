@@ -1,7 +1,6 @@
 <script lang="ts">
   import { book, inline } from "$lib/frame";
   import { glossaryLinks, RenderedProse } from "$lib/record";
-  import CompletionBlock from "./CompletionBlock.svelte";
   import LinksBlock from "./LinksBlock.svelte";
   import EvidenceBlock from "./EvidenceBlock.svelte";
   import ExplanationBody from "./ExplanationBody.svelte";
@@ -13,7 +12,7 @@
   import { leadFieldOf, proseOf } from "./page-prose";
   import { GenericType, TYPES } from "./types/index";
 
-  // The record page: header, lead, completion, field table, evidence, the type
+  // The record page: header, lead, field table, evidence, the type
   // content, Why sections, findings, body sections and links.
   type Props = Record<string, never>;
   let {}: Props = $props();
@@ -47,11 +46,10 @@
     <ScreenCapture {id} {r} />
   {/if}
   {#if leadHtml}
-    <div class="mb-6 max-w-[72ch]"><RenderedProse html={leadHtml} lead /></div>
+    <div class="mt-6 max-w-[44rem]"><RenderedProse html={leadHtml} lead /></div>
   {:else if leadInline}
-    <p class="mt-0 mb-6 max-w-[72ch] text-base leading-relaxed text-slate-900" use:glossaryLinks={leadInline}>{@html leadInline}</p>
+    <p class="mt-6 max-w-[44rem] text-xl leading-7 font-light [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline" use:glossaryLinks={leadInline}>{@html leadInline}</p>
   {/if}
-  <CompletionBlock {r} />
   <FieldTable {id} {r} />
   <EvidenceBlock {r} />
   <TypeContent {id} {r} />

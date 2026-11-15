@@ -24,21 +24,21 @@
 
 {#if !captures.length}
   {#if captureState === "route-not-captured"}
-    <p class="mt-0 mb-6 text-sm text-slate-600">The route exists but was not captured.</p>
+    <p class="mt-6 text-sm text-text-secondary">The route exists but was not captured.</p>
   {:else if captureState === "no-route"}
-    <p class="mt-0 mb-6 text-sm text-slate-600">No page carries this screen.</p>
+    <p class="mt-6 text-sm text-text-secondary">No page carries this screen.</p>
   {:else if captureState}
-    <p class="mt-0 mb-6 text-sm text-slate-600">Capture state: {formatLabel(captureState)}.</p>
+    <p class="mt-6 text-sm text-text-secondary">Capture state: {formatLabel(captureState)}.</p>
   {:else if r.route}
-    <p class="mt-0 mb-6 text-sm text-slate-600">The route exists but was not captured.</p>
+    <p class="mt-6 text-sm text-text-secondary">The route exists but was not captured.</p>
   {:else}
-    <p class="mt-0 mb-6 text-sm text-slate-600">No page carries this screen.</p>
+    <p class="mt-6 text-sm text-text-secondary">No page carries this screen.</p>
   {/if}
 {:else}
-  <figure class="m-0 mb-6">
-    <img {src} alt={"Screenshot of " + r.title} loading="eager" class="block h-auto w-full rounded-lg border border-slate-300 bg-slate-100" />
+  <figure class="m-0 mt-6">
+    <img {src} alt={"Screenshot of " + r.title} loading="eager" class="block h-auto w-full border border-border-subtle bg-layer" />
     {#if caption}
-      <figcaption class="mt-2 text-xs text-slate-600">{caption}</figcaption>
+      <figcaption class="mt-2 text-xs tracking-[0.32px] text-text-secondary">{caption}</figcaption>
     {/if}
   </figure>
 {/if}

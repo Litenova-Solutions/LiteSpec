@@ -28,16 +28,18 @@
 <PageSection blockKey="m" heading="measure">
   <FactGrid>
     <FactCell k="Measure">{measure}</FactCell>
-    <FactCell k="target" big>{target}</FactCell>
-    <FactCell k="dueBy" hint={dueBy ? book.dateHint(dueBy) : ""}>
-      {dueBy ? book.fmtDate(dueBy) : ""}
-    </FactCell>
+    <FactCell k="target">{target}</FactCell>
+    {#if dueBy}
+      <FactCell k="dueBy" hint={book.dateHint(dueBy)}>
+        {book.fmtDate(dueBy)}
+      </FactCell>
+    {/if}
   </FactGrid>
 </PageSection>
 {#if outcome}
   <PageSection blockKey="outcome" heading="outcome">
     <FactGrid>
-      <FactCell k="Outcome">{outcome.state}</FactCell>
+      <FactCell k="Outcome" big>{outcome.state}</FactCell>
     </FactGrid>
     {#if outcome.observations.length}
       <DataTable

@@ -5,8 +5,8 @@
   // The global keys. Typing, Ctrl, Cmd and Alt keep their own meaning, except
   // Ctrl or Cmd K; shadcn closes its own overlays on Escape. An open dialog
   // keeps every key. Moves land with focus in the outline on the opened row.
-  type Props = { onFocusSearchRequest: (select: boolean) => void; onOpenShortcuts: () => void; onRevealRequest: () => void };
-  let { onFocusSearchRequest, onOpenShortcuts, onRevealRequest }: Props = $props();
+  type Props = { onFocusSearchRequest: (select: boolean) => void; onRevealRequest: () => void };
+  let { onFocusSearchRequest, onRevealRequest }: Props = $props();
 
   const views = ["outline", "security"] as const;
 
@@ -61,10 +61,6 @@
     if (k === "/") {
       e.preventDefault();
       onFocusSearchRequest(false);
-      return;
-    }
-    if (k === "?") {
-      onOpenShortcuts();
       return;
     }
     if (k === "j" || (inTree && k === "ArrowDown")) {

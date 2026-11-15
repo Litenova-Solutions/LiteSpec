@@ -44,11 +44,11 @@
 {/if}
 {#if rejected.length}
   <PageSection blockKey="rej" heading="rejected" count={rejected.length}>
-    <div class="border-t border-slate-200">
+    <div class="border-t border-border-subtle">
       {#each rejected as x, i (String(x.word ?? i))}
-        <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-slate-200 py-2.5 text-sm">
-          <s class="font-medium text-warn-foreground [text-decoration-thickness:1.5px]">{String(x.word ?? "")}</s>
-          <div><p class="m-0 text-slate-600">{String(x.reason ?? "")}</p></div>
+        <div class="grid grid-cols-[180px_minmax(0,1fr)] gap-x-3 gap-y-1 border-b border-border-subtle py-2.5 text-sm">
+          <s class="font-medium [text-decoration-thickness:1.5px]">{String(x.word ?? "")}</s>
+          <div><p class="m-0 text-text-secondary">{String(x.reason ?? "")}</p></div>
         </div>
       {/each}
     </div>

@@ -41,26 +41,26 @@
 </script>
 
 {#if screens.length}
-  <div class="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm">
+  <div class="overflow-hidden border border-border-subtle bg-background">
     <!-- One map per page, so the marker id stays unique. -->
     <svg viewBox="0 0 {busX + pad} {height}" class="block h-auto w-full" role="img" aria-label="Navigation map">
       <defs>
         <marker id="nav-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-          <path d="M0 0L8 4L0 8z" class="fill-slate-300" />
+          <path d="M0 0L8 4L0 8z" class="fill-border-subtle" />
         </marker>
       </defs>
       {#each edges as e (e.from + ">" + e.to)}
         {#if e.self}
           <path
             d="M{pad + boxW} {midY(e.from) - 8} h28 v16 h-28"
-            class="fill-none stroke-slate-300"
+            class="fill-none stroke-border-subtle"
             stroke-width="1.5"
             marker-end="url(#nav-arrow)"
           />
         {:else}
           <path
             d="M{pad + boxW} {midY(e.from)} H{busX} V{midY(e.to)} H{pad + boxW + 6}"
-            class="fill-none stroke-slate-300"
+            class="fill-none stroke-border-subtle"
             stroke-width="1.5"
             marker-end="url(#nav-arrow)"
           />
@@ -75,18 +75,17 @@
             y={rowY(i)}
             width={boxW}
             height={boxH}
-            rx="6"
-            class={isStart ? "fill-white stroke-blue-700" : "fill-white stroke-slate-300"}
+            class={isStart ? "fill-background stroke-interactive" : "fill-background stroke-border-subtle"}
             stroke-width={isStart ? 1.5 : 1}
           />
-          <text x={pad + 14} y={midY(i) + 5} class="fill-slate-900" font-size="14">{short(s.title, isStart ? 24 : 34)}</text>
+          <text x={pad + 14} y={midY(i) + 5} class="fill-foreground" font-size="14">{short(s.title, isStart ? 24 : 34)}</text>
           {#if isStart}
-            <text x={pad + boxW - 14} y={midY(i) + 4} text-anchor="end" class="fill-blue-700" font-size="12">Start</text>
+            <text x={pad + boxW - 14} y={midY(i) + 4} text-anchor="end" class="fill-interactive" font-size="12">Start</text>
           {/if}
         </a>
       {/each}
     </svg>
   </div>
 {:else}
-  <p class="m-0 text-sm text-slate-600">No screens.</p>
+  <p class="m-0 text-sm text-text-secondary">No screens.</p>
 {/if}

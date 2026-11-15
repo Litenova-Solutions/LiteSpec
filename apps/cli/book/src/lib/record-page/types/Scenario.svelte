@@ -1,15 +1,15 @@
 <script lang="ts">
   import { book, esc, pluralize, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { SourceFileLink, ProofMark } from "$lib/record";
+  import { RecordLink, SourceFileLink, ProofMark } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
-  import RecordList from "../blocks/RecordList.svelte";
+  import DefinitionList from "../blocks/DefinitionList.svelte";
+  import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import FactCell from "../blocks/FactCell.svelte";
   import FactGrid from "../blocks/FactGrid.svelte";
-  import ResultCards from "../shared/ResultCards.svelte";
   import GivenWhenThen from "../shared/GivenWhenThen.svelte";
-  import { tdHtml } from "../page-html";
+  import { td, thRow } from "../shared/record-cells";
   import { resultInfoOf, scenarioFields } from "../page-values";
 
   // A scenario: its Given, When and Then, the result it shows, and its proof.
@@ -18,6 +18,7 @@
   const sf = $derived(scenarioFields(r.fields ?? {}));
   const resultId = $derived(book.outs(stripStep(id), "result")[0] ?? null);
   const ri = $derived(resultInfoOf(resultId ? book.get(resultId) : null));
+  const resultLink = $derived(resultId ?? "");
   const proofTest = $derived(r.proof?.test ?? null);
   const proofTests = $derived(r.proof?.tests);
   const proofState = $derived(r.proof?.state ?? null);
@@ -26,26 +27,33 @@
   const testName = $derived(proofTest?.name ?? undefined);
   const testRun = $derived(book.man?.testRun ?? null);
   const proofText = $derived(proofTests ? pluralize(proofTests, "test") + " claim this example" : "No test claims it");
+  const exampleKeys = $derived(Object.keys(sf.examples[0] ?? {}));
 </script>
 
+{#if ri || sf.exercises.length}
+  <DefinitionList>
+    {#if ri}
+      <DefinitionRow label="Result">
+        <RecordLink id={resultLink} />
+        {#if ri.meaning}<span class="mt-1 block text-xs tracking-[0.32px] text-text-helper">{ri.meaning}</span>{/if}
+      </DefinitionRow>
+    {/if}
+    {#if sf.exercises.length}
+      <DefinitionRow label="Exercises">
+        {#each sf.exercises as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}
+      </DefinitionRow>
+    {/if}
+  </DefinitionList>
+{/if}
 <PageSection blockKey="gwt" heading="Given, When, Then">
-  <div class="border-l-[3px] border-slate-200 py-0.5 pl-3.5">
-    <GivenWhenThen given={sf.given ?? ""} when={sf.when ?? ""} then={sf.then ?? ""} />
-  </div>
+  <GivenWhenThen given={sf.given ?? ""} when={sf.when ?? ""} then={sf.then ?? ""} />
 </PageSection>
-{#if sf.exercises.length}
-  <PageSection blockKey="exer" heading="exercises" count={sf.exercises.length}><RecordList ids={sf.exercises} /></PageSection>
-{/if}
-{#if ri}
-  <PageSection blockKey="res" heading="Result">
-    <ResultCards items={[{ title: ri.title, outcome: ri.outcome, code: ri.code, meaning: ri.meaning }]} />
-  </PageSection>
-{/if}
 {#if sf.examples.length}
   <PageSection blockKey="ex" heading="Examples">
     <DataTable
-      head={Object.keys(sf.examples[0] ?? {})}
-      rows={sf.examples.map((row) => Object.keys(row).map((k) => tdHtml(esc(row[k]))))}
+      head={exampleKeys}
+      caption={`Examples of ${r.title}`}
+      rows={sf.examples.map((row) => exampleKeys.map((k, j) => (j === 0 ? thRow(esc(row[k])) : td(esc(row[k])))))}
     />
   </PageSection>
 {/if}

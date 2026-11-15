@@ -6,9 +6,9 @@
 </script>
 
 {#if list.length}
-  <ul class="m-0 list-disc pl-4 text-sm text-slate-600">
+  <ul class="m-0 list-disc pl-4 text-sm">
     {#each list as x (x)}<li class="mt-1 first:mt-0">{x}</li>{/each}
   </ul>
 {:else}
-  <span class="font-mono text-xs text-slate-600">&ndash;</span>
+  <span class="font-mono text-xs text-text-secondary">&ndash;</span>
 {/if}

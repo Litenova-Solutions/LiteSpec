@@ -8,7 +8,7 @@
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import RecordList from "../blocks/RecordList.svelte";
-  import { codeCls, inlineRefHtml, tdHtml } from "../page-html";
+  import { codeOf, mutedInline, refLink, td, thRow } from "../shared/record-cells";
   import { objectField, routeFileOf, screenFields, stringField, stringList } from "../page-values";
 
   // A screen: where it lives, its wireframe, each use case it offers with
@@ -25,55 +25,62 @@
   const option = $derived(stringField(frame, "option"));
   const wire = $derived(stringField(f, "wireframe"));
   const leads = $derived(stringList(f, "leadsTo").map((x) => stripStep(x)));
-  const tnCls = "font-mono text-xs text-slate-600";
-  const warnCls = "font-medium text-warn-foreground";
+  const address = $derived(sf.address ?? sf.host ?? "");
+  const pageFrameHtml = $derived(
+    pattern ? codeOf(pattern) + (option ? " / " + esc(option) : "") : esc(option ?? ""),
+  );
+
+  function callsCell(u: string): string {
+    if (!r.route) return td(mutedInline("no page"));
+    return td(calls.includes(u) ? "Yes" : `<span class="text-support-error">No</span>`);
+  }
+
+  function codedCell(u: string): string {
+    const q = book.get(stripStep(u));
+    if (!q?.machine) return td("");
+    return td(q.machine.coded ? "Yes" : `<span class="text-support-error">No</span>`);
+  }
+
+  function scenariosCell(u: string): string {
+    const q = book.get(stripStep(u));
+    if (!q?.machine) return td("");
+    const sc = book.scenariosOf(u);
+    if (!sc.length) return td(`<span class="text-support-error">None</span>`);
+    const verified = sc.filter((x) => book.get(stripStep(x))?.proof?.state === "awaiting").length;
+    return td(`${verified} of ${sc.length}`);
+  }
 </script>
 
 <PageSection blockKey="where" heading="address">
   <DefinitionList>
-    <DefinitionRow label="address" html={`<span class="${codeCls}">${esc(sf.address ?? sf.host ?? "")}</span>`} />
+    <DefinitionRow label="address" html={codeOf(address)} />
     {#if sf.entryPoint}
       <DefinitionRow label="entryPoint"><RecordLink id={stripStep(sf.entryPoint)} /></DefinitionRow>
     {/if}
     {#if pattern || option}
-      <DefinitionRow
-        label="pageFrame"
-        html={pattern ? `<span class="${codeCls}">${esc(pattern)}</span>${option ? " · " + esc(option) : ""}` : esc(option ?? "")}
-      />
+      <DefinitionRow label="pageFrame" html={pageFrameHtml} />
     {/if}
     <DefinitionRow label="Route">
       {#if r.route}
         <SourceLink src={{ path: routePath ?? "", line: 1 }} />
       {:else}
-        <span class={warnCls}>No page carries this screen.</span>
+        <span class="text-support-error">No page carries this screen.</span>
       {/if}
     </DefinitionRow>
   </DefinitionList>
 </PageSection>
 <PageSection blockKey="wire" heading="wireframe">
-  <Wireframe text={wire} title={r.title} />
+  <figure class="m-0 border border-border-subtle bg-field-on-layer">
+    <div class="flex h-8 items-center gap-2 overflow-hidden border-b border-border-subtle bg-layer px-3 font-mono text-xs text-text-secondary">{address}</div>
+    <Wireframe text={wire} title={r.title} />
+  </figure>
 </PageSection>
 {#if off.length}
   <PageSection blockKey="offers" heading="offers" count={off.length}>
     <DataTable
       head={["Use case", "Calls", "Coded", "Scenarios"]}
-      rows={off.map((u) => {
-        const q = book.get(stripStep(u));
-        const sc = book.scenariosOf(u);
-        const b = q?.machine
-          ? {
-              built: !!q.machine.coded,
-              scenarios: sc.length,
-              verified: sc.filter((x) => book.get(stripStep(x))?.proof?.state === "awaiting").length,
-            }
-          : null;
-        return [
-          tdHtml(inlineRefHtml(book, u)),
-          tdHtml(!r.route ? `<span class="${tnCls}">no page</span>` : calls.includes(u) ? "Yes" : `<span class="${warnCls}">No</span>`),
-          tdHtml(b ? (b.built ? "Yes" : `<span class="${warnCls}">No</span>`) : ""),
-          tdHtml(b ? (b.scenarios ? `${b.verified} of ${b.scenarios}` : `<span class="${warnCls}">None</span>`) : ""),
-        ];
-      })}
+      caption={`Use cases the ${r.title} screen offers`}
+      rows={off.map((u) => [thRow(refLink(book, u)), callsCell(u), codedCell(u), scenariosCell(u)])}
     />
   </PageSection>
 {/if}

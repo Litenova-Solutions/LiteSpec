@@ -1,44 +1,48 @@
 <script lang="ts">
-  import { book } from "$lib/frame";
+  import { book, cn } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
-  import { RecordIcon } from "$lib/record";
   import PageSection from "./blocks/PageSection.svelte";
-  import Fact from "./blocks/Fact.svelte";
-  import { codeCls } from "./page-html";
   import { checkLevelText } from "./page-values";
 
   // What the checks found on this record: each finding with its meaning, its
-  // message, and its check level.
+  // message, and its check level as a state tag.
   type Props = { r: BookRecord };
   let { r }: Props = $props();
   const list = $derived(r.findings ?? []);
+
+  const TAG = "inline-flex h-[18px] items-center rounded-full px-2 text-xs tracking-[0.32px]";
+
+  /** A finding level as a state tag: what the level blocks, or Covered. */
+  function tagClass(level: string, covered: boolean): string {
+    if (covered) return "bg-tag-teal text-tag-teal-foreground";
+    if (level === "G") return "bg-tag-red text-tag-red-foreground";
+    if (level === "S") return "bg-tag-warm text-tag-warm-foreground";
+    return "bg-tag-cool text-tag-cool-foreground";
+  }
 </script>
 
 {#if list.length}
   <PageSection blockKey="checks" heading="Findings" count={list.length}>
-    <div class="border-t border-slate-200">
-      {#each list as x, i (i)}
-        {@const level = String(x.level ?? x.tier ?? "")}
-        {@const label = x.covered ? "Covered" : checkLevelText(x.level ?? x.tier)}
-        <div class="grid grid-cols-[18px_minmax(0,1fr)_auto] gap-2 border-b border-slate-200 py-2 text-sm">
-          <RecordIcon name={x.covered ? "departure" : "alert"} class="mt-1 size-3.5 {x.covered ? 'text-slate-600' : 'text-warn-foreground'}" />
-          <div class="min-w-0">
-            <div class="font-medium text-slate-900">{book.findingMeaning(String(x.code ?? ""))}</div>
-            <div class="mt-1 text-sm text-slate-600">
-              {@html String(x.messageHtml ?? "")}
-            </div>
-            <div class="mt-1 flex flex-wrap gap-2">
-              <span class="font-mono text-xs text-slate-600">{String(x.code ?? "")}</span>
-              {#if x.path}
-                <span class={codeCls}>{String(x.path)}{x.line ? ":" + String(x.line) : ""}</span>
-              {/if}
-            </div>
-          </div>
-          <button type="button" class="cursor-help rounded-sm" data-explain={x.covered ? "covered" : level}>
-            <Fact text={label} />
+    {#each list as x, i (i)}
+      {@const level = String(x.level ?? x.tier ?? "")}
+      {@const label = x.covered ? "Covered" : checkLevelText(x.level ?? x.tier)}
+      <div class={i > 0 ? "mt-6 border-t border-border-subtle pt-6" : ""}>
+        <h3 class="text-sm leading-6 font-semibold">{book.findingMeaning(String(x.code ?? ""))}</h3>
+        <p class="mt-2">
+          <button type="button" class={cn(TAG, tagClass(level, !!x.covered))} data-explain={x.covered ? "covered" : level}>
+            {label}
           </button>
+        </p>
+        <div class="mt-2 text-sm [&_a]:text-link [&_a]:no-underline [&_a:hover]:underline [&_code]:bg-layer [&_code]:px-1 [&_code]:font-mono [&_code]:text-xs">
+          {@html String(x.messageHtml ?? "")}
         </div>
-      {/each}
-    </div>
+        <p class="mt-2 flex flex-wrap gap-2 font-mono text-xs">
+          <code class="bg-layer px-1">{String(x.code ?? "")}</code>
+          {#if x.path}
+            <code class="bg-layer px-1">{String(x.path)}{x.line ? ":" + String(x.line) : ""}</code>
+          {/if}
+        </p>
+      </div>
+    {/each}
   </PageSection>
 {/if}

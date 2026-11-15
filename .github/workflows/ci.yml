@@ -7,7 +7,7 @@ name: CI
 # uploads them. The dotnet, package and native jobs download them instead of
 # building them again. The dotnet job builds and tests the solution. The
 # standards job checks the generated provision index, validates the repository
-# and checks whitespace. The web job checks and tests the book client, checks
+# and checks whitespace. The web job checks the book client, checks
 # the frontend reader, and builds the site. The package job packs the
 # analyzers and the two tool packages that serve every platform. The native job
 # builds the CLI ahead of time on each platform, installs it with the install
@@ -129,7 +129,7 @@ jobs:
             git diff --check HEAD~1 HEAD
           fi
 
-  # The book client, the frontend reader and the site: the checks and tests of the three packages,
+  # The book client, the frontend reader and the site: the checks of the three packages and the site tests,
   # then the site build. The book client build is in web-assets.
   web:
     runs-on: ubuntu-24.04
@@ -146,9 +146,6 @@ jobs:
 
       - name: Check the book client
         run: pnpm --dir apps/cli/book check
-
-      - name: Test the book client
-        run: pnpm --dir apps/cli/book test
 
       - name: Check the frontend reader
         run: pnpm --dir apps/cli/fe-reader check

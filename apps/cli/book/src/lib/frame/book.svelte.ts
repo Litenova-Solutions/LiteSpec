@@ -491,6 +491,13 @@ export class Book {
     return lexiconTypeQuestion(this.lex, type);
   }
 
+  /** The record layer a type is written in, from the lexicon: its first layer key, or "" when the lexicon names none. */
+  typeLayer(type: string): string {
+    if (type === "code" || type === "route") return "implementation";
+    if (type === "test") return "proof";
+    return String(this.lex.types?.[type]?.layer ?? "").split(",")[0]?.trim() ?? "";
+  }
+
   /** A field reads with its LiteSpec label; an unknown field renders raw, never invented. */
   fieldLabel(field: string): string {
     return lexiconFieldLabel(this.lex, field);

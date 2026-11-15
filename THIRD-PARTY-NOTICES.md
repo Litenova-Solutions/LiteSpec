@@ -25,8 +25,8 @@ The book client (`book.js` and `book.css`) and the frontend reader (`litespec-fe
 | @floating-ui/core | 1.8.0 | MIT | Copyright (c) 2021-present Floating UI contributors | Book client |
 | @floating-ui/dom | 1.8.0 | MIT | Copyright (c) 2021-present Floating UI contributors | Book client |
 | @floating-ui/utils | 0.2.12 | MIT | Copyright (c) 2021-present Floating UI contributors | Book client |
-| @fontsource-variable/geist | 5.3.0 | OFL-1.1 | Copyright 2024 The Geist Project Authors | Book client (inlined fonts) |
-| @fontsource-variable/geist-mono | 5.3.0 | OFL-1.1 | Copyright 2024 The Geist Project Authors | Book client (inlined fonts) |
+| @fontsource-variable/ibm-plex-sans | 5.3.0 | OFL-1.1 | Copyright 2019 IBM Corp. | Book client (inlined fonts) |
+| @fontsource/ibm-plex-mono | 5.3.0 | OFL-1.1 | Copyright 2017 IBM Corp. | Book client (inlined fonts) |
 | @internationalized/date | 3.12.4 | Apache-2.0 | No copyright line in the package, and no author in its package.json | Book client |
 | @jridgewell/gen-mapping | 0.3.13 | MIT | Copyright 2024 Justin Ridgewell justin@ridgewell.name | Book client |
 | @jridgewell/remapping | 2.3.5 | MIT | Copyright 2024 Justin Ridgewell justin@ridgewell.name | Book client |
@@ -360,10 +360,10 @@ limitations under the License.
 
 ### SIL Open Font License 1.1
 
-The SIL Open Font License applies to the Geist and Geist Mono fonts the book client inlines.
+The SIL Open Font License applies to the IBM Plex Sans and IBM Plex Mono fonts the book client inlines.
 
 ```text
-Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font) Geist-Italic[wght].ttf: Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font)
+IBM Plex Sans: Copyright 2019 IBM Corp. All rights reserved. IBM Plex Mono: Copyright 2017 IBM Corp. All rights reserved.
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

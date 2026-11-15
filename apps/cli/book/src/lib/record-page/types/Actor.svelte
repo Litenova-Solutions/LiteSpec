@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { book, capitalize } from "$lib/frame";
+  import { book, capitalize, esc } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import PageSection from "../blocks/PageSection.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { badgeHtml, inlineRefHtml, tdHtml } from "../page-html";
+  import { inlineRefHtml, tdHtml } from "../page-html";
   import { stringField, stringList } from "../page-values";
 
   // An actor: the roles it holds. The scope of each grant is the role's own.
@@ -16,7 +16,7 @@
   <PageSection blockKey="holds" heading="holds" count={holds.length}>
     <DataTable
       head={["Role", "Scope"]}
-      rows={holds.map((role) => [tdHtml(inlineRefHtml(book, role)), tdHtml(badgeHtml(capitalize(stringField(book.get(role)?.fields, "scope") ?? "")))])}
+      rows={holds.map((role) => [tdHtml(inlineRefHtml(book, role)), tdHtml(esc(capitalize(stringField(book.get(role)?.fields, "scope") ?? "")))])}
     />
   </PageSection>
 {/if}

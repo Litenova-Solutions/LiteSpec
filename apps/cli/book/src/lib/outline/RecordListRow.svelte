@@ -1,16 +1,17 @@
 <script lang="ts">
   import { book, cn } from "$lib/frame";
   import { outlineState } from "./outline-state.svelte";
-  import { RecordIcon } from "$lib/record";
+  import { TypeTag } from "$lib/record";
 
-  // One record row in the Security view: the icon, the title and the finding text.
+  // One record row in the Security view: the kind badge, the title and the
+  // finding text. The row's accessible name holds the full title and finding.
   type Props = { id: string; suffix: string };
   let { id, suffix }: Props = $props();
 
   const selected = $derived(book.selected === id);
   const label = $derived.by(() => {
     return (
-      book.typeName(book.typeOf(id)) + ", " + book.title(id) +
+      book.typeName(book.typeOf(id)) + ", " + book.title(id) + ", " + suffix +
       (book.hasFailingProof(id) ? ", a test fails" : "") +
       (id !== book.selected && book.related.has(id) ? ", linked" : "")
     );
@@ -27,15 +28,13 @@
     data-rk={id}
     onclick={choose}
     class={cn(
-      "relative flex h-12 w-full cursor-pointer items-start gap-2 px-2 py-1.5 text-left text-sm select-none",
-      selected ? "bg-blue-50 font-medium text-slate-900" : "text-slate-900 hover:bg-slate-100",
+      "relative flex h-8 w-full cursor-pointer items-center gap-2 px-4 text-left text-sm select-none",
+      selected ? "bg-layer-selected font-semibold text-foreground" : "text-foreground hover:bg-layer-hover",
     )}
   >
-    {#if selected}<span aria-hidden="true" class="absolute top-[5px] bottom-[5px] left-0 w-0.5 rounded-full bg-blue-700"></span>{/if}
-    <span class="mt-0.5 grid flex-none text-slate-600"><RecordIcon name={book.typeOf(id)} class="size-4" /></span>
-    <span class="min-w-0 flex-1">
-      <span class="block overflow-hidden text-ellipsis whitespace-nowrap">{book.title(id)}</span>
-      <span class="block overflow-hidden text-ellipsis whitespace-nowrap text-xs font-normal text-slate-600">{suffix}</span>
-    </span>
+    {#if selected}<span aria-hidden="true" class="absolute top-0 bottom-0 left-0 w-1 bg-interactive"></span>{/if}
+    <TypeTag type={book.typeOf(id)} />
+    <span class="min-w-0 flex-1 truncate">{book.title(id)}</span>
+    <span class={cn("max-w-[45%] flex-none truncate text-xs", selected ? "text-text-secondary" : "text-text-helper")}>{suffix}</span>
   </button>
 </li>

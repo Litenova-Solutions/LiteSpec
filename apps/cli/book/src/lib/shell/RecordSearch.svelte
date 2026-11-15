@@ -2,8 +2,6 @@
   import { onDestroy } from "svelte";
   import { book } from "$lib/frame";
   import { RecordIcon } from "$lib/record";
-  import { Input } from "$lib/ui/input";
-  import { Kbd } from "$lib/ui/kbd";
   import { openRecord } from "./record-navigation";
 
   // The filter box as a combobox over the outline: after 120 ms of quiet the
@@ -96,10 +94,10 @@
   }
 </script>
 
-<div class="relative min-w-0 flex-[0_1_460px]">
-  <RecordIcon name="search" class="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-slate-600" />
-  <Input
-    bind:ref={input}
+<div class="relative h-12 min-w-0 flex-1 max-w-[560px] border-b border-[#6f6f6f] bg-shell-field">
+  <RecordIcon name="search" class="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-shell-secondary" />
+  <input
+    bind:this={input}
     type="search"
     placeholder="Find a record"
     aria-label="Filter the navigation"
@@ -108,11 +106,10 @@
     aria-controls="book-nav"
     aria-autocomplete="list"
     autocomplete="off"
-    class="pr-10 pl-8"
+    class="h-full w-full bg-transparent pr-4 pl-11 text-sm text-shell-foreground outline-none placeholder:text-shell-secondary focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-shell-foreground"
     value={book.query}
     onfocus={() => void book.ensureSearch()}
     oninput={(e) => changed((e.target as HTMLInputElement).value)}
     onkeydown={keyed}
   />
-  <Kbd class="absolute top-1/2 right-2 -translate-y-1/2" aria-hidden="true">/</Kbd>
 </div>

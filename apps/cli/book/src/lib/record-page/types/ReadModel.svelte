@@ -6,8 +6,8 @@
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
-  import { codeCls, inlineRefHtml, tdHtml } from "../page-html";
-  import { clsBadgeHtml, freshnessNoteHtml, objectList, stringField, stringList, typedFieldHtml } from "../page-values";
+  import { clsTag, codeOf, fieldType, refLink, td, thRow } from "../shared/record-cells";
+  import { freshnessNoteHtml, objectList, stringField, stringList } from "../page-values";
 
   // A read model: the rows one module keeps from another module's published facts, the
   // field each row takes from an integration event, and what removes a row.
@@ -22,8 +22,8 @@
   // A "from" value names the integration event and the payload field, as integration-event/<name>#field.
   function fromHtml(from: string | undefined): string {
     const [event = "", field = ""] = (from ?? "").split("#");
-    const link = event ? inlineRefHtml(book, event) : "";
-    return field ? `${link} <span class="font-mono text-xs text-slate-600">#${esc(field)}</span>` : link;
+    const link = event ? refLink(book, event) : "";
+    return field ? `${link} <span class="font-mono text-xs text-text-helper">#${esc(field)}</span>` : link;
   }
 </script>
 
@@ -42,13 +42,14 @@
   <PageSection blockKey="rows" heading="fields" count={fields.length}>
     <DataTable
       head={["Name", "Type", "From", "Accumulate", "Classification", "Erased by"]}
+      caption={`Fields of ${r.title}`}
       rows={fields.map((x) => [
-        tdHtml(esc(stringField(x, "name") ?? ""), "nm"),
-        tdHtml(typedFieldHtml(book, x)),
-        tdHtml(fromHtml(stringField(x, "from"))),
-        tdHtml(`<span class="${codeCls}">${esc(capitalize(stringField(x, "accumulate") ?? "latest"))}</span>`),
-        tdHtml(clsBadgeHtml(x.classification)),
-        tdHtml(stringField(x, "erasedBy") ? inlineRefHtml(book, stringField(x, "erasedBy") ?? "") : ""),
+        thRow(codeOf(stringField(x, "name") ?? "")),
+        td(fieldType(book, x)),
+        td(fromHtml(stringField(x, "from"))),
+        td(codeOf(capitalize(stringField(x, "accumulate") ?? "latest"))),
+        td(clsTag(x.classification)),
+        td(stringField(x, "erasedBy") ? refLink(book, stringField(x, "erasedBy") ?? "") : ""),
       ])}
     />
   </PageSection>

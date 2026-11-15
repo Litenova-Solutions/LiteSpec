@@ -2,10 +2,9 @@
   import { book, copyText, stripStep } from "$lib/frame";
   import type { BookRecord } from "$lib/frame";
   import { RecordIcon, SourceLink, TypeTag } from "$lib/record";
-  import { Button } from "$lib/ui/button";
 
-  // The page header: the breadcrumb from the parent chain, the title, the type
-  // tag, the identifier, the folder and the module, and the traversal row.
+  // The page header: the breadcrumb from the parent chain, the title, the kind
+  // badge, the identifier, the source file and the traversal row.
   // Without a record it shows the missing-record header instead.
   type Props = { id: string; r: BookRecord | null };
   let { id, r }: Props = $props();
@@ -18,6 +17,7 @@
   const sib = $derived(r ? book.siblingsOf(id).filter((x) => book.typeOf(x) === r.type) : []);
   const at = $derived(sib.indexOf(id));
   const parent = $derived(book.parent(id));
+  const upLabel = $derived(parent ? "Up to " + book.title(parent) : "Up to the parent");
 
   interface Crumb {
     id: string | null;
@@ -49,107 +49,104 @@
   }
 </script>
 
-<nav class="mb-4 flex items-center gap-2 overflow-hidden text-xs whitespace-nowrap text-slate-600" aria-label="Location">
-  {#each shown as crumb, i (i)}
-    {#if i > 0}<span class="shrink-0 text-slate-300" aria-hidden="true">/</span>{/if}
-    {#if crumb === null}
-      <span class="shrink-0" aria-hidden="true">&hellip;</span><span class="sr-only">Skipped levels</span>
-    {:else if crumb.id}
-      <a
-        href={"#" + encodeURIComponent(crumb.id)}
-        data-go={crumb.id}
-        title={crumb.label}
-        class="max-w-48 shrink-0 truncate hover:text-blue-700"
-      >
-        {crumb.label}
-      </a>
-    {:else}
-      <span class="max-w-48 shrink-0 truncate">{crumb.label}</span>
-    {/if}
-  {/each}
-  {#if shown.length}<span class="shrink-0 text-slate-300" aria-hidden="true">/</span>{/if}
-  <b class="min-w-0 truncate font-semibold text-slate-900">{rTitle}</b>
+<nav aria-label="Breadcrumbs">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+    {#each shown as crumb, i (i)}
+      <li class="flex min-w-0 items-center gap-2">
+        {#if i > 0}<span class="shrink-0 text-text-secondary" aria-hidden="true">/</span>{/if}
+        {#if crumb === null}
+          <span class="shrink-0" aria-hidden="true">&hellip;</span><span class="sr-only">Skipped levels</span>
+        {:else if crumb.id}
+          <a
+            href={"#" + encodeURIComponent(crumb.id)}
+            data-go={crumb.id}
+            class="max-w-48 shrink-0 truncate text-link hover:underline"
+          >
+            {crumb.label}
+          </a>
+        {:else}
+          <span class="max-w-48 shrink-0 truncate text-text-secondary">{crumb.label}</span>
+        {/if}
+      </li>
+    {/each}
+    <li class="flex min-w-0 items-center gap-2">
+      {#if shown.length}<span class="shrink-0 text-text-secondary" aria-hidden="true">/</span>{/if}
+      <span aria-current="page" class="min-w-0 truncate">{rTitle}</span>
+    </li>
+  </ol>
 </nav>
-<h1 id="record-title" tabindex="-1" class="outline-none m-0 mb-2 max-w-[72ch] text-2xl leading-[1.15] font-semibold tracking-[-0.03em]">{rTitle}</h1>
-{#if r}
-  <p class="mt-0 mb-2"><TypeTag type={r.type} /></p>
-{:else}
-  <p class="mt-0 mb-2 text-sm font-semibold text-slate-600">Record</p>
-{/if}
-<div class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600">
-  <button
-    type="button"
-    class="cursor-pointer rounded-sm"
-    aria-label={copied ? "Copy ID " + b + " (Copied)" : "Copy ID " + b}
-    title="Copy ID"
-    onclick={() => copy(b)}
-  >
-    <code class="font-mono text-xs font-medium break-all text-slate-900 hover:underline">{b}</code>
-  </button>
-  {#if r}
-    {#if r.folder}
-      <span class="text-slate-600">Folder</span>
+<header class="mt-5 flex items-start justify-between gap-6">
+  <div class="min-w-0">
+    <h1 id="record-title" tabindex="-1" class="m-0 text-[32px] leading-10 font-normal outline-none">{rTitle}</h1>
+    <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+      <TypeTag type={r ? r.type : book.typeOf(id)} size="lg" />
+      {#if !r}
+        <span class="inline-flex h-6 items-center rounded-full bg-tag-red px-2 text-xs tracking-[0.32px] text-tag-red-foreground">Not found</span>
+      {/if}
+      <span class="inline-flex min-h-6 items-center gap-2 bg-layer pl-2 font-mono text-xs [overflow-wrap:anywhere]">
+        {b}
+        <button
+          type="button"
+          class="grid size-6 cursor-pointer place-items-center hover:bg-hover-wash"
+          aria-label="Copy ID"
+          onclick={() => copy(b)}
+        >
+          <RecordIcon name="copy" />
+        </button>
+        {#if r}
+          <button
+            type="button"
+            class="grid size-6 cursor-pointer place-items-center hover:bg-hover-wash"
+            aria-label="Copy title"
+            onclick={() => copy(r.title)}
+          >
+            <RecordIcon name="copy" />
+          </button>
+        {/if}
+      </span>
+      {#if r?.src}
+        <SourceLink src={r.src} />
+      {/if}
+      {#if copied}
+        <span class="text-xs tracking-[0.32px] text-text-secondary" role="status" aria-live="polite">Copied</span>
+      {/if}
+    </div>
+  </div>
+  {#if r && book.layerOf[id]}
+    <nav aria-label="Siblings" class="flex flex-none items-center">
       <button
         type="button"
-        class="cursor-pointer rounded-sm"
-        aria-label={"Copy folder " + r.folder}
-        title="Copy folder"
-        onclick={() => copy(r.folder ?? "")}
+        class="grid size-8 cursor-pointer place-items-center hover:bg-hover-wash disabled:cursor-not-allowed disabled:opacity-30"
+        aria-label={upLabel}
+        data-go={parent ?? ""}
+        disabled={!parent}
       >
-        <code class="font-mono text-xs font-medium break-all text-slate-900 hover:underline">{r.folder}</code>
+        <RecordIcon name="up" />
       </button>
-    {/if}
-    {#if r.module}
-      <span class="text-slate-600">Module</span>
-      <code class="font-mono text-xs font-medium break-all text-slate-900">{r.module}</code>
-    {/if}
-    {#if r.src}
-      <SourceLink src={r.src} />
-    {/if}
-    <span class="ml-auto inline-flex items-center gap-2">
-      <Button variant="outline" size="sm" class="h-7" aria-label="Copy Title" onclick={() => copy(r.title)}>
-        <RecordIcon name="copy" class="size-3.5" /><span>Copy Title</span>
-      </Button>
-      <Button variant="outline" size="sm" class="h-7" aria-label={copied ? "Copy ID (Copied)" : "Copy ID"} onclick={() => copy(b)}>
-        <RecordIcon name="copy" class="size-3.5" /><span>Copy ID</span>
-      </Button>
-      {#if copied}
-        <span class="text-xs font-semibold text-success-foreground" role="status" aria-live="polite">Copied</span>
-      {/if}
-    </span>
+      <button
+        type="button"
+        class="grid size-8 cursor-pointer place-items-center hover:bg-hover-wash disabled:cursor-not-allowed disabled:opacity-30"
+        aria-label="Previous sibling"
+        data-go={sib[at - 1] ?? ""}
+        disabled={at <= 0}
+      >
+        <RecordIcon name="back" />
+      </button>
+      <span class="min-w-0 px-2 text-xs whitespace-nowrap tracking-[0.32px] text-text-secondary tabular-nums">
+        {at + 1} of {sib.length} {pluralName.toLowerCase()}
+      </span>
+      <button
+        type="button"
+        class="grid size-8 cursor-pointer place-items-center hover:bg-hover-wash disabled:cursor-not-allowed disabled:opacity-30"
+        aria-label="Next sibling"
+        data-go={sib[at + 1] ?? ""}
+        disabled={at < 0 || at >= sib.length - 1}
+      >
+        <RecordIcon name="chev" />
+      </button>
+    </nav>
   {/if}
-</div>
+</header>
 {#if !r}
-  <p class="mt-0 mb-2 text-xs text-slate-600">No record with this identifier is in the book.</p>
-{/if}
-{#if r && book.layerOf[id]}
-  <div class="mb-4 flex items-center gap-2 text-xs text-slate-600">
-    <Button variant="outline" size="sm" data-go={parent ?? ""} disabled={!parent} title="Up to the parent (u)">
-      <RecordIcon name="up" class="size-3.5" />Up
-    </Button>
-    <Button
-      variant="outline"
-      size="icon-sm"
-      aria-label="Previous sibling"
-      title="Previous sibling ([)"
-      data-go={sib[at - 1] ?? ""}
-      disabled={at <= 0}
-    >
-      <RecordIcon name="back" class="size-3.5" />
-    </Button>
-    <span class="mx-1 min-w-0 tabular-nums">
-      {at + 1} of {sib.length} {pluralName.toLowerCase()}{parent ? " in " + book.title(parent) : ""}
-    </span>
-    <Button
-      variant="outline"
-      size="icon-sm"
-      aria-label="Next sibling"
-      title="Next sibling (])"
-      data-go={sib[at + 1] ?? ""}
-      disabled={at < 0 || at >= sib.length - 1}
-    >
-      <RecordIcon name="chev" class="size-3.5" />
-    </Button>
-    <span class="flex-1"></span>
-  </div>
+  <p class="mt-6 max-w-[44rem] text-xl leading-7 font-light">No record with this identifier is in the book.</p>
 {/if}

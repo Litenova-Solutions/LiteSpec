@@ -4,4 +4,4 @@
   let { text }: Props = $props();
 </script>
 
-<span class="font-medium text-slate-900">{text}</span>
+<span class="font-medium text-foreground">{text}</span>

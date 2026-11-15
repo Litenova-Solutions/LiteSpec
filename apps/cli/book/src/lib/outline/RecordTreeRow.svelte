@@ -1,13 +1,14 @@
 <script lang="ts">
   import { book, cn } from "$lib/frame";
   import { outlineState } from "./outline-state.svelte";
-  import { RecordIcon } from "$lib/record";
+  import { RecordIcon, TypeTag } from "$lib/record";
   import RowMarks from "./RowMarks.svelte";
   import { indentClass } from "./outline-rows";
 
-  // One record row in the outline tree: the toggle, the icon, the title, the
-  // child count and the row marks. The chevron only expands or collapses; the
-  // row body selects. The best search hit carries a marker while a query is active.
+  // One record row in the outline tree: the toggle, the kind badge, the
+  // title, the child count and the row marks. The chevron only expands or
+  // collapses; the row body selects. The best search hit carries a marker
+  // while a query is active. The row's accessible name holds the full title.
   type Props = {
     id: string;
     depth?: number;
@@ -51,19 +52,19 @@
   onclick={choose}
   onkeydown={key}
   class={cn(
-    "relative flex h-8 cursor-pointer items-center gap-2 pr-2 text-sm leading-[1.35] select-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-blue-600",
+    "relative flex h-8 cursor-pointer items-center gap-2 pr-4 text-sm leading-[1.35] select-none",
     indentClass(depth),
-    selected ? "bg-blue-50 font-medium text-slate-900" : "text-slate-900 hover:bg-slate-100",
+    selected ? "bg-layer-selected font-semibold text-foreground" : "text-foreground hover:bg-layer-hover",
     dim && "opacity-[0.55]",
-    best && !selected && "bg-blue-50/50",
+    best && !selected && "bg-hover-wash",
   )}
 >
-  {#if selected}<span aria-hidden="true" class="absolute top-[5px] bottom-[5px] left-0 w-0.5 rounded-full bg-blue-700"></span>{/if}
-  <button type="button" tabindex={-1} aria-hidden="true" onclick={toggle} class={cn("grid size-6 flex-none cursor-pointer place-items-center text-slate-600", !kids && "invisible")}>
+  {#if selected}<span aria-hidden="true" class="absolute top-0 bottom-0 left-0 w-1 bg-interactive"></span>{/if}
+  <button type="button" tabindex={-1} aria-hidden="true" onclick={toggle} class={cn("grid h-8 w-6 flex-none cursor-pointer place-items-center text-text-secondary", !kids && "invisible")}>
     <RecordIcon name="chev" class={cn("size-4 motion-safe:transition-transform motion-safe:duration-150", open && "rotate-90")} />
   </button>
-  <span class="grid flex-none text-slate-600"><RecordIcon name={book.typeOf(id)} class="size-4" /></span>
-  <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={book.title(id)}>{book.title(id)}</span>
-  {#if !open && kids > 0}<span class="text-xs text-slate-600 tabular-nums">{kids}</span>{/if}
+  <TypeTag type={book.typeOf(id)} />
+  <span class="min-w-0 flex-1 truncate">{book.title(id)}</span>
+  {#if !open && kids > 0}<span class={cn("text-xs tabular-nums", selected ? "text-text-secondary" : "text-text-helper")}>{kids}</span>{/if}
   <span class="flex flex-none items-center gap-2"><RowMarks {id} /></span>
 </div>

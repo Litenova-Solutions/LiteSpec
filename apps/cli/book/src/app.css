@@ -3,74 +3,164 @@
 @plugin "@tailwindcss/typography";
 
 /* Authored prose is ASCII, so the Latin subsets cover the book; they are inlined so it opens offline. */
-@font-face { font-family: "Geist Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2-variations"); }
-@font-face { font-family: "Geist Mono Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "IBM Plex Sans Variable"; font-style: normal; font-display: swap; font-weight: 100 700; src: url("@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2") format("woff2-variations"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-display: swap; font-weight: 400; src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-display: swap; font-weight: 600; src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2") format("woff2"); }
 
-/* The Harbor palette with the Clear treatment, light only, as Tailwind palette
-   steps: the page is slate-100, cards are white with a slate-300 edge, rules
-   are slate-200, text is slate-900, muted text is slate-600, the one accent
-   is blue-700 and focus is blue-600. mark-ink and mark-symbol are the product
-   brand, outside the palette. */
+/* The IBM Carbon v11 palette: the White theme in light, the G100 theme in dark,
+   chosen by the reader's color scheme through light-dark(). The record page is
+   the background, the outline and containers are one layer down, and the top
+   bar is G100 in both schemes. The shadcn names below map onto these roles, so
+   the vendored components follow the palette. Kinds take one color per record
+   layer: purple for Intent, blue for Behavior, warm gray for governance, teal
+   for Proof and cyan for Implementation. */
 :root {
-  --radius: 0.5rem;
-  --background: var(--color-slate-100);
-  --foreground: var(--color-slate-900);
-  --card: var(--color-white);
-  --card-foreground: var(--color-slate-900);
-  --popover: var(--color-white);
-  --popover-foreground: var(--color-slate-900);
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-white);
-  --secondary: var(--color-slate-200);
-  --secondary-foreground: var(--color-slate-900);
-  --muted: var(--color-slate-100);
-  --muted-foreground: var(--color-slate-600);
-  --accent: var(--color-slate-100);
-  --accent-foreground: var(--color-slate-900);
-  --destructive: var(--color-red-700);
-  --border: var(--color-slate-200);
-  --input: var(--color-slate-400);
-  --ring: var(--color-blue-600);
-  --strong: var(--color-slate-300);
-  --subtle-foreground: var(--color-slate-700);
-  --highlight: var(--color-amber-300);
-  --mark-ink: #0F1B33;
+  color-scheme: light dark;
+  --radius: 0;
+
+  /* Surfaces */
+  --background: light-dark(#ffffff, #161616);
+  --layer: light-dark(#f4f4f4, #262626);
+  --layer-hover: light-dark(#e8e8e8, #333333);
+  --layer-selected: light-dark(#e0e0e0, #393939);
+  --layer-accent: light-dark(#e0e0e0, #393939);
+  --field: light-dark(#f4f4f4, #262626);
+  --field-on-layer: light-dark(#ffffff, #393939);
+  --hover-wash: light-dark(rgb(141 141 141 / 0.12), rgb(141 141 141 / 0.16));
+
+  /* Text and lines */
+  --foreground: light-dark(#161616, #f4f4f4);
+  --text-secondary: light-dark(#525252, #c6c6c6);
+  --text-helper: light-dark(#6f6f6f, #a8a8a8);
+  --border-subtle: light-dark(#e0e0e0, #393939);
+  --border-strong: light-dark(#8d8d8d, #6f6f6f);
+  --link: light-dark(#0f62fe, #78a9ff);
+  --interactive: light-dark(#0f62fe, #4589ff);
+  --focus: light-dark(#0f62fe, #ffffff);
+
+  /* Support colors and notification washes */
+  --support-error: light-dark(#da1e28, #fa4d56);
+  --support-success: light-dark(#24a148, #42be65);
+  --support-warning: #f1c21b;
+  --support-info: light-dark(#0043ce, #4589ff);
+  --warning-ink: light-dark(#8e6a00, #f1c21b);
+  --note-error: light-dark(#fff1f1, #262626);
+  --note-success: light-dark(#defbe6, #262626);
+  --note-warning: light-dark(#fcf4d6, #262626);
+  --note-info: light-dark(#edf5ff, #262626);
+
+  /* Tags: background and text per Carbon tag type */
+  --tag-gray: light-dark(#e0e0e0, #525252);
+  --tag-gray-foreground: light-dark(#161616, #f4f4f4);
+  --tag-cool: light-dark(#dde1e6, #4d5358);
+  --tag-cool-foreground: light-dark(#121619, #f2f4f8);
+  --tag-warm: light-dark(#e5e0df, #565151);
+  --tag-warm-foreground: light-dark(#171414, #f7f3f2);
+  --tag-blue: light-dark(#d0e2ff, #0043ce);
+  --tag-blue-foreground: light-dark(#0043ce, #d0e2ff);
+  --tag-purple: light-dark(#e8daff, #6929c4);
+  --tag-purple-foreground: light-dark(#6929c4, #e8daff);
+  --tag-teal: light-dark(#9ef0f0, #005d5d);
+  --tag-teal-foreground: light-dark(#005d5d, #9ef0f0);
+  --tag-cyan: light-dark(#bae6ff, #00539a);
+  --tag-cyan-foreground: light-dark(#00539a, #bae6ff);
+  --tag-green: light-dark(#a7f0ba, #0e6027);
+  --tag-green-foreground: light-dark(#0e6027, #a7f0ba);
+  --tag-red: light-dark(#ffd7d9, #a2191f);
+  --tag-red-foreground: light-dark(#a2191f, #ffd7d9);
+
+  /* The G100 top bar, the same in both schemes */
+  --shell: #161616;
+  --shell-foreground: #f4f4f4;
+  --shell-secondary: #c6c6c6;
+  --shell-field: #262626;
+  --shell-hover: #2c2c2c;
+  --shell-border: #393939;
+  --shell-interactive: #4589ff;
+
+  /* The tooltip is inverse */
+  --tip: light-dark(#393939, #f4f4f4);
+  --tip-foreground: light-dark(#f4f4f4, #161616);
+
+  /* The shadcn roles the vendored components read */
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--layer);
+  --popover-foreground: var(--foreground);
+  --primary: var(--interactive);
+  --primary-foreground: #ffffff;
+  --secondary: light-dark(#393939, #6f6f6f);
+  --secondary-foreground: #ffffff;
+  --muted: var(--layer);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--layer-hover);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--support-error);
+  --border: var(--border-subtle);
+  --input: var(--border-strong);
+  --ring: var(--focus);
+  --mark-ink: light-dark(#0F1B33, #f4f4f4);
   --mark-symbol: #EFA73A;
-  --highlight-foreground: var(--color-amber-800);
-  --highlight-soft: var(--color-amber-100);
-  --highlight-subtle: var(--color-amber-50);
-  --rule: var(--color-amber-50);
-  --rule-border: var(--color-amber-200);
-  --rule-foreground: var(--color-amber-800);
-  --convention: var(--color-green-50);
-  --convention-border: var(--color-green-200);
-  --convention-foreground: var(--color-green-800);
-  --pattern: var(--color-blue-50);
-  --pattern-border: var(--color-blue-200);
-  --pattern-foreground: var(--color-blue-800);
-  --warn: var(--color-red-50);
-  --warn-border: var(--color-red-200);
-  --warn-foreground: var(--color-red-800);
-  --success-foreground: var(--color-green-800);
-  --sidebar: var(--color-white);
-  --sidebar-foreground: var(--color-slate-900);
-  --sidebar-border: var(--color-slate-200);
-  --sidebar-accent: var(--color-blue-50);
-  --sidebar-accent-foreground: var(--color-slate-900);
-  --sidebar-primary: var(--color-blue-700);
-  --sidebar-primary-foreground: var(--color-white);
-  --sidebar-ring: var(--color-blue-600);
-  color-scheme: light;
 }
 
 @theme inline {
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
+  --font-sans: "IBM Plex Sans Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", Menlo, "DejaVu Sans Mono", Courier, monospace;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-layer: var(--layer);
+  --color-layer-hover: var(--layer-hover);
+  --color-layer-selected: var(--layer-selected);
+  --color-layer-accent: var(--layer-accent);
+  --color-field: var(--field);
+  --color-field-on-layer: var(--field-on-layer);
+  --color-hover-wash: var(--hover-wash);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-helper: var(--text-helper);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-link: var(--link);
+  --color-interactive: var(--interactive);
+  --color-focus: var(--focus);
+  --color-support-error: var(--support-error);
+  --color-support-success: var(--support-success);
+  --color-support-warning: var(--support-warning);
+  --color-support-info: var(--support-info);
+  --color-warning-ink: var(--warning-ink);
+  --color-note-error: var(--note-error);
+  --color-note-success: var(--note-success);
+  --color-note-warning: var(--note-warning);
+  --color-note-info: var(--note-info);
+  --color-tag-gray: var(--tag-gray);
+  --color-tag-gray-foreground: var(--tag-gray-foreground);
+  --color-tag-cool: var(--tag-cool);
+  --color-tag-cool-foreground: var(--tag-cool-foreground);
+  --color-tag-warm: var(--tag-warm);
+  --color-tag-warm-foreground: var(--tag-warm-foreground);
+  --color-tag-blue: var(--tag-blue);
+  --color-tag-blue-foreground: var(--tag-blue-foreground);
+  --color-tag-purple: var(--tag-purple);
+  --color-tag-purple-foreground: var(--tag-purple-foreground);
+  --color-tag-teal: var(--tag-teal);
+  --color-tag-teal-foreground: var(--tag-teal-foreground);
+  --color-tag-cyan: var(--tag-cyan);
+  --color-tag-cyan-foreground: var(--tag-cyan-foreground);
+  --color-tag-green: var(--tag-green);
+  --color-tag-green-foreground: var(--tag-green-foreground);
+  --color-tag-red: var(--tag-red);
+  --color-tag-red-foreground: var(--tag-red-foreground);
+  --color-shell: var(--shell);
+  --color-shell-foreground: var(--shell-foreground);
+  --color-shell-secondary: var(--shell-secondary);
+  --color-shell-field: var(--shell-field);
+  --color-shell-hover: var(--shell-hover);
+  --color-shell-border: var(--shell-border);
+  --color-shell-interactive: var(--shell-interactive);
+  --color-tip: var(--tip);
+  --color-tip-foreground: var(--tip-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -87,46 +177,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-strong: var(--strong);
-  --color-subtle-foreground: var(--subtle-foreground);
-  --color-highlight: var(--highlight);
-  --color-highlight-foreground: var(--highlight-foreground);
-  --color-highlight-soft: var(--highlight-soft);
-  --color-highlight-subtle: var(--highlight-subtle);
-  --color-rule: var(--rule);
-  --color-rule-border: var(--rule-border);
-  --color-rule-foreground: var(--rule-foreground);
-  --color-convention: var(--convention);
-  --color-convention-border: var(--convention-border);
-  --color-convention-foreground: var(--convention-foreground);
-  --color-pattern: var(--pattern);
-  --color-pattern-border: var(--pattern-border);
-  --color-pattern-foreground: var(--pattern-foreground);
-  --color-warn: var(--warn);
-  --color-warn-border: var(--warn-border);
-  --color-warn-foreground: var(--warn-foreground);
-  --color-success-foreground: var(--success-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground font-sans text-sm leading-relaxed antialiased; }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-sans text-sm antialiased; letter-spacing: 0.16px; line-height: 1.43; }
   /* The book is desktop only: below 1024 CSS pixels the page scrolls sideways. */
   body { min-width: 1024px; }
-  /* Keyboard focus stays visible on plain links and buttons; the vendored
-     components keep their own rings (utilities beat this base rule). */
-  :where(a, button, input, select, textarea, [role="button"]):focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
+  /* Carbon focus: a 2px inset outline on every link and control. */
+  :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
   }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p, li, dd { text-wrap: pretty; }
+  code, kbd, samp { font-family: var(--font-mono); }
 }
 
 /* Readers who ask for reduced motion get none of the book's transitions. */

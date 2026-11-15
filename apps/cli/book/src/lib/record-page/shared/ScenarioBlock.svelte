@@ -7,7 +7,7 @@
 
   // The scenarios of a use case, failing first, with a Show all button past six.
   type Props = { id: string; scs: string[] };
-  let { scs }: Props = $props();
+  let { id, scs }: Props = $props();
 
   const list = $derived((scs ?? []).filter((s) => book.get(stripStep(s))));
   const ordered = $derived(
@@ -31,9 +31,9 @@
 
 {#if list.length}
   <PageSection blockKey="sc" heading="Scenarios" count={list.length} aside={aside}>
-    <div class="grid gap-2">
+    <div class="border-t border-border-subtle" role="group" aria-label={book.fieldLabel("Scenarios")}>
       {#each shown as sid, i (sid)}
-        <ScenarioCard {sid} initiallyOpen={i === 0 && book.get(stripStep(sid))?.proof?.state === "failing"} />
+        <ScenarioCard {sid} group={id} initiallyOpen={i === 0 && book.get(stripStep(sid))?.proof?.state === "failing"} />
       {/each}
     </div>
     {#if ordered.length > shown.length}

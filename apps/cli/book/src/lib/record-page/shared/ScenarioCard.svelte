@@ -1,16 +1,17 @@
 <script lang="ts">
   import { book, stripStep } from "$lib/frame";
-  import { ProofMark, RecordIcon } from "$lib/record";
-  import Fact from "../blocks/Fact.svelte";
+  import { ProofMark, RecordIcon, RecordLink } from "$lib/record";
   import GivenWhenThen from "./GivenWhenThen.svelte";
-  import { codeCls } from "../page-html";
   import { resultInfoOf, scenarioFields } from "../page-values";
+  import { tag } from "./record-cells";
 
-  // One scenario card: the title with its proof mark, opening to Given, When and Then.
-  type Props = { sid: string; initiallyOpen?: boolean };
-  let { sid, initiallyOpen = false }: Props = $props();
-  let open = $state<boolean | null>(null);
-  const isOpen = $derived(open ?? initiallyOpen);
+  // One scenario in the accordion: the title with its result and proof tags,
+  // opening to Given, When and Then.
+  type Props = { sid: string; initiallyOpen?: boolean; group?: string };
+  let { sid, initiallyOpen = false, group = "scenarios" }: Props = $props();
+  // The first render opens a card the block asks to open; the reader toggles it after.
+  // svelte-ignore state_referenced_locally
+  let open = $state(initiallyOpen);
   const s = $derived(book.get(stripStep(sid)));
   const cf = $derived(scenarioFields(s?.fields ?? {}));
   const resultId = $derived(book.outs(stripStep(sid), "result")[0] ?? null);
@@ -18,31 +19,28 @@
 </script>
 
 {#if s}
-  <div class="overflow-hidden rounded-lg border border-slate-300 bg-white shadow-sm">
-    <button
-      type="button"
-      class="flex w-full items-center gap-2.5 bg-white px-3.5 py-2.5 text-left hover:bg-slate-100"
-      aria-expanded={isOpen}
-      onclick={() => (open = !isOpen)}
-    >
-      <RecordIcon name="chev" class="size-3.5 text-slate-600 motion-safe:transition-transform {isOpen ? 'rotate-90' : ''}" />
-      <span class="flex-1 text-sm font-medium">{s.title}</span>
+  <details
+    name={group}
+    {open}
+    class="border-b border-border-subtle"
+    ontoggle={(e) => {
+      open = (e.currentTarget as HTMLDetailsElement).open;
+    }}
+  >
+    <summary class="flex min-h-10 cursor-pointer items-center gap-3 px-2 hover:bg-layer-hover">
+      <RecordIcon name="chev" class="size-4 text-text-secondary motion-safe:transition-transform {open ? 'rotate-90' : ''}" />
+      <span class="flex-1">{s.title}</span>
+      {#if ri}{@html tag(ri.title, ri.outcome === "success" ? "green" : "red")}{/if}
       <ProofMark state={s.proof?.state ?? null} />
-    </button>
-    {#if isOpen}
-      <div class="py-1 pr-3.5 pb-3.5 pl-10">
-        <GivenWhenThen given={cf.given ?? ""} when={cf.when ?? ""} then={cf.then ?? ""} />
-        <div class="mt-3 flex flex-wrap items-center gap-2 border-t border-dashed border-slate-200 pt-2.5 text-xs text-slate-600">
-          {#if ri}
-            <Fact text={ri.title} />
-            {#if ri.code}<span class={codeCls}>{ri.code}</span>{/if}
-          {/if}
-          <span class="flex-1"></span>
-          <button type="button" class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900" data-go={sid}>
-            Open scenario
-          </button>
-        </div>
-      </div>
-    {/if}
-  </div>
+    </summary>
+    <div class="pb-6 pl-9">
+      <GivenWhenThen given={cf.given ?? ""} when={cf.when ?? ""} then={cf.then ?? ""} />
+      {#if cf.exercises.length}
+        <p class="mt-4 text-sm text-text-secondary">
+          {book.fieldLabel("exercises")}
+          {#each cf.exercises as x, i (x)}{#if i > 0}{", "}{/if}<RecordLink id={x} />{/each}
+        </p>
+      {/if}
+    </div>
+  </details>
 {/if}
