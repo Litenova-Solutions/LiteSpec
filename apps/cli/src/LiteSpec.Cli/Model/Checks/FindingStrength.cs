@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Model.Checks;
 /// <summary>
 ///     Grades each finding by the strength of the provisions its code is checked by. A code whose every governing provision
 ///     is advisory reports at level A and never blocks; a code on a required provision keeps its level, so it blocks unless
-///     a departure parks it. A code no provision names keeps its level.
+///     a waiver parks it. A code no provision names keeps its level.
 /// </summary>
 /// <follows>litespec/core/principles#state-the-strength-of-every-provision</follows>
 /// <follows>litespec/core/model#mark-every-check-with-its-level</follows>

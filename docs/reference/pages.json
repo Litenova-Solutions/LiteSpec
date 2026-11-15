@@ -40,7 +40,7 @@
       "style": "how-to",
       "area": "analyzers",
       "title": "Check .NET Code with the Analyzers",
-      "intent": "The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.",
+      "intent": "The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate waiver. Each step names the standard it satisfies, and the guide adds no rule of its own.",
       "sections": [
         "Purpose",
         "Prerequisites",
@@ -1050,20 +1050,6 @@
       ]
     },
     {
-      "file": "docs/core/departures.md",
-      "path": "core/departures",
-      "style": "standard",
-      "area": "core",
-      "title": "Departures",
-      "intent": "A departure is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a departure holds, when to record one, how it covers a finding, what no departure covers, and when it expires. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
-      "sections": [
-        "Intent",
-        "Concepts",
-        "Standards",
-        "Conventions"
-      ]
-    },
-    {
       "file": "docs/core/domain-model.md",
       "path": "core/domain-model",
       "style": "standard",
@@ -1283,6 +1269,20 @@
       ]
     },
     {
+      "file": "docs/core/waivers.md",
+      "path": "core/waivers",
+      "style": "standard",
+      "area": "core",
+      "title": "Waivers",
+      "intent": "A waiver is the one record that sets a provision, a page or a finding code aside for one project, with its reason. This page states what a waiver holds, when to record one, how it covers a finding, what no waiver covers, and when it expires. The [model page](model.md) states the record types and the checks, and the [scope page](scope.md) states the record layers a project claims.",
+      "sections": [
+        "Intent",
+        "Concepts",
+        "Standards",
+        "Conventions"
+      ]
+    },
+    {
       "file": "docs/core/writing.md",
       "path": "core/writing",
       "style": "standard",
@@ -1391,11 +1391,11 @@
       "style": "explanation",
       "area": "example",
       "title": "The Model and Its Checks",
-      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the departures that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
+      "intent": "The project model joins the written records of a project to its code, screens and tests, and its checks report every gap as a finding. This page shows those checks on Claimwick with real output: the full run of \u0060litespec model check\u0060 on the example, the waivers that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against \u0060examples/claimwick\u0060, and the output is copied from that run.",
       "sections": [
         "Intent",
         "The Full Check",
-        "A Departure That Covers a Finding",
+        "A Waiver That Covers a Finding",
         "Proof for the Use Cases",
         "Querying One Record",
         "The Continuous Integration Jobs"
@@ -2517,8 +2517,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0005-journeys-serve-a-goal/0005-journeys-serve-a-goal.md",
-      "path": "intent/decisions/0005-journeys-serve-a-goal/0005-journeys-serve-a-goal",
+      "file": "docs/intent/decisions/0005-flows-serve-a-goal/0005-flows-serve-a-goal.md",
+      "path": "intent/decisions/0005-flows-serve-a-goal/0005-flows-serve-a-goal",
       "style": "decision",
       "area": "intent",
       "title": "Flows Serve a Goal",
@@ -2613,11 +2613,11 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0014-one-exception-record/0014-one-exception-record.md",
-      "path": "intent/decisions/0014-one-exception-record/0014-one-exception-record",
+      "file": "docs/intent/decisions/0014-one-waiver-record/0014-one-waiver-record.md",
+      "path": "intent/decisions/0014-one-waiver-record/0014-one-waiver-record",
       "style": "decision",
       "area": "intent",
-      "title": "One Departure Record",
+      "title": "One Waiver Record",
       "intent": "",
       "sections": [
         "Context",
@@ -3121,8 +3121,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey.md",
-      "path": "intent/decisions/0048-state-the-start-and-branches-of-each-journey/0048-state-the-start-and-branches-of-each-journey",
+      "file": "docs/intent/decisions/0048-state-the-start-and-branches-of-each-flow/0048-state-the-start-and-branches-of-each-flow.md",
+      "path": "intent/decisions/0048-state-the-start-and-branches-of-each-flow/0048-state-the-start-and-branches-of-each-flow",
       "style": "decision",
       "area": "intent",
       "title": "State the Start and Branches of Each Flow",
@@ -3136,8 +3136,8 @@
       ]
     },
     {
-      "file": "docs/intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences.md",
-      "path": "intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences",
+      "file": "docs/intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md",
+      "path": "intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences",
       "style": "decision",
       "area": "intent",
       "title": "Use Literal Flow Words and Concrete Consequences",
@@ -4067,13 +4067,13 @@
       "style": "explanation",
       "area": "learn",
       "title": "Read the Standard",
-      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the departures the standard provides for rules a project cannot follow.",
+      "intent": "A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file \u0060.litespec/project.yaml\u0060) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the waivers the standard provides for rules a project cannot follow.",
       "sections": [
         "Intent",
         "A Project\u0027s Selection",
         "The Page Arrangement",
         "Page Sections and Provisions",
-        "Departures from the Rules",
+        "Waivers from the Rules",
         "UI Patterns",
         "Next"
       ]
@@ -4102,7 +4102,7 @@
       "style": "explanation",
       "area": "learn",
       "title": "Adopt LiteSpec in Steps",
-      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.",
+      "intent": "Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each waiver from a single provision stays recorded until it is resolved.",
       "sections": [
         "Intent",
         "Fit Check",
@@ -4110,7 +4110,7 @@
         "Step 1: Claim Intent and Behavior",
         "Step 2: Add Implementation",
         "Step 3: Add Proof",
-        "Departures for a Single Provision",
+        "Waivers for a Single Provision",
         "Next Steps"
       ]
     },
@@ -4852,7 +4852,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -4868,6 +4867,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/workspace/config.md",
         "docs/workspace/dependencies.md",
@@ -5212,7 +5212,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5228,6 +5227,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/quality/ci.md",
         "docs/quality/operations.md",
@@ -5273,7 +5273,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5289,6 +5288,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",
@@ -5362,7 +5362,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5378,6 +5377,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",
@@ -5451,7 +5451,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5467,6 +5466,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/blazor/stack.md",
         "docs/frontend/components.md",
@@ -5532,7 +5532,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5548,6 +5547,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",
@@ -5605,7 +5605,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5621,6 +5620,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",
@@ -5679,7 +5679,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5695,6 +5694,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",
@@ -5753,7 +5753,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5769,6 +5768,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/blazor/stack.md",
         "docs/frontend/components.md",
@@ -5819,7 +5819,6 @@
         "docs/core/authoring.md",
         "docs/core/automation.md",
         "docs/core/behavior.md",
-        "docs/core/departures.md",
         "docs/core/domain-model.md",
         "docs/core/edges.md",
         "docs/core/intent.md",
@@ -5835,6 +5834,7 @@
         "docs/core/stacks.md",
         "docs/core/system.md",
         "docs/core/use-cases.md",
+        "docs/core/waivers.md",
         "docs/core/writing.md",
         "docs/frontend/components.md",
         "docs/frontend/data.md",

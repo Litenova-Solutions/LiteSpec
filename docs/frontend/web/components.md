@@ -89,7 +89,7 @@ function OrderTotal({ orderId }: { orderId: string }) {
 
 **Statement:** A web frontend SHOULD send `require-trusted-types-for 'script'` in its Content Security Policy and pass every raw markup string through one named policy that calls the sanitizer `litespec/frontend/components#sanitize-untrusted-rich-content` records.
 
-**Departure:** A frontend whose framework runtime or a required library writes markup through a sink the named policy cannot cover keeps the directive in report-only mode and records the sink in its sanitization decision.
+**Deviation:** A frontend whose framework runtime or a required library writes markup through a sink the named policy cannot cover keeps the directive in report-only mode and records the sink in its sanitization decision.
 
 **Rationale:** A recorded sanitizer protects only the calls that remember to use it. Trusted Types makes the browser refuse any raw string written into `innerHTML` or a similar sink, so a component that forgets the sanitizer fails in testing instead of in a staff member's browser. Framework runtimes and libraries also write markup through those sinks, so a team first sends the policy as `Content-Security-Policy-Report-Only`, reads the reports, and enforces it once every reported sink passes through the named policy.
 

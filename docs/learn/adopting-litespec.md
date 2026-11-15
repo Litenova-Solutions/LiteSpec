@@ -2,7 +2,7 @@
 
 ## Intent
 
-Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each departure from a single provision stays recorded until it is resolved.
+Adopting LiteSpec means pinning one release, claiming the record layers the team uses, and building to those claims with their checks in place. A team starts with Intent and Behavior, adds Implementation and Proof when it is ready, and works in either order. Each waiver from a single provision stays recorded until it is resolved.
 
 ## Fit Check
 
@@ -38,9 +38,9 @@ Set `proof` to `own` or `litespec` in `layers`. Tests prove scenarios: a passing
 
 The step is done when every scenario the team claims has passing proof.
 
-## Departures for a Single Provision
+## Waivers for a Single Provision
 
-Some provisions cannot hold on the day a team adopts them. A team records each one as a departure in `.litespec/governance/departures/`, naming the provision it covers and the reason. A departure for a gap the team means to close also carries an expiry date, and a departure with no expiry date is a lasting choice. A departure past its expiry date reports `departure-expired`. A layer the project does not claim needs no departure, since no provision about it applies. The [departure page](../core/departures.md) states the fields.
+Some provisions cannot hold on the day a team adopts them. A team records each one as a waiver in `.litespec/governance/waivers/`, naming the provision it covers and the reason. A waiver for a gap the team means to close also carries an expiry date, and a waiver with no expiry date is a lasting choice. A waiver past its expiry date reports `waiver-expired`. A layer the project does not claim needs no waiver, since no provision about it applies. The [waiver page](../core/waivers.md) states the fields.
 
 ## Next Steps
 

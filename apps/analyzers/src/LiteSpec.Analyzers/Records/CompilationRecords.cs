@@ -129,9 +129,9 @@ public sealed class CompilationRecords
     }
 
     /// <summary>
-    ///     Whether a live departure covers the finding, as
+    ///     Whether a live waiver covers the finding, as
     ///     <see cref="LiteSpec.Model.Suppression.Partition" /> decides for the CLI.
-    ///     A departure is live when it is present and unexpired, or lasting.
+    ///     A waiver is live when it is present and unexpired, or lasting.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding is known and stays silent.</returns>

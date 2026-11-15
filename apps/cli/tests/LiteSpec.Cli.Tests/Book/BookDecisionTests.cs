@@ -90,7 +90,7 @@ public sealed class BookDecisionTests
         Assert.False(HasEdge(details["external-system/main-store"], "in", "decision/0005-use-sqlite", "decides"));
     }
 
-    /// <summary>No decides edge appears when the implementers follow no decision: a provision, a departure, or an unknown id.</summary>
+    /// <summary>No decides edge appears when the implementers follow no decision: a provision, a waiver, or an unknown id.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void NoDecidesEdgeWhenImplementersFollowNoDecision()
@@ -99,13 +99,13 @@ public sealed class BookDecisionTests
             [
                 Record("product", "product/library", "Library", "approved"),
                 Record("decision", "decision/0004-use-postgres", "Use Postgres", "approved"),
-                Record("departure", "departure/kiosk-cache", "Kiosk Cache", "approved"),
+                Record("waiver", "waiver/kiosk-cache", "Kiosk Cache", "approved"),
                 Record("external-system", "external-system/main-store", "Main Store", "reviewed"),
             ],
             implements: Links(Link("src/Infra/MainStore.cs", "external-system/main-store")),
             follows: Links(
                 Link("src/Infra/MainStore.cs", "litespec/backend/persistence#commit-each-command-pipeline-once"),
-                Link("src/Infra/MainStore.cs", "departure/kiosk-cache"),
+                Link("src/Infra/MainStore.cs", "waiver/kiosk-cache"),
                 Link("src/Infra/MainStore.cs", "decision/0099-missing")));
 
         var details = BookRecordDetails.Build(model, BookOutline.Build(model));

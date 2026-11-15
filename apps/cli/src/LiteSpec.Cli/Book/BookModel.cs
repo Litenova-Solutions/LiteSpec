@@ -22,7 +22,7 @@ static class BookModel
         new("How the Business Works", ["module", "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "integration-event", "reaction", "job", "notification", "setting", "read-model"]),
         new("Entry Points", ["entry-point", "external-system"]),
         new("Running It", ["runbook"]),
-        new("How We Build", ["departure"]),
+        new("How We Build", ["waiver"]),
         new("Terms", ["term"]),
     ];
 
@@ -59,7 +59,7 @@ static class BookModel
             ["entry-point"] = ("Entry point", "Entry points"),
             ["external-system"] = ("External system", "External systems"),
             ["runbook"] = ("Runbook", "Runbooks"),
-            ["departure"] = ("Departure", "Departures"),
+            ["waiver"] = ("Waiver", "Waivers"),
             ["term"] = ("Term", "Terms"),
         };
 

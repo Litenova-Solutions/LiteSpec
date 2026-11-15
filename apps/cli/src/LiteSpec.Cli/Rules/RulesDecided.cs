@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The Decided group of <c>litespec rules</c> on a code path: each decision the file
-///     follows with its choice and reopen condition, then each departure covering a provision
+///     follows with its choice and reopen condition, then each waiver covering a provision
 ///     in the result with its reason and, for a gap, its expiry date.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -96,25 +96,25 @@ internal static class RulesDecided
         return wanted.Where(found.ContainsKey).Select(id => found[id]).ToList();
     }
 
-    /// <summary>Prints the Decided group: each followed decision, then each covering departure.</summary>
+    /// <summary>Prints the Decided group: each followed decision, then each covering waiver.</summary>
     /// <param name="decisions">The followed decisions in marked order.</param>
-    /// <param name="results">The retrieved provisions with their covering departures.</param>
+    /// <param name="results">The retrieved provisions with their covering waivers.</param>
     public static void Print(IReadOnlyList<DecidedDecision> decisions, IReadOnlyList<ProvisionMatch> results)
     {
-        var departures = new List<DepartureFiles.Departure>();
+        var waivers = new List<WaiverFiles.Waiver>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var match in results)
         {
-            if (match.Departure is { } departure && seen.Add(departure.Id))
+            if (match.Waiver is { } waiver && seen.Add(waiver.Id))
             {
-                departures.Add(departure);
+                waivers.Add(waiver);
             }
         }
 
-        departures.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
+        waivers.Sort((left, right) => string.CompareOrdinal(left.Id, right.Id));
 
-        if (decisions.Count == 0 && departures.Count == 0)
+        if (decisions.Count == 0 && waivers.Count == 0)
         {
             return;
         }
@@ -127,11 +127,11 @@ internal static class RulesDecided
             CliHost.Out.WriteLine(display.Length > 0 ? $"- {decision.Id}: {display}" : $"- {decision.Id}");
         }
 
-        foreach (var departure in departures)
+        foreach (var waiver in waivers)
         {
-            CliHost.Out.WriteLine(departure.ExpiresOn.Length > 0
-                ? $"- {departure.Id}: {departure.Reason}; expires {departure.ExpiresOn}"
-                : $"- {departure.Id}: {departure.Reason}");
+            CliHost.Out.WriteLine(waiver.ExpiresOn.Length > 0
+                ? $"- {waiver.Id}: {waiver.Reason}; expires {waiver.ExpiresOn}"
+                : $"- {waiver.Id}: {waiver.Reason}");
         }
     }
 

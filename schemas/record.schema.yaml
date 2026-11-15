@@ -25,7 +25,7 @@ oneOf:
 - $ref: '#/$defs/integrationEventPage'
 - $ref: '#/$defs/readModelPage'
 - $ref: '#/$defs/runbookPage'
-- $ref: '#/$defs/departurePage'
+- $ref: '#/$defs/waiverPage'
 - $ref: '#/$defs/permissionSetPage'
 - $ref: '#/$defs/entryPointPage'
 - $ref: '#/$defs/entryPointSetPage'
@@ -142,9 +142,9 @@ $defs:
   runbookId:
     type: string
     pattern: '^runbook/[a-z0-9][a-z0-9-]*$'
-  departureId:
+  waiverId:
     type: string
-    pattern: '^departure/[a-z0-9][a-z0-9-]*$'
+    pattern: '^waiver/[a-z0-9][a-z0-9-]*$'
   termId:
     type: string
     pattern: '^term/[a-z0-9][a-z0-9-]*$'
@@ -258,7 +258,7 @@ $defs:
       - physical-access
       - personal-data
       - access
-  departureSubjectArray:
+  waiverSubjectArray:
     type: array
     uniqueItems: true
     items:
@@ -3546,7 +3546,7 @@ $defs:
         $ref: '#/$defs/nonEmptyString'
       escalation:
         $ref: '#/$defs/nonEmptyString'
-  departurePage:
+  waiverPage:
     type: object
     additionalProperties: false
     required:
@@ -3557,9 +3557,9 @@ $defs:
     - reason
     properties:
       type:
-        const: departure
+        const: waiver
       id:
-        $ref: '#/$defs/departureId'
+        $ref: '#/$defs/waiverId'
       title:
         $ref: '#/$defs/nonEmptyString'
       summary:
@@ -3582,7 +3582,7 @@ $defs:
         x-reads-as: covers
         x-read-back-as: is covered by
       subject:
-        $ref: '#/$defs/departureSubjectArray'
+        $ref: '#/$defs/waiverSubjectArray'
         x-reads-as: applies to
         x-read-back-as: is applied to
       paths:

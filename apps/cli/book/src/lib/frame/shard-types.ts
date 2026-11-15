@@ -168,7 +168,7 @@ export interface BookTest {
   browser?: boolean;
 }
 
-/** One finding on a record: its code, level, message, and whether a departure covers it. */
+/** One finding on a record: its code, level, message, and whether a waiver covers it. */
 export interface BookFinding {
   code?: string | null;
   tier?: string | null;

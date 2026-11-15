@@ -125,11 +125,11 @@ The drawings on this page use the Claimwick expense for Ava's Rotterdam client v
 
 **Default:** Set `inputmode` on a numeric or code field for its value, and turn off autocorrect and autocapitalize on an identifier field such as an IBAN or a reference.
 
-**Replacement:** A project that departs records which fields keep the default text keyboard and why.
+**Replacement:** A project that replaces the default records which fields keep the default text keyboard and why.
 
 **Rationale:** The phone keyboard matches the value, and autocorrect does not rewrite an IBAN. A reader entering a booking reference meets keys for the value instead of the full alphabet.
 
-**Reviewed for:** Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project's recorded departures.
+**Reviewed for:** Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project's recorded waivers.
 
 ## Patterns
 

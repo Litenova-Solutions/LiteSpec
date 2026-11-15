@@ -1,0 +1,13 @@
+type: waiver
+id: waiver/expense-screens-unimplemented
+title: Expense Screens Unimplemented
+summary: The web app holds three screens, so three browser-reached use cases have no screen.
+covers:
+- use-case-unreached
+subject:
+- use-case/reporting.list-reimbursed-expenses
+- use-case/spending.change-receipt-threshold
+- use-case/spending.export-expenses
+reason: The web app holds three screens, so three browser-reached use cases have no screen.
+exit: Three browser-reached use cases have no screen while the export, policy, and reimbursed-list screens are unrecorded. The gap closes when each of them gains its screen.
+expiresOn: 2027-06-01

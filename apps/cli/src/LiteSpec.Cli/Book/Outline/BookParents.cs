@@ -44,7 +44,7 @@ static class BookParents
             ["integration-event"] = new("integration-event", ["module"], "module"),
             ["external-system"] = new("external-system", ["product", "module"], "product or module"),
             ["runbook"] = new("runbook", ["product", "module"], "product or module"),
-            ["departure"] = new("departure", ["product", "module"], "product or module"),
+            ["waiver"] = new("waiver", ["product", "module"], "product or module"),
             ["requirement"] = new("requirement", ["feature", "product"], "feature or product"),
             ["aggregate"] = new("aggregate", ["module"], "module"),
             ["use-case"] = new("use-case", ["aggregate", "module"], "aggregate or module"),
@@ -214,7 +214,7 @@ static class BookParents
         {
             "product" => null,
             "goal" or "problem" or "constraint" or "research" => index.ProductId,
-            "decision" or "runbook" or "departure" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
+            "decision" or "runbook" or "waiver" or "external-system" => ModuleFromFile(index, record) ?? index.ProductId,
             "vision" or "module" or "role" or "flow" or "actor" or "term" or "entry-point" => index.ProductId,
             "feature" => index.ProductId,
             "permission" or "integration-event" => ModuleFromFile(index, record),

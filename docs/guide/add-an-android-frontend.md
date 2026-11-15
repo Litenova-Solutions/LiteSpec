@@ -39,5 +39,5 @@ Use the Android API level pinned in `litespec.manifest.yaml` for the minimum ver
 
 Confirm the result by build and publish:
 
-- The mobile solution builds with no error and no analyzer finding outside a recorded departure.
+- The mobile solution builds with no error and no analyzer finding outside a recorded waiver.
 - `dotnet publish apps/mobile/src/{ProjectName}.Android -c Release` produces an AAB.

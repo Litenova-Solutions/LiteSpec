@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Model.Checks.Governance;
 /// <summary>The gate checks: every decision names what it decides or what it rests on, and a negating rule keeps its restriction in its name.</summary>
 /// <follows>litespec/core/model#name-what-every-decision-decides</follows>
 /// <follows>litespec/core/model#keep-rules-and-targets-out-of-technical-decisions</follows>
-/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
+/// <follows>litespec/core/waivers#record-accepted-gaps-as-waivers</follows>
 /// <follows>litespec/core/domain-model#keep-the-negation-word-in-the-rule-name</follows>
 internal static class GateChecks
 {

@@ -37,8 +37,8 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // A requirement takes no explanation file, a departure sits on the governance layer, which explanations.layers does not name, and the product stands above the record layers.
-        if (type is "requirement" or "departure" or "product")
+        // A requirement takes no explanation file, a waiver sits on the governance layer, which explanations.layers does not name, and the product stands above the record layers.
+        if (type is "requirement" or "waiver" or "product")
         {
             Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
             return;
@@ -94,7 +94,7 @@ public sealed class NewEveryTypeTests
         yield return ["external-system", "bank", "behavior/external-systems/bank/bank.yaml", "Bank", "external-system/bank"];
         yield return ["screen", "library-app.loans", "behavior/entry-points/library-app/screens/library-app.loans/library-app.loans.yaml", "Loans", "screen/library-app.loans"];
         yield return ["runbook", "month-end", "implementation/runbooks/month-end/month-end.yaml", "Month End", "runbook/month-end"];
-        yield return ["departure", "legacy-export", "governance/departures/legacy-export/legacy-export.yaml", "Legacy Export", "departure/legacy-export"];
+        yield return ["waiver", "legacy-export", "governance/waivers/legacy-export/legacy-export.yaml", "Legacy Export", "waiver/legacy-export"];
     }
 
     /// <summary>A consumer that lists every layer, so each type's explanation is written.</summary>

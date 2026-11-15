@@ -83,7 +83,7 @@ A Standard states one testable obligation:
 
 **Statement:** A workspace SHOULD hold its shared primitives and composites in one shared UI package.
 
-**Departure:** Only with SHOULD or SHOULD NOT: the bounded reason that permits setting the advice aside.
+**Deviation:** Only with SHOULD or SHOULD NOT: the bounded reason that permits setting the advice aside.
 
 **Rationale:** Why the rule exists.
 
@@ -94,8 +94,8 @@ A Standard states one testable obligation:
 - A different obligation, prohibition, or permission is a separate provision.
 - Conditions and scope belong in the Statement sentence.
 - Every other paragraph of the provision sits under a Rationale or an Example label and adds no obligation.
-- A Departure appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
-- `SHOULD` states advice a project applies with judgment and records nothing for; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a departure.
+- A Deviation appears if and only if the Statement uses `SHOULD` or `SHOULD NOT`.
+- `SHOULD` states advice a project applies with judgment and records nothing for; a Convention is a project-owned default the project replaces by naming its own convention, not by recording a waiver.
 
 A Convention states a default a project may replace:
 
@@ -109,7 +109,7 @@ A Convention states a default a project may replace:
 **Rationale:** Why this is the default.
 ```
 
-A project that departs from a Standard records a departure whose `covers` names the provision, in `.litespec/governance/departures/`. `rules <path>` shows the departure in place of the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a departure. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [departures page](departures.md) states the departure record.
+A project that sets a Standard aside records a waiver whose `covers` names the provision, in `.litespec/governance/waivers/`. `rules <path>` shows the waiver in place of the provision. A project that replaces a Convention names its own convention in its documentation. A Replacement names the local convention or its recording place, not a waiver. A convention with no specific recording place uses `A consumer can replace this default with an explicit local convention.` as its whole Replacement. The [waivers page](waivers.md) states the waiver record.
 
 A pattern provision carries its question, its default option, its compact behavior, and its rationale, and then its options with their wireframes. [UI patterns](../frontend/patterns.md) states the pattern contract and the wireframe language.
 
@@ -233,7 +233,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Strength:** required
 
-**Statement:** A capitalized modal MUST appear only in a Statement, a Departure, a Default, or a Replacement.
+**Statement:** A capitalized modal MUST appear only in a Statement, a Waiver, a Default, or a Replacement.
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 
@@ -477,7 +477,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Example:** `### Keep Business Invariants in Domain` owns one obligation about where invariants are enforced.
 
-**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEPARTURE`, `STANDARD_UNEXPECTED_DEPARTURE`, `STANDARD_DEPARTURE_NORMATIVE`, `STANDARD_DEPARTURE_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `STANDARD_LABEL_INVALID`, `STANDARD_LABEL_ORDER`, `STANDARD_LABEL_DUPLICATE`, `STANDARD_SENTENCE_COUNT`, `STANDARD_MODAL_COUNT`, `STANDARD_MODAL_VOCABULARY`, `STANDARD_MISSING_DEVIATION`, `STANDARD_UNEXPECTED_DEVIATION`, `STANDARD_DEVIATION_NORMATIVE`, `STANDARD_DEVIATION_SENTENCE`, `STANDARD_MISSING_REQUIREMENT`, `STANDARD_REQUIREMENT_COUNT`, `STANDARD_UNLABELED_CONTENT`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Identify Actionable Conventions
 
@@ -489,7 +489,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Rationale:** A Convention heading under `## Conventions` makes each replaceable default traceable: a project cites exactly the default it replaces. Without the contract, defaults hide in prose and replacements cite paragraphs instead of identifiers.
 
-**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_DEPARTURE`, or `PROVISION_RESTATES_HEADING` diagnostic.
+**Checked by:** `litespec-maintain validate` emits no `CONVENTION_MISSING_DEFAULT`, `CONVENTION_MISSING_REPLACEMENT`, `CONVENTION_DEFAULT_SENTENCE`, `CONVENTION_REPLACEMENT_SENTENCE`, `CONVENTION_REPLACEMENT_WAIVER`, or `PROVISION_RESTATES_HEADING` diagnostic.
 
 ### Attach Examples to Their Provisions
 
@@ -709,7 +709,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** The changelog for each LiteSpec release MUST list the provision identifiers the release adds, removes, and renames, generated from the provision index at the previous tag and the provision index of the release.
 
-**Rationale:** A consumer cites provision identifiers in code marks, records, and departures, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
+**Rationale:** A consumer cites provision identifiers in code marks, records, and waivers, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to `litespec/core/authoring#exclude-historical-transition-material`, and it extends to no other history material.
 
 **Example:** `litespec-maintain changelog --from v3.0.0` writes the list into the changelog entry for a release, with `litespec/core/scope#claim-the-record-layers-the-project-uses` under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry.
 
@@ -735,7 +735,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** A consumer MUST record the LiteSpec release it adopts in `reviewedLiteSpecVersion` within `.litespec/project.yaml`.
 
-**Rationale:** A provision can gain force while keeping its ID, so a departure written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
+**Rationale:** A provision can gain force while keeping its ID, so a waiver written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in `reviewedLiteSpecVersion` makes adoption an explicit act and tells every reader which contract the project reviewed.
 
 **Checked by:** `litespec model check` reports `release-drift` when `reviewedLiteSpecVersion` names no release or a release other than the installed tool release.
 

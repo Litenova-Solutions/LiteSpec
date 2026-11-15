@@ -9,7 +9,7 @@ import Constraint from "./Constraint.svelte";
 import Decision from "./Decision.svelte";
 import EntryPoint from "./EntryPoint.svelte";
 import DomainEvent from "./DomainEvent.svelte";
-import Departure from "./Departure.svelte";
+import Waiver from "./Waiver.svelte";
 import ExternalSystem from "./ExternalSystem.svelte";
 import Feature from "./Feature.svelte";
 import Finding from "./Finding.svelte";
@@ -73,7 +73,7 @@ export const TYPES: Record<string, Component<TypeProps>> = {
   "entry-point": EntryPoint,
   "external-system": ExternalSystem,
   runbook: Runbook,
-  departure: Departure,
+  waiver: Waiver,
   term: Term,
   layer: Layer,
   "integration-event": IntegrationEvent,

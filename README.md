@@ -35,7 +35,7 @@ A project names the record layers it claims in `layers` in `.litespec/project.ya
 
 `litespec model check`, the book, `litespec rules` and the analyzers report only what applies to the claimed layers.
 
-Each check also has a check level, which says what a finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a departure parks it, and a finding on an advisory provision never blocks. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
+Each check also has a check level, which says what a finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
 
 | Check level | Meaning |
 |:---|:---|
@@ -47,7 +47,7 @@ The tool renders the model as a book that a reader reads offline. The analyzers 
 
 ## How Agents Use It
 
-An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved, after the decisions and departures the file follows. When a statement is not enough, it runs `litespec rules <provision-id>` for the whole provision. Before reporting done, it runs `litespec rules --since <base>`, answers the Reviewed for question of each provision the change set returns, and names the provisions it judged and how in its completion report.
+An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved, after the decisions and waivers the file follows. When a statement is not enough, it runs `litespec rules <provision-id>` for the whole provision. Before reporting done, it runs `litespec rules --since <base>`, answers the Reviewed for question of each provision the change set returns, and names the provisions it judged and how in its completion report.
 
 It loads record context through `litespec model query <record-id>`, which returns one record with its computed links. It builds only what the specification states; something that seems missing becomes a question to the owner or a backlog item, never code.
 

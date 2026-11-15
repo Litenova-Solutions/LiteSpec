@@ -350,7 +350,7 @@ uiBaseline:
     url: 'https://ui.shadcn.com'
     allowAdditional: true
   nativeBoundary: separate-platform-profile
-# The Svelte baseline values are defaults that pass every token limit on docs/frontend/ui.md. A project keeps them or sets its own values; values that meet the limits need no departure.
+# The Svelte baseline values are defaults that pass every token limit on docs/frontend/ui.md. A project keeps them or sets its own values; values that meet the limits need no waiver.
 uiBaselineSvelte:
   platform: svelte
   system: shadcn-svelte

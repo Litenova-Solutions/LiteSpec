@@ -474,7 +474,7 @@ The algorithm is named because two implementations that each choose their own ca
 
 **Statement:** An audit store SHOULD publish a periodic checkpoint of its chain head to a destination that the store's own operators cannot rewrite.
 
-**Departure:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
+**Deviation:** A store whose recorded threat model excludes its own operators publishes no checkpoint.
 
 **Rationale:** A chain proves that records agree with each other, but anyone holding the store can recompute the whole chain and keep it agreeing. A checkpoint held somewhere the operators cannot rewrite fixes the chain as it stood at that moment. A later recomputation disagrees with the checkpoint, which exposes it.
 

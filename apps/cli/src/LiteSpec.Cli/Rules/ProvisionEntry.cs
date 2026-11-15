@@ -5,7 +5,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     One retrievable provision: a LiteSpec provision from the carried release or a
-///     project convention from the consumer's governance folder. A departure
+///     project convention from the consumer's governance folder. A waiver
 ///     is not an entry: it replaces the entry its covers names at print time.
 /// </summary>
 /// <param name="Id">The provision identifier, or the convention identifier.</param>

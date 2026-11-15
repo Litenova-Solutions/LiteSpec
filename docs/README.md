@@ -28,7 +28,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, checks, and the book and diffs.
-- [Departures](core/departures.md): the one record that sets a provision, a page or a finding code aside, with its reason and its expiry.
+- [Waivers](core/waivers.md): the one record that sets a provision, a page or a finding code aside, with its reason and its expiry.
 - [Record Layers](core/layers.md): the four record layers and the translation rules between them.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.
@@ -231,7 +231,7 @@ One product worked end to end, from its first record to a passing check.
 - [Modules and Records](example/modules-and-records.md): the Spending module as Behavior records: aggregates, rules, use cases, entry point and screen, and the reaction, job, notification and settings around them.
 - [A Use Case in Code](example/a-use-case-in-code.md): Submit expense from its record into .NET code and tests.
 - [The Claimwick Screen](example/the-screen.md): the expenses screen, the generated client it reads, the shared UI package it composes, and the full model check.
-- [The Model and Its Checks](example/model-and-checks.md): the findings that departures cover, a departure record, and a query of one record.
+- [The Model and Its Checks](example/model-and-checks.md): the findings that waivers cover, a waiver record, and a query of one record.
 
 ### Guides
 

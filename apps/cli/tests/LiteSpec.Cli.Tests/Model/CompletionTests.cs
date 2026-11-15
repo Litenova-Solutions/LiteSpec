@@ -122,10 +122,10 @@ public sealed class CompletionTests
         Assert.Equal(0, completion.Counts["steps exercised"].Done);
     }
 
-    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap departure names it: completion follows proof alone.</summary>
+    /// <summary>A feature with an unfulfilled requirement is unfulfilled even when a gap waiver names it: completion follows proof alone.</summary>
     /// <proves>litespec/core/model#compute-completion-in-the-builder</proves>
     [Fact]
-    public void FeatureWithUnfulfilledRequirementIgnoresItsGapDeparture()
+    public void FeatureWithUnfulfilledRequirementIgnoresItsGapWaiver()
     {
         using var temp = TestCli.Temp("completion");
         var model = TestModel.Model(
@@ -133,7 +133,7 @@ public sealed class CompletionTests
             Feature(temp.Path),
             Requirement(temp.Path, "requirement/borrowing.max-loans", """{"cites": ["feature/borrowing"]}"""),
             Requirement(temp.Path, "requirement/borrowing.no-card", """{"cites": ["feature/borrowing"]}"""),
-            TestModel.Record("departure", "departure/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
+            TestModel.Record("waiver", "waiver/borrowing.no-card-gap", Path.Combine(temp.Path, "gap.yaml"), """{"subject": ["requirement/borrowing.no-card"], "covers": ["requirement-fulfillment-missing"], "expiresOn": "2099-01-01"}"""),
             UseCase(temp.Path, "use-case/lending.borrow-copy", """{"fulfills": ["requirement/borrowing.max-loans"]}"""));
 
         model.Implements.Add(new ImplementsLink("src/Lending/BorrowCopyHandler.cs", "use-case/lending.borrow-copy", "handler"));

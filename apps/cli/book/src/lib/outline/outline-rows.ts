@@ -32,7 +32,7 @@ export function indentClass(depth: number): string {
 
 /** The navigation icon per record layer; an unknown layer reads as the core stack. */
 const LAYER_ICONS: Record<string, string> = {
-  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "departure", glossary: "term",
+  intent: "core", behavior: "folder", implementation: "code", proof: "flask", governance: "waiver", glossary: "term",
 };
 
 /** The navigation icon name for a record layer. */

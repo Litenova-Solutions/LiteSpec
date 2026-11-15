@@ -67,7 +67,7 @@ A decision chooses between options at one moment, and its `reopenedWhen` names w
 
 ### Changed in Place
 
-A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record are a blocking finding, not a tie to resolve. A departure from a shared standard is a departure record rather than a decision.
+A decision record changes in place: a new decision edits the record, and git keeps the earlier text. Two decisions deciding the same record are a blocking finding, not a tie to resolve. A waiver from a shared standard is a waiver record rather than a decision.
 
 ## Notes
 

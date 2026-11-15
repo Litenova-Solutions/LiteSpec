@@ -115,8 +115,8 @@ public sealed class FindingCodesTests
     /// <param name="tier">The tier the code must carry.</param>
     /// <proves>litespec/core/model#mark-every-check-with-its-level</proves>
     [Theory]
-    [InlineData("departure-expired", "G")]
-    [InlineData("departure-invalid", "G")]
+    [InlineData("waiver-expired", "G")]
+    [InlineData("waiver-invalid", "G")]
     [InlineData("use-case-unverified", "A")]
     [InlineData("proof-invalid", "A")]
     public void NewGovernanceCodesHaveTiers(string code, string tier)

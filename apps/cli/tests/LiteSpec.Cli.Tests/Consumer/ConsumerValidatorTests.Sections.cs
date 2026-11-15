@@ -290,46 +290,46 @@ public sealed partial class ConsumerValidatorTests
             """{"type":"runbook","id":"runbook/clear-stuck-reimbursements","title":"Clear Stuck Reimbursements","trigger":"A reimbursement sits past its date.","impact":"Stuck claims block payment.","prerequisites":"The reader holds the payments role.","procedure":"Clear the stuck claim and rerun payment.","verification":"The claim leaves the stuck list.","recovery":"Restore the claim from its snapshot."}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'escalation'");
     }
-    /// <summary>Lasting departure that omits its reason.</summary>
+    /// <summary>Lasting waiver that omits its reason.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "departure that omits its reason")]
-    public void DepartureThatOmitsItsReason()
+    [Fact(DisplayName = "waiver that omits its reason")]
+    public void WaiverThatOmitsItsReason()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/governance/departures/export-review-bypass.yaml",
-            """{"type":"departure","id":"departure/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"]}""");
+            ".litespec/governance/waivers/export-review-bypass.yaml",
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"]}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'reason'");
     }
 
-    /// <summary>Gap departure that omits its exit.</summary>
+    /// <summary>Gap waiver that omits its exit.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "gap departure that omits its exit")]
-    public void GapDepartureThatOmitsItsExit()
+    [Fact(DisplayName = "gap waiver that omits its exit")]
+    public void GapWaiverThatOmitsItsExit()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/governance/departures/export-unimplemented.yaml",
-            """{"type":"departure","id":"departure/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01"}""");
+            ".litespec/governance/waivers/export-unimplemented.yaml",
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","expiresOn":"2027-01-01"}""");
         AssertProblem(RunConsumer(folder.Path), "missing required property 'exit'");
     }
 
-    /// <summary>Gap departure carrying its exit has no H2 requirement.</summary>
+    /// <summary>Gap waiver carrying its exit has no H2 requirement.</summary>
     /// <proves>litespec/core/authoring#use-the-declared-page-contract</proves>
-    [Fact(DisplayName = "gap departure carrying its exit")]
-    public void GapDepartureCarryingItsExit()
+    [Fact(DisplayName = "gap waiver carrying its exit")]
+    public void GapWaiverCarryingItsExit()
     {
         using var folder = ConsumerFixture.Create();
         TestRecords.Write(
             folder.Path,
-            ".litespec/governance/departures/export-review-bypass.yaml",
-            """{"type":"departure","id":"departure/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","exit":"The export moves into review."}""");
+            ".litespec/governance/waivers/export-review-bypass.yaml",
+            """{"type":"waiver","id":"waiver/export-review-bypass","title":"Export Review Bypass","covers":["litespec/core/scope#select-a-size-a-shape-and-stacks"],"subject":["use-case/orders.cancel-order"],"reason":"The export runs once.","consequences":"The export runs once outside review.","expiresOn":"2027-01-01","exit":"The export moves into review."}""");
         TestRecords.Write(
             folder.Path,
-            ".litespec/governance/departures/export-unimplemented.yaml",
-            """{"type":"departure","id":"departure/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
+            ".litespec/governance/waivers/export-unimplemented.yaml",
+            """{"type":"waiver","id":"waiver/export-unimplemented","title":"Export Unimplemented","covers":["behavior-unrecorded"],"subject":["use-case/orders.cancel-order"],"reason":"The export ships later.","exit":"The export ships before the date.","expiresOn":"2027-01-01"}""");
         AssertAbsent(RunConsumer(folder.Path), "requires an H2");
     }
 

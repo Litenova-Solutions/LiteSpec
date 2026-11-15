@@ -53,7 +53,7 @@ public static class ExplanationSections
 
             // Implementation and Governance
             [RecordTypes.Runbook] = Of(("Prerequisites", false), ("Steps", false), ("Verification", false), ("Recovery", false)),
-            [RecordTypes.Departure] = Of(("Provision", false), ("Reason", false), ("Risk", false), ("Expiry", false)),
+            [RecordTypes.Waiver] = Of(("Provision", false), ("Reason", false), ("Risk", false), ("Expiry", false)),
         };
 
     /// <summary>Gets the H2 names a record type's explanation must hold, in order, with the optional sections left out.</summary>

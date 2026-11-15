@@ -25,10 +25,10 @@ public sealed class RulesDecidedTests
         Assert.DoesNotContain("record-the-audit-adoption-decision", result.Output);
     }
 
-    /// <summary>A covering gap departure prints under Decided with its reason and expiry date.</summary>
-    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
+    /// <summary>A covering gap waiver prints under Decided with its reason and expiry date.</summary>
+    /// <proves>litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver</proves>
     [Fact]
-    public void RulesCoveringDeparturePrintsUnderDecided()
+    public void RulesCoveringWaiverPrintsUnderDecided()
     {
         var result = TestCli.Run(
             "rules",
@@ -38,23 +38,23 @@ public sealed class RulesDecidedTests
         Assert.Equal(0, result.Status);
         Assert.Equal("Decided:", OutputLines(result.Output)[1]);
         Assert.Contains(
-            "- departure/slow-review-departure: The billing handler calls two aggregates until the split ships.; expires 2030-01-01",
+            "- waiver/slow-review-waiver: The billing handler calls two aggregates until the split ships.; expires 2030-01-01",
             result.Output);
-        Assert.DoesNotContain("old-layout-departure", result.Output);
+        Assert.DoesNotContain("old-layout-waiver", result.Output);
     }
 
-    /// <summary>A lasting departure prints under Decided with its reason and no expiry date.</summary>
-    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
+    /// <summary>A lasting waiver prints under Decided with its reason and no expiry date.</summary>
+    /// <proves>litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver</proves>
     [Fact]
-    public void RulesLastingDeparturePrintsWithoutExpiry()
+    public void RulesLastingWaiverPrintsWithoutExpiry()
     {
         using var root = CopyFixture();
         AddFile(
             root,
-            ".litespec/governance/departures/lasting-layout-choice.yaml",
+            ".litespec/governance/waivers/lasting-layout-choice.yaml",
             """
-            type: departure
-            id: departure/lasting-layout-choice
+            type: waiver
+            id: waiver/lasting-layout-choice
             title: Lasting Layout Choice
             covers:
               - litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case
@@ -69,7 +69,7 @@ public sealed class RulesDecidedTests
             "apps/api/src/Demo/Billing/Invoicing/SendInvoice/SendInvoiceCommandHandler.cs");
 
         Assert.Equal(0, result.Status);
-        var line = OutputLines(result.Output).First(line => line.Contains("departure/lasting-layout-choice", StringComparison.Ordinal));
+        var line = OutputLines(result.Output).First(line => line.Contains("waiver/lasting-layout-choice", StringComparison.Ordinal));
         Assert.Contains("The demo keeps one folder per use case forever.", line);
         Assert.DoesNotContain("expires", line);
     }

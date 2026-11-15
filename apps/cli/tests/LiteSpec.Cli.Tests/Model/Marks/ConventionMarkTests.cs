@@ -91,7 +91,7 @@ public sealed class ConventionMarkTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "FollowsStrayStep.cs" && finding.Subject == "use-case/lending.no-such-use-case");
 
-        Assert.Contains("which matches no provision, decision, departure, or convention.", finding.Message);
+        Assert.Contains("which matches no provision, decision, waiver, or convention.", finding.Message);
     }
 
     /// <summary>A follows naming a record of another type names conventions among the targets it takes.</summary>
@@ -105,7 +105,7 @@ public sealed class ConventionMarkTests
             MarksFixture.WithCode(MarksFixture.Check(temp.Path), "mark-unknown"),
             finding => FileName(finding) == "FollowsStrayStep.cs" && finding.Subject == "use-case/lending.borrow-copy");
 
-        Assert.Contains("which is a use-case record, not a provision, decision, departure, or convention.", finding.Message);
+        Assert.Contains("which is a use-case record, not a provision, decision, waiver, or convention.", finding.Message);
     }
 
     /// <summary>No other mark-unknown fires in the convention consumer.</summary>

@@ -369,7 +369,7 @@ static class ModelCommand
 
     /// <summary>
     ///     Whether the finding gates a release: an unverified use case, or a reader missing for a claimed layer. A
-    ///     departure with an expiry parks either one before it reaches this decision, so a covered finding never gates.
+    ///     waiver with an expiry parks either one before it reaches this decision, so a covered finding never gates.
     /// </summary>
     /// <param name="finding">The finding to test.</param>
     /// <returns>True when the finding gates a release.</returns>

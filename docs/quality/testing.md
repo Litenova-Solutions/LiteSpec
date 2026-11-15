@@ -27,7 +27,7 @@ An agent that changes code leaves each proving test unchanged unless its scenari
 
 **Statement:** Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.
 
-**Rationale:** A scenario states one behavior the product shows, and the proves mark is the test's claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a departure with its reason and expiry date. The latest test run marks each confirmed claim passing or failing.
+**Rationale:** A scenario states one behavior the product shows, and the proves mark is the test's claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a waiver with its reason and expiry date. The latest test run marks each confirmed claim passing or failing.
 
 **Example:** An acceptance scenario for submitting an expense carries the mark for `scenario/submit-expense.submitting-with-a-receipt-succeeds`, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The mark names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body.
 
@@ -109,12 +109,12 @@ An agent that changes code leaves each proving test unchanged unless its scenari
 
 **Strength:** default
 
-**Default:** Gate each change on the project's recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a departure covering the mutation finding.
+**Default:** Gate each change on the project's recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a waiver covering the mutation finding.
 
 **Replacement:** A project records its own mutation threshold and gate in its testing documentation.
 
-**Rationale:** Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the departure records that judgement with its reason and expiry instead of blocking the change forever.
+**Rationale:** Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the waiver records that judgement with its reason and expiry instead of blocking the change forever.
 
-**Example:** A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a departure when the mutant is equivalent.
+**Example:** A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a waiver when the mutant is equivalent.
 
-**Reviewed for:** Which changes landed with survivors above the recorded threshold and no covering departure? Look at the mutation report beside the departure records.
+**Reviewed for:** Which changes landed with survivors above the recorded threshold and no covering waiver? Look at the mutation report beside the waiver records.

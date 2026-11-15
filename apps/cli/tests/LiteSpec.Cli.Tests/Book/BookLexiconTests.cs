@@ -116,7 +116,7 @@ public sealed class BookLexiconTests
                 "entry-point", "setting", "goal", "vision", "constraint", "research", "decision",
                 "problem", "feature", "actor", "role", "flow", "module", "aggregate", "use-case",
                 "reaction", "job", "notification", "external-system", "integration-event",
-                "read-model", "runbook", "departure", "permission-set", "entry-point-set", "screen",
+                "read-model", "runbook", "waiver", "permission-set", "entry-point-set", "screen",
                 "setting-set", "rule-set", "refusal-set", "index", "tutorial", "how-to", "reference",
                 "command", "configuration", "glossary", "example-cast",
             },

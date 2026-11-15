@@ -184,18 +184,18 @@ internal static class TraceabilityFixtures
             }
             """);
 
-    /// <summary>A departure covering the codes on the subjects and paths until 2099, or for good when no expiry is given.</summary>
-    /// <param name="covers">The covers list: finding codes the departure covers.</param>
-    /// <param name="subjects">The subject identifiers the departure covers, or null for none.</param>
-    /// <param name="paths">The file paths the departure covers, or null for none.</param>
+    /// <summary>A waiver covering the codes on the subjects and paths until 2099, or for good when no expiry is given.</summary>
+    /// <param name="covers">The covers list: finding codes the waiver covers.</param>
+    /// <param name="subjects">The subject identifiers the waiver covers, or null for none.</param>
+    /// <param name="paths">The file paths the waiver covers, or null for none.</param>
     /// <param name="id">The record identifier of the page.</param>
-    /// <param name="expiresOn">The date the departure expires, as ISO date text, or null for a lasting departure.</param>
+    /// <param name="expiresOn">The date the waiver expires, as ISO date text, or null for a lasting waiver.</param>
     /// <returns>The path and source text of the additional file.</returns>
-    public static (string Path, string Source) Departure(
+    public static (string Path, string Source) Waiver(
         string[] covers,
         string[]? subjects = null,
         string[]? paths = null,
-        string id = "departure/marks-deferred",
+        string id = "waiver/marks-deferred",
         string? expiresOn = "2099-01-01")
     {
         var tail = expiresOn is null
@@ -204,7 +204,7 @@ internal static class TraceabilityFixtures
 
         return Page(FileOf(id), $$"""
             {
-              "type": "departure",
+              "type": "waiver",
               "id": "{{id}}",
               "title": "Marks deferred",
               "covers": [{{string.Join(", ", covers.Select(Quote))}}],

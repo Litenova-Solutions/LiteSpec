@@ -7,7 +7,7 @@ using static LiteSpec.Analyzers.Tests.Support.TraceabilityFixtures;
 
 namespace LiteSpec.Analyzers.Tests.Traceability;
 
-/// <summary>Tests severity: blocking findings, live departures and editorconfig.</summary>
+/// <summary>Tests severity: blocking findings, live waivers and editorconfig.</summary>
 public sealed class SeverityMatrixTests
 {
     private const string HandlerWithAttributeMark = """
@@ -53,11 +53,11 @@ public sealed class SeverityMatrixTests
             assemblyName: "Shop.Application",
             editorconfig: "dotnet_diagnostic.LS5004.severity = warning");
 
-    /// <summary>A departure covering the file stays silent.</summary>
+    /// <summary>A waiver covering the file stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "A departure covering the file stays silent")]
-    public Task DepartureCoveringFileStaysSilent() =>
+    [Fact(DisplayName = "A waiver covering the file stays silent")]
+    public Task WaiverCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System;
@@ -74,14 +74,14 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"])],
+            [ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"])],
             assemblyName: "Shop.Application");
 
-    /// <summary>A lasting departure, with no expiry date, covers the file and stays silent.</summary>
+    /// <summary>A lasting waiver, with no expiry date, covers the file and stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "A lasting departure covering the file stays silent")]
-    public Task LastingDepartureCoveringFileStaysSilent() =>
+    [Fact(DisplayName = "A lasting waiver covering the file stays silent")]
+    public Task LastingWaiverCoveringFileStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkPresenceAnalyzer>(
             [("Source.cs", """
                 using System;
@@ -98,13 +98,13 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"], expiresOn: null)],
+            [ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], expiresOn: null)],
             assemblyName: "Shop.Application");
 
-    /// <summary>A departure covering the subject stays silent.</summary>
+    /// <summary>A waiver covering the subject stays silent.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "A departure covering the subject stays silent")]
+    [Fact(DisplayName = "A waiver covering the subject stays silent")]
     public Task ExceptionCoveringSubjectStaysSilent() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", """
@@ -128,17 +128,17 @@ public sealed class SeverityMatrixTests
                 {
                 }
                 """)],
-            [ProjectFile(), UseCase(), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"])],
             assemblyName: "Shop.Application");
 
-    /// <summary>An expired departure covers nothing.</summary>
+    /// <summary>An expired waiver covers nothing.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
-    [Fact(DisplayName = "An expired departure covers nothing")]
-    public Task ExpiredDepartureCoversNothing() =>
+    [Fact(DisplayName = "An expired waiver covers nothing")]
+    public Task ExpiredWaiverCoversNothing() =>
         Verify.AnalyzerWithRecordsAsync<MarkLinkAnalyzer>(
             [("Source.cs", HandlerWithAttributeMark.Replace("{0}", "Error"))],
-            [ProjectFile(), UseCase(), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
+            [ProjectFile(), UseCase(), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], expiresOn: "2000-01-01")],
             assemblyName: "Shop.Application");
 
     /// <summary>The traceability context is shared per compilation.</summary>
@@ -162,7 +162,7 @@ public sealed class SeverityMatrixTests
     [Fact(DisplayName = "The hoisted covered sets match the store")]
     public void HoistedCoveredSetsMatchStore()
     {
-        var store = StoreWith([ProjectFile(), UseCase(), Departure(["mark-missing"], paths: ["Source.cs"], id: "departure/marks-deferred"), Departure(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "departure/marks-styled"), Departure(["mark-missing"], paths: ["Old.cs"], id: "departure/old-marks", expiresOn: "2000-01-01")]);
+        var store = StoreWith([ProjectFile(), UseCase(), Waiver(["mark-missing"], paths: ["Source.cs"], id: "waiver/marks-deferred"), Waiver(["mark-style-invalid"], subjects: ["use-case/spending.submit-expense"], id: "waiver/marks-styled"), Waiver(["mark-missing"], paths: ["Old.cs"], id: "waiver/old-marks", expiresOn: "2000-01-01")]);
         var compilation = CSharpCompilation.Create("Shop.Application");
         var context = TraceabilityContext.GetOrCreate(compilation, BackendLayout.LayerProjects, null, store);
 

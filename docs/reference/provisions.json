@@ -836,7 +836,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each \u0060calls\u0060 effect MUST run in an event handler or job through the port operation its record names, after the commit of the command that raised its trigger.",
-      "rationale": "A command handler changes only its aggregate under \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060, so a provider call runs in an event handler or job after the commit. The \u0060calls\u0060 effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a \u0060calls\u0060 edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no \u0060calls\u0060 entry declares fails \u0060effect-undeclared\u0060. A provider call whose result the command needs before it can answer is a departure: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a departure naming the compensation that undoes it.",
+      "rationale": "A command handler changes only its aggregate under \u0060litespec/backend/application#dispatch-only-declared-effect-edges\u0060, so a provider call runs in an event handler or job after the commit. The \u0060calls\u0060 effect names one operation on one external system, and the operations entry states its timeout, its timeout behavior, its retries, its response, and its cache. The port carries that operation with project-owned types and carries a mark naming its system on the port interface, and Infrastructure implements it, so a provider change stops at the adapter. The stack reader counts a call as a \u0060calls\u0060 edge only through such a marked port; any other injected interface is internal work. A call on a marked port that no \u0060calls\u0060 entry declares fails \u0060effect-undeclared\u0060. A provider call whose result the command needs before it can answer is a waiver: the use case records the intent first, for example a pending charge, and an event handler calls the provider. A project that keeps an inline call records a waiver naming the compensation that undoes it.",
       "example": "An event handler that calls an expense payout operation names it through the record\u0027s \u0060calls\u0060 entry and the port method; a direct provider call fails the check."
     },
     {
@@ -946,7 +946,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An application MUST dispatch a command and a query through two separate Application-facing entry points rather than one message bus abstraction.",
-      "rationale": "Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend\u0027s whole command and query split depends on that difference. The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records a departure from the binding convention rather than touching this rule.",
+      "rationale": "Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend\u0027s whole command and query split depends on that difference. The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records a waiver from the binding convention rather than touching this rule.",
       "example": ""
     },
     {
@@ -3702,7 +3702,7 @@
       "strength": "required",
       "statement": "Production projects MUST live under \u0060apps/api/src/\u0060 and test projects under \u0060apps/api/tests/\u0060, with the solution directly under \u0060apps/api/\u0060.",
       "rationale": "Production under \u0060apps/api/src/\u0060 and tests under \u0060apps/api/tests/\u0060 make a test dependency reaching production visible in the path itself. The solution sits directly under \u0060apps/api/\u0060, beside both. A workspace AppHost is the one production project outside \u0060src/\u0060, placed by \u0060litespec/backend/dotnet/workspace#place-a-workspace-apphost-beside-the-applications-it-runs\u0060. This provision states the .NET form of \u0060litespec/workspace/structure#keep-production-and-test-code-separate\u0060.",
-      "example": "The baseline tree is:\n\n\u0060\u0060\u0060text\napps/api/\n  {ProjectName}.slnx\n  Directory.Build.props\n  Directory.Packages.props\n  src/\n    {ProjectName}.Domain/\n    {ProjectName}.Application.Abstractions/\n    {ProjectName}.Application/\n    {ProjectName}.Infrastructure/\n    {ProjectName}.WebApi/\n    {ProjectName}.Worker/             when background work needs a host\n    {ProjectName}.AppHost/            when an orchestration host runs the API alone\n    {ProjectName}.ServiceDefaults/    when a local orchestration host is used\n  tests/\n    {ProjectName}.Architecture.Tests/\n    {ProjectName}.Integration.Tests/\n    {ProjectName}.Acceptance.Tests/   when size is large\n    {ProjectName}.Domain.Tests/       optional unit tests\n    {ProjectName}.Application.Tests/  optional unit tests\n\u0060\u0060\u0060\n\nWorker is conditional on the extension that runs background work. Acceptance.Tests is required when \u0060size\u0060 is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. \u0060AppHost\u0060 and \u0060ServiceDefaults\u0060 are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no departure for their absence."
+      "example": "The baseline tree is:\n\n\u0060\u0060\u0060text\napps/api/\n  {ProjectName}.slnx\n  Directory.Build.props\n  Directory.Packages.props\n  src/\n    {ProjectName}.Domain/\n    {ProjectName}.Application.Abstractions/\n    {ProjectName}.Application/\n    {ProjectName}.Infrastructure/\n    {ProjectName}.WebApi/\n    {ProjectName}.Worker/             when background work needs a host\n    {ProjectName}.AppHost/            when an orchestration host runs the API alone\n    {ProjectName}.ServiceDefaults/    when a local orchestration host is used\n  tests/\n    {ProjectName}.Architecture.Tests/\n    {ProjectName}.Integration.Tests/\n    {ProjectName}.Acceptance.Tests/   when size is large\n    {ProjectName}.Domain.Tests/       optional unit tests\n    {ProjectName}.Application.Tests/  optional unit tests\n\u0060\u0060\u0060\n\nWorker is conditional on the extension that runs background work. Acceptance.Tests is required when \u0060size\u0060 is large and optional otherwise. Domain.Tests and Application.Tests are optional in both sizes. \u0060AppHost\u0060 and \u0060ServiceDefaults\u0060 are local hosting and diagnostics projects rather than application layers. An application that orchestrates its local dependencies another way ships neither and records no waiver for their absence."
     },
     {
       "id": "litespec/backend/dotnet/ext/layer-projects#keep-one-application-assembly",
@@ -5692,15 +5692,15 @@
       "anchor": "apply-guidance-precedence",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "The design applies the project departure, the extension, the deeper page, and the shallower page in that order.",
+      "evidence": "The design applies the project waiver, the extension, the deeper page, and the shallower page in that order.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "any",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An agent MUST apply the project departure, the extension, the deeper page, and the shallower page in that order.",
-      "rationale": "Overlapping guidance is normal: a project departure narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.",
+      "statement": "An agent MUST apply the project waiver, the extension, the deeper page, and the shallower page in that order.",
+      "rationale": "Overlapping guidance is normal: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.",
       "example": ""
     },
     {
@@ -5826,7 +5826,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An agent MUST run \u0060litespec rules \u003Cpath\u003E\u0060 before editing a file and answer each judgment provision \u0060litespec rules --since \u003Cbase\u003E\u0060 lists before reporting done.",
-      "rationale": "Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. \u0060litespec rules \u003C...\u003E --full\u0060 adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).",
+      "rationale": "Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and waivers merged in. \u0060litespec rules \u003C...\u003E --full\u0060 adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).",
       "example": "\u0060litespec rules use-case/spending.submit-expense\u0060 returns the provisions that govern the change, grouped by strength."
     },
     {
@@ -5863,7 +5863,7 @@
       "strength": "required",
       "statement": "A completion report MUST name each provision the agent judged and how it judged it.",
       "rationale": "The report shows which required provisions, defaults, and advisory provisions the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.",
-      "example": "The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a departure."
+      "example": "The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a waiver."
     },
     {
       "id": "litespec/core/agent#protect-proofs-from-implementation-edits",
@@ -6240,7 +6240,7 @@
       "trace": false,
       "strength": "required",
       "statement": "The changelog for each LiteSpec release MUST list the provision identifiers the release adds, removes, and renames, generated from the provision index at the previous tag and the provision index of the release.",
-      "rationale": "A consumer cites provision identifiers in code marks, records, and departures, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to \u0060litespec/core/authoring#exclude-historical-transition-material\u0060, and it extends to no other history material.",
+      "rationale": "A consumer cites provision identifiers in code marks, records, and waivers, so a release that removes or renames an identifier without naming it leaves every citation pointing at nothing with no way to find what changed. The generated list states a fact about the release it ships in and nothing more: it carries no alias, no replacement map, and no migration path, and no provision depends on an earlier release to state its own contract. Because the list derives from the two provision indexes, a tool generates it; a list typed by hand goes stale with the next provision edit. This provision is the exception to \u0060litespec/core/authoring#exclude-historical-transition-material\u0060, and it extends to no other history material.",
       "example": "\u0060litespec-maintain changelog --from v3.0.0\u0060 writes the list into the changelog entry for a release, with \u0060litespec/core/scope#claim-the-record-layers-the-project-uses\u0060 under Added when that provision first ships, and a major release lists each identifier it removes or renames under Removed and Renamed in the same entry."
     },
     {
@@ -6268,7 +6268,7 @@
       "anchor": "identify-actionable-conventions",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060CONVENTION_MISSING_DEFAULT\u0060, \u0060CONVENTION_MISSING_REPLACEMENT\u0060, \u0060CONVENTION_DEFAULT_SENTENCE\u0060, \u0060CONVENTION_REPLACEMENT_SENTENCE\u0060, \u0060CONVENTION_REPLACEMENT_DEPARTURE\u0060, or \u0060PROVISION_RESTATES_HEADING\u0060 diagnostic.",
+      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060CONVENTION_MISSING_DEFAULT\u0060, \u0060CONVENTION_MISSING_REPLACEMENT\u0060, \u0060CONVENTION_DEFAULT_SENTENCE\u0060, \u0060CONVENTION_REPLACEMENT_SENTENCE\u0060, \u0060CONVENTION_REPLACEMENT_WAIVER\u0060, or \u0060PROVISION_RESTATES_HEADING\u0060 diagnostic.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
@@ -6618,7 +6618,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer MUST record the LiteSpec release it adopts in \u0060reviewedLiteSpecVersion\u0060 within \u0060.litespec/project.yaml\u0060.",
-      "rationale": "A provision can gain force while keeping its ID, so a departure written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in \u0060reviewedLiteSpecVersion\u0060 makes adoption an explicit act and tells every reader which contract the project reviewed.",
+      "rationale": "A provision can gain force while keeping its ID, so a waiver written against one release could otherwise apply to a rule nobody reread. Recording the adopted release in \u0060reviewedLiteSpecVersion\u0060 makes adoption an explicit act and tells every reader which contract the project reviewed.",
       "example": ""
     },
     {
@@ -6653,7 +6653,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A capitalized modal MUST appear only in a Statement, a Departure, a Default, or a Replacement.",
+      "statement": "A capitalized modal MUST appear only in a Statement, a Waiver, a Default, or a Replacement.",
       "rationale": "Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as \u0060cannot\u0060 and a rule written as \u0060never\u0060 belong in the same labels.",
       "example": ""
     },
@@ -6844,7 +6844,7 @@
       "anchor": "write-atomic-standards-provisions",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060STANDARD_LABEL_INVALID\u0060, \u0060STANDARD_LABEL_ORDER\u0060, \u0060STANDARD_LABEL_DUPLICATE\u0060, \u0060STANDARD_SENTENCE_COUNT\u0060, \u0060STANDARD_MODAL_COUNT\u0060, \u0060STANDARD_MODAL_VOCABULARY\u0060, \u0060STANDARD_MISSING_DEPARTURE\u0060, \u0060STANDARD_UNEXPECTED_DEPARTURE\u0060, \u0060STANDARD_DEPARTURE_NORMATIVE\u0060, \u0060STANDARD_DEPARTURE_SENTENCE\u0060, \u0060STANDARD_MISSING_REQUIREMENT\u0060, \u0060STANDARD_REQUIREMENT_COUNT\u0060, \u0060STANDARD_UNLABELED_CONTENT\u0060, or \u0060PROVISION_RESTATES_HEADING\u0060 diagnostic.",
+      "evidence": "\u0060litespec-maintain validate\u0060 emits no \u0060STANDARD_LABEL_INVALID\u0060, \u0060STANDARD_LABEL_ORDER\u0060, \u0060STANDARD_LABEL_DUPLICATE\u0060, \u0060STANDARD_SENTENCE_COUNT\u0060, \u0060STANDARD_MODAL_COUNT\u0060, \u0060STANDARD_MODAL_VOCABULARY\u0060, \u0060STANDARD_MISSING_DEVIATION\u0060, \u0060STANDARD_UNEXPECTED_DEVIATION\u0060, \u0060STANDARD_DEVIATION_NORMATIVE\u0060, \u0060STANDARD_DEVIATION_SENTENCE\u0060, \u0060STANDARD_MISSING_REQUIREMENT\u0060, \u0060STANDARD_REQUIREMENT_COUNT\u0060, \u0060STANDARD_UNLABELED_CONTENT\u0060, or \u0060PROVISION_RESTATES_HEADING\u0060 diagnostic.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
@@ -7304,60 +7304,6 @@
       "statement": "A module MUST state its \u0060summary\u0060 and its \u0060dependsOn\u0060 in fields.",
       "rationale": "The module names one product area of the bounded context, so Intent, Behavior and code share one name for one area. \u0060summary\u0060 states what the area covers in one place, and \u0060dependsOn\u0060 names the modules it builds on. A reader learns where each area sits once and finds its records under one folder. Cross-cutting work sits at product level, never in a module that borrows it. The module is declared in Behavior, beside the aggregates it groups, because it is a code boundary. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).",
       "example": "The spending module covers expenses, receipts and the policy, with an empty \u0060dependsOn\u0060 where it stands alone."
-    },
-    {
-      "id": "litespec/core/departures#depart-from-advice-without-a-record",
-      "heading": "Depart from Advice Without a Record",
-      "page": "docs/core/departures.md",
-      "anchor": "depart-from-advice-without-a-record",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which departures name a provision of Strength advisory in their \u0060covers\u0060? Look at \u0060covers\u0060 in each file under \u0060.litespec/governance/departures/\u0060.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:departure",
-      "layer": "any",
-      "trace": false,
-      "strength": "advisory",
-      "statement": "A project MAY depart from a provision of Strength advisory without recording a departure, since an advisory provision binds no project.",
-      "rationale": "A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A departure from it would name a rule the provision never made. A provision whose Statement says \u0060SHOULD\u0060 or \u0060SHOULD NOT\u0060 takes this strength for the same reason: the project sets the advice aside within the bounds its Departure states and records nothing. Only a provision of Strength required is departed from through a departure. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).",
-      "example": ""
-    },
-    {
-      "id": "litespec/core/departures#record-a-project-wide-lowering-as-a-departure",
-      "heading": "Record a Project-Wide Lowering as a Departure",
-      "page": "docs/core/departures.md",
-      "anchor": "record-a-project-wide-lowering-as-a-departure",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060 or \u0060[SuppressMessage]\u0060 that no live departure covers.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:departure",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A project MUST record a departure for every analyzer rule it lowers or switches off in an \u0060.editorconfig\u0060 that applies beyond one file.",
-      "rationale": "A project-wide lowering in \u0060.editorconfig\u0060 is a departure from the standard rather than a setting. A departure names the provision, the reason and the expiry date, so the lowering is dated and ends instead of staying silent.",
-      "example": "A project that lowers LS5001 to a suggestion in its root \u0060.editorconfig\u0060 records a departure whose \u0060covers\u0060 names \u0060litespec/core/system#point-code-and-tests-up-to-records\u0060, the provision the rule enforces."
-    },
-    {
-      "id": "litespec/core/departures#record-accepted-gaps-as-departures",
-      "heading": "Record Accepted Gaps as Departures",
-      "page": "docs/core/departures.md",
-      "anchor": "record-accepted-gaps-as-departures",
-      "kind": "rule",
-      "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060departure-expired\u0060 (level G) for a departure past its \u0060expiresOn\u0060 date, and \u0060departure-invalid\u0060 (level G) for a departure whose \u0060covers\u0060 names a finding code no check emits, a code the model needs in order to load, or a provision or page the installed release does not ship.",
-      "stack": "any",
-      "concern": "records",
-      "artifact": "record:departure",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "An accepted gap MUST live as a departure with an \u0060expiresOn\u0060 date and an \u0060exit\u0060.",
-      "rationale": "Missing work with no date is invisible: nothing reports it. A departure with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, and \u0060departure-expired\u0060 reports the departure after the date. Settled by [decision/0014-one-exception-record](decision/0014-one-exception-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
-      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a departure in \u0060.litespec/governance/departures/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: departure\nid: departure/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
     },
     {
       "id": "litespec/core/domain-model#bind-every-atomic-write-group-in-its-rule",
@@ -8184,7 +8130,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST leave the order of its steps only through \u0060branches\u0060, each naming the \u0060step\u0060 it leaves, its \u0060condition\u0060, and the \u0060nextStep\u0060 it continues at or \u0060end\u0060.",
-      "rationale": "A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The \u0060step\u0060 and \u0060nextStep\u0060 name steps of the flow, so a branch that leaves a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).",
+      "rationale": "A path stated in prose lets an action hide where no check reads it, and a reader cannot see which step the path leaves. A branch names both steps, so a check reads each path, and an action is always a step, never a branch. The \u0060step\u0060 and \u0060nextStep\u0060 name steps of the flow, so a branch that leaves a missing step is reported. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).",
       "example": "A branch with \u0060step\u0060 s3, \u0060condition\u0060 the manager rejects the expense, and \u0060nextStep\u0060 end ends the flow at the rejection; the act of rejecting stays the step s3."
     },
     {
@@ -8328,7 +8274,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST state in \u0060summary\u0060, in up to four sentences, who takes the flow, what starts it, what good looks like, and the consequence at stake and for whom.",
-      "rationale": "A flow page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the flow in the actor\u0027s terms first, and the book renders it first on the page. \u0060finishedWhen\u0060 stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by [decision/0068-call-ordered-steps-a-flow](decision/0068-call-ordered-steps-a-flow).",
+      "rationale": "A flow page opens with its steps, so a reader landing on it cold learns the mechanics before the purpose. The summary states the flow in the actor\u0027s terms first, and the book renders it first on the page. \u0060finishedWhen\u0060 stays the checkable end state; the summary carries the purpose no field checks. Proposed by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by [decision/0068-call-ordered-steps-a-flow](decision/0068-call-ordered-steps-a-flow).",
       "example": "The library flow to borrow and return describes a reader who holds a copy, starting at the shelf and ending with the copy back on its shelf, because a reader plans the next visit around the return."
     },
     {
@@ -8418,7 +8364,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An actor MUST carry a \u0060kind\u0060 of person or organization and state in \u0060belongsToTeam\u0060 whether it belongs to the team building and running the product.",
-      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a flow. \u0060belongsToTeam\u0060 reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "An actor answers for what it does, so software stands behind no actor: an external system stands alone as its own record, and internal machinery such as a reaction, a job, a transport or a renderer is never an actor. A person or an organization can hold a role, suffer a problem and take a flow. \u0060belongsToTeam\u0060 reads as a predicate that is true about the record, so a reader tells a team actor from a customer at a glance, and a problem can refuse a team sufferer. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The library reader is an actor of kind person with \u0060belongsToTeam\u0060 false. The text gateway is an external system and no actor."
     },
     {
@@ -8544,7 +8490,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST lead one actor toward the record it exists for through ordered steps, naming exactly one reason, one goal in \u0060serves\u0060 or one problem or constraint in \u0060answers\u0060, and stating each path off that order in \u0060branches\u0060.",
-      "rationale": "A flow names its \u0060actor\u0060, its reason in \u0060serves\u0060 or \u0060answers\u0060, its \u0060finishedWhen\u0060, and its ordered \u0060steps\u0060. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step that fits nowhere is visible. Each step names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by decision 0066. Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).",
+      "rationale": "A flow names its \u0060actor\u0060, its reason in \u0060serves\u0060 or \u0060answers\u0060, its \u0060finishedWhen\u0060, and its ordered \u0060steps\u0060. One actor means a step names another actor only at a handoff; one reason means a flow with several reasons splits into several flows. Both reason fields hold a list of exactly one identifier, because the field grammar gives each name one shape ([decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for)). The order shows how the steps join toward the reason, so a step that fits nowhere is visible. Each step names in \u0060cites\u0060 the requirements it carries, and the use cases, reactions, and jobs that serve each step point up with \u0060serves\u0060. \u0060branches\u0060 holds the paths that leave the step order, each naming the step it leaves and its condition, and Example in the explanation file shows one concrete occasion. Proposed by [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) on the evidence in [research/intent-hierarchy-evidence](research/intent-hierarchy-evidence), [research/cross-layer-trace-evidence](research/cross-layer-trace-evidence), and [research/established-traceability-practice](research/established-traceability-practice), and reworded by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0066. Settled by [decision/0066-name-the-record-a-flow-exists-for](decision/0066-name-the-record-a-flow-exists-for).",
       "example": "The largest consumer held a 21-step flow with five actors, from creating the organizer to closing the books. Split by reason, it is four flows: set up and sell an event; buy a ticket; admit the crowd; close the night."
     },
     {
@@ -8562,7 +8508,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A goal MUST be moved by a flow serving it or by a quality requirement citing it.",
-      "rationale": "A goal no flow serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A flow serving the goal shows the flow that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. Only a flow that names the goal in \u0060serves\u0060 moves it; a flow that answers a problem or a constraint moves no goal measure. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "A goal no flow serves and no quality requirement confirms names an outcome the product never touches: a company hope filed as a product goal. A flow serving the goal shows the flow that moves the counted outcome, and a quality requirement citing it states the measure that confirms the move. Only a flow that names the goal in \u0060serves\u0060 moves it; a flow that answers a problem or a constraint moves no goal measure. An outcome the system controls directly is a quality requirement, and an outcome only the company controls is no goal at all. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The library goal of faster pickup is moved by the borrow-and-return flow serving it; a goal of higher membership sales is moved by no flow and is no product goal."
     },
     {
@@ -8580,7 +8526,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every actor MUST be named by a flow, by a problem in \u0060affects\u0060, or by an access position in \u0060holds\u0060.",
-      "rationale": "An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the flow it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "An actor named by nothing is a party nobody suffers as, acts as or grants to: a leftover from a system or a machine promoted beside real people. Naming each actor from the flow it takes, the pain it suffers or the role it holds keeps the actor list equal to the parties the product serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The library reader is named by the borrow-and-return flow and by the due-date problem; the librarian is named by the holds of the librarian role."
     },
     {
@@ -8688,7 +8634,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST reach each clause of \u0060finishedWhen\u0060 through a step, with each step performable once \u0060startedWhen\u0060 and the steps before it hold, and its Example starting from \u0060startedWhen\u0060 and performing the steps in order.",
-      "rationale": "A flow whose end no step reaches states a finish the path never gets to, and a step that needs a state no earlier step or start provides cannot be performed. An Example that skips a step, or that starts from a state other than \u0060startedWhen\u0060, teaches a path the flow does not hold. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).",
+      "rationale": "A flow whose end no step reaches states a finish the path never gets to, and a step that needs a state no earlier step or start provides cannot be performed. An Example that skips a step, or that starts from a state other than \u0060startedWhen\u0060, teaches a path the flow does not hold. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).",
       "example": "The flow to reimburse an expense ends in \u0060finishedWhen\u0060 with the employee holding the money, which step 4 reaches; its Example starts at the paid cost and performs the submission, the approval and the payout in that order."
     },
     {
@@ -8940,7 +8886,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A condition that stops a flow MUST be the \u0060failure\u0060 of the step it blocks, stating what the person sees and can do next with the requirement that holds the rule cited in the step\u0027s \u0060cites\u0060, and never stated only in a branch or in the explanation.",
-      "rationale": "A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The \u0060failure\u0060 of the step keeps each blocker where the step fails, and the step\u0027s \u0060cites\u0060 names the requirement that holds the rule, so the rule is not restated in the flow. The \u0060failure\u0060 states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). Settled by decision 0067.",
+      "rationale": "A blocker stated in a branch or in the Example reads as a path the flow takes, and a blocker stated only in prose has no step a reader can find. The \u0060failure\u0060 of the step keeps each blocker where the step fails, and the step\u0027s \u0060cites\u0060 names the requirement that holds the rule, so the rule is not restated in the flow. The \u0060failure\u0060 states what the person sees and can do next, never the rule behind it. A branch from the blocked step names where the actor goes after the failure. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). Settled by decision 0067.",
       "example": "The step that submits an expense carries in \u0060failure\u0060 that the expense cannot be submitted and the employee can attach the receipt and submit again, and cites in its \u0060cites\u0060 the requirement that holds the receipt rule."
     },
     {
@@ -8958,7 +8904,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A goal MUST state its \u0060summary\u0060, \u0060statement\u0060, \u0060measure\u0060, and \u0060target\u0060 in fields.",
-      "rationale": "A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The \u0060summary\u0060 states what the goal is in one paragraph, the \u0060statement\u0060 names the outcome and the consequence at stake, and \u0060measure\u0060 and \u0060target\u0060 name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "A goal without a measure is a wish no check can confirm: the team cannot tell whether the product serves it. The \u0060summary\u0060 states what the goal is in one paragraph, the \u0060statement\u0060 names the outcome and the consequence at stake, and \u0060measure\u0060 and \u0060target\u0060 name what is counted and the number aimed for. A goal carries no authority: it explains why features exist and never decides a conflict. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": ""
     },
     {
@@ -9210,7 +9156,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST state its observable end in \u0060finishedWhen\u0060.",
-      "rationale": "A flow without a stated end can stop anywhere: the reader cannot tell a finished flow from an abandoned one, and serving records cannot tell done from dropped. \u0060finishedWhen\u0060 states the observable end in one sentence, in product words. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "A flow without a stated end can stop anywhere: the reader cannot tell a finished flow from an abandoned one, and serving records cannot tell done from dropped. \u0060finishedWhen\u0060 states the observable end in one sentence, in product words. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "\u0060finishedWhen\u0060: the employee holds the reimbursement."
     },
     {
@@ -9228,7 +9174,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A flow MUST state the observable state in which it starts in \u0060startedWhen\u0060, in one sentence.",
-      "rationale": "A flow whose start sits in its summary, its Example and its first step has three starting points, and a reader cannot tell where the path begins. \u0060startedWhen\u0060 gives the start one home beside \u0060finishedWhen\u0060, which states the end, and a check reads it. The detail of one occasion belongs in the Example, not in the field. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey).",
+      "rationale": "A flow whose start sits in its summary, its Example and its first step has three starting points, and a reader cannot tell where the path begins. \u0060startedWhen\u0060 gives the start one home beside \u0060finishedWhen\u0060, which states the end, and a check reads it. The detail of one occasion belongs in the Example, not in the field. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow).",
       "example": "\u0060startedWhen\u0060: the employee has paid a work cost and has not yet submitted it."
     },
     {
@@ -9282,7 +9228,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each flow step MUST carry its \u0060id\u0060, its product sentence in \u0060statement\u0060 naming one act of its performer and no use case, and in \u0060cites\u0060 each requirement the step carries.",
-      "rationale": "A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product\u0027s observable response after the performer\u0027s act, as in \u0022Finance reimburses the approved expense, and Claimwick pays the amount into the employee\u0027s account\u0022; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-journey](decision/0048-state-the-start-and-branches-of-each-journey). The \u0060id\u0060 (\u0060s1\u0060, \u0060s2\u0060, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with \u0060serves\u0060 to \u0060flow/\u003Cname\u003E#s1\u0060. A step that names its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in \u0060actor\u0060, or the external system performing it in \u0060system\u0060 when no person acts, and carries \u0060failure\u0060 where the flow can fail. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences). Settled by decision 0067.",
+      "rationale": "A step written as a product sentence reads in flow detail with no Behavior knowledge: it states what a person experiences, not which handler runs. The sentence may end with the product\u0027s observable response after the performer\u0027s act, as in \u0022Finance reimburses the approved expense, and Claimwick pays the amount into the employee\u0027s account\u0022; how the product computes that response stays in the cited requirement, and a second act of a person is a second step. Numbers, limits and conditions stay in the cited requirement; the step states the experience only. Proposed by [decision/0048-state-the-start-and-branches-of-each-flow](decision/0048-state-the-start-and-branches-of-each-flow). The \u0060id\u0060 (\u0060s1\u0060, \u0060s2\u0060, and so on) gives Behavior a stable target: use cases, reactions, and jobs point up with \u0060serves\u0060 to \u0060flow/\u003Cname\u003E#s1\u0060. A step that names its use case drags Behavior into Intent and breaks the flow detail every time Behavior renames. The performer and the failure text are optional: a step names the actor taking the flow only at a handoff in \u0060actor\u0060, or the external system performing it in \u0060system\u0060 when no person acts, and carries \u0060failure\u0060 where the flow can fail. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences). Settled by decision 0067.",
       "example": "Step \u0060s4\u0060 states \u0060Finance reimburses the approved expense.\u0060 in \u0060statement\u0060 and names no use case; \u0060use-case/spending.reimburse-expense\u0060 names \u0060flow/submit-and-reimburse#s4\u0060 in \u0060serves\u0060."
     },
     {
@@ -9444,8 +9390,8 @@
       "trace": false,
       "strength": "required",
       "statement": "Every date field MUST end in \u0060On\u0060 for a recorded date or carry a name that states what the date does.",
-      "rationale": "A recorded date says when something happened or until when it holds: \u0060readOn\u0060 says when an outside source was read, and \u0060expiresOn\u0060 says when a departure ends. \u0060effectiveFrom\u0060 opens a validity span. The shape tells a reader which dates record the world and which open a span.",
-      "example": "A Claimwick constraint carries \u0060readOn\u0060 on each source with the date the source was read, and a departure carries \u0060expiresOn\u0060 with the date it ends."
+      "rationale": "A recorded date says when something happened or until when it holds: \u0060readOn\u0060 says when an outside source was read, and \u0060expiresOn\u0060 says when a waiver ends. \u0060effectiveFrom\u0060 opens a validity span. The shape tells a reader which dates record the world and which open a span.",
+      "example": "A Claimwick constraint carries \u0060readOn\u0060 on each source with the date the source was read, and a waiver carries \u0060expiresOn\u0060 with the date it ends."
     },
     {
       "id": "litespec/core/language#name-each-field-by-its-word-class",
@@ -9912,8 +9858,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A minor LiteSpec release MUST keep every provision identifier of its major version, adding provisions and rewording provision text without removing or renaming an identifier.",
-      "rationale": "Consumers cite provision identifiers in code marks, records, and departures, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.",
-      "example": "A release in the 5.x line adds \u0060litespec/core/scope#claim-the-record-layers-the-project-uses\u0060 and rewords a neighboring provision; both keep their identifiers, so every mark and departure written against the 5.x line still resolves."
+      "rationale": "Consumers cite provision identifiers in code marks, records, and waivers, and each citation is written against the major version the project pins. A minor release that removes or renames an identifier breaks those citations inside a version line the consumer took as stable, with no major release to signal the break. A major release may remove or rename identifiers, and the generated provision diff in its changelog lists every added, removed and renamed identifier, so a consumer moving across a major version finds each change in one place.",
+      "example": "A release in the 5.x line adds \u0060litespec/core/scope#claim-the-record-layers-the-project-uses\u0060 and rewords a neighboring provision; both keep their identifiers, so every mark and waiver written against the 5.x line still resolves."
     },
     {
       "id": "litespec/core/maintaining#list-every-stack-shape-and-extension-in-the-manifest",
@@ -10110,7 +10056,7 @@
       "trace": true,
       "strength": "required",
       "statement": "The builder MUST compute one completion stage for every requirement, use case, flow, feature and goal, and write it as \u0060completion\u0060 with \u0060stage\u0060, \u0060proof\u0060, \u0060heldBy\u0060 and \u0060counts\u0060, with a parent only as far as its weakest in-scope child and \u0060heldBy\u0060 naming at most ten children at that stage.",
-      "rationale": "Completion is a fact the builder can count from fulfillment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060coded\u0060 when code is found for every in-scope child, and \u0060verified\u0060 when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays \u0060coded\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement a departure parks stays out of the stage and the counts and names itself in \u0060heldBy\u0060, so deferred work stays visible. A goal\u0027s completion shows delivery only; its outcome reads \u0060not measured\u0060 until the goal records \u0060observations\u0060.",
+      "rationale": "Completion is a fact the builder can count from fulfillment, code and proof, so no record carries a shorthand saying how far it is. One ladder reads the same everywhere: \u0060unfulfilled\u0060 when no Behavior record fulfills a record, \u0060specified\u0060 when it is fulfilled and no code is found, \u0060coded\u0060 when code is found for every in-scope child, and \u0060verified\u0060 when every in-scope child is verified with fresh proof. When the model holds no test run, a coded record stays \u0060coded\u0060 with proof \u0060unknown\u0060, so proof unknown never reads as a failure. A requirement a waiver parks stays out of the stage and the counts and names itself in \u0060heldBy\u0060, so deferred work stays visible. A goal\u0027s completion shows delivery only; its outcome reads \u0060not measured\u0060 until the goal records \u0060observations\u0060.",
       "example": "In Claimwick, \u0060feature/expense-submission\u0060 shows \u0060coded\u0060 with proof \u0060unknown\u0060 before any test run, held by the one requirement with no fulfiller; after a passing run proves every fulfiller, the same feature shows \u0060verified\u0060 with no held-by entries."
     },
     {
@@ -10273,7 +10219,7 @@
       "strength": "required",
       "statement": "Every explanation the book shows MUST come from the glossary definition of the term or from the question its record type answers on this page.",
       "rationale": "The book explains itself so nobody needs a learning curve, and the explanation stays true only when it has one source. An explanation written for the book drifts from the definition the records follow. Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md). Settled by [decision/0090-make-the-book-an-explorer](decision/0090-make-the-book-an-explorer): the book states a definition on hover and in the lexicon, and shows no teaching text beside each use.",
-      "example": "The book explains a departure with the glossary definition of Departure."
+      "example": "The book explains a waiver with the glossary definition of Waiver."
     },
     {
       "id": "litespec/core/model#follow-the-authority-order",
@@ -10452,7 +10398,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every check MUST carry the level its finding rests on, and block or report as the strength of its provision states.",
-      "rationale": "The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and A rests on prose, names, or proof state. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a departure parks it, and a finding on an advisory provision never blocks. \u0060litespec model check\u0060 prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.",
+      "rationale": "The level tells a reader what a finding rests on: G rests on records only, S rests on code read through a stack reader, and A rests on prose, names, or proof state. Whether a finding blocks follows the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. \u0060litespec model check\u0060 prints the level beside each finding, so a reader tells what each finding rests on at a glance. A missing required link is level G.",
       "example": ""
     },
     {
@@ -10519,7 +10465,7 @@
       "evidence": "\u0060litespec model check\u0060 reports \u0060identifier-title-invalid\u0060 for a page record whose identifier name is no word subsequence of its title, or whose record file is named for neither its identifier name nor the fixed file name of its type.",
       "stack": "any",
       "concern": "records",
-      "artifact": "record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:departure",
+      "artifact": "record:product, record:goal, record:vision, record:problem, record:feature, record:requirement, record:constraint, record:decision, record:research, record:flow, record:actor, record:role, record:module, record:aggregate, record:use-case, record:reaction, record:job, record:notification, record:integration-event, record:entry-point, record:screen, record:external-system, record:runbook, record:waiver",
       "layer": "any",
       "trace": false,
       "strength": "required",
@@ -10703,7 +10649,7 @@
       "layer": "any",
       "trace": false,
       "strength": "default",
-      "statement": "A generated region renders only facts derived from records, and a \u0060decision-index\u0060 or \u0060departure-index\u0060 region also renders the computed follower facts its rows name.",
+      "statement": "A generated region renders only facts derived from records, and a \u0060decision-index\u0060 or \u0060waiver-index\u0060 region also renders the computed follower facts its rows name.",
       "rationale": "A generated region sits inside a record page, so everything in it reads with record authority. Facts computed from code, such as coded and verified counts, describe the world rather than the promise, and rendering them beside records would lend them authority they do not hold. The book and the model output carry code-computed facts where readers meet them as computed. An index region is the exception: it lists the records beside it, so each row names the computed followers, concerns and flags the reader needs to read the list. Settled by [decision/0072-generate-the-links-table-from-the-schema](decision/0072-generate-the-links-table-from-the-schema).",
       "example": ""
     },
@@ -10830,7 +10776,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every flow step MUST have a serving use case, reaction, or job.",
-      "rationale": "A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the actor through it. \u0060step-use-case-missing\u0060 fails a step with no serving use case, reaction, or job. The pair sits side by side: \u0060step-use-case-missing\u0060 names a step no use case, reaction, or job serves, and \u0060step-screen-missing\u0060 names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "A step no use case, reaction, or job serves promises a moment the product never builds. Use cases, reactions, and jobs point up with serves, so each step id collects the behaviors that carry the actor through it. \u0060step-use-case-missing\u0060 fails a step with no serving use case, reaction, or job. The pair sits side by side: \u0060step-use-case-missing\u0060 names a step no use case, reaction, or job serves, and \u0060step-screen-missing\u0060 names a step a browser or device use case serves that no screen serves. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": ""
     },
     {
@@ -11100,8 +11046,8 @@
       "trace": false,
       "strength": "required",
       "statement": "What merges MUST be complete.",
-      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a departure with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
-      "example": "A use case with no endpoint stays on its branch until the endpoint lands or a departure with \u0060expiresOn\u0060 parks it."
+      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a waiver with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
+      "example": "A use case with no endpoint stays on its branch until the endpoint lands or a waiver with \u0060expiresOn\u0060 parks it."
     },
     {
       "id": "litespec/core/principles#compute-completion-from-code-and-tests",
@@ -11898,22 +11844,22 @@
       "example": "The .NET reader passes the clean tree and reports the planted undeclared write before its S findings block."
     },
     {
-      "id": "litespec/core/release#record-accepted-debt-as-a-departure",
-      "heading": "Record Accepted Debt as a Departure",
+      "id": "litespec/core/release#record-accepted-debt-as-a-waiver",
+      "heading": "Record Accepted Debt as a Waiver",
       "page": "docs/core/release.md",
-      "anchor": "record-accepted-debt-as-a-departure",
+      "anchor": "record-accepted-debt-as-a-waiver",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which accepted debts lack a departure with an expiry date? Look at the departures beside each debt.",
+      "evidence": "Which accepted debts lack a waiver with an expiry date? Look at the waivers beside each debt.",
       "stack": "any",
       "concern": "operations",
-      "artifact": "record:departure",
+      "artifact": "record:waiver",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Accepted debt MUST live as a departure record with an expiry date.",
-      "rationale": "Accepted debt with no expiry date is forgotten work. A departure with an \u0060expiresOn\u0060 and \u0060exit\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060departure-expired\u0060 reports after it. The [model page](model.md) states the departure shape.",
-      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a departure with an \u0060expiresOn\u0060 of 2027-03-01 and an \u0060exit\u0060; \u0060departure-expired\u0060 reports it after that date."
+      "statement": "Accepted debt MUST live as a waiver record with an expiry date.",
+      "rationale": "Accepted debt with no expiry date is forgotten work. A waiver with an \u0060expiresOn\u0060 and \u0060exit\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060waiver-expired\u0060 reports after it. The [model page](model.md) states the waiver shape.",
+      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a waiver with an \u0060expiresOn\u0060 of 2027-03-01 and an \u0060exit\u0060; \u0060waiver-expired\u0060 reports it after that date."
     },
     {
       "id": "litespec/core/release#record-the-release-artifact",
@@ -11976,15 +11922,15 @@
       "anchor": "resolve-release-blockers",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which releases depend on an expired departure or an external claim without excluding the behavior? Look at the departures and claims beside the owning records.",
+      "evidence": "Which releases depend on an expired waiver or an external claim without excluding the behavior? Look at the waivers and claims beside the owning records.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A release MUST settle every expired departure and every external claim it depends on, or exclude the affected behavior from every owning record.",
-      "rationale": "An expired departure is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. \u0060departure-expired\u0060 reports every expired departure.",
+      "statement": "A release MUST settle every expired waiver and every external claim it depends on, or exclude the affected behavior from every owning record.",
+      "rationale": "An expired waiver is a promise past its date, and an unverified external claim behind released behavior is a promise with unsettled terms: a provider fact, a law text, or a term nobody rechecked. Settling each one, or excluding the affected behavior from every owning record, keeps the Intent and release records agreeing on what shipped. \u0060waiver-expired\u0060 reports every expired waiver.",
       "example": ""
     },
     {
@@ -12174,7 +12120,7 @@
       "anchor": "claim-conformance-only-when-every-applicable-provision-holds",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "\u0060.litespec/project.yaml\u0060 names each claimed layer in \u0060layers\u0060, beside the selected size, shape, stacks, and extensions; each departure from a provision that applies to a claimed layer resolves to a departure record under \u0060.litespec/governance/departures/\u0060, and the checks that run for those layers pass.",
+      "evidence": "\u0060.litespec/project.yaml\u0060 names each claimed layer in \u0060layers\u0060, beside the selected size, shape, stacks, and extensions; each waiver from a provision that applies to a claimed layer resolves to a waiver record under \u0060.litespec/governance/waivers/\u0060, and the checks that run for those layers pass.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
@@ -12182,8 +12128,8 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer MUST meet every provision that applies to each layer it claims in \u0060layers\u0060 before claiming conformance to LiteSpec for those layers.",
-      "rationale": "A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of \u0060intent\u0060 and \u0060behavior\u0060 takes in the provisions about the record model; a claim of \u0060implementation\u0060 or \u0060proof\u0060 also takes in the provisions that tie each layer to the records. A [departure](departures.md) outranks the provision or findings it covers while it stands, so a project that records each departure still meets this provision; a departure past its expiry date reports \u0060departure-expired\u0060 and no longer outranks them. An unrecorded departure in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.",
-      "example": "A consumer that claims all four layers with \u0060litespec\u0060, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each departure recorded. A consumer that claims \u0060intent\u0060 and \u0060behavior\u0060 claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim."
+      "rationale": "A conformance claim tells a reader that the whole part of the contract the project claimed holds, not only the parts the project chose to follow. A claim of \u0060intent\u0060 and \u0060behavior\u0060 takes in the provisions about the record model; a claim of \u0060implementation\u0060 or \u0060proof\u0060 also takes in the provisions that tie each layer to the records. A [waiver](waivers.md) outranks the provision or findings it covers while it stands, so a project that records each waiver still meets this provision; a waiver past its expiry date reports \u0060waiver-expired\u0060 and no longer outranks them. An unrecorded waiver in a claimed layer breaks the claim for that layer and leaves any layer the project does meet untouched.",
+      "example": "A consumer that claims all four layers with \u0060litespec\u0060, selects the dotnet stack and the caching extension, claims conformance when every page those selections apply holds and their checks pass, with each waiver recorded. A consumer that claims \u0060intent\u0060 and \u0060behavior\u0060 claims conformance when the provisions about the record model hold, while its own code layout and tooling stay outside the claim."
     },
     {
       "id": "litespec/core/scope#claim-the-record-layers-the-project-uses",
@@ -12420,24 +12366,6 @@
       "example": ""
     },
     {
-      "id": "litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure",
-      "heading": "Depart from a Rule Only Through a Recorded Departure",
-      "page": "docs/core/scopes.md",
-      "anchor": "depart-from-a-rule-only-through-a-recorded-departure",
-      "kind": "rule",
-      "mark": "guidance",
-      "evidence": "Which departures from a provision of Strength \u0060required\u0060 name no provision, page or finding code, or give no reason? Look at the files under \u0060.litespec/governance/departures/\u0060.",
-      "stack": "any",
-      "concern": "workspace",
-      "artifact": "",
-      "layer": "any",
-      "trace": false,
-      "strength": "required",
-      "statement": "A project that departs from a provision of Strength \u0060required\u0060 MUST record a departure whose \u0060covers\u0060 names the provision, with a reason.",
-      "rationale": "A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The [departure record](departures.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the departure stays visible and ends instead of lingering.",
-      "example": "Claimwick ships its weekend export without the review step, so it records a departure whose \u0060covers\u0060 names the authorization provision and whose reason states the choice."
-    },
-    {
       "id": "litespec/core/scopes#give-every-provision-its-layer-and-trace",
       "heading": "Give Every Provision Its Layer and Trace",
       "page": "docs/core/scopes.md",
@@ -12490,6 +12418,24 @@
       "statement": "A project that chooses otherwise than a provision of Strength default MUST record its choice where the provision names.",
       "rationale": "A default holds until the project says otherwise in writing: without the record, a reader cannot tell a deliberate choice from a provision nobody read. The provision names the recording place in its Replacement, so each choice sits where its provision points. An advisory provision asks for no record, which is what sets the two strengths apart.",
       "example": "A project that keeps its pattern catalog outside the default path records the path in \u0060paths.uiPatterns\u0060, as the provision\u0027s Replacement names."
+    },
+    {
+      "id": "litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver",
+      "heading": "Set a Rule Aside Only Through a Recorded Waiver",
+      "page": "docs/core/scopes.md",
+      "anchor": "set-a-rule-aside-only-through-a-recorded-waiver",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which waivers from a provision of Strength \u0060required\u0060 name no provision, page or finding code, or give no reason? Look at the files under \u0060.litespec/governance/waivers/\u0060.",
+      "stack": "any",
+      "concern": "workspace",
+      "artifact": "",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A project that sets aside a provision of Strength \u0060required\u0060 MUST record a waiver whose \u0060covers\u0060 names the provision, with a reason.",
+      "rationale": "A rule binds every project it reaches: a silent waiver claims conformance the project does not hold. The [waiver record](waivers.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the waiver stays visible and ends instead of lingering.",
+      "example": "Claimwick ships its weekend export without the review step, so it records a waiver whose \u0060covers\u0060 names the authorization provision and whose reason states the choice."
     },
     {
       "id": "litespec/core/scopes#state-applies-to-only-when-narrower",
@@ -12552,15 +12498,15 @@
       "anchor": "declare-replacements",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Each extension or departure names every baseline provision ID it replaces, with the rest staying active.",
+      "evidence": "Each extension or waiver names every baseline provision ID it replaces, with the rest staying active.",
       "stack": "any",
       "concern": "workspace",
       "artifact": "",
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An extension or a departure MUST name every baseline provision ID it replaces.",
-      "rationale": "Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A departure names the provision in \u0060covers\u0060, and \u0060rules \u003Cpath\u003E\u0060 shows the departure in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.",
+      "statement": "An extension or a waiver MUST name every baseline provision ID it replaces.",
+      "rationale": "Naming every replaced provision ID draws the exact boundary of the change: everything unnamed stays active. A waiver names the provision in \u0060covers\u0060, and \u0060rules \u003Cpath\u003E\u0060 shows the waiver in place of the provision. Without the list, a replacement silently widens its scope with each reading, and reviewers cannot tell which baseline provisions still bind the project.",
       "example": ""
     },
     {
@@ -12732,15 +12678,15 @@
       "anchor": "point-every-technical-class-up-to-its-record-or-choice",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060 and \u0060mark-unknown\u0060 (check level S), and \u0060dotnet build\u0060 reports \u0060LS5001\u0060 and \u0060LS5002\u0060, for a technical class with no mark, an \u0060implements\u0060 mark naming no Behavior record, or a \u0060follows\u0060 mark naming no provision of the carried release, no decision, departure, or project convention, or a provision on a page the project\u0027s stacks do not apply.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060 and \u0060mark-unknown\u0060 (check level S), and \u0060dotnet build\u0060 reports \u0060LS5001\u0060 and \u0060LS5002\u0060, for a technical class with no mark, an \u0060implements\u0060 mark naming no Behavior record, or a \u0060follows\u0060 mark naming no provision of the carried release, no decision, waiver, or project convention, or a provision on a page the project\u0027s stacks do not apply.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
       "layer": "implementation",
       "trace": true,
       "strength": "required",
-      "statement": "Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an \u0060implements\u0060 mark naming a Behavior record it serves, or a \u0060follows\u0060 mark naming the LiteSpec provision, decision, departure, or project convention that shapes it.",
-      "rationale": "Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in \u0060implements\u0060 like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, a departure allows it, or a project convention states it, and a \u0060follows\u0060 mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a \u0060follows\u0060 mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.",
+      "statement": "Every technical class the marks table on the [model page](model.md) names MUST carry at least one mark: an \u0060implements\u0060 mark naming a Behavior record it serves, or a \u0060follows\u0060 mark naming the LiteSpec provision, decision, waiver, or project convention that shapes it.",
+      "rationale": "Every class in the outer layers exists for a record or for a reason. An input validator or a read model serves one use case, and a repository serves one aggregate, so each names that record in \u0060implements\u0060 like the handler beside it. Code that serves no record still exists for a reason: a provision requires it, a technical decision chose it, a waiver allows it, or a project convention states it, and a \u0060follows\u0060 mark names that reason by identifier. The named target is the reason for the shape the class carries, so review judges a \u0060follows\u0060 mark by whether its target requires that shape. A reader asking why the command pipeline commits once, or why the repository stores documents, follows the link instead of guessing, and a check finds the code that still follows a deleted decision. A class may carry both kinds when it serves a record in a chosen way.",
       "example": "The Claimwick submit-expense validator carries \u0060/// \u003Cimplements\u003Euse-case/spending.submit-expense\u003C/implements\u003E\u0060. The receipt PDF renderer carries \u0060/// \u003Cfollows\u003Edecision/0005-render-receipts-as-pdf\u003C/follows\u003E\u0060, and the command pipeline\u0027s commit step carries \u0060/// \u003Cfollows\u003Elitespec/backend/persistence#commit-each-command-pipeline-once\u003C/follows\u003E\u0060. The payout bank port carries \u0060/// \u003Cfollows\u003Eclaimwick/conventions#confirm-large-payouts\u003C/follows\u003E\u0060."
     },
     {
@@ -13651,6 +13597,60 @@
       "example": "The submit-expense summary states that an employee files a work expense for approval, and its Flow section lists validation, storage, and the approver notice in order."
     },
     {
+      "id": "litespec/core/waivers#deviate-from-advice-without-a-record",
+      "heading": "Deviate from Advice Without a Record",
+      "page": "docs/core/waivers.md",
+      "anchor": "deviate-from-advice-without-a-record",
+      "kind": "rule",
+      "mark": "guidance",
+      "evidence": "Which waivers name a provision of Strength advisory in their \u0060covers\u0060? Look at \u0060covers\u0060 in each file under \u0060.litespec/governance/waivers/\u0060.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "advisory",
+      "statement": "A project MAY deviate from a provision of Strength advisory without recording a waiver, since an advisory provision binds no project.",
+      "rationale": "A provision of Strength advisory is experience applied with judgement, and [Provision Scopes](scopes.md) says it records nothing. A waiver from it would name a rule the provision never made. A provision whose Statement says \u0060SHOULD\u0060 or \u0060SHOULD NOT\u0060 takes this strength for the same reason: the project sets the advice aside within the bounds its Deviation states and records nothing. Only a provision of Strength required is departed from through a waiver. Settled by [decision/0082-give-every-rule-one-home-and-one-strength](decision/0082-give-every-rule-one-home-and-one-strength).",
+      "example": ""
+    },
+    {
+      "id": "litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver",
+      "heading": "Record a Project-Wide Lowering as a Waiver",
+      "page": "docs/core/waivers.md",
+      "anchor": "record-a-project-wide-lowering-as-a-waiver",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060 or \u0060[SuppressMessage]\u0060 that no live waiver covers.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "A project MUST record a waiver for every analyzer rule it lowers or switches off in an \u0060.editorconfig\u0060 that applies beyond one file.",
+      "rationale": "A project-wide lowering in \u0060.editorconfig\u0060 is a waiver from the standard rather than a setting. A waiver names the provision, the reason and the expiry date, so the lowering is dated and ends instead of staying silent.",
+      "example": "A project that lowers LS5001 to a suggestion in its root \u0060.editorconfig\u0060 records a waiver whose \u0060covers\u0060 names \u0060litespec/core/system#point-code-and-tests-up-to-records\u0060, the provision the rule enforces."
+    },
+    {
+      "id": "litespec/core/waivers#record-accepted-gaps-as-waivers",
+      "heading": "Record Accepted Gaps as Waivers",
+      "page": "docs/core/waivers.md",
+      "anchor": "record-accepted-gaps-as-waivers",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060waiver-expired\u0060 (level G) for a waiver past its \u0060expiresOn\u0060 date, and \u0060waiver-invalid\u0060 (level G) for a waiver whose \u0060covers\u0060 names a finding code no check emits, a code the model needs in order to load, or a provision or page the installed release does not ship.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "record:waiver",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "An accepted gap MUST live as a waiver with an \u0060expiresOn\u0060 date and an \u0060exit\u0060.",
+      "rationale": "Missing work with no date is invisible: nothing reports it. A waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
+    },
+    {
       "id": "litespec/core/writing#apply-plain-mechanics",
       "heading": "Apply Plain Mechanics",
       "page": "docs/core/writing.md",
@@ -13845,7 +13845,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every explanation file MUST hold one paragraph of prose between its H1 title and its first H2 section, saying what the record is in plain words, who it concerns and the consequence at stake.",
-      "rationale": "A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet. Proposed by [decision/0049-literal-journey-words-concrete-consequences](../intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences.md).",
+      "rationale": "A reader who opens an explanation from a link reads the opening paragraph first and decides from it whether the record concerns them. The paragraph stands alone, so the record is understood before any section is read. A heading with no paragraph under it sends the reader straight into a section that assumes the context they do not have yet. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md).",
       "example": "The Claimwick problem explanation for waiting expenses opens with one paragraph: employees wait three weeks for reimbursement, approvers batch decisions monthly, and the wait costs the company more than the money it holds. Only then does its Affected Users section begin."
     },
     {
@@ -13935,7 +13935,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every title and sentence MUST use the literal word for what it names, with each term defined on first use or linked to the glossary.",
-      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: \u0022one transfer entry touches both accounts\u0022 leaves open what happens to each balance, while \u0022one transfer entry reduces the sending account\u0027s balance and increases the receiving account\u0027s balance\u0022 states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: \u0022It matters because the figures must be correct\u0022 names no consequence, while \u0022A wrong box amount means a correction return, and a late return means a fine\u0022 names the consequence and who bears it. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-literal-journey-words-concrete-consequences](../intent/decisions/0049-literal-journey-words-concrete-consequences/0049-literal-journey-words-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
+      "rationale": "A metaphor reads smoothly while hiding what the project means: each reader pictures a different act behind the same flourish, and a metaphor title hides its subject in every list that shows it. A literal phrase names the act itself, so no reader has to decode it. A loose verb such as handles, holds, touches or lands hides the act the same way: \u0022one transfer entry touches both accounts\u0022 leaves open what happens to each balance, while \u0022one transfer entry reduces the sending account\u0027s balance and increases the receiving account\u0027s balance\u0022 states it. Plain wording keeps the precise term of the domain, such as opening balance or closing date, where a looser word would lose the meaning. A word is loose when it leaves the act unclear in its sentence; a field or domain term used in its defined sense, such as an actor that holds a role, is not loose. A stock phrase is the same loose form: \u0022It matters because the figures must be correct\u0022 names no consequence, while \u0022A wrong box amount means a correction return, and a late return means a fine\u0022 names the consequence and who bears it. Each concept keeps its one glossary term, as \u0060litespec/core/authoring#use-one-term-for-one-concept\u0060 states; this page adds only that a term a cold reader may not know is defined where it first appears or linked to its glossary entry. Proposed by [decision/0049-literal-flow-words-concrete-consequences](../intent/decisions/0049-literal-flow-words-concrete-consequences/0049-literal-flow-words-concrete-consequences.md) and [decision/0057-narrow-the-writing-rules-to-meaning](../intent/decisions/0057-narrow-the-writing-rules-to-meaning/0057-narrow-the-writing-rules-to-meaning.md).",
       "example": "A Claimwick problem is titled \u0022Expenses Wait Weeks for Reimbursement\u0022. The title names the wait and the delay literally, with no figure of speech to decode."
     },
     {
@@ -16568,21 +16568,21 @@
       "example": ""
     },
     {
-      "id": "litespec/ext/delivery#close-incident-departures-within-seven-days",
-      "heading": "Close Incident Departures Within Seven Days",
+      "id": "litespec/ext/delivery#close-incident-waivers-within-seven-days",
+      "heading": "Close Incident Waivers Within Seven Days",
       "page": "docs/ext/delivery.md",
-      "anchor": "close-incident-departures-within-seven-days",
+      "anchor": "close-incident-waivers-within-seven-days",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which incident fixes lack a departure, or carry an expired one? Look at the departure records beside each fix.",
+      "evidence": "Which incident fixes lack a waiver, or carry an expired one? Look at the waiver records beside each fix.",
       "stack": "any",
       "concern": "operations",
-      "artifact": "record:departure",
+      "artifact": "record:waiver",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A production incident fix that ships before its records are updated MUST carry an incident departure expiring within seven days.",
-      "rationale": "A production incident ships its fix at once. The incident departure records what shipped and why, and the records are updated before it expires. An expired departure is a blocking finding, so the gap stays visible until the records close it.",
+      "statement": "A production incident fix that ships before its records are updated MUST carry an incident waiver expiring within seven days.",
+      "rationale": "A production incident ships its fix at once. The incident waiver records what shipped and why, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.",
       "example": ""
     },
     {
@@ -16610,15 +16610,15 @@
       "anchor": "cover-every-quality-requirement-with-an-alert-or-a-check",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060quality-alert-missing\u0060 (level G) for a quality requirement that no alert rule names in its \u0060requirement\u0060 label, whose \u0060check\u0060 matches no measured-check or check result the model read, and that no departure covering \u0060quality-alert-missing\u0060 lists in its \u0060subject\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060quality-alert-missing\u0060 (level G) for a quality requirement that no alert rule names in its \u0060requirement\u0060 label, whose \u0060check\u0060 matches no measured-check or check result the model read, and that no waiver covering \u0060quality-alert-missing\u0060 lists in its \u0060subject\u0060.",
       "stack": "any",
       "concern": "operations",
       "artifact": "record:requirement",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a departure.",
-      "rationale": "A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its \u0060check\u0060 to show it was measured before release; a requirement that cannot be watched yet says so as a departure with a reason, an exit and an expiry date, instead of passing silently.",
+      "statement": "Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a waiver.",
+      "rationale": "A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its \u0060check\u0060 to show it was measured before release; a requirement that cannot be watched yet says so as a waiver with a reason, an exit and an expiry date, instead of passing silently.",
       "example": "\u0060requirement/approval-reminders.month-end-submission\u0060 is named by the alert \u0060submission-acknowledgement-slow\u0060 and by the k6 result its \u0060check\u0060 names."
     },
     {
@@ -16700,7 +16700,7 @@
       "anchor": "enforce-the-supply-chain-gate",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which supply-chain reports lack scan, pin, inventory, or license evidence, or a departure covering each unhandled high-severity advisory? Look at the supply-chain report beside the artifact.",
+      "evidence": "Which supply-chain reports lack scan, pin, inventory, or license evidence, or a waiver covering each unhandled high-severity advisory? Look at the supply-chain report beside the artifact.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
@@ -17078,14 +17078,14 @@
       "anchor": "point-each-operations-file-at-its-decision",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060 (level S) for a file in \u0060paths.operations\u0060 with no \u0060follows\u0060 mark and \u0060mark-unknown\u0060 (level S) for a mark naming no decision, departure, or provision, and counts the file toward \u0060decision-unimplemented\u0060.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060 (level S) for a file in \u0060paths.operations\u0060 with no \u0060follows\u0060 mark and \u0060mark-unknown\u0060 (level S) for a mark naming no decision, waiver, or provision, and counts the file toward \u0060decision-unimplemented\u0060.",
       "stack": "any",
       "concern": "operations",
       "artifact": "any",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Every deployment, proxy, host, and CI workflow file the project lists in \u0060paths.operations\u0060 MUST carry a \u0060follows\u0060 mark naming the technical decision, departure, or provision it carries out.",
+      "statement": "Every deployment, proxy, host, and CI workflow file the project lists in \u0060paths.operations\u0060 MUST carry a \u0060follows\u0060 mark naming the technical decision, waiver, or provision it carries out.",
       "rationale": "Operations files hold choices as load-bearing as code: the proxy\u0027s security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A \u0060follows\u0060 mark in the file\u0027s own comment syntax is the same link a technical class carries, so \u0060decision-unimplemented\u0060 and \u0060mark-unknown\u0060 cover these files too.",
       "example": "Claimwick\u0027s \u0060deploy/Caddyfile\u0060 opens with \u0060# \u003Cfollows\u003Edecision/0004-serve-receipts-behind-one-proxy\u003C/follows\u003E\u0060."
     },
@@ -18050,7 +18050,7 @@
       "anchor": "run-provider-calls-from-event-handlers-or-jobs",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which provider calls run outside an event handler or a job without a departure naming their compensation? Look at the provider call sites beside the departure records.",
+      "evidence": "Which provider calls run outside an event handler or a job without a waiver naming their compensation? Look at the provider call sites beside the waiver records.",
       "stack": "any",
       "concern": "infrastructure",
       "artifact": "reaction, job",
@@ -18058,7 +18058,7 @@
       "trace": false,
       "strength": "advisory",
       "statement": "A provider call SHOULD run from an event handler or a job, never from a command handler.",
-      "rationale": "A command handler changes its aggregate and nothing else; each consequence runs after the commit, as \u0060litespec/backend/application#call-external-systems-through-their-ports\u0060 requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under \u0060litespec/ext/outbox#deliver-each-event-to-each-handler-separately\u0060, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a departure naming the compensation that undoes it.",
+      "rationale": "A command handler changes its aggregate and nothing else; each consequence runs after the commit, as \u0060litespec/backend/application#call-external-systems-through-their-ports\u0060 requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under \u0060litespec/ext/outbox#deliver-each-event-to-each-handler-separately\u0060, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a waiver naming the compensation that undoes it.",
       "example": "The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port."
     },
     {
@@ -21226,7 +21226,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A consumer MUST declare \u0060pre-production\u0060 or \u0060production\u0060 as its release stage in \u0060.litespec/project.yaml\u0060.",
-      "rationale": "The release stage is a project fact, not a departure from any rule, so it lives as data in the \u0060stage\u0060 selection: \u0060releaseStage\u0060 holds \u0060pre-production\u0060 or \u0060production\u0060, while each deferral lives in its own departure record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.",
+      "rationale": "The release stage is a project fact, not a waiver from any rule, so it lives as data in the \u0060stage\u0060 selection: \u0060releaseStage\u0060 holds \u0060pre-production\u0060 or \u0060production\u0060, while each deferral lives in its own waiver record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.",
       "example": "A consumer with no customer data in any deployment declares the early stage.\n\n\u0060\u0060\u0060yaml\nselectedExtensions:\n  - id: stage\n    criterion: no deployment holds customer data\n    releaseStage: pre-production\n\u0060\u0060\u0060"
     },
     {
@@ -21236,16 +21236,16 @@
       "anchor": "defer-named-provisions-until-promotion",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 refuses a deferral departure naming an unknown provision, and any deferral in \u0060production\u0060; \u0060litespec model check\u0060 reports \u0060departure-expired\u0060 for a departure past its \u0060expiresOn\u0060.",
+      "evidence": "\u0060litespec model check\u0060 refuses a deferral waiver naming an unknown provision, and any deferral in \u0060production\u0060; \u0060litespec model check\u0060 reports \u0060waiver-expired\u0060 for a waiver past its \u0060expiresOn\u0060.",
       "stack": "any",
       "concern": "operations",
-      "artifact": "record:departure",
+      "artifact": "record:waiver",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A \u0060pre-production\u0060 consumer MUST record each deferred provision as a departure expiring at promotion, with a \u0060production\u0060 consumer carrying no deferred provision.",
-      "rationale": "An early-stage deferral without a named end becomes permanent by neglect. Each departure names the deferred provision in \u0060covers\u0060 with the date its deferral ends in \u0060expiresOn\u0060, and the promotion decision names the same provisions, so promotion closes every deferral at once.",
-      "example": "Each deferral is a departure covering its provision until promotion.\n\n\u0060\u0060\u0060yaml\ntype: departure\nid: departure/compat-classification-until-promotion\ntitle: Compat Classification Until Promotion\ncovers:\n  - litespec/ext/compat#classify-breaking-contract-changes\npaths:\n  - apps/api/**\nreason: No consumer reads the contract before the first deployment.\nexit: Promotion to production ends the deferral and the classification applies.\nexpiresOn: 2026-12-01\n\u0060\u0060\u0060"
+      "statement": "A \u0060pre-production\u0060 consumer MUST record each deferred provision as a waiver expiring at promotion, with a \u0060production\u0060 consumer carrying no deferred provision.",
+      "rationale": "An early-stage deferral without a named end becomes permanent by neglect. Each waiver names the deferred provision in \u0060covers\u0060 with the date its deferral ends in \u0060expiresOn\u0060, and the promotion decision names the same provisions, so promotion closes every deferral at once.",
+      "example": "Each deferral is a waiver covering its provision until promotion.\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/compat-classification-until-promotion\ntitle: Compat Classification Until Promotion\ncovers:\n  - litespec/ext/compat#classify-breaking-contract-changes\npaths:\n  - apps/api/**\nreason: No consumer reads the contract before the first deployment.\nexit: Promotion to production ends the deferral and the classification applies.\nexpiresOn: 2026-12-01\n\u0060\u0060\u0060"
     },
     {
       "id": "litespec/ext/stage#promote-through-a-recorded-decision",
@@ -23837,7 +23837,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Start each catalog entry from its LiteSpec pattern, through \u0060library\u0060, and keep the pattern\u0027s option IDs, option names, and default.",
-      "rationale": "Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product\u0027s own options. Keeping the pattern\u0027s option IDs and names lets one product read another\u0027s catalog without translation. A product that chooses a different option records its reason in the entry, so the departure stays reviewable.",
+      "rationale": "Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product\u0027s own options. Keeping the pattern\u0027s option IDs and names lets one product read another\u0027s catalog without translation. A product that chooses a different option records its reason in the entry, so the waiver stays reviewable.",
       "example": ""
     },
     {
@@ -23865,7 +23865,7 @@
       "anchor": "update-the-catalog-with-the-code",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.",
+      "evidence": "Which option switches, added options, or extensions land without their implementation, and which single-route waivers name no decision record? Look in the change diffs and the catalog entries.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "any",
@@ -23873,7 +23873,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A change that switches option, adds an option, or extends a pattern MUST update the catalog entry in the same change as its implementation.",
-      "rationale": "When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.",
+      "rationale": "When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate waiver in one route names a decision record instead, so the waiver stays reviewable.",
       "example": "A route departing from the chosen option names a decision record, such as \u0060.litespec/intent/decisions/0014-expense-sort-menu/0014-expense-sort-menu.yaml\u0060."
     },
     {
@@ -25179,7 +25179,7 @@
       "anchor": "match-the-keyboard-to-the-value",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project\u0027s recorded departures.",
+      "evidence": "Which built numeric, code, or identifier field keeps the default text keyboard with no recorded reason? Open the built fields and the project\u0027s recorded waivers.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "",
@@ -27599,7 +27599,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A browser test that drives several screens MUST carry a \u0060flow\u0060 annotation naming the flow and a \u0060proves\u0060 mark for each scenario it drives and asserts.",
-      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).",
+      "rationale": "A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The \u0060flow\u0060 annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).",
       "example": "The submit-and-reimburse flow test carries \u0060flow: flow/submit-and-reimburse\u0060 and proves the scenarios it drives and asserts on each screen it reaches."
     },
     {
@@ -27951,7 +27951,7 @@
       "anchor": "meet-the-limits-of-every-token-role",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060token-limit-failed\u0060 for a token role that misses its limit in a declared scheme. Run it at the consumer root.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060design-token-limit-failed\u0060 for a token role that misses its limit in a declared scheme. Run it at the consumer root.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "any",
@@ -27959,7 +27959,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.",
-      "rationale": "Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no departure while they meet the limits. Proposed by decision 0089.",
+      "rationale": "Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.",
       "example": "The Claimwick card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter."
     },
     {
@@ -27977,7 +27977,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A workspace MUST install the pinned baseline from \u0060litespec.manifest.yaml\u0060 once, into its shared UI package.",
-      "rationale": "The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a departure recorded against this provision.",
+      "rationale": "The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a waiver recorded against this provision.",
       "example": ""
     },
     {
@@ -29878,15 +29878,15 @@
       "anchor": "protect-live-data-at-rest",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does each live store carry encryption, or does a departure cover this provision? Look at each store\u0027s encryption setting and the departure records.",
+      "evidence": "Does each live store carry encryption, or does a waiver cover this provision? Look at each store\u0027s encryption setting and the waiver records.",
       "stack": "any",
       "concern": "application",
       "artifact": "any",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Live data at rest MUST carry encryption or a departure covering this provision.",
-      "rationale": "Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application\u0027s control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the departure covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.",
+      "statement": "Live data at rest MUST carry encryption or a waiver covering this provision.",
+      "rationale": "Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application\u0027s control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the waiver covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.",
       "example": ""
     },
     {
@@ -29986,7 +29986,7 @@
       "anchor": "scan-every-pull-request-with-a-free-static-analyzer",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does the static analysis report for the pull request show a departure for each accepted finding? Look at the analyzer report and the departure records.",
+      "evidence": "Does the static analysis report for the pull request show a waiver for each accepted finding? Look at the analyzer report and the waiver records.",
       "stack": "any",
       "concern": "application",
       "artifact": "any",
@@ -29994,7 +29994,7 @@
       "trace": false,
       "strength": "required",
       "statement": "CI MUST scan every pull request for security findings with a free static analyzer.",
-      "rationale": "CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a departure covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.",
+      "rationale": "CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a waiver covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.",
       "example": ""
     },
     {
@@ -30192,7 +30192,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.",
-      "rationale": "A scenario states one behavior the product shows, and the proves mark is the test\u0027s claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a departure with its reason and expiry date. The latest test run marks each confirmed claim passing or failing.",
+      "rationale": "A scenario states one behavior the product shows, and the proves mark is the test\u0027s claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a waiver with its reason and expiry date. The latest test run marks each confirmed claim passing or failing.",
       "example": "An acceptance scenario for submitting an expense carries the mark for \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The mark names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body."
     },
     {
@@ -30202,16 +30202,16 @@
       "anchor": "refuse-surviving-mutants-on-changed-lines",
       "kind": "convention",
       "mark": "guidance",
-      "evidence": "Which changes landed with survivors above the recorded threshold and no covering departure? Look at the mutation report beside the departure records.",
+      "evidence": "Which changes landed with survivors above the recorded threshold and no covering waiver? Look at the mutation report beside the waiver records.",
       "stack": "any",
       "concern": "tests",
       "artifact": "",
       "layer": "proof",
       "trace": false,
       "strength": "default",
-      "statement": "Gate each change on the project\u0027s recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a departure covering the mutation finding.",
-      "rationale": "Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the departure records that judgement with its reason and expiry instead of blocking the change forever.",
-      "example": "A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a departure when the mutant is equivalent."
+      "statement": "Gate each change on the project\u0027s recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a waiver covering the mutation finding.",
+      "rationale": "Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the waiver records that judgement with its reason and expiry instead of blocking the change forever.",
+      "example": "A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a waiver when the mutant is equivalent."
     },
     {
       "id": "litespec/quality/testing#use-evidence-rather-than-one-coverage-target",
@@ -31057,7 +31057,7 @@
       "strength": "required",
       "statement": "A consumer workspace MUST use the canonical root tree declared in this section.",
       "rationale": "",
-      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}/\n              {feature}.yaml\n              {requirement}/{requirement}.yaml    one requirement, in its own folder\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}/{use-case}.yaml  results and scenarios as entries\n            domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      departures/                       create with the first departure record\n      modules/\n        {module}/\n          departures/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature\u0027s folder.\n\nAn entry lives in its home file: permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
+      "example": "Consumer workspaces use this shape:\n\n\u0060\u0060\u0060text\n{repo}/\n  .config/\n    dotnet-tools.json\n  .litespec/\n    project.yaml\n    glossary.yaml\n    product.yaml\n    intent/\n      goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/\n      modules/\n        {module}/\n          module.yaml\n          goals/ problems/ constraints/ decisions/ research/\n          features/\n            {feature}/\n              {feature}.yaml\n              {requirement}/{requirement}.yaml    one requirement, in its own folder\n    behavior/\n      rules/                            cross-module invariants only\n      external-systems/                 create with the first product-level external system\n      entry-points/\n        {entry-point}/\n          entry-point.yaml\n          screens/\n            {screen}/{screen}.yaml\n      modules/\n        {module}/\n          permissions.yaml\n          use-cases/ rules/ reactions/ jobs/ read-models/ notifications/ settings/ integration-events/ external-systems/\n          {aggregate}/\n            aggregate.yaml\n            {use-case}/{use-case}.yaml  results and scenarios as entries\n            domain-events/ rules/\n    implementation/\n      decisions/ api/ guides/ operations/ patterns/ writing/ runbooks/\n      operations/\n        limits.yaml                     create with the first limit record\n        secrets.json                    create with the first secret\n        log/                            create with the first operations entry\n      entry-points/\n        {entry-point}/                  UI catalog, captures and patterns\n      modules/\n        {module}/\n          decisions/ runbooks/\n    governance/\n      waivers/                       create with the first waiver record\n      modules/\n        {module}/\n          waivers/\n    proof/                              generated registers, gate files and run outputs; no authored records\n    model/                              generated; ignored\n  apps/\n    api/\n      \u003Cbackend project manifest\u003E\n      src/\n      tests/\n    {frontend}/\n    apphost/                            when one host runs more than one application\n  packages/\n  AGENTS.md\n  \u003Ctoolchain pin file\u003E\n  package.json                          when a frontend or TypeScript package exists\n  pnpm-lock.yaml                        when a frontend or TypeScript package exists\n  pnpm-workspace.yaml                   when a frontend or TypeScript package exists\n\u0060\u0060\u0060\n\nA backend stack binding names the files that realize the entries in angle brackets.\n\nThe example places neither the backend application nor a frontend application at the workspace root. Under \u0060behavior/modules/\u0060, each module folder holds its typed folders, and \u0060aggregates/\u0060 holds one folder per aggregate in plural kebab-case form.\n\nA named record lives in its own folder, \u0060\u003Cname\u003E/\u003Cname\u003E.yaml\u0060, with its explanation \u0060\u003Cname\u003E.md\u0060 beside it. A record file lives at the home the [model page](../core/model.md) names for its type. A requirement is a named record in its own folder inside its feature\u0027s folder.\n\nAn entry lives in its home file: permissions in their module\u0027s permissions file, results and scenarios in their use case file, and rules and domain events in their aggregate file or type folder. Each entry point is one record in its own folder, with its screens beside it."
     }
   ]
 }

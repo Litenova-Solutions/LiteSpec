@@ -371,7 +371,7 @@ public sealed class ExplanationCheckTests
     [InlineData("product", "product/lending", new[] { "Scope", "Users", "Out of Scope", "Direction" })]
     [InlineData("aggregate", "aggregate/lending.loan", new[] { "Lifecycle", "Data and Retention", "Example" })]
     [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" })]
-    [InlineData("departure", "departure/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" })]
+    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" })]
     public void RepresentativeTypePassesWithItsFixedSections(string type, string id, string[] sections)
     {
         using var temp = TestCli.Temp("checks");
@@ -392,7 +392,7 @@ public sealed class ExplanationCheckTests
     /// <proves>litespec/core/writing#give-each-explanation-file-its-fixed-sections</proves>
     [Theory]
     [InlineData("runbook", "runbook/restart-queue", new[] { "Prerequisites", "Steps", "Verification", "Recovery" }, "Recovery")]
-    [InlineData("departure", "departure/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk")]
+    [InlineData("waiver", "waiver/hold-queue", new[] { "Provision", "Reason", "Risk", "Expiry" }, "Risk")]
     [InlineData("actor", "actor/reader", new[] { "Responsibilities", "Knowledge", "Example" }, "Knowledge")]
     public void MissingFixedSectionReportsItsName(string type, string id, string[] sections, string missing)
     {

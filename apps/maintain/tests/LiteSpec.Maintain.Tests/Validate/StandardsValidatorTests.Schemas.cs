@@ -692,30 +692,30 @@ public sealed partial class StandardsValidatorTests
         },
         [MaintainerDiagnostics.Codes.TemplateSourceMissing]);
 
-    /// <summary>Consumer template carrying a departure identifier.</summary>
+    /// <summary>Consumer template carrying a waiver identifier.</summary>
     /// <proves>litespec/core/authoring#run-repeatable-authoring-checks</proves>
-    [Fact(DisplayName = "consumer template carrying a departure identifier")]
-    public void ConsumerTemplateWithDepartureId() => Check(
+    [Fact(DisplayName = "consumer template carrying a waiver identifier")]
+    public void ConsumerTemplateWithWaiverId() => Check(
         root =>
         {
             StandardsFixture.Write(root, "schemas/record.schema.yaml",
                 "{\"$defs\":{" +
-                "\"departurePage\":{\"type\":\"object\",\"additionalProperties\":false," +
+                "\"waiverPage\":{\"type\":\"object\",\"additionalProperties\":false," +
                 "\"required\":[\"type\",\"id\",\"title\",\"covers\",\"reason\"]," +
-                "\"properties\":{\"type\":{\"const\":\"departure\"}," +
-                "\"id\":{\"$ref\":\"#/$defs/departureId\"}," +
+                "\"properties\":{\"type\":{\"const\":\"waiver\"}," +
+                "\"id\":{\"$ref\":\"#/$defs/waiverId\"}," +
                 "\"title\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "" +
                 "\"covers\":{\"$ref\":\"#/$defs/findingCodeArray\"}," +
                 "\"reason\":{\"$ref\":\"#/$defs/nonEmptyString\"}," +
                 "\"expiresOn\":{\"$ref\":\"#/$defs/isoDate\"}}}," +
-                "\"departureId\":{\"type\":\"string\",\"pattern\":\"^departure/[a-z0-9][a-z0-9-]*$\"}," +
+                "\"waiverId\":{\"type\":\"string\",\"pattern\":\"^waiver/[a-z0-9][a-z0-9-]*$\"}," +
                 "\"findingCodeArray\":{\"type\":\"array\",\"minItems\":1,\"uniqueItems\":true,\"items\":{\"$ref\":\"#/$defs/findingCode\"}}," +
                 "\"findingCode\":{\"type\":\"string\",\"pattern\":\"^[a-z0-9]+(-[a-z0-9]+)*$\"}," +
                 "\"isoDate\":{\"type\":\"string\",\"pattern\":\"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}," +
                 "\"nonEmptyString\":{\"type\":\"string\",\"minLength\":1}}}");
-            StandardsFixture.Write(root, "templates/consumer/departure.yaml", StandardsFixture.Yaml(
-                "{\"type\":\"departure\",\"id\":\"departure/<name>\",\"title\":\"<Departure display title>\"," +
+            StandardsFixture.Write(root, "templates/consumer/waiver.yaml", StandardsFixture.Yaml(
+                "{\"type\":\"waiver\",\"id\":\"waiver/<name>\",\"title\":\"<Waiver display title>\"," +
                 "\"covers\":[\"<finding-code>\"],\"reason\":\"<reason>\",\"expiresOn\":\"<YYYY-MM-DD>\"}"));
         },
         [MaintainerDiagnostics.Codes.TemplateSourceMissing]);

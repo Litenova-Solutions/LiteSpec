@@ -56,11 +56,11 @@ Sources: `litespec/core/agent#select-task-context`, `litespec/core/agent#read-th
 
 ## Precedence
 
-When guidance overlaps, apply it in this order: a project departure, a selected extension's replacement, a deeper page, then a shallower page. A departure names the provisions it covers and carries a reason and a scope. A project never edits a provision to depart from it.
+When guidance overlaps, apply it in this order: a project waiver, a selected extension's replacement, a deeper page, then a shallower page. A waiver names the provisions it covers and carries a reason and a scope. A project never edits a provision to depart from it.
 
 If two requirements conflict and nothing above decides, stop. Quote both provision IDs and their paths, and ask for a decision.
 
-Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#stop-on-unresolved-conflict`, `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`.
+Sources: `litespec/core/agent#apply-guidance-precedence`, `litespec/core/agent#stop-on-unresolved-conflict`, `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`.
 
 ## Placing Records
 
@@ -85,7 +85,7 @@ Sources: `litespec/core/agent#make-coherent-scoped-changes`, `litespec/core/agen
 
 ## Writing
 
-Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check on LiteSpec's own pages: ASCII only, one term per concept, capitalized modal words only inside a Statement, Departure, Default or Replacement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases. The [Project Model](docs/core/model.md) and [Record Language](docs/core/language.md) pages state the rules a consumer's YAML record files follow: their types, identifiers, names, glossary and departures.
+Write prose by the [writing standard](docs/core/writing.md): it sets voice, tone, grammar, sentence and paragraph rules, title forms per record type, explanation sections and documentation kinds for LiteSpec and for every consumer, so no personal guide is needed on any machine. The [authoring standard](docs/core/authoring.md) adds what the validators check on LiteSpec's own pages: ASCII only, one term per concept, capitalized modal words only inside a Statement, Deviation, Default or Replacement, Title Case on every heading, an `Overview` title on every section index, and nothing about earlier releases. The [Project Model](docs/core/model.md) and [Record Language](docs/core/language.md) pages state the rules a consumer's YAML record files follow: their types, identifiers, names, glossary and waivers.
 
 Each page uses the sections of its page style. A Standard states one testable obligation. Every provision states its strength and where it applies, and has the same layout, in this order:
 

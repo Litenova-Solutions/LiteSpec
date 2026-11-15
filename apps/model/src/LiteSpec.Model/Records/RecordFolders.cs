@@ -87,8 +87,8 @@ public static class RecordFolders
         At("external-system", "behavior/modules/{module}/external-systems/{name}", "{name}.yaml"),
         Scaffold("runbook", "implementation/runbooks/{name}", "{name}.yaml"),
         At("runbook", "implementation/modules/{module}/runbooks/{name}", "{name}.yaml"),
-        Scaffold("departure", "governance/departures/{name}", "{name}.yaml"),
-        At("departure", "governance/modules/{module}/departures/{name}", "{name}.yaml"),
+        Scaffold("waiver", "governance/waivers/{name}", "{name}.yaml"),
+        At("waiver", "governance/modules/{module}/waivers/{name}", "{name}.yaml"),
     ];
 
     /// <summary>

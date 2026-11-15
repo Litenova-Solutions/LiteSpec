@@ -14,7 +14,7 @@ LiteSpec compared 3 options for changed proving tests. The table sets each optio
 |:---|:---|:---|
 | Forbid weakening, and report each changed proving test as an advisory finding | An agent that edits a test to pass leaves a finding for the reviewer, and the ledger already holds the hashes. | The finding is advisory, so a reviewer must read it, and it covers .NET methods only. |
 | Rely on review of each change | No new rule and no new finding. | A test changed to match new code reads as a fix unless the reviewer compares it with the scenario. |
-| Block every change to a proving test | No proving test changes without a block. | A correct edit to a proving test also blocks, so each test refactor needs a departure. |
+| Block every change to a proving test | No proving test changes without a block. | A correct edit to a proving test also blocks, so each test refactor needs a waiver. |
 
 ## Decision
 

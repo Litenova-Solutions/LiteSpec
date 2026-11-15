@@ -68,8 +68,8 @@
         "slug":  "6-add-the-checks-to-ci"
     },
     {
-        "heading":  "6. Record a Deliberate Departure",
-        "slug":  "6-record-a-deliberate-departure"
+        "heading":  "6. Record a Deliberate Waiver",
+        "slug":  "6-record-a-deliberate-waiver"
     },
     {
         "heading":  "A Complete Example",
@@ -1028,8 +1028,8 @@
         "slug":  "close-every-process-with-named-exits-and-a-driver"
     },
     {
-        "heading":  "Close Incident Departures Within Seven Days",
-        "slug":  "close-incident-departures-within-seven-days"
+        "heading":  "Close Incident Waivers Within Seven Days",
+        "slug":  "close-incident-waivers-within-seven-days"
     },
     {
         "heading":  "Close the Scope as Denied or Failed",
@@ -1752,12 +1752,12 @@
         "slug":  "deliver-one-complete-use-case"
     },
     {
-        "heading":  "Departures During Adoption",
-        "slug":  "departures-during-adoption"
+        "heading":  "Waivers During Adoption",
+        "slug":  "waivers-during-adoption"
     },
     {
-        "heading":  "Departures from the Rules",
-        "slug":  "departures-from-the-rules"
+        "heading":  "Waivers from the Rules",
+        "slug":  "waivers-from-the-rules"
     },
     {
         "heading":  "Dependencies",
@@ -5788,8 +5788,8 @@
         "slug":  "record-a-package-size-budget"
     },
     {
-        "heading":  "Record a Project-Wide Lowering as a Departure",
-        "slug":  "record-a-project-wide-lowering-as-a-departure"
+        "heading":  "Record a Project-Wide Lowering as a Waiver",
+        "slug":  "record-a-project-wide-lowering-as-a-waiver"
     },
     {
         "heading":  "Record a Setting as Reference",

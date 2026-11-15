@@ -31,7 +31,7 @@ public sealed class PageReader
 
     /// <summary>The labels stripped from a fragment's visible text.</summary>
     static readonly HashSet<string> StrippedLabels = new(
-        ["Statement", "Departure", "Rationale", "Example", "Default", "Replacement"],
+        ["Statement", "Deviation", "Rationale", "Example", "Default", "Replacement"],
         StringComparer.Ordinal);
 
     /// <summary>A top-level ATX heading: its level, raw text, display text with code spans blanked, and 1-based line.</summary>

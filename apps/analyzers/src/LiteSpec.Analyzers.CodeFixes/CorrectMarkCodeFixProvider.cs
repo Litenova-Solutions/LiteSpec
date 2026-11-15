@@ -128,7 +128,7 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
         return records;
     }
 
-    /// <summary>The decision and departure records a <c>follows</c> mark may name.</summary>
+    /// <summary>The decision and waiver records a <c>follows</c> mark may name.</summary>
     /// <param name="fix">The fix context read for the diagnostic: the records, the marked member and its kind.</param>
     /// <returns>The records, in the order this method builds them, or an empty collection when none apply.</returns>
     private static List<IRecordFields> FollowsRecords(TraceabilityFix fix)
@@ -136,7 +136,7 @@ public sealed class CorrectMarkCodeFixProvider : CodeFixProvider
         var records = new List<IRecordFields>();
 
         records.AddRange(fix.Store.Index.ByType("decision"));
-        records.AddRange(fix.Store.Index.ByType("departure"));
+        records.AddRange(fix.Store.Index.ByType("waiver"));
 
         return records;
     }

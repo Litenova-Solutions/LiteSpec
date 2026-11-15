@@ -388,16 +388,6 @@ Home: docs/core/edges.md
 
 Source: LiteSpec.
 
-### Departure
-
-One recorded departure from a provision or a check, with its reason, the provisions, pages or finding codes it covers, the records or paths it covers, and an expiry date with an exit when the team means to close it.
-
-Layer: Intent or Behavior.
-
-Home: docs/core/departures.md
-
-Source: LiteSpec.
-
 ### Domain
 
 The real-world knowledge, language, rules, state, and behavior the software models.
@@ -918,7 +908,7 @@ Source: LiteSpec.
 
 ### Requirement
 
-One behavior the product shows or one guarantee it keeps. A departure names its fallback requirement; a tenant-set value is not a departure. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
+One behavior the product shows or one guarantee it keeps. An `except` entry names its fallback requirement; a tenant-set value is no exception to the requirement. Its cites names the goals, problems, features, constraints, research, and decisions behind it.
 
 Layer: Intent.
 
@@ -1184,6 +1174,16 @@ Home: docs/core/edges.md
 
 Source: LiteSpec.
 
+### Waiver
+
+One record that sets a required provision, page or finding code aside for the records or paths it names, with its reason. A gap waiver carries an expiry date, an exit and the records whose change closes it; a lasting waiver carries the consequences the project accepts.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
 ### Wireframe
 
 One text drawing of a screen's structure in the wireframe language, held in the screen's explanation file.
@@ -1362,9 +1362,9 @@ Source: the Fetch standard.
 
 ### Covered
 
-The outcome of a finding a departure record covers: reported, and never blocking.
+The outcome of a finding a waiver record covers: reported, and never blocking.
 
-Home: docs/core/departures.md
+Home: docs/core/waivers.md
 
 Source: LiteSpec.
 
@@ -1474,9 +1474,9 @@ Source: LiteSpec.
 
 ### Governance
 
-The group of records beside the four record layers, holding departures.
+The group of records beside the four record layers, holding waivers.
 
-Home: docs/core/departures.md
+Home: docs/core/waivers.md
 
 Source: LiteSpec.
 
@@ -1532,7 +1532,7 @@ Source: LiteSpec.
 
 ### Mark
 
-One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or departure shaping it, holding the identifier in the project mark style.
+One written link from a code element or a test, of kind `implements` naming the record it serves or `follows` naming the provision, decision, or waiver shaping it, holding the identifier in the project mark style.
 
 Home: docs/core/layers.md
 

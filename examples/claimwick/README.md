@@ -18,4 +18,4 @@ Check the example with:
 litespec model check --root examples/claimwick
 ```
 
-The check reports no open findings, only covered ones. The departures park the export with no handler and no endpoint, the browser-reached use cases and flow steps with no screen yet, the reimbursed-expenses list no flow step uses, the scenarios with no passing proof, and the weekend export review bypass.
+The check reports no open findings, only covered ones. The waivers park the export with no handler and no endpoint, the browser-reached use cases and flow steps with no screen yet, the reimbursed-expenses list no flow step uses, the scenarios with no passing proof, and the weekend export review bypass.

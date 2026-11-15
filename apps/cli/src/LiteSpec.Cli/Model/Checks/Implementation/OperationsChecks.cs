@@ -208,7 +208,7 @@ internal static class OperationsChecks
     /// <summary>
     ///     Checks one follows mark in an operations file: it names a provision of
     ///     the carried release on an applied page, which no selected extension
-    ///     replaces, or a decision or departure.
+    ///     replaces, or a decision or waiver.
     /// </summary>
     /// <param name="model">The loaded project model that holds the admitted provisions, the applied pages and provisions and every record.</param>
     /// <param name="relative">The operations file path relative to the consumer root, shown in each finding.</param>
@@ -241,11 +241,11 @@ internal static class OperationsChecks
             return;
         }
 
-        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("departure/", StringComparison.Ordinal))
+        if (id.StartsWith("decision/", StringComparison.Ordinal) || id.StartsWith("waiver/", StringComparison.Ordinal))
         {
-            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Departure))
+            if (!model.ById.TryGetValue(id, out var record) || (record.Type != RecordTypes.Decision && record.Type != RecordTypes.Waiver))
             {
-                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or departure.", mark.File, mark.Line, id));
+                findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no decision or waiver.", mark.File, mark.Line, id));
             }
 
             return;
@@ -253,11 +253,11 @@ internal static class OperationsChecks
 
         if (!model.ById.TryGetValue(id, out var other))
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, departure, or convention.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which matches no provision, decision, waiver, or convention.", mark.File, mark.Line, id));
         }
         else
         {
-            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, departure, or convention.", mark.File, mark.Line, id));
+            findings.Add(new Finding("mark-unknown", $"{name} follows '{id}', which is a {other.Type} record, not a provision, decision, waiver, or convention.", mark.File, mark.Line, id));
         }
     }
 

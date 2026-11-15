@@ -21,7 +21,7 @@ An extension is a conditional standards bundle a project selects when its criter
 
 ### Guidance Precedence
 
-Guidance overlaps by design: a project departure narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project departure first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
+Guidance overlaps by design: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. The precedence order decides which one wins: the project waiver first, then the extension, then the deeper page, then the shallower page. A deeper page is one that sits further down the documentation tree, such as a stack page under its area page. The most local decision wins, and the broader baseline fills only the gaps it leaves.
 
 ### Agents Write Below Decided Intent
 
@@ -33,7 +33,7 @@ Some changes reach beyond an ordinary implementation edit: they alter project bo
 
 ### Ask the Tool Which Provisions Apply
 
-`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and departures merged in. A convention states a judgment rule; a list of words belongs in the glossary, where the checks read it. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
+`litespec rules <path or record id>` lists the provisions that apply to a change, grouped by strength, as one-line statements, with project conventions and waivers merged in. A convention states a judgment rule; a list of words belongs in the glossary, where the checks read it. `litespec rules <...> --full` adds rationale and example when a statement is not enough. An agent runs `litespec rules <path>` before editing and answers each judgment provision `litespec rules --since <base>` lists before reporting done, and the completion report names the provisions the agent judged and how.
 
 ### Git Is the Decision Record
 
@@ -41,7 +41,7 @@ The [principles page](principles.md) states git as the decision record. An agent
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which parks reachability for that record until it expires.
 
 ### New Intent in a Running Project
 
@@ -54,8 +54,8 @@ A running project takes new intent through this one sequence. Other pages link t
 5. Implement. Build the Domain change, the handler, the endpoint, the persistence, and the frontend, in that default layer order, with `dotnet build` for the backend code. Approval gate: an explicit task instruction naming the action and its bounds approves before this step adds a package, a schema migration, an authentication change, a public API change, production data work, a release, spending, or an outside call that changes state.
 6. Write proofs from Then. Write one test for each scenario through the public boundary, taking every expected value only from the scenario Then. Refusals and calculations that carry the money risk also run against example rows held back from the agent that wrote the code, written by a different author and run in CI; other refusals and calculations verify against held-back rows as advisory practice, and the suites in the next step run the proofs.
 7. Run the gates and the model commands in order. Run the boundary-selected gates and the test suites first, then `dotnet litespec model check`, then `dotnet litespec model render`.
-8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries a departure with `expiresOn`.
-9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and a departure with `expiresOn` for each check held red.
+8. Check the change against its base and merge complete. Run `dotnet litespec model check --since <base>` for the owner review, where `<base>` in a consumer is the consumer default branch, such as `main`, unless it names a consumer folder or another git revision the review names; the run reports every breaking contract change since the base. A branch may be incomplete; what merges is complete: the pull-request check blocks on unreached records, and a record that must stay unreached past a merge carries a waiver with `expiresOn`.
+9. Write the release record. Create the release record for the immutable artifact and pass the release gate: green checks, every scenario proven by a passing test, and a waiver with `expiresOn` for each check held red.
 
 ## Standards
 
@@ -101,7 +101,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent MUST run `litespec rules <path>` before editing a file and answer each judgment provision `litespec rules --since <base>` lists before reporting done.
 
-**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and departures merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).
+**Rationale:** Provisions are only usable when retrieved by situation: the query returns what governs the change, grouped by strength, with project conventions and waivers merged in. `litespec rules <...> --full` adds rationale and example when a statement is not enough. Settled by [decision/0038-narrow-rules-output-per-file-and-change-set](decision/0038-narrow-rules-output-per-file-and-change-set).
 
 **Example:** `litespec rules use-case/spending.submit-expense` returns the provisions that govern the change, grouped by strength.
 
@@ -131,11 +131,11 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Applies to:** artifact: any
 
-**Statement:** An agent MUST apply the project departure, the extension, the deeper page, and the shallower page in that order.
+**Statement:** An agent MUST apply the project waiver, the extension, the deeper page, and the shallower page in that order.
 
-**Rationale:** Overlapping guidance is normal: a project departure narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
+**Rationale:** Overlapping guidance is normal: a project waiver narrows a shared provision, an extension replaces a baseline default, and a stack page refines its area page. Without a fixed order, two agents resolve the same overlap differently and the workspace drifts. The order puts the most local decision first, so the broader baseline fills only the gaps it leaves.
 
-**Reviewed for:** The design applies the project departure, the extension, the deeper page, and the shallower page in that order.
+**Reviewed for:** The design applies the project waiver, the extension, the deeper page, and the shallower page in that order.
 
 ### Replace Only Declared Conventions
 
@@ -235,7 +235,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Statement:** An agent SHOULD verify a refusal or calculation implementation against example rows held back from the agent that wrote it.
 
-**Departure:** A rule whose scenarios already pin every boundary in their expected values.
+**Deviation:** A rule whose scenarios already pin every boundary in their expected values.
 
 **Rationale:** An agent that sees the examples while implementing fits the code to the rows instead of the rule. Held-back rows turn the examples into an independent check: the implementing agent works from the rule and the scenario, and a later check runs the withheld rows against the result. For a calculation or refusal rule that carries the money risk, held-back verification is required, as [Verify Money Calculations and Refusals Against Held-Back Examples](#verify-money-calculations-and-refusals-against-held-back-examples) states. Settled by [decision/0085-bind-proof-to-code-and-outcomes](decision/0085-bind-proof-to-code-and-outcomes).
 
@@ -335,7 +335,7 @@ A running project takes new intent through this one sequence. Other pages link t
 
 **Rationale:** The report shows which required provisions, defaults, and advisory provisions the change met and the judgment for each, so the owner checks the reasoning without re-reading the change. A provision the query returned but the report skips is a judgment nobody can check.
 
-**Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a departure.
+**Example:** The report names each returned provision with its judgment: followed, replaced by a named convention, or parked by a waiver.
 
 **Reviewed for:** Which judged provisions lack a how in the completion report? Look at the provisions beside the report.
 

@@ -75,7 +75,7 @@ static partial class GeneratedRegions
         {
             "alert-inventory" => AlertInventory(model, file),
             "decision-index" => DecisionIndex(model, file),
-            "departure-index" => DepartureIndex(model, file),
+            "waiver-index" => WaiverIndex(model, file),
             "operations-log" => OperationsLog(file),
             "runbook-index" => RunbookIndex(model, file),
             _ => null,
@@ -235,30 +235,30 @@ static partial class GeneratedRegions
             decision.Id);
     }
 
-    /// <summary>Renders the departures beside the page, grouped by gap or permanent and ordered by expiry.</summary>
+    /// <summary>Renders the waivers beside the page, grouped by gap or permanent and ordered by expiry.</summary>
     /// <param name="model">The built project model holding the records.</param>
     /// <param name="file">The page the tables sit on, for relative links.</param>
-    /// <returns>The departure index tables as Markdown lines, or empty when the folder holds no departure.</returns>
-    private static string DepartureIndex(ProjectModel model, string file)
+    /// <returns>The waiver index tables as Markdown lines, or empty when the folder holds no waiver.</returns>
+    private static string WaiverIndex(ProjectModel model, string file)
     {
         var folder = Path.GetDirectoryName(file)!;
-        var departures = model.Records
-            .Where(record => record.Type == RecordTypes.Departure && SameFolder(folder, record.File))
+        var waivers = model.Records
+            .Where(record => record.Type == RecordTypes.Waiver && SameFolder(folder, record.File))
             .ToList();
 
-        if (departures.Count == 0)
+        if (waivers.Count == 0)
         {
             return "";
         }
 
-        var gaps = departures
-            .Where(departure => departure.Field(RecordFields.ExpiresOn) is { Length: > 0 })
-            .OrderBy(departure => departure.Field(RecordFields.ExpiresOn)!, StringComparer.Ordinal)
-            .ThenBy(departure => departure.Id, StringComparer.Ordinal)
+        var gaps = waivers
+            .Where(waiver => waiver.Field(RecordFields.ExpiresOn) is { Length: > 0 })
+            .OrderBy(waiver => waiver.Field(RecordFields.ExpiresOn)!, StringComparer.Ordinal)
+            .ThenBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
-        var lasting = departures
-            .Where(departure => departure.Field(RecordFields.ExpiresOn) is not { Length: > 0 })
-            .OrderBy(departure => departure.Id, StringComparer.Ordinal)
+        var lasting = waivers
+            .Where(waiver => waiver.Field(RecordFields.ExpiresOn) is not { Length: > 0 })
+            .OrderBy(waiver => waiver.Id, StringComparer.Ordinal)
             .ToList();
 
         var lines = new List<string>();
@@ -267,12 +267,12 @@ static partial class GeneratedRegions
         {
             lines.Add("### Gaps");
             lines.Add("");
-            lines.Add("| Departure | Expires On | Covers |");
+            lines.Add("| Waiver | Expires On | Covers |");
             lines.Add("|:---|:---|:---|");
 
-            foreach (var departure in gaps)
+            foreach (var waiver in gaps)
             {
-                lines.Add($"| {DepartureCell(folder, departure)} | {Cell(departure.Field(RecordFields.ExpiresOn)!)} | {CoversCell(departure)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {Cell(waiver.Field(RecordFields.ExpiresOn)!)} | {CoversCell(waiver)} |");
             }
         }
 
@@ -285,30 +285,30 @@ static partial class GeneratedRegions
 
             lines.Add("### Permanent");
             lines.Add("");
-            lines.Add("| Departure | Covers |");
+            lines.Add("| Waiver | Covers |");
             lines.Add("|:---|:---|");
 
-            foreach (var departure in lasting)
+            foreach (var waiver in lasting)
             {
-                lines.Add($"| {DepartureCell(folder, departure)} | {CoversCell(departure)} |");
+                lines.Add($"| {WaiverCell(folder, waiver)} | {CoversCell(waiver)} |");
             }
         }
 
         return string.Join('\n', lines);
     }
 
-    /// <summary>One departure cell: its title linked to its record file.</summary>
-    /// <param name="folder">The departures folder the page sits in, for the relative link.</param>
-    /// <param name="departure">The departure the cell renders.</param>
+    /// <summary>One waiver cell: its title linked to its record file.</summary>
+    /// <param name="folder">The waivers folder the page sits in, for the relative link.</param>
+    /// <param name="waiver">The waiver the cell renders.</param>
     /// <returns>The linked title.</returns>
-    private static string DepartureCell(string folder, Record departure) =>
-        $"[{Cell(departure.Title)}]({PathText.Relative(folder, departure.File)})";
+    private static string WaiverCell(string folder, Record waiver) =>
+        $"[{Cell(waiver.Title)}]({PathText.Relative(folder, waiver.File)})";
 
-    /// <summary>One departure covers cell: every covered code, provision or page as a code span.</summary>
-    /// <param name="departure">The departure whose covers are rendered.</param>
-    /// <returns>The covers joined with commas, or empty when the departure covers nothing.</returns>
-    private static string CoversCell(Record departure) =>
-        string.Join(", ", departure.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
+    /// <summary>One waiver covers cell: every covered code, provision or page as a code span.</summary>
+    /// <param name="waiver">The waiver whose covers are rendered.</param>
+    /// <returns>The covers joined with commas, or empty when the waiver covers nothing.</returns>
+    private static string CoversCell(Record waiver) =>
+        string.Join(", ", waiver.Strings(RecordFields.Covers).Order(StringComparer.Ordinal).Select(cover => $"`{Cell(cover)}`"));
 
     /// <summary>Whether the named record sits in the folder: the folder holds the record's own folder.</summary>
     /// <param name="folder">The folder the page sits in.</param>

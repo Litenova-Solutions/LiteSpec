@@ -74,8 +74,8 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
 | `runbook.md` | `.litespec/implementation/runbooks/<name>/<name>.md` | Explains one runbook beside its record file. |
-| `departure.yaml` | `.litespec/governance/departures/<name>/<name>.yaml` | Records one departure from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
-| `departure.md` | `.litespec/governance/departures/<name>/<name>.md` | Explains one departure beside its record file. |
+| `waiver.yaml` | `.litespec/governance/waivers/<name>/<name>.yaml` | Records one waiver from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
+| `waiver.md` | `.litespec/governance/waivers/<name>/<name>.md` | Explains one waiver beside its record file. |
 
 ## Entry Lists and Page Styles
 
@@ -132,7 +132,7 @@ An explanation file sits in the record's folder beside its record file, with the
 | setting-set | Defaults, Changes (optional) |
 | refusal-set | Meaning, Mapping |
 | runbook | Prerequisites, Steps, Verification, Recovery |
-| departure | Provision, Reason, Risk, Expiry |
+| waiver | Provision, Reason, Risk, Expiry |
 
 For an article type (research, decision) and for a type on a layer the project lists in `explanations.layers`, `litespec new` writes the explanation file from the template for its type, with the title filled in. The same setting decides which explanations `litespec model check` requires: an article type always needs one, and every other record needs one on a layer the project lists.
 

@@ -175,7 +175,7 @@ $defs:
     - setting
     - integration-event
     - runbook
-    - departure
+    - waiver
     - term
   provisionId:
     type: string

@@ -6,7 +6,7 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves the reaction, job and departure record types and the link verbs are registered.</summary>
+/// <summary>Proves the reaction, job and waiver record types and the link verbs are registered.</summary>
 public sealed class RecordTypesTests
 {
     /// <summary>The topic record type and the review report page style are gone.</summary>
@@ -56,13 +56,13 @@ public sealed class RecordTypesTests
         Assert.DoesNotContain("automation", RecordTypes.All);
     }
 
-    /// <summary>The departure is a Governance record type, and deviation and known gap are gone.</summary>
+    /// <summary>The waiver is a Governance record type, and deviation and known gap are gone.</summary>
     /// <proves>litespec/core/model#write-every-record-in-its-home</proves>
     [Fact]
-    public void DepartureIsAGovernanceRecordType()
+    public void WaiverIsAGovernanceRecordType()
     {
-        Assert.Contains("departure", RecordTypes.All);
-        Assert.Equal("governance", RecordTypes.LayerByType["departure"]);
+        Assert.Contains("waiver", RecordTypes.All);
+        Assert.Equal("governance", RecordTypes.LayerByType["waiver"]);
         Assert.DoesNotContain("deviation", RecordTypes.All);
         Assert.DoesNotContain("known-gap", RecordTypes.All);
     }

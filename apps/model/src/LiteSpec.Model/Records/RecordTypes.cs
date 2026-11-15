@@ -44,8 +44,8 @@ public static class RecordTypes
     /// <summary>Gets the `vision` record type name.</summary>
     public const string Vision = "vision";
 
-    /// <summary>Gets the `departure` record type name.</summary>
-    public const string Departure = "departure";
+    /// <summary>Gets the `waiver` record type name.</summary>
+    public const string Waiver = "waiver";
 
     /// <summary>Gets the `external-system` record type name.</summary>
     public const string ExternalSystem = "external-system";
@@ -150,7 +150,7 @@ public static class RecordTypes
         "feature", "actor", "role", "permission", "flow", "module",
         "aggregate", "rule", "use-case", "result", "scenario", "domain-event", "integration-event",
         "reaction", "job", "notification", "setting", "read-model",
-        "entry-point", "screen", "external-system", "runbook", "departure", "term",
+        "entry-point", "screen", "external-system", "runbook", "waiver", "term",
     };
 
     /// <summary>
@@ -172,7 +172,7 @@ public static class RecordTypes
             ["job"] = "behavior", ["notification"] = "behavior", ["setting"] = "behavior", ["read-model"] = "behavior",
             ["role"] = "behavior", ["permission"] = "behavior", ["entry-point"] = "behavior",
             ["screen"] = "behavior", ["external-system"] = "behavior", ["runbook"] = "behavior",
-            ["departure"] = "governance",
+            ["waiver"] = "governance",
         };
 
     /// <summary>Page styles: templates a page may carry instead of a record.</summary>

@@ -151,7 +151,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Example:** The build job that produces the artifact generates the inventory from the same frozen lockfile. It stores the inventory beside the artifact, under the release version.
 
-**Reviewed for:** Which supply-chain reports lack scan, pin, inventory, or license evidence, or a departure covering each unhandled high-severity advisory? Look at the supply-chain report beside the artifact.
+**Reviewed for:** Which supply-chain reports lack scan, pin, inventory, or license evidence, or a waiver covering each unhandled high-severity advisory? Look at the supply-chain report beside the artifact.
 
 ### Publish a Book Preview for Every Change
 
@@ -281,13 +281,13 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: record:requirement
 
-**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a departure.
+**Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a waiver.
 
-**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a departure with a reason, an exit and an expiry date, instead of passing silently.
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a waiver with a reason, an exit and an expiry date, instead of passing silently.
 
 **Example:** `requirement/approval-reminders.month-end-submission` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
-**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no departure covering `quality-alert-missing` lists in its `subject`.
+**Checked by:** `litespec model check` reports `quality-alert-missing` (level G) for a quality requirement that no alert rule names in its `requirement` label, whose `check` matches no measured-check or check result the model read, and that no waiver covering `quality-alert-missing` lists in its `subject`.
 
 ### Point Each Operations File at Its Decision
 
@@ -297,13 +297,13 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Applies to:** artifact: any
 
-**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, departure, or provision it carries out.
+**Statement:** Every deployment, proxy, host, and CI workflow file the project lists in `paths.operations` MUST carry a `follows` mark naming the technical decision, waiver, or provision it carries out.
 
 **Rationale:** Operations files hold choices as load-bearing as code: the proxy's security headers, the backup schedule, the gates a pull request passes. Their reason usually lives in a comment that no tool reads, so a retired decision leaves its configuration behind unnoticed. A `follows` mark in the file's own comment syntax is the same link a technical class carries, so `decision-unimplemented` and `mark-unknown` cover these files too.
 
 **Example:** Claimwick's `deploy/Caddyfile` opens with `# <follows>decision/0004-serve-receipts-behind-one-proxy</follows>`.
 
-**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, departure, or provision, and counts the file toward `decision-unimplemented`.
+**Checked by:** `litespec model check` reports `mark-missing` (level S) for a file in `paths.operations` with no `follows` mark and `mark-unknown` (level S) for a mark naming no decision, waiver, or provision, and counts the file toward `decision-unimplemented`.
 
 ### Name Every Runbook from an Alert, Job, Reaction or Failure Policy
 
@@ -516,19 +516,19 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Checked by:** `litespec model check` reports `dependency-license-unknown` (level S) for a direct package whose license the project does not accept and no `admits` entry names.
 
-### Close Incident Departures Within Seven Days
+### Close Incident Waivers Within Seven Days
 
-**ID:** `litespec/ext/delivery#close-incident-departures-within-seven-days`
+**ID:** `litespec/ext/delivery#close-incident-waivers-within-seven-days`
 
 **Strength:** required
 
-**Applies to:** artifact: record:departure
+**Applies to:** artifact: record:waiver
 
-**Statement:** A production incident fix that ships before its records are updated MUST carry an incident departure expiring within seven days.
+**Statement:** A production incident fix that ships before its records are updated MUST carry an incident waiver expiring within seven days.
 
-**Rationale:** A production incident ships its fix at once. The incident departure records what shipped and why, and the records are updated before it expires. An expired departure is a blocking finding, so the gap stays visible until the records close it.
+**Rationale:** A production incident ships its fix at once. The incident waiver records what shipped and why, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.
 
-**Reviewed for:** Which incident fixes lack a departure, or carry an expired one? Look at the departure records beside each fix.
+**Reviewed for:** Which incident fixes lack a waiver, or carry an expired one? Look at the waiver records beside each fix.
 
 ### Write a Brief Before Handing Off
 

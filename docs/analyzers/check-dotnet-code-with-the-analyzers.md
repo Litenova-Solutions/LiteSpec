@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate departure. Each step names the standard it satisfies, and the guide adds no rule of its own.
+The LiteSpec Roslyn analyzers report breaks in LiteSpec .NET rules as compiler errors on every build, so a team sees each break in the editor instead of finding it in review. This guide installs the analyzer package once for the backend projects and their tests, shows how to read and fix the first errors, and records a deliberate waiver. Each step names the standard it satisfies, and the guide adds no rule of its own.
 
 ## Prerequisites
 
@@ -147,14 +147,14 @@ The caller in Application supplies `publishedAt` from its own clock, and tests p
 
 ### 5. Let the Build Fail on Findings in CI
 
-Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where a departure allows it, as the next step describes.
+Every rule is an error by default, so `dotnet build` already fails on a finding and no extra step is needed. The `build` job compiles the solution with `dotnet build <solution>`, so a finding fails the pull request under `litespec/quality/ci#run-applicable-gates-on-every-pull-request`. See [the continuous integration page](../quality/ci.md#run-applicable-gates-on-every-pull-request) for the jobs each change selects. Lower a severity only where a waiver allows it, as the next step describes.
 
-### 6. Record a Deliberate Departure
+### 6. Record a Deliberate Waiver
 
-When a finding is wrong for the project, record a departure that covers the provision, with its reason, as [the departures page](../core/departures.md) describes. Keep the record at `.litespec/governance/departures/<name>/<name>.yaml`, then suppress narrowly next to the code:
+When a finding is wrong for the project, record a waiver that covers the provision, with its reason, as [the waivers page](../core/waivers.md) describes. Keep the record at `.litespec/governance/waivers/<name>/<name>.yaml`, then suppress narrowly next to the code:
 
 ```csharp
-#pragma warning disable LS1011 // departure: .litespec/governance/departures/domain-docs-deferred/domain-docs-deferred.yaml
+#pragma warning disable LS1011 // waiver: .litespec/governance/waivers/domain-docs-deferred/domain-docs-deferred.yaml
 public string LegacyLabel { get; }
 #pragma warning restore LS1011
 ```
@@ -166,13 +166,13 @@ Or scope an `.editorconfig` entry to the one file:
 dotnet_diagnostic.LS1011.severity = suggestion
 ```
 
-The example above quiets `litespec/backend/dotnet/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record: the departure carries the reason, and the suppression only quiets the compiler where the record allows.
+The example above quiets `litespec/backend/dotnet/domain#document-every-public-domain-contract` for one legacy file only. Never set a project-wide `none` without the record: the waiver carries the reason, and the suppression only quiets the compiler where the record allows.
 
 ## Check
 
 Confirm the setup with these checks:
 
-- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones a departure covers.
+- `dotnet build apps/api/Shop.slnx` lists no `LS` errors, or lists only ones a waiver covers.
 - Add a temporary enum to a Domain folder and rebuild: the build reports `LS1002` naming the enum.
 - Remove the enum and rebuild: the error is gone.
 - Claim only `intent` and `behavior` in `layers` in `.litespec/project.yaml` and rebuild: the build lists no `LS` diagnostics. Claim `implementation: own` and rebuild with the enum in place: the build still lists no `LS1002`. Set `implementation: litespec` and rebuild: `LS1002` returns.

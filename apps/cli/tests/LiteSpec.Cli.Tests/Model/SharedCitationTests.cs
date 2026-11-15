@@ -59,7 +59,7 @@ public sealed class SharedCitationTests
         File.WriteAllText(Path.Combine(folder, "principles.md"), PinnedPage);
         var backend = Path.Combine(home.Path, "docs", "backend");
         Directory.CreateDirectory(backend);
-        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedDepartureTarget);
+        File.WriteAllText(Path.Combine(backend, "application.md"), PinnedWaiverTarget);
         return home;
     }
 
@@ -88,7 +88,7 @@ public sealed class SharedCitationTests
         """;
 
     /// <summary>The provision the fixture's exception cites, so pinning stays complete.</summary>
-    const string PinnedDepartureTarget = """
+    const string PinnedWaiverTarget = """
         # Application Layer
 
         ## Standards

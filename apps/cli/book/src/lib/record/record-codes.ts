@@ -3,7 +3,7 @@
 // unique; a type the table does not hold reads with its first two letters.
 const CODES: Record<string, string> = {
   product: "P", vision: "V", goal: "G", problem: "Pb", feature: "F", requirement: "R", flow: "Fl",
-  actor: "A", role: "Ro", constraint: "C", decision: "D", research: "Rs", departure: "Dp", term: "T",
+  actor: "A", role: "Ro", constraint: "C", decision: "D", research: "Rs", waiver: "Dp", term: "T",
   module: "M", aggregate: "Ag", "use-case": "U", result: "Rt", scenario: "S", rule: "Ru",
   "domain-event": "E", "integration-event": "IE", "read-model": "RM", reaction: "Re", job: "J",
   notification: "N", setting: "St", permission: "Pm", "entry-point": "EP", screen: "Sc",

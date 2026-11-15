@@ -138,7 +138,7 @@ This extension switches on `setting`: the expiry of each cache is a setting reco
 
 **Statement:** A cache owner SHOULD use a short expiry when precise invalidation costs more than recomputation.
 
-**Departure:** A measured staleness and operating-cost decision permits a longer expiry.
+**Deviation:** A measured staleness and operating-cost decision permits a longer expiry.
 
 **Rationale:** Precise invalidation costs design and code, while a short expiry costs one recomputation per window. When recomputation is cheaper, a short expiry bounds staleness without the machinery. A longer expiry then needs a measured decision that says the extra staleness is worth its saving.
 

@@ -36,7 +36,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent,
         RecordTypes.ExternalSystem,
         RecordTypes.Runbook,
-        RecordTypes.Departure,
+        RecordTypes.Waiver,
         RecordTypes.ReadModel,
     };
 
@@ -468,7 +468,7 @@ internal static class IdentifierChecks
         RecordTypes.IntegrationEvent => "Integration event",
         RecordTypes.ExternalSystem => "External system",
         RecordTypes.Runbook => "Runbook",
-        RecordTypes.Departure => "Departure",
+        RecordTypes.Waiver => "Waiver",
         RecordTypes.Reaction => "Reaction",
         RecordTypes.Job => "Job",
         RecordTypes.Notification => "Notification",

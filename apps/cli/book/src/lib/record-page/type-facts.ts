@@ -127,7 +127,7 @@ const facts: Record<string, FactFn> = {
     const kind = kindFact(f);
     return kind ? [kind] : [];
   },
-  departure: (f, _r, env) => {
+  waiver: (f, _r, env) => {
     const expiresOn = stringField(f, "expiresOn");
     if (!expiresOn) return [{ key: "Expires", text: "Lasting, no expiry date" }];
     const n = env.days(expiresOn);

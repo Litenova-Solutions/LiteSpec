@@ -126,7 +126,7 @@ public sealed class NewExplanationTests
         { "permission-set", ["Risk", "Boundaries"] },
         { "setting-set", ["Defaults", "Changes"] },
         { "runbook", ["Prerequisites", "Steps", "Verification", "Recovery"] },
-        { "departure", ["Provision", "Reason", "Risk", "Expiry"] },
+        { "waiver", ["Provision", "Reason", "Risk", "Expiry"] },
     };
 
     /// <summary>Each explanation template opens with its paragraph and carries exactly the fixed sections of its record type, in order.</summary>

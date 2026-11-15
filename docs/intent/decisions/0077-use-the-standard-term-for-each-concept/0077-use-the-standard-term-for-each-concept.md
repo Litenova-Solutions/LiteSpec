@@ -16,7 +16,7 @@ One concept should carry one word in the record, the folder, the code, the book,
 
 ## Decision
 
-Each name above moves to its standard term: `read-model`, `domain-event`, `writes`, `movedBy`, `runsWhen`, `ifExhausted`, `exemptBecause`, `frozen-value`, `permission-set`, `entry-point-set`, `role-unused`, `permission-unused`, `atomicity-*`, `part`, `notification-effect-missing`, and the provision part `Departure`. A frozen value names what the rule does: a value copied onto a record at the act and never recomputed.
+Each name above moves to its standard term: `read-model`, `domain-event`, `writes`, `movedBy`, `runsWhen`, `ifExhausted`, `exemptBecause`, `frozen-value`, `permission-set`, `entry-point-set`, `role-unused`, `permission-unused`, `atomicity-*`, `part`, `notification-effect-missing`, and the provision part `Waiver`. A frozen value names what the rule does: a value copied onto a record at the act and never recomputed.
 
 Kept, each for its reason: `reaction`, because the record holds the trigger, failure policy, idempotency, and edge beside the handler; `job`, `scenario`, `result`, `rule`, `refusal`, and `entry point`, which name their concepts plainly; `reachedThrough`, with the word-class rule restated to allow a participle with `By`, `Through`, `In`, or `From`; and `effects`, with its reads-as phrase corrected.
 

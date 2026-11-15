@@ -10,10 +10,10 @@ using static LiteSpec.Cli.Model.Checks.RecordEntries;
 
 namespace LiteSpec.Cli.Model.Checks.RecordShape;
 
-/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its departure, idempotency and failure-policy shapes.</summary>
+/// <summary>The schema checks: every record carries the fields its type requires, names links of the types they may name, and holds its waiver, idempotency and failure-policy shapes.</summary>
 /// <follows>litespec/core/model#state-the-common-fields-on-every-record</follows>
 /// <follows>litespec/core/model#write-links-on-the-record-that-points</follows>
-/// <follows>litespec/core/departures#record-accepted-gaps-as-departures</follows>
+/// <follows>litespec/core/waivers#record-accepted-gaps-as-waivers</follows>
 internal static class SchemaChecks
 {
     /// <summary>The flow field that a flow no longer carries; its paths are branches now.</summary>
@@ -434,10 +434,10 @@ internal static class SchemaChecks
                 RequireString(record, RecordFields.Trigger, findings);
                 break;
 
-            case RecordTypes.Departure:
+            case RecordTypes.Waiver:
                 RequireString(record, RecordFields.Reason, findings);
                 RequireArray(record, RecordFields.Covers, 1, findings);
-                CheckDepartureScope(record, findings);
+                CheckWaiverScope(record, findings);
 
                 if (record.Has(RecordFields.ExpiresOn))
                 {
@@ -463,14 +463,14 @@ internal static class SchemaChecks
         CheckLinkTypes(model, record, findings);
     }
 
-    /// <summary>Reports a departure naming neither the records nor the paths it covers.</summary>
-    /// <param name="record">The departure record whose subject and paths fields are judged.</param>
+    /// <summary>Reports a waiver naming neither the records nor the paths it covers.</summary>
+    /// <param name="record">The waiver record whose subject and paths fields are judged.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
-    private static void CheckDepartureScope(Record record, List<Finding> findings)
+    private static void CheckWaiverScope(Record record, List<Finding> findings)
     {
         if (record.Ids(RecordFields.Subject).Count == 0 && record.Ids(RecordFields.Paths).Count == 0)
         {
-            findings.Add(new Finding("record-invalid", $"Departure '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
+            findings.Add(new Finding("record-invalid", $"Waiver '{record.Id}' names neither subject nor paths.", record.File, record.Line, SubjectOf(record)));
         }
     }
 

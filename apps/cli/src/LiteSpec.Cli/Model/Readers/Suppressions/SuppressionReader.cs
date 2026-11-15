@@ -12,7 +12,7 @@ namespace LiteSpec.Cli.Model.Readers.Suppressions;
 ///     <c>SuppressMessage</c> in a C# source file. Build output, installed packages
 ///     and tool folders are left out. A file that cannot be read states nothing.
 /// </summary>
-/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
+/// <follows>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</follows>
 static class SuppressionReader
 {
     /// <summary>One analyzer rule identifier, such as LS1001.</summary>

@@ -414,10 +414,10 @@ public sealed class BookViewsTests
         Assert.DoesNotContain(quiet, edge => Str(edge, "key") == "feature.advances");
     }
 
-    /// <summary>Findings sit on their records, open and known apart, with the departure covers and expiry.</summary>
+    /// <summary>Findings sit on their records, open and known apart, with the waiver covers and expiry.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
-    public void FindingsSitOnTheirRecordsWithDepartureExpiry()
+    public void FindingsSitOnTheirRecordsWithWaiverExpiry()
     {
         using var temp = TestCli.Temp("book-views");
         BookTestBooks.Write(BookTruthTests.ModelWithEmbeddedFindings(), temp.Path, temp.Path);
@@ -432,9 +432,9 @@ public sealed class BookViewsTests
         Assert.Single(known);
         Assert.True(BoolOf(known[0]!.AsObject()["covered"]));
 
-        var departure = details.Values.First(detail => Str(detail, "type") == "departure");
-        Assert.True(Arr(Obj(departure, "fields"), "covers").Count > 0);
-        Assert.True((Str(Obj(departure, "fields"), "expiresOn") ?? "").Length > 0);
+        var waiver = details.Values.First(detail => Str(detail, "type") == "waiver");
+        Assert.True(Arr(Obj(waiver, "fields"), "covers").Count > 0);
+        Assert.True((Str(Obj(waiver, "fields"), "expiresOn") ?? "").Length > 0);
     }
 
     /// <summary>A rule detail states its kind, what it governs and refuses, and its proof.</summary>
@@ -757,7 +757,7 @@ public sealed class BookViewsTests
     /// <returns>True when the type starts its own outline layer. A feature naming solved problems nests under each problem instead.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "departure" or "term" or "goal" or "vision" or "problem" or "feature"
+            or "waiver" or "term" or "goal" or "vision" or "problem" or "feature"
             or "requirement" or "constraint" or "decision" or "research" or "flow"
             or "actor" or "rule";
 

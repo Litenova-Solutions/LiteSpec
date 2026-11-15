@@ -77,10 +77,10 @@ The model builder writes generated working files under `.litespec/model/` while 
         {module}/
           decisions/ runbooks/
     governance/
-      departures/                       create with the first departure record
+      waivers/                       create with the first waiver record
       modules/
         {module}/
-          departures/
+          waivers/
     proof/                              generated registers, gate files and run outputs; no authored records
     model/                              generated; ignored
   apps/

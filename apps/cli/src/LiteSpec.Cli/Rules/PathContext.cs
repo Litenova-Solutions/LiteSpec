@@ -42,7 +42,7 @@ internal sealed record PathContext(
         ["job"] = "job",
         ["reaction"] = "reaction",
         ["decision"] = "decision",
-        ["departure"] = "departure",
+        ["waiver"] = "waiver",
         ["goal"] = "goal",
         ["vision"] = "vision",
         ["problem"] = "problem",
@@ -117,7 +117,7 @@ internal sealed record PathContext(
         return FromRecord(config, trimmed);
     }
 
-    /// <summary>The path spellings a convention scope or departure path matches against.</summary>
+    /// <summary>The path spellings a convention scope or waiver path matches against.</summary>
     /// <param name="config">The consumer configuration.</param>
     /// <returns>The root-relative path, each record-root-relative path, and the bare file name.</returns>
     public IReadOnlyList<string> GlobCandidates(ConsumerConfig config)

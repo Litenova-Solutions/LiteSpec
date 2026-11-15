@@ -24,7 +24,7 @@ A technical decision records only an expensive-to-reverse choice of one of 6 kin
 
 A standing rule that every change follows is a convention under `.litespec/governance/conventions/`. A `follows` mark can cite that convention.
 
-Categories live in fields and in generated indexes, not in folders. The concern of a decision is computed from the concerns of its followers. `model render` writes the decision and departure indexes. The book groups decisions by kind, then by concern. Claimwick renders each receipt as a PDF file, so `decision/0005-render-receipts-as-pdf` carries `kind: package`.
+Categories live in fields and in generated indexes, not in folders. The concern of a decision is computed from the concerns of its followers. `model render` writes the decision and waiver indexes. The book groups decisions by kind, then by concern. Claimwick renders each receipt as a PDF file, so `decision/0005-render-receipts-as-pdf` carries `kind: package`.
 
 ## Consequences
 
@@ -36,7 +36,7 @@ A technical decision whose followers all sit in one module, and each of which al
 
 A Markdown file under `.litespec/` outside `governance/conventions/` that carries a convention `**ID:**` line reports `convention-folder-invalid`. A convention's `Applies to` takes a path glob or the scope keys that provisions use. Anything else reports `convention-scope-invalid`.
 
-Folders carry ownership and layer only. `model render` writes a `decision-index` region grouped by kind, then by concern. It writes a `departure-index` region grouped by gap or permanent and ordered by `expiresOn`. The book groups its decision chapter the same way, lists the followers of each decision by module, and shows the provider decision on each external-system page.
+Folders carry ownership and layer only. `model render` writes a `decision-index` region grouped by kind, then by concern. It writes a `waiver-index` region grouped by gap or permanent and ordered by `expiresOn`. The book groups its decision chapter the same way, lists the followers of each decision by module, and shows the provider decision on each external-system page.
 
 A decision kept at a level that its followers do not match reports `decision-home-drift`. Every new finding is advisory. `templates/consumer/decision.yaml` carries `kind`, and each Claimwick technical decision states its kind.
 

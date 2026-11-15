@@ -165,7 +165,7 @@ Result proof for routes follows `litespec/core/edges#write-the-sentence-a-person
 
 **Statement:** A workspace MUST install the pinned baseline from `litespec.manifest.yaml` once, into its shared UI package.
 
-**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a departure recorded against this provision.
+**Rationale:** The design baseline installed once in the shared UI package gives every application the same primitives at the same pinned version. Installing per application makes a copy per application, and each copy drifts on its own update schedule with nothing reporting the split. An additional design-baseline source is permitted only under a waiver recorded against this provision.
 
 **Reviewed for:** Which pinned manifest baselines install outside the shared UI package, or install more than once? Look in the shared package manifest and lock, and the application manifests.
 
@@ -350,11 +350,11 @@ pageFrames:
 
 **Statement:** Every token value in each declared color scheme MUST meet the limit the Concepts table states for its role.
 
-**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no departure while they meet the limits. Proposed by decision 0089.
+**Rationale:** Readable text and findable controls are measured limits, not pinned values: a palette passes when every role meets its limit, whatever values it holds. Judging values instead of limits refuses a readable palette for differing from the baseline while waving through a baseline value on a new surface. The manifest baseline stays as defaults chosen because they pass, and a project sets its own values with no waiver while they meet the limits. Proposed by decision 0089.
 
 **Example:** The Claimwick card edge differs from the page by 1.2:1 in both schemes, so cards read as separate surfaces while separators stay quieter.
 
-**Checked by:** `litespec model check` reports `token-limit-failed` for a token role that misses its limit in a declared scheme. Run it at the consumer root.
+**Checked by:** `litespec model check` reports `design-token-limit-failed` for a token role that misses its limit in a declared scheme. Run it at the consumer root.
 
 ### Keep Token Values in One Token File
 

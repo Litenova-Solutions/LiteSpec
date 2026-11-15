@@ -109,7 +109,7 @@ serves:
 - flow/submit-and-reimburse#s5
 ```
 
-The screen offers only List expenses. The other eight use cases are reached through the entry point but have no screen yet, which the departures in [The Model and Its Checks](model-and-checks.md) account for. Which floorplan the route composes lives in the frontend design contract, not on the record.
+The screen offers only List expenses. The other eight use cases are reached through the entry point but have no screen yet, which the waivers in [The Model and Its Checks](model-and-checks.md) account for. Which floorplan the route composes lives in the frontend design contract, not on the record.
 
 ## The Reaction, Job, Notification and Settings
 

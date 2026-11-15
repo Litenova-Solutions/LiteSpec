@@ -64,13 +64,13 @@ This extension switches on no optional record type. Each provider is recorded as
 
 **Statement:** A provider call SHOULD run from an event handler or a job, never from a command handler.
 
-**Departure:** A project that keeps an inline provider call records a departure naming the compensation that undoes it.
+**Deviation:** A project that keeps an inline provider call records a waiver naming the compensation that undoes it.
 
-**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a departure naming the compensation that undoes it.
+**Rationale:** A command handler changes its aggregate and nothing else; each consequence runs after the commit, as `litespec/backend/application#call-external-systems-through-their-ports` requires. An event handler or a job calls the provider after the outbox delivers the fact, with one delivery per handler under `litespec/ext/outbox#deliver-each-event-to-each-handler-separately`, so a provider failure retries without rolling back the accepted change. A call whose result the command needs before it can answer records the intent first, and an event handler calls the provider; a project that keeps the call inline records a waiver naming the compensation that undoes it.
 
 **Example:** The reimburse-expense command records a pending payout on the expense, and the event handler for the recorded fact calls the payout provider through the business-action port.
 
-**Reviewed for:** Which provider calls run outside an event handler or a job without a departure naming their compensation? Look at the provider call sites beside the departure records.
+**Reviewed for:** Which provider calls run outside an event handler or a job without a waiver naming their compensation? Look at the provider call sites beside the waiver records.
 
 ### Define Business-Action Ports
 

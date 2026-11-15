@@ -3,7 +3,7 @@ using LiteSpec.Standards;
 
 namespace LiteSpec.Cli.Tests.Rules;
 
-/// <summary>Proves <c>litespec rules</c> usage, exit codes, output shape, conventions and departures.</summary>
+/// <summary>Proves <c>litespec rules</c> usage, exit codes, output shape, conventions and waivers.</summary>
 public sealed class RulesCommandTests
 {
     /// <summary>Help prints the usage text and exits zero.</summary>
@@ -228,10 +228,10 @@ public sealed class RulesCommandTests
         Assert.DoesNotContain("show-a-loading-state-on-every-route", result.Output);
     }
 
-    /// <summary>A live departure replaces the provision its covers names; an expired one does not.</summary>
-    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
+    /// <summary>A live waiver replaces the provision its covers names; an expired one does not.</summary>
+    /// <proves>litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver</proves>
     [Fact]
-    public void RulesDepartureReplacesCoveredProvision()
+    public void RulesWaiverReplacesCoveredProvision()
     {
         var result = TestCli.Run(
             "rules",
@@ -240,16 +240,16 @@ public sealed class RulesCommandTests
 
         Assert.Equal(0, result.Status);
         Assert.Contains(
-            "- litespec/backend/application#keep-command-handlers-to-load-call-and-stage: [departure departure/slow-review-departure, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
+            "- litespec/backend/application#keep-command-handlers-to-load-call-and-stage: [waiver waiver/slow-review-waiver, expires 2030-01-01] The billing handler calls two aggregates until the split ships.",
             result.Output);
         Assert.Contains("- litespec/backend/architecture#organize-code-by-module-aggregate-and-use-case", result.Output);
-        Assert.DoesNotContain("old-layout-departure", result.Output);
+        Assert.DoesNotContain("old-layout-waiver", result.Output);
     }
 
-    /// <summary>Full output prints the departure consequences instead of the provision example.</summary>
-    /// <proves>litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure</proves>
+    /// <summary>Full output prints the waiver consequences instead of the provision example.</summary>
+    /// <proves>litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver</proves>
     [Fact]
-    public void RulesFullPrintsDepartureConsequences()
+    public void RulesFullPrintsWaiverConsequences()
     {
         var result = TestCli.Run(
             "rules",

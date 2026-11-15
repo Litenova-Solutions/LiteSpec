@@ -59,7 +59,7 @@ static class Checker
         RecordNameChecks.Run,
         CitationChecks.Run,
         GateChecks.Run,
-        DepartureChecks.Run,
+        WaiverChecks.Run,
         ProofChecks.Run,
         ProofChecks.RunUnverified,
         ProofChecks.RunProofInvalid,
@@ -144,9 +144,9 @@ static class Checker
         ConventionChecks.RunScope
     ];
 
-    /// <summary>Runs every check, partitioning findings from departures.</summary>
+    /// <summary>Runs every check, partitioning findings from waivers.</summary>
     /// <param name="model">The built project model to check.</param>
-    /// <returns>The findings that stand and the findings departures cover, each in sorted order.</returns>
+    /// <returns>The findings that stand and the findings waivers cover, each in sorted order.</returns>
     public static (IReadOnlyList<Finding> Findings, IReadOnlyList<Finding> Covered) Check(ProjectModel model)
     {
         // The checks only read the built model, so they run in parallel, each into its
@@ -209,7 +209,7 @@ static class Checker
         return Suppress(model, findings);
     }
 
-    /// <summary>Partitions findings into the ones that stand and the ones a departure covers.</summary>
+    /// <summary>Partitions findings into the ones that stand and the ones a waiver covers.</summary>
     /// <param name="model">The built project model the findings belong to.</param>
     /// <param name="findings">The findings from every check, in sorted order.</param>
     /// <returns>The standing findings and the suppressed findings.</returns>
@@ -230,7 +230,7 @@ static class Checker
     /// <summary>
     ///     The finding codes each provision governs, from the codes its Checked by
     ///     line names, and the codes each page governs, the union of its provisions' codes.
-    ///     Built once per check, so a departure covers its provision or its page.
+    ///     Built once per check, so a waiver covers its provision or its page.
     /// </summary>
     /// <returns>The finding codes governed by each provision or page identifier, or an empty map when no LiteSpec home is found.</returns>
     private static Dictionary<string, IReadOnlyList<string>> CodesOfProvision()

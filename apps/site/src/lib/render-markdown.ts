@@ -258,12 +258,12 @@ function rewriteLinks(html: string, page: Page): string {
 // paragraph never reaches this split: the header badge shows it, so wrapProvisions
 // drops it with the ID line.
 const labelSplit =
-  /(?=<p><strong>(?:Statement|Default|Replacement|Departure|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
+  /(?=<p><strong>(?:Statement|Default|Replacement|Waiver|Applies to|Rationale|Cost|Reference|Evidence|Question|Compact|Example|Checked by|Reviewed for):<\/strong>)/;
 const labelLead = /^<p><strong>([A-Z][a-z]+(?: [a-z]+)?):<\/strong>\s*/;
 
 // The facts a pattern card states first; the rest (rationale, cost, reference,
 // the review question) follow under a divider in a second list.
-const leadFacts = ["Question", "Statement", "Default", "Compact", "Applies to", "Replacement", "Departure"];
+const leadFacts = ["Question", "Statement", "Default", "Compact", "Applies to", "Replacement", "Waiver"];
 const laterFacts = ["Rationale", "Cost", "Reference", "Example", "Evidence", "Checked by", "Reviewed for"];
 
 const regexEscape = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -331,7 +331,7 @@ function provisionParts(body: string, provision: Page["provisions"][number]): st
     (parts.get(label) ?? []).map((html) => html.replace(/^<p>/, `<p><span class="lbl" data-pagefind-ignore>${label}</span>`));
   const lead = provision.kind === "convention" ? "Default" : "Statement";
   const statement = take("Statement", "Default").join("");
-  const subs = [...tagged("Replacement"), ...tagged("Departure"), ...tagged("Applies to")].map((html) => html.replace(/^<p>/, `<p class="provision-sub">`));
+  const subs = [...tagged("Replacement"), ...tagged("Waiver"), ...tagged("Applies to")].map((html) => html.replace(/^<p>/, `<p class="provision-sub">`));
   let out =
     `<div class="provision-statement"><span class="provision-eyebrow" data-pagefind-ignore>${lead}</span>` +
     `${highlightMust(statement)}${highlightMust(subs.join(""))}</div>`;

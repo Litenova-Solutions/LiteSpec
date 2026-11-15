@@ -36,7 +36,7 @@ internal sealed partial class ProvisionValidator
 
     /// <summary>Gets the provision field labels.</summary>
     public static readonly HashSet<string> ProvisionLabels = new(
-        ["Statement", "Departure", "Rationale", "Example", "Default", "Replacement"],
+        ["Statement", "Deviation", "Rationale", "Example", "Default", "Replacement"],
         StringComparer.Ordinal);
 
     /// <summary>Gets the lazy set of stable diagnostic codes.</summary>
@@ -68,7 +68,7 @@ internal sealed partial class ProvisionValidator
         {
             var nonblank = provision.Body.Where(item => item.Line.Trim().Length > 0).ToList();
             string[] allowedLabels = provision.Section == "Standards"
-                ? ["Statement", "Departure", "Rationale", "Example"]
+                ? ["Statement", "Deviation", "Rationale", "Example"]
                 : ["Default", "Replacement", "Rationale", "Example"];
             var labels = new List<(string Name, int Line)>();
             var activeLabel = "";
@@ -102,13 +102,13 @@ internal sealed partial class ProvisionValidator
                             add(relative, item.Number, MaintainerDiagnostics.Codes.StandardInformativeNormative, $"informative content in '{provision.Id}' contains normative vocabulary");
                         }
                     }
-                    else if (name == "Departure" && provision.Section == "Standards")
+                    else if (name == "Deviation" && provision.Section == "Standards")
                     {
-                        // The modal lives in the Statement; the Departure states the
-                        // bounded reason that permits a departure, in plain words.
+                        // The modal lives in the Statement; the Deviation states the
+                        // bounded reason that permits a deviation, in plain words.
                         if (HasNormativeVocabulary(PageReader.VisibleText(item.Line)))
                         {
-                            add(relative, item.Number, MaintainerDiagnostics.Codes.StandardDepartureNormative, $"Departure for '{provision.Id}' contains normative vocabulary");
+                            add(relative, item.Number, MaintainerDiagnostics.Codes.StandardDeviationNormative, $"Deviation for '{provision.Id}' contains normative vocabulary");
                         }
                     }
 
@@ -131,7 +131,7 @@ internal sealed partial class ProvisionValidator
                     continue;
                 }
 
-                if (activeLabel == "" || activeLabel is "Statement" or "Departure" or "Default" or "Replacement")
+                if (activeLabel == "" || activeLabel is "Statement" or "Deviation" or "Default" or "Replacement")
                 {
                     add(relative, item.Number, MaintainerDiagnostics.Codes.StandardUnlabeledContent, $"content in '{provision.Id}' must follow a Rationale or Example label");
                 }
@@ -238,23 +238,23 @@ internal sealed partial class ProvisionValidator
             add(relative, assertion.Number, MaintainerDiagnostics.Codes.StandardSentenceCount, $"Statement for '{provision.Id}' must contain one sentence");
         }
 
-        // A recommendation states the bounds its advice is set aside within, so it carries a Departure statement.
-        // A required Statement carries none: a departure from it is recorded in the project's departures.
+        // A recommendation states the bounds its advice is set aside within, so it carries a Deviation statement.
+        // A required Statement carries none: a waiver from it is recorded in the project's waivers.
         var should = ShouldPattern().IsMatch(visibleStatement);
-        var departures = nonblank.Where(item => item.Line.StartsWith("**Departure:**", StringComparison.Ordinal)).ToList();
-        if (should && departures.Count == 0)
+        var deviations = nonblank.Where(item => item.Line.StartsWith("**Deviation:**", StringComparison.Ordinal)).ToList();
+        if (should && deviations.Count == 0)
         {
-            add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardMissingDeparture, $"recommendation '{provision.Id}' has no Departure statement");
+            add(relative, provision.Line, MaintainerDiagnostics.Codes.StandardMissingDeviation, $"recommendation '{provision.Id}' has no Deviation statement");
         }
 
-        if (!should && departures.Count > 0)
+        if (!should && deviations.Count > 0)
         {
-            add(relative, departures[0].Number, MaintainerDiagnostics.Codes.StandardUnexpectedDeparture, $"non-recommendation '{provision.Id}' cannot contain a Departure statement");
+            add(relative, deviations[0].Number, MaintainerDiagnostics.Codes.StandardUnexpectedDeviation, $"non-recommendation '{provision.Id}' cannot contain a Deviation statement");
         }
 
-        if (departures.Count > 0 && Prose.Sentences(PageReader.VisibleText(departures[0].Line["**Departure:**".Length..].Trim())).Count != 1)
+        if (deviations.Count > 0 && Prose.Sentences(PageReader.VisibleText(deviations[0].Line["**Deviation:**".Length..].Trim())).Count != 1)
         {
-            add(relative, departures[0].Number, MaintainerDiagnostics.Codes.StandardDepartureSentence, $"Departure for '{provision.Id}' must contain one sentence");
+            add(relative, deviations[0].Number, MaintainerDiagnostics.Codes.StandardDeviationSentence, $"Deviation for '{provision.Id}' must contain one sentence");
         }
     }
 
@@ -288,10 +288,10 @@ internal sealed partial class ProvisionValidator
         }
 
         // A Replacement names the local convention that takes the default's
-        // place. A departure instrument belongs to a Standard, never here.
-        if (replacements.Count > 0 && DepartureMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
+        // place. A waiver instrument belongs to a Standard, never here.
+        if (replacements.Count > 0 && WaiverMentionPattern().IsMatch(PageReader.VisibleText(replacements[0].Line["**Replacement:**".Length..])))
         {
-            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementDeparture, $"Replacement for '{provision.Id}' names an exception or departure; name the local convention instead");
+            add(relative, replacements[0].Number, MaintainerDiagnostics.Codes.ConventionReplacementWaiver, $"Replacement for '{provision.Id}' names an exception or waiver; name the local convention instead");
         }
     }
 
@@ -936,10 +936,10 @@ internal sealed partial class ProvisionValidator
     [GeneratedRegex(@"\b(?:REQUIRED|FORBIDDEN|SHALL)\b")]
     private static partial Regex OtherNormativePattern();
 
-    /// <summary>Gets the pattern that matches a departure mention.</summary>
+    /// <summary>Gets the pattern that matches a waiver mention.</summary>
     /// <returns>The compiled pattern.</returns>
-    [GeneratedRegex(@"\b(?:exceptions?|departures?)\b", RegexOptions.IgnoreCase)]
-    private static partial Regex DepartureMentionPattern();
+    [GeneratedRegex(@"\b(?:exceptions?|waivers?)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex WaiverMentionPattern();
 
     /// <summary>Gets the pattern that matches generic evidence wording.</summary>
     /// <returns>The compiled pattern.</returns>

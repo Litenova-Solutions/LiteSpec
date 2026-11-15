@@ -207,16 +207,16 @@ public sealed class OperationsCheckTests
         Assert.DoesNotContain("quality-alert-missing", check.Output, StringComparison.Ordinal);
     }
 
-    /// <summary>A quality requirement a live departure covers reports as known.</summary>
+    /// <summary>A quality requirement a live waiver covers reports as known.</summary>
     /// <proves>litespec/ext/delivery#cover-every-quality-requirement-with-an-alert-or-a-check</proves>
     [Fact]
-    public void QualityCoveredByDepartureReportsCovered()
+    public void QualityCoveredByWaiverReportsCovered()
     {
         using var temp = ModelFixture.Prepare("small");
         SelectDelivery(temp.Path);
         WriteLatencyRequirement(temp.Path);
         WriteRecord(temp.Path, DecisionFile, DecisionJson, DecisionExplanation);
-        WriteRecord(temp.Path, DepartureFile, DepartureJson, DepartureExplanation);
+        WriteRecord(temp.Path, WaiverFile, WaiverJson, WaiverExplanation);
 
         var check = TestCli.Run("model", "check", "--root", temp.Path);
 
@@ -339,7 +339,7 @@ public sealed class OperationsCheckTests
         Assert.Equal(1, check.Status);
         Assert.Contains("[S]", unresolved, StringComparison.Ordinal);
         Assert.Contains("decision/0099-no-such-thing", unresolved, StringComparison.Ordinal);
-        Assert.Contains("matches no decision or departure", unresolved, StringComparison.Ordinal);
+        Assert.Contains("matches no decision or waiver", unresolved, StringComparison.Ordinal);
     }
 
     /// <summary>A technical decision with no follower anywhere is still unfollowed.</summary>
@@ -466,7 +466,7 @@ public sealed class OperationsCheckTests
     const string CheckResultsDir = ".litespec/proof/checks";
     const string CaddyFile = "deploy/Caddyfile";
     const string LimitsFile = ".litespec/implementation/operations/limits.md";
-    const string DepartureFile = ".litespec/governance/departures/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
+    const string WaiverFile = ".litespec/governance/waivers/list-loans-latency-unwatched/list-loans-latency-unwatched.yaml";
 
     const string FeatureJson = """
         {
@@ -699,10 +699,10 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string DepartureJson = """
+    const string WaiverJson = """
         {
-          "type": "departure",
-          "id": "departure/list-loans-latency-unwatched",
+          "type": "waiver",
+          "id": "waiver/list-loans-latency-unwatched",
           "title": "List loans latency unwatched",
           "covers": [
             "quality-alert-missing"
@@ -716,7 +716,7 @@ public sealed class OperationsCheckTests
         }
         """;
 
-    const string DepartureExplanation = """
+    const string WaiverExplanation = """
         # List loans latency unwatched
 
         Listing latency has no alert yet.

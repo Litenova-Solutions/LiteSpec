@@ -17,11 +17,11 @@ public sealed class ModelCheckTests
         "effect-undeclared",
         "erasure-undeclared",
         "except-fallback-missing",
-        "departure-invalid",
+        "waiver-invalid",
         "identifier-duplicate",
         "identifier-invalid",
         "use-case-flow-missing",
-        "departure-expired",
+        "waiver-expired",
         "link-unknown",
         "notification-effect-missing",
         "paging-undeclared",
@@ -149,15 +149,15 @@ public sealed class ModelCheckTests
         }
     }
 
-    /// <summary>An open departure turns its findings into exit 0.</summary>
-    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
+    /// <summary>An open waiver turns its findings into exit 0.</summary>
+    /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
-    public void OpenDepartureTurnsItsFindingsIntoExit0()
+    public void OpenWaiverTurnsItsFindingsIntoExit0()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteDeparture(
+        WriteWaiver(
             fixture.Path,
-            "departure/list-loans-unimplemented",
+            "waiver/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented", "use-case-endpoint-missing", "screen-offers-drift", "behavior-unrecorded"],
             ["use-case/lending.list-loans", "screen/library-app.loans"],
@@ -166,15 +166,15 @@ public sealed class ModelCheckTests
         Assert.True(result.Status == 0, result.Output);
     }
 
-    /// <summary>An expired departure exits 1.</summary>
-    /// <proves>litespec/core/departures#record-accepted-gaps-as-departures</proves>
+    /// <summary>An expired waiver exits 1.</summary>
+    /// <proves>litespec/core/waivers#record-accepted-gaps-as-waivers</proves>
     [Fact]
-    public void ExpiredDepartureExits1()
+    public void ExpiredWaiverExits1()
     {
         using var fixture = ModelFixture.Prepare("large", "use-case-unimplemented");
-        WriteDeparture(
+        WriteWaiver(
             fixture.Path,
-            "departure/list-loans-unimplemented",
+            "waiver/list-loans-unimplemented",
             "List Loans Unimplemented",
             ["use-case-unimplemented"],
             ["use-case/lending.list-loans"],
@@ -183,25 +183,25 @@ public sealed class ModelCheckTests
         Assert.Equal(1, result.Status);
     }
 
-    /// <summary>Writes a departure covering the codes on the subjects.</summary>
+    /// <summary>Writes a waiver covering the codes on the subjects.</summary>
     /// <param name="root">The fixture consumer root folder.</param>
-    /// <param name="id">The departure record id.</param>
-    /// <param name="title">The departure page title.</param>
-    /// <param name="covers">The finding codes the departure covers.</param>
-    /// <param name="subject">The record ids the departure applies to.</param>
-    /// <param name="expiresOn">The date the departure expires, in ISO form.</param>
-    static void WriteDeparture(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
+    /// <param name="id">The waiver record id.</param>
+    /// <param name="title">The waiver page title.</param>
+    /// <param name="covers">The finding codes the waiver covers.</param>
+    /// <param name="subject">The record ids the waiver applies to.</param>
+    /// <param name="expiresOn">The date the waiver expires, in ISO form.</param>
+    static void WriteWaiver(string root, string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         var name = id.Split('/')[1];
-        TestRecords.Write(root, $".litespec/governance/departures/{name}/{name}.yaml", DepartureJson(id, title, covers, subject, expiresOn));
-        TestRecords.Explain(root, $".litespec/governance/departures/{name}/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
+        TestRecords.Write(root, $".litespec/governance/waivers/{name}/{name}.yaml", WaiverJson(id, title, covers, subject, expiresOn));
+        TestRecords.Explain(root, $".litespec/governance/waivers/{name}/{name}.md", $"# {title}\n\nListing loans has no handler yet.\n");
     }
 
-    // Builds the departure fields as JSON. A departure is live when present and unexpired.
-    static string DepartureJson(string id, string title, string[] covers, string[] subject, string expiresOn)
+    // Builds the waiver fields as JSON. A waiver is live when present and unexpired.
+    static string WaiverJson(string id, string title, string[] covers, string[] subject, string expiresOn)
     {
         return "{\n"
-            + "  \"type\": \"departure\",\n"
+            + "  \"type\": \"waiver\",\n"
             + $"  \"id\": \"{id}\",\n"
             + $"  \"title\": \"{title}\",\n"
             + "  \"covers\": [\n"

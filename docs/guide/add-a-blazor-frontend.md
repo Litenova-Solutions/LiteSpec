@@ -31,5 +31,5 @@ Place each feature in the module and use case it serves, mirroring the backend u
 
 Confirm the result by build and by model check:
 
-- The client application builds with no error and no analyzer finding outside a recorded departure.
+- The client application builds with no error and no analyzer finding outside a recorded waiver.
 - `dotnet litespec model check` links each screen to its use case with no finding.

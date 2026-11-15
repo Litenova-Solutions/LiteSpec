@@ -4,13 +4,13 @@ using LiteSpec.Model;
 
 namespace LiteSpec.Model.Tests;
 
-/// <summary>Proves an departure holds its covered findings on its subjects and paths while it is live.</summary>
+/// <summary>Proves an waiver holds its covered findings on its subjects and paths while it is live.</summary>
 public sealed class SuppressionTests
 {
-    /// <summary>An open departure moves its covered finding to known.</summary>
+    /// <summary>An open waiver moves its covered finding to known.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void OpenDepartureCoversItsFinding()
+    public void OpenWaiverCoversItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -22,8 +22,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-unimplemented",
+                "waiver",
+                "waiver/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -42,10 +42,10 @@ public sealed class SuppressionTests
         Assert.Single(partition.Covered);
     }
 
-    /// <summary>An expired departure keeps its finding reported.</summary>
+    /// <summary>An expired waiver keeps its finding reported.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void ExpiredDepartureKeepsItsFinding()
+    public void ExpiredWaiverKeepsItsFinding()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -57,8 +57,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-unimplemented",
+                "waiver",
+                "waiver/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2020-01-01",
@@ -77,10 +77,10 @@ public sealed class SuppressionTests
         Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An departure holds only the codes it covers, not every finding on its subject.</summary>
+    /// <summary>An waiver holds only the codes it covers, not every finding on its subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void DepartureCoversOnlyItsCodes()
+    public void WaiverCoversOnlyItsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -92,8 +92,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-unimplemented",
+                "waiver",
+                "waiver/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -127,8 +127,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/legacy-shop",
+                "waiver",
+                "waiver/legacy-shop",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -162,8 +162,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/legacy-docs",
+                "waiver",
+                "waiver/legacy-docs",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -182,10 +182,10 @@ public sealed class SuppressionTests
         Assert.Empty(partition.Covered);
     }
 
-    /// <summary>A departure holds the codes its provision governs.</summary>
+    /// <summary>A waiver holds the codes its provision governs.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void DepartureCoversItsProvisionsCodes()
+    public void WaiverCoversItsProvisionsCodes()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -197,8 +197,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-departure",
+                "waiver",
+                "waiver/list-loans-waiver",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -224,10 +224,10 @@ public sealed class SuppressionTests
         Assert.Single(partition.Covered);
     }
 
-    /// <summary>A departure holds nothing when no provision lookup is given.</summary>
+    /// <summary>A waiver holds nothing when no provision lookup is given.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void DepartureCoversNothingWithoutALookup()
+    public void WaiverCoversNothingWithoutALookup()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
@@ -239,8 +239,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-departure",
+                "waiver",
+                "waiver/list-loans-waiver",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
@@ -259,31 +259,31 @@ public sealed class SuppressionTests
         Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An expiry finding is never held, even on the departure's own subject.</summary>
+    /// <summary>An expiry finding is never held, even on the waiver's own subject.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void ExpiryFindingIsNeverHeld()
     {
         var root = Path.Combine(Path.GetTempPath(), "litespec-suppression-test");
         var finding = new Finding(
-            "departure-expired",
-            "Departure 'departure/list-loans-unimplemented' stands past its end 2020-01-01.",
-            Path.Combine(root, "docs", "governance", "departures", "list-loans-unimplemented.md"),
+            "waiver-expired",
+            "Waiver 'waiver/list-loans-unimplemented' stands past its end 2020-01-01.",
+            Path.Combine(root, "docs", "governance", "waivers", "list-loans-unimplemented.md"),
             3,
-            "departure/list-loans-unimplemented");
+            "waiver/list-loans-unimplemented");
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-unimplemented",
+                "waiver",
+                "waiver/list-loans-unimplemented",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",
                 },
                 lists: new Dictionary<string, IReadOnlyList<string>>
                 {
-                    ["covers"] = ["departure-expired"],
-                    ["subject"] = ["departure/list-loans-unimplemented"],
+                    ["covers"] = ["waiver-expired"],
+                    ["subject"] = ["waiver/list-loans-unimplemented"],
                 }),
         ];
 
@@ -294,7 +294,7 @@ public sealed class SuppressionTests
         Assert.Empty(partition.Covered);
     }
 
-    /// <summary>An departure naming a use case also holds findings about its scenarios.</summary>
+    /// <summary>An waiver naming a use case also holds findings about its scenarios.</summary>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
     public void UseCaseSubjectCoversItsScenario()
@@ -309,8 +309,8 @@ public sealed class SuppressionTests
         IReadOnlyList<IRecordFields> records =
         [
             new FakeRecord(
-                "departure",
-                "departure/list-loans-unproved",
+                "waiver",
+                "waiver/list-loans-unproved",
                 fields: new Dictionary<string, string>
                 {
                     ["expiresOn"] = "2035-06-01",

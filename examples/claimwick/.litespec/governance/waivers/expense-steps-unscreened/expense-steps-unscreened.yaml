@@ -1,0 +1,12 @@
+type: waiver
+id: waiver/expense-steps-unscreened
+title: Expense Steps Unscreened
+summary: The web app holds three screens, so two flow steps served through the browser have no screen.
+covers:
+- step-screen-missing
+subject:
+- flow/export-approved-expenses#s1
+- flow/set-receipt-threshold#s1
+reason: The web app holds three screens, so two flow steps served through the browser have no screen.
+exit: Two flow steps are served by browser-reached use cases that no screen offers yet, because the export and policy screens are unrecorded. The gap closes when each step's use case gains its screen, the same work that closes waiver/expense-screens-unimplemented.
+expiresOn: 2027-06-01

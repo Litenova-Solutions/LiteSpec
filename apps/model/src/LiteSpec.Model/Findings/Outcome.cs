@@ -11,6 +11,6 @@ public enum Outcome
     /// <summary>The finding is printed and the check passes.</summary>
     Reported = 1,
 
-    /// <summary>The finding is covered by a departure: printed in its own list, and the check passes.</summary>
+    /// <summary>The finding is covered by a waiver: printed in its own list, and the check passes.</summary>
     Covered = 2,
 }

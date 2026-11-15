@@ -227,10 +227,10 @@ static class ManifestSelectionChecks
     }
 
     /// <summary>
-    ///     Holds stage deferrals to their departure records: each departure names its
+    ///     Holds stage deferrals to their waiver records: each waiver names its
     ///     deferred provisions in covers, so a deferral of an unknown provision is
     ///     refused here. A deferral past its date belongs to the model check, which
-    ///     reports departure-expired.
+    ///     reports waiver-expired.
     /// </summary>
     /// <param name="run">The state of the run.</param>
     public static void CheckStageDeferrals(ConsumerRun run)
@@ -243,7 +243,7 @@ static class ManifestSelectionChecks
         }
 
         // The page scan already reported every malformed record file, so this pass reads
-        // quietly and keeps the departures only.
+        // quietly and keeps the waivers only.
         var deferrals = new List<(string File, string Id, string Provision)>();
 
         foreach (var file in run.Files)
@@ -261,7 +261,7 @@ static class ManifestSelectionChecks
             var page = JsonNode.Parse(root.GetRawText()) as JsonObject;
 
             if (page is not null
-                && JsonValues.PropString(page, "type") == "departure"
+                && JsonValues.PropString(page, "type") == "waiver"
                 && page["covers"] is JsonArray covers)
             {
                 foreach (var cover in covers)
@@ -299,7 +299,7 @@ static class ManifestSelectionChecks
 
             run.Err(new Finding(
                 "stage-deferral-invalid",
-                $"departure '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
+                $"waiver '{id}' defers '{provision}', which is not a provision in the pinned LiteSpec release",
                 file,
                 1,
                 id));

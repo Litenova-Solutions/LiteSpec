@@ -38,7 +38,7 @@ Every piece of text a project writes falls into one of these kinds. The kind dec
 | A state something is in: aggregate state names, proof words | Past participle or adjective | `Held`, `Paid`, `withdrawn`, `verified`, `stale` |
 | What to do: runbook steps, procedure steps | Imperative, one action per step | "Restart the payment worker." |
 | A condition: `*When`, `condition`, `skippedWhen` | A clause that completes "when ...", without the word | "the application links to no domain event" |
-| A reason: `rationale`, `*Because`, departure `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
+| A reason: `rationale`, `*Because`, waiver `reason` | A clause that completes "because ...", without the word | "partners will not share the no-show risk" |
 | A definition: `meaning` of a term, a field, a setting | A noun phrase starting with A, An or The, at most 25 words, no leading verb | "A confirmed reservation of one room for one stay." |
 | A title | The record's name in Title Case, no period | `use-case/orders.place-order` is titled "Place Order" |
 | A finding message | One present-tense sentence of fact | "Requirement 'booking.service-fee' is fulfilled by no Behavior record." |
@@ -98,7 +98,7 @@ Each record type takes the name form its row gives, in the word class of what th
 | external operation | verb first | `create-charge` |
 | screen | `<entry-point>.<noun>` | `webshop.basket` |
 | runbook | verb first, what the reader does | `clear-stuck-refunds` |
-| departure | noun phrase of what it sets aside | `retry-limit-for-payments` |
+| waiver | noun phrase of what it sets aside | `retry-limit-for-payments` |
 | term | the singular word itself | `booking` |
 
 A record name is not its title. Every record title takes the title form of its type on the [Writing Standard](writing.md) page.
@@ -149,7 +149,7 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type, fie
 | `drift` | the built thing differs from its record | `setting-key-drift` |
 | `invalid` | a value breaks its form | `field-invalid` |
 | `duplicate` | the same thing is declared twice | `identifier-duplicate` |
-| `expired` | the date passed | `departure-expired` |
+| `expired` | the date passed | `waiver-expired` |
 | `orphaned` | a file stands without its partner | `explanation-orphaned` |
 | `bare` | a reference bypasses its declared key | `source-link-bare` |
 | `unused` | a declared thing is cited nowhere | `source-unused` |
@@ -164,7 +164,7 @@ A finding code reads as `<subject>-<problem>`: the subject is a record type, fie
 | `wide` | a record sits higher than every record that uses it | `external-system-placement-wide` |
 | `written` | a thing the model derives is written by hand | `refusal-generic-written` |
 | `alias` | a retired name used where the glossary term exists | `wording-alias` |
-| `failed` | a limit the subject did not meet | `token-limit-failed` |
+| `failed` | a limit the subject did not meet | `design-token-limit-failed` |
 | `dead-end` | a screen that leads nowhere and offers no use case | `screen-dead-end` |
 
 A finding message states one present-tense fact: it opens with the subject title and its quoted identifier and says what is true, not what to do. What to do lives in the finding table on the [model page](../tools/model.md), in a column for it. Analyzer diagnostics keep their `LS` numbers and follow the same message rule.
@@ -209,9 +209,9 @@ Subcommands are verbs (`check`, `format`, `render`, `query`). Flags are kebab-ca
 
 **Statement:** Every date field MUST end in `On` for a recorded date or carry a name that states what the date does.
 
-**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a departure ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
+**Rationale:** A recorded date says when something happened or until when it holds: `readOn` says when an outside source was read, and `expiresOn` says when a waiver ends. `effectiveFrom` opens a validity span. The shape tells a reader which dates record the world and which open a span.
 
-**Example:** A Claimwick constraint carries `readOn` on each source with the date the source was read, and a departure carries `expiresOn` with the date it ends.
+**Example:** A Claimwick constraint carries `readOn` on each source with the date the source was read, and a waiver carries `expiresOn` with the date it ends.
 
 **Checked by:** `litespec-maintain validate` emits no `FIELD_NAME_SHAPE` diagnostic for a date field.
 

@@ -12,7 +12,7 @@
   import { tdHtml } from "../page-html";
   import { reachStateWord, requirementFields, stringField } from "../page-values";
 
-  // A requirement: its departures, its measure, and the values it takes over time.
+  // A requirement: its waivers, its measure, and the values it takes over time.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const qf = $derived(requirementFields(r.fields ?? {}));

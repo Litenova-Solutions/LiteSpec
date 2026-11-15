@@ -21,7 +21,7 @@ LiteSpec work moves through four record layers. Each record layer answers one qu
 | Implementation | How is it built? | Agents | S checks, where the reader is qualified |
 | Proof | How do we know it holds? | The builder | G and S checks |
 
-The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, and Proof holds tests, check results, computed completion, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the departure record covers any record layer.
+The [intent page](intent.md) states the Intent records, and the [behavior page](behavior.md) states the Behavior records. Implementation holds code and technical decisions, and Proof holds tests, check results, computed completion, and the rendered book. Governance is a group of records beside the four record layers, not a fifth layer: the waiver record covers any record layer.
 
 ### Translation Rules
 

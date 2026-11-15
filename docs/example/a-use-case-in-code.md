@@ -143,4 +143,4 @@ Querying the use case shows the links the builder derived from these files. The 
 
 The record reads `coded`, because its handler and endpoint exist. It does not read `verified`, because the example holds no passing run for its two scenarios: `passing` is null for each, and `scenarios verified` counts 0 of 2. The stage is computed from these links and runs, not typed into a status field.
 
-The `proves` links are confirmed, which means each test names its scenario. A passing result is a separate fact. [The Model and Its Checks](model-and-checks.md) explains the departure that covers the missing proof.
+The `proves` links are confirmed, which means each test names its scenario. A passing result is a separate fact. [The Model and Its Checks](model-and-checks.md) explains the waiver that covers the missing proof.

@@ -45,4 +45,4 @@ sources:
     readOn: 2026-10-31
     key: litespec-manifest
 question: What do outside practice and the 2026-10-31 review show about exceptions, proof, tooling, and design wording below Intent?
-conclusion: The review confirms exceptions that are uneven and too wide, proof words that overclaim, tooling that fails open, and design departures without stated reasons, so one exception record, tracked proof with four proof words, fail-closed checks, and renamed records follow.
+conclusion: The review confirms exceptions that are uneven and too wide, proof words that overclaim, tooling that fails open, and design waivers without stated reasons, so one exception record, tracked proof with four proof words, fail-closed checks, and renamed records follow.

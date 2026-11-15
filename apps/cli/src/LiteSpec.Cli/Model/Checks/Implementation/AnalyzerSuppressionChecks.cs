@@ -7,14 +7,14 @@ namespace LiteSpec.Cli.Model.Checks.Implementation;
 /// <summary>
 ///     The analyzer suppression check, kept in one class so the partial checker holds only the entry point.
 /// </summary>
-/// <follows>litespec/core/departures#record-a-project-wide-lowering-as-a-departure</follows>
+/// <follows>litespec/core/waivers#record-a-project-wide-lowering-as-a-waiver</follows>
 internal static class AnalyzerSuppressionChecks
 {
     /// <summary>
     ///     Runs analyzer-lowering-unrecorded: every LiteSpec analyzer rule lowered or
     ///     suppressed in an .editorconfig, a .globalconfig, a NoWarn element, a
-    ///     #pragma warning disable or a SuppressMessage, while no live departure
-    ///     covers the provision the rule enforces. A departure covers the provision
+    ///     #pragma warning disable or a SuppressMessage, while no live waiver
+    ///     covers the provision the rule enforces. A waiver covers the provision
     ///     when it is live and its covers names the provision, its page, or this finding
     ///     code. A rule the carried release names no provision for reports only when
     ///     no release map could be read at all.
@@ -61,20 +61,20 @@ internal static class AnalyzerSuppressionChecks
     }
 
     /// <summary>
-    ///     Every provision a live departure covers, and whether a live departure covers
-    ///     this finding code itself. A departure is live when it has no expiresOn date, or its
+    ///     Every provision a live waiver covers, and whether a live waiver covers
+    ///     this finding code itself. A waiver is live when it has no expiresOn date, or its
     ///     expiresOn date is today or later, as the suppression partition reads it.
     /// </summary>
     /// <param name="model">The loaded project model that holds every record.</param>
-    /// <param name="codeCovered">Whether a live departure names analyzer-lowering-unrecorded in its covers.</param>
-    /// <returns>The provision and page identifiers the live departures name in their covers.</returns>
+    /// <param name="codeCovered">Whether a live waiver names analyzer-lowering-unrecorded in its covers.</param>
+    /// <returns>The provision and page identifiers the live waivers name in their covers.</returns>
     private static HashSet<string> CoveredProvisions(ProjectModel model, out bool codeCovered)
     {
         var covered = new HashSet<string>(StringComparer.Ordinal);
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         codeCovered = false;
 
-        foreach (var record in model.Records.Where(candidate => candidate.Type == RecordTypes.Departure))
+        foreach (var record in model.Records.Where(candidate => candidate.Type == RecordTypes.Waiver))
         {
             if (record.Field(RecordFields.ExpiresOn) is { } expiresOn
                 && (!IsoDate(expiresOn, out var expires) || today > expires))
@@ -98,7 +98,7 @@ internal static class AnalyzerSuppressionChecks
         return covered;
     }
 
-    /// <summary>The message one unrecorded lowering or suppression reports: the rule, how it is lowered or suppressed, and the provision no live departure covers.</summary>
+    /// <summary>The message one unrecorded lowering or suppression reports: the rule, how it is lowered or suppressed, and the provision no live waiver covers.</summary>
     /// <param name="suppression">The lowering or suppression the finding reports.</param>
     /// <param name="provision">The provision the rule enforces, or null when no release map names one.</param>
     /// <returns>The finding message for the suppression.</returns>
@@ -114,7 +114,7 @@ internal static class AnalyzerSuppressionChecks
         };
 
         return provision is not null
-            ? $"Analyzer rule '{suppression.Rule}' is {lowered} with no live departure covering '{provision}'."
-            : $"Analyzer rule '{suppression.Rule}' is {lowered} with no live departure covering the provision it enforces.";
+            ? $"Analyzer rule '{suppression.Rule}' is {lowered} with no live waiver covering '{provision}'."
+            : $"Analyzer rule '{suppression.Rule}' is {lowered} with no live waiver covering the provision it enforces.";
     }
 }

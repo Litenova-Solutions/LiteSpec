@@ -389,7 +389,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An actor or role page SHOULD carry a `summary` field.
 
-**Departure:** A page whose fields already state who the party is and what the grant is for.
+**Deviation:** A page whose fields already state who the party is and what the grant is for.
 
 **Rationale:** The `summary` states in plain sentences who the party is and what the grant is for, which the fields alone do not say. A reviewer meets the story first and the fields after, so the grant reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
 
@@ -405,7 +405,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** An external system page SHOULD carry a `summary` field.
 
-**Departure:** A page whose operations already state what the outside system does for the product.
+**Deviation:** A page whose operations already state what the outside system does for the product.
 
 **Rationale:** The `summary` states in plain sentences what the outside system does for the product, which the message lists alone do not say. A reviewer meets the relationship first and the messages after, so the dependency reads as a decision rather than a row. Settled by [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
 
@@ -437,7 +437,7 @@ An actor, role, or external system page carries a `summary` field stating what t
 
 **Statement:** Each permission name SHOULD open with a verb from the use-case verb table, a glossary verb of kind command or either, or with `manage`.
 
-**Departure:** A permission name an access editor already lists under another verb.
+**Deviation:** A permission name an access editor already lists under another verb.
 
 **Rationale:** The first word of a permission name tells a reader whether the grant reads or changes, and which kind of use case it covers. A name such as `handle-documents` says nothing about what it includes, so a reader cannot tell whether it reads, writes or removes. The verb table gives each opening word one meaning across the product, and a project verb carries its kind in its glossary verb term, so a permission opens with a command or either verb from either list. The opening verb is a naming convention only: no permission implies another by its name, and `manage-` grants nothing beyond the use cases that cite the permission. Proposed by [decision/0055-state-each-access-scope-once](decision/0055-state-each-access-scope-once), and glossary verbs by [decision/0062-declare-project-verbs-in-the-glossary](decision/0062-declare-project-verbs-in-the-glossary). Settled by [decision/0083-evaluate-access-in-one-order](decision/0083-evaluate-access-in-one-order) and [decision/0087-keep-prose-checks-advisory-and-names-per-type](decision/0087-keep-prose-checks-advisory-and-names-per-type).
 

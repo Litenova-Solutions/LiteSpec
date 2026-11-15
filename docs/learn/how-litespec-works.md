@@ -32,7 +32,7 @@ Every record answers one layer's question, and each layer is written from the la
 
 The product record stands above the four layers at `.litespec/product.yaml`: it states what is built, for whom, and where it stops. A project claims the layers it uses in `layers` in `.litespec/project.yaml`. Three translation rules join them. **Specify** turns Intent into Behavior: it adds states, refusals, data with its retention, and access with its tenant scope. It never invents a value that Intent does not state, such as a price, a rate or a retention period; the agent takes that question to the owner. **Implement** turns Behavior into code, and it adds no outcome, edge or access that no record declares. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
 
-Records state only software; [Record Layers](../core/layers.md) states how company matters enter. A departure sets a provision, a page, or a finding code aside; [Read the Standard](reading-the-standard.md#departures-from-the-rules) explains the departure record.
+Records state only software; [Record Layers](../core/layers.md) states how company matters enter. A waiver sets a provision, a page, or a finding code aside; [Read the Standard](reading-the-standard.md#waivers-from-the-rules) explains the waiver record.
 
 ## Record Types and Their Homes
 

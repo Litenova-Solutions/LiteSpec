@@ -14,7 +14,7 @@ A claim can take 5 shapes. It names Intent alone, Intent and Behavior, Intent an
 
 The `use-case-unverified` finding fires on any use case that has scenarios and no passing proof. It fires whether or not the use case carries code marks. The record cites lines 165 to 171 of the proof checks. A team that marks code and proves no scenarios therefore cannot reach the verified stage. The record gives no confidence for this claim.
 
-The record schema makes `expiresOn` optional in the departure record. It requires `exit` only when `expiresOn` is set. The record cites lines 2823 to 2835 of the record schema. The record gives no confidence for this claim.
+The record schema makes `expiresOn` optional in the waiver record. It requires `exit` only when `expiresOn` is set. The record cites lines 2823 to 2835 of the record schema. The record gives no confidence for this claim.
 
 ## Source Notes
 

@@ -4,7 +4,7 @@ A flow states the ordered steps by which one actor reaches something the product
 
 ## Context
 
-Every flow served exactly one goal, because [decision/0005-journeys-serve-a-goal](decision/0005-journeys-serve-a-goal) chose one goal per flow. A goal carries a measure and a target, so a flow that exists because every goal depends on it, or because the law requires it, moves no measure. Authors attached such flows to whichever goal stood nearest.
+Every flow served exactly one goal, because [decision/0005-flows-serve-a-goal](decision/0005-flows-serve-a-goal) chose one goal per flow. A goal carries a measure and a target, so a flow that exists because every goal depends on it, or because the law requires it, moves no measure. Authors attached such flows to whichever goal stood nearest.
 
 In one consumer, six of nine flows served a goal measuring the share of bank lines booked before a tax filing, yet most of the six did not move that share. A sign-in flow and a leave-taking flow existed for auditability and for switching law, not for the measure. In the Claimwick expense product, all three flows served the decision-speed goal, including an admin flow that sets a threshold value.
 

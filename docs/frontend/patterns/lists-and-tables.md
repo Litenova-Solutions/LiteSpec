@@ -90,7 +90,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **Default:** Keep the header row of a table taller than the viewport visible while it scrolls, with no focused row hidden under it.
 
-**Replacement:** A project that departs records the lists it keeps short enough to fit.
+**Replacement:** A project that replaces the default records the lists it keeps short enough to fit.
 
 **Rationale:** A header that scrolls away leaves a long expense list without column names, so the reader scrolls up to relearn which column is which. A focused row hidden under a fixed header looks lost even though focus sits on it. Keeping the header in view with focus clear of it answers both. This is WCAG 2.4.11 Focus Not Obscured.
 
@@ -104,7 +104,7 @@ The drawings on this page use the Claimwick expenses list for Harbor and Pine: 2
 
 **Default:** Switch a list between its table and its cards by the width of the region that holds it, not the width of the screen.
 
-**Replacement:** A project that departs records the breakpoint it uses and why.
+**Replacement:** A project that replaces the default records the breakpoint it uses and why.
 
 **Rationale:** The expense table in a record's side panel has a phone's width on a desktop screen, so a screen-wide breakpoint keeps it a table where cards read better. Measuring the holding region switches each list at the width it actually has. One list on a page stays a table while its neighbor turns to cards.
 

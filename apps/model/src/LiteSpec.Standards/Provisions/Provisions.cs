@@ -179,7 +179,7 @@ public static class Provisions
 
     /// <summary>
     ///     Collects every provision row from the standards pages, sorted by identifier. One
-    ///     command asks several times (the record reader, the checker, the departure check), so
+    ///     command asks several times (the record reader, the checker, the waiver check), so
     ///     the rows are read once per process and read again only when a page under
     ///     <c>docs/</c> is added, removed or written. Each caller gets its own list.
     /// </summary>

@@ -8,7 +8,7 @@ namespace LiteSpec.Cli.Rules;
 
 /// <summary>
 ///     The <c>litespec rules</c> command: lists the provisions that govern a path or
-///     record identifier, grouped by strength, with project conventions and departures
+///     record identifier, grouped by strength, with project conventions and waivers
 ///     merged in.
 /// </summary>
 /// <follows>litespec/core/agent#load-applicable-provisions-before-editing</follows>
@@ -97,8 +97,8 @@ static class RulesCommand
         {
             var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
             var conventions = ConventionFiles.Load(config);
-            var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
-            var results = ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context);
+            var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+            var results = ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context);
             IReadOnlyList<RulesDecided.DecidedDecision> decided = context.IsCodePath ? RulesDecided.LoadDecisions(config, context) : [];
 
             Print(context, results, parsed.Has("--full"), config.Layers, decided);
@@ -119,7 +119,7 @@ static class RulesCommand
     {
         var catalog = ProvisionCatalog.Load(home, manifest, config.Shape, config.Stacks, config.Extensions);
         var conventions = ConventionFiles.Load(config);
-        var departures = DepartureFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
+        var waivers = WaiverFiles.Load(config, DateOnly.FromDateTime(DateTime.UtcNow));
         var (files, error) = RulesSince.ChangedFiles(config.Root, sinceRef);
 
         if (files is null)
@@ -146,7 +146,7 @@ static class RulesCommand
 
             queried++;
 
-            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, departures, config, context))
+            foreach (var match in ProvisionRetriever.Retrieve(catalog, conventions, waivers, config, context))
             {
                 if (!match.IsChecked && !union.ContainsKey(match.Entry.Id))
                 {
@@ -241,7 +241,7 @@ static class RulesCommand
 
     /// <summary>
     ///     Prints the retrieved provisions. On a code path the followed decisions and
-    ///     covering departures print first under Decided. Without full, the provisions
+    ///     covering waivers print first under Decided. Without full, the provisions
     ///     that need judgment and match the file kind print as statements grouped by
     ///     strength, the provisions matched only through a marked record collapse into
     ///     one line per record, the checked provisions print as one line each with their
@@ -416,7 +416,7 @@ static class RulesCommand
             {
                 CliHost.Out.WriteLine($"- {item.Entry.Id}: {item.Statement} [{string.Join("; ", item.Reasons)}]");
 
-                if (item.Departure is not null)
+                if (item.Waiver is not null)
                 {
                     if (item.Rationale.Length > 0)
                     {

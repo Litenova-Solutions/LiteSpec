@@ -67,4 +67,4 @@ A decision whose source is `recommended` stands until an owner chooses otherwise
 .litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
 ```
 
-The check reports no finding on the screen itself. The use cases and flow steps that the screen does not reach are reported as covered by departures, as [The Model and Its Checks](model-and-checks.md) shows.
+The check reports no finding on the screen itself. The use cases and flow steps that the screen does not reach are reported as covered by waivers, as [The Model and Its Checks](model-and-checks.md) shows.

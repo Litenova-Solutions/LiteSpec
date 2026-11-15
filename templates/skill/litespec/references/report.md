@@ -12,7 +12,7 @@ Name every check skipped, with its reason. A skipped check without a reason read
 
 ## Judged Provisions
 
-Name the provisions `rules` returned and how each was judged. Answer each How judged line the `rules --since <base>` skeleton prints, quoting the evidence: the file and the line that follows the provision, or the departure that sets it aside.
+Name the provisions `rules` returned and how each was judged. Answer each How judged line the `rules --since <base>` skeleton prints, quoting the evidence: the file and the line that follows the provision, or the waiver that sets it aside.
 
 ## Open Needs
 

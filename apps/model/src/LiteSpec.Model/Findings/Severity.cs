@@ -5,7 +5,7 @@ using System.Linq;
 namespace LiteSpec.Model;
 
 /// <summary>
-///     One finding's decided outcome: whether it blocks, reports or is covered by a departure.
+///     One finding's decided outcome: whether it blocks, reports or is covered by a waiver.
 /// </summary>
 /// <param name="Outcome">What the host does with the finding.</param>
 public sealed record Severity(Outcome Outcome)

@@ -286,11 +286,11 @@ The entry names the pattern's default option and records `owner` as the source, 
 
 **Statement:** A change that switches option, adds an option, or extends a pattern MUST update the catalog entry in the same change as its implementation.
 
-**Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate departure in one route names a decision record instead, so the departure stays reviewable.
+**Rationale:** When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate waiver in one route names a decision record instead, so the waiver stays reviewable.
 
 **Example:** A route departing from the chosen option names a decision record, such as `.litespec/intent/decisions/0014-expense-sort-menu/0014-expense-sort-menu.yaml`.
 
-**Reviewed for:** Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.
+**Reviewed for:** Which option switches, added options, or extensions land without their implementation, and which single-route waivers name no decision record? Look in the change diffs and the catalog entries.
 
 ### State the Implementation Status
 
@@ -395,7 +395,7 @@ page
 
 **Replacement:** Start an entry without `library` and record why no LiteSpec pattern fits.
 
-**Rationale:** Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product's own options. Keeping the pattern's option IDs and names lets one product read another's catalog without translation. A product that chooses a different option records its reason in the entry, so the departure stays reviewable.
+**Rationale:** Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product's own options. Keeping the pattern's option IDs and names lets one product read another's catalog without translation. A product that chooses a different option records its reason in the entry, so the waiver stays reviewable.
 
 **Reviewed for:** Which entries lack `library` without recording why no pattern fits, or rename the pattern option ids and names? Look in the catalog entries.
 

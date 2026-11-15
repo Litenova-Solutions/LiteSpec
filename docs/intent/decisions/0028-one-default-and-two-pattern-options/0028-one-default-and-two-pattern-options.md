@@ -14,7 +14,7 @@ LiteSpec compared 3 options for the number of pattern options. The table sets ea
 |:---|:---|:---|
 | The Default and at most 2 options, enforced by `validate` | A reader compares 3 options at most, and `validate` stops a fourth from entering the catalog. | A team that wants a fourth option proposes it to the pattern page instead of adding it locally. |
 | Every option the pattern pages list | No option is dropped, and no team loses a choice it used. | The pattern pages list 107 options, which a reader cannot compare. |
-| The Default only | The catalog holds one answer per pattern. | An owner with a real choice has no option to pick, so each departure becomes a pattern outside the catalog. |
+| The Default only | The catalog holds one answer per pattern. | An owner with a real choice has no option to pick, so each waiver becomes a pattern outside the catalog. |
 
 ## Decision
 

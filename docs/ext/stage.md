@@ -34,7 +34,7 @@ It switches on no record type: the promotion decision is a core record every pro
 
 **Statement:** A consumer MUST declare `pre-production` or `production` as its release stage in `.litespec/project.yaml`.
 
-**Rationale:** The release stage is a project fact, not a departure from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own departure record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
+**Rationale:** The release stage is a project fact, not a waiver from any rule, so it lives as data in the `stage` selection: `releaseStage` holds `pre-production` or `production`, while each deferral lives in its own waiver record. Without the declared stage, tools and reviewers cannot tell which provisions the project owes today.
 
 **Example:** A consumer with no customer data in any deployment declares the early stage.
 
@@ -53,17 +53,17 @@ selectedExtensions:
 
 **Strength:** required
 
-**Applies to:** artifact: record:departure
+**Applies to:** artifact: record:waiver
 
-**Statement:** A `pre-production` consumer MUST record each deferred provision as a departure expiring at promotion, with a `production` consumer carrying no deferred provision.
+**Statement:** A `pre-production` consumer MUST record each deferred provision as a waiver expiring at promotion, with a `production` consumer carrying no deferred provision.
 
-**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each departure names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
+**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each waiver names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
 
-**Example:** Each deferral is a departure covering its provision until promotion.
+**Example:** Each deferral is a waiver covering its provision until promotion.
 
 ```yaml
-type: departure
-id: departure/compat-classification-until-promotion
+type: waiver
+id: waiver/compat-classification-until-promotion
 title: Compat Classification Until Promotion
 covers:
   - litespec/ext/compat#classify-breaking-contract-changes
@@ -74,7 +74,7 @@ exit: Promotion to production ends the deferral and the classification applies.
 expiresOn: 2026-12-01
 ```
 
-**Checked by:** `litespec model check` refuses a deferral departure naming an unknown provision, and any deferral in `production`; `litespec model check` reports `departure-expired` for a departure past its `expiresOn`.
+**Checked by:** `litespec model check` refuses a deferral waiver naming an unknown provision, and any deferral in `production`; `litespec model check` reports `waiver-expired` for a waiver past its `expiresOn`.
 
 ### Promote Through a Recorded Decision
 

@@ -133,7 +133,7 @@ Four related rules live on other pages:
 
 **Statement:** A browser test that drives several screens MUST carry a `flow` annotation naming the flow and a `proves` mark for each scenario it drives and asserts.
 
-**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-journey-words-concrete-consequences](decision/0049-literal-journey-words-concrete-consequences).
+**Rationale:** A flow is not a proof target: it is achieved through use cases, so a flow test proves the scenarios it drives, and flow coverage is computed from them. The `flow` annotation tells a reader which flow the test rehearses without claiming that the flow itself is proven. Reworded by [decision/0049-literal-flow-words-concrete-consequences](decision/0049-literal-flow-words-concrete-consequences).
 
 **Example:** The submit-and-reimburse flow test carries `flow: flow/submit-and-reimburse` and proves the scenarios it drives and asserts on each screen it reaches.
 
@@ -147,7 +147,7 @@ Four related rules live on other pages:
 
 **Statement:** A frontend test SHOULD assert observable behavior in each state applicable to what the test covers: loading, empty, error, forbidden, not-found, pending, validation, and success.
 
-**Departure:** A logic test asserts only the states its level reaches.
+**Deviation:** A logic test asserts only the states its level reaches.
 
 **Rationale:** An assertion on internal state passes while the rendered page stays broken, because nothing ties the variable to what the reader sees. Asserting observable behavior in each state the test's situation reaches, from loading and empty through error, forbidden, not-found, pending, validation, and success, ties the test to the reader's view. The scenario states which states its situation reaches, so a logic test asserts only states its level reaches. The project records each state as a term with labels per language.
 

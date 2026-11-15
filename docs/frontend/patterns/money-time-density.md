@@ -66,7 +66,7 @@ The drawings on this page use the Claimwick September 2026 statement: expense EX
 
 **Default:** Render a date or moment in a time element that carries its ISO 8601 value.
 
-**Replacement:** A project that departs records where its dates render as plain text.
+**Replacement:** A project that replaces the default records where its dates render as plain text.
 
 **Rationale:** A reader's wording of a moment varies: 8 Oct, October 8, next Tuesday. Assistive technology and the browser read the exact value from the machine form, not the reader's wording of it. The ISO value keeps the cited moment exact even where the words stay short.
 

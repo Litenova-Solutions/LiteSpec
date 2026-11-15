@@ -218,17 +218,17 @@ public sealed class HandlerShapeCheckTests
         Assert.EndsWith(" inline.", finding.Message, StringComparison.Ordinal);
     }
 
-    /// <summary>Departure Holds An Inline Call On Its Subject.</summary>
+    /// <summary>Waiver Holds An Inline Call On Its Subject.</summary>
     /// <proves>litespec/backend/application#send-messages-after-commit</proves>
     /// <proves>litespec/core/agent#apply-guidance-precedence</proves>
     [Fact]
-    public void DepartureHoldsAnInlineCallOnItsSubject()
+    public void WaiverHoldsAnInlineCallOnItsSubject()
     {
         using var temp = TestCli.Temp("checks");
         var model = TestModel.Model(
             TestModel.Config(temp.Path),
             TestModel.Record("use-case", "use-case/spending.reimburse-expense", Path.Combine(temp.Path, "reimburse.yaml"), """{"kind": "command", "effects": [{"calls": "external-system/bank#pay", "timing": "inline"}]}"""),
-            TestModel.Record("departure", "departure/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
+            TestModel.Record("waiver", "waiver/reimburse-expense-inline-call", Path.Combine(temp.Path, "inline.yaml"), """{"covers": ["effect-timing-invalid"], "subject": ["use-case/spending.reimburse-expense"], "reason": "The spender sees the bank's answer at once.", "exit": "The gap closes.", "expiresOn": "2999-01-01"}"""));
 
         var (findings, known) = Checker.Check(model);
 

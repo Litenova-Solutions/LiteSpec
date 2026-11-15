@@ -2,7 +2,7 @@
 
 ## Intent
 
-A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the departures the standard provides for rules a project cannot follow.
+A LiteSpec project chooses a selection (its size, shape, technology stacks, extensions, and the record layers it claims, recorded in the project file `.litespec/project.yaml`) and applies only the pages that selection names, because the standard is large and most of it never applies to one project. This page explains those choices, the folder arrangement they select from, the anatomy of a rules page, and the waivers the standard provides for rules a project cannot follow.
 
 ## A Project's Selection
 
@@ -94,21 +94,21 @@ Its **ID** line states `litespec/backend/domain#keep-domain-independent-of-outer
 
 Each page also states the scope its provisions apply to: the technology, the part of the system, and the kind of thing made. A provision narrower than its page names its scope, so an agent editing one file can ask which provisions govern it. The last line of each rule is its verification: `**Checked by:**` names the command that checks it, or `**Reviewed for:**` asks the question a reviewer answers. That shows whether a tool or a person catches a slip.
 
-## Departures from the Rules
+## Waivers from the Rules
 
-The standard expects departures and gives each one a home:
+The standard expects waivers and gives each one a home:
 
-- **A departure record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the departure over the standard, and a covered finding reports as covered instead of blocking.
+- **A waiver record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date and an exit. An agent follows the waiver over the standard, and a covered finding reports as covered instead of blocking.
 - **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder.
 - **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
-When guidance overlaps, the most specific source wins: your departure or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the departure in place of the original.
+When guidance overlaps, the most specific source wins: your waiver or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the waiver in place of the original.
 
-The Claimwick example carries six departures under `.litespec/governance/departures/`. One of them, `examples/claimwick/.litespec/governance/departures/export-review-bypass/export-review-bypass.yaml`, reads:
+The Claimwick example carries six waivers under `.litespec/governance/waivers/`. One of them, `examples/claimwick/.litespec/governance/waivers/export-review-bypass/export-review-bypass.yaml`, reads:
 
 ```yaml
-type: departure
-id: departure/export-review-bypass
+type: waiver
+id: waiver/export-review-bypass
 title: Export Review Bypass
 covers:
   - litespec/backend/application#enforce-target-authorization-in-the-pipeline
@@ -120,7 +120,7 @@ expiresOn: 2027-01-01
 exit: A reviewer approves weekend exports before they run.
 ```
 
-Read it as one departure: it names the provision it covers, the records it sets aside, the reason, the consequences, and the date and exit by which the gap closes. An agent follows the departure over the standard until that date.
+Read it as one waiver: it names the provision it covers, the records it sets aside, the reason, the consequences, and the date and exit by which the gap closes. An agent follows the waiver over the standard until that date.
 
 ## UI Patterns
 

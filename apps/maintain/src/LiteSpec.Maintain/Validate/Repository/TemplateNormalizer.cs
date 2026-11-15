@@ -72,7 +72,7 @@ internal static class TemplateNormalizer
         ["settingId"] = "setting/sample.entry",
         ["integrationEventId"] = "integration-event/sample",
         ["runbookId"] = "runbook/sample",
-        ["departureId"] = "departure/sample",
+        ["waiverId"] = "waiver/sample",
         ["termId"] = "term/sample",
         ["refusalCode"] = "sample.entry",
         ["standardsProvisionId"] = "litespec/core/scope#keep-one-bounded-context",

@@ -114,7 +114,7 @@ An external system is one system outside the bounded context the product exchang
 
 **Statement:** Each outbound integration event SHOULD be named for the business fact, without internal words.
 
-**Departure:** An event kept for an internal outbox fact its readers already consume keeps its name until its readers move.
+**Deviation:** An event kept for an internal outbox fact its readers already consume keeps its name until its readers move.
 
 **Rationale:** An integrator reads the published name as the business fact; `staged`, `dispatch` or `outbox` describe the machinery that delivered it. A name carrying the fact travels across the boundary unchanged. The internal words are `staged`, `dispatch`, `dispatched`, `outbox`, `handler`, `queued`, `worker`, and `job`.
 

@@ -467,7 +467,7 @@ internal static class LocalityChecks
             return "implementation";
         }
 
-        if (record.Type == RecordTypes.Departure)
+        if (record.Type == RecordTypes.Waiver)
         {
             return "governance";
         }

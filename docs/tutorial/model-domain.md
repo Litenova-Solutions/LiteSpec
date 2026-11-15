@@ -115,7 +115,7 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
     | `result/submit-expense.receipt-missing` | `refusal` | `spending.receipt-missing` | The expense is above the threshold and carries no receipt. |
 
     Never write the generic refusals: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated` and `sign-in-too-old` derive from access and input, and the use case writes only its own. This satisfies `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`. A refusal that stores the attempt carries `recorded: true`; a success with recorded outcomes inside it carries `codes`. Each refusal explains what the caller sees. The code is stable across releases. The backend stack derives the HTTP status from the outcome. This satisfies `litespec/backend/api#use-consistent-status-codes`.
-12. Write the scenarios. A scenario is one working example in `given`, `when`, `then`: the situation, the action, and the expected ending. Each scenario names the result it ends in. A scenario with no proving test yet becomes a departure with an `expiresOn` date and an `exit`. This satisfies `litespec/core/use-cases#write-every-scenario-in-given-when-then` and `litespec/core/use-cases#name-the-result-each-scenario-ends-in`.
+12. Write the scenarios. A scenario is one working example in `given`, `when`, `then`: the situation, the action, and the expected ending. Each scenario names the result it ends in. A scenario with no proving test yet becomes a waiver with an `expiresOn` date and an `exit`. This satisfies `litespec/core/use-cases#write-every-scenario-in-given-when-then` and `litespec/core/use-cases#name-the-result-each-scenario-ends-in`.
 
     | Scenario | Given | When | Then | Result |
     |:---|:---|:---|:---|:---|
@@ -151,5 +151,5 @@ A behavior module gathers one business area's glossary terms, aggregates, rules,
 
 - One module with its terms, aggregates, data classes, rules, use cases, results, scenarios, domain events, reactions, jobs, read models, notifications, settings, and permissions.
 - Every identifier is person-chosen, every citation resolves, and every edge between records is declared.
-- Every scenario is proved by a passing test or covered by a departure with an expiry date.
+- Every scenario is proved by a passing test or covered by a waiver with an expiry date.
 - Next, follow [Write Code for a Use Case](../guide/write-code-for-a-use-case.md) to place each specified element in code. When this tutorial was entered from [Start a Consumer Repository](getting-started.md) step 16, return there instead and continue with step 17.

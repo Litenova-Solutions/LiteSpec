@@ -118,13 +118,13 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 
 - The product is the root record above the record layers. It is stored at `.litespec/product.yaml` with its explanation file `.litespec/product.md`, its layer key is `root`, and every layer hangs under it: the book opens the outline with the product and starts the Intent layer at goals, problems, features and flows. Decision 0091, Place the Product Above the Layers, records why.
 - Removed: the `compensated` consistency mode, the `manual` job kind, the `default` and `cross-aggregate` rule kinds, the `not-pending` idempotency mode, `builtAsynchronously`, the external-system prose fields `sends`, `receives` and `failure`, `writes` on reactions and jobs, the screen `floorplan` link (the design contract maps screens to floorplans), and the retention-schedule record type.
-- Renamed: `view` to `read-model`, `event` entries to `domain-event` (`domain-event/<aggregate>.<name>`, folder `domain-events/`), `changes` to `writes`, `transitions.by` to `movedBy`, `runsWhere` to `runsWhen`, `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, rule kind `commercial-data` to `frozen-value`, `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`, and the provision part `Deviation` to `Departure`.
+- Renamed: `view` to `read-model`, `event` entries to `domain-event` (`domain-event/<aggregate>.<name>`, folder `domain-events/`), `changes` to `writes`, `transitions.by` to `movedBy`, `runsWhere` to `runsWhen`, `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, rule kind `commercial-data` to `frozen-value`, `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`.
 - Finding codes renamed: `atomic-group-*` to `atomicity-*`, `constituent-parent-missing` to `part-parent-missing`, `notification-sender-missing` to `notification-effect-missing`, `permission-orphaned` and `role-orphaned` to `permission-unused` and `role-unused`, `use-case-journey-missing` to `use-case-flow-missing`, and the `view-*` codes to `read-model-*`.
 
 ### Part O: A Consistent Standard
 
 - A record's content is what it states and changes; its links are its reasons. External systems sit at the lowest node that holds their callers.
-- Strength, detection and blocking are separate: a finding blocks by the strength of the provision it reports, `SHOULD` is advisory and needs no departure, and prose and naming checks are advisory.
+- Strength, detection and blocking are separate: a finding blocks by the strength of the provision it reports, `SHOULD` is advisory and needs no waiver, and prose and naming checks are advisory.
 - `select-task-context` is the one context rule; the intent layout is fixed; the model page owns the cross-module rule; scope, containment, storage and book grouping are four words.
 - Contradictions between records are reported and resolved by updating records; behavior with no record above it is recorded or reported, never removed.
 - Access is evaluated in one stated order, and a permission allows exactly the use cases that name it.

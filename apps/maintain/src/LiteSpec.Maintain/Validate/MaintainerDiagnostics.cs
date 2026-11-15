@@ -14,7 +14,7 @@ internal static class MaintainerDiagnostics
         Codes.ConventionDefaultSentence,
         Codes.ConventionMissingDefault,
         Codes.ConventionMissingReplacement,
-        Codes.ConventionReplacementDeparture,
+        Codes.ConventionReplacementWaiver,
         Codes.ConventionReplacementSentence,
         Codes.ExtensionActivation,
         Codes.ExtensionBaseline,
@@ -79,20 +79,20 @@ internal static class MaintainerDiagnostics
         Codes.SchemaInvalid,
         Codes.SchemaUnsupportedKeyword,
         Codes.SchemaYaml,
-        Codes.StandardDepartureNormative,
-        Codes.StandardDepartureSentence,
+        Codes.StandardDeviationNormative,
+        Codes.StandardDeviationSentence,
         Codes.StandardExampleLabel,
         Codes.StandardInformativeNormative,
         Codes.StandardLabelDuplicate,
         Codes.StandardLabelInvalid,
         Codes.StandardLabelOrder,
-        Codes.StandardMissingDeparture,
+        Codes.StandardMissingDeviation,
         Codes.StandardMissingRequirement,
         Codes.StandardModalCount,
         Codes.StandardModalVocabulary,
         Codes.StandardRequirementCount,
         Codes.StandardSentenceCount,
-        Codes.StandardUnexpectedDeparture,
+        Codes.StandardUnexpectedDeviation,
         Codes.StandardUnlabeledContent,
         Codes.VerifyCommand,
         Codes.VerifyDuplicateEvidence,
@@ -145,8 +145,8 @@ internal static class MaintainerDiagnostics
         /// <summary>A convention missing a Replacement.</summary>
         public const string ConventionMissingReplacement = "CONVENTION_MISSING_REPLACEMENT";
 
-        /// <summary>A convention Replacement that names a departure.</summary>
-        public const string ConventionReplacementDeparture = "CONVENTION_REPLACEMENT_DEPARTURE";
+        /// <summary>A convention Replacement that names a waiver.</summary>
+        public const string ConventionReplacementWaiver = "CONVENTION_REPLACEMENT_WAIVER";
 
         /// <summary>A convention Replacement with more than one sentence.</summary>
         public const string ConventionReplacementSentence = "CONVENTION_REPLACEMENT_SENTENCE";
@@ -340,11 +340,11 @@ internal static class MaintainerDiagnostics
         /// <summary>A JSON Schema keyword the evaluator does not implement.</summary>
         public const string SchemaUnsupportedKeyword = "SCHEMA_UNSUPPORTED_KEYWORD";
 
-        /// <summary>A Departure that contains normative vocabulary.</summary>
-        public const string StandardDepartureNormative = "STANDARD_DEPARTURE_NORMATIVE";
+        /// <summary>A Deviation that contains normative vocabulary.</summary>
+        public const string StandardDeviationNormative = "STANDARD_DEVIATION_NORMATIVE";
 
-        /// <summary>A Departure with more than one sentence.</summary>
-        public const string StandardDepartureSentence = "STANDARD_DEPARTURE_SENTENCE";
+        /// <summary>A Deviation with more than one sentence.</summary>
+        public const string StandardDeviationSentence = "STANDARD_DEVIATION_SENTENCE";
 
         /// <summary>A fenced example not under an Example label.</summary>
         public const string StandardExampleLabel = "STANDARD_EXAMPLE_LABEL";
@@ -361,8 +361,8 @@ internal static class MaintainerDiagnostics
         /// <summary>A provision label out of order.</summary>
         public const string StandardLabelOrder = "STANDARD_LABEL_ORDER";
 
-        /// <summary>A recommendation with no Departure statement.</summary>
-        public const string StandardMissingDeparture = "STANDARD_MISSING_DEPARTURE";
+        /// <summary>A recommendation with no Deviation statement.</summary>
+        public const string StandardMissingDeviation = "STANDARD_MISSING_DEVIATION";
 
         /// <summary>A Standard with no Statement.</summary>
         public const string StandardMissingRequirement = "STANDARD_MISSING_REQUIREMENT";
@@ -379,8 +379,8 @@ internal static class MaintainerDiagnostics
         /// <summary>A Statement with more than one sentence.</summary>
         public const string StandardSentenceCount = "STANDARD_SENTENCE_COUNT";
 
-        /// <summary>A required Standard with a Departure statement, which only a recommendation carries.</summary>
-        public const string StandardUnexpectedDeparture = "STANDARD_UNEXPECTED_DEPARTURE";
+        /// <summary>A required Standard with a Deviation statement, which only a recommendation carries.</summary>
+        public const string StandardUnexpectedDeviation = "STANDARD_UNEXPECTED_DEVIATION";
 
         /// <summary>Content outside a Rationale or Example label.</summary>
         public const string StandardUnlabeledContent = "STANDARD_UNLABELED_CONTENT";

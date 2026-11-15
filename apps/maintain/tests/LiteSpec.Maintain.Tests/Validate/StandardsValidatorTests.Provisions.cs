@@ -41,12 +41,12 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep the topic inside its declared boundary.", "Consumers MUST write the topic and MUST review the topic.")),
         [MaintainerDiagnostics.Codes.StandardModalCount]);
 
-    /// <summary>Missing departure.</summary>
+    /// <summary>Missing waiver.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
-    [Fact(DisplayName = "missing departure")]
-    public void MissingDeparture() => Check(
+    [Fact(DisplayName = "missing waiver")]
+    public void MissingWaiver() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep", "Consumers SHOULD keep")),
-        [MaintainerDiagnostics.Codes.StandardMissingDeparture]);
+        [MaintainerDiagnostics.Codes.StandardMissingDeviation]);
 
     /// <summary>Missing convention default.</summary>
     /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
@@ -181,24 +181,24 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Statement:** Consumers MUST name the topic owner.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
         [MaintainerDiagnostics.Codes.StandardRequirementCount]);
 
-    /// <summary>Unexpected departure.</summary>
+    /// <summary>Unexpected waiver.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
-    [Fact(DisplayName = "unexpected departure")]
-    public void UnexpectedDeparture() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Departure:** No departure applies.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
-        [MaintainerDiagnostics.Codes.StandardUnexpectedDeparture]);
+    [Fact(DisplayName = "unexpected waiver")]
+    public void UnexpectedWaiver() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** No waiver applies.\n\n**Rationale:** The boundary gives reviewers one testable result.")),
+        [MaintainerDiagnostics.Codes.StandardUnexpectedDeviation]);
 
-    /// <summary>Departure sentence count.</summary>
+    /// <summary>Waiver sentence count.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
-    [Fact(DisplayName = "departure sentence count")]
-    public void DepartureSentenceCount() => Check(
+    [Fact(DisplayName = "waiver sentence count")]
+    public void WaiverSentenceCount() => Check(
         root =>
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep", "Consumers SHOULD keep");
-            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Departure:** A local decision permits another boundary. The decision names its owner.\n\n**Rationale:** The boundary gives reviewers one testable result.");
+            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** A local decision permits another boundary. The decision names its owner.\n\n**Rationale:** The boundary gives reviewers one testable result.");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
-        [MaintainerDiagnostics.Codes.StandardDepartureSentence]);
+        [MaintainerDiagnostics.Codes.StandardDeviationSentence]);
 
     /// <summary>Unlabeled example.</summary>
     /// <proves>litespec/core/authoring#attach-examples-to-their-provisions</proves>
@@ -263,29 +263,29 @@ public sealed partial class StandardsValidatorTests
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer can name another location. The local convention records it.")),
         [MaintainerDiagnostics.Codes.ConventionReplacementSentence]);
 
-    /// <summary>Normative departure.</summary>
+    /// <summary>Normative waiver.</summary>
     /// <proves>litespec/core/authoring#write-atomic-standards-provisions</proves>
-    [Fact(DisplayName = "normative departure")]
-    public void NormativeDeparture() => Check(
+    [Fact(DisplayName = "normative waiver")]
+    public void NormativeWaiver() => Check(
         root =>
         {
             var page = StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "Consumers MUST keep", "Consumers SHOULD keep");
-            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Departure:** Consumers MAY keep another boundary.\n\n**Rationale:** The boundary gives reviewers one testable result.");
+            page = StandardsFixture.ReplaceFirst(page, "**Rationale:** The boundary gives reviewers one testable result.", "**Deviation:** Consumers MAY keep another boundary.\n\n**Rationale:** The boundary gives reviewers one testable result.");
             StandardsFixture.Write(root, "docs/core/topic.md", page);
         },
-        [MaintainerDiagnostics.Codes.StandardDepartureNormative]);
+        [MaintainerDiagnostics.Codes.StandardDeviationNormative]);
 
     /// <summary>Replacement naming an exception.</summary>
     /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
     [Fact(DisplayName = "replacement naming an exception")]
     public void ReplacementNamingAnException() => Check(
         root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer replaces this default by recording an Exception for this provision.")),
-        [MaintainerDiagnostics.Codes.ConventionReplacementDeparture]);
+        [MaintainerDiagnostics.Codes.ConventionReplacementWaiver]);
 
-    /// <summary>Replacement naming a departure.</summary>
+    /// <summary>Replacement naming a waiver.</summary>
     /// <proves>litespec/core/authoring#identify-actionable-conventions</proves>
-    [Fact(DisplayName = "replacement naming a departure")]
-    public void ReplacementNamingADeparture() => Check(
-        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer replaces this default by recording a departure with its reason.")),
-        [MaintainerDiagnostics.Codes.ConventionReplacementDeparture]);
+    [Fact(DisplayName = "replacement naming a waiver")]
+    public void ReplacementNamingAWaiver() => Check(
+        root => StandardsFixture.Write(root, "docs/core/topic.md", StandardsFixture.ReplaceFirst(StandardsFixture.TopicPage, "A consumer can name another location through an explicit local convention.", "A consumer replaces this default by recording a waiver with its reason.")),
+        [MaintainerDiagnostics.Codes.ConventionReplacementWaiver]);
 }

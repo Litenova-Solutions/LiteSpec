@@ -34,7 +34,7 @@ On a code path, provisions that match only through a marked record print as one 
 
 A provision states its condition as a `when` key on its `Applies to` line. The keys are `query`, `command`, `upload`, `document-number`, `erasure`, `project` and `audit-adoption`. A code path returns a conditional provision only when the marked record meets its condition.
 
-`litespec/core/agent#load-applicable-provisions-before-editing` runs `rules <path>` before each edit, and it answers each skeleton provision before reporting done. The `Decided` group prints each followed decision's `choice` and `reopenedWhen`, and each covering departure's `reason` and `expiresOn`. The site serves the provision index as JSON, and the published URLs page states the ID-to-URL rule.
+`litespec/core/agent#load-applicable-provisions-before-editing` runs `rules <path>` before each edit, and it answers each skeleton provision before reporting done. The `Decided` group prints each followed decision's `choice` and `reopenedWhen`, and each covering waiver's `reason` and `expiresOn`. The site serves the provision index as JSON, and the published URLs page states the ID-to-URL rule.
 
 ## Revisit Conditions
 

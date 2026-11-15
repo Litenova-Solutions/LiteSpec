@@ -53,8 +53,8 @@ Use this generated page to find the folder and file each record type lives in, r
 | `external-system` | `behavior/modules/{module}/external-systems/{name}` | `{name}.yaml` |
 | `runbook` | `implementation/runbooks/{name}` | `{name}.yaml` |
 | `runbook` | `implementation/modules/{module}/runbooks/{name}` | `{name}.yaml` |
-| `departure` | `governance/departures/{name}` | `{name}.yaml` |
-| `departure` | `governance/modules/{module}/departures/{name}` | `{name}.yaml` |
+| `waiver` | `governance/waivers/{name}` | `{name}.yaml` |
+| `waiver` | `governance/modules/{module}/waivers/{name}` | `{name}.yaml` |
 
 ## Notes
 

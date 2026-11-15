@@ -232,7 +232,7 @@ public sealed class UiBlueprintCheckTests
         Assert.Contains("Source Document", findings[0].Message, StringComparison.Ordinal);
     }
 
-    /// <summary>A token role below its contrast limit reports token-limit-failed naming the role.</summary>
+    /// <summary>A token role below its contrast limit reports design-token-limit-failed naming the role.</summary>
     /// <proves>litespec/frontend/ui#meet-the-limits-of-every-token-role</proves>
     [Fact]
     public void TokenRoleBelowItsLimitReportsTokenLimitFailed()
@@ -241,7 +241,7 @@ public sealed class UiBlueprintCheckTests
         WriteDesignContract(temp.Path, "{\"light\":{\"page\":{\"$value\":\"#ffffff\"},\"text\":{\"$value\":\"#c8c8c8\"}}}");
         var model = BaseModel(temp.Path);
 
-        var findings = WithCode(model, "token-limit-failed");
+        var findings = WithCode(model, "design-token-limit-failed");
 
         Assert.NotEmpty(findings);
         Assert.Contains(findings, finding => finding.Message.Contains("'text'", StringComparison.Ordinal));

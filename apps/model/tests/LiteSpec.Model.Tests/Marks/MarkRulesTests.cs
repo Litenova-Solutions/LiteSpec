@@ -109,24 +109,24 @@ public sealed class MarkRulesTests
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "setting/spending.max-open-expenses"));
         Assert.True(MarkRules.Accepts(CodeKind.Technical, "integration-event/expense-submitted"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "decision/0002-store-expenses-as-documents"));
-        Assert.False(MarkRules.Accepts(CodeKind.Technical, "departure/export-review-bypass"));
+        Assert.False(MarkRules.Accepts(CodeKind.Technical, "waiver/export-review-bypass"));
         Assert.False(MarkRules.Accepts(CodeKind.Technical, "litespec/backend/persistence#commit-each-command-pipeline-once"));
     }
 
-    /// <summary>FollowsRecordTypes names the provision namespace, decision and departure.</summary>
+    /// <summary>FollowsRecordTypes names the provision namespace, decision and waiver.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and departure")]
+    [Fact(DisplayName = "FollowsRecordTypes names the provision namespace, decision and waiver")]
     public void FollowsRecordTypesNamesExpectedTypes() =>
-        Assert.Equal(["litespec", "decision", "departure"], MarkRules.FollowsRecordTypes);
+        Assert.Equal(["litespec", "decision", "waiver"], MarkRules.FollowsRecordTypes);
 
-    /// <summary>AcceptsFollows takes a provision, decision or departure and rejects a Behavior record.</summary>
+    /// <summary>AcceptsFollows takes a provision, decision or waiver and rejects a Behavior record.</summary>
     /// <proves>litespec/core/system#point-every-technical-class-up-to-its-record-or-choice</proves>
-    [Fact(DisplayName = "AcceptsFollows takes a provision, decision or departure and rejects a Behavior record")]
+    [Fact(DisplayName = "AcceptsFollows takes a provision, decision or waiver and rejects a Behavior record")]
     public void AcceptsFollowsTakesChoices()
     {
         Assert.True(MarkRules.AcceptsFollows("litespec/backend/persistence#commit-each-command-pipeline-once"));
         Assert.True(MarkRules.AcceptsFollows("decision/0002-store-expenses-as-documents"));
-        Assert.True(MarkRules.AcceptsFollows("departure/export-review-bypass"));
+        Assert.True(MarkRules.AcceptsFollows("waiver/export-review-bypass"));
         Assert.False(MarkRules.AcceptsFollows("use-case/spending.submit-expense"));
         Assert.False(MarkRules.AcceptsFollows("decision/"));
         Assert.False(MarkRules.AcceptsFollows("decision"));

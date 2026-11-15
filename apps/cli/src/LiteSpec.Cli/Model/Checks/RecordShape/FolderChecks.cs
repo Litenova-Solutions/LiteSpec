@@ -376,10 +376,10 @@ internal static class FolderChecks
                 return true;
             }
 
-            return full.Length == 4 && full[3] == "departures";
+            return full.Length == 4 && full[3] == "waivers";
         }
 
-        return full.Length == 2 && full[1] == "departures";
+        return full.Length == 2 && full[1] == "waivers";
     }
 
     /// <summary>Collects the module folder for the declaration check.</summary>

@@ -27,7 +27,7 @@ internal static class TokenLimitChecks
         @"^rgba?\(\s*(?<red>[^,]+?)\s*,\s*(?<green>[^,]+?)\s*,\s*(?<blue>[^,)]+?)\s*(?:,[^)]*)?\)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    /// <summary>Reports token-limit-failed.</summary>
+    /// <summary>Reports design-token-limit-failed.</summary>
     /// <param name="model">The loaded project model that holds the consumer root.</param>
     /// <param name="findings">The list that receives each finding this check raises.</param>
     internal static void Run(ProjectModel model, List<Finding> findings)
@@ -196,7 +196,7 @@ internal static class TokenLimitChecks
             if (resolved.Problem is { } problem)
             {
                 findings.Add(new Finding(
-                    "token-limit-failed",
+                    "design-token-limit-failed",
                     $"Token role '{role}' has no color in scheme '{scheme}': {problem}.",
                     tokensFile, resolved.Line, null)
                 {
@@ -449,7 +449,7 @@ internal static class TokenLimitChecks
             var lowest = limit.ToString("0.0", CultureInfo.InvariantCulture);
 
             findings.Add(new Finding(
-                "token-limit-failed",
+                "design-token-limit-failed",
                 $"Token role '{role}' reaches {reached}:1 on '{surface}' in scheme '{scheme}', below the {lowest}:1 limit.",
                 tokensFile, ink.Line, null)
             {
@@ -474,7 +474,7 @@ internal static class TokenLimitChecks
             if (!edged)
             {
                 findings.Add(new Finding(
-                    "token-limit-failed",
+                    "design-token-limit-failed",
                     $"Token role 'card' matches 'page' in scheme '{scheme}' with no edge between them; the card reads as a separate surface.",
                     tokensFile, roles["card"].Line, null)
                 {
@@ -488,7 +488,7 @@ internal static class TokenLimitChecks
         if (Ready(roles, "card-edge", "card") && SameColor(roles["card-edge"], roles["card"]))
         {
             findings.Add(new Finding(
-                "token-limit-failed",
+                "design-token-limit-failed",
                 $"Token role 'card-edge' equals 'card' in scheme '{scheme}'; the edge differs from 'page' and 'card'.",
                 tokensFile, roles["card-edge"].Line, null)
             {
@@ -514,7 +514,7 @@ internal static class TokenLimitChecks
                 var held = firm.ToString("0.0", CultureInfo.InvariantCulture);
 
                 findings.Add(new Finding(
-                    "token-limit-failed",
+                    "design-token-limit-failed",
                     $"Token role 'separator' reaches {reached}:1 on 'card' in scheme '{scheme}', above the card edge's {held}:1.",
                     tokensFile, separator.Line, null)
                 {
@@ -577,7 +577,7 @@ internal static class TokenLimitChecks
                     var apart = delta.ToString("0.0", CultureInfo.InvariantCulture);
 
                     findings.Add(new Finding(
-                        "token-limit-failed",
+                        "design-token-limit-failed",
                         $"Chart colors '{first}' and '{second}' read {apart} apart under {name} simulation in scheme '{scheme}', below the 10.0 limit.",
                         tokensFile, roles[first].Line, null)
                     {
@@ -659,7 +659,7 @@ internal static class TokenLimitChecks
         if (!group.TryGetProperty("magnitude", out var magnitude))
         {
             findings.Add(new Finding(
-                "token-limit-failed",
+                "design-token-limit-failed",
                 $"Token role 'magnitude' has no color in scheme '{scheme}': it names no 'magnitude' token.",
                 tokensFile, group.Line, null)
             {
@@ -682,7 +682,7 @@ internal static class TokenLimitChecks
         if (steps.Count == 0)
         {
             findings.Add(new Finding(
-                "token-limit-failed",
+                "design-token-limit-failed",
                 $"Token role 'magnitude' holds no steps in scheme '{scheme}'.",
                 tokensFile, magnitude.Line, null)
             {
@@ -696,7 +696,7 @@ internal static class TokenLimitChecks
             if (steps[position].Problem is { } problem)
             {
                 findings.Add(new Finding(
-                    "token-limit-failed",
+                    "design-token-limit-failed",
                     $"Token role '{names[position]}' has no color in scheme '{scheme}': {problem}.",
                     tokensFile, steps[position].Line, null)
                 {
@@ -718,7 +718,7 @@ internal static class TokenLimitChecks
             if (LuminanceOf(after.Red, after.Green, after.Blue) <= LuminanceOf(before.Red, before.Green, before.Blue))
             {
                 findings.Add(new Finding(
-                    "token-limit-failed",
+                    "design-token-limit-failed",
                     $"Token role 'magnitude' falls from step {position} to step {position + 1} in scheme '{scheme}'; the steps rise in lightness.",
                     tokensFile, after.Line, null)
                 {

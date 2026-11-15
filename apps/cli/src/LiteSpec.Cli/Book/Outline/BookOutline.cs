@@ -45,7 +45,7 @@ static class BookOutline
     /// <summary>The list record types in the behavior layer, in display order.</summary>
     static readonly IReadOnlyList<string> BehaviorListOrder = ["role", "permission", "entry-point", "external-system", "runbook", "integration-event"];
     /// <summary>The record types in the governance layer, in display order.</summary>
-    static readonly IReadOnlyList<string> GovernanceOrder = ["departure"];
+    static readonly IReadOnlyList<string> GovernanceOrder = ["waiver"];
 
     /// <summary>Builds the outline over a parsed model object with every layer claimed.</summary>
     /// <param name="model">The parsed model object that holds the records, code, tests and findings.</param>
@@ -578,7 +578,7 @@ static class BookOutline
         {
             "product" => "root",
             "term" => "glossary",
-            "departure" => "governance",
+            "waiver" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
             "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",

@@ -8,7 +8,7 @@ A consumer starting its first release knows where the product should go later: p
 
 Neither decision can name its reason, because a decision's `basedOn` takes constraints, research and requirements. A destination is none of these. Both decisions therefore show an empty `basedOn`, and the reason sits in the product explanation file. No record can cite that file, and no check reads it.
 
-The existing record types do not fit a destination. A goal needs a measure and a flow or quality requirement that moves it, so an unmeasured destination raises `goal-mover-missing`. A feature needs a problem with observed or reported evidence, which a destination often lacks. A departure parks planned-Intent findings until an expiry date, and a destination has no date. The backlog outside the repository holds order and timing well, but agents and decisions inside the repository never see it.
+The existing record types do not fit a destination. A goal needs a measure and a flow or quality requirement that moves it, so an unmeasured destination raises `goal-mover-missing`. A feature needs a problem with observed or reported evidence, which a destination often lacks. A waiver parks planned-Intent findings until an expiry date, and a destination has no date. The backlog outside the repository holds order and timing well, but agents and decisions inside the repository never see it.
 
 ## Options
 
@@ -18,7 +18,7 @@ LiteSpec compared 4 options for recording a product vision. The table sets each 
 |:---|:---|:---|
 | A `vision` record at product level, cited by decisions and requirements | A decision names its reason as a record, and the book shows the vision beside the choices that keep it open. | One more record type to learn, and a vision can grow into a wish list if dates creep in. |
 | Keep the vision in the product explanation file | No new record type, and the prose reads well. | No record can cite prose, so a decision shows an empty `basedOn`, and nothing notices when the prose changes. |
-| Write the vision as planned goals and features, parked by departures | It uses existing record types and checks. | A goal needs a measure and a mover, a feature needs evidence, and a departure needs an expiry date, so each one is invented or misused. |
+| Write the vision as planned goals and features, parked by waivers | It uses existing record types and checks. | A goal needs a measure and a mover, a feature needs evidence, and a waiver needs an expiry date, so each one is invented or misused. |
 | Keep the vision outside the repository, on the backlog | Planning stays with planning, and the records hold only promises. | Agents and decisions in the repository never see it, so choices made for it read as over-engineering. |
 
 ## Decision

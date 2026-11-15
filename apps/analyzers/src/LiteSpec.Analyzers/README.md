@@ -101,7 +101,7 @@ dotnet_diagnostic.LS1011.severity = warning
 dotnet_diagnostic.LS3004.severity = none
 ```
 
-A project that departs from a Standard records a departure that cites the provision, as the [LiteSpec model page](https://litespec.dev/7.0.0/core/model/) describes.
+A project that sets a Standard aside records a waiver that cites the provision, as the [LiteSpec model page](https://litespec.dev/7.0.0/core/model/) describes.
 
 ## Limits
 

@@ -76,7 +76,7 @@ A command, check, generated file, or package exists because the owner approved i
 
 ### Work in Progress
 
-A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
+A branch may be incomplete; what merges is complete. `litespec model check` reports reachability locally and blocks on it in the pull-request check. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which parks reachability for that record until it expires.
 
 ## Standards
 
@@ -344,9 +344,9 @@ A branch may be incomplete; what merges is complete. `litespec model check` repo
 
 **Statement:** What merges MUST be complete.
 
-**Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a departure with `expiresOn`, which parks reachability for that record until it expires.
+**Rationale:** A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a waiver with `expiresOn`, which parks reachability for that record until it expires.
 
-**Example:** A use case with no endpoint stays on its branch until the endpoint lands or a departure with `expiresOn` parks it.
+**Example:** A use case with no endpoint stays on its branch until the endpoint lands or a waiver with `expiresOn` parks it.
 
 **Checked by:** `litespec model check` reports unreached records, such as `intent-unreached` and `constraint-unreached`, locally, and the pull-request check blocks on them.
 

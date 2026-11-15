@@ -106,7 +106,7 @@ Every page's provisions take their trace from the page, which is `no`. A provisi
 
 | Value | Meaning |
 |:---|:---|
-| `required` | Follow it; depart from it only through a [departure](departures.md) whose `covers` names the provision, with a reason. |
+| `required` | Follow it; set it aside only through a [waiver](waivers.md) whose `covers` names the provision, with a reason. |
 | `default` | Follow it unless the project chooses otherwise, and record the choice. |
 | `advisory` | Experience; apply it with judgement and record nothing. |
 
@@ -213,19 +213,19 @@ These checks report scope defects that no single provision owns, so they are lis
 
 **Checked by:** `litespec-maintain validate` emits no `SCOPE_VALUE` diagnostic for a `layer` or `trace` value.
 
-### Depart from a Rule Only Through a Recorded Departure
+### Set a Rule Aside Only Through a Recorded Waiver
 
-**ID:** `litespec/core/scopes#depart-from-a-rule-only-through-a-recorded-departure`
+**ID:** `litespec/core/scopes#set-a-rule-aside-only-through-a-recorded-waiver`
 
 **Strength:** required
 
-**Statement:** A project that departs from a provision of Strength `required` MUST record a departure whose `covers` names the provision, with a reason.
+**Statement:** A project that sets aside a provision of Strength `required` MUST record a waiver whose `covers` names the provision, with a reason.
 
-**Rationale:** A rule binds every project it reaches: a silent departure claims conformance the project does not hold. The [departure record](departures.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the departure stays visible and ends instead of lingering.
+**Rationale:** A rule binds every project it reaches: a silent waiver claims conformance the project does not hold. The [waiver record](waivers.md) names the provision and the reason, and an expiry date marks a gap the team means to close, so the waiver stays visible and ends instead of lingering.
 
-**Example:** Claimwick ships its weekend export without the review step, so it records a departure whose `covers` names the authorization provision and whose reason states the choice.
+**Example:** Claimwick ships its weekend export without the review step, so it records a waiver whose `covers` names the authorization provision and whose reason states the choice.
 
-**Reviewed for:** Which departures from a provision of Strength `required` name no provision, page or finding code, or give no reason? Look at the files under `.litespec/governance/departures/`.
+**Reviewed for:** Which waivers from a provision of Strength `required` name no provision, page or finding code, or give no reason? Look at the files under `.litespec/governance/waivers/`.
 
 ### Record Each Replaced Default
 

@@ -619,7 +619,7 @@ The key space grows with the schedule's frequency and its retention. A per-secon
 
 **Statement:** Each report SHOULD have its query plans and indexes reviewed against representative data.
 
-**Departure:** A report over a small fixed data set justifies skipping the review.
+**Deviation:** A report over a small fixed data set justifies skipping the review.
 
 **Rationale:** A query that flies over a hundred local rows can scan millions in production. The team reviews query plans and indexes against representative data, so the true cost shows before the report ships rather than after it slows the database.
 
