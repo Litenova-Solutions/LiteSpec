@@ -189,6 +189,8 @@ pnpm --dir apps/site test && pnpm --dir apps/site build
 
 `provisions --check` fails when the provision index is stale, so run `provisions` without `--check` to write it. The pnpm lines are the web jobs CI runs; a change that passes the .NET checks and fails them is not done.
 
+The full .NET suite is heavy on memory, so let CI run it: push the branch and read the run. CI builds the solution and splits the suite by test class into ten parallel shards with `.github/scripts/test-shard.sh`, so it finishes in the time of its slowest shard. Locally, run the build and only the tests of the classes you changed, with `dotnet test --project <test project> --filter-class "<namespace>.<class>"`.
+
 `litespec-maintain validate` checks schemas, manifest references, provision IDs, page contracts, pattern pages and their wireframes, links and verification marks.
 
 In a consumer, run the gates that the job table in [continuous integration](docs/quality/ci.md) selects for each changed area, Playwright for the browser flows the change affects, and the checks of every selected extension.

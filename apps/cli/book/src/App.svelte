@@ -157,27 +157,25 @@
     {:else if load.kind === "loading"}
       <p class="p-8 text-sm text-text-secondary">Loading the book.</p>
     {:else}
-      <!-- The outline stays on the left; the record and its rail form one block,
-           centered in the space beside the outline so a wide screen keeps them together. -->
-      <div class="grid grid-cols-[304px_minmax(0,1fr)]">
+      <!-- The outline stays on the left and the rail on the right edge; the record is
+           centered between them, so a wide screen keeps it in the middle of the page. -->
+      <div class="grid grid-cols-[304px_minmax(0,1fr)_304px]">
         <aside id="book-nav" aria-label="Navigation" class="sticky top-12 h-[calc(100vh-3rem)] overflow-hidden border-r border-border-subtle bg-layer">
           <OutlinePanel />
         </aside>
         {#if wide === "intent"}
-          <section class="min-w-0" aria-label="Intent tree"><IntentTree onClose={closeIntentTree} /></section>
+          <section class="col-span-2 min-w-0" aria-label="Intent tree"><IntentTree onClose={closeIntentTree} /></section>
         {:else if wide === "about"}
-          <main class="mx-auto w-full max-w-[calc(52rem+304px)] min-w-0"><AboutBook onClose={closeIntentTree} /></main>
+          <main class="col-span-2 min-w-0"><div class="mx-auto w-full max-w-[52rem]"><AboutBook onClose={closeIntentTree} /></div></main>
         {:else}
-          <div class="mx-auto flex w-full max-w-[calc(52rem+304px)] min-w-0">
-            <main class="flex min-h-[calc(100vh-3rem)] min-w-0 flex-1 flex-col">
-              <article class="w-full flex-1 px-8 pt-6 pb-16 [overflow-wrap:anywhere]">
-                <RecordPage />
-              </article>
-            </main>
-            <aside aria-label="Trace and contents" bind:this={railEl} class="sticky top-12 h-[calc(100vh-3rem)] w-[304px] shrink-0 overflow-y-auto border-l border-border-subtle bg-background px-4 py-6">
-              <RecordRail />
-            </aside>
-          </div>
+          <main class="flex min-h-[calc(100vh-3rem)] min-w-0 flex-col">
+            <article class="mx-auto w-full max-w-[52rem] flex-1 px-8 pt-6 pb-16 [overflow-wrap:anywhere]">
+              <RecordPage />
+            </article>
+          </main>
+          <aside aria-label="Trace and contents" bind:this={railEl} class="sticky top-12 h-[calc(100vh-3rem)] overflow-y-auto border-l border-border-subtle bg-background px-4 py-6">
+            <RecordRail />
+          </aside>
         {/if}
       </div>
     {/if}

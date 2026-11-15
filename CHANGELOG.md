@@ -140,7 +140,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - Every record type shows as a short code badge colored by its record layer, such as F for a feature and U for a use case; hovering it explains the type. A new About this book page lists every code with its record count, and holds the build time, the test run and the completion that every page used to repeat.
 - The rail lists the record's Trace to the other record layers only, its Completion and an On this page list. The keyboard shortcuts dialog is removed, and explanations open only on hover or focus.
 - A flow's branches show inside the steps they leave from, and the step a branch continues at names where else it is reached from.
-- The record page and its rail form one block centered beside the outline, so a wide screen keeps them together.
+- The record page is centered between the outline on the left and the rail on the right edge, so a wide screen keeps it in the middle.
 - `litespec context` writes the project's records and explanation files as one compact text file for an AI chat, filtered by `--layers`, `--modules`, `--types` and `--include records|explanations|both`, compacted unless `--full` is given. It is read-only.
 
 ### Part Q: Provision Changes Since v6.0.0
