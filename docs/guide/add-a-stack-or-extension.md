@@ -1,6 +1,6 @@
 # Add a Stack or an Extension
 
-LiteSpec grows in two ways: a new stack carries the rules for a backend or frontend technology, and a new extension carries optional rules a project selects on top of its stacks. Either one joins the release when its pages exist and `litespec.manifest.yaml` names them. It covers the pages, the manifest entry, and the maintainer checks that prove the addition. It is written for a LiteSpec maintainer, and it adds no rule of its own.
+LiteSpec grows in two ways: a new stack carries the rules for a backend or frontend technology, and a new extension carries optional rules a project selects on top of its stacks. Either one joins the release when its pages exist and `litespec.manifest.yaml` names them. This guide covers the pages, the manifest entry, and the maintainer checks that confirm the addition. It is written for a LiteSpec maintainer, and it adds no rule of its own.
 
 ## Prerequisites
 

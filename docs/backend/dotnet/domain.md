@@ -17,7 +17,7 @@ An aggregate is one unit of business state that stays consistent and changes in 
 
 The `State` property is backed by an abstract state record with one sealed record per state, and each state record carries that state's own data, such as the publication time of a published post. The aggregate's methods own the transitions between states.
 
-In Claimwick, an expense moves from submitted to approved when `Approve` runs: the method accepts only a submitted expense, stores an approved state carrying the approver and the decision time, and raises the approval event.
+In Claimwick, an expense moves from submitted to approved when `Approve` runs: the method accepts only a submitted expense, stores an approved state carrying the approver and the decided time, and raises the approval event.
 
 Child entities and value objects are design choices inside an aggregate: they appear in code and the glossary, never as records. A `store` aggregate is the exception: it has no root, state record, or repository in Domain, and reaches code through a port.
 

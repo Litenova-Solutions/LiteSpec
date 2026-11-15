@@ -462,11 +462,11 @@ page
 
 **Compact:** Below 640 pixels the table turns into two-line record rows with the amount on the right, and sorting and comparison down a column move to the desktop. The compact option is `a-record-list-instead-of-a-table`.
 
-**Rationale:** Stay at 40 pixels: two lines fit, the row scans, and it matches the default size. The runner-up is 32 pixels, for a working queue where every row is read once and acted on.
+**Rationale:** Stay at 40 pixels: two lines fit, the row scans, and it matches the default size. The runner-up is 24 pixels, for a working queue where every row is read once and acted on.
 
 Never ship a density control the reader sets: most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.
 
-**Reviewed for:** Does the built row height match the wireframe the catalog entry chose? Open the built 24, 32, and 40 pixel rows beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Does the built row height match the wireframe the catalog entry chose? Open the built 24 and 40 pixel rows beside the catalog entry recording the chosen option and its reason.
 
 #### `40-pixels-the-default`: 40 Pixels, the Default
 
@@ -515,7 +515,7 @@ page
 
 **Rationale:** The extra-small height puts one line per row, so the eye travels straight down a column. It fits a queue a finance reader works through rather than reads.
 
-**Cost:** One line leaves nowhere for the trip name and the spender email: both have to be dropped or opened from the row.
+**Cost:** One line leaves nowhere for the trip name under the expense code: it has to be dropped or opened from the row.
 
 **Reference:** Carbon
 
@@ -1045,7 +1045,7 @@ page
 
 **Cost:** EUR 0.00 reads as an error rather than a fact, so a zero row needs words saying why it is zero.
 
-#### `refunded-shown-under-the-charged-amount`: Reversed Shown Under the Charged Amount
+#### `reversed-shown-under-the-charged-amount`: Reversed Shown Under the Charged Amount
 
 ```wireframe
 page
@@ -1206,7 +1206,7 @@ page
 
 **Reference:** GitHub
 
-#### `scoped-search-this-delivery-or-all-deliveries`: Scoped Search: This Trip or All Trips
+#### `scoped-search-this-trip-or-all-trips`: Scoped Search: This Trip or All Trips
 
 ```wireframe
 page
@@ -1293,7 +1293,7 @@ page
 
 **Reference:** Stripe
 
-#### `grouped-by-delivery-with-collapse-toggles`: Grouped by Trip with Collapse Toggles
+#### `grouped-by-trip-with-collapse-toggles`: Grouped by Trip with Collapse Toggles
 
 ```wireframe
 page
@@ -1352,7 +1352,7 @@ page
 
 **Question:** How much detail opens in place under the row? Some rows hold a second level: an expense holds its lines, its receipts, its history. Opening the record for each one costs a page load per row, while an expansion row under the row itself answers the question where it was asked.
 
-**Default:** `expand-to-the-order-lines`
+**Default:** `expand-to-the-expense-lines`
 
 **Compact:** The default reflows: the expense lines card stacks under its table, with the Collapse command first.
 
@@ -1360,7 +1360,7 @@ page
 
 **Reviewed for:** Do the built expandable rows match the wireframe the catalog entry chose? Open the built expense lines and decision states beside the catalog entry recording the chosen option and its reason.
 
-#### `expand-to-the-order-lines`: Expand to the Expense Lines
+#### `expand-to-the-expense-lines`: Expand to the Expense Lines
 
 ```wireframe
 page
@@ -1384,7 +1384,7 @@ page
 
 **Reference:** Stripe
 
-#### `expand-to-units-and-pickup-state`: Expand to Lines and Decision State
+#### `expand-to-lines-and-decision-state`: Expand to Lines and Decision State
 
 ```wireframe
 page
@@ -1432,7 +1432,7 @@ page
 
 **Question:** How does a wide table keep its bearings while it scrolls? The expense code leaves as the money arrives. Pinning the identity column keeps the row named, and resizing lets the reader spend width where their own data needs it.
 
-**Default:** `the-order-column-pinned-while-the-rest-scroll`
+**Default:** `the-expense-column-pinned-while-the-rest-scroll`
 
 **Compact:** The default reflows: the expense column stays pinned while the other columns scroll under it.
 
@@ -1440,7 +1440,7 @@ page
 
 **Reviewed for:** Do the built fixed columns match the wireframe the catalog entry chose? Open the built frozen first columns beside the catalog entry recording the chosen option and its reason.
 
-#### `the-order-column-pinned-while-the-rest-scroll`: The Expense Column Pinned While the Rest Scroll
+#### `the-expense-column-pinned-while-the-rest-scroll`: The Expense Column Pinned While the Rest Scroll
 
 ```wireframe
 page

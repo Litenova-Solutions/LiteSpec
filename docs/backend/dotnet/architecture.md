@@ -130,7 +130,7 @@ The handler in the tree above lives in namespace `Claimwick.Spending.Expenses.Us
 
 **Rationale:** One use case keeps its command, query, result, handler, validator, and triggers in its `Application/` folder, and its endpoint and transport models in its `WebApi/` folder. A use case's own models never move up: two use cases with one shape each declare it, under `litespec/backend/architecture#give-each-use-case-its-own-models`. Ports and rules used by two or more use cases of one aggregate live in the aggregate Application folder, those used by two or more aggregates live in the module Application folder, and product-wide plumbing lives in the shared kernel Application folder. A module publishes its typed identifiers in `Contracts/Identifiers/`, its integration events in `Contracts/IntegrationEvents/`, and its read-only cross-module ports in `Contracts/Ports/`, so the public surface of a module stays visible at the module. It publishes no command and no refusal.
 
-**Reviewed for:** Does every message, result, handler, validator, trigger, and port sit in its own use case `Application/` folder or its Contracts kind folder? Check the Application and Contracts folders beside the use case folders.
+**Reviewed for:** Does every message, result, handler, validator, and trigger sit in its own use case `Application/` folder, and every port in an Application folder or its Contracts kind folder? Check the Application and Contracts folders beside the use case folders.
 
 ### Place Each Read Model in Its Module Read Models Folder
 

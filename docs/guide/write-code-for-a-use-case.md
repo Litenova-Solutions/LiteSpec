@@ -37,7 +37,7 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 | Read-model reader or projection | The module `ReadModels/<ReadModelPlural>/` folder | `implements` naming `read-model/<module>.<name>` | See the [finding table](../tools/model.md) |
 | Test | The test suite for its boundary, mirroring the module tree | `proves` naming `scenario/<use-case>.<name>` | See the [finding table](../tools/model.md) |
 
-The table lists no screens: whether a browser reaches a use case depends on the deployment, not on the code layout.
+The table lists no screens: whether a browser reaches a use case depends on the deployment.
 
 A row whose check names a review is read by a reviewer. Every other check is a finding that the [model command](../tools/model.md) reports.
 

@@ -273,7 +273,7 @@ An actor, role, or external system page carries a `summary` field that states wh
 
 **Example:** "My loans" lists the signed-in reader's loans and takes no reader id.
 
-**Reviewed for:** Which use cases still read a target identifier from their input when the guard allows only the signed-in person? Check their inputs and handlers beside the self grants.
+**Reviewed for:** Which use cases name a caller-owned target in their inputs without a self grant the guard enforces, or compare the caller with a target in a handler? Check their inputs and handlers beside the self grants.
 
 ### Scope Every Grant to Its Tenant Reach
 
@@ -353,7 +353,7 @@ An actor, role, or external system page carries a `summary` field that states wh
 
 **Example:** In Claimwick, a manager delegating team management to a deputy for 2026-12-20 to 2027-01-05 is recorded as an assignment of the manager role to the deputy, bound to the manager's team, with `validFrom` of 2026-12-20 and `validUntil` of 2027-01-05, granted by its own grant use case and ended by its own revoke use case. The manage use case acting under it still declares `permission/manage-team`.
 
-**Reviewed for:** Does every delegated or temporary grant inside one tenant sit on a role assignment with `validFrom`, `validUntil`, and the bound scope instance, with its own granting and revoking use cases? Check the assignments beside the actor holds and the use cases that act under them.
+**Reviewed for:** Does every delegated or temporary grant inside one tenant sit on a role assignment with `validFrom`, `validUntil`, and the bound scope instance on an aggregate the access model reads, with its own granting and revoking use cases? Check the assignments beside the actor holds and the use cases that act under them.
 
 ### Grant Across Tenants Only Through Declared Delegation
 

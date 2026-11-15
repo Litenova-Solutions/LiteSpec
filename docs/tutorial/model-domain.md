@@ -7,7 +7,7 @@ Intent records say what the product promises; Behavior records say how the produ
 - Finish [Start a Consumer Repository](getting-started.md) through its configuration steps.
 - Read the product brief and the requirements this module fulfills.
 - Read the decisions that constrain identity, persistence, security, or external behavior.
-- Copy the `module.yaml`, `aggregate.yaml`, and `use-case.yaml` templates from the [template index](../../templates/consumer/README.md), and open `.litespec/glossary.yaml` for the module terms.
+- Copy the `module.yaml`, `aggregate.yaml`, `use-case-command.yaml`, and `use-case-query.yaml` templates from the [template index](../../templates/consumer/README.md), and open `.litespec/glossary.yaml` for the module terms.
 
 ## Lesson
 
@@ -113,7 +113,7 @@ Intent records say what the product promises; Behavior records say how the produ
     | Result | Outcome | Code | Meaning |
     |:---|:---|:---|:---|
     | `result/submit-expense.submitted` | `success` | None | The expense is submitted. |
-    | `result/submit-expense.receipt-missing` | `refusal` | `spending.receipt-missing` | The expense is above the threshold and carries no receipt. |
+    | `result/submit-expense.receipt-missing` | `refusal` | `spending.receipt-missing` | The expense is above the receipt threshold and carries no receipt. |
 
     Leave the generic refusals out: `forbidden`, `invalid-input`, `not-found`, `conflict`, `unauthenticated` and `sign-in-too-old` derive from access and input, so the use case writes only its own. This satisfies `litespec/core/use-cases#derive-generic-refusals-instead-of-writing-them`. A refusal that stores the attempt carries `recorded: true`, and a success with recorded outcomes inside it carries `codes`. Each refusal explains what the caller sees, and the code stays stable across releases. The backend stack derives the HTTP status from the outcome. This satisfies `litespec/backend/api#use-consistent-status-codes`.
 12. Write the scenarios. A scenario is one working example in `given`, `when`, `then`: the situation, the action, and the expected ending, with the result it ends in. A scenario with no proving test yet needs a gap waiver, with `kind: gap`, an `expiresOn` date, an `exit`, and `closedBy` naming the use case whose proof closes it. This satisfies `litespec/core/use-cases#write-every-scenario-in-given-when-then` and `litespec/core/use-cases#name-the-result-each-scenario-ends-in`.

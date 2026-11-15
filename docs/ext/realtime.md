@@ -80,7 +80,7 @@ One-way notifications travel over server-sent events, which need no added packag
 
 **Rationale:** Two-way messages, server-managed groups, and transport fallback need a channel built for interaction, which one-way events cannot provide. SignalR supplies all three, so the use case that needs them takes SignalR instead of stretching events past their shape.
 
-**Reviewed for:** Does every bidirectional use case run on SignalR groups, messages, and fallback? Read each use case's hub code.
+**Reviewed for:** Does every bidirectional use case run on SignalR? Read each use case's hub code.
 
 ### Record the Transport and Its Platform Support
 

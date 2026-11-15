@@ -21,7 +21,7 @@ Each rule in the standard is called a provision. It carries one ID and states ho
 
 ## The Four Layers
 
-Every record belongs to the layer that owns it, and each layer answers one question. Each layer is written from the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation.
+Every record belongs to the layer that owns it, and each layer answers one question. Each layer is written from the one above it: Behavior fulfills Intent, Implementation builds Behavior, and Proof proves Implementation keeps Behavior.
 
 | Layer | Question | Records |
 |:--|:--|:--|
@@ -42,7 +42,7 @@ Records state software only. Company matters such as prices, markets, or hiring 
 
 ## Record Types and Where They Live
 
-A record's folder is part of the record: it names the record's parent. The folder names come from a fixed set per layer. The Claimwick tree shows the pattern:
+A record's folder is part of the record: it names the record's parent. The other folder names come from a fixed set per layer. The Claimwick tree shows the pattern:
 
 ```text
 .litespec/

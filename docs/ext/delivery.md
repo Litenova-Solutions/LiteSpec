@@ -552,7 +552,7 @@ Declaring all five before the production release makes each alert answerable the
 
 **Statement:** A production incident fix that ships before its records are updated MUST carry a gap waiver expiring within seven days.
 
-**Rationale:** A production incident ships its fix at once, before the records catch up. The gap waiver records what shipped and why, and naming the records to update in `closedBy`. Those records are updated before the waiver expires, and an expired waiver is a blocking finding, so the gap stays visible until the records close it.
+**Rationale:** A production incident ships its fix at once, before the records catch up. The gap waiver records what shipped and why, and names the records to update in `closedBy`. Those records are updated before the waiver expires, and an expired waiver is a blocking finding, so the gap stays visible until the records close it.
 
 **Reviewed for:** Does every incident fix that shipped before its records carry a waiver, with none expired? Check the waiver records beside each fix.
 

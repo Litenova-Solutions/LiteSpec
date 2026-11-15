@@ -102,7 +102,7 @@ Placement shows separately as the folder path and the record's `module`. The boo
 
 Records disagree sometimes, and someone has to win. The [model page](model.md) states the authority order that settles conflicts between records. Goals, visions, problems, features, flows, actors, research, and prose carry no authority, and between peers a decision wins.
 
-A decision settles its choice, and a feature states the choice as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed its mind. A changed product means a new decision first, before any record or code moves. A lower record never overrides a higher one; only an entry in the product `excludes` sets a requirement aside.
+A decision settles its choice, and a feature states the choice as requirements. Behavior records name the requirements they fulfill and the flow steps they serve, and the code carries what happens today. When Behavior contradicts a requirement, either the code carries a defect or the product changed. A changed product means a new decision first, before any record or code moves. A lower record never overrides a higher one; only an entry in the product `excludes` sets a requirement aside.
 
 Facts from the outside world enter Intent as research or as a constraint, cited and dated. Where Intent stays silent, working code is evidence that a record is missing, not a defect to delete.
 
@@ -112,7 +112,8 @@ The product record carries the brand in `brand`, because the brand is a product 
 
 - `reader`: who the product addresses, read as a sentence.
 - `accountableFor`: the one thing the product answers for on every screen, read as a sentence.
-- `is` and `isNot`: what the product is and is not, exactly three single words each.
+- `is`: what the product is, exactly three single words.
+- `isNot`: what the product is not, exactly three single words.
 - `do` and `doNot`: the rules every screen keeps, plain sentences a reviewer checks on any screen.
 
 The words a screen avoids come from the glossary: each term's aliases are the words not to use, and its labels give the word per language.
@@ -157,7 +158,7 @@ A vision reaches no Behavior, by design. It promises nothing, so no reach check 
 
 ### What Intent Never Contains
 
-Intent states decisions and promises, not how the system works today. States, results, codes, transactions, and code belong to Behavior. `litespec/core/intent#keep-behavior-out-of-intent` names everything that stays out.
+Intent states decisions and promises, not how the system works today. States, results, codes, transactions, edges, consistency modes, Behavior field names, and code belong to Behavior. `litespec/core/intent#keep-behavior-out-of-intent` names everything that stays out.
 
 ## Standards
 
@@ -355,7 +356,7 @@ Intent states decisions and promises, not how the system works today. States, re
 
 **Statement:** A problem MUST name in `affects` a primary sufferer that is a person or organization actor outside the team building the product, and state the pain in `summary` and `statement` in fields.
 
-**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a plan limit written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
+**Rationale:** A problem is a pain someone outside the team has today. The first `affects` entry is the primary sufferer, so who has the pain is the first fact a reader meets. The `statement` names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the `summary` states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.
 
 **Example:** In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal limit, not a problem.
 

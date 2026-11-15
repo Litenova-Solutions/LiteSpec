@@ -84,7 +84,7 @@ Three rules hold on every option, whatever a project picks, and the Standards se
 
 **Question:** A reader meets amounts in tables, statements, and exports. One table writes EUR 45.00 while a statement writes the euro sign before 45.00. The question is which form the product keeps, and it also asks how a negative reads and which separators the product uses.
 
-**Default:** `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`
+**Default:** `code-and-the-currency-s-own-decimals`
 
 **Compact:** On a narrow screen the amount column keeps the code with each figure and the true minus on reversals, while the table scrolls sideways.
 
@@ -116,7 +116,7 @@ page
 
 **Cost:** The two totals disagree by design, so their labels have to survive a glance. The all-match total adds a second read on every filter change.
 
-#### `code-and-two-decimals-in-the-reader-s-language-with-a-true-m`: Code and the Currency's Own Decimals, in the Reader's Language, with a True Minus
+#### `code-and-the-currency-s-own-decimals`: Code and the Currency's Own Decimals, in the Reader's Language, with a True Minus
 
 ```wireframe
 page
@@ -470,7 +470,7 @@ page
       item: text "EXP-1042" · text "Ava" · text "Rotterdam client visit" · text "8 Oct, 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** At 1440 pixels every column has room: the trip is the second line of the expense cell and the spender email is the second line of the spender cell, so nothing needs an ellipsis.
+**Rationale:** At 1440 pixels every column has room: the trip is the second line of the expense cell, so nothing needs an ellipsis.
 
 **Cost:** Five columns reach the ceiling at this width: a seventh column forces a truncation, and the second line is where it goes.
 
@@ -603,7 +603,7 @@ page
 
 **Strength:** default
 
-**Question:** How the product shows spending over time. A dashboard can answer how the quarter is going with a number, which says where the budget stands, but only a line says whether spending is speeding up or slowing down.
+**Question:** How the product shows spending over time. A dashboard can answer how the quarter is going with a number, which says where the budget stands, but only a chart says whether spending is speeding up or slowing down.
 
 **Default:** `daily-columns-with-the-total-above`
 
@@ -635,7 +635,7 @@ page
 
 **Reference:** Shopify
 
-#### `cumulative-sales-against-the-previous-season`: Cumulative Spending Against the Previous Quarter
+#### `cumulative-spending-against-the-previous-quarter`: Cumulative Spending Against the Previous Quarter
 
 ```wireframe
 page
@@ -768,7 +768,7 @@ page
 
 **Question:** How the product shows spend against the budget. The quarter budget holds EUR 10,000 with EUR 9,412 claimed, and the distance between the two is the decision: move money, hold claims, or call the budget spent.
 
-**Default:** `a-bar-with-sold-held-and-left-in-words`
+**Default:** `a-bar-with-claimed-held-and-left-in-words`
 
 **Compact:** On a narrow screen the spend bar keeps the claimed, held, and left figures in words beneath it.
 
@@ -776,7 +776,7 @@ page
 
 **Reviewed for:** Does every built fill-rate view match the wireframe its catalog entry chose? Open the built bars, countdowns, and capacity tables beside the catalog entry recording the chosen option and its reason.
 
-#### `a-bar-with-sold-held-and-left-in-words`: A Bar with Claimed, Held and Left in Words
+#### `a-bar-with-claimed-held-and-left-in-words`: A Bar with Claimed, Held and Left in Words
 
 ```wireframe
 page
@@ -799,7 +799,7 @@ page
 
 **Cost:** One bar hides which kind is gone, so a spent taxi kind behind a half-empty budget reads as room to spare. The per-kind rows answer that question, not this bar.
 
-#### `sell-through-per-variant`: Spend per Kind
+#### `spend-per-kind`: Spend per Kind
 
 ```wireframe
 page
@@ -820,7 +820,7 @@ page
 
 **Reference:** Shopify
 
-#### `capacity-sold-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
+#### `capacity-claimed-held-and-left-as-a-table`: Capacity, Claimed, Held and Left as a Table
 
 ```wireframe
 page
@@ -935,7 +935,7 @@ page
 
 **Question:** How the product shows when the money arrives. Finance holds approved expenses and pays them out on payout days, and spenders plan around those days, so the schedule is a planning surface rather than a history.
 
-**Default:** `upcoming-payouts-with-the-sales-each-one-holds`
+**Default:** `upcoming-payouts-with-the-expenses-each-one-holds`
 
 **Compact:** On a narrow screen each payout keeps its arrival date, expenses, and amount in one stacked row.
 
@@ -943,7 +943,7 @@ page
 
 **Reviewed for:** Does every built payout view match the wireframe its catalog entry chose? Open the built upcoming, weekly, and past views beside the catalog entry recording the chosen option and its reason.
 
-#### `upcoming-payouts-with-the-sales-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
+#### `upcoming-payouts-with-the-expenses-each-one-holds`: Upcoming Payouts with the Expenses Each One Holds
 
 ```wireframe
 page
@@ -1113,7 +1113,7 @@ page
 
 **Question:** How the product shows two VAT rates on one page. Books carry 9% and a hotel night carries 21%, the spender sees one total, and the accounts show both rates on the page the tax return is built from.
 
-**Default:** `the-vat-split-under-the-order-total`
+**Default:** `the-vat-split-under-the-expense-total`
 
 **Compact:** On a narrow screen the claimed facts stack above the VAT split, with each rate keeping its base and tax.
 
@@ -1121,7 +1121,7 @@ page
 
 **Reviewed for:** Does every built mixed-rate view match the wireframe its catalog entry chose? Open the built splits, badges, and per-rate summaries beside the catalog entry recording the chosen option and its reason.
 
-#### `the-vat-split-under-the-order-total`: The VAT Split Under the Expense Total
+#### `the-vat-split-under-the-expense-total`: The VAT Split Under the Expense Total
 
 ```wireframe
 page
@@ -1202,15 +1202,15 @@ page
 
 **Question:** How numbers read at phone width. Alex Morgan checks the payout of the day from the office floor on a phone, where at 390 pixels a money column, a date column, and a state badge do not fit side by side. The page chooses what the number needs beside it.
 
-**Default:** `kpis-in-pairs-with-the-orders-under-them`
+**Default:** `kpis-in-pairs-with-the-expenses-under-them`
 
-**Compact:** At 390 pixels the figures pair two across with the latest records under them, tables become record lists with one right-aligned amount per row, statements keep their alignment with short labels, and charts halve their axis labels. The compact option is `kpis-in-pairs-with-the-orders-under-them`.
+**Compact:** At 390 pixels the figures pair two across with the latest records under them, tables become record lists with one right-aligned amount per row, statements keep their alignment with short labels, and charts halve their axis labels. The compact option is `kpis-in-pairs-with-the-expenses-under-them`.
 
 **Rationale:** Ship the two-column KPI pair with the record list under it: the figures of the day stay visible and every expense keeps its amount right-aligned. The runner-up is the aligned statement, and it fits finance pages where the adding up is the point. Never ship the desktop table unchanged at 390 pixels: a table that scrolls sideways for its money column hides the answer.
 
 **Reviewed for:** Does every built narrow figure match the wireframe its catalog entry chose? Open the built pairs, per-row figures, and halved charts at 390 pixels beside the catalog entry recording the chosen option and its reason.
 
-#### `kpis-in-pairs-with-the-orders-under-them`: KPIs in Pairs with the Expenses Under Them
+#### `kpis-in-pairs-with-the-expenses-under-them`: KPIs in Pairs with the Expenses Under Them
 
 ```wireframe
 page
@@ -1232,7 +1232,7 @@ page
 
 **Reference:** Shopify
 
-#### `orders-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
+#### `expenses-as-records-with-amounts-right-aligned`: Expenses as Records with Amounts Right-Aligned
 
 ```wireframe
 page

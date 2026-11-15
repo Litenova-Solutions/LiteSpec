@@ -11,7 +11,7 @@ The states are no records yet, no results, loading, a refused command, a command
 
 ### How to Read a Pattern
 
-A pattern answers one question the team would otherwise answer differently on every screen, such as what a list shows before its first records exist. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
+A pattern answers one recurring question about screen states, such as what a list shows before its first records exist. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
 
 Each option is one `####` heading with a stable option ID, one wireframe drawing, and three short parts: its rationale, its cost, and sometimes a reference to the outside product it learns from. A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the loading pattern draws skeleton rows at the real row height as the default, and an owner who needs a re-read indicator records the thin-bar option instead.
 
@@ -21,7 +21,7 @@ Each choice lands in the project's pattern catalog, the file that holds the proj
 
 The drawings use the Claimwick payout desk: 268 expenses including EXP-1042 for Ava, reversals such as the EUR 125.00 on that expense, and the trip, payout, and budget facts around them. On this page, the reader is the staff member using the screen.
 
-Every drawing keeps the six rules from the Standards section below. A refusal or error message states what failed and the next step. A failed save keeps the reader's input on screen. Each status is announced by its urgency. A loading region marks itself busy. Focus moves to a refusal. And unsent input survives a dropped connection.
+Every drawing keeps the six rules from the Standards section below. A refusal or error message states what failed and the next step. A failed save keeps the reader's input on screen. Each status is announced by its urgency. A loading region marks itself busy. Focus moves to a refusal, and unsent input survives a dropped connection.
 
 ## Standards
 
@@ -392,7 +392,7 @@ page
 
 **Rationale:** The page uses one refusal shape: a title saying what is wrong, the detail saying why, and a `Why` link where the application can explain the refusal. The refusal sentence comes from the message dictionary, not the component.
 
-**Cost:** Each refusal code needs three pieces in two languages, and every new command that can be refused adds a code. The dictionary is a second copy of the domain rules.
+**Cost:** Each refusal code needs three pieces in two languages, and every new command that can be refused adds a code. The dictionary is the second copy of the domain rules.
 
 #### `the-refusal-inside-the-dialog-that-sent-it`: The Refusal Inside the Dialog That Sent It
 
@@ -1043,7 +1043,7 @@ page
 
 **Rationale:** The reader hears nothing until the run finishes, because while it runs there is nothing to decide. A toast plus a timeline entry then answers the only two questions: did it work, and where is the evidence.
 
-**Cost:** The page stays silent while the job runs. A reader waiting for 850 records with no progress bar waits less patiently than one watching the count climb past 70%.
+**Cost:** The page stays silent while the job runs. A reader waiting for 850 records with no progress bar waits less patiently than one watching progress climb past 70%.
 
 **Reference:** GitHub Actions
 

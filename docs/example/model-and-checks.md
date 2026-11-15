@@ -1,50 +1,40 @@
 # The Model and Its Checks
 
-The project model joins the written records of a project to its code, screens, and tests, and its checks report every gap as a finding. What follows shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 28 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
+The project model joins the written records of a project to its code, screens, and tests, and its checks report every gap as a finding. What follows shows those checks on Claimwick with real output: the full run of `litespec model check` on the example, the waivers that cover its 18 findings, and the record and query commands an agent uses to load one record. Each command below was run against `examples/claimwick`, and the output is copied from that run.
 
 ## The Full Check
 
-`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, all 28 lines copied from the run, is:
+`litespec model check` builds the model in memory and reports each finding with its file, level, code, and message. Against the example it exits zero, because every finding is covered by a waiver. The full result, all 19 lines copied from the run, is:
 
 ```text
+.litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered G] [use-case-flow-missing] Use case 'use-case/reporting.list-reimbursed-expenses' sits in no flow.
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/reporting.list-reimbursed-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/reporting.list-reimbursed-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/reporting/use-cases/list-reimbursed-expenses/list-reimbursed-expenses.yaml:1 [covered G] [use-case-flow-missing] Use case 'use-case/reporting.list-reimbursed-expenses' sits in no flow.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/approve-expense/approve-expense.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.approve-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/approve-expense/approve-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.approve-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/erase-personal-data/erase-personal-data.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.erase-personal-data' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/erase-personal-data/erase-personal-data.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.erase-personal-data' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-endpoint-missing] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no endpoint carries its mark.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unimplemented] Use case 'use-case/spending.export-expenses' has no handler, reaction or job.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.export-expenses' is reached through 'entry-point/claimwick-app', but no screen calls it.
+.litespec/behavior/modules/spending/aggregates/expenses/use-cases/export-expenses/export-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.export-expenses' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/list-expenses/list-expenses.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.list-expenses' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/refuse-expense/refuse-expense.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.refuse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/refuse-expense/refuse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.refuse-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/reimburse-expense/reimburse-expense.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.reimburse-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/reimburse-expense/reimburse-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.reimburse-expense' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.submit-expense' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/expenses/use-cases/submit-expense/submit-expense.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.submit-expense' has scenarios with no passing proof.
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.change-receipt-threshold' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/policies/use-cases/change-receipt-threshold/change-receipt-threshold.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.change-receipt-threshold' has scenarios with no passing proof.
-.litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered S] [use-case-unreached] Use case 'use-case/spending.attach-receipt' is reached through 'entry-point/claimwick-app', but no screen calls it.
 .litespec/behavior/modules/spending/aggregates/receipts/use-cases/attach-receipt/attach-receipt.yaml:1 [covered A] [use-case-unverified] Use case 'use-case/spending.attach-receipt' has scenarios with no passing proof.
 .litespec/intent/flows/export-approved-expenses/export-approved-expenses.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/export-approved-expenses#s1' is served by a browser or device use case but by no screen.
 .litespec/intent/flows/set-receipt-threshold/set-receipt-threshold.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/set-receipt-threshold#s1' is served by a browser or device use case but by no screen.
-.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s1' is served by a browser or device use case but by no screen.
-.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s2' is served by a browser or device use case but by no screen.
-.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s3' is served by a browser or device use case but by no screen.
-.litespec/intent/flows/submit-and-reimburse/submit-and-reimburse.yaml:1 [covered G] [step-screen-missing] Flow step 'flow/submit-and-reimburse#s4' is served by a browser or device use case but by no screen.
-0 findings, 0 blocking, 28 covered.
+0 findings, 0 blocking, 18 covered.
 ```
 
-The 28 covered findings fall into six codes:
+The 18 covered findings fall into six codes:
 
 | Code | Count | Covered by |
 |:---|:---|:---|
-| `use-case-unreached` | 9 | `waiver/expense-screens-unimplemented` |
+| `use-case-unreached` | 3 | `waiver/expense-screens-unimplemented` |
 | `use-case-unverified` | 10 | `waiver/use-cases-unverified` |
-| `step-screen-missing` | 6 | `waiver/expense-steps-unscreened` |
+| `step-screen-missing` | 2 | `waiver/expense-steps-unscreened` |
 | `use-case-unimplemented` | 1 | `waiver/export-expenses-unimplemented` |
 | `use-case-flow-missing` | 1 | `waiver/reimbursed-list-unserved` |
 | `use-case-endpoint-missing` | 1 | `waiver/export-expenses-unexposed` |
@@ -74,7 +64,7 @@ closedBy:
 
 The `covers` list names the finding code, and the `subject` list names the record the finding is about, so the finding is reported as covered and the run passes. The `kind` states the waiver is a gap. The `exit` field states how the gap closes, `closedBy` names the record whose change closes it, and `expiresOn` sets the expiry: after 2027-06-01 the waiver stops covering the finding, and the check fails again. The date keeps unfinished work visible instead of letting it sit unnoticed.
 
-The example holds eight waivers in `.litespec/governance/waivers/`. Seven of them cover the codes in the table above; the `export-review-bypass` waiver covers a provision rather than a finding.
+The example holds eight waivers in `.litespec/governance/waivers/`. Six of them cover the codes in the table above; the `ui-requirements-proved-outside-behavior` waiver covers `intent-unreached`, and the `export-review-bypass` waiver covers a provision rather than a finding.
 
 ## Proof for the Use Cases
 

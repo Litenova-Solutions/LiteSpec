@@ -51,7 +51,7 @@ The domain fills the slots, so a floorplan invents no state, action, or refusal.
 | Actions | The use cases the current state permits |
 | Refusals | The refusal results of the use case the route calls |
 
-For example, a Claimwick expense page composes `EntityPage`. It fills the facts slot with the expense fields, the actions slot with the use cases the expense state permits, and the refusals slot with the refusal results of the called use case.
+For example, a Claimwick expense page composes `EntityPage`. It fills the facts slot with the expense fields, the state slot with the expense state, and the actions slot with the use cases the expense state permits.
 
 A floorplan exposes its name on its frame. A reviewer and the route suite read that name to learn which floorplan a route composes.
 
@@ -85,7 +85,7 @@ For example, Claimwick maps its paid state to `positive` once. Every screen that
 
 A token is a named visual value, such as a color or a border shade, that screens draw instead of writing raw values. A token role is the job that value does, such as page background or input boundary. LiteSpec names each role once. Your project supplies the values in one token file, written in the W3C Design Tokens format, version 2025.10. That file is JSON: each token carries `$value` and `$type`, and aliases use braces.
 
-Roles keep values interchangeable by judging limits instead of exact colors. The table states the limit each role meets, measured in WCAG 2 relative luminance. A color scheme is a top-level group named `light` or `dark`, and your project declares the schemes it ships. The manifest baseline values are defaults that pass every limit.
+Each role is judged by a limit instead of an exact color. The table states the limit each role meets, measured in WCAG 2 relative luminance. A color scheme is a top-level group named `light` or `dark`, and your project declares the schemes it ships. The manifest baseline values are defaults that pass every limit.
 
 | Role | Limit |
 |:---|:---|

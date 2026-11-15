@@ -151,7 +151,7 @@ The query `use-case/reporting.list-reimbursed-expenses` reads the read model und
 
 ## The External Systems
 
-The module talks to three external systems in `behavior/modules/spending/external-systems/`: the event bus, which carries the module's integration events to the modules that read them; the mail relay, which delivers the approval emails to managers; and the payout bank in `payout-bank/payout-bank.yaml`, which moves reimbursed money to employees. Claimwick sends one bank file per payout batch and reads back a settlement report. When the bank rejects a file, finance fixes the entry and sends the batch again, as the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements/clear-stuck-reimbursements.yaml` describes.
+The module talks to three external systems in `behavior/modules/spending/external-systems/`: the event bus, which carries the module's integration events to the modules that read them; the mail relay, which delivers the approval emails to managers; and the payout bank in `payout-bank/payout-bank.yaml`, which moves reimbursed money to employees. Claimwick sends one bank file per payout batch and reads back a settlement report. When a reimbursement stays queued past one business day, the operator lists the queued reimbursements and retries each one, as the runbook `implementation/modules/spending/runbooks/clear-stuck-reimbursements/clear-stuck-reimbursements.yaml` describes.
 
 ## Counting the Records
 

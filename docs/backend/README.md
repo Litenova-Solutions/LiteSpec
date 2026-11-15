@@ -8,7 +8,7 @@ A server project applies these pages through its stack, while a product without 
 
 ## How the Pages Fit Together
 
-The six principle pages directly in this folder hold for every backend. They state what each layer owns and which way references point, without naming a framework or a package. The [.NET stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. When you add a use case, read the principle page for the layer it touches first, then the matching .NET page for the binding.
+The six principle pages directly in this folder hold for every backend. They state what each layer owns and which way references point, without naming a framework or a package. The [.NET Stack](dotnet/stack.md) states how the .NET backend realizes those principles: its shared kernel and modules projects with their hosts, its C# shapes, and its Marten persistence. When you add a use case, read the principle page for the layer it touches first, then the matching .NET page for the binding.
 
 ## Backend Principles
 

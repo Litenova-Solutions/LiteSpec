@@ -11,5 +11,5 @@ languages:
 - en
 - nl
 formats:
-  money: code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+  money: code-and-the-currency-s-own-decimals
   moment: one-form-per-table-with-the-zone-stated-once

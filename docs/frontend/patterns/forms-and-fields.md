@@ -11,7 +11,7 @@ The patterns cover money, record pickers, dates, text, single choices, switches,
 
 ### How to Read a Pattern
 
-A pattern answers one question the team would otherwise answer differently on every screen, such as how a money field names its currency. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
+A pattern answers one recurring question about a field kind, such as how a money field names its currency. It opens with that question, then names its default option: the shape the project builds unless the owner records another choice. It then says how the default behaves on a narrow screen, why the default won, which alternative fits which case, and which shape to leave out.
 
 Each option is one `####` heading with a stable option ID, one wireframe drawing, and three short parts: its rationale, its cost, and sometimes a reference to the outside product it learns from. A wireframe states the structure of the option and the copy it shows, and nothing about color, font, or components: the team builds the chosen option in its own stack and design system. For example, the money field pattern draws a text input with the currency in its label as the default, and an owner who needs preset amounts records the chips option instead.
 
@@ -21,7 +21,7 @@ Each choice lands in the project's pattern catalog, the file that holds the proj
 
 The drawings follow one Claimwick expense: Ava's EUR 45.00 hotel night for a Rotterdam client visit, its EUR 5.00 booking fee, the Amsterdam sales cost centre that pays, and the trips, payouts, and approval policies around it.
 
-Every drawing keeps the eight rules from the Standards section below. Each field shows a visible label naming its value. An error appears only after the field is left, and clears as soon as the value turns valid. Each error reaches assistive technology. Each required field carries a marker. Submit stays enabled so it can reveal errors. Each field states its purpose for autocomplete. Enter is ignored while an input method still composes text. A person's name is one field accepting any script. And a refused submit keeps everything the reader typed, as [Keep the Reader's Input Through a Failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
+Every drawing keeps the eight rules from the Standards section below. Each field shows a visible label naming its value. An error appears only after the field is left, and clears as soon as the value turns valid. Each error reaches assistive technology. Each required field carries a marker. Submit stays enabled so it can reveal errors. Each field states its purpose for autocomplete. Enter is ignored while an input method still composes text. A person's name is one field accepting any script, and a refused submit keeps everything the reader typed, as [Keep the Reader's Input Through a Failure](feedback-and-states.md#keep-the-readers-input-through-a-failure) states.
 
 ## Standards
 
@@ -81,7 +81,7 @@ Every drawing keeps the eight rules from the Standards section below. Each field
 
 **Statement:** A submit control MUST stay enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.
 
-**Rationale:** A greyed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it carries the reader to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.
+**Rationale:** A grayed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it carries the reader to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.
 
 **Reviewed for:** Does any built submit control disable itself while the form holds errors? Open the built forms with errors in them and press each submit.
 
@@ -176,7 +176,7 @@ page
 
 **Reference:** HMRC
 
-#### `price-with-the-customer-facing-total-restated`: Amount with the Payout Total Restated
+#### `amount-with-the-payout-total-restated`: Amount with the Payout Total Restated
 
 ```wireframe
 page
@@ -195,7 +195,7 @@ page
 
 **Cost:** The restated total follows the typing, which a static wireframe cannot show. It also adds one line under every amount field, even where the fee is zero.
 
-#### `preset-price-chips-for-the-common-price-points`: Preset Amount Chips for the Common Amounts
+#### `preset-amount-chips-for-the-common-amounts`: Preset Amount Chips for the Common Amounts
 
 ```wireframe
 page
@@ -351,7 +351,7 @@ page
     text muted "In the Europe/Amsterdam time zone."
 ```
 
-**Rationale:** Day, month, and year each get a numeric field with the input modes and autocomplete tokens every browser renders the same. That sameness is what makes it the most accessible answer.
+**Rationale:** Day, month, and year each get a numeric field with input modes and autocomplete tokens, and every browser renders those fields the same. Together those make it the most accessible answer.
 
 **Cost:** Three fields hold one value, so 94 dates a year cost 282 numbers typed. The most accessible answer is also the slowest one to fill in.
 
@@ -1079,7 +1079,7 @@ page
 
 **Question:** A budget code takes money from one cost-centre budget: Amsterdam sales holds EUR 10,000, and every code draws from the same budget. The question is how the capacity field shows the ceiling, the split, and the refusal past it.
 
-**Default:** `a-number-with-the-warehouse-ceiling-restated`
+**Default:** `a-number-with-the-budget-ceiling-restated`
 
 **Compact:** Below the md breakpoint the ceiling field sits above the restated budget facts in one column.
 
@@ -1087,7 +1087,7 @@ page
 
 **Reviewed for:** Does every built ceiling input match the wireframe its catalog entry chose? Open the built splits, steppers, and overage messages beside the catalog entry recording the chosen option and its reason.
 
-#### `a-number-with-the-warehouse-ceiling-restated`: A Number with the Budget Ceiling Restated
+#### `a-number-with-the-budget-ceiling-restated`: A Number with the Budget Ceiling Restated
 
 ```wireframe
 page
@@ -1131,7 +1131,7 @@ page
 
 **Cost:** A row per code carries the columns a table would. At twelve codes it needs the table back, and editing still jumps to one code at a time.
 
-#### `sold-as-a-read-only-fact-beside-an-editable-cap`: Claimed as a Read-Only Fact Beside an Editable Ceiling
+#### `claimed-as-a-read-only-fact-beside-an-editable-ceiling`: Claimed as a Read-Only Fact Beside an Editable Ceiling
 
 ```wireframe
 page
@@ -1197,7 +1197,7 @@ page
 
 **Reference:** Shopify
 
-#### `the-accent-previewed-on-a-customer-button`: The Accent Previewed on an Approver Button
+#### `the-accent-previewed-on-an-approver-button`: The Accent Previewed on an Approver Button
 
 ```wireframe
 page
@@ -1612,7 +1612,7 @@ page
 
 **Reference:** Mailchimp
 
-#### `side-by-side-preview-of-the-customer-message`: Side-by-Side Preview of the Spender Message
+#### `side-by-side-preview-of-the-spender-message`: Side-by-Side Preview of the Spender Message
 
 ```wireframe
 page

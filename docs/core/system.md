@@ -96,7 +96,7 @@ Each page owns its tables and rules, and this page cites them without copying. A
 
 **Example:** The reimburse-expense handler carries a mark naming `use-case/spending.reimburse-expense`, the `Reimburse` method on the expense root carries the same mark, and the reminder event handler carries a mark naming `reaction/spending.send-approver-reminder-on-expense-submitted`.
 
-**Checked by:** `litespec model check` reports `mark-missing`, `mark-unknown` and `mark-count-invalid` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
+**Checked by:** `litespec model check` reports `mark-missing`, `mark-unknown`, and `mark-count-invalid` (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.
 
 ### Point Every Technical Class up to Its Record or Choice
 

@@ -326,7 +326,7 @@ Each LiteSpec release publishes the tool package and the site at the release ver
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** Accepted debt MUST live as a gap waiver with an `expiresOn` date, an `exit` and `closedBy`.
+**Statement:** Accepted debt MUST live as a gap waiver with an `expiresOn` date, an `exit`, and `closedBy`.
 
 **Rationale:** Accepted debt with no expiry date is forgotten work. A gap waiver with an `expiresOn` date, an `exit`, and `closedBy` turns it into a dated promise whose findings are covered until the date and whose `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape.
 

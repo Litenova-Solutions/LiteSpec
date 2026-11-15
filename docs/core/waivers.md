@@ -17,7 +17,7 @@ A waiver lives in `.litespec/governance/waivers/`, or in `.litespec/governance/m
 | `id` | yes | `waiver/<name>` |
 | `title` | yes | What is set aside, in one line. |
 | `kind` | yes | `gap` for work the team means to close, `lasting` for a choice the project keeps. |
-| `covers` | yes | A list. Each item is a provision ID (`litespec/<page>#<slug>`), a page (`litespec/<page>`) or a finding code. |
+| `covers` | yes | A list. Each item is a provision ID (`litespec/<page>#<slug>`), a page (`litespec/<page>`), or a finding code. |
 | `reason` | yes | Why the project sets the rule aside. |
 | `subject` or `paths` | one of them | The records, or the file globs from the repository root, that the waiver covers. |
 | `expiresOn` | on a gap | The date the gap closes. A lasting waiver carries no date. |
@@ -69,7 +69,7 @@ A provision of Strength `default` gives way to the project's own choice, recorde
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exit` and `closedBy`.
+**Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exit`, and `closedBy`.
 
 **Rationale:** Missing work with no date is invisible: nothing reports it. A gap waiver with an `expiresOn` date turns the same missing work into a dated promise: its `covers` findings stay covered until the date, the `exit` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
@@ -110,7 +110,7 @@ Until 2027-06-01 the `use-case-unimplemented` finding is covered and the run pas
 
 **Example:** A project that lowers LS5001 to a suggestion in its root `.editorconfig` records a waiver whose `covers` names `litespec/core/system#point-code-and-tests-up-to-records`, the provision the rule enforces.
 
-**Checked by:** `litespec model check` reports `analyzer-lowering-unrecorded` (level S) for a project-wide lowering in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable` or `[SuppressMessage]` that no live waiver covers.
+**Checked by:** `litespec model check` reports `analyzer-lowering-unrecorded` (level S) for a project-wide lowering in `.editorconfig`, `.globalconfig`, `<NoWarn>`, `#pragma warning disable`, or `[SuppressMessage]` that no live waiver covers.
 
 ### State the Kind of Every Waiver
 
@@ -152,7 +152,7 @@ Until 2027-06-01 the `use-case-unimplemented` finding is covered and the run pas
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** Two live waivers MUST NOT cover the same code, provision or page on the same subject record or the same path.
+**Statement:** Two live waivers MUST NOT cover the same code, provision, or page on the same subject record or the same path.
 
 **Rationale:** Two waivers on one finding split the reason and the end date across two records: one expires while the other still holds, and no reader can tell which waiver to close. One waiver per finding keeps each covered finding traced to exactly one reason and one end.
 

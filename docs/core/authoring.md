@@ -11,7 +11,7 @@ Every page answers those questions the same way. It uses one fixed style for its
 
 ### Page Authority
 
-Standards state required boundaries, and Conventions state replaceable defaults. Everything else on the page is informative: the lead, Concepts, Rationales, Examples, guides, tutorials, and indexes explain without obliging.
+Standards state required boundaries, and Conventions state replaceable defaults. Everything else on the page is informative: the lead, Concepts, Rationale, Examples, guides, tutorials, and indexes explain without obliging.
 
 `AGENTS.md` and a consumer's project agents file project the provisions an agent needs for that workspace: each projection cites the provision it projects and adds no obligation of its own, and when a projection and its provision disagree, the provision wins. `CONTRIBUTING.md` owns the contribution workflow, and `CHANGELOG.md` describes the current release.
 
@@ -19,7 +19,7 @@ The [Record Language](language.md) page owns the grammar for everything a projec
 
 ### Documentation Tiers
 
-A reader arrives with one question, and each page answers the question of its documentation tier. A tutorial walks toward a first working result, a how-to reaches one goal, a topic page states what holds with which values and defaults, a reference page gives exact values, and the `Underneath` section of a command page shows what the command runs.
+A reader arrives with one question, and each page answers the question of its documentation tier.
 
 | Documentation tier | Page style | The question it answers |
 |:---|:---|:---|
@@ -565,7 +565,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Statement:** Every provision heading MUST be followed by an ID line holding the provision's identity.
 
-**Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or hunting it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.
+**Rationale:** A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.
 
 **Example:** `### Keep Shared UI in One Package` on `docs/frontend/components.md` is followed by the ID line `litespec/frontend/components#keep-shared-ui-in-one-package`.
 

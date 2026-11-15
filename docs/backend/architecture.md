@@ -117,7 +117,7 @@ Behavior records map onto code in one direction: each code element carries a mar
 
 **Statement:** A reference MUST point inward, so Domain references no outer layer and WebApi composes the process.
 
-**Rationale:** Inner code names no outer code, so business rules compile and test without adapters or hosting. An outward reference drags technical concerns into Domain or coordination into Infrastructure. Application coordinates Domain, Infrastructure implements the boundaries both declare, and the reference matrix in [Dependencies](../workspace/dependencies.md) applies exactly.
+**Rationale:** Inner code names no outer code, so business rules compile and test without adapters or hosting. An outward reference would drag technical concerns into Domain or coordination into Infrastructure. Application coordinates Domain, Infrastructure implements the boundaries both declare, and the reference matrix in [Dependencies](../workspace/dependencies.md) applies exactly.
 
 **Example:** Every reference points from an outer layer to an inner one: Application names Domain, Infrastructure names both, and Domain names neither.
 

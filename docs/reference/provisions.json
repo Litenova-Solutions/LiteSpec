@@ -1775,7 +1775,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A reference MUST point inward, so Domain references no outer layer and WebApi composes the process.",
-      "rationale": "Inner code names no outer code, so business rules compile and test without adapters or hosting. An outward reference drags technical concerns into Domain or coordination into Infrastructure. Application coordinates Domain, Infrastructure implements the boundaries both declare, and the reference matrix in [Dependencies](../workspace/dependencies.md) applies exactly.",
+      "rationale": "Inner code names no outer code, so business rules compile and test without adapters or hosting. An outward reference would drag technical concerns into Domain or coordination into Infrastructure. Application coordinates Domain, Infrastructure implements the boundaries both declare, and the reference matrix in [Dependencies](../workspace/dependencies.md) applies exactly.",
       "example": "Every reference points from an outer layer to an inner one: Application names Domain, Infrastructure names both, and Domain names neither.\n\n![The four layers and their references: WebApi references Application and WebApi, and from Domain only typed identifiers and shared-kernel values; Infrastructure references Domain, Application, and Infrastructure; Application references Domain and Application; Domain references only Domain.](../assets/diagrams/backend-dependencies.svg)"
     },
     {
@@ -2793,7 +2793,7 @@
       "anchor": "keep-application-types-in-their-layer-folders",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every message, result, handler, validator, trigger, and port sit in its own use case \u0060Application/\u0060 folder or its Contracts kind folder? Check the Application and Contracts folders beside the use case folders.",
+      "evidence": "Does every message, result, handler, validator, and trigger sit in its own use case \u0060Application/\u0060 folder, and every port in an Application folder or its Contracts kind folder? Check the Application and Contracts folders beside the use case folders.",
       "stack": "dotnet",
       "concern": "application",
       "artifact": "any",
@@ -5548,7 +5548,7 @@
       "anchor": "record-a-delegated-grant-inside-one-tenant-as-a-role-assignment",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every delegated or temporary grant inside one tenant sit on a role assignment with \u0060validFrom\u0060, \u0060validUntil\u0060, and the bound scope instance, with its own granting and revoking use cases? Check the assignments beside the actor holds and the use cases that act under them.",
+      "evidence": "Does every delegated or temporary grant inside one tenant sit on a role assignment with \u0060validFrom\u0060, \u0060validUntil\u0060, and the bound scope instance on an aggregate the access model reads, with its own granting and revoking use cases? Check the assignments beside the actor holds and the use cases that act under them.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case, record:aggregate",
@@ -5584,7 +5584,7 @@
       "anchor": "remove-a-target-that-must-be-the-caller",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which use cases still read a target identifier from their input when the guard allows only the signed-in person? Check their inputs and handlers beside the self grants.",
+      "evidence": "Which use cases name a caller-owned target in their inputs without a self grant the guard enforces, or compare the caller with a target in a handler? Check their inputs and handlers beside the self grants.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case",
@@ -6582,7 +6582,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every provision heading MUST be followed by an ID line holding the provision\u0027s identity.",
-      "rationale": "A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or hunting it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.",
+      "rationale": "A reader who cites a provision copies its ID from where the provision stands, instead of deriving a slug by hand or looking it up elsewhere. The ID line is the identity: a heading may change without changing it, so an ID line that reads differently from its heading still holds.",
       "example": "\u0060### Keep Shared UI in One Package\u0060 on \u0060docs/frontend/components.md\u0060 is followed by the ID line \u0060litespec/frontend/components#keep-shared-ui-in-one-package\u0060."
     },
     {
@@ -8040,7 +8040,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each inbound integration event MUST name how it arrives in \u0060arrivesThrough\u0060.",
-      "rationale": "An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, and trust scatters across the code. Naming the arrival gives each inbound fact one entry with one auth, where trust and correlation hold. That is either the \u0060webhook\u0060 entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).",
+      "rationale": "An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, and trust scatters across the code. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the \u0060webhook\u0060 entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).",
       "example": "Claimwick\u0027s receipt-scan-available event names the scanning provider webhook entry point in \u0060arrivesThrough\u0060, and the payout-settled event names the payout bank stream the spending module subscribes to."
     },
     {
@@ -8122,7 +8122,7 @@
       "anchor": "state-the-outcome-of-every-outside-call",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an external-system operation without separated \u0060rejected\u0060, \u0060accepted\u0060 and \u0060unknown\u0060 outcomes or with an \u0060unknown\u0060 case naming no \u0060onUnknown\u0060 handling.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060record-invalid\u0060 for an external-system operation without separated \u0060rejected\u0060, \u0060accepted\u0060, and \u0060unknown\u0060 outcomes or with an \u0060unknown\u0060 case naming no \u0060onUnknown\u0060 handling.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:external-system",
@@ -8202,7 +8202,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A problem MUST name in \u0060affects\u0060 a primary sufferer that is a person or organization actor outside the team building the product, and state the pain in \u0060summary\u0060 and \u0060statement\u0060 in fields.",
-      "rationale": "A problem is a pain someone outside the team has today. The first \u0060affects\u0060 entry is the primary sufferer, so who has the pain is the first fact a reader meets. The \u0060statement\u0060 names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the \u0060summary\u0060 states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a plan limit written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.",
+      "rationale": "A problem is a pain someone outside the team has today. The first \u0060affects\u0060 entry is the primary sufferer, so who has the pain is the first fact a reader meets. The \u0060statement\u0060 names the sufferer, the condition, and the consequence in one sentence, with the product never as its subject; the \u0060summary\u0060 states the pain in one paragraph: when it happens and what the person was trying to do, never a bare pointer to another page. Content that is no problem goes to its own record: a solution in disguise becomes a feature, a worry about what might happen becomes a decision or a goal, an internal limit becomes a limit on the plan written outside Intent, a market fact becomes research, and a legal duty becomes a constraint.",
       "example": "In the library product, readers losing track of due dates is a problem whose primary sufferer is the reader. The library having too few staff for the summer is an internal limit, not a problem."
     },
     {
@@ -12001,7 +12001,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Accepted debt MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060.",
+      "statement": "Accepted debt MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060, and \u0060closedBy\u0060.",
       "rationale": "Accepted debt with no expiry date is forgotten work. A gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060, and \u0060closedBy\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060waiver-expired\u0060 reports after it. The [waivers page](waivers.md) states the waiver shape.",
       "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a gap waiver with an \u0060expiresOn\u0060 of 2027-03-01, an \u0060exit\u0060, and \u0060closedBy\u0060 naming \u0060use-case/spending.export-expenses\u0060; \u0060waiver-expired\u0060 reports it after that date."
     },
@@ -12786,7 +12786,7 @@
       "anchor": "point-code-and-tests-up-to-records",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060, \u0060mark-unknown\u0060 and \u0060mark-count-invalid\u0060 (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060mark-missing\u0060, \u0060mark-unknown\u0060, and \u0060mark-count-invalid\u0060 (check level S) for a code element with no mark, a mark naming no record of the type its element takes, or a handler marking other than one record.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -13275,7 +13275,7 @@
       "anchor": "name-a-use-case-for-the-act-its-aggregate-performs",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every command handler call an aggregate method starting with the use-case verb or \u0060Request\u0060? Look at the methods each command handler calls.",
+      "evidence": "Does every aggregate method a command handler calls start with the use-case verb or \u0060Request\u0060? Look at the methods each command handler calls.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:use-case",
@@ -13529,7 +13529,7 @@
       "anchor": "retire-refusal-codes-with-their-replacements",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Is every retired refusal code retired with a named replacement and never reused? Look at the refusal codes beside their results.",
+      "evidence": "Which refusal codes in use were renamed or reused instead of retired with a named replacement? Look at the refusal codes beside their results.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:result",
@@ -13754,7 +13754,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "Two live waivers MUST NOT cover the same code, provision or page on the same subject record or the same path.",
+      "statement": "Two live waivers MUST NOT cover the same code, provision, or page on the same subject record or the same path.",
       "rationale": "Two waivers on one finding split the reason and the end date across two records: one expires while the other still holds, and no reader can tell which waiver to close. One waiver per finding keeps each covered finding traced to exactly one reason and one end.",
       "example": "Claimwick covers the unimplemented export with the one waiver \u0060waiver/export-expenses-unimplemented\u0060; a second waiver naming \u0060use-case-unimplemented\u0060 on \u0060use-case/spending.export-expenses\u0060 reports \u0060waiver-duplicate\u0060."
     },
@@ -13801,7 +13801,7 @@
       "anchor": "record-a-project-wide-lowering-as-a-waiver",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060 or \u0060[SuppressMessage]\u0060 that no live waiver covers.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060analyzer-lowering-unrecorded\u0060 (level S) for a project-wide lowering in \u0060.editorconfig\u0060, \u0060.globalconfig\u0060, \u0060\u003CNoWarn\u003E\u0060, \u0060#pragma warning disable\u0060, or \u0060[SuppressMessage]\u0060 that no live waiver covers.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:waiver",
@@ -13826,7 +13826,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060.",
+      "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060, and \u0060closedBy\u0060.",
       "rationale": "Missing work with no date is invisible: nothing reports it. A gap waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise: its \u0060covers\u0060 findings stay covered until the date, the \u0060exit\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
       "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\nclosedBy:\n  - use-case/spending.export-expenses\n\u0060\u0060\u0060\n\nUntil 2027-06-01 the \u0060use-case-unimplemented\u0060 finding is covered and the run passes, which satisfies this provision."
     },
@@ -16798,7 +16798,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A production incident fix that ships before its records are updated MUST carry a gap waiver expiring within seven days.",
-      "rationale": "A production incident ships its fix at once, before the records catch up. The gap waiver records what shipped and why, and naming the records to update in \u0060closedBy\u0060. Those records are updated before the waiver expires, and an expired waiver is a blocking finding, so the gap stays visible until the records close it.",
+      "rationale": "A production incident ships its fix at once, before the records catch up. The gap waiver records what shipped and why, and names the records to update in \u0060closedBy\u0060. Those records are updated before the waiver expires, and an expired waiver is a blocking finding, so the gap stays visible until the records close it.",
       "example": ""
     },
     {
@@ -21398,7 +21398,7 @@
       "anchor": "use-signalr-for-interactive-messaging",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every bidirectional use case run on SignalR groups, messages, and fallback? Read each use case\u0027s hub code.",
+      "evidence": "Does every bidirectional use case run on SignalR? Read each use case\u0027s hub code.",
       "stack": "any",
       "concern": "infrastructure",
       "artifact": "record:notification",
@@ -25222,7 +25222,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060a-number-with-the-warehouse-ceiling-restated\u0060",
+      "statement": "\u0060a-number-with-the-budget-ceiling-restated\u0060",
       "rationale": "The default is the number with the budget ceiling restated. One field, the budget it draws from, and what is left sit on the same screen. The runner-up is the split across codes; prefer it on the budget page, where the question is the whole budget rather than one code. Claimed as a read-only fact beside an editable ceiling is the other alternative where claimed must never be typed. A capacity with no ceiling stated stays out: a number without its budget is a number that overspends.",
       "example": ""
     },
@@ -25349,7 +25349,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A submit control MUST stay enabled while the form holds errors, so pressing it moves focus to the summary or the first field in error.",
-      "rationale": "A greyed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it carries the reader to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.",
+      "rationale": "A grayed-out submit button gives no reason and no way forward. A submit that stays enabled can be pressed, and pressing it carries the reader to the summary or to the first field in error, which names what to fix. The form still refuses the submit, and keeps every entered value.",
       "example": ""
     },
     {
@@ -25798,7 +25798,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060expand-to-the-order-lines\u0060",
+      "statement": "\u0060expand-to-the-expense-lines\u0060",
       "rationale": "Expansion shows the expense lines: what the spender claimed, which is the question asked from the list. The runner-up adds decision state to the lines; prefer it on the decision list, where handover is the work. Never ship expand-all: twenty expanded rows make a page nobody can scan, and one click fires a read per row.",
       "example": ""
     },
@@ -25924,7 +25924,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060the-order-column-pinned-while-the-rest-scroll\u0060",
+      "statement": "\u0060the-expense-column-pinned-while-the-rest-scroll\u0060",
       "rationale": "The expense column stays pinned while the rest scroll: the row stays named at any scroll position, and it costs no control. The runner-up pins the actions too; prefer it once rows carry inline commands that must stay reachable. Never ship draggable widths in a first release: per-user widths are stored state that support cannot see and screenshots cannot hold.",
       "example": ""
     },
@@ -25953,7 +25953,7 @@
       "anchor": "row-density",
       "kind": "pattern",
       "mark": "guidance",
-      "evidence": "Does the built row height match the wireframe the catalog entry chose? Open the built 24, 32, and 40 pixel rows beside the catalog entry recording the chosen option and its reason.",
+      "evidence": "Does the built row height match the wireframe the catalog entry chose? Open the built 24 and 40 pixel rows beside the catalog entry recording the chosen option and its reason.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "",
@@ -25961,7 +25961,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u006040-pixels-the-default\u0060",
-      "rationale": "Stay at 40 pixels: two lines fit, the row scans, and it matches the default size. The runner-up is 32 pixels, for a working queue where every row is read once and acted on. Never ship a density control the reader sets: most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.",
+      "rationale": "Stay at 40 pixels: two lines fit, the row scans, and it matches the default size. The runner-up is 24 pixels, for a working queue where every row is read once and acted on. Never ship a density control the reader sets: most readers set it once, and a screenshot suite then holds three versions of every page. The phone answer is a record list.",
       "example": ""
     },
     {
@@ -26194,7 +26194,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060kpis-in-pairs-with-the-orders-under-them\u0060",
+      "statement": "\u0060kpis-in-pairs-with-the-expenses-under-them\u0060",
       "rationale": "Ship the two-column KPI pair with the record list under it: the figures of the day stay visible and every expense keeps its amount right-aligned. The runner-up is the aligned statement, and it fits finance pages where the adding up is the point. Never ship the desktop table unchanged at 390 pixels: a table that scrolls sideways for its money column hides the answer.",
       "example": ""
     },
@@ -26248,7 +26248,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060a-bar-with-sold-held-and-left-in-words\u0060",
+      "statement": "\u0060a-bar-with-claimed-held-and-left-in-words\u0060",
       "rationale": "Ship the progress bar with claimed, held, and left in words: one glance says how far the budget has burned and what is still movable. The runner-up is the per-kind spend table, and it fits when one kind is gone and the others are not. Never ship the countdown alone: EUR 468 left without the budget size hides whether the budget is nearly gone or barely touched.",
       "example": ""
     },
@@ -26338,7 +26338,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060the-vat-split-under-the-order-total\u0060",
+      "statement": "\u0060the-vat-split-under-the-expense-total\u0060",
       "rationale": "Ship the VAT split under the expense total: the spender total stays one figure and the books get both rates. The runner-up is the per-rate report with taxable bases, and it fits quarter end when finance files the return. Never ship amounts with no VAT note at all: a lawful amount states what the tax is.",
       "example": ""
     },
@@ -26374,7 +26374,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060upcoming-payouts-with-the-sales-each-one-holds\u0060",
+      "statement": "\u0060upcoming-payouts-with-the-expenses-each-one-holds\u0060",
       "rationale": "Ship the list of upcoming payouts with the expenses each one holds: the company sees what goes out and when in one place. The runner-up is the past payouts table with bank references, and it fits finance reconciling against the bank. Never ship the single next-payout tile as the page: one arrival without the ones after it cannot plan a month.",
       "example": ""
     },
@@ -26410,7 +26410,7 @@
       "layer": "implementation",
       "trace": false,
       "strength": "default",
-      "statement": "\u0060code-and-two-decimals-in-the-reader-s-language-with-a-true-m\u0060",
+      "statement": "\u0060code-and-the-currency-s-own-decimals\u0060",
       "rationale": "Ship the code format in the reader\u0027s language with a true minus. It keeps one convention and settles decimals, negatives, and separators at once: each currency shows the decimals it defines. The runner-up is the plain code table, which shows the same choice without reversal rows. The entry point names the option its screens render in \u0060formats.money\u0060. Choose the symbol with the code in the header only when the finance screens and the spender screens show the same form. Never ship the no-currency option: it loses the currency in exports. Never ship mixed decimals: they break the alignment tables exist for.",
       "example": ""
     },

@@ -4,7 +4,7 @@ Claimwick is the product this example follows: employees submit work expenses wi
 
 ## The Product Brief
 
-A product record states what is built and for whom. The Claimwick brief names its boundary, the actors it serves, and the outcome, in one paragraph. Its file is `.litespec/product.yaml`:
+A product record states what is built and for whom. The Claimwick brief names its boundary, the actors it addresses, and the outcome, in one paragraph. Its file is `.litespec/product.yaml`:
 
 ```yaml
 type: product
@@ -128,7 +128,7 @@ The explanation file, `.litespec/intent/decisions/0001-receipt-threshold/0001-re
 
 A constraint states one outside rule, the source it rests on, and whether it applies to the product. Claimwick answers the national tax law on receipts in `.litespec/intent/constraints/tax-receipt-retention/tax-receipt-retention.yaml`: the law keeps business receipts for seven years. The record's `sources` list names the law with its key, its URL, and the day it was read, and the rule applies because the product stores receipts for reimbursed expenses.
 
-The explanation file holds Scope, Rules, Effect on the Product, and Open Points. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that carry the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`. Each of them cites this constraint back, so the retention rule traces to the outside law that demands it.
+The explanation file holds Scope, Rules, and Effect on the Product. Its Rules paragraph cites the law by its key as a reference link, and `model render` writes that link's definition into the file. Its Effect on the Product names the two requirements that carry the rule's effect, `requirement/approval.above-threshold-receipt` and `requirement/approval.erased-after-retention`. Each of them cites this constraint back, so the retention rule traces to the outside law that demands it.
 
 ## The Flow
 

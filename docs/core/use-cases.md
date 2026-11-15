@@ -224,7 +224,7 @@ The `setting-set` page style holds many settings. A setting set carries `summary
 
 **Example:** `use-case/orders.void-order` whose handler calls `Abandon` is reported. The project renames the use case to the domain word, or the method and its event to `Void` and `OrderVoidedEvent`.
 
-**Reviewed for:** Does every command handler call an aggregate method starting with the use-case verb or `Request`? Look at the methods each command handler calls.
+**Reviewed for:** Does every aggregate method a command handler calls start with the use-case verb or `Request`? Look at the methods each command handler calls.
 
 ### Connect Each Use Case to Intent
 
@@ -616,7 +616,7 @@ The `setting-set` page style holds many settings. A setting set carries `summary
 
 **Example:** The retired `spending.receipt-missing` result names `spending.receipt-absent` as its replacement. No later refusal reuses the old code.
 
-**Reviewed for:** Is every retired refusal code retired with a named replacement and never reused? Look at the refusal codes beside their results.
+**Reviewed for:** Which refusal codes in use were renamed or reused instead of retired with a named replacement? Look at the refusal codes beside their results.
 
 ### Order Every Refusal List by Precedence
 

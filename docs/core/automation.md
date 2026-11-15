@@ -15,7 +15,7 @@ The [Behavior overview](behavior.md) places automation among the five Behavior p
 
 A reaction answers an event. When a domain event or an integration event arrives, the reaction runs. It carries the identifier `reaction/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/reactions/<name>/<name>.yaml`, filed with the module whose records the reaction changes, or with the module that owns the notification when the reaction only sends one.
 
-A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it. The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes the trigger under Trigger, the effect under Effect, and the failure handling under Failure Handling, with an optional Example.
+A reaction changes nothing directly. When a change is needed, the reaction runs a small command that makes it. The name follows `<verb>-<what>-on-<fact>`, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes the trigger and effect under Trigger and Effect, and the failure handling under Failure Handling, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
@@ -36,7 +36,7 @@ When one event carries several outcomes, one reaction cannot serve them all: it 
 
 A job runs on a schedule or once, with no event to answer. It carries the identifier `job/<module>.<name>` and lives at `.litespec/behavior/modules/<module>/jobs/<name>/<name>.yaml`, filed with the module whose records it changes, or with the module that owns the notification when it only sends one. Work that a person starts by hand is not a job: it is a command, and its entry point and access state who starts it.
 
-A job changes nothing directly. When a change is needed, the job runs a small command that makes it. The name follows `<verb>-<what>`, using the verb of the use case it runs, or its own verb when it runs no use case, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes the trigger under Trigger, the effect under Effect, and the failure handling under Failure Handling, with an optional Example.
+A job changes nothing directly. When a change is needed, the job runs a small command that makes it. The name follows `<verb>-<what>`, using the verb of the use case it runs, or its own verb when it runs no use case, as the [record language](language.md) defines. The record carries `summary`, and the explanation file beside it describes how each run starts and what it covers under Invocation, and the failure handling under Failure Handling, with an optional Example.
 
 | Field | Meaning |
 |:---|:---|
@@ -66,7 +66,7 @@ The name describes the thing the model keeps one row per, as a singular noun phr
 | `freshness` | How stale a reader may see a row: `{ mode, within, decidedBy }` with `mode` of `immediate`, `snapshot`, or `eventual`, `within` an ISO 8601 duration, and `decidedBy` naming the command use case or aggregate that decides the row at write time, as on query output groups. |
 | `terms` | The glossary terms used, optional. |
 
-In code, a read model is a set of projections with one reader. There is one projection per source integration event, and each projection writes only its own read model. The module's use cases read through the reader. Each projection and the reader marks itself with `implements read-model/<module>.<name>`.
+In code, a read model is a set of projections with one reader. There is one projection per source integration event, and each projection writes only its own read model. The module's use cases read through the reader. Each projection and the reader mark themselves with `implements read-model/<module>.<name>`.
 
 The copy stays sound under retry and rebuild. Every source event carries an identity, so a redelivery never counts twice. The `latest` accumulation compares source versions, not arrival order, and corrections arrive as events. A rebuild replays retained events from the start, and staleness is measured from the source event's time.
 

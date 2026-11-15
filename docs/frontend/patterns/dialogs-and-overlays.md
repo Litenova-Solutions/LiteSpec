@@ -402,7 +402,7 @@ page
     action primary "Message the spender"
 ```
 
-**Rationale:** The recommended shape. The list is untouched and narrowed, the record holds facts, and the way out leads back to the full record. Nothing in the drawer is editable, so it cannot become a task.
+**Rationale:** The default shape. The list is untouched and narrowed, the record holds facts, and the way out leads back to the full record. Nothing in the drawer is editable, so it cannot become a task.
 
 **Cost:** A 420-pixel drawer on a 1440 screen leaves the list about 900 wide, which fits five columns and not eight. The screen then holds two navigations side by side, the list and the drawer.
 
@@ -608,7 +608,7 @@ page
       action "Cancel"
 ```
 
-**Rationale:** The recommended shape groups the items under small headings and puts the destructive one at the end, after a separator, in the destructive tone. Nothing is disabled without a reason.
+**Rationale:** The default shape groups the items under small headings and puts the destructive one at the end, after a separator, in the destructive tone. Nothing is disabled without a reason.
 
 **Cost:** A menu item that is disabled gives no reason in the menu itself. The reader has to hover or press it to learn why.
 

@@ -938,7 +938,7 @@ page
     action primary "Open the exceptions"
 ```
 
-**Rationale:** A wall display carries one number with the exceptions count beside it: 554 paid, 1 needs a person. There is no navigation, and one action opens the exceptions if needed. Nothing else misreads from three metres away.
+**Rationale:** A wall display carries one number with the exceptions count beside it: 554 paid, 1 needs a person. There is no navigation, and one action opens the exceptions if needed. Nothing else misreads from three meters away.
 
 **Cost:** A display is not a workplace for decisions. It answers how many, and most work needs a phone.
 

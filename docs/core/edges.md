@@ -84,7 +84,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 | Field | Meaning |
 |:---|:---|
-| `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; direction is `out` or `in`, `retries` is optional prose. The outcome handling separates `rejected`, `accepted` and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
+| `operations` | `{ name, direction, timeout, onTimeout, retries, response, cache, rejected, accepted, unknown }` entries; direction is `out` or `in`, `retries` is optional prose. The outcome handling separates `rejected`, `accepted`, and `unknown`; the `unknown` case names its handling in `onUnknown` as `dedupe-key`, `reconcile`, or `retry-safe`. |
 | `erasure` | `{ "mode": "call", "operation": "external-system/<name>#<operation>" }`, `{ "mode": "event", "event": "integration-event/<name>" }`, or `{ "mode": "unsupported" | "manual" | "not-applicable", "reason": "..." }` with `basedOn`. `unsupported` means the operator cannot remove the data, `manual` means people remove it outside the product, and `not-applicable` means the system holds no personal data after the product sends it. |
 | `processes` | The aggregates and data classes the system holds, as `{ aggregate, dataClass }` entries. |
 
@@ -148,7 +148,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Statement:** Each inbound integration event MUST name how it arrives in `arrivesThrough`.
 
-**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, and trust scatters across the code. Naming the arrival gives each inbound fact one entry with one auth, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
+**Rationale:** An inbound fact with no stated arrival is accepted anywhere: each handler invents its own intake, and trust scatters across the code. Naming the arrival gives each inbound fact one entry point with one auth, where trust and correlation hold. That is either the `webhook` entry point a provider calls or the external system whose broker or stream the module subscribes to. Settled by [decision/0075-draw-the-boundary-around-outside-traffic](decision/0075-draw-the-boundary-around-outside-traffic).
 
 **Example:** Claimwick's receipt-scan-available event names the scanning provider webhook entry point in `arrivesThrough`, and the payout-settled event names the payout bank stream the spending module subscribes to.
 
@@ -398,7 +398,7 @@ Its erasure position states how personal data leaves it: `{ "mode": "call", "ope
 
 **Example:** Claimwick's payout-bank charge operation names `rejected` for a refused charge, `accepted` for a queued payout, and `unknown` with `onUnknown: dedupe-key` for a timeout retried with the provider key.
 
-**Checked by:** `litespec model check` reports `record-invalid` for an external-system operation without separated `rejected`, `accepted` and `unknown` outcomes or with an `unknown` case naming no `onUnknown` handling.
+**Checked by:** `litespec model check` reports `record-invalid` for an external-system operation without separated `rejected`, `accepted`, and `unknown` outcomes or with an `unknown` case naming no `onUnknown` handling.
 
 ## Conventions
 

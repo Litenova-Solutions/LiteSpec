@@ -10,7 +10,7 @@ LiteSpec is a standard for specification-driven development of one bounded-conte
 
 ### The Four Project Choices
 
-Four choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it: size, shape, stacks, and layers. Size is the record set the project carries. Shape is the deployment boundary. A stack is the technology choice for the backend or for one frontend. Layers are the record layers the project claims, and whose practice it follows in each. You declare all four before writing anything else, so agents and checks apply exactly the pages you selected.
+Four choices in `.litespec/project.yaml` decide everything the project must produce and every page that applies to it: size, shape, stacks, and layers. Size is the record set the project carries. Shape is the deployment boundary. A stack is the technology choice for the backend or for one frontend. Layers are the record layers the project claims, with the practice it follows in each. You declare all four before writing anything else, so agents and checks apply exactly the pages you selected.
 
 A small project carries the core record types, proved by Architecture and Integration test projects. A large project adds goals, problems, features, flows, and scenarios, proved by the Acceptance project as well. A project with one web frontend and no flows fits small. The running Claimwick example needs flows, so it selects large.
 

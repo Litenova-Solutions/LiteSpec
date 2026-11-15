@@ -2,7 +2,7 @@
 
 ## Audience
 
-You maintain the Roslyn analyzers in `apps/analyzers/`. You need this page when you maintain the package: adding a rule, changing what a rule reports, changing how layers resolve, or shipping a release. It shows which file owns each behavior, how to add a rule from start to finish, how the tests prove a rule, and how to verify the package against a real project.
+You maintain the Roslyn analyzers in `apps/analyzers/`: adding a rule, changing what a rule reports, changing how layers resolve, or shipping a release. This page shows which file owns each behavior, how to add a rule from start to finish, how the tests prove a rule, and how to verify the package against a real project.
 
 ## What It Is
 

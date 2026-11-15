@@ -2218,7 +2218,7 @@ $defs:
             description: The option of the Writing an Amount pattern the entry point renders.
             enum:
             - code-and-decimals-with-the-column-totals-at-the-foot
-            - code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+            - code-and-the-currency-s-own-decimals
             - money-out-in-red-with-a-true-minus
           moment:
             description: The option of the Writing a Moment pattern the entry point renders.
@@ -3745,7 +3745,7 @@ $defs:
             description: The option of the Writing an Amount pattern the entry point renders.
             enum:
             - code-and-decimals-with-the-column-totals-at-the-foot
-            - code-and-two-decimals-in-the-reader-s-language-with-a-true-m
+            - code-and-the-currency-s-own-decimals
             - money-out-in-red-with-a-true-minus
           moment:
             description: The option of the Writing a Moment pattern the entry point renders.

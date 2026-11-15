@@ -201,7 +201,7 @@ page
     text muted "412 expenses under this policy"
 ```
 
-**Rationale:** Four facets in tabs sits inside the ceiling of six every cited system allows. GOV.UK also asks for a heading inside each panel repeating the tab label, and the Details tab does that.
+**Rationale:** Four facets in tabs sit inside the ceiling of six every cited system allows. GOV.UK also asks for a heading inside each panel repeating the tab label, and the Details tab does that.
 
 **Cost:** A reader cannot see two facets at once, and GOV.UK calls tabs the wrong choice when comparing across facets is the job.
 
