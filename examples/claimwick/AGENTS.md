@@ -12,7 +12,7 @@ Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#
 
 Follow one order on every task: query the model for the records, run `litespec rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code. (litespec/core/agent#select-task-context, litespec/core/agent#load-applicable-provisions-before-editing, litespec/core/agent#inspect-local-examples-after-standards)
 
-`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
+`litespec model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. Find records by text with `litespec model query --search <text>` and list every record of a type with `litespec model query --list <type>`. (litespec/core/agent#select-task-context)
 
 Run `litespec rules <path>` before editing a file. (litespec/core/agent#load-applicable-provisions-before-editing)
 
@@ -26,7 +26,9 @@ Never delete, skip, or weaken a test that proves a scenario, or change its expec
 
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
 
-A project waiver record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)
+Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one. (litespec/core/model#mark-every-check-with-its-level)
+
+A project waiver record sets a Standard aside only when it names the provision ID, states its kind, and, for a gap, names the expiry date, the exit and the closing records in `closedBy`. (litespec/core/agent#apply-guidance-precedence, litespec/core/waivers#state-the-kind-of-every-waiver, litespec/core/waivers#name-the-records-that-close-a-gap)
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
@@ -43,7 +45,7 @@ Run metadata and model checks for each changed record, source, or test. Run `dot
 
 Compose each route from one floorplan in the frontend `packages/ui/DESIGN.md`, or name the decision behind a freestyle route. (litespec/frontend/ui#compose-each-route-from-one-floorplan, litespec/frontend/ui#record-a-freestyle-route)
 
-Cite every path of every use case a route calls in a test title, or record an exclusion with its reach. (litespec/core/edges#show-every-refusal-a-screen-can-reach)
+Reach each declared refusal in an evidence specification and assert it by its result's code. (litespec/frontend/testing#assert-each-declared-refusal-by-its-code)
 
 Run `dotnet litespec model check` after changing UI configuration, the design contract, source locks, CSS, or primitives. Run the route suite after changing a route. (litespec/frontend/ui#prove-ui-behavior-and-appearance, litespec/frontend/ui#check-every-route)
 

@@ -52,7 +52,7 @@ Each changed boundary adds the checks written for it. A change that touches seve
 
 ### Debt, Gaps, and the First Release
 
-Accepted debt never sits as an untracked compromise: it lives as a waiver record with an expiry date, whose findings are covered until the date and whose `waiver-expired` reports after it. The [model page](model.md) states the waiver shape. Governance is a group of records beside the four record layers, not a fifth layer.
+Accepted debt never sits as an untracked compromise: it lives as a gap waiver with an expiry date, an exit and closing records, whose findings are covered until the date and whose `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape. Governance is a group of records beside the four record layers, not a fifth layer.
 
 A release record binds evidence to one artifact, so a product with no artifact yet has nothing to record in one. Before its first production release, the consumer keeps a readiness record instead, with dated rehearsals, green gates, and a backup and restore rehearsal.
 
@@ -310,13 +310,13 @@ A consumer adopts one LiteSpec release by installing the `LiteSpec.Cli` tool pac
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** Accepted debt MUST live as a waiver record with an expiry date.
+**Statement:** Accepted debt MUST live as a gap waiver with an `expiresOn` date, an `exit` and `closedBy`.
 
-**Rationale:** Accepted debt with no expiry date is forgotten work. A waiver with an `expiresOn` and `exit` turns it into a dated promise whose findings are covered until the date and whose `waiver-expired` reports after it. The [model page](model.md) states the waiver shape.
+**Rationale:** Accepted debt with no expiry date is forgotten work. A gap waiver with an `expiresOn` date, an `exit` and `closedBy` turns it into a dated promise whose findings are covered until the date and whose `waiver-expired` reports after it. The [waivers page](waivers.md) states the waiver shape.
 
-**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as a waiver with an `expiresOn` of 2027-03-01 and an `exit`; `waiver-expired` reports it after that date.
+**Example:** Claimwick ships month-end export without its archive proof, so the debt lives as a gap waiver with an `expiresOn` of 2027-03-01, an `exit` and `closedBy` naming `use-case/spending.export-expenses`; `waiver-expired` reports it after that date.
 
-**Reviewed for:** Which accepted debts lack a waiver with an expiry date? Look at the waivers beside each debt.
+**Reviewed for:** Which accepted debts lack a gap waiver with an expiry date, an exit and `closedBy`? Look at the waivers beside each debt.
 
 ### State Each Release as a Complete Record
 

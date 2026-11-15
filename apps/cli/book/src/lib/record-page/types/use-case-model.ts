@@ -3,7 +3,7 @@
 // linked records; the model reads only values.
 
 import type { BookRecord, RecordFields } from "$lib/frame";
-import { freshnessNoteHtml, isRecord, objectList, pagingRows, stringField, useCaseFields } from "../page-values";
+import { freshnessDecidedBy, freshnessNoteHtml, isRecord, objectList, pagingRows, stringField, useCaseFields } from "../page-values";
 
 /** One result linked from a use case, with its record resolved. */
 export interface UseCaseResultInput {
@@ -24,6 +24,7 @@ export interface UseCaseOutputSection {
   key: string;
   classification: string;
   freshnessHtml: string;
+  decidedBy: string | null;
   fields: { name: string; meaning: string }[];
 }
 
@@ -66,6 +67,7 @@ export function useCaseModel(f: RecordFields, r: BookRecord, results: UseCaseRes
         key: k,
         classification: stringField(g, "classification") ?? "internal",
         freshnessHtml: g.freshness ? freshnessNoteHtml(g) : "",
+        decidedBy: freshnessDecidedBy(g) ?? null,
         fields: objectList(g, "fields").map((x) => ({
           name: stringField(x, "name") ?? "",
           meaning: stringField(x, "meaning") ?? "",

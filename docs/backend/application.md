@@ -53,7 +53,7 @@ Every edge between use cases, reactions, jobs, notifications, integration events
 
 **Rationale:** Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend's whole command and query split depends on that difference.
 
-The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records a waiver from the binding convention rather than touching this rule.
+The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library names its own dispatch entry points in its Application documentation rather than touching this rule.
 
 **Reviewed for:** Which dispatch sites call a unified bus instead of the command or query entry point? Look at each dispatch site.
 

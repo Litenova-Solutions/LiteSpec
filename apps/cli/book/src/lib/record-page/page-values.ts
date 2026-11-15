@@ -198,11 +198,16 @@ export function jobFields(f: RecordFields): JobFields {
 export interface ReactionFields {
   triggeredBy: unknown;
   skippedWhen?: string;
+  compensates?: string;
 }
 
 /** The fields the reaction renderer reads, through the typed readers. */
 export function reactionFields(f: RecordFields): ReactionFields {
-  return { triggeredBy: f.triggeredBy, skippedWhen: stringField(f, "skippedWhen") };
+  return {
+    triggeredBy: f.triggeredBy,
+    skippedWhen: stringField(f, "skippedWhen"),
+    compensates: stringField(f, "compensates"),
+  };
 }
 
 /** The fields the aggregate renderer reads. */
@@ -301,6 +306,12 @@ export function freshnessNoteHtml(g: RecordFields) {
   const mode = stringField(f, "mode");
   const within = stringField(f, "within");
   return esc(capitalize(modeWord(mode))) + (within ? ", within " + duration(within) : "");
+}
+
+/** The record that re-decides a stale figure, from its freshness value. */
+export function freshnessDecidedBy(g: RecordFields): string | undefined {
+  const f = objectField(g, "freshness");
+  return f ? stringField(f, "decidedBy") : undefined;
 }
 
 export function pagingRows(f: RecordFields): { label: string; html: string }[] | null {

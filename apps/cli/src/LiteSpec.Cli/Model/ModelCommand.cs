@@ -462,9 +462,9 @@ static class ModelCommand
         return (findings, covered);
     }
 
-    /// <summary>The module names the module records declare.</summary>
+    /// <summary>Every module the model holds: each declared module and each module folder holding records.</summary>
     /// <param name="model">The built project model holding the module records.</param>
-    /// <returns>The declared module names.</returns>
+    /// <returns>The declared and folder module names.</returns>
     static HashSet<string> KnownModules(ProjectModel model)
     {
         var known = new HashSet<string>(StringComparer.Ordinal);
@@ -476,6 +476,11 @@ static class ModelCommand
                 && name.Length > 0)
             {
                 known.Add(name);
+            }
+
+            if (!record.Derived && record.Module is { Length: > 0 } folder)
+            {
+                known.Add(folder);
             }
         }
 

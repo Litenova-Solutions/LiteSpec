@@ -25,6 +25,8 @@ Each row of the jobs table is one CI job, and every job is a gate: when the job 
 
 A project that selects the [Delivery extension](../ext/delivery.md) adds the mutation, supply-chain and release jobs that extension states, with the same selection and promotion rules.
 
+The model job runs `litespec model check`, which blocks on the planned-Intent findings and every link finding in every run, local or in the pull-request check, as [Check Levels](../core/model.md#check-levels) states.
+
 ### Measured Checks by Kind
 
 Each measured requirement names its check, and each kind of measure has one tool that runs it. The measure job runs the check for the change's kinds, the tools write their result files under `TestResults/`, and the builder reads them the way it reads test runs, so a measured requirement shows verified when its check passes. Availability and latency objectives are evidenced in production only; a project that selects the [Delivery extension](../ext/delivery.md) states them as OpenSLO files there.

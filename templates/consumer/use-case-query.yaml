@@ -49,6 +49,7 @@ output:
       classification: internal
       reads:
       - aggregate/spending.expense
+      # A group with snapshot or eventual freshness names the command use case or aggregate that re-decides the figure in decidedBy.
       freshness:
         mode: immediate
 paging:

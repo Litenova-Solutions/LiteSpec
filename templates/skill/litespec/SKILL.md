@@ -30,6 +30,8 @@ Query the model for each record the task touches, and follow its links before ch
 litespec model query <record-id>
 ```
 
+Find records by text with `litespec model query --search <text>`, list every record of a type with `litespec model query --list <type>`, and report the links between modules with `litespec model edges`.
+
 Run `litespec rules <path>` for each file before editing it. Read the pages `rules` cites, then look at neighboring code.
 
 Read one provision in full when a statement is not enough:
@@ -52,6 +54,8 @@ Run the checks over the change set, with `<base>` naming the commit the change s
 litespec model check --since <base>
 litespec rules --since <base>
 ```
+
+Narrow a check to one module with `litespec model check --module <module>`; the exit code follows that module's findings alone. Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one.
 
 Answer each judgment provision `rules --since <base>` lists. It prints a report skeleton with one Reviewed for question and one empty How judged line per provision.
 

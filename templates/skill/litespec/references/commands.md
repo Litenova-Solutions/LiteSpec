@@ -10,6 +10,22 @@ This reference states the command forms the LiteSpec skill names. Below, `litesp
 litespec model query use-case/spending.submit-expense
 ```
 
+## Search Records
+
+`litespec model query --search <text>` lists the written records whose identifier, title, summary or statement holds the text, case-insensitive, an exact identifier match first. No match prints nothing and exits 0.
+
+```bash
+litespec model query --search "receipt threshold"
+```
+
+## List the Records of a Type
+
+`litespec model query --list <type>` lists every written record of the type, one line each with identifier, title and path. With `--module <module>` it lists only the records of that module.
+
+```bash
+litespec model query --list use-case --module spending
+```
+
 ## List the Provisions for a File
 
 `litespec rules <path>` lists the provisions that govern a file or folder before it is edited. The target is a path under the consumer root, or a record identifier. Add `--full` to print each provision with its rationale and example.
@@ -29,6 +45,24 @@ litespec rules apps/api/src/Claimwick.Modules/Spending/Expenses/UseCases/SubmitE
 ```bash
 litespec model check --since origin/main
 litespec rules --since origin/main
+```
+
+Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run, local or in the pull-request check; only a live waiver covers one.
+
+## Check One Module
+
+`litespec model check --module <module>` prints only the findings on the records and files of that module, and the exit code follows those findings alone.
+
+```bash
+litespec model check --module spending
+```
+
+## Report the Module Edges
+
+`litespec model edges` prints, per module, the written record links to other modules, with counts per link kind and per module, then every pair of modules that link each other both ways. With `--module <module>` it prints only that module with the mutual pairs it belongs to. It is read-only.
+
+```bash
+litespec model edges
 ```
 
 ## Run Rules After Every Edit

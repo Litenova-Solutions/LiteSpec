@@ -453,7 +453,7 @@ A decision explains a choice. Goals, problems, features, flows, actors, research
 
 When code and the specification disagree, the specification wins where Intent has spoken. Where the specification is silent, an agent builds nothing: something that seems missing becomes a question to the owner or a backlog item, never code.
 
-An accepted gap becomes a waiver with an `expiresOn` date, and the findings its `covers` names are covered, and do not fail the run, until that date. Module order states dependencies and grants no authority.
+An accepted gap becomes a gap waiver with an `expiresOn` date, an `exit` and `closedBy`, and the findings its `covers` names are covered, and do not fail the run, until that date. Module order states dependencies and grants no authority.
 
 ### Authoring Order
 
@@ -503,7 +503,7 @@ Each project declares its size, its shape, and its stacks in `.litespec/project.
 
 The model builder reads record files, explanation files, documents, code, routes, tests, and test runs into one model. It holds the model in memory, runs the model checks, and renders generated regions. The [model command page](../tools/model.md) lists the subcommands and finding codes.
 
-Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing. The `decision-index` region renders one table of the decisions beside it, grouped by kind, then by the computed concern of each decision's followers. The `waiver-index` region renders the waivers beside it, grouped by gap or permanent and ordered by `expiresOn`. The [decision records page](../reference/decision-records.md) states the columns of the decision table.
+Generated regions sit inside fences that only the builder writes and prose checks skip, in explanation files and documents. A region that renders facts about its record finds the record through the explanation file name. Each project runs the builder in its own gate, so handwritten prose and computed views stay in one file without mixing. The `decision-index` region renders one table of the decisions beside it, grouped by kind, then by the computed concern of each decision's followers. The `waiver-index` region renders the waivers beside it, gaps by `expiresOn` with their `closedBy`, then lasting waivers with their consequences. The [decision records page](../reference/decision-records.md) states the columns of the decision table.
 
 A finding that a live waiver covers is reported as covered and exits zero. A waiver is live when it has no `expiresOn` date or its date has not passed. [The waivers page](waivers.md) states how a waiver covers a finding, what no waiver covers, and when one expires. A waiver past its `expiresOn` date is reported as `waiver-expired`. Proof state lives in `.litespec/proof/proofs.json`, committed, holding for each scenario the run's commit with the hash of the scenario and of its test body at the last passing run; a proof is stale when the scenario, the test body or a file carrying the mark of the behavior it proves changed after the run.
 
@@ -525,9 +525,9 @@ Qualification is per reader, never global: a finding takes the qualification of 
 
 `litespec model check` runs only the findings of the layers the project claims in `layers`, as the [scope page](scope.md#layer-claims) states. With only `intent` and `behavior` claimed, no stack reader runs, and the check runs the record findings and the Intent coverage the builder computes from records alone. Claiming `implementation` or `proof` adds the stack readers and the mark and proof findings. Claiming `implementation: litespec` adds the layout group, `code-placement-drift` and `mark-folder-drift`, the findings about LiteSpec's own code layout, with the stack and analyzer findings. The [model command page](../tools/model.md) lists every finding code with its level, its layer, its trace and its meaning.
 
-`litespec model check` blocks on the planned-Intent findings in every run. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached carries a gap waiver with `expiresOn`, which then parks the finding for that record until it expires. The rule holds in every claim.
+`litespec model check` blocks on the planned-Intent findings in every run. The planned-Intent findings are `intent-unreached`, `requirement-fulfillment-missing`, `step-use-case-missing`, `goal-mover-missing` and `constraint-unreached`. A record that must stay unreached carries a gap waiver with `expiresOn` and `closedBy`, which then parks the finding for that record until it expires. The rule holds in every claim.
 
-Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block, and `reader-missing` for a claimed layer blocks unless a waiver with an expiry parks it. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
+Two flags tune blocking without changing the levels. `litespec model check --release` makes the release-readiness findings block, and `reader-missing` for a claimed layer blocks unless a gap waiver with `expiresOn` and `closedBy` parks it. `litespec model check --since <ref>` blocks only on findings about records and code changed since `<ref>` and reports the rest, so an adopting project clears new findings first.
 
 ### The Book
 
@@ -969,7 +969,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** A technical decision MUST leave each rule the product obeys whatever its design to a constraint and each measurable target to a quality requirement, and name the ones it serves in `basedOn`.
 
-**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advisory, level A, while a product decision that decides nothing blocks at level G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
+**Rationale:** A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis blocks at level G, like a product decision that decides nothing: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.
 
 **Example:** Claimwick keeps each receipt for the tax file because `constraint/tax-receipt-retention` requires it, and answers submissions quickly because `requirement/approval-reminders.month-end-submission` sets the target. `decision/0005-render-receipts-as-pdf` names the constraint in `basedOn`, and `decision/0004-serve-receipts-behind-one-proxy` names the requirement in `basedOn`; neither the seven years nor the two seconds is written in a decision.
 
@@ -990,6 +990,22 @@ The book renders the in-memory model only and judges nothing itself.
 **Example:** The Claimwick receipt rule is cited as `[the receipt rule](rule/expense.approver-is-not-submitter)`.
 
 **Checked by:** `litespec model check` reports `link-unknown` for a link that resolves to no file and no written record identifier.
+
+### Name Records in Prose by Their Identifiers
+
+**ID:** `litespec/core/model#name-records-in-prose-by-their-identifiers`
+
+**Strength:** required
+
+**Applies to:** artifact: any
+
+**Statement:** Prose in a record field, an explanation file, a document, or the `AGENTS.md` file at the consumer root MUST name every record by its identifier in backticks and every provision by the published identifier the carried release ships.
+
+**Rationale:** A name in plain words, such as a decision number without its identifier, cannot be resolved: nothing tells whether the record still exists after a rename or a move. The identifier in backticks is the one form every check reads, so a stale name fails the check at the line that names it instead of sending the reader after a record nobody wrote.
+
+**Example:** A waiver exit reads "The gap closes when `decision/0005-render-receipts-as-pdf` lands." rather than "The gap closes when Decision 5 lands."
+
+**Checked by:** `litespec model check` reports `prose-reference-unknown` for a backticked identifier that names no written record and for a backticked provision the carried release does not ship.
 
 ### Declare Size and Stacks
 
@@ -1157,11 +1173,11 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every entity aggregate, every reaction, job, and external system, and every use case reached through a `browser` or `api` entry point, MUST be named by a mark on the code element the marks table gives it.
 
-**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as an advisory finding, because whether a browser reaches it depends on the deployment.
+**Rationale:** A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it is never advisory.
 
 **Example:** `reaction/spending.send-approver-reminder-on-expense-submitted` has no event handler carrying its mark, so the check reports `reaction-unimplemented` and blocks.
 
-**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity aggregate, and `use-case-unreached` (level A) for a browser use case no screen calls.
+**Checked by:** `litespec model check` reports `aggregate-unimplemented`, `reaction-unimplemented`, `job-unimplemented`, `external-system-unimplemented`, and `use-case-endpoint-missing` (level S) for a record no mark names, where `aggregate-unimplemented` fires only for an entity aggregate, and `use-case-unreached` (level S) for a browser use case no screen calls.
 
 ### Organize the Book by the Record Layers
 

@@ -233,7 +233,7 @@ This model governs LiteSpec itself. A consumer product has its own users, so its
 
 **Strength:** required
 
-**Statement:** A capitalized modal MUST appear only in a Statement, a Waiver, a Default, or a Replacement.
+**Statement:** A capitalized modal MUST appear only in a Statement, a Default, or a Replacement.
 
 **Rationale:** Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as `cannot` and a rule written as `never` belong in the same labels.
 

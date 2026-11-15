@@ -63,7 +63,7 @@ A problem record states one pain that a person outside the team has today. Claim
 
 A feature record states what the product offers against a problem. Claimwick has two features.
 
-The Approval feature, in `.litespec/intent/features/approval/approval.yaml`, solves the waiting problem and holds five functional requirements, each in its own folder inside the feature's `requirements/` folder:
+The Approval feature, in `.litespec/intent/features/approval/approval.yaml`, solves the waiting problem and holds six functional requirements, each in its own folder inside the feature's `requirements/` folder:
 
 | Requirement ID | Statement |
 |:---|:---|
@@ -72,8 +72,9 @@ The Approval feature, in `.litespec/intent/features/approval/approval.yaml`, sol
 | `requirement/approval.nobody-approves-own-expense` | Nobody approves their own expense. |
 | `requirement/approval.expense-reimbursed-at-most-once` | An approved expense is reimbursed at most once. |
 | `requirement/approval.erased-after-retention` | The personal data of a decided expense is erased after its retention. |
+| `requirement/approval.reimbursed-expenses-listed` | Finance lists each reimbursed expense with the employee it was paid to. |
 
-The Approval Reminders feature, in `.litespec/intent/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds one quality requirement, `requirement/approval-reminders.month-end-submission`, in `.litespec/intent/features/approval-reminders/requirements/month-end-submission/`, which states that each month-end submission is acknowledged within two seconds. That requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
+The Approval Reminders feature, in `.litespec/intent/features/approval-reminders/approval-reminders.yaml`, advances the five-day goal and solves the same problem. Its offering is the reminder itself: managers get a reminder for expenses waiting past three business days. It holds two requirements: the quality requirement `requirement/approval-reminders.month-end-submission`, in `.litespec/intent/features/approval-reminders/requirements/month-end-submission/`, which states that each month-end submission is acknowledged within two seconds, and the functional requirement `requirement/approval-reminders.remind-approver-after-three-days`, which states that the product sends one reminder for each expense that waits past three business days without a decision. The quality requirement names a check, `month-end-load`, that the model reads from `.litespec/proof/`.
 
 Each requirement carries its identifier, title, kind, statement, rationale and the records it cites in `cites`. The `cites` list is how the tax file traces back to the constraint below.
 
@@ -148,15 +149,18 @@ steps:
 - id: s1
   statement: The employee submits the expense with its amount and currency.
   actor: actor/employee
+  cites:
+  - requirement/approval.above-threshold-receipt
+  - requirement/approval-reminders.month-end-submission
 - id: s2
   statement: The employee attaches the receipt to the expense.
   actor: actor/employee
   cites:
   - requirement/approval.above-threshold-receipt
 - id: s3
-  statement: The manager approves or rejects the expense within five business days.
+  statement: The manager approves or rejects the expense.
   actor: actor/manager
-  failure: The expense waits past three business days, and the approver is reminded.
+  failure: The expense waits unseen, and the approver gets a reminder.
 # s4 and s5 follow the same shape; the file holds them all.
 branches:
 - step: s3

@@ -12,7 +12,7 @@ The pages follow one thread from the product's intent down to its checks:
 product        Claimwick: submit, approve, reimburse
   goal         Decided in days
   problem      Expenses wait weeks
-  feature      Approval, with five functional requirements
+  feature      Approval, with six functional requirements
   research     Approval time benchmarks
   decision     Receipt threshold of 25 EUR
   constraint   Tax receipt retention

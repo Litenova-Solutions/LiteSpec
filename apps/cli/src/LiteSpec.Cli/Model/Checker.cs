@@ -58,6 +58,7 @@ static class Checker
         RecordNameChecks.RunNames,
         RecordNameChecks.Run,
         CitationChecks.Run,
+        ProseReferenceChecks.Run,
         GateChecks.Run,
         WaiverChecks.Run,
         ProofChecks.Run,

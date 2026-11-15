@@ -12,7 +12,7 @@
   import { proseOf } from "../page-prose";
   import { idemTileOf, objectField, reactionFields } from "../page-values";
 
-  // A reaction: what triggers it, what it does, and what it does when it fails.
+  // A reaction: what triggers it, which use case it undoes, what it does, and what it does when it fails.
   type Props = { id: string; r: BookRecord };
   let { r }: Props = $props();
   const f = $derived(r.fields ?? {});
@@ -23,6 +23,7 @@
     if (!t) return [];
     return (Array.isArray(t) ? t : [t]).map(String);
   });
+  const compensates = $derived(rf.compensates);
   const idem = $derived(idemTileOf(f));
   const idemHintHtml = $derived.by(() => {
     const i = objectField(f, "idempotency");
@@ -41,6 +42,13 @@
       </p>
     {/each}
     {#if rf.skippedWhen}<p class="mt-1 mb-0 text-sm">Skipped when {rf.skippedWhen}</p>{/if}
+  </PageSection>
+{/if}
+{#if compensates}
+  <PageSection blockKey="comp" heading="compensates">
+    <p class="mt-0 mb-2 flex items-center gap-2 last:mb-0">
+      <TypeTag type={book.typeOf(stripStep(compensates))} /><RecordLink id={compensates} />
+    </p>
   </PageSection>
 {/if}
 <EffectsBlock {f} caption={`Effects of ${r.title}`} />

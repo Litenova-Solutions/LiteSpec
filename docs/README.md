@@ -28,7 +28,7 @@ The Standard group holds the `core`, `backend`, `frontend`, `quality`, `workspac
 - [Provision Scopes](core/scopes.md): the stack, layer, artifact, and strength each provision carries, and the scope block each page declares.
 - [Engineering Principles](core/principles.md): the rules of thumb for choices no narrower rule covers.
 - [Project Model](core/model.md): the four layers, the record types, their links, checks, and the book and diffs.
-- [Waivers](core/waivers.md): the one record that sets a provision, a page or a finding code aside, with its reason and its expiry.
+- [Waivers](core/waivers.md): the one record that sets a provision, a page or a finding code aside, with its kind, its reason and, for a gap, its expiry and closing records.
 - [Record Layers](core/layers.md): the four record layers and the translation rules between them.
 - [Intent Layer](core/intent.md): where a consumer states why it exists and what it promises, and what Intent never holds.
 - [Behavior Records](core/behavior.md): the overview of the five Behavior pages and the mapping from records to design.

@@ -74,7 +74,7 @@ A record file carries its record in YAML, with the entries in `records`. A named
 | `release-record.md` | `.litespec/releases/<YYYY-MM-DD>.md` | Records one release: what it ships and the evidence it was gated on. |
 | `runbook.yaml` | `.litespec/implementation/runbooks/<name>/<name>.yaml` | Gives one repeatable recovery or operating procedure. |
 | `runbook.md` | `.litespec/implementation/runbooks/<name>/<name>.md` | Explains one runbook beside its record file. |
-| `waiver.yaml` | `.litespec/governance/waivers/<name>/<name>.yaml` | Records one waiver from the provisions, pages or finding codes it names, with the reason. A gap the team means to close also names its expiry date and exit. |
+| `waiver.yaml` | `.litespec/governance/waivers/<name>/<name>.yaml` | Records one waiver from the provisions, pages or finding codes it names, with its kind and reason. A gap the team means to close also names its expiry date, exit and closing records; a lasting waiver states its consequences instead. |
 | `waiver.md` | `.litespec/governance/waivers/<name>/<name>.md` | Explains one waiver beside its record file. |
 
 ## Entry Lists and Page Styles

@@ -49,6 +49,34 @@ public sealed class FileTypeNameAnalyzerTests
                 }
                 """)]);
 
+    /// <summary>LS3003 reports the first type too when it differs from its file.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    [Fact(DisplayName = "LS3003 reports the first type too when it differs from its file")]
+    public Task ReportsTheFirstTypeTooWhenItDiffersFromItsFile() =>
+        Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
+            [("Order.cs", """
+                namespace Shop.Orders;
+
+                public sealed class {|LS3003:Customer|} { }
+
+                public sealed class {|LS3003:AuditEntry|} { }
+                """)]);
+
+    /// <summary>LS3003 ignores a file-scoped companion of the primary type.</summary>
+    /// <returns>A task that completes when the assertion finishes.</returns>
+    /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>
+    [Fact(DisplayName = "LS3003 ignores a file-scoped companion of the primary type")]
+    public Task IgnoresAFileScopedCompanionOfThePrimaryType() =>
+        Verify.AnalyzerAsync<FileTypeNameAnalyzer>(
+            [("Order.cs", """
+                namespace Shop.Orders;
+
+                public sealed class Order { }
+
+                file sealed class OrderHelper { }
+                """)]);
+
     /// <summary>LS3003 accepts a partial class in a dotted file.</summary>
     /// <returns>A task that completes when the assertion finishes.</returns>
     /// <proves>litespec/backend/dotnet/naming#match-c-files-and-primary-types</proves>

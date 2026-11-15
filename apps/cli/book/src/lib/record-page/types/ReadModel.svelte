@@ -7,7 +7,7 @@
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
   import DataTable from "../blocks/DataTable.svelte";
   import { clsTag, codeOf, fieldType, refLink, td, thRow } from "../shared/record-cells";
-  import { freshnessNoteHtml, objectList, stringField, stringList } from "../page-values";
+  import { freshnessDecidedBy, freshnessNoteHtml, objectList, stringField, stringList } from "../page-values";
 
   // A read model: the rows one module keeps from another module's published facts, the
   // field each row takes from an integration event, and what removes a row.
@@ -16,6 +16,7 @@
   const f: RecordFields = $derived(r.fields ?? {});
   const keyedBy = $derived(stringField(f, "keyedBy"));
   const freshness = $derived(freshnessNoteHtml(f));
+  const decidedBy = $derived(freshnessDecidedBy(f));
   const removedBy = $derived(stringList(f, "removedBy"));
   const fields = $derived(objectList(f, "fields"));
 
@@ -31,6 +32,7 @@
   <DefinitionList>
     {#if keyedBy}<DefinitionRow label="keyedBy"><RecordLink id={keyedBy} /></DefinitionRow>{/if}
     {#if freshness}<DefinitionRow label="freshness" html={freshness} />{/if}
+    {#if decidedBy}<DefinitionRow label="decidedBy"><RecordLink id={decidedBy} /></DefinitionRow>{/if}
     {#if removedBy.length}
       <DefinitionRow label="removedBy">
         {#each removedBy as event (event)}<div><RecordLink id={event} /></div>{/each}

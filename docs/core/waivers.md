@@ -73,7 +73,7 @@ A provision of Strength `default` is replaced by the project's own choice, recor
 
 **Statement:** An accepted gap MUST live as a gap waiver with an `expiresOn` date, an `exit` and `closedBy`.
 
-**Rationale:** Missing work with no date is invisible: nothing reports it. A waiver with an `expiresOn` date turns the same missing work into a dated promise. Its `covers` findings are covered until the date, the `exit` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
+**Rationale:** Missing work with no date is invisible: nothing reports it. A gap waiver with an `expiresOn` date turns the same missing work into a dated promise. Its `covers` findings are covered until the date, the `exit` says how the gap closes, `closedBy` names the records whose change closes it, and `waiver-expired` reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).
 
 **Example:** The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in `.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml`:
 

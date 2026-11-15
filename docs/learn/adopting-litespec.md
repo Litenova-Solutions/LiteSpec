@@ -40,7 +40,7 @@ The step is done when every scenario the team claims has passing proof.
 
 ## Waivers for a Single Provision
 
-Some provisions cannot hold on the day a team adopts them. A team records each one as a waiver in `.litespec/governance/waivers/`, naming the provision it covers and the reason. A waiver for a gap the team means to close also carries an expiry date, and a waiver with no expiry date is a lasting choice. A waiver past its expiry date reports `waiver-expired`. A layer the project does not claim needs no waiver, since no provision about it applies. The [waiver page](../core/waivers.md) states the fields.
+Some provisions cannot hold on the day a team adopts them. A team records each one as a waiver in `.litespec/governance/waivers/`, naming the provision it covers and the reason. Every waiver states its kind: a gap the team means to close carries `kind: gap` with an expiry date, an exit and the records in `closedBy` whose change closes it, and a lasting choice carries `kind: lasting` with `consequences` and no end date. A waiver past its expiry date reports `waiver-expired`. A layer the project does not claim needs no waiver, since no provision about it applies. The [waiver page](../core/waivers.md) states the fields.
 
 ## Next Steps
 

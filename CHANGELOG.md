@@ -161,6 +161,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - The .NET reader records each event handler's subscribed event type. `model check` reports `reaction-subscription-drift` for a marked handler subscribed to an event outside its reaction's `triggeredBy`, and `reaction-trigger-unhandled` for a declared trigger no marked handler answers, under `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`.
 - A refusal code is carried only from its own module and by one exception type: `model check` reports `refusal-module-foreign` and `refusal-code-duplicate`, under `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`. Two rules a boundary maps to one response keep two codes.
 - `model check` reports `convention-unreached` for a project convention whose `Applies to` matches no file, folder or record, running the matcher `rules <path>` runs, under `litespec/core/agent#scope-every-convention-to-files-it-governs`.
+- Prose names a record by its identifier in backticks, and `model check` reports `prose-reference-unknown` for a backticked record identifier that names no written record, or a backticked provision identifier the carried release does not ship, in any record field, explanation file, document or the root `AGENTS.md`, skipping fenced code and generated regions, under `litespec/core/model#name-records-in-prose-by-their-identifiers`.
 - Every finding about a missing, unknown or unused link between records, or between a record and code, blocks: `read-model-unused`, `actor-unused`, `runbook-unused`, `setting-unused`, `source-unused`, `source-key-unknown`, `wireframe-reference-unknown`, `screen-unreachable`, `screen-dead-end`, `requirement-cites-missing`, `decision-basis-missing`, `exposure-missing`, `scenario-rule-unexercised`, `explanation-orphaned`, `result-scenario-missing` and `example-keys-drift` move to level G, and `use-case-unreached`, `effect-unimplemented` and `part-parent-missing` to level S. The planned-Intent findings block in every run, not only in the pull-request check; a record that must stay unreached carries a gap waiver.
 
 ### Part S: Tools, Analyzers and Text
@@ -187,7 +188,7 @@ Provisions whose rule changed take the identifier their heading derives:
 <!-- generated:provision-diff -->
 ### Provision Changes Since v6.0.0
 
-Added (86):
+Added (87):
 
 - `litespec/backend/application#ask-another-module-one-question-through-a-decision-port`
 - `litespec/backend/application#read-another-modules-state-through-a-read-model`
@@ -235,6 +236,7 @@ Added (86):
 - `litespec/core/intent#state-when-each-flow-finishes`
 - `litespec/core/intent#state-when-each-flow-starts`
 - `litespec/core/intent#write-flow-steps-as-sentences-with-ids`
+- `litespec/core/model#name-records-in-prose-by-their-identifiers`
 - `litespec/core/model#place-a-record-by-its-content-and-link-it-by-its-reason`
 - `litespec/core/model#serve-every-flow-step`
 - `litespec/core/model#state-what-a-reader-needs-on-the-record-and-check-each-copy`

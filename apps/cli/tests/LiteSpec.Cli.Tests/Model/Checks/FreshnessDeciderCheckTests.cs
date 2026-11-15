@@ -82,6 +82,42 @@ public sealed class FreshnessDeciderCheckTests
         Assert.Equal("read-model/reporting.reimbursed-expense", finding.Subject);
     }
 
+    /// <summary>A group reading a read model is decided in the module of the read model's keyed aggregate, not in the read model's home module.</summary>
+    /// <proves>litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure</proves>
+    [Fact]
+    public void GroupReadingAReadModelDecidedByItsKeyModulePasses()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            ExpenseAggregate(temp.Path),
+            ReimburseCommand(temp.Path),
+            DecidedReadModel(temp.Path, "use-case/spending.reimburse-expense"),
+            DecidedQueryReading(temp.Path, "read-model/reporting.reimbursed-expense", "use-case/spending.reimburse-expense"));
+
+        Assert.Empty(DeciderFindings(model));
+    }
+
+    /// <summary>A group reading a read model but decided in the read model's home module reports freshness-decider-invalid.</summary>
+    /// <proves>litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure</proves>
+    [Fact]
+    public void GroupReadingAReadModelDecidedByItsHomeModuleReportsDeciderInvalid()
+    {
+        using var temp = TestCli.Temp("checks");
+        var model = TestModel.Model(
+            TestModel.Config(temp.Path),
+            ExpenseAggregate(temp.Path),
+            ReimburseCommand(temp.Path),
+            ReportingCommand(temp.Path),
+            DecidedReadModel(temp.Path, "use-case/spending.reimburse-expense"),
+            DecidedQueryReading(temp.Path, "read-model/reporting.reimbursed-expense", "use-case/reporting.close-list"));
+
+        var finding = Assert.Single(DeciderFindings(model));
+        Assert.Equal("G", finding.Tier);
+        Assert.Equal("use-case/reporting.total-spending", finding.Subject);
+        Assert.Contains("use-case/reporting.close-list", finding.Message);
+    }
+
     /// <summary>The schema accepts a decidedBy naming a command with snapshot freshness.</summary>
     /// <proves>litespec/core/use-cases#name-the-use-case-that-decides-a-stale-figure</proves>
     [Fact]
@@ -188,6 +224,26 @@ public sealed class FreshnessDeciderCheckTests
         "use-case/reporting.total-spending",
         Path.Combine(root, ".litespec", "behavior", "modules", "reporting", "use-cases", "total-spending", "total-spending.yaml"),
         """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "output": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + rowsDecidedBy + "\"}" + """}, "total": {"fields": [{"name": "total", "meaning": "The total paid.", "type": "decimal"}], "classification": "internal", "reads": ["aggregate/spending.expense"], "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + totalDecidedBy + "\"}" + """}}}}""");
+
+    /// <summary>A command of the reporting module, which decides no figure the spending expense owns.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <returns>The command use case record.</returns>
+    static Record ReportingCommand(string root) => TestModel.Record(
+        "use-case",
+        "use-case/reporting.close-list",
+        Path.Combine(root, ".litespec", "behavior", "modules", "reporting", "use-cases", "close-list", "close-list.yaml"),
+        """{"summary": "Finance closes the reimbursed list.", "kind": "command"}""");
+
+    /// <summary>The reporting query with one decided group reading the given record.</summary>
+    /// <param name="root">The consumer folder.</param>
+    /// <param name="reads">The identifier the rows group reads.</param>
+    /// <param name="decidedBy">The decidedBy of the rows group.</param>
+    /// <returns>The query use case record.</returns>
+    static Record DecidedQueryReading(string root, string reads, string decidedBy) => TestModel.Record(
+        "use-case",
+        "use-case/reporting.total-spending",
+        Path.Combine(root, ".litespec", "behavior", "modules", "reporting", "use-cases", "total-spending", "total-spending.yaml"),
+        """{"summary": "Finance reads the reimbursed spending.", "kind": "query", "reads": ["read-model/reporting.reimbursed-expense"], "output": {"include": {"rows": {"fields": [{"name": "amount", "meaning": "The exact amount paid.", "type": "decimal"}], "classification": "internal", "reads": [""" + "\"" + reads + "\"]" + """, "freshness": {"mode": "snapshot", "within": "PT5S", "decidedBy": """ + "\"" + decidedBy + "\"" + """}}}}}""");
 
     /// <summary>The reporting read model of reimbursed expenses, keyed by the spending expense.</summary>
     /// <param name="root">The consumer folder.</param>

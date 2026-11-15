@@ -104,6 +104,27 @@ public sealed class ModelEdgesTests
         Assert.Contains("catalog <-> lending", result.Stdout, StringComparison.Ordinal);
     }
 
+    /// <summary>Edges with a module folder that holds records but no module record prints that module.</summary>
+    /// <proves>litespec/core/model#connect-across-modules-only-through-declared-dependencies</proves>
+    [Fact]
+    public void EdgesModuleWithRecordsButNoModuleRecordPrintsThatModule()
+    {
+        using var fixture = ModelFixture.Prepare("small");
+        TestRecords.Write(fixture.Path, ".litespec/behavior/modules/catalog/use-cases/list-shelves/list-shelves.yaml", """
+            {
+              "type": "use-case",
+              "id": "use-case/catalog.list-shelves",
+              "title": "List shelves",
+              "kind": "query"
+            }
+            """);
+        var result = TestCli.Run("model", "edges", "--root", fixture.Path, "--module", "catalog");
+
+        Assert.Equal(0, result.Status);
+        Assert.Contains("Module catalog:", result.Stdout, StringComparison.Ordinal);
+        Assert.DoesNotContain("Module lending:", result.Stdout, StringComparison.Ordinal);
+    }
+
     /// <summary>Edges of an unknown module is rejected with the known modules.</summary>
     /// <proves>litespec/core/language#name-commands-as-verbs-and-flags-by-what-they-set</proves>
     [Fact]

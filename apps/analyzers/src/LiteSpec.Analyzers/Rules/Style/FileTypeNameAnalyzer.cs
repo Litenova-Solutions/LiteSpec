@@ -5,6 +5,7 @@ using System.IO;
 using LiteSpec.Analyzers.LayerMap;
 using LiteSpec.Model;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -59,6 +60,11 @@ public sealed class FileTypeNameAnalyzer : LayerAnalyzer
         var root = context.Tree.GetRoot(context.CancellationToken);
         foreach (var node in root.DescendantNodes())
         {
+            if (IsFileScoped(node))
+            {
+                continue;
+            }
+
             var identifier = default(SyntaxToken);
             var arity = 0;
             if (node is BaseTypeDeclarationSyntax typeDeclaration && IsTopLevel(node))
@@ -100,6 +106,11 @@ public sealed class FileTypeNameAnalyzer : LayerAnalyzer
             return;
         }
 
+        if (!found[0].Name.Equals(expected, StringComparison.Ordinal))
+        {
+            context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS3003, found[0].Location, found[0].Name, display));
+        }
+
         for (var i = 1; i < found.Count; i++)
         {
             context.ReportDiagnostic(Diagnostic.Create(Descriptors.LS3003, found[i].Location, found[i].Name, display));
@@ -111,6 +122,37 @@ public sealed class FileTypeNameAnalyzer : LayerAnalyzer
     /// <returns>True when the node is top level; otherwise false.</returns>
     private static bool IsTopLevel(SyntaxNode node) =>
         node.Parent is CompilationUnitSyntax || node.Parent is BaseNamespaceDeclarationSyntax;
+
+    /// <summary>Returns true when the declaration is file-scoped and stays with its owner; otherwise false.</summary>
+    /// <param name="node">The syntax node under inspection.</param>
+    /// <returns>True when the node declares a file-scoped type or delegate; otherwise false.</returns>
+    private static bool IsFileScoped(SyntaxNode node)
+    {
+        SyntaxTokenList modifiers;
+
+        if (node is BaseTypeDeclarationSyntax type)
+        {
+            modifiers = type.Modifiers;
+        }
+        else if (node is DelegateDeclarationSyntax @delegate)
+        {
+            modifiers = @delegate.Modifiers;
+        }
+        else
+        {
+            return false;
+        }
+
+        foreach (var modifier in modifiers)
+        {
+            if (modifier.IsKind(SyntaxKind.FileKeyword))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /// <summary>Counts the int.</summary>
     /// <param name="parameters">The parameters supplied for the check, or null when the compilation does not provide it.</param>

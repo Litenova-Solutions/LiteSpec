@@ -946,7 +946,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An application MUST dispatch a command and a query through two separate Application-facing entry points rather than one message bus abstraction.",
-      "rationale": "Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend\u0027s whole command and query split depends on that difference. The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library records a waiver from the binding convention rather than touching this rule.",
+      "rationale": "Two entry points keep the write and read paths distinguishable at every call site and let the pipeline compose different stages for each. A unified bus hides that difference behind one method, so a reader sees no difference between a dispatch that changes state and one that reads. This backend\u0027s whole command and query split depends on that difference. The rule states the property rather than the package. Each stack binding pins one library that supplies it. A consumer replacing that library names its own dispatch entry points in its Application documentation rather than touching this rule.",
       "example": ""
     },
     {
@@ -6725,7 +6725,7 @@
       "layer": "any",
       "trace": false,
       "strength": "required",
-      "statement": "A capitalized modal MUST appear only in a Statement, a Waiver, a Default, or a Replacement.",
+      "statement": "A capitalized modal MUST appear only in a Statement, a Default, or a Replacement.",
       "rationale": "Obligation hides when it sits in Concepts, Rationale, or an example: a project replaces a default it saw nowhere in the labeled assertions. One location for every modal lets readers and tools find each obligation in the same place. A prohibition written as \u0060cannot\u0060 and a rule written as \u0060never\u0060 belong in the same labels.",
       "example": ""
     },
@@ -10390,7 +10390,7 @@
       "anchor": "implement-each-mapped-behavior-record-behind-a-mark",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060aggregate-unimplemented\u0060, \u0060reaction-unimplemented\u0060, \u0060job-unimplemented\u0060, \u0060external-system-unimplemented\u0060, and \u0060use-case-endpoint-missing\u0060 (level S) for a record no mark names, where \u0060aggregate-unimplemented\u0060 fires only for an entity aggregate, and \u0060use-case-unreached\u0060 (level A) for a browser use case no screen calls.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060aggregate-unimplemented\u0060, \u0060reaction-unimplemented\u0060, \u0060job-unimplemented\u0060, \u0060external-system-unimplemented\u0060, and \u0060use-case-endpoint-missing\u0060 (level S) for a record no mark names, where \u0060aggregate-unimplemented\u0060 fires only for an entity aggregate, and \u0060use-case-unreached\u0060 (level S) for a browser use case no screen calls.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:aggregate, record:reaction, record:job, record:external-system, record:use-case",
@@ -10398,7 +10398,7 @@
       "trace": true,
       "strength": "required",
       "statement": "Every entity aggregate, every reaction, job, and external system, and every use case reached through a \u0060browser\u0060 or \u0060api\u0060 entry point, MUST be named by a mark on the code element the marks table gives it.",
-      "rationale": "A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it is reported as an advisory finding, because whether a browser reaches it depends on the deployment.",
+      "rationale": "A mark points up, so a check reading marks alone finds code nobody recorded but misses a record nobody built. Checking each record that the marks table maps to code from the top closes the loop in the other direction: an entity aggregate with no root, a reaction with no event handler, a job with no host, an external system with no port, and a use case people reach with no endpoint. A store has no root, so it needs no mark. A use case with no screen calling it blocks at level S: the link between a use case and the screens that call it is never advisory.",
       "example": "\u0060reaction/spending.send-approver-reminder-on-expense-submitted\u0060 has no event handler carrying its mark, so the check reports \u0060reaction-unimplemented\u0060 and blocks."
     },
     {
@@ -10470,7 +10470,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A technical decision MUST leave each rule the product obeys whatever its design to a constraint and each measurable target to a quality requirement, and name the ones it serves in \u0060basedOn\u0060.",
-      "rationale": "A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis is advisory, level A, while a product decision that decides nothing blocks at level G: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.",
+      "rationale": "A technical decision chooses one way among alternatives, and a better alternative may replace it tomorrow. A rule such as keeping personal data in the European Union, or a target such as answering checkout within two seconds, does not change when the library does: overriding it needs a business, legal, or organizational change. Written inside a decision, the rule disappears the day the decision is replaced, and nobody holds it as the promise it is. Kept in Intent, the rule and the target stand as the promises they are, the decision points up to them, and the chain runs unbroken from code through the decision to the constraint or requirement and the goal above it. A decision with no basis blocks at level G, like a product decision that decides nothing: a technical choice among equal options may serve no rule or target yet and still govern the code that follows it, but a product decision that settles no record governs nothing.",
       "example": "Claimwick keeps each receipt for the tax file because \u0060constraint/tax-receipt-retention\u0060 requires it, and answers submissions quickly because \u0060requirement/approval-reminders.month-end-submission\u0060 sets the target. \u0060decision/0005-render-receipts-as-pdf\u0060 names the constraint in \u0060basedOn\u0060, and \u0060decision/0004-serve-receipts-behind-one-proxy\u0060 names the requirement in \u0060basedOn\u0060; neither the seven years nor the two seconds is written in a decision."
     },
     {
@@ -10580,6 +10580,24 @@
       "statement": "Every page record MUST take its identifier name, and so its folder and file names, from the words of its title in title order.",
       "rationale": "Readers browse the folders before they open a record, so the folder name must say what the record says. A retitle that keeps the identifier leaves the folder and file saying the old name while the record says the new one, and no listing shows the gap. Taking the name from the title\u0027s words keeps the identifier, the file and the folder on what the record says. Proposed by [decision/0061-name-each-identifier-from-its-title](../intent/decisions/0061-name-each-identifier-from-its-title/0061-name-each-identifier-from-its-title.md).",
       "example": "Claimwick titles a requirement \u0022Nobody Approves Their Own Expense\u0022, so the requirement is \u0060requirement/approval.nobody-approves-own-expense\u0060 in \u0060nobody-approves-own-expense/nobody-approves-own-expense.yaml\u0060. The name \u0060no-self-approval\u0060 holds words the title does not hold, so it is reported."
+    },
+    {
+      "id": "litespec/core/model#name-records-in-prose-by-their-identifiers",
+      "heading": "Name Records in Prose by Their Identifiers",
+      "page": "docs/core/model.md",
+      "anchor": "name-records-in-prose-by-their-identifiers",
+      "kind": "rule",
+      "mark": "checkable",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060prose-reference-unknown\u0060 for a backticked identifier that names no written record and for a backticked provision the carried release does not ship.",
+      "stack": "any",
+      "concern": "records",
+      "artifact": "any",
+      "layer": "any",
+      "trace": false,
+      "strength": "required",
+      "statement": "Prose in a record field, an explanation file, a document, or the \u0060AGENTS.md\u0060 file at the consumer root MUST name every record by its identifier in backticks and every provision by the published identifier the carried release ships.",
+      "rationale": "A name in plain words, such as a decision number without its identifier, cannot be resolved: nothing tells whether the record still exists after a rename or a move. The identifier in backticks is the one form every check reads, so a stale name fails the check at the line that names it instead of sending the reader after a record nobody wrote.",
+      "example": "A waiver exit reads \u0022The gap closes when \u0060decision/0005-render-receipts-as-pdf\u0060 lands.\u0022 rather than \u0022The gap closes when Decision 5 lands.\u0022"
     },
     {
       "id": "litespec/core/model#name-the-lowest-record-each-test-proves",
@@ -11146,7 +11164,7 @@
       "anchor": "complete-work-before-merging",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports unreached records, such as \u0060intent-unreached\u0060 and \u0060constraint-unreached\u0060, locally, and the pull-request check blocks on them.",
+      "evidence": "\u0060litespec model check\u0060 blocks on unreached records, such as \u0060intent-unreached\u0060 and \u0060constraint-unreached\u0060, in every run, locally and in the pull-request check alike.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -11154,8 +11172,8 @@
       "trace": false,
       "strength": "required",
       "statement": "What merges MUST be complete.",
-      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a waiver with \u0060expiresOn\u0060, which parks reachability for that record until it expires.",
-      "example": "A use case with no endpoint stays on its branch until the endpoint lands or a waiver with \u0060expiresOn\u0060 parks it."
+      "rationale": "A branch may be incomplete; what merges is complete. A record that must stay unreached past a merge carries a gap waiver with \u0060expiresOn\u0060 and \u0060closedBy\u0060, which parks reachability for that record until it expires.",
+      "example": "A use case with no endpoint stays on its branch until the endpoint lands or a gap waiver with \u0060expiresOn\u0060 and \u0060closedBy\u0060 parks it."
     },
     {
       "id": "litespec/core/principles#compute-completion-from-code-and-tests",
@@ -11958,16 +11976,16 @@
       "anchor": "record-accepted-debt-as-a-waiver",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which accepted debts lack a waiver with an expiry date? Look at the waivers beside each debt.",
+      "evidence": "Which accepted debts lack a gap waiver with an expiry date, an exit and \u0060closedBy\u0060? Look at the waivers beside each debt.",
       "stack": "any",
       "concern": "operations",
       "artifact": "record:waiver",
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "Accepted debt MUST live as a waiver record with an expiry date.",
-      "rationale": "Accepted debt with no expiry date is forgotten work. A waiver with an \u0060expiresOn\u0060 and \u0060exit\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060waiver-expired\u0060 reports after it. The [model page](model.md) states the waiver shape.",
-      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a waiver with an \u0060expiresOn\u0060 of 2027-03-01 and an \u0060exit\u0060; \u0060waiver-expired\u0060 reports it after that date."
+      "statement": "Accepted debt MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060.",
+      "rationale": "Accepted debt with no expiry date is forgotten work. A gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060 turns it into a dated promise whose findings are covered until the date and whose \u0060waiver-expired\u0060 reports after it. The [waivers page](waivers.md) states the waiver shape.",
+      "example": "Claimwick ships month-end export without its archive proof, so the debt lives as a gap waiver with an \u0060expiresOn\u0060 of 2027-03-01, an \u0060exit\u0060 and \u0060closedBy\u0060 naming \u0060use-case/spending.export-expenses\u0060; \u0060waiver-expired\u0060 reports it after that date."
     },
     {
       "id": "litespec/core/release#record-the-release-artifact",
@@ -12660,7 +12678,7 @@
       "anchor": "declare-every-edge-between-records",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 emits no \u0060effect-undeclared\u0060 or \u0060effect-loop-invalid\u0060 finding across use cases, reactions, jobs, notifications, and integration events, and reports \u0060effect-unimplemented\u0060 (check level A) for a declared edge no code takes.",
+      "evidence": "\u0060litespec model check\u0060 emits no \u0060effect-undeclared\u0060 or \u0060effect-loop-invalid\u0060 finding across use cases, reactions, jobs, notifications, and integration events, and reports \u0060effect-unimplemented\u0060 (check level S) for a declared edge no code takes.",
       "stack": "any",
       "concern": "records",
       "artifact": "any",
@@ -13475,7 +13493,7 @@
       "anchor": "prove-every-written-result-with-a-scenario",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060result-scenario-missing\u0060, level G for a success result and level A for a refusal.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060result-scenario-missing\u0060 (level G) for a written result no scenario shows.",
       "stack": "any",
       "concern": "records",
       "artifact": "record:result",
@@ -13809,7 +13827,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An accepted gap MUST live as a gap waiver with an \u0060expiresOn\u0060 date, an \u0060exit\u0060 and \u0060closedBy\u0060.",
-      "rationale": "Missing work with no date is invisible: nothing reports it. A waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
+      "rationale": "Missing work with no date is invisible: nothing reports it. A gap waiver with an \u0060expiresOn\u0060 date turns the same missing work into a dated promise. Its \u0060covers\u0060 findings are covered until the date, the \u0060exit\u0060 says how the gap closes, \u0060closedBy\u0060 names the records whose change closes it, and \u0060waiver-expired\u0060 reports the waiver after the date. Settled by [decision/0014-one-waiver-record](decision/0014-one-waiver-record) on the evidence in [research/lower-layers-practice](research/lower-layers-practice).",
       "example": "The running Claimwick example accepts that exporting expenses has no handler yet, so the gap lives as a waiver in \u0060.litespec/governance/waivers/export-expenses-unimplemented/export-expenses-unimplemented.yaml\u0060:\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/export-expenses-unimplemented\ntitle: Export Expenses Unimplemented\nsummary: Export waits for the finance file format.\nkind: gap\ncovers:\n  - use-case-unimplemented\nsubject:\n  - use-case/spending.export-expenses\nreason: Export waits for the finance file format.\nexit: Exporting expenses has no handler yet. The gap closes when the finance file format lands and the export use case gains its handler.\nexpiresOn: 2027-06-01\nclosedBy:\n  - use-case/spending.export-expenses\n\u0060\u0060\u0060\n\nThe \u0060use-case-unimplemented\u0060 finding is covered, and the run passes, until 2027-06-01, which satisfies this provision."
     },
     {
@@ -16761,8 +16779,8 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A production incident fix that ships before its records are updated MUST carry an incident waiver expiring within seven days.",
-      "rationale": "A production incident ships its fix at once. The incident waiver records what shipped and why, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.",
+      "statement": "A production incident fix that ships before its records are updated MUST carry a gap waiver expiring within seven days.",
+      "rationale": "A production incident ships its fix at once. The gap waiver records what shipped and why, names the records to update in \u0060closedBy\u0060, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.",
       "example": ""
     },
     {
@@ -16798,7 +16816,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a waiver.",
-      "rationale": "A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its \u0060check\u0060 to show it was measured before release; a requirement that cannot be watched yet says so as a waiver with a reason, an exit and an expiry date, instead of passing silently.",
+      "rationale": "A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its \u0060check\u0060 to show it was measured before release; a requirement that cannot be watched yet says so as a gap waiver with a reason, an exit, closing records and an expiry date, instead of passing silently.",
       "example": "\u0060requirement/approval-reminders.month-end-submission\u0060 is named by the alert \u0060submission-acknowledgement-slow\u0060 and by the k6 result its \u0060check\u0060 names."
     },
     {
@@ -21423,8 +21441,8 @@
       "layer": "implementation",
       "trace": false,
       "strength": "required",
-      "statement": "A \u0060pre-production\u0060 consumer MUST record each deferred provision as a waiver expiring at promotion, with a \u0060production\u0060 consumer carrying no deferred provision.",
-      "rationale": "An early-stage deferral without a named end becomes permanent by neglect. Each waiver names the deferred provision in \u0060covers\u0060 with the date its deferral ends in \u0060expiresOn\u0060, and the promotion decision names the same provisions, so promotion closes every deferral at once.",
+      "statement": "A \u0060pre-production\u0060 consumer MUST record each deferred provision as a gap waiver expiring at promotion with \u0060closedBy\u0060 naming the promotion decision, with a \u0060production\u0060 consumer carrying no deferred provision.",
+      "rationale": "An early-stage deferral without a named end becomes permanent by neglect. Each waiver carries \u0060kind: gap\u0060, names the deferred provision in \u0060covers\u0060 with the date its deferral ends in \u0060expiresOn\u0060, and names the promotion decision in \u0060closedBy\u0060, so promotion closes every deferral at once.",
       "example": "Each deferral is a waiver covering its provision until promotion.\n\n\u0060\u0060\u0060yaml\ntype: waiver\nid: waiver/compat-classification-until-promotion\ntitle: Compat Classification Until Promotion\nkind: gap\ncovers:\n  - litespec/ext/compat#classify-breaking-contract-changes\npaths:\n  - apps/api/**\nreason: No consumer reads the contract before the first deployment.\nexit: Promotion to production ends the deferral and the classification applies.\nexpiresOn: 2026-12-01\nclosedBy:\n  - decision/0001-promote-to-production\n\u0060\u0060\u0060"
     },
     {
@@ -24017,7 +24035,7 @@
       "trace": false,
       "strength": "default",
       "statement": "Start each catalog entry from its LiteSpec pattern, through \u0060library\u0060, and keep the pattern\u0027s option IDs, option names, and default.",
-      "rationale": "Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product\u0027s own options. Keeping the pattern\u0027s option IDs and names lets one product read another\u0027s catalog without translation. A product that chooses a different option records its reason in the entry, so the waiver stays reviewable.",
+      "rationale": "Starting from the LiteSpec pattern keeps choices comparable across products and keeps the default visible beside the product\u0027s own options. Keeping the pattern\u0027s option IDs and names lets one product read another\u0027s catalog without translation. A product that chooses a different option records its reason in the entry, so the choice stays reviewable.",
       "example": ""
     },
     {
@@ -24045,7 +24063,7 @@
       "anchor": "update-the-catalog-with-the-code",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Which option switches, added options, or extensions land without their implementation, and which single-route waivers name no decision record? Look in the change diffs and the catalog entries.",
+      "evidence": "Which option switches, added options, or extensions land without their implementation, and which single-route departures name no decision record? Look in the change diffs and the catalog entries.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "any",
@@ -24053,7 +24071,7 @@
       "trace": false,
       "strength": "required",
       "statement": "A change that switches option, adds an option, or extends a pattern MUST update the catalog entry in the same change as its implementation.",
-      "rationale": "When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A deliberate waiver in one route names a decision record instead, so the waiver stays reviewable.",
+      "rationale": "When the catalog waits for a later change, the code ships, the follow-up slips, and the entry describes behavior no route renders. Updating the entry in the same change as its implementation keeps the two in agreement by construction. A route that deliberately departs from the chosen option names a decision record instead, so the departure stays reviewable.",
       "example": "A route departing from the chosen option names a decision record, such as \u0060.litespec/intent/decisions/0014-expense-sort-menu/0014-expense-sort-menu.yaml\u0060."
     },
     {
@@ -30066,7 +30084,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Live data at rest MUST carry encryption or a waiver covering this provision.",
-      "rationale": "Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application\u0027s control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the waiver covering this provision keeps the gap visible with its reason, exit, and expiry date instead of silent.",
+      "rationale": "Live data at rest outlives the process: disks, snapshots, and replicas each hold a copy outside the application\u0027s control. Encryption keeps each copy unreadable without its key. Where encryption does not apply yet, the gap waiver covering this provision keeps the gap visible with its reason, exit, closing records, and expiry date instead of silent.",
       "example": ""
     },
     {
@@ -30174,7 +30192,7 @@
       "trace": false,
       "strength": "required",
       "statement": "CI MUST scan every pull request for security findings with a free static analyzer.",
-      "rationale": "CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a waiver covering the finding, with its reason, exit, and expiry date, so each acceptance stays visible and dated.",
+      "rationale": "CodeQL is free only on public repositories, where no paid plan is required; on a private repository the project uses a free alternative and records the choice in its CI documentation. An accepted finding lives as a gap waiver covering the finding, with its reason, exit, closing records, and expiry date, so each acceptance stays visible and dated.",
       "example": ""
     },
     {
@@ -30372,7 +30390,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Each scenario MUST be proved by a test carrying its proves mark, calling its use case through the public boundary, and asserting the result the scenario names.",
-      "rationale": "A scenario states one behavior the product shows, and the proves mark is the test\u0027s claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a waiver with its reason and expiry date. The latest test run marks each confirmed claim passing or failing.",
+      "rationale": "A scenario states one behavior the product shows, and the proves mark is the test\u0027s claim that it shows it. A test that drives the use case through its steps, its message, or its endpoint exercises the public boundary; a test that constructs a handler, an aggregate, or a repository reaches past it and proves nothing. The assertion names the result: the success fields for a success, the refusal code inside an assertion for a refusal. A reaction or job scenario is proved the same way: its test fires the trigger and asserts what the effects declare, the use case result, the sent notification, or the outside call. A scenario no test proves is recorded as a gap waiver with its reason, exit, closing records, and expiry date. The latest test run marks each confirmed claim passing or failing.",
       "example": "An acceptance scenario for submitting an expense carries the mark for \u0060scenario/submit-expense.submitting-with-a-receipt-succeeds\u0060, drives the submit-expense steps, and asserts the submitted expense. An integration test for the same scenario constructs the submit-expense message, sends it through the host, and asserts the same result. The mark names the scenario, the call crosses the public boundary, and the model builder confirms the claim from the test body."
     },
     {
@@ -30389,8 +30407,8 @@
       "layer": "proof",
       "trace": false,
       "strength": "default",
-      "statement": "Gate each change on the project\u0027s recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a waiver covering the mutation finding.",
-      "rationale": "Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the waiver records that judgement with its reason and expiry instead of blocking the change forever.",
+      "statement": "Gate each change on the project\u0027s recorded mutation threshold over its changed lines, starting at zero surviving mutants; each equivalent mutant is recorded as a lasting waiver covering the mutation finding.",
+      "rationale": "Mutation testing seeds small faults into changed lines and runs the suite: each killed mutant is a fault the tests catch, and each survivor is a fault they miss. The gate counts survivors on changed lines only, so every change arrives proven. A project-wide percentage confounds suite size with strength, and a full nightly run serves as a trend rather than a gate. An equivalent mutant preserves behavior by construction, so no test kills it; the waiver records that judgement with its reason and consequences instead of blocking the change forever.",
       "example": "A change touching the receipt check runs mutation over those lines with the scenario suite. Survivors at or below the recorded threshold let the change land; the rest send the change back for a stronger assertion, or into a waiver when the mutant is equivalent."
     },
     {

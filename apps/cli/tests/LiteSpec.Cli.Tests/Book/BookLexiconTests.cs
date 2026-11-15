@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using LiteSpec.Cli.Book.Lexicon;
 using LiteSpec.Cli.Tests.Support;
 
@@ -60,6 +61,67 @@ public sealed class BookLexiconTests
         Assert.Equal("grants", inverse);
 
         Assert.False(lexicon.TryPhrase("except.unknown", "requirement", out _, out _));
+    }
+
+    /// <summary>Compensation, freshness, binds and waiver-closure links read in both directions, in the schema's own phrases.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void NewLinksReadInBothDirections()
+    {
+        using var temp = TestCli.Temp("book-lexicon");
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+        var links = lexicon.ToJson()["links"]!.AsArray();
+        JsonObject Row(string field) =>
+            links.Single(node => node!.AsObject()["field"]!.GetValue<string>() == field)!.AsObject();
+
+        var compensates = Row("compensates");
+        Assert.Equal("compensates", compensates["forward"]!.GetValue<string>());
+        Assert.Equal("is compensated by", compensates["inverse"]!.GetValue<string>());
+        Assert.Equal(
+            new List<string> { "reaction" },
+            compensates["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+
+        var decidedBy = Row("freshness.decidedBy");
+        Assert.Equal("is decided by", decidedBy["forward"]!.GetValue<string>());
+        Assert.Equal("decides", decidedBy["inverse"]!.GetValue<string>());
+        Assert.Contains(
+            "read-model",
+            decidedBy["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+
+        var binds = Row("binds");
+        Assert.Equal("binds", binds["forward"]!.GetValue<string>());
+        Assert.Equal("is bound by", binds["inverse"]!.GetValue<string>());
+        Assert.Equal(
+            new List<string> { "rule" },
+            binds["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+
+        var closedBy = Row("closedBy");
+        Assert.Equal("is closed by", closedBy["forward"]!.GetValue<string>());
+        Assert.Equal("closes", closedBy["inverse"]!.GetValue<string>());
+        Assert.Equal(
+            new List<string> { "waiver" },
+            closedBy["carriers"]!.AsArray().Select(node => node!.GetValue<string>()).ToList());
+    }
+
+    /// <summary>A freshness decider under a named output group reads as its freshness row, with or without the leading record type.</summary>
+    /// <proves>litespec/core/model#name-book-labels-with-litespec-terms</proves>
+    [Fact]
+    public void OutputGroupDecidedByResolvesToItsRow()
+    {
+        using var temp = TestCli.Temp("book-lexicon");
+        var lexicon = BookLexicon.Load(WriteHome(temp, ModelPage(), ToolsPage(), GlossaryPage()));
+
+        Assert.True(lexicon.TryPhrase("output.include.orders.freshness.decidedBy", "use-case", out var forward, out var inverse));
+        Assert.Equal("is decided by", forward);
+        Assert.Equal("decides", inverse);
+
+        Assert.True(lexicon.TryPhrase("use-case.output.include.orders.freshness.decidedBy", "use-case", out forward, out inverse));
+        Assert.Equal("is decided by", forward);
+        Assert.Equal("decides", inverse);
+
+        Assert.True(lexicon.TryPhrase("reaction.compensates", "reaction", out forward, out inverse));
+        Assert.Equal("compensates", forward);
+        Assert.Equal("is compensated by", inverse);
     }
 
     /// <summary>The flow actor rows read toward the flow: the flow actor is taken by, a step actor is performed by.</summary>
@@ -225,6 +287,8 @@ public sealed class BookLexiconTests
         Assert.Equal("Runs", lexicon.Fields["runs"]);
         Assert.Equal("Publishes", lexicon.Fields["publishes"]);
         Assert.Equal("Binds", lexicon.Fields["binds"]);
+        Assert.Equal("Compensates", lexicon.Fields["compensates"]);
+        Assert.Equal("Decided by", lexicon.Fields["decidedBy"]);
         Assert.Equal("Exercises", lexicon.Fields["exercises"]);
         Assert.Equal("Background", lexicon.Fields["background"]);
         Assert.Equal("Purpose", lexicon.Fields["purpose"]);

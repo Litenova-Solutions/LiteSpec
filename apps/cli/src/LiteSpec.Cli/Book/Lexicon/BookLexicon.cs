@@ -79,7 +79,10 @@ sealed class BookLexicon
     /// <summary>
     ///     Resolves a link field path to its Links-table phrases: the longest dotted prefix
     ///     naming a table field wins, so effects.calls reads as its effects row. A leading
-    ///     record type is ignored, so use-case.effects.calls reads the same.
+    ///     record type is ignored, so use-case.effects.calls reads the same. A value under a
+    ///     named map carries the map key in its path, so leading segments are stripped until
+    ///     a row matches, and output.include.orders.freshness.decidedBy reads as its
+    ///     freshness row.
     /// </summary>
     /// <param name="field">The edge's field key, such as effects.calls.</param>
     /// <param name="carrier">The linking record's type, choosing between rows sharing one field, or null for the table's first row.</param>
@@ -95,28 +98,41 @@ sealed class BookLexicon
             candidate = candidate[(dot + 1)..];
         }
 
+        var suffix = candidate;
         while (true)
         {
-            var matches = Links.Where(link => link.Field == candidate).ToList();
-            if (matches.Count > 0)
+            var inner = suffix;
+            while (true)
             {
-                var pick = carrier is not null
-                    ? matches.FirstOrDefault(link => link.Carriers.Contains(carrier)) ?? matches[0]
-                    : matches[0];
-                forward = pick.Forward;
-                inverse = pick.Inverse;
-                return true;
+                var matches = Links.Where(link => link.Field == inner).ToList();
+                if (matches.Count > 0)
+                {
+                    var pick = carrier is not null
+                        ? matches.FirstOrDefault(link => link.Carriers.Contains(carrier)) ?? matches[0]
+                        : matches[0];
+                    forward = pick.Forward;
+                    inverse = pick.Inverse;
+                    return true;
+                }
+
+                var nested = inner.LastIndexOf('.');
+                if (nested < 0)
+                {
+                    break;
+                }
+
+                inner = inner[..nested];
             }
 
-            var nested = candidate.LastIndexOf('.');
-            if (nested < 0)
+            var leading = suffix.IndexOf('.');
+            if (leading < 0)
             {
                 forward = "";
                 inverse = "";
                 return false;
             }
 
-            candidate = candidate[..nested];
+            suffix = suffix[(leading + 1)..];
         }
     }
 

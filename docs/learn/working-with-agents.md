@@ -90,6 +90,16 @@ dotnet litespec model query use-case/spending.submit-expense
 
 The answer prints the record with its links in both directions. The agent reads the requirement, the rule, and the results the use case touches, then the standards pages they cite, before it opens the handler. The agent protocol region in the project's `AGENTS.md`, shown above, tells the agent where the selection index lives.
 
+When the identifier is unknown, the agent searches by words instead of guessing a path:
+
+```bash
+dotnet litespec model query --search "receipt threshold"
+dotnet litespec model query --list use-case --module spending
+dotnet litespec model check --module spending
+```
+
+The first lists the records whose identifier, title, summary or statement holds the text, an exact identifier first. The second lists every use case of the spending module. The third prints only that module's findings and exits on them alone, so one module's gaps do not hide behind another's.
+
 When two rules conflict and nothing decides between them, the agent stops and asks, quoting both rule IDs.
 
 ## Agent Decisions and the Closed Specification

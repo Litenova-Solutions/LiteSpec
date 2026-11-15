@@ -63,21 +63,30 @@ function carriersOf(carriers: string[] | string): string[] {
   return [];
 }
 
-/** A link field's Links-table row name, dropping type and nesting prefixes. */
+/** A link field's Links-table row name, dropping type and nesting prefixes, and the map keys a named map adds to a path. */
 export function lexiconResolveField(lex: Lexicon, field: string): string | null {
   let candidate = field;
   const dot = candidate.indexOf(".");
   if (dot > 0 && lex.types?.[candidate.slice(0, dot)]) candidate = candidate.slice(dot + 1);
   const links = lex.links ?? [];
+  // A value under a named map, such as a query output group, carries the map
+  // key in its path; strip leading segments until a row matches, so an output
+  // group's freshness decider reads as its freshness row. A leaf link field
+  // reads from its own row: flow steps name their actor.
+  let suffix = candidate;
   for (;;) {
-    if (links.some((link) => link.field === candidate)) return candidate;
-    const nested = candidate.lastIndexOf(".");
-    if (nested < 0) break;
-    candidate = candidate.slice(0, nested);
+    let inner = suffix;
+    for (;;) {
+      if (links.some((link) => link.field === inner)) return inner;
+      const nested = inner.lastIndexOf(".");
+      if (nested < 0) break;
+      inner = inner.slice(0, nested);
+    }
+    const leading = suffix.indexOf(".");
+    if (leading < 0) break;
+    suffix = suffix.slice(leading + 1);
   }
-  // A leaf link field reads from its own row: flow steps name their actor.
-  const leaf = field.slice(field.lastIndexOf(".") + 1);
-  return leaf !== candidate && links.some((link) => link.field === leaf) ? leaf : null;
+  return null;
 }
 
 function linkRow(lex: Lexicon, field: string, carrierType: string | null) {

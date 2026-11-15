@@ -14,6 +14,10 @@ internal static class ReactionSubscriptionChecks
     internal static void Run(ProjectModel model, List<Finding> findings)
     {
         var eventsByClass = EventsByClass(model);
+        var handlersByReaction = model.Code.Reactions
+            .Where(handler => handler.RecordId is not null)
+            .GroupBy(handler => handler.RecordId!, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToList(), StringComparer.Ordinal);
 
         foreach (var reaction in model.Records)
         {
@@ -22,12 +26,8 @@ internal static class ReactionSubscriptionChecks
                 continue;
             }
 
-            var handlers = model.Code.Reactions
-                .Where(handler => string.Equals(handler.RecordId, reaction.Id, StringComparison.Ordinal))
-                .ToList();
-
             // A reaction with no marked handler yields nothing: that case is reaction-unimplemented.
-            if (handlers.Count == 0)
+            if (!handlersByReaction.TryGetValue(reaction.Id, out var handlers) || handlers.Count == 0)
             {
                 continue;
             }
@@ -38,11 +38,20 @@ internal static class ReactionSubscriptionChecks
                 .OrderBy(id => id, StringComparer.Ordinal)
                 .ToList();
             var handled = new HashSet<string>(StringComparer.Ordinal);
+            var unresolved = false;
 
             foreach (var handler in handlers)
             {
                 if (handler.EventType.Length == 0 || !eventsByClass.TryGetValue(handler.EventType, out var subscribed))
                 {
+                    // A handler subscribed to something the map cannot resolve may
+                    // answer a declared trigger, so no absence is claimed below. A
+                    // handler with no event type subscribes to nothing at all.
+                    if (handler.EventType.Length > 0)
+                    {
+                        unresolved = true;
+                    }
+
                     continue;
                 }
 
@@ -57,6 +66,11 @@ internal static class ReactionSubscriptionChecks
                         handler.Line,
                         reaction.Id));
                 }
+            }
+
+            if (unresolved)
+            {
+                continue;
             }
 
             foreach (var trigger in triggers)
@@ -88,12 +102,13 @@ internal static class ReactionSubscriptionChecks
     private static Dictionary<string, string> EventsByClass(ProjectModel model)
     {
         var eventsByClass = new Dictionary<string, string>(StringComparer.Ordinal);
+        var ambiguous = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var domainEvent in model.Code.Events)
         {
             if (domainEvent.EventId is not null)
             {
-                eventsByClass.TryAdd(domainEvent.Class, domainEvent.EventId);
+                Add(eventsByClass, ambiguous, domainEvent.Class, domainEvent.EventId);
             }
         }
 
@@ -110,11 +125,37 @@ internal static class ReactionSubscriptionChecks
                     && (mark.RecordId.StartsWith("domain-event/", StringComparison.Ordinal)
                         || mark.RecordId.StartsWith("integration-event/", StringComparison.Ordinal)))
                 {
-                    eventsByClass.TryAdd(element.Class, mark.RecordId);
+                    Add(eventsByClass, ambiguous, element.Class, mark.RecordId);
                 }
             }
         }
 
         return eventsByClass;
+    }
+
+    /// <summary>Adds the event record of one event class, leaving out a simple name two records claim.</summary>
+    /// <param name="eventsByClass">The event record identifier of each unambiguous event class, by simple class name.</param>
+    /// <param name="ambiguous">The simple names two records claim, which no handler resolves through.</param>
+    /// <param name="name">The simple class name.</param>
+    /// <param name="id">The event record identifier the class carries.</param>
+    private static void Add(Dictionary<string, string> eventsByClass, HashSet<string> ambiguous, string name, string id)
+    {
+        if (ambiguous.Contains(name))
+        {
+            return;
+        }
+
+        if (eventsByClass.TryGetValue(name, out var held))
+        {
+            if (!string.Equals(held, id, StringComparison.Ordinal))
+            {
+                eventsByClass.Remove(name);
+                ambiguous.Add(name);
+            }
+
+            return;
+        }
+
+        eventsByClass[name] = id;
     }
 }

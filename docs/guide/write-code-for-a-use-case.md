@@ -41,6 +41,8 @@ A use case folder holds an `Application/` folder, and a `WebApi/` folder when th
 
 Screens stay outside this table: whether a browser reaches a use case depends on the deployment.
 
+Two code checks hold the marks to their records. Each reaction handler subscribes only to the events its reaction names in `triggeredBy`: a handler subscribed to another event reports `reaction-subscription-drift`, and a declared trigger no handler answers reports `reaction-trigger-unhandled`. This satisfies `litespec/backend/dotnet/application#subscribe-each-reaction-handler-to-its-declared-triggers`. Each refusal code is thrown only from its own module and by one exception type, so two rules a boundary maps to one response keep two codes. This satisfies `litespec/backend/dotnet/domain#throw-only-refusal-codes-the-module-owns`.
+
 ### Point Each Mark at Its Record
 
 Write every `implements` or `proves` mark with the identifier the table names. The [Project Model](../core/model.md) states the mark rules, and [System](../core/system.md) requires each mark. Each stack page states the written form its language takes.

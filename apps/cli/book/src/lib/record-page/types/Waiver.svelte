@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { book, esc } from "$lib/frame";
+  import { book, capitalize, esc } from "$lib/frame";
   import { RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import Note from "../blocks/Note.svelte";
@@ -25,7 +25,7 @@
 
 
 {#if kind}
-  <PageSection blockKey="kind" heading="kind">{kind}</PageSection>
+  <PageSection blockKey="kind" heading="kind">{capitalize(kind)}</PageSection>
 {/if}
 {#if exit}
   <PageSection blockKey="exit" heading="exit"><RenderedProse html={exit} /></PageSection>

@@ -200,8 +200,10 @@ export const NON_TABLE_FIELDS: ReadonlySet<string> = new Set([
   "decider", "decideBy", "owner", "approvedBy", "approvedOn", "approvedHash", "reviewBy",
   // A scenario shows these in its own Given, When, Then and Result sections.
   "given", "when", "then", "result",
-  // A view shows these in its own definition list, with the key as a record link.
+  // A read model shows these in its own definition list, with the key as a record link.
   "keyedBy", "removedBy", "freshness",
+  // A reaction shows the use case it undoes in its own section.
+  "compensates",
   // A flow shows these in its own start and finish callouts.
   "startedWhen",
   // A screen draws its wireframe in its own section.
@@ -244,6 +246,8 @@ export function fieldRowsFor(book: Book, r: BookRecord, env: FieldTableEnv): Fie
   }
   for (const key of Object.keys(f)) {
     if (NON_TABLE_FIELDS.has(key)) continue;
+    // The waiver page shows the kind beside its exit or consequences.
+    if (key === "kind" && r.type === "waiver") continue;
     // A field a type fact already shows, such as kind, keeps that one row.
     const label = env.labelField(key);
     if (out.some((row) => row.label === label)) continue;

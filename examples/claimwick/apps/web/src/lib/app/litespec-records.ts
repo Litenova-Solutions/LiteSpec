@@ -364,6 +364,7 @@ export type ProofTargetId =
   | "litespec/frontend/ui#compose-each-route-from-one-floorplan"
   | "litespec/frontend/ui#declare-a-closed-floorplan-set"
   | "litespec/frontend/ui#derive-each-page-type-from-a-named-reference"
+  | "litespec/frontend/ui#format-money-and-moments-from-the-readers-language-and-the-businesss-country"
   | "litespec/frontend/ui#give-every-input-a-visible-boundary"
   | "litespec/frontend/ui#govern-behavior-packages"
   | "litespec/frontend/ui#keep-a-blocked-command-visible-with-its-reason"

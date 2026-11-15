@@ -1,7 +1,7 @@
 <script lang="ts">
   import { book, capitalize, esc, stripStep } from "$lib/frame";
   import type { BookRecord, RecordFields } from "$lib/frame";
-  import { RenderedProse } from "$lib/record";
+  import { RecordLink, RenderedProse } from "$lib/record";
   import PageSection from "../blocks/PageSection.svelte";
   import DefinitionList from "../blocks/DefinitionList.svelte";
   import DefinitionRow from "../blocks/DefinitionRow.svelte";
@@ -88,6 +88,7 @@
           {capitalize(s.key)}{" "}
           {@html clsTag(s.classification)}{" "}
           {#if s.freshnessHtml}<span class="font-mono text-xs font-normal text-text-secondary">{@html s.freshnessHtml}</span>{/if}
+          {#if s.decidedBy}<span class="text-xs font-normal text-text-secondary">, decided by <RecordLink id={s.decidedBy} /></span>{/if}
         </div>
         <DataTable
           head={["Name", "Meaning"]}

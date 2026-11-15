@@ -45,7 +45,10 @@ static class RecordQuery
                 {
                     var targets = ModelBuilder.TargetsOf(property.Value);
 
-                    if (targets.Contains(key, StringComparer.Ordinal))
+                    // A flow step or an external-system operation links through
+                    // its carrying record, so its base id links back too.
+                    if (targets.Any(target => string.Equals(target, key, StringComparison.Ordinal)
+                        || string.Equals(Identifiers.BaseId(target), key, StringComparison.Ordinal)))
                     {
                         if (!incoming.TryGetValue(other.Id, out var fields))
                         {

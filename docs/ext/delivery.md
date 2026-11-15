@@ -283,7 +283,7 @@ This extension switches on `setting` and `runbook`: resource bounds are setting 
 
 **Statement:** Every quality requirement that is not retired MUST be named by at least one alert rule or check result, or covered by a waiver.
 
-**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a waiver with a reason, an exit and an expiry date, instead of passing silently.
+**Rationale:** A quality requirement nobody watches is a promise checked only when a customer notices it broken. An alert names it to watch production, and a check result, from a measured check or a drill, names it through its `check` to show it was measured before release; a requirement that cannot be watched yet says so as a gap waiver with a reason, an exit, closing records and an expiry date, instead of passing silently.
 
 **Example:** `requirement/approval-reminders.month-end-submission` is named by the alert `submission-acknowledgement-slow` and by the k6 result its `check` names.
 
@@ -524,9 +524,9 @@ Declaring all five before production makes each alert answerable the first time 
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** A production incident fix that ships before its records are updated MUST carry an incident waiver expiring within seven days.
+**Statement:** A production incident fix that ships before its records are updated MUST carry a gap waiver expiring within seven days.
 
-**Rationale:** A production incident ships its fix at once. The incident waiver records what shipped and why, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.
+**Rationale:** A production incident ships its fix at once. The gap waiver records what shipped and why, names the records to update in `closedBy`, and the records are updated before it expires. An expired waiver is a blocking finding, so the gap stays visible until the records close it.
 
 **Reviewed for:** Which incident fixes lack a waiver, or carry an expired one? Look at the waiver records beside each fix.
 

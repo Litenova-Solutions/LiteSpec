@@ -20,6 +20,7 @@ Use this generated page to read what a finding code means and how to resolve it.
 | `term-verb-duplicate` | G | any | no | - | A glossary verb term restates a verb of the use-case verb table. | Remove the verb term from the glossary; a project never redefines a baseline verb. |
 | `reference-unknown` | G | any | no | - | A citation names no written record or shared provision of the installed release. | Point the citation at a written record or a provision of the installed release. |
 | `link-unknown` | G | any | no | - | A Markdown link in an explanation file or a document resolves to no file and cites no record. | Point the link at a file or a record that exists. |
+| `prose-reference-unknown` | G | any | no | - | Prose names a record identifier no record holds, or a provision the carried release does not ship. | Point the prose at a written record or a provision of the carried release, naming the record by its identifier in backticks. |
 | `product-count-invalid` | G | any | no | - | The project holds no single product record. | Write one product record. |
 | `size-type-missing` | G | any | no | - | The size requires a type the project lacks. | Add a record of the missing type. |
 | `requirement-fulfillment-missing` | G | behavior | no | - | A requirement is fulfilled by no rule, use case, reaction, job, notification or setting; a quality requirement is also fulfilled by a technical decision naming it in `basedOn`. | Fulfill the requirement from a Behavior record, or name a quality requirement from a technical decision in `basedOn`. |

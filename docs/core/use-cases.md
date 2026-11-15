@@ -692,7 +692,7 @@ A setting is one tunable value with its type, range, unit, setter, and bound beh
 
 **Example:** The reimburse-expense command declares the `already-reimbursed` refusal, and a scenario walks an approved expense claimed twice to that refusal.
 
-**Checked by:** `litespec model check` reports `result-scenario-missing`, level G for a success result and level A for a refusal.
+**Checked by:** `litespec model check` reports `result-scenario-missing` (level G) for a written result no scenario shows.
 
 ### Write Every Scenario in Given When Then
 

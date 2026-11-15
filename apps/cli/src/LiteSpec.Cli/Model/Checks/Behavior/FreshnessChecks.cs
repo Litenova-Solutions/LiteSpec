@@ -97,7 +97,29 @@ internal static class FreshnessChecks
 
         foreach (var id in LinkStrings(group, RecordFields.Reads))
         {
-            if (model.ById.ContainsKey(id) && Identifiers.TrySplit(id, out _, out var home, out _) && home is not null)
+            if (!model.ById.TryGetValue(id, out var read))
+            {
+                continue;
+            }
+
+            // A group reads a read model for the rows it copies, so the figure's
+            // source is the aggregate the read model is keyed by, as for a read
+            // model itself. A read model with no resolvable key leaves nothing
+            // its group can be compared against.
+            if (read.Type == RecordTypes.ReadModel)
+            {
+                if (read.Field(RecordFields.KeyedBy) is { Length: > 0 } keyedBy
+                    && model.ById.ContainsKey(keyedBy)
+                    && Identifiers.TrySplit(keyedBy, out _, out var keyHome, out _)
+                    && keyHome is not null)
+                {
+                    homes.Add(keyHome);
+                }
+
+                continue;
+            }
+
+            if (Identifiers.TrySplit(id, out _, out var home, out _) && home is not null)
             {
                 homes.Add(home);
             }

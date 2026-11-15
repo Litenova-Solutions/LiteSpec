@@ -1372,7 +1372,7 @@
         "The Reaction, Job, Notification and Settings",
         "The Permissions and the Access Chain",
         "The Reporting Module",
-        "The External System",
+        "The External Systems",
         "Counting the Records"
       ]
     },
@@ -1399,7 +1399,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Screen",
-      "intent": "The expenses screen is the one screen of Claimwick\u0027s web app that the example builds. It shows an employee their own expenses at the address \u0060/expenses\u0060. This page follows that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.",
+      "intent": "The expenses screen is one of the three screens of Claimwick\u0027s web app that the example builds, beside the expense record at \u0060/expenses/{expenseId}\u0060 and the new-expense form at \u0060/expenses/new\u0060. It shows an employee their own expenses at the address \u0060/expenses\u0060. This page follows that screen from its route file, through the generated API client it reads, the shared UI package it composes, and the pattern catalog that records its interface choices, with the file of each step and the check the model runs over it.",
       "sections": [
         "Intent",
         "The Route",

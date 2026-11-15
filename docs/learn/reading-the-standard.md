@@ -98,13 +98,14 @@ Each page also states the scope its provisions apply to: the technology, the par
 
 The standard expects waivers and gives each one a home:
 
-- **A waiver record** sets a provision, page, or finding code aside for named records or paths, with its reason and, for a gap the team means to close, an expiry date, an exit and the records in `closedBy` whose change closes it. An agent follows the waiver over the standard, and a covered finding reports as covered instead of blocking.
-- **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder.
+- **A waiver record** sets a provision, page, or finding code aside for named records or paths, with its kind and its reason and, for a gap the team means to close, an expiry date, an exit and the records in `closedBy` whose change closes it. A lasting choice carries `consequences` and no end date instead. An agent follows the waiver over the standard, and a covered finding reports as covered instead of blocking.
+- **A project convention** is a standing rule every change follows, stated in the provision shape under `.litespec/governance/conventions/`. A decision chooses between options at one moment, and its `reopenedWhen` names what would reopen it; a convention states the rule that holds after, and its `Reviewed for` question names how a reviewer finds a breach. A convention states a judgment rule, never a list of words: product language lives in the glossary, where the checks read it. Code cites a convention in a `follows` or `proves` mark as `<project>/conventions#<slug>`. Its `Applies to` takes a path glob or the scope keys provisions use, such as `stack: dotnet; artifact: command-handler`, and `rules` reads only the conventions folder. The scope must reach files: `model check` reports `convention-unreached` for a convention whose `Applies to` matches no file, folder or record. Claimwick's `claimwick/conventions#confirm-large-payouts` applies to `behavior/entry-points/claimwick-app/screens/*/*`, the screens its payout rule governs.
+- **A deviation from advice** needs no record. A provision of Strength advisory binds no project, and its `**Deviation:**` part states the exit, so the team follows it with judgment and records nothing.
 - **An extension** can replace a baseline rule when you select it. The outbox extension, for example, replaces the baseline rule for collecting domain events with its own.
 
 When guidance overlaps, the most specific source wins: your waiver or convention, then a selected extension, then the deeper page, then the shallower one. `litespec rules <path>` applies that order and shows the waiver in place of the original.
 
-The Claimwick example carries six waivers under `.litespec/governance/waivers/`. One of them, `examples/claimwick/.litespec/governance/waivers/export-review-bypass/export-review-bypass.yaml`, reads:
+The Claimwick example carries eight waivers under `.litespec/governance/waivers/`. One of them, `examples/claimwick/.litespec/governance/waivers/export-review-bypass/export-review-bypass.yaml`, reads:
 
 ```yaml
 type: waiver
@@ -116,9 +117,9 @@ covers:
 subject:
   - use-case/spending.export-expenses
 reason: The weekend export runs with no reviewer on shift.
-consequences: Weekend exports run without a second pair of eyes until a reviewer returns.
+exit: A reviewer covers the weekend export shift, and the bypass is removed.
+consequences: The weekend export skips the daily review. Finance runs the export alone, and a Monday review covers each weekend batch after the fact. The bypass ends when a reviewer covers weekends.
 expiresOn: 2027-01-01
-exit: A reviewer approves weekend exports before they run.
 closedBy:
   - use-case/spending.export-expenses
 ```

@@ -55,9 +55,9 @@ selectedExtensions:
 
 **Applies to:** artifact: record:waiver
 
-**Statement:** A `pre-production` consumer MUST record each deferred provision as a waiver expiring at promotion, with a `production` consumer carrying no deferred provision.
+**Statement:** A `pre-production` consumer MUST record each deferred provision as a gap waiver expiring at promotion with `closedBy` naming the promotion decision, with a `production` consumer carrying no deferred provision.
 
-**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each waiver names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and the promotion decision names the same provisions, so promotion closes every deferral at once.
+**Rationale:** An early-stage deferral without a named end becomes permanent by neglect. Each waiver carries `kind: gap`, names the deferred provision in `covers` with the date its deferral ends in `expiresOn`, and names the promotion decision in `closedBy`, so promotion closes every deferral at once.
 
 **Example:** Each deferral is a waiver covering its provision until promotion.
 

@@ -12,7 +12,7 @@ Read `.litespec/project.yaml` before changing the project. (litespec/core/agent#
 
 Follow one order on every task: query the model for the records, run `__LITESPEC_COMMAND__ rules <path>` for each file to edit, read the pages `rules` cites, then read neighboring code. (litespec/core/agent#select-task-context, litespec/core/agent#load-applicable-provisions-before-editing, litespec/core/agent#inspect-local-examples-after-standards)
 
-`__LITESPEC_COMMAND__ model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. (litespec/core/agent#select-task-context)
+`__LITESPEC_COMMAND__ model query <record-id>` returns one record with its links. Query the record before changing behavior it describes, and query again when a link leads further. Find records by text with `__LITESPEC_COMMAND__ model query --search <text>` and list every record of a type with `__LITESPEC_COMMAND__ model query --list <type>`. (litespec/core/agent#select-task-context)
 
 Run `__LITESPEC_COMMAND__ rules <path>` before editing a file. (litespec/core/agent#load-applicable-provisions-before-editing)
 
@@ -26,7 +26,9 @@ Never delete, skip, or weaken a test that proves a scenario, or change its expec
 
 Declare every edge between use cases, reactions, jobs, notifications, integration events, and external systems. An undeclared edge is the defect. (litespec/core/system#declare-every-edge-between-records)
 
-A project waiver record sets a Standard aside only when it names the provision ID, with its reason, and with an expiry date when the gap is meant to close. (litespec/core/agent#apply-guidance-precedence)
+Every finding about a missing, unknown or unused link blocks, and planned Intent blocks in every run; only a live waiver covers one. (litespec/core/model#mark-every-check-with-its-level)
+
+A project waiver record sets a Standard aside only when it names the provision ID, states its kind, and, for a gap, names the expiry date, the exit and the closing records in `closedBy`. (litespec/core/agent#apply-guidance-precedence, litespec/core/waivers#state-the-kind-of-every-waiver, litespec/core/waivers#name-the-records-that-close-a-gap)
 
 An explicit project convention in `.litespec/governance/conventions/` can replace a baseline Convention when it cites the Convention's ID. (litespec/core/agent#apply-guidance-precedence)
 
