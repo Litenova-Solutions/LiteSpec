@@ -101,7 +101,7 @@ The TypeScript web pages the React and Svelte stacks share. This folder is a gro
 - [Web Rendering and Routes](frontend/web/rendering.md): the route metadata rule both stacks share.
 - [TypeScript Web Components](frontend/web/components.md): the registry source, the closed element list, and the shared route checks.
 - [Web UI](frontend/web/ui.md): the registry build, suite marks, CSS decisions, and source rules for shared UI.
-- [Web UI Patterns](frontend/web/patterns.md): one implementation per platform for each chosen pattern.
+- [Web UI Patterns](frontend/web/patterns.md): the web implementation of each chosen pattern, stated on the Web UI page.
 - [Web Data and State](frontend/web/data.md): the generated client, failure mapping, cache updates, and state ownership.
 - [Web Testing](frontend/web/testing.md): Vitest beside the module and Playwright against a running stack.
 
@@ -163,7 +163,7 @@ This folder holds extensions any stack can select. An extension for one stack si
 - [Durable Delivery](ext/outbox.md): one-transaction commits with dispatched messages where delivery must survive process failure.
 - [Jobs and Queues](ext/jobs.md): recurring, delayed, and heavy work, and human-cleared queues, with leases that survive restarts.
 - [Release Stage](ext/stage.md): the pre-customer-data stage, what it defers, and the promotion that ends it.
-- [Devices](ext/devices.md): the entry-point protocol block: messages, version rule, client rules, nonce, and offline uploads.
+- [Connected Devices](ext/devices.md): the entry-point protocol block: messages, version rule, client rules, nonce, and offline uploads.
 - [Customer Rules and Hooks](ext/customer-rules.md): customer-composed rules and hooks with a may and may-not contract.
 - [Model Assistance](ext/ai.md): model-mediated queries with a closed tools set, structure-only scenarios, and a pinned stub.
 
@@ -175,14 +175,20 @@ The Reference group holds the `analyzers`, `reference`, `tools`, and `maintain` 
 
 - [CLI overview](tools/README.md): every shipped command with its arguments, options, and exit codes.
 - [Initialize Consumer](tools/init.md): writes `.litespec/project.yaml` for a new consumer from a preset.
-- [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, and answers record queries.
+- [Scaffold Record](tools/new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
+- [Rename Record](tools/rename.md): renames a record identifier and rewrites every link.
+- [Model Builder](tools/model.md): checks the project model, formats record files, renders generated regions, answers record queries, and reports module edges.
 - [Book](tools/book.md): serves the project book live on localhost, or writes the static book with `--out`.
+- [Rules Query](tools/rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
+- [Skill](tools/skill.md): installs or removes the litespec skill.
+- [Context](tools/context.md): writes the specification as one plain-text file for an AI chat.
 
 ### Maintain
 
 - [Maintain overview](maintain/README.md): the three commands that keep the standard itself consistent.
 - [Validate Standards](maintain/validate.md): checks the standards pages, templates, and identifiers against the authoring contract.
 - [Generate Provisions](maintain/provisions.md): rebuilds the provision index from the active standards.
+- [Generate Provision Changelog](maintain/changelog.md): writes the provision changes since a git ref into the changelog.
 
 ### Analyzers
 
@@ -197,10 +203,13 @@ The Roslyn analyzers that report LiteSpec rule breaks as compiler errors on .NET
 - [Reference overview](reference/README.md): the exact values to look up, and which page holds each.
 - [Glossary](reference/glossary.md): the one term for each LiteSpec concept.
 - [Provisions](reference/provisions.md): every provision ID resolved to its heading, page, and mark.
+- [Finding Codes](reference/finding-codes.md): every finding code the tools emit, with its level, layer, trace, meaning, and fix.
+- [Concepts](reference/concepts.md): the one page that owns each glossary concept, with the provisions that page holds.
 - [Audit Obligations](reference/audit-obligations.md): the external obligations the audit extension satisfies.
 - [Decision Records](reference/decision-records.md): where a decision record lives, what it holds, and how it ends.
 - [Project File](reference/project-file.md): every field of `.litespec/project.yaml` and what reads it.
 - [Release Manifest](reference/manifest.md): every field of `litespec.manifest.yaml` and how to add a stack or extension.
+- [Record Folders](reference/folders.md): the folder and file each record type lives in.
 - [Formats](reference/formats.md): every file format, who writes it, its envelope, and the schema and command that check it.
 - [Published URLs](reference/published-urls.md): every URL the site serves for agents and people.
 - [Document templates](../templates/consumer/README.md): the starting files for each consumer record type.
@@ -220,7 +229,7 @@ Readers who are new to LiteSpec start with the [Learn overview](learn/README.md)
 - [How LiteSpec Compares](learn/how-litespec-compares.md): LiteSpec beside fourteen other approaches to spec-driven development, and when each fits.
 - [Lineage](learn/lineage.md): the practices LiteSpec borrows from, the words it takes from each, and what it does differently.
 - [Work with Agents](learn/working-with-agents.md): how an agent finds the rules, what it decides alone, and what it brings back.
-- [Adopt LiteSpec](learn/adopting-litespec.md): what changes for a team, in the order teams usually do it.
+- [Adopt LiteSpec in Steps](learn/adopting-litespec.md): what changes for a team, in the order teams usually do it.
 
 ### Example
 
@@ -252,6 +261,8 @@ Tutorials take a reader to a first working result; how-to guides solve one state
 - [Write a Research Record](guide/write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Write Code for a Use Case](guide/write-code-for-a-use-case.md): where each element goes, the mark it carries, and what checks it.
 - [Build an Audit Trail](guide/audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
+- [Run Rules After Every Edit](guide/run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
+- [Add a Stack or an Extension](guide/add-a-stack-or-extension.md): add a stack folder or an extension page to the release manifest.
 
 ## LiteSpec's Own Records
 

@@ -148,14 +148,14 @@ const initialAgents = renderAgentProtocol(
         </div>
       </fieldset>
       <fieldset class="select-row">
-        <legend class="select-label">Size<span>Small: one team, no flows or scenarios. Large adds flows, scenarios, and the Acceptance project.</span></legend>
+        <legend class="select-label">Size<span>Small: the core record types. Large adds goals, problems, features, flows, and scenarios, with the Acceptance project.</span></legend>
         <div class="select-seg">
           <label><input class="visually-hidden" type="radio" name="size" value="small" checked={defaultSize === "small"} /><span>Small</span></label>
           <label><input class="visually-hidden" type="radio" name="size" value="large" checked={defaultSize === "large"} /><span>Large</span></label>
         </div>
       </fieldset>
       <fieldset class="select-row">
-        <legend class="select-label">Shape<span>Server: one API deployable and one database. Client-only: no server of its own.</span></legend>
+        <legend class="select-label">Shape<span>Server: the project runs its own backend. Client-only: no server of its own.</span></legend>
         <div class="select-seg">
           {
             shapes.map((shape) => (

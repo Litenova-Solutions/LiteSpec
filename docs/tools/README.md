@@ -23,7 +23,7 @@ Every command accepts `--help`, and `model check` accepts `--format json` for a 
 - [Initialize Consumer](init.md): writes `.litespec/project.yaml` for a new consumer from a preset.
 - [Scaffold Record](new.md): creates a record file and reserves its identifier, allocates the next decision number, or appends a result, scenario, or list entry to its owning file.
 - [Rename Record](rename.md): renames a record identifier and rewrites every link.
-- [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, and answers record queries.
+- [Model Builder](model.md): checks the project model with the consumer pass, formats record files, renders generated outputs, answers record queries, and reports module edges.
 - [Book](book.md): serves the project book live on localhost, or writes the static book with `--out`.
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](skill.md): installs or removes the litespec skill.

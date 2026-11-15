@@ -28,3 +28,4 @@ When LiteSpec is new, install the command line first with [Install the CLI](inst
 - [Write a Research Record](write-a-research-record.md): write one question's findings, each tied to its source and marked as stated or inferred.
 - [Build an Audit Trail](audit-trail.md): the audit extension on the .NET LiteBus pipeline, step by step.
 - [Run Rules After Every Edit](run-rules-after-every-edit.md): run `rules` on each file after it is edited, and check the change set before the agent stops.
+- [Add a Stack or an Extension](add-a-stack-or-extension.md): add a stack folder or an extension page to the release manifest.

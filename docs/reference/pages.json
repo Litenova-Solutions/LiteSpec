@@ -4057,14 +4057,14 @@
       "style": "explanation",
       "area": "learn",
       "title": "Why LiteSpec Exists",
-      "intent": "LiteSpec exists because teams that build with AI agents watch the same request produce a different design each time, while the reasons behind past designs leave with the people who made them. This page names those failure modes and the 3 parts LiteSpec answers with: a versioned standard (one published set of rules), written records (short YAML files stating product intent), and a model builder (the command joining records to code, screens, and tests) that checks one against the other. Technical leads read it when they decide whether LiteSpec fits their team.",
+      "intent": "When people or AI agents build software, they make decisions that rarely make it into the documentation. Requirements stay in chat threads. Business rules end up buried in handlers. The reasons behind a design disappear when someone leaves.",
       "sections": [
         "Intent",
         "The Problem",
-        "The Approach",
-        "The End Goal",
-        "Non-Goals",
-        "One Narrow Scope",
+        "How LiteSpec Helps",
+        "The Goal",
+        "Why the Scope Is Narrow",
+        "What LiteSpec Is Not",
         "Next"
       ]
     },

@@ -13,13 +13,13 @@ LiteSpec is for a team that builds one bounded-context business application with
 
 ## How It Works
 
-A project describes itself with records: written statements of fixed types, joined by fixed links. Each record page is a YAML record file with an optional Markdown explanation file beside it. Records sit in four layers.
+A project describes itself with records: written statements of fixed types, joined by fixed links. Each record page is a YAML record file with an optional Markdown explanation file beside it. Records sit in four layers under the product record.
 
 | Layer | What It Holds |
 |:---|:---|
-| Intent | Goals, requirements, and decisions that state what the product promises. |
-| Behavior | Use cases, flows, and rules that state how the system keeps the promises. |
-| Implementation | The code and screens that carry the behavior. |
+| Intent | Goals, problems, features, flows, requirements, constraints, research, and decisions that state what the product promises. |
+| Behavior | Modules, aggregates, rules, use cases, read models, reactions, jobs, notifications, integration events, entry points, and screens that state how the system keeps the promises. |
+| Implementation | The code that carries the behavior. |
 | Proof | The tests and checks that show the code matches the records. |
 
 The `litespec` tool reads the records and the code, builds a project model, and reports where the two disagree.
@@ -35,21 +35,21 @@ A project names the record layers it claims in `layers` in `.litespec/project.ya
 
 `litespec model check`, the book, `litespec rules` and the analyzers report only what applies to the claimed layers.
 
-Each check also has a check level, which says what a finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
+Each check also has a check level, which says what a finding rests on. Whether a finding blocks follows from the strength of the provision it reports: a finding on a required provision blocks unless a waiver parks it, and a finding on an advisory provision never blocks. Every finding about a link between records is G or S and blocks. A stack reader is the part of the tool that reads one stack's code and tests and follows their marks to the records. A reader is qualified when it ran and its handshake matched.
 
 | Check level | Meaning |
 |:---|:---|
-| G | Reads records only. |
-| S | Reads code through a stack reader. A finding counts only where the reader is qualified. |
-| A | Release readiness. `--release` makes these findings block, and a claimed layer without a working reader blocks. |
+| G | Rests on records only. |
+| S | Rests on code read through a stack reader. A finding counts only where the reader is qualified. |
+| A | Rests on prose, names, or proof state, and never blocks. |
 
-The tool renders the model as a book that a reader reads offline. The analyzers apply the same rules inside a .NET build.
+The tool serves the model as a book: `litespec book` serves it live by default, and `--out` writes a book safe to host. The analyzers apply the same rules inside a .NET build.
 
 ## How Agents Use It
 
 An agent asks the tool which provisions apply to the file at hand instead of loading pages. Before editing a file, it runs `litespec rules <path>` and reads the returned provisions grouped by strength, each with why it was retrieved, after the decisions and waivers the file follows. When a statement is not enough, it runs `litespec rules <provision-id>` for the whole provision. Before reporting done, it runs `litespec rules --since <base>`, answers the Reviewed for question of each provision the change set returns, and names the provisions it judged and how in its completion report.
 
-It loads record context through `litespec model query <record-id>`, which returns one record with its computed links. It builds only what the specification states; something that seems missing becomes a question to the owner or a backlog item, never code.
+It loads record context through `litespec model query <record-id>`, which returns one record with its computed links, and finds records with `litespec model query --search <text>` and `litespec model query --list <type>`. It builds only what the specification states; something that seems missing becomes a question to the owner or a backlog item, never code.
 
 The project's `AGENTS.md` carries the agent protocol as a region the tool generates and keeps current. `litespec skill add` installs a LiteSpec skill for Claude Code and OpenCode that walks an agent through this order.
 
@@ -98,9 +98,11 @@ The CLI commands, with the `model` subcommands on their own rows:
 | `litespec rename` | Renames an identifier and rewrites every citation. |
 | `litespec model check` | Checks the specification, its links, and its marks. The one command CI runs. |
 | `litespec model format` | Rewrites record files into canonical form. |
-| `litespec model query` | Returns one record with its computed links. |
-| `litespec book` | Generates the project book from the model. |
+| `litespec model query` | Returns one record with its computed links, or finds records with `--search` and `--list`. |
+| `litespec model edges` | Prints each module's links to other modules. |
+| `litespec book` | Serves the project book live, or writes it with `--out`. |
 | `litespec model render` | Rewrites the generated regions: the agent protocol in `AGENTS.md`, the project skill copies, and the indexes. |
+| `litespec context` | Writes the specification as one plain-text file for an AI chat. |
 | `litespec rules <path>` | Lists the provisions that apply to a file, grouped by strength, or to a change set with `--since`. |
 | `litespec skill add` | Installs the LiteSpec skill for Claude Code, OpenCode and the shared `.agents` folder. |
 

@@ -139,14 +139,18 @@ What each field means and what reads it:
 |:---|:---|:---|:---|
 | `forbidden` | string | no | `"authorization.forbidden"` |
 | `invalidInput` | string | no | `"request.validation-failed"` |
+| `statuses` | object | no | none |
+| `aliases` | object | no | none |
 | `composed` | string array | no | none |
 
 What each field means and what reads it:
 
 - `forbidden` is the code the derived `result/<use-case>.forbidden` carries, derived for a use case whose `access.grant` is a permission.
 - `invalidInput` is the code the derived `result/<use-case>.invalid-input` carries, derived for a use case with any `input` field carrying `rules`.
+- `statuses` holds the HTTP status each declared refusal code answers with, by refusal code, such as `"spending.expense-not-found": 404`. Each value is an integer from 100 to 599. A test asserting the status confirms the refusal.
+- `aliases` holds the client refusal vocabulary translated to declared codes, by client code, such as `"NOT_FOUND": "spending.expense-not-found"`. A test asserting the client code confirms the declared refusal.
 - `composed` lists the refusal codes the project builds at run time from a key, each a template with one `{key}` placeholder after a prefix and a dot, such as `"uniqueness.{key}-taken"` for the conflict a commit answers when an aggregate loses a uniqueness key. The `refusal-unimplemented` check counts a code matching a template as raised when its key is a kebab-case literal in the code, such as the key scope `copy-barcode` on the book aggregate for `uniqueness.copy-barcode-taken`.
-- The model builder reads `forbidden` and `invalidInput` when it derives the generic results. When the object is omitted, the defaults apply.
+- The model builder reads `forbidden` and `invalidInput` when it derives the generic results, and `statuses` and `aliases` when proof confirmation matches a test's asserted status or client code to a declared refusal. When the object is omitted, the two defaults apply.
 
 ### The `paths` Object
 

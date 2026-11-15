@@ -78,7 +78,7 @@ The `--help` text of each command is the contract quoted in `docs/maintain/`. Qu
 
 Authoring diagnostics carry one reporting shape: a stable code, a one-sentence message, a file path, and a 1-based line. Human output prints one line per finding to standard error. JSON output prints one object to standard output so a caller never parses the human lines back apart.
 
-`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `LAYER_UNLISTED`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare, so an undeclared code fails fast in tests instead of shipping as a typo. Every diagnostic is an error. Human output writes `Relative:Line [CODE] Message` per error. JSON output writes `tool`, `root`, `ok`, and an `errors` array of `file`, `line`, `code`, and `message` objects. A passing human run prints `LiteSpec authoring checks passed.` A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines.
+`StandardsValidator.StableDiagnosticCodes` lists every code `validate` may emit, in declaration order, from `ANCHOR_BROKEN` to `STANDARD_STRENGTH_MODAL`. `Validate` throws `InvalidOperationException` when a check emits a code the list does not declare, so an undeclared code fails fast in tests instead of shipping as a typo. Every diagnostic is an error. Human output writes `Relative:Line [CODE] Message` per error. JSON output writes `tool`, `root`, `ok`, and an `errors` array of `file`, `line`, `code`, and `message` objects. A passing human run prints `LiteSpec authoring checks passed.` A failing run appends `LiteSpec authoring checks failed with N error(s).` after the lines.
 
 ### Release and Repository Roots
 

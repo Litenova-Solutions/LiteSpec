@@ -13,6 +13,7 @@ Two pages resolve what other pages cite: [Glossary](glossary.md) defines each Li
 - [Glossary](glossary.md): the one term for each LiteSpec concept.
 - [Provisions](provisions.md): every provision ID resolved to its heading, page, and mark.
 - [Finding Codes](finding-codes.md): every finding code the tools emit, with its level, layer, trace, meaning, and fix.
+- [Concepts](concepts.md): the one page that owns each glossary concept, with the provisions that page holds.
 
 ## Files and Contracts
 

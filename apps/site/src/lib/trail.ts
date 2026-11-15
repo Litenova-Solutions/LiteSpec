@@ -3,11 +3,12 @@
 //
 //   product      Claimwick: submit, approve, reimburse
 //     goal       Decided in days
-//   code         Aggregate, command, endpoint, test
+//   Behavior     Modules Spending and Reporting: aggregates, rules, use cases
 //   facet  Where it lives  spending module > expense aggregate
 //
 // A node line is a record type, two or more spaces, and its text; indentation nests
-// it. A `facet` line is a label and a path. The site draws the outline as a tree.
+// it. A node line that starts with a capital letter names a record layer rather
+// than one record. A `facet` line is a label and a path. The site draws the outline as a tree.
 
 import { escape } from "./html.ts";
 
@@ -38,7 +39,7 @@ export function parseTrail(text: string): { trail: Trail; errors: string[] } {
       continue;
     }
 
-    const node = /^(\s*)([a-z][a-z-]*)\s{2,}(.+)$/.exec(raw);
+    const node = /^(\s*)([A-Za-z][a-zA-Z-]*)\s{2,}(.+)$/.exec(raw);
     if (!node) {
       errors.push(`line ${index + 1}: expected "<type>  <text>" or "facet <label>  <path>": ${raw.trim()}`);
       continue;
@@ -74,7 +75,7 @@ function renderItems(items: TrailNode[]): string {
 }
 
 function renderItem(node: TrailNode): string {
-  const group = GROUPS[node.type] ?? "build";
+  const group = GROUPS[node.type.toLowerCase()] ?? "build";
   const children = node.children.length > 0 ? renderItems(node.children) : "";
   return (
     `<li class="trail-node trail-${group}">` +

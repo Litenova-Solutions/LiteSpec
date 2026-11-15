@@ -318,6 +318,16 @@ Home: docs/core/model.md
 
 Source: LiteSpec.
 
+### Closing Record
+
+One record whose change closes a gap waiver, named in the waiver's `closedBy`.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
 ### Command
 
 One use case kind that changes business state.
@@ -327,6 +337,18 @@ Layer: Behavior.
 Home: docs/core/use-cases.md
 
 Source: CQRS.
+
+### Compensation
+
+The work a reaction does to undo a committed step after a later step fails, naming the undone use case in `compensates`.
+
+Layer: Behavior.
+
+Home: docs/core/automation.md
+
+Aliases: undo.
+
+Source: LiteSpec.
 
 ### Conclusion
 
@@ -365,6 +387,16 @@ One named group of aggregate fields sharing one classification, one purpose, one
 Layer: Behavior.
 
 Home: docs/core/privacy.md
+
+Source: LiteSpec.
+
+### Decided By
+
+The command use case or aggregate a `snapshot` or `eventual` freshness names in `decidedBy` as deciding the figure at write time.
+
+Layer: Behavior.
+
+Home: docs/core/use-cases.md
 
 Source: LiteSpec.
 
@@ -550,6 +582,16 @@ Home: docs/core/intent.md
 
 Source: BABOK and IREB.
 
+### Gap Waiver
+
+One waiver for work the team means to close, carrying an expiry date, an exit, and the records whose change closes it.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
+
 ### Generic Refusal
 
 One refusal the model derives instead of a written result: forbidden, invalid input, not found, conflict, unauthenticated, or sign-in-too-old.
@@ -643,6 +685,16 @@ Layer: Behavior.
 Home: docs/frontend/ui.md
 
 Source: BCP 47.
+
+### Lasting Waiver
+
+One waiver for a choice the project keeps, carrying the consequences the project accepts and no end date.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/waivers.md
+
+Source: LiteSpec.
 
 ### Measured Requirement
 
@@ -794,6 +846,14 @@ Home: docs/core/intent.md
 
 Source: plain English.
 
+### Product Area
+
+One Behavior module as the book groups Intent: each group lists the features and flows the module's use cases, reactions, jobs, or screens reach.
+
+Home: docs/tools/book.md
+
+Source: LiteSpec.
+
 ### Product Requirement
 
 One requirement with no offer behind it, sitting at product level and citing the constraint, goal, or problem it comes from.
@@ -801,6 +861,16 @@ One requirement with no offer behind it, sitting at product level and citing the
 Layer: Intent.
 
 Home: docs/core/intent.md
+
+Source: LiteSpec.
+
+### Prose Reference
+
+One record identifier or provision identifier written in prose in backticks, which must name a written record or a provision the carried release ships.
+
+Layer: Intent or Behavior.
+
+Home: docs/core/model.md
 
 Source: LiteSpec.
 
