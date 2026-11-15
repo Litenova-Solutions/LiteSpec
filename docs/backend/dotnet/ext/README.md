@@ -8,5 +8,5 @@ The shared [Extensions overview](../../../ext/README.md) catalog holds the exten
 
 ## .NET Stack Extensions
 
-- [Executable BDD Acceptance Tests](bdd.md): Gherkin features or LightBDD classes for critical examples that need business-language review.
+- [Executable BDD Acceptance Tests](bdd.md): LightBDD classes for critical examples that need business-language review.
 - [Layer Projects](layer-projects.md): the five-project packaging of the layers, the project reference graph, and the per-project layouts.

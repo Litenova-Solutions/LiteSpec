@@ -1,6 +1,6 @@
 # Write Code for a Use Case
 
-A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without hunting six pages.
+A use case is one command or query with its access, results, and scenarios, and its code spreads across every backend layer. This guide places each code element of a use case in its folder and gives it the mark its record needs, so a writer adds a use case without searching the stack pages for each placement rule.
 
 ## Prerequisites
 

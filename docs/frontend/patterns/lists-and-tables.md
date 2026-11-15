@@ -163,7 +163,7 @@ page
 
 **Rationale:** Five fixed columns fit at 1440 pixels without scrolling and answer which expense, who, when, what state, and what money. On a phone the rows turn into two lines with the amount on the right, and a Sort control takes over from the headers.
 
-**Cost:** Nothing can be dropped or added: a team that wants the trip as its own column, or that hides the email, has no way to get there. On a phone there are no headers, so sorting and comparison down a column move to a control or to the desktop.
+**Cost:** Nothing can be dropped or added: a team that wants the trip as its own column, or that hides a column, has no way to get there. On a phone there are no headers, so sorting and comparison down a column move to a control or to the desktop.
 
 #### `a-columns-popover-listing-every-column`: A Columns Popover Listing Every Column
 
@@ -1016,13 +1016,13 @@ page
 
 **Strength:** default
 
-**Question:** What does the money cell say beyond the number? Each expense row shows what the spender was paid, and the column header names the currency.
+**Question:** What does the money cell say beyond the number? Each expense row shows what the spender was paid, and each cell shows the currency with the figure.
 
 **Default:** `number-only-right-aligned`
 
-**Compact:** The default reflows: the Paid column keeps its right-aligned figures while the table scrolls sideways, with the currency still named in the header.
+**Compact:** The default reflows: the Paid column keeps its right-aligned figures while the table scrolls sideways, with each cell still showing the currency.
 
-**Rationale:** Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total: a derived percentage column answers a question no expenses list is asked.
+**Rationale:** Keep the number only. Each cell shows the currency with the figure, so an export or a screenshot never leaves finance guessing which money it shows. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total: a derived percentage column answers a question no expenses list is asked.
 
 **Reviewed for:** Does the built amount column match the wireframe the catalog entry chose? Open the built aligned figures and reversal columns beside the catalog entry recording the chosen option and its reason.
 
@@ -1041,7 +1041,7 @@ page
       item: text "EXP-1042" · text "Ava" · text "8 Oct 09:32" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** The default shape. A column headed Paid is unambiguous about the currency, so repeating EUR on every row is noise.
+**Rationale:** The default shape. Each cell shows the currency with the figure, so an export or a screenshot never leaves finance guessing which money it shows.
 
 **Cost:** EUR 0.00 reads as an error rather than a fact, so a zero row needs words saying why it is zero.
 

@@ -185,9 +185,9 @@ page
       text muted "1 to 25 of 268"
 ```
 
-**Rationale:** A segmented control across the top reads All, Paid, Awaiting, Reversed, Disputed. One control replaces five, and the current choice stays visible rather than hiding in a list.
+**Rationale:** A segmented control across the top reads All, Paid, Awaiting, Reversed, Disputed, each with its count. One control replaces five, and the current choice stays visible rather than hiding in a list.
 
-**Cost:** Five segments plus a search box crowd one toolbar, and segments have no room for a count per state. The reader cannot see where the work is before choosing.
+**Cost:** Five segments plus a search box crowd one toolbar.
 
 #### `dense-filter-bar-with-a-result-count`: Dense Filter Bar with a Result Count
 
@@ -1036,7 +1036,7 @@ page
 
 **Strength:** default
 
-**Question:** A new company has an account and nothing else. The decision is how much the page does. A checklist waits, a wizard leads, and a single page states the three steps and gets out of the way.
+**Question:** A new company has an account and nothing else. The decision is how much the page does. A checklist waits, a wizard leads, and a template names the first trip before anything else.
 
 **Default:** `checklist-with-a-progress-bar`
 

@@ -225,7 +225,7 @@ Anything a check reads is a field in the record file. Anything that only helps s
 
 ### Research and Decision Articles
 
-Two record types read as prose articles: `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Findings and Source Notes for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
+Two record types read as prose articles: `research` and `decision`. Their explanation file is required, and it carries the required H2 sections: Findings for research, and Context, Options, Decision, Consequences and Revisit Conditions for decision.
 
 ### How Record Files Are Read
 

@@ -170,7 +170,7 @@ page
 
 **Default:** `groups-subtotals-and-a-grand-total`
 
-**Compact:** On a narrow screen the recommended option stacks the groups, with each subtotal above the grand total, and every figure keeps its currency.
+**Compact:** On a narrow screen the default option stacks the groups, with each subtotal above the grand total, and every figure keeps its currency.
 
 **Rationale:** Keep groups, subtotals, and a grand total, with a count under each line. The count is the only completeness check. The runner-up ends in the payouts the statement became, which fits finance work against bank lines.
 
@@ -266,7 +266,7 @@ page
 
 **Default:** `one-form-per-table-with-the-zone-stated-once`
 
-**Compact:** On a narrow screen the recommended option keeps the Submitted column in its single form, with the zone still named once in the header.
+**Compact:** On a narrow screen the default option keeps the Submitted column in its single form, with the zone still named once in the header.
 
 **Rationale:** Keep one form per table and state the zone once in the header, so a column reads as a column. The entry point names the option its screens render in `formats.moment`.
 
@@ -291,7 +291,7 @@ page
 
 **Rationale:** Every row keeps the same shape and the header names the zone once, so a column reads as a column.
 
-**Cost:** Minutes add noise a week later. A reader cannot tell which zone a message used.
+**Cost:** Minutes add noise a week later. A reader cannot tell which zone an expense used.
 
 #### `grouped-by-day-so-the-column-is-the-day`: Grouped by Day, so the Column Is the Day
 
@@ -332,7 +332,7 @@ page
 
 **Rationale:** Every moment carries its own zone. Expenses on one page come from offices in different zones, and a trip in another zone is a real case.
 
-**Cost:** A column of repeated offsets is hard to read. The alternative states the zone once, but that reads wrong for rows from another zone.
+**Cost:** A column of repeated zones is hard to read. The alternative states the zone once, but that reads wrong for rows from another zone.
 
 ### Choosing a Period
 
@@ -344,7 +344,7 @@ page
 
 **Default:** `chevrons-either-side-of-the-period-as-the-heading`
 
-**Compact:** On a narrow screen the recommended option keeps the chevrons on the period heading with the month control under it, and the spending facts stack below.
+**Compact:** On a narrow screen the default option keeps the chevrons on the period heading with the month control under it, and the spending facts stack below.
 
 **Rationale:** Ship chevrons beside the heading with a month dropdown: walking a month is one click, and jumping avoids twelve clicks. The runner-up uses presets with typeable bounds, which fits charts and exports where the period is not a month. Never ship the period as a filter chip: the period is the subject, not a refinement.
 
@@ -524,7 +524,7 @@ page
 
 **Default:** `counts-in-the-sidebar-on-the-rows-that-hold-work`
 
-**Compact:** On a narrow screen the recommended option stacks the sidebar counts above the work list, with each row keeping its count.
+**Compact:** On a narrow screen the default option stacks the sidebar counts above the work list, with each row keeping its count.
 
 **Rationale:** Keep counts where the reader would otherwise fetch them: the sidebar rows that hold work carry them, and the tabs above a list carry them. The runner-up is the stat tiles with their measure stated.
 

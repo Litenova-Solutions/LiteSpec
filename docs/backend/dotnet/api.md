@@ -71,7 +71,7 @@ At startup, the host scans the modules assembly through its one public marker fo
 
 **Statement:** An operation MUST declare a stable `operationId`, a summary, its authorization, request, success, and Problem Details metadata, and typed results or `Produces` metadata.
 
-**Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary and description are declared explicitly. This provision binds `litespec/backend/api#declare-stable-operation-metadata-in-the-contract` for .NET.
+**Rationale:** Generated clients name their calls from `operationId`, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary is declared explicitly. This provision binds `litespec/backend/api#declare-stable-operation-metadata-in-the-contract` for .NET.
 
 **Reviewed for:** Does every operation declare a stable `operationId`, a summary, authorization, request, success, and Problem Details metadata, and typed results or `Produces` entries? Look at each operation.
 

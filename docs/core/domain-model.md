@@ -211,7 +211,7 @@ A domain event is an immutable statement that a business fact completed. It is n
 
 **Rationale:** States without transitions are a list of names with no path between them: a reviewer sees where an aggregate rests but never how it moves. Listing every allowed change with the use case or job moving it in `movedBy` shows the whole lifecycle beside the states, and leaves no state reachable only by a path no record names. A transition moved by time names the job in `movedBy` with the duration from entering its source state in `after`. The `state-unreached` and `transition-unknown` checks report a state no transition reaches and a transition naming a missing state, use case, or job.
 
-**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state or use case.
+**Checked by:** `litespec model check` reports `state-unreached` (level G) for a state reached by no transition, a creation included, and `transition-unknown` (level G) for a transition naming a missing state, or a `movedBy` naming no use case or job.
 
 ### State Each Rule with Its Kind
 

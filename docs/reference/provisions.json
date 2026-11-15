@@ -164,7 +164,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An operation MUST declare a stable \u0060operationId\u0060, its authorization, request, success, and Problem Details metadata, and a summary.",
-      "rationale": "Generated clients name their methods from \u0060operationId\u0060. An unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.",
+      "rationale": "Generated clients name their methods from \u0060operationId\u0060. An unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries.",
       "example": ""
     },
     {
@@ -2477,7 +2477,7 @@
       "trace": false,
       "strength": "required",
       "statement": "An operation MUST declare a stable \u0060operationId\u0060, a summary, its authorization, request, success, and Problem Details metadata, and typed results or \u0060Produces\u0060 metadata.",
-      "rationale": "Generated clients name their calls from \u0060operationId\u0060, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary and description are declared explicitly. This provision binds \u0060litespec/backend/api#declare-stable-operation-metadata-in-the-contract\u0060 for .NET.",
+      "rationale": "Generated clients name their calls from \u0060operationId\u0060, so an unnamed or unstable operation breaks every client regeneration. Authorization and Problem Details metadata tell a client which policies apply and which failures to handle; without them the client guesses. Route-lambda comments never reach the contract, so the summary is declared explicitly. This provision binds \u0060litespec/backend/api#declare-stable-operation-metadata-in-the-contract\u0060 for .NET.",
       "example": ""
     },
     {
@@ -7438,7 +7438,7 @@
       "anchor": "connect-every-state-through-transitions",
       "kind": "rule",
       "mark": "checkable",
-      "evidence": "\u0060litespec model check\u0060 reports \u0060state-unreached\u0060 (level G) for a state reached by no transition, a creation included, and \u0060transition-unknown\u0060 (level G) for a transition naming a missing state or use case.",
+      "evidence": "\u0060litespec model check\u0060 reports \u0060state-unreached\u0060 (level G) for a state reached by no transition, a creation included, and \u0060transition-unknown\u0060 (level G) for a transition naming a missing state, or a \u0060movedBy\u0060 naming no use case or job.",
       "stack": "any",
       "concern": "domain",
       "artifact": "aggregate",
@@ -25889,7 +25889,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060number-only-right-aligned\u0060",
-      "rationale": "Keep the number only. The header names the currency and repeating EUR on every row is noise. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total: a derived percentage column answers a question no expenses list is asked.",
+      "rationale": "Keep the number only. Each cell shows the currency with the figure, so an export or a screenshot never leaves finance guessing which money it shows. Prefer the reversed part under the charged amount where reversals are the work rather than the exception. Never ship money as a share of the total: a derived percentage column answers a question no expenses list is asked.",
       "example": ""
     },
     {
@@ -26547,7 +26547,7 @@
       "anchor": "icons-in-the-frame",
       "kind": "pattern",
       "mark": "guidance",
-      "evidence": "Does every built label and action carry the icon the catalog entry chose? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason.",
+      "evidence": "Which built label or action carries an icon outside the set the catalog entry chose? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "",
@@ -27113,7 +27113,7 @@
       "trace": false,
       "strength": "default",
       "statement": "\u0060the-commands-are-refused-the-record-is-not\u0060",
-      "rationale": "The default keeps the refused commands on a readable record. Auditors can read an expense and cannot reimburse it, and each refusal names the grant that would allow it. The ask for access option is the runner-up, and the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader\u0027s reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.",
+      "rationale": "The default keeps the refused commands on a readable record. Auditors can read an expense and cannot reverse it, and each refusal names the grant that would allow it. The ask for access option is the runner-up, and the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader\u0027s reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.",
       "example": ""
     },
     {
@@ -27537,7 +27537,7 @@
       "anchor": "mirror-the-backend-use-case-path-in-kebab-case",
       "kind": "rule",
       "mark": "guidance",
-      "evidence": "Does every use-case folder sit at \u0060{module}/{aggregate}/{use-case}/\u0060 in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.",
+      "evidence": "Does every use-case folder sit at \u0060{module}/{aggregate}/{use-case}/\u0060, or at \u0060{module}/use-cases/{use-case}/\u0060 for a module-level use case, in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.",
       "stack": "any",
       "concern": "frontend-ui",
       "artifact": "any",
@@ -28211,7 +28211,7 @@
       "trace": false,
       "strength": "required",
       "statement": "Every route MUST pass each route suite check.",
-      "rationale": "The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, the focus move on a route change, each color scheme, reduced motion, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.",
+      "rationale": "The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, the focus move on a route change, each color scheme, reduced motion, status announcements, and the formats. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.",
       "example": ""
     },
     {

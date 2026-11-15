@@ -84,7 +84,7 @@ The diagram shows the backend path beside its frontend mirror, with one arrow pe
 
 ![The backend folder Spending, Expenses, ListExpenses beside the frontend folders spending, expenses, list-expenses, with one arrow mapping each backend segment to its kebab-case spelling.](../assets/diagrams/frontend-use-case-path.svg)
 
-**Reviewed for:** Does every use-case folder sit at `{module}/{aggregate}/{use-case}/` in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.
+**Reviewed for:** Does every use-case folder sit at `{module}/{aggregate}/{use-case}/`, or at `{module}/use-cases/{use-case}/` for a module-level use case, in kebab case and resolve to the backend folder of the same names? Check the module tree and the structure test proving the mirror.
 
 ### Keep a Use Case Folder Flat
 

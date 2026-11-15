@@ -19,5 +19,5 @@ Standards pages state LiteSpec's rules. Reference pages state the exact values b
 
 ## Decisions and Obligations
 
-- [Decision Records](decision-records.md): where each decision record lives, what it holds, and how it ends.
+- [Decision Records](decision-records.md): where each decision record lives, what it holds, and how it changes.
 - [Audit Obligations](audit-obligations.md): the external obligations the audit extension satisfies.

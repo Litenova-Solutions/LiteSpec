@@ -269,7 +269,7 @@ page
 
 **Default:** `facts-about-the-record-itself`
 
-**Compact:** The recommended option reflows: the identity facts stack in one column under the header, keeping the order they read in on a wide screen.
+**Compact:** The default option reflows: the identity facts stack in one column under the header, keeping the order they read in on a wide screen.
 
 **Rationale:** The default keeps the facts about the record itself. A trip summary states when, where, and what it may spend: the identity of the record rather than its support. The copyable identifiers option is the runner-up, and the better choice on records a reader quotes elsewhere, such as an expense read out on the phone. Prefer the tiles option only where the reader checks four figures at a glance rather than reading facts line by line. Never ship values with no section: a row of values standing on the canvas breaks the rule that a section is the only box.
 
@@ -412,9 +412,9 @@ page
     fact "Paid" "EUR 125.00"
 ```
 
-**Rationale:** History supports the expense without describing it, and it reads top to bottom beside the facts. On a wide screen it is a narrow column; below that it stacks under the sections.
+**Rationale:** History supports the expense without describing it, and it reads top to bottom beside the facts. On a wide screen it is a narrow column; below that it stacks under the header, history first.
 
-**Cost:** Below about 1000 pixels the aside stacks under everything, so the history the reader most wants lands after the sections they came to use.
+**Cost:** Below about 1000 pixels the aside stacks under the header ahead of the sections, so the history lands before the sections the reader came to use.
 
 #### `aside-for-what-needs-a-decision`: Aside for What Needs a Decision
 
@@ -486,7 +486,7 @@ page
 
 **Default:** `newest-first-with-actor-and-timestamp`
 
-**Compact:** The recommended option reflows: the timeline stays newest first, with actor and timestamp on each line.
+**Compact:** The default option reflows: the timeline stays newest first, with actor and timestamp on each line.
 
 **Rationale:** The default keeps the newest-first timeline with actor and timestamp, since it answers who and when on every line. The filtered timeline is the runner-up, and the better choice once a record carries dozens of entries across kinds. Prefer the table option only where the history is the record rather than context. Never group the main history by actor: it destroys the chronological order a timeline exists to give.
 
@@ -566,7 +566,7 @@ page
 
 **Default:** `each-relation-is-a-link-with-its-state`
 
-**Compact:** The recommended option reflows: the relations stack in one list, each link keeping its state.
+**Compact:** The default option reflows: the relations stack in one list, each link keeping its state.
 
 **Rationale:** The default ships the link with state list. Each relation is a link carrying its own state, so a reader can jump and knows what they will find. The preview card is the runner-up, and the better choice where the parent facts decide the next step, such as a receipt read against its trip. Prefer the editable table only where the relation itself is the work, such as the exceptions to a policy. Never ship a cross-reference line in the description: it cannot carry the parent state, and it hides where a reader does not look.
 
@@ -615,7 +615,7 @@ page
     fact "Attached" "8 Oct 2026, 09:34"
 ```
 
-**Rationale:** Notion shows a preview of a linked page on hover, because the reader usually wants one fact from the parent rather than the parent itself. The trip row expands to its date, place, and state inline, so a reader checking receipt RC-0C893968A2 learns the travel window without navigating.
+**Rationale:** Notion shows a preview of a linked page on hover, because the reader usually wants one fact from the parent rather than the parent itself. The trip row expands to its travel window, budget, and company inline, so a reader checking receipt RC-0C893968A2 learns the travel window without navigating.
 
 **Cost:** A preview is a second rendering of the parent to keep true, and only one row can stay open at a time before the section doubles in height. It also answers nothing about children, which still need their own list.
 
@@ -653,9 +653,9 @@ page
 
 **Default:** `the-commands-are-refused-the-record-is-not`
 
-**Compact:** The recommended option reflows: each refused command keeps its reason beside it, above the readable facts.
+**Compact:** The default option reflows: each refused command keeps its reason beside it, above the readable facts.
 
-**Rationale:** The default keeps the refused commands on a readable record. Auditors can read an expense and cannot reimburse it, and each refusal names the grant that would allow it. The ask for access option is the runner-up, and the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader's reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.
+**Rationale:** The default keeps the refused commands on a readable record. Auditors can read an expense and cannot reverse it, and each refusal names the grant that would allow it. The ask for access option is the runner-up, and the better choice where access is routinely granted, such as an intern joining finance. Prefer the whole-page refusal only where the record itself is out of the reader's reach: it names the grant, and it costs the reader every fact on the page. Never ship a role switcher on production: acting as somebody is a development capability, and the button would be a security hole with a label on it.
 
 **Reviewed for:** Does the built locked record match the wireframe its catalog entry chose? Open the built access requests and whole-page refusals beside the catalog entry recording the chosen option and its reason.
 
@@ -702,7 +702,7 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** Google Drive turns a refusal into a request: the reader asks, an owner decides, and the decision arrives as a message. An auditor who needs to resend the receipt asks from the refusal itself instead of finding an owner in a corridor.
+**Rationale:** Google Drive turns a refusal into a request: the reader asks, an owner decides, and the decision arrives as a message. An auditor who needs to reverse the payout asks from the refusal itself instead of finding an owner in a corridor.
 
 **Cost:** Every request needs an owner who answers it, and a queue of access requests is a new surface to build and watch. On records where access is never granted, the button promises a decision that never comes.
 
@@ -737,7 +737,7 @@ When the spender disputes what happened, the company answers from the record its
 
 **Default:** `history-as-a-tab-on-the-record`
 
-**Compact:** The recommended option reflows: the History tab stays under the record header with its timeline newest first.
+**Compact:** The default option reflows: the History tab stays under the record header with its timeline newest first.
 
 **Rationale:** The default keeps the history tab on the record. It keeps one route, and the tab state stays in the URL. A reader checking a claim opens History without losing the expense. The per-field history is the runner-up, and fits disputes about one value such as the email that carried the receipt. Prefer the full-page log only for long-lived records whose trail outgrows a tab. Never ship the money-only trail as the audit: the edits that explain the money are missing there.
 
@@ -826,7 +826,7 @@ page
 
 **Default:** `a-notes-section-with-the-composer-on-top`
 
-**Compact:** The recommended option reflows: the composer stays above the notes, and the notes keep their newest-first order.
+**Compact:** The default option reflows: the composer stays above the notes, and the notes keep their newest-first order.
 
 **Rationale:** The default keeps the notes section with the composer on top. The newest note reads first, and internal scope is the default, so nothing leaks to the spender. The internal-or-spender composer is the runner-up, and fits records where staff write to the spender from the same box. Prefer notes mixed into the timeline only where what the team wrote explains what the system did next. Never ship notes without a scope marker: a reader who cannot tell internal from spender-visible will write the wrong one.
 
@@ -914,7 +914,7 @@ page
 
 **Default:** `a-file-list-with-a-drop-zone`
 
-**Compact:** The recommended option reflows: the file rows stack in one column with the drop zone beneath them.
+**Compact:** The default option reflows: the file rows stack in one column with the drop zone beneath them.
 
 **Rationale:** The default keeps the file list with a drop zone. Each row names the file and its kind, who added it, and its size, and the drop zone invites the next file. The evidence-grouped option is the runner-up, and fits a dispute, where Ben asks for kinds rather than files. Prefer the thumbnail option only where images dominate, such as receipt photos. Never ship a section that is only a drop zone: a record whose files hide behind an upload control reads as empty.
 
@@ -1111,7 +1111,7 @@ page
 
 **Default:** `chevrons-beside-the-breadcrumb`
 
-**Compact:** The recommended option reflows: the chevrons keep their shape, with the position still reading between them above the record header.
+**Compact:** The default option reflows: the chevrons keep their shape, with the position still reading between them above the record header.
 
 **Rationale:** The default keeps the chevrons beside the breadcrumb. They keep the list order and cost almost no space. The jump-by-search option is the runner-up, and fits readers who know the next record number rather than its neighbor. Prefer the list drawer on triage queues where the reader skims many records. Never ship movement without a position: chevrons that never say 4 of 268 leave the reader lost in the queue.
 
@@ -1283,7 +1283,7 @@ page
     fact "Email" "ava@harbor-pine.example"
 ```
 
-**Rationale:** Xero opens an invoice on its money, because finance asks what moved before asking who moved it. Payments and reversals sit directly under the header with the statement adding up from two fares, a booking fee, and breakfast to EUR 125.00 claimed, and the spender and lines follow below.
+**Rationale:** Xero opens an invoice on its money, because finance asks what moved before asking who moved it. Payments and reversals sit directly under the header with the statement adding up from two fares, a booking fee, and breakfast to EUR 125.00 claimed, and the spender follows below.
 
 **Cost:** Support reads the spender first, so money-first puts their answer second on every call. The money section also repeats the lines it totals, which states the same figure twice.
 

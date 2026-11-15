@@ -508,7 +508,7 @@ page
 
 Never ship icons that carry state in the frame: the theme and language as bare glyphs force the reader to hover over each to tell them apart.
 
-**Reviewed for:** Does every built label and action carry the icon the catalog entry chose? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason.
+**Reviewed for:** Which built label or action carries an icon outside the set the catalog entry chose? Open the built frame, with its labeled actions and marked current item, beside the catalog entry recording the chosen option and its reason.
 
 #### `an-icon-beside-every-label`: An Icon Beside Every Label
 
@@ -662,7 +662,7 @@ page
       item: text "EXP-1042" · text "Ava" · status "Paid" positive · text "EUR 125.00"
 ```
 
-**Rationale:** Everything about who the reader is and how the trip looks sits in one place, leaving the header for the page title. The account, the language, the theme, and sign-out are one decision in one menu.
+**Rationale:** Everything about who the reader is and how the console looks sits in one place, leaving the header for the page title. The account, the language, the theme, and sign-out are one decision in one menu.
 
 **Cost:** A reader who only wants dark mode at the end of a shift pays two taps. The theme is not the kind of thing a reader opens an account menu to find.
 
@@ -692,7 +692,7 @@ page
 
 **Rationale:** The theme follows the device until the reader overrides it with System, Light, or Dark in the account menu. The language stays in the header showing its value, so a wrong language shows without opening anything.
 
-**Cost:** A reader whose system is dark gets a dark console without asking: that is the correct behavior. A company filming a screen for a spender then gets a dark screenshot.
+**Cost:** A reader whose system is dark gets a dark console without asking: that is the correct behavior. A company capturing a screen for a spender then gets a dark screenshot.
 
 
 ### Command Palette
@@ -1038,7 +1038,7 @@ page
 
 **Rationale:** The guide for the current page opens in a side panel, so the reader never leaves the record. Because the navigation already carries a topic per page, opening the guide is a lookup rather than a search.
 
-**Cost:** A panel beside the content halves the content width, and on a phone it stacks below the fold it explains. Every page also needs its topic written first, or the panel has nothing to show.
+**Cost:** A panel beside the content halves the content width, and on a phone it stacks below the content it explains. Every page also needs its topic written first, or the panel has nothing to show.
 
 **Reference:** Stripe
 
@@ -1188,7 +1188,7 @@ page
     text muted "Open with Enter."
 ```
 
-**Rationale:** Recent records can appear before anything is typed, so returning to the cost centre left open costs one keypress. That matches how cost centre and support work moves between a few cost centres.
+**Rationale:** Recent cost centres can appear before anything is typed, so returning to the cost centre left open costs one keypress. That matches how cost centre and support work moves between a few cost centres.
 
 **Cost:** Recency is personal state, so on a shared machine the next person at the keyboard sees what the last person opened. A renamed cost centre also needs a rule for what its row says.
 

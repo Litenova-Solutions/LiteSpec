@@ -109,7 +109,7 @@ page
 
 **Reference:** GitHub
 
-#### `warehouse-scoped-staff-cards`: Cost-Centre-Scoped Staff Cards
+#### `cost-centre-scoped-staff-cards`: Cost-Centre-Scoped Staff Cards
 
 ```wireframe
 page
@@ -551,7 +551,7 @@ page
 
 **Reference:** Shopify
 
-#### `vouchers-with-their-balances`: Advances with Their Balances
+#### `advances-with-their-balances`: Advances with Their Balances
 
 ```wireframe
 page

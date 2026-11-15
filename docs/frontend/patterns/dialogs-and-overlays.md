@@ -352,7 +352,7 @@ page
 
 **Default:** `read-only-record-beside-the-list`
 
-**Compact:** The recommended option reflows: at phone width there is no beside, so the drawer takes the screen and Back returns to the list at the same scroll position with its filters still applied.
+**Compact:** The default option reflows: at phone width there is no beside, so the drawer takes the screen and Back returns to the list at the same scroll position with its filters still applied.
 
 **Rationale:** Keep the read-only record beside the list. The list keeps its scroll position and its filters while the record reads beside it, and nothing in the drawer is editable, so the drawer cannot turn into a task.
 
@@ -476,7 +476,7 @@ page
 
 **Default:** `a-confirmation-that-closes-by-itself`
 
-**Compact:** The recommended option reflows: the toast spans the phone width above the home indicator, and carries one action at most.
+**Compact:** The default option reflows: the toast spans the phone width above the home indicator, and carries one action at most.
 
 **Rationale:** Keep the self-closing confirmation for success, where the message leaves on its own and nothing goes with it. The runner-up is the toast that links to the result, which suits commands whose result lives elsewhere, because the link going away costs nothing.
 
@@ -558,7 +558,7 @@ page
 
 **Default:** `a-menu-with-groups-and-a-destructive-item-last`
 
-**Compact:** The recommended option reflows: the menu becomes a bottom sheet with thumb-sized rows, the title names the row, and one full-width dismissal closes it.
+**Compact:** The default option reflows: the menu becomes a bottom sheet with thumb-sized rows, the title names the row, and one full-width dismissal closes it.
 
 **Rationale:** Keep the menu with groups and the destructive item last after a separator, with nothing disabled without a reason. The runner-up is the menu that states the reason beside a disabled item. It is the better choice where a command is often disabled, because the reason in place beats a hover. Arrow keys move between items, Tab leaves the menu, and Escape closes one level and returns focus to the opener.
 
@@ -673,7 +673,7 @@ page
 
 **Default:** `a-popover-that-explains-what-a-term-means`
 
-**Compact:** The recommended option reflows: the panel becomes a bottom sheet holding the same content with one dismissal.
+**Compact:** The default option reflows: the panel becomes a bottom sheet holding the same content with one dismissal.
 
 **Rationale:** Keep the popover that explains what a term means. A defined term carries its glossary entry where it is read, and only for terms the application has defined. The runner-up is the row preview popover. It suits dense lists where a hover card saves a navigation, and it has to open on focus as well as hover.
 
@@ -760,7 +760,7 @@ page
 
 **Default:** `a-neutral-band-for-what-this-page-is`
 
-**Compact:** The recommended option reflows: the band stays above the breadcrumb, the header stacks, and the table keeps its first two columns visible.
+**Compact:** The default option reflows: the band stays above the breadcrumb, the header stacks, and the table keeps its first two columns visible.
 
 **Rationale:** Ship the neutral band stating a fact about the deployment, the same band on every page. The bar on the record page is the runner-up for facts true of one record only, drawn as a notice on that record.
 
@@ -835,7 +835,7 @@ page
 
 **Default:** `a-scrolling-body-with-a-pinned-footer`
 
-**Compact:** The recommended option reflows: the dialog becomes a full-screen sheet, with the body scrolling under a footer pinned above the home indicator.
+**Compact:** The default option reflows: the dialog becomes a full-screen sheet, with the body scrolling under a footer pinned above the home indicator.
 
 **Rationale:** Ship the scrolling body with a pinned footer: one scrolling body, one pinned footer, nothing else. The summary pinned above the footer is the runner-up wherever money moves, because the reader sees the totals above the footer before confirming.
 
@@ -951,7 +951,7 @@ page
 
 **Default:** `a-grouped-grid-of-shortcuts`
 
-**Compact:** The recommended option reflows: the shortcut dialog becomes a full-screen sheet with the groups stacked and Close pinned at its foot.
+**Compact:** The default option reflows: the shortcut dialog becomes a full-screen sheet with the groups stacked and Close pinned at its foot.
 
 **Rationale:** Ship the grouped grid of shortcuts: three groups, one grid, every key the application honors, all closed by the same key. The this-page-only list is the runner-up on dense pages, where it answers the only keys that work there.
 

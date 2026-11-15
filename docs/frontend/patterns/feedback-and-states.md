@@ -109,7 +109,7 @@ Every drawing keeps the six rules from the Standards section below. A refusal or
 
 **Default:** `positive-title-one-action`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the title, the message, and the single action stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the title, the message, and the single action stack in one column.
 
 **Rationale:** The default is the positive title with one action. It is the smallest shape, and the only option that asks nothing of a reader who has nothing yet. The runner-up is the setup guide on Home; prefer it when the first expense needs steps across several pages. Sample rows are the other alternative for a page whose shape is learned by using it. A table with a dashed sample row stays out: it shows a record that does not exist and leads nowhere when opened.
 
@@ -189,7 +189,7 @@ page
 
 **Default:** `different-copy-and-it-names-the-term`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the toolbar stacks above the message, and a table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the toolbar stacks above the message, and a table keeps its first two columns.
 
 **Rationale:** The default is the copy that names the term. It says what failed and what to change, with the count proving the data exists. The runner-up is the table that keeps its headers; prefer it where readers filter all day and want the columns to stay put. The filters panel is the other alternative for a page whose filters are the whole question. An empty state with no action at all stays out: a search that names its term can always offer to clear it.
 
@@ -278,7 +278,7 @@ page
 
 **Default:** `skeletons-at-the-real-row-height`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the skeleton rows keep the row height, and the toolbar stacks above them.
+**Compact:** Below the md breakpoint the default option reflows: the skeleton rows keep the row height, and the toolbar stacks above them.
 
 **Rationale:** The default is skeletons at the real row height. Nothing moves when the data lands, even on a slow phone read. The runner-up is the thin bar over the old rows; prefer it for a re-read where the reader keeps their place, such as a changed filter. A scrim is the other alternative for a wait the reader must not work through. Showing nothing at all stays out: any read slower than a blink reads as a failed page.
 
@@ -366,7 +366,7 @@ page
 
 **Default:** `the-refusal-sentence-its-code-and-a-way-to-fix-it`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal and its alternative stack under the title.
+**Compact:** Below the md breakpoint the default option reflows: the refusal and its alternative stack under the title.
 
 **Rationale:** The default is the refusal sentence with its code and its fix. It meets WCAG 3.3.1 and 3.3.3 in one place. The runner-up is the refusal inside the dialog that sent it; prefer it where closing would lose what the reader typed, such as a reversal amount. The disabled button with its reason is the other alternative for a refusal the page can predict. A refusal only on the record timeline stays out: a reader who sent the command from elsewhere never returns to find it.
 
@@ -453,7 +453,7 @@ page
 
 **Default:** `evidence-on-the-page-not-only-a-toast`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the money facts stack under the header, and the timeline follows them.
+**Compact:** Below the md breakpoint the default option reflows: the money facts stack under the header, and the timeline follows them.
 
 **Rationale:** The default is evidence on the page. State, money, and timeline all say what changed after a reversal. The runner-up is the toast with `Undo`; prefer it for a reversible change such as hiding a policy from the portal. The quiet saved line is the other alternative for a settings form where the values are already the evidence. No message at all stays out: a screen reader user gets no signal, which fails WCAG 4.1.3.
 
@@ -536,7 +536,7 @@ page
 
 **Default:** `a-neutral-notice-above-the-page`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the notice sits under the header and above the sections.
+**Compact:** Below the md breakpoint the default option reflows: the notice sits under the header and above the sections.
 
 **Rationale:** The default is one neutral sentence above the page, with no tone and no band. It says why the page holds its state and stays out of the work. The runner-up is the notice inside the section it is about; prefer it where the fact changes what the reader does in that section only. The side column is the other alternative for a record where the fact changes the next step. A full-width toned band for one record stays out: it paints other work with the same alarm.
 
@@ -625,7 +625,7 @@ page
 
 **Default:** `the-commands-are-refused-each-with-its-grant-named`
 
-**Compact:** Below the md breakpoint the recommended option reflows: each refused command and its reason stack under the control.
+**Compact:** Below the md breakpoint the default option reflows: each refused command and its reason stack under the control.
 
 **Rationale:** The default is the explained action. Each refused command names the role that grants it, and the record stays readable; on a call, reading the record is the point. The runner-up is the read-only section with values as text; prefer it where a form that fails on `Save` hurts more. The absent tab is the other alternative for a capability the reader should never see offered. Refusing the whole page stays out: a support agent needs the spender name on a call, and the refusal hides more than it protects.
 
@@ -711,7 +711,7 @@ page
 
 **Default:** `a-banner-saying-what-is-stale-and-what-still-works`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the band sits above the breadcrumb, and the table keeps its first two columns.
 
 **Rationale:** The default is one band saying what is stale, when it was read, and what still works. A stale page the reader can read beats a page that shows nothing. The runner-up is the failed read state, which suits a page with nothing to show because the read itself failed. Showing nothing is the other alternative for a page where acting on stale money would move the wrong money. Whatever the reader typed stays on the page while the connection is gone, and every failed read offers its retry. Queuing a command that moves money stays out: a reversal nobody confirmed is a liability, and the page says plainly that the money has not moved.
 
@@ -787,7 +787,7 @@ page
 
 **Default:** `a-dialog-over-the-work-which-stays-where-it-is`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the dialog fills the screen, and the form stays behind it.
+**Compact:** Below the md breakpoint the default option reflows: the dialog fills the screen, and the form stays behind it.
 
 **Rationale:** The default is the dialog over the work, which stays where it is. It keeps unsent work on screen and names the one thing to do. The runner-up is the warning before the end, which suits a reader still at the desk who never meets the expired state. The signed-out page is the other alternative for a reader with no page to keep. A toast alone stays out: the message leaves in seconds and the typed work leaves with it.
 
@@ -871,7 +871,7 @@ page
 
 **Default:** `the-refusal-above-save-with-her-value-under-the-field`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal sits above the fields, and each other value sits under its field.
+**Compact:** Below the md breakpoint the default option reflows: the refusal sits above the fields, and each other value sits under its field.
 
 **Rationale:** The default is the refusal above `Save`, with her value under the field. It refuses in the dictionary's words and fixes only what collided, with no dialog and no lost keystroke. The runner-up is the field-by-field choice, which suits a record where both people changed several fields. The whole-record dialog is the other alternative for two people who rewrote the same long notes. A lock that reloads her whole version stays out: it deletes Ben's notes to resolve an arrival time.
 
@@ -969,7 +969,7 @@ page
 
 **Default:** `an-activity-tray-like-an-upload-panel`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the tray becomes a sheet over the page, opened from one control.
+**Compact:** Below the md breakpoint the default option reflows: the tray becomes a sheet over the page, opened from one control.
 
 **Rationale:** The default is the activity tray. It stays visible on every page, it never holds the reader, and it answers progress without being asked. The runner-up is the job page with the failures listed; prefer it for a bulk reversal where two of 31 need a person and the rest do not. The finished notice suits a job nobody needs to watch. The dialog that holds the reader stays out: minutes of a blocked page are the cost this pattern exists to remove.
 
@@ -1057,7 +1057,7 @@ page
 
 **Default:** `not-found-with-the-way-back`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the title, the explanation, and the two ways back stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the title, the explanation, and the two ways back stack in one column.
 
 **Rationale:** The default is `Not found`, with the way back. It names the record, covers the three ways a record goes missing, and offers the list and the search. The runner-up is the section that says so while the page stays; prefer it for a child missing from a parent that exists. Naming who removed a record and when suits a record the reader saw yesterday. The bare code stays out: a code means nothing to a reader, and a dead end with a number on it is still a dead end.
 
@@ -1135,7 +1135,7 @@ page
 
 **Default:** `the-shipped-failure-with-its-reference`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the failure, its reference, and `Try again` stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the failure, its reference, and `Try again` stack in one column.
 
 **Rationale:** The default is the failure with its reference. It words the failure once, says what did not move, and gives support something to read back. The runner-up is the outcome page; prefer it where the money sentence deserves a page of its own. The failed section suits a page whose other sections still read. Old data with a quiet line stays out: figures the server could not confirm are misinformation, and a quiet line does not make them honest.
 
@@ -1216,7 +1216,7 @@ page
 
 **Default:** `told-ahead-of-time-on-every-page`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the notice sits under the header, and the facts stack in one column.
+**Compact:** Below the md breakpoint the default option reflows: the notice sits under the header, and the facts stack in one column.
 
 **Rationale:** The default is the advance notice on every page. A window nobody meets by surprise is a window finance can plan around, and the printed payout lists are the plan. The runner-up is the maintenance page itself, which is what every page becomes while the window runs. Read-only access suits a short window where the records still answer a call. A lone message stays out as the only signal: a Thursday message tells once, and only the back office itself reminds on Sunday at 02:00.
 
@@ -1295,7 +1295,7 @@ page
 
 **Default:** `the-button-waits-and-says-how-long`
 
-**Compact:** Below the md breakpoint the recommended option reflows: the refusal sits under the disabled button, and the table keeps its first two columns.
+**Compact:** Below the md breakpoint the default option reflows: the refusal sits under the disabled button, and the table keeps its first two columns.
 
 **Rationale:** The default is the button that waits and says how long. It turns the limit into a 40-second wait with its reason attached, which is all a reader who ran 12 exports needs. The runner-up states the limit before it hits; prefer it for a reader planning a month of exports rather than one too many. The stop page suits a limit measured in minutes. The spinner that never says why stays out: a wait the reader cannot name reads as a page that broke, and reloading restarts it.
 

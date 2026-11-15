@@ -87,7 +87,7 @@ Every rule on the page follows the same shape: a heading, then its ID line. Here
 
 **Rationale:** Domain that references only the language standard library and its own types compiles and tests with no infrastructure at all. Each banned reference would drag one outer concern into the business model: persistence metadata couples a rule to a store format, and dispatch plumbing couples it to delivery. Infrastructure registers a persisted discriminator instead, so Domain carries no serialization metadata.
 
-**Reviewed for:** Which Domain references reach beyond the language standard library and project-owned Domain types? Look at the references in the Domain code.
+**Reviewed for:** Does any Domain type reference code outside the language standard library and project-owned Domain types? Look at the references in the Domain code.
 ```
 
 The **ID** line holds the rule's address: the page path, then the heading. The **Strength** line states how binding it is. `required` binds every project the rule reaches, `default` binds unless the project records its own choice, and `advisory` is experience to apply with judgment.

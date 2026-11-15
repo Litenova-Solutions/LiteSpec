@@ -8,7 +8,7 @@ Start with:
 
 - A consumer from [Start a Consumer Repository](../tutorial/getting-started.md), with its backend use cases coded.
 - The `svelte` stack added to the consumer's `.litespec/project.yaml`.
-- The Svelte toolchain release pinned in `litespec.manifest.yaml`.
+- The Svelte toolchain pins in `litespec.manifest.yaml`.
 
 Read the [web structure](../frontend/web/structure.md) and the [web UI](../frontend/web/ui.md) pages before this guide. They state the obligations, and this guide shows one compliant way to meet them.
 

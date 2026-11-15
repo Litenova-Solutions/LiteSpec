@@ -161,7 +161,7 @@ For example, when Claimwick adds an expense route, the suite visits it on the ne
 
 ### Proving Results
 
-A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`: every refusal a screen can reach through its computed `calls` carries its sentence on its result or has a browser test asserting its code. Success results are proved through their scenarios, as [Frontend Testing](testing.md) describes.
+A screen's computed `calls` name the use cases it reaches, and each use case declares its results. The one result obligation for a screen is `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`: every refusal a screen can reach through its computed `calls` carries its sentence on its result. Success results are proved through their scenarios, as [Frontend Testing](testing.md) describes.
 
 Result proof for routes follows `litespec/core/edges#write-the-sentence-a-person-reads-on-each-refusal`. That Behavior provision is the one result obligation for a screen: every written refusal of a use case the screen offers carries its `sentence` on the result record, the sentence a person reads, and `refusal-sentence-missing` checks it from the records alone. A browser test asserting the code does not stand in for the sentence, and a derived refusal, one the model derives instead of anyone writing it, carries none of its own. Success results stay proved through their scenarios. For example, the expense form offers the use case that raises `spending.receipt-missing`, and that refusal carries its sentence on its result.
 
@@ -461,7 +461,7 @@ pageFrames:
 
 **Statement:** Every route MUST pass each route suite check.
 
-**Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, the focus move on a route change, each color scheme, reduced motion, and status announcements. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
+**Rationale:** The route suite visits every route and asserts each check the Concepts section names: the floorplan, the reference, accessibility, the heading, the landmark, reflow, text spacing, target size, keyboard use, the focus move on a route change, each color scheme, reduced motion, status announcements, and the formats. The suite discovers its routes from the application route definition, so a new route is checked with no new specification. Every route passing every check keeps each address inside the contract by default.
 
 **Reviewed for:** Does every discovered route pass each route suite check? Look in the suite output and the CI job logs.
 

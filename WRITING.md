@@ -332,7 +332,7 @@ Use descriptive link text that tells readers what they will find.
 
 **Prefer:**
 
-> [Completion Stages](...) defines the requirements for each stage.
+> [Completion Stages](docs/core/model.md#completion-stages) defines the requirements for each stage.
 
 Put links where the related question arises. Don't repeat the same link in every nearby paragraph.
 

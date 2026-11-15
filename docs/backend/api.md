@@ -33,7 +33,7 @@ The OpenAPI document is generated from the code during the Release build, with n
 
 Generation exists because a handwritten contract drifts from the code with the first unmirrored change. A generated contract is a function of the code: change the endpoint and the contract follows. The generated artifact is committed when a frontend or external consumer reads it, so every contract change is visible in review and CI fails when the document was not regenerated.
 
-Comments on handlers are not contract documentation: operations carry explicit summaries and descriptions.
+Comments on handlers are not contract documentation: operations carry explicit summaries.
 
 ## Standards
 
@@ -391,7 +391,7 @@ When a typed consumer reads the API, the pinned generator reads the source artif
 
 **Statement:** An operation MUST declare a stable `operationId`, its authorization, request, success, and Problem Details metadata, and a summary.
 
-**Rationale:** Generated clients name their methods from `operationId`. An unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries and descriptions.
+**Rationale:** Generated clients name their methods from `operationId`. An unstable name renames client code on every generation. Authorization metadata cites the enforced policies and Problem Details metadata covers every documented failure status, so the client models security and failure before its first call. Comments on handlers are not contract documentation, so operations carry explicit summaries.
 
 **Reviewed for:** Does every operation in the generated contract declare its operationId, authorization, request, success, failure, and summary entries? Look at the operations in the generated contract.
 
