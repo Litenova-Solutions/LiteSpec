@@ -1097,7 +1097,7 @@
       "style": "standard",
       "area": "core",
       "title": "Intent Layer",
-      "intent": "Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
+      "intent": "Intent is why the product exists and what it promises: actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record that stands above the record layers at \u0060.litespec/product.yaml\u0060. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.",
       "sections": [
         "Intent",
         "Concepts",
@@ -1316,7 +1316,7 @@
       "style": "explanation",
       "area": "example",
       "title": "The Claimwick Product",
-      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its Intent records as they are written in \u0060examples/claimwick/.litespec/intent/\u0060, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
+      "intent": "Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its records as they are written in \u0060examples/claimwick/.litespec/\u0060, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.",
       "sections": [
         "Intent",
         "The Product Brief",
@@ -3779,6 +3779,22 @@
       ]
     },
     {
+      "file": "docs/intent/decisions/0091-place-the-product-above-layers/0091-place-the-product-above-layers.md",
+      "path": "intent/decisions/0091-place-the-product-above-layers/0091-place-the-product-above-layers",
+      "style": "decision",
+      "area": "intent",
+      "title": "Place the Product Above the Layers",
+      "intent": "",
+      "sections": [
+        "Context",
+        "Options",
+        "Decision",
+        "Consequences",
+        "Evidence",
+        "Revisit Conditions"
+      ]
+    },
+    {
       "file": "docs/intent/research/agent-testing-evidence/agent-testing-evidence.md",
       "path": "intent/research/agent-testing-evidence/agent-testing-evidence",
       "style": "research",
@@ -4460,6 +4476,24 @@
       "area": "tools",
       "title": "Book Command",
       "intent": "\u0060litespec book\u0060 - Serve the project book live from memory on localhost, or write it as a static site with \u0060--out\u0060.",
+      "sections": [
+        "Name",
+        "Synopsis",
+        "Description",
+        "Arguments",
+        "Options",
+        "Exit Codes",
+        "Examples",
+        "Underneath"
+      ]
+    },
+    {
+      "file": "docs/tools/context.md",
+      "path": "tools/context",
+      "style": "command",
+      "area": "tools",
+      "title": "Context",
+      "intent": "\u0060litespec context\u0060 writes the consumer\u0027s records and explanation files as one compact plain-text file for an AI chat.",
       "sections": [
         "Name",
         "Synopsis",

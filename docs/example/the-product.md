@@ -2,11 +2,11 @@
 
 ## Intent
 
-Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its Intent records as they are written in `examples/claimwick/.litespec/intent/`, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.
+Claimwick is the product this example follows: employees submit work expenses with receipts, managers approve or refuse them, and finance reimburses the approved ones. This page shows its records as they are written in `examples/claimwick/.litespec/`, from the product brief down to the flow that ties them together. Every record, field, ID and count below is copied from that folder, so a reader can open the same file and see the same text.
 
 ## The Product Brief
 
-A product record states what is built and for whom. The Claimwick brief names the boundary, the actors it addresses and the outcome in one paragraph. Its file is `.litespec/intent/product.yaml`:
+A product record states what is built and for whom. The Claimwick brief names the boundary, the actors it addresses and the outcome in one paragraph. Its file is `.litespec/product.yaml`:
 
 ```yaml
 type: product

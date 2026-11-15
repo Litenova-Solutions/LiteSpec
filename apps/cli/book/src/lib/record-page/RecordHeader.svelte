@@ -3,13 +3,15 @@
   import type { BookRecord } from "$lib/frame";
   import { RecordIcon, SourceLink, TypeTag } from "$lib/record";
 
-  // The page header: the breadcrumb from the parent chain, the title, the kind
-  // badge, the identifier, the source file and the traversal row.
-  // Without a record it shows the missing-record header instead.
+  // The page header: the breadcrumb from the product down through the layer
+  // and the parent chain, the title, the kind badge, the identifier, the
+  // source file and the traversal row. The product's own page shows only its
+  // title. Without a record it shows the missing-record header instead.
   type Props = { id: string; r: BookRecord | null };
   let { id, r }: Props = $props();
   const b = $derived(stripStep(id));
   const chain = $derived(book.breadcrumbOf(id));
+  const pid = $derived(book.productId());
   const layerKey = $derived(book.layerOf[id] ?? (id.indexOf("layer/") === 0 ? id.slice(6) : ""));
   const layerLabel = $derived(layerKey ? (book.layerByKey[layerKey]?.label ?? "") : "");
   const rTitle = $derived(r?.title ?? id);
@@ -25,6 +27,8 @@
   }
   const links = $derived.by(() => {
     const out: Crumb[] = [];
+    if (pid && stripStep(id) === pid) return out;
+    if (pid) out.push({ id: pid, label: book.title(pid) });
     if (layerLabel && id.indexOf("layer/") !== 0) out.push({ id: "layer/" + layerKey, label: layerLabel });
     for (const c of chain) out.push({ id: c, label: book.title(c) });
     if (layerLabel && r) out.push({ id: null, label: pluralName });

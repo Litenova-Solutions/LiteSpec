@@ -38,7 +38,7 @@ public static class RecordFolders
     /// </summary>
     private static readonly IReadOnlyList<Home> Table =
     [
-        Scaffold("product", "intent", "product.yaml"),
+        Scaffold("product", "", "product.yaml"),
         Scaffold("goal", "intent/goals/{name}", "{name}.yaml"),
         Scaffold("vision", "intent/visions/{name}", "{name}.yaml"),
         Scaffold("problem", "intent/problems/{name}", "{name}.yaml"),

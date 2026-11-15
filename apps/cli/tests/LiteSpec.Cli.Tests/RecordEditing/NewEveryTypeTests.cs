@@ -37,8 +37,8 @@ public sealed class NewEveryTypeTests
 
         var explanation = Path.ChangeExtension(record, ".md");
 
-        // A requirement takes no explanation file, and a departure sits on the governance layer, which explanations.layers does not name.
-        if (type is "requirement" or "departure")
+        // A requirement takes no explanation file, a departure sits on the governance layer, which explanations.layers does not name, and the product stands above the record layers.
+        if (type is "requirement" or "departure" or "product")
         {
             Assert.False(File.Exists(explanation), $"A {type} takes no explanation file.");
             return;
@@ -72,7 +72,7 @@ public sealed class NewEveryTypeTests
     /// <returns>One row per listed type.</returns>
     public static IEnumerable<object[]> Cases()
     {
-        yield return ["product", "claimwick", "intent/product.yaml", "Claimwick", "product/claimwick"];
+        yield return ["product", "claimwick", "product.yaml", "Claimwick", "product/claimwick"];
         yield return ["goal", "faster-reimbursement", "intent/goals/faster-reimbursement/faster-reimbursement.yaml", "Faster Reimbursement", "goal/faster-reimbursement"];
         yield return ["vision", "one-desk", "intent/visions/one-desk/one-desk.yaml", "One Desk", "vision/one-desk"];
         yield return ["problem", "waiting-for-money", "intent/problems/waiting-for-money/waiting-for-money.yaml", "Waiting for Money", "problem/waiting-for-money"];

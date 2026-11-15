@@ -1,4 +1,5 @@
 using LiteSpec.Cli.Book;
+using LiteSpec.Cli.Context;
 using LiteSpec.Cli.Init;
 using LiteSpec.Cli.Model;
 using LiteSpec.Cli.RecordEditing;
@@ -22,6 +23,7 @@ static class CliEntry
           rename        Rename a record identifier and rewrite every link.
           model         Check, format, render or query the project model.
           book          Generate the project book from the records.
+          context       Write the specification as one compact text file.
           rules         List the provisions that govern a path or record.
           skill         Install or remove the litespec skill.
 
@@ -52,6 +54,7 @@ static class CliEntry
                 "rename" => RenameCommand.Run(rest),
                 "model" => ModelCommand.Run(rest),
                 "book" => BookCommand.Run(rest),
+                "context" => ContextCommand.Run(rest),
                 "rules" => RulesCommand.Run(rest),
                 "skill" => SkillCommand.Run(rest),
                 _ => Unknown(args[0]),

@@ -15,7 +15,7 @@ litespec book --out <folder> [--root <folder>] [--links <template>]
 
 The book is the model made readable: every record with its completion, its proof and its links. The navigation offers two views: the Outline, which follows the record layers, and the Security view, which lists cross-tenant access, outside calls and personal or sensitive data.
 
-The book is a desktop explorer with a minimum content width of 1024 CSS pixels and no narrow-screen layouts. Its look follows IBM Carbon in IBM Plex type: a dark top bar, the outline on a gray panel, the record page on the white page, and the rail beside it. It follows the reader's light or dark color scheme and keeps no theme toggle. Corners are square, tables have a filled header, and one blue accent marks links and the current item.
+The book is a desktop explorer with a minimum content width of 1024 CSS pixels and no narrow-screen layouts. Its look follows IBM Carbon in IBM Plex type: a dark top bar, the outline on a gray panel, and the record page with its rail beside it as one block, centered in the space beside the outline so a wide screen keeps them together. The outline opens with the product, the root of every record, above the record layers. It follows the reader's light or dark color scheme and keeps no theme toggle. Corners are square, tables have a filled header, and one blue accent marks links and the current item.
 
 Every record type has a short code, such as F for a feature and U for a use case, shown as a badge colored by its record layer wherever a record appears. Hovering or focusing a badge names the type and explains it from the model page, and the About this book page lists every code.
 
@@ -99,7 +99,7 @@ The command builds the model in memory, computes the Intent coverage from the bu
 
 The shards are:
 
-- `manifest.js`: the project, the source links, the LiteSpec release, the build time, the claimed layers, Intent coverage, the test run, totals, the layers with their outline shards, the shard map, the search shards and the unplaced ids. The Intent coverage holds `reached`, `total` and `share`, and the `requirements` and `steps` counts, with no entries. When Proof is not claimed the test run is null.
+- `manifest.js`: the project, the product id, the source links, the LiteSpec release, the build time, the claimed layers, Intent coverage, the test run, totals, the layers with their outline shards, the shard map, the search shards and the unplaced ids. The Intent coverage holds `reached`, `total` and `share`, and the `requirements` and `steps` counts, with no entries. When Proof is not claimed the test run is null.
 - `lexicon.js`: LiteSpec's own words: type labels, layer writers, link phrases, sections, glossary, field labels and finding meanings.
 - `outline-<layer>-<n>.js`: the outline nodes of one layer, split past the outline budget.
 - `coverage.js`: the Intent coverage entries, one per requirement and flow step, with its `id`, `kind`, `reached` flag and `reachedBy` records.

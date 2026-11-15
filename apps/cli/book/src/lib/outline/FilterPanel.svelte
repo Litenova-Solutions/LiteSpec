@@ -25,7 +25,7 @@
     const query = book.query;
     const hits = book.hits;
     const rows: CachedRow[] = [];
-    for (const id of book.order) {
+    for (const id of book.orderWithProduct()) {
       const values: Record<string, string[]> = {};
       for (const f of book.facets) values[f.key] = f.get(id);
       let queryOk = true;

@@ -52,7 +52,7 @@ public sealed class BookEnrichTests
         }
     }
 
-    /// <summary>Layers follow the outline roots, one of the six known layer keys.</summary>
+    /// <summary>Layers follow the outline roots, one of the six known layer keys, and root for the product.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void LayerFollowsTheOutlineLayers()
@@ -60,11 +60,12 @@ public sealed class BookEnrichTests
         var details = DetailsOf(LoadFixture("Book/review.json"));
         Assert.Equal("intent", Str(details["goal/faster-borrowing"], "layer"));
         Assert.Equal("behavior", Str(details["use-case/lending.borrow-copy"], "layer"));
+        Assert.Equal("root", Str(details["product/library"], "layer"));
         foreach (var pair in details)
         {
             var layer = Str(pair.Value, "layer");
             Assert.True(
-                layer is null || layer is "intent" or "behavior" or "implementation" or "proof" or "governance" or "glossary",
+                layer is null || layer is "intent" or "behavior" or "implementation" or "proof" or "governance" or "glossary" or "root",
                 $"Unexpected layer {layer} for {pair.Key}.");
         }
     }

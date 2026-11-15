@@ -21,7 +21,7 @@
   });
   const complete = $derived.by(() => {
     void book.rev;
-    const real = [...new Set(book.order)].filter((id) => book.isReal(id));
+    const real = [...new Set(book.orderWithProduct())].filter((id) => book.isReal(id));
     const done = real.filter((id) => book.get(id) !== undefined && book.completeOf(id)).length;
     const manifest = Object.values(book.man?.totals ?? {}).reduce((a, b) => a + b, 0);
     const total = manifest > 0 ? manifest : real.length;

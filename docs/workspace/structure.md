@@ -38,8 +38,8 @@ The model builder writes generated working files under `.litespec/model/` while 
   .litespec/
     project.yaml
     glossary.yaml
+    product.yaml
     intent/
-      product.yaml
       goals/ problems/ constraints/ decisions/ research/ actors/ roles/ flows/
       modules/
         {module}/

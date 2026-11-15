@@ -47,7 +47,7 @@ static class BookLexiconParsers
         return types;
     }
 
-    /// <summary>The four-layer table, with governance and glossary beside it, which state no writers.</summary>
+    /// <summary>The four-layer table, with governance, glossary and the product root beside it, which state no writers.</summary>
     /// <param name="file">The carried page.</param>
     /// <param name="lines">The page lines.</param>
     /// <returns>The record layers by key.</returns>
@@ -78,6 +78,12 @@ static class BookLexiconParsers
             {
                 layers[key] = new LexiconLayer(BookLexiconTables.TypeLabel(key), "");
             }
+        }
+
+        // The product root labels the product, which stands above the record layers.
+        if (!layers.ContainsKey("root"))
+        {
+            layers["root"] = new LexiconLayer("Product", "");
         }
 
         return layers;

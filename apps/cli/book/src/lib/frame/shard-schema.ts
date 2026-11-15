@@ -15,6 +15,7 @@ import type {
   IntentCoverageEntry,
   ReachClaim,
   LayerClaim,
+  LayerKey,
   Lexicon,
   LexiconLayer,
   LexiconLink,
@@ -155,8 +156,8 @@ function isOutlineKind(value: unknown): value is OutlineKind {
   return value === "record" || value === "group" || value === "code" || value === "test" || value === "finding";
 }
 
-function isLayerKey(value: unknown): value is "intent" | "behavior" | "implementation" | "proof" {
-  return value === "intent" || value === "behavior" || value === "implementation" || value === "proof";
+function isLayerKey(value: unknown): value is LayerKey | "root" {
+  return value === "intent" || value === "behavior" || value === "implementation" || value === "proof" || value === "root";
 }
 
 /** One edge as the records packs carry it: the other end and the field key. */
@@ -247,7 +248,7 @@ export function parseBookRecord(id: string, raw: unknown): BookRecord {
   if (isRecord(fieldsValue) === false) fail(what + " needs a fields object");
 
   const layerValue = raw["layer"];
-  let layer: "intent" | "behavior" | "implementation" | "proof" | null | undefined;
+  let layer: LayerKey | "root" | null | undefined;
   if (layerValue === undefined) layer = undefined;
   else if (layerValue === null) layer = null;
   else if (isLayerKey(layerValue)) layer = layerValue;
@@ -848,6 +849,7 @@ export function parseManifest(raw: unknown): Manifest {
       id: reqString(projectValue, "id", "the manifest project"),
       title: reqString(projectValue, "title", "the manifest project"),
     },
+    productId: reqString(raw, "productId", "the manifest"),
     links: typeof linksValue === "string" ? linksValue : null,
     release: reqString(raw, "release", "the manifest"),
     claims,

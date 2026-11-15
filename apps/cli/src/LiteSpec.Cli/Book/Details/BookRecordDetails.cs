@@ -36,7 +36,7 @@ static class BookRecordDetails
     ///     never reads as missing. Every detail that is a requirement or a
     ///     flow carries its Intent coverage. Every written type is a member
     ///     of <see cref="RecordTypes"/> and every written layer is a member of
-    ///     the outline layer keys or null.
+    ///     the outline layer keys, root for the product, or null.
     /// </summary>
     /// <param name="model">The parsed model.</param>
     /// <param name="outline">The built outline.</param>
@@ -75,7 +75,9 @@ static class BookRecordDetails
             var type = BookRender.StrProp(record, "type") ?? "";
             var detail = BaseRecord(record, type);
             detail["parent"] = BookDetailValues.StrNode(BookDetailSources.ParentOf(outline, id));
-            detail["layer"] = BookDetailValues.StrNode(layers.GetValueOrDefault(id));
+            // The product holds no outline node, so its root layer is stated here.
+            var layer = string.Equals(type, "product", StringComparison.Ordinal) ? "root" : layers.GetValueOrDefault(id);
+            detail["layer"] = BookDetailValues.StrNode(layer);
             if (proven)
             {
                 BookProofDetail.Add(detail, index, id, type);

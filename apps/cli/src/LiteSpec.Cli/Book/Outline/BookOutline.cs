@@ -24,10 +24,11 @@ namespace LiteSpec.Cli.Book.Outline;
 
 
 /// <summary>
-///     The outline over the model: every placed record sits once under its parent, with layer and
-///     type groups laid transparently on the path. The code implementing a record, the tests proving
-///     it and the findings about it sit under it as leaves. A record no rule places, or whose parent
-///     is itself unplaced, has no node and is only listed unplaced.
+///     The outline over the model: every placed record sits once in its layer, under its parent
+///     or topping the layer when the product parents it, with layer and type groups laid
+///     transparently on the path. The product holds no node. The code implementing a record,
+///     the tests proving it and the findings about it sit under it as leaves. A record no rule
+///     places, or whose parent is itself unplaced, has no node and is only listed unplaced.
 /// </summary>
 /// <follows>litespec/core/model#organize-the-book-by-the-record-layers</follows>
 static class BookOutline
@@ -36,7 +37,7 @@ static class BookOutline
     public static readonly IReadOnlyList<string> LayerKeys = ["intent", "behavior", "implementation", "proof", "governance", "glossary"];
 
     /// <summary>The record types that top the intent layer, in display order.</summary>
-    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "constraint", "research", "decision", "actor"];
+    static readonly IReadOnlyList<string> IntentTopOrder = ["goal", "vision", "problem", "feature", "requirement", "constraint", "decision", "research", "flow", "actor"];
     /// <summary>The record types under a module, in display order.</summary>
     static readonly IReadOnlyList<string> ModuleChildOrder = ["aggregate", "rule", "use-case", "reaction", "job", "notification", "setting", "permission", "integration-event", "read-model"];
     /// <summary>The record types under an aggregate, in display order.</summary>
@@ -153,7 +154,7 @@ static class BookOutline
 
             if (string.Equals(type, "product", StringComparison.Ordinal))
             {
-                layers["intent"].Children.Add(nodes[id]);
+                // The product holds no outline node: it tops no layer, and its children top their own.
                 continue;
             }
 
@@ -188,9 +189,18 @@ static class BookOutline
                 continue;
             }
 
-            if (string.Equals(parentType, "product", StringComparison.Ordinal) && !string.Equals(ownLayer, "intent", StringComparison.Ordinal))
+            if (string.Equals(parentType, "product", StringComparison.Ordinal))
             {
-                PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
+                // Every product child tops its own layer: directly in intent, beside the other top nodes elsewhere.
+                if (string.Equals(ownLayer, "intent", StringComparison.Ordinal))
+                {
+                    layers["intent"].Children.Add(nodes[id]);
+                }
+                else
+                {
+                    PlaceTopLevel(layers, Group, ownLayer, type, nodes[id]);
+                }
+
                 continue;
             }
 
@@ -562,14 +572,15 @@ static class BookOutline
     /// <summary>Selects the layer a record tops when placement lifts it out of its parent.</summary>
     /// <param name="record">The record object, whose file path marks a technical decision.</param>
     /// <param name="type">The record type.</param>
-    /// <returns>The layer key for the record type, with technical decisions in implementation and unknown types in intent.</returns>
+    /// <returns>The layer key for the record type: root for the product, with technical decisions in implementation and unknown types in intent.</returns>
     static string OwnLayer(JsonObject record, string type) =>
         type switch
         {
+            "product" => "root",
             "term" => "glossary",
             "departure" => "governance",
             "decision" => IsTechnical(record) ? "implementation" : "intent",
-            "product" or "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" => "intent",
+            "goal" or "vision" or "problem" or "feature" or "requirement" or "constraint" or "research" or "flow" or "actor" => "intent",
             "module" or "aggregate" or "rule" or "use-case" or "result" or "scenario" or "domain-event" or "integration-event" or "reaction" or "job" or "notification" or "setting" or "read-model" or "role" or "permission" or "entry-point" or "screen" or "external-system" or "runbook" => "behavior",
             _ => "intent",
         };
@@ -673,7 +684,6 @@ static class BookOutline
     {
         var order = node.Type switch
         {
-            "product" => IntentTopOrder,
             "module" => ModuleChildOrder,
             "aggregate" => AggregateChildOrder,
             _ => null,
@@ -717,22 +727,14 @@ static class BookOutline
             _ => 4,
         };
 
-    /// <summary>Compares two intent layer children, placing the product record first.</summary>
+    /// <summary>Compares two intent layer children by record type order, then by label.</summary>
     /// <param name="left">The first node to compare.</param>
     /// <param name="right">The second node to compare.</param>
     /// <returns>A negative value when the first node sorts first, a positive value when it sorts last, and zero when they are equal.</returns>
     static int IntentLayerOrder(BookOutlineNode left, BookOutlineNode right)
     {
-        var leftProduct = IsRecordOf(left, "product") ? 0 : 1;
-        var rightProduct = IsRecordOf(right, "product") ? 0 : 1;
-        if (leftProduct != rightProduct)
-        {
-            return leftProduct.CompareTo(rightProduct);
-        }
-
-        return leftProduct == 0
-            ? CompareByLabel(left, right)
-            : string.Compare(left.Id, right.Id, StringComparison.Ordinal);
+        var typed = OrderIndex(IntentTopOrder, left.Type).CompareTo(OrderIndex(IntentTopOrder, right.Type));
+        return typed != 0 ? typed : CompareByLabel(left, right);
     }
 
     /// <summary>Compares two behavior layer children, placing module records first and list groups next in their order.</summary>

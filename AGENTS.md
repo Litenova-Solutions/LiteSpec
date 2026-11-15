@@ -158,6 +158,19 @@ The book is the model made readable, so it follows LiteSpec and adds nothing of 
 
 Sources: `litespec/core/model#organize-the-book-by-the-record-layers`, `litespec/core/model#name-book-labels-with-litespec-terms`, `litespec/core/model#explain-the-book-from-litespec-definitions`, `litespec/core/model#show-only-computed-judgements-in-the-book`, `litespec/core/model#add-a-missing-fact-to-litespec-before-the-book-shows-it`, `litespec/core/model#point-every-book-entry-to-its-source`.
 
+## Tests
+
+Agents write most of this repository, so a test only counts when its expected value comes from somewhere the agent cannot bend: the specification, a fixed data contract, or what a user sees in the running product. A unit test that the same agent writes from the code it just wrote mostly restates that code. It passes on the bug the code carries, breaks on every redesign, and invites editing the test until it is green.
+
+- Prove a change by running the real thing: a smoke run of the CLI against an example project, and for the book and the site a browser check of the built pages (Playwright or Vercel agent-browser) that asserts what a reader sees after the change, by role and text, never by class names or markup.
+- Write a unit test only where the expected value is a fixed contract: a parser or the data a second program reads, a security rule such as link sanitizing, or an invariant that holds for every input. Include one negative and one boundary case.
+- Write the expected value from the specification or the contract before reading the implementation, and check that the test fails without the change.
+- Never write a test that pins wording, markup or layout, and never a test that passes against both the old and the new code.
+- Never edit, skip or loosen a failing test in the change that makes it fail. Report it instead, unless the specification it proves changed in the same change.
+- The book client has no unit tests: svelte-check, the build and a browser check of a real book verify it.
+
+Sources, read 2026-11-15: Playwright best practices (https://playwright.dev/docs/best-practices) on testing user-visible behavior; Martin Fowler and Ham Vocke, The Practical Test Pyramid (https://martinfowler.com/articles/practical-test-pyramid.html), on contract tests between programs; Kent C. Dodds, The Testing Trophy (https://kentcdodds.com/blog/the-testing-trophy-and-testing-classifications), on confidence per test; Google Testing Blog, Just Say No to More End-to-End Tests (https://testing.googleblog.com/2015/04/just-say-no-to-more-end-to-end-tests.html), on keeping end-to-end checks few because they are slow and flaky; freeCodeCamp, How to Make Your Coding Agent Check Its Work in the Browser (https://www.freecodecamp.org/news/how-to-make-your-coding-agent-check-its-work-in-the-browser/), on browser checks catching defects that green unit suites missed.
+
 ## Verification
 
 In this repository, run these before a change is done:

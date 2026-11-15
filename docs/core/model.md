@@ -16,7 +16,7 @@ Each record layer answers one question, is written from the record layer above i
 
 | Record layer | Question | Writes | Records |
 |:--|:--|:--|:--|
-| Intent | Why build it, and what do we promise? | people and agents | product, goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
+| Intent | Why build it, and what do we promise? | people and agents | goal, vision, problem, feature, requirement, constraint, decision, research, flow, actor, role, term (`layer: intent`) |
 | Behavior | How does the system behave to keep the promises? | agents | module, aggregate, rule, domain-event, integration-event, use-case, result, scenario, reaction, job, read-model, notification, setting, permission, refusal-set, entry-point, screen, external-system, term (`layer: behavior`) |
 | Implementation | How is it built and operated? | agents | code, technical decisions, runbooks, operating procedures |
 | Proof | How do we know it holds? | the builder | tests, check results, computed completion, the rendered book |
@@ -31,7 +31,7 @@ Each type answers one question.
 
 | Type | Record layer | Question |
 |:--|:--|:--|
-| `product` | intent | What is built, and for whom? |
+| `product` | root | What is built, and for whom? |
 | `goal` | intent | Which measurable outcome does the product serve? |
 | `vision` | intent | Where is the product heading beyond what it promises now? |
 | `problem` | intent | Which pain does someone have today? |
@@ -75,7 +75,7 @@ Every record states something the software does, holds, refuses at runtime or ru
 
 The placement of every record follows ten principles, from the product root down to a test.
 
-1. **One tree from the product.** Every record has exactly one parent, and only the product has none. Every other link is a connection. An inverse link is computed, unless a reader needs it on the record, in which case the record states it and a check holds it to its source.
+1. **One tree from the product.** The product is the root record, above the record layers. Every record has exactly one parent, and only the product has none. Every other link is a connection. An inverse link is computed, unless a reader needs it on the record, in which case the record states it and a check holds it to its source.
 2. **The container is the parent.** An entry's parent is the record file that holds it. A record file's parent is its scope node: the product, a module, an aggregate or an entry point. No record writes an up-link that its location already states.
 3. **Four kinds of scope node, and only four.** Product, module, aggregate and entry point are the scope nodes a folder can stand for. Every other folder name is a fixed type folder from a closed set per layer and level.
 4. **The lowest scope node that holds every user.** A record sits under the lowest scope node that holds every record linking to it within its layer. The author places it, and the tool validates it.
@@ -94,7 +94,7 @@ Each parent with child records holds them in a folder named for the child type i
 
 | Type | Layer | Scope | Storage | Containment | Identifier |
 |:--|:--|:--|:--|:--|:--|
-| `product` | Intent | product | `intent/product.yaml` | none | `product/<name>` |
+| `product` | Root | product | `product.yaml` | none | `product/<name>` |
 | `goal` | Intent | product | `intent/goals/<name>/<name>.yaml` | product | `goal/<name>` |
 | `vision` | Intent | product | `intent/visions/<name>/<name>.yaml` | product | `vision/<name>` |
 | `problem` | Intent | product | `intent/problems/<name>/<name>.yaml` | product | `problem/<name>` |
@@ -164,7 +164,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 | Folder | Record layer | Holds |
 |:---|:---|:---|
-| `.litespec/intent/` | Intent | The product, goals, visions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
+| `.litespec/intent/` | Intent | Goals, visions, problems, features with their requirements, product-level requirements, constraints, decisions, roles, flows, actors, research, and the product documents the business publishes, such as legal texts |
 | `.litespec/behavior/` | Behavior | Modules with their aggregates, use cases, rules, domain events, reactions, jobs, read models, notifications, settings, integration events, permissions and refusal sets; entry points with their screens; external systems |
 | `.litespec/implementation/` | Implementation | Technical decisions under `decisions/` at product or module level; runbooks and operating procedures; the UI catalog, captures and patterns per entry point; the shared pattern catalog under `patterns/`; product copy rules under `writing/`; the API contract under `api/`; and guides for people working in the code. The guides describe code and hold no records |
 | `.litespec/proof/` | Proof | Evidence the tools compute or a run leaves behind: generated registers, gate files, test runs, and operating logs. No person writes a fact here that a tool can compute |
@@ -172,7 +172,7 @@ A consumer keeps its documentation in one folder per record layer, so the folder
 
 A named record lives in its record file `<name>.yaml` inside its own folder `<name>/`, and an explanation file `<name>.md` may sit in that folder beside it. A document holds no record. The folder name equals the file stem, so the folder and the file join into one pair that the tools find together.
 
-The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/`, because every record layer uses them.
+The product record (`.litespec/product.yaml`) stands at the top of `.litespec/`, above the record layers. The glossary (`.litespec/glossary.yaml`) and the example cast stay at the top of `.litespec/` beside it, because every record layer uses them.
 
 Proof holds no authored records. Tests are code, placed by the rule the Code and Tests section states, and the model computes completion from their marks and results.
 
@@ -387,11 +387,11 @@ The model derives the links and facts in this table from other records, code, ro
 
 ### Parents
 
-Every record except the product has exactly one parent. Book grouping places each record once, under its parent, except a use case's scenarios, which group by result, and a feature, which the book also shows under every problem its `solves` names. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link is computed unless a reader needs it stated, in which case a check holds the copy.
+Every record except the product has exactly one parent. Book grouping places each record once: under its parent, or at the top of its own layer when the product parents it. A use case's scenarios group by result instead, and a feature also shows under every problem its `solves` names. Every other link on the record is a connection: it renders with the reads-as phrase the Links table states, never as a second placement. An inverse link is computed unless a reader needs it stated, in which case a check holds the copy.
 
 Containment follows storage. An entry's parent is the record file that holds it: a scenario's parent is its use case, reaction or job. A record file's parent is its scope node: the product, a module, an aggregate or an entry point. List records are files whose entries take the file's scope node as parent. Types at product level take the product as parent with no field written: a project has exactly one product, so the field would repeat one value on every record.
 
-The product has no record parent; its parent is the project that declares it. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule.
+The product has no record parent; its parent is the project that declares it, and it carries the layer key `root`. Intent, Behavior, Implementation, Proof, and Governance are transparent group nodes on the path from product to record: a group node is never a parent and never satisfies the parent rule.
 
 The Placement Table above names each type's scope, storage and parent.
 
@@ -704,7 +704,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Statement:** Every record except the product MUST have exactly one parent from the Placement Table on this page.
 
-**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its use case, reaction or job, and a record file sits under its scope node. A feature requirement sits under its feature in its own folder, and types at product level, including a product-level requirement, sit under the product with no field written. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
+**Rationale:** A record with no parent has no place in the book, and a record with two parents appears twice. One parent per record puts every record exactly once: the container is the parent, so an entry sits under the record file that holds it, a scenario sits under its use case, reaction or job, and a record file sits under its scope node. A feature requirement sits under its feature in its own folder, and types at product level, including a product-level requirement, sit under the product with no field written. The product is the root of the tree and stands above every record layer, settled by [decision/0091-place-the-product-above-layers](decision/0091-place-the-product-above-layers). Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md).
 
 **Example:** In the Claimwick product, `requirement/approval-reminders.receipt-over-threshold` sits under `feature/approval-reminders` in `intent/features/approval-reminders/requirements/receipt-over-threshold/`; `use-case/spending.submit-expense` sits beside its aggregate; and `scenario/submit-expense.submitting-with-a-receipt-succeeds` sits in the file of `use-case/spending.submit-expense`.
 
@@ -1168,7 +1168,7 @@ The book renders the in-memory model only and judges nothing itself.
 
 **Applies to:** artifact: any
 
-**Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name.
+**Statement:** The book MUST outline a project by the four record layers, with the governance records beside them, and place each record under the record its folder and links name, or at the top of its own layer when the product parents it.
 
 **Rationale:** The book is how people read the model, so it shows the model's own hierarchy. A reader who learns Intent, Behavior, Implementation and Proof in the book reads the same structure in the docs folder, in the model output and in every other LiteSpec project. An outline of the book's own invention is a second hierarchy to learn, and it drifts from the one the records keep. Settled by [decision/0002-parent-for-every-record](../intent/decisions/0002-parent-for-every-record/0002-parent-for-every-record.md) on the evidence in [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), [research/intent-hierarchy-evidence](../intent/research/intent-hierarchy-evidence/intent-hierarchy-evidence.md), [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), and [research/established-traceability-practice](../intent/research/established-traceability-practice/established-traceability-practice.md). Settled by [decision/0008-book-follows-record-layers](../intent/decisions/0008-book-follows-record-layers/0008-book-follows-record-layers.md) on the evidence in [research/book-outline-evidence](../intent/research/book-outline-evidence/book-outline-evidence.md), [research/behavior-containment-evidence](../intent/research/behavior-containment-evidence/behavior-containment-evidence.md), and [research/check-coverage-evidence](../intent/research/check-coverage-evidence/check-coverage-evidence.md). Settled by [decision/0088-serve-the-book-live-and-export-it](decision/0088-serve-the-book-live-and-export-it).
 

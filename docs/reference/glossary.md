@@ -798,9 +798,7 @@ Source: plain English.
 
 ### Product
 
-The software capability offered to users, with its boundary and the exclusions that override its requirements.
-
-Layer: Intent.
+The software capability offered to users, with its boundary and the exclusions that override its requirements. It stands above the record layers.
 
 Home: docs/core/intent.md
 

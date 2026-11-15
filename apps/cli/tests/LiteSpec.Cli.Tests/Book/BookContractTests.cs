@@ -219,7 +219,7 @@ public sealed class BookContractTests
         Assert.True(seenConstraint, "The fixture holds no constraint.");
     }
 
-    /// <summary>Every written type is a record type and every written layer is a layer key or null.</summary>
+    /// <summary>Every written type is a record type and every written layer is a layer key, the product's root, or null.</summary>
     /// <proves>litespec/core/model#show-only-computed-judgements-in-the-book</proves>
     [Fact]
     public void TypeAndLayerAreClosed()
@@ -229,7 +229,7 @@ public sealed class BookContractTests
             Assert.Contains(Str(pair.Value, "type") ?? string.Empty, RecordTypes.All);
             var layer = Str(pair.Value, "layer");
             Assert.True(
-                layer is null || BookOutline.LayerKeys.Contains(layer),
+                layer is null || layer == "root" || BookOutline.LayerKeys.Contains(layer),
                 $"Unexpected layer {layer} for {pair.Key}.");
         }
     }

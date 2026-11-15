@@ -76,7 +76,8 @@ export interface BookRecord {
   folder?: string;
   module?: string | null;
   fields: RecordFields;
-  layer?: LayerKey | null;
+  /** The record layer, or root for the product above every layer. */
+  layer?: LayerKey | "root" | null;
   src?: SourceRef | null;
   impl?: { path?: string; line?: number | null; kind?: string }[];
   tests?: BookTest[];
@@ -267,9 +268,11 @@ export interface LayerClaim {
   practice: string;
 }
 
-/** The manifest: project, source links, release, test run, totals, layers, claims, shard map, search, unplaced and build time. */
+/** The manifest: project, product, source links, release, test run, totals, layers, claims, shard map, search, unplaced and build time. */
 export interface Manifest {
   project: { id: string; title: string };
+  /** The product record id (`product/<name>`), or "" when the model holds no product. */
+  productId: string;
   /** The source link template with {path} and {line} left to fill; null when the book links no source. */
   links: string | null;
   /** The LiteSpec version that generated the book, for example 7.0.0. */

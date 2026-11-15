@@ -179,9 +179,9 @@ static class BookSiteBuilder
         })]);
 
     /// <summary>
-    ///     The manifest shard value: project, source links, the LiteSpec release, the build
-    ///     time, the layer claims, the Intent coverage, the test run, the totals, the layers
-    ///     with their outline shards, the shard map, the search shards and the unplaced ids.
+    ///     The manifest shard value: project, the product id, source links, the LiteSpec release,
+    ///     the build time, the layer claims, the Intent coverage, the test run, the totals, the
+    ///     layers with their outline shards, the shard map, the search shards and the unplaced ids.
     ///     Without a Proof claim the test run is null, because the book leaves out proof.
     /// </summary>
     /// <param name="store">The model object that holds the records and the test run.</param>
@@ -226,6 +226,7 @@ static class BookSiteBuilder
                 ["id"] = project.Id,
                 ["title"] = project.Title,
             },
+            ["productId"] = project.Id,
             ["links"] = BookRender.StrNode(links),
             ["release"] = LiteSpecHome.Version ?? "",
             ["generatedOn"] = generatedOn,

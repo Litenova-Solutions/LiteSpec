@@ -699,7 +699,7 @@ public sealed class FolderCheckTests
         File.WriteAllText(aggregate, "type: aggregate\nid: aggregate/lending.loan\ntitle: Loan\n");
         var model = TestModel.Model(
             TestModel.Config(root),
-            TestModel.Record("product", "product/library", PathAt(root, ".litespec", "intent", "product.yaml"), """{}"""),
+            TestModel.Record("product", "product/library", PathAt(root, ".litespec", "product.yaml"), """{}"""),
             TestModel.Record("goal", "goal/faster-pickup", PathAt(root, ".litespec", "intent", "goals", "faster-pickup", "faster-pickup.yaml"), """{}"""),
             TestModel.Record("problem", "problem/overdue-loans-pile-up", PathAt(root, ".litespec", "intent", "problems", "overdue-loans-pile-up", "overdue-loans-pile-up.yaml"), """{}"""),
             TestModel.Record("feature", "feature/hold-queue", PathAt(root, ".litespec", "intent", "features", "hold-queue", "hold-queue.yaml"), """{}"""),

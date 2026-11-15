@@ -27,3 +27,4 @@ Every command accepts `--help`, and `model check` accepts `--format json` for a 
 - [Book](book.md): serves the project book live on localhost, or writes the static book with `--out`.
 - [Rules Query](rules.md): lists the provisions that govern a path or record identifier, grouped by strength.
 - [Skill](skill.md): installs or removes the litespec skill.
+- [Context](context.md): writes the specification as one plain-text file for an AI chat.

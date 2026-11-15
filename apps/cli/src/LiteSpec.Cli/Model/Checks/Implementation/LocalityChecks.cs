@@ -447,11 +447,16 @@ internal static class LocalityChecks
         return null;
     }
 
-    /// <summary>The record layer the locality rule reads: intent, behavior, implementation or governance.</summary>
+    /// <summary>The record layer the locality rule reads: root, intent, behavior, implementation or governance.</summary>
     /// <param name="record">The record whose layer is wanted.</param>
     /// <returns>The layer name in lowercase.</returns>
     private static string LayerOf(Record record)
     {
+        if (record.Type == RecordTypes.Product)
+        {
+            return "root";
+        }
+
         if (record.Type == RecordTypes.Term)
         {
             return record.Field(RecordFields.Layer) == "behavior" ? "behavior" : "intent";
@@ -469,7 +474,7 @@ internal static class LocalityChecks
 
         return record.Type switch
         {
-            RecordTypes.Product or RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Feature
+            RecordTypes.Goal or RecordTypes.Vision or RecordTypes.Problem or RecordTypes.Feature
                 or RecordTypes.Constraint or RecordTypes.Research or RecordTypes.Decision
                 or RecordTypes.Requirement or RecordTypes.Flow or RecordTypes.Actor
                 or RecordTypes.Role => "intent",

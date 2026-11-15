@@ -80,7 +80,7 @@ public sealed class BookScaleTests
         }
     }
 
-    /// <summary>The outline places every scale record exactly once, with none unplaced.</summary>
+    /// <summary>The outline places every scale record except the product exactly once, with none unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void ScaleOutlinePlacesEveryRecordExactlyOnce()
@@ -92,10 +92,14 @@ public sealed class BookScaleTests
         var manifest = ReadShard(Path.Combine(data, "manifest.js"), "manifest");
         var placed = RecordNodes(data, manifest);
 
-        Assert.Equal(ScaleRecords, placed.Count);
-        Assert.Equal(ScaleRecords, placed.Select(node => node.Id).ToHashSet(StringComparer.Ordinal).Count);
+        // The product holds no outline node, so the outline holds every other scale record.
+        var expected = ScaleIds();
+        expected.Remove("product/scale");
+
+        Assert.Equal(ScaleRecords - 1, placed.Count);
+        Assert.Equal(ScaleRecords - 1, placed.Select(node => node.Id).ToHashSet(StringComparer.Ordinal).Count);
         Assert.True(
-            ScaleIds().SetEquals(placed.Select(node => node.Id)),
+            expected.SetEquals(placed.Select(node => node.Id)),
             "The outline misses scale records or holds strangers.");
         Assert.Empty(manifest["unplaced"]!.AsArray());
     }

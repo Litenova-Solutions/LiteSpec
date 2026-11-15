@@ -276,12 +276,21 @@ function walkGroups(book: Book, pre: RowPrecompute, kids: string[], parent: stri
   }
 }
 
-/** The outline rows: layer headers with their counts, records and field groups. */
+/** The outline rows: the product root, then layer headers with their counts, records and field groups. */
 function buildRows(book: Book): OutlineRow[] {
   const rows: OutlineRow[] = [];
   const filtering = book.anyFilter();
   const pre = precompute(book);
   const counts = layerCounts(book, pre, filtering);
+  // The product root above the first layer group: one record row, so
+  // selection, reveal and keyboard moves treat it like any record.
+  const pid = book.productId();
+  if (pid && book.has(pid) && book.isVisible(pid)) {
+    rows.push({
+      kind: "record", key: "root", id: pid, depth: 0,
+      level: 1, kids: 0, open: false, dim: filtering && !book.isDirectMatch(pid),
+    });
+  }
   for (const layer of book.man?.layers ?? []) {
     if (!book.isLayerLoaded(layer.key)) {
       rows.push({ kind: "layer", key: "layer/" + layer.key, layer: layer.key, total: 0, shown: 0, done: 0 });
@@ -356,7 +365,7 @@ export function totalRecords(book: Book): number {
   const cached = totalsCache.get(book);
   if (cached && cached.rev === book.rev) return cached.total;
   let total = Object.values(book.man?.totals ?? {}).reduce((a, b) => a + b, 0);
-  if (!total) total = book.order.filter((id) => book.isReal(id)).length;
+  if (!total) total = book.orderWithProduct().filter((id) => book.isReal(id)).length;
   totalsCache.set(book, { rev: book.rev, total });
   return total;
 }

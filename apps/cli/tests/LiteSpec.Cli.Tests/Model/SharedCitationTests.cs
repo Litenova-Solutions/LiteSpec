@@ -73,7 +73,7 @@ public sealed class SharedCitationTests
 
     static void AppendCitation(string root, string citation)
     {
-        var page = Path.Combine(root, ".litespec", "intent", "product.md");
+        var page = Path.Combine(root, ".litespec", "product.md");
         File.AppendAllText(page, $"\nSee {citation}.\n");
     }
 

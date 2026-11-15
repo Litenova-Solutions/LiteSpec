@@ -15,7 +15,7 @@ sealed class BookLexicon
     /// <summary>Gets the record types by id, in record-type table order.</summary>
     public IReadOnlyDictionary<string, LexiconType> Types { get; }
 
-    /// <summary>Gets the record layers by key, in four-layer table order, then governance and glossary.</summary>
+    /// <summary>Gets the record layers by key, in four-layer table order, then governance, glossary and root.</summary>
     public IReadOnlyDictionary<string, LexiconLayer> Layers { get; }
 
     /// <summary>Gets the link phrases, in Links-table row order.</summary>

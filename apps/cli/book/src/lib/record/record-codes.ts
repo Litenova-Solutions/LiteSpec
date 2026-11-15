@@ -21,8 +21,9 @@ export function kindCode(type: string): string {
 /** Every type the table codes, in table order, for the About this book table. */
 export const CODED_TYPES: readonly string[] = Object.keys(CODES);
 
-// One badge color per record layer, as Carbon tag types.
+// One badge color per record layer, as Carbon tag types. The product root reads gray, apart from the layers.
 const LAYER_CLASS: Record<string, string> = {
+  root: "bg-tag-gray text-tag-gray-foreground",
   intent: "bg-tag-purple text-tag-purple-foreground",
   behavior: "bg-tag-blue text-tag-blue-foreground",
   governance: "bg-tag-warm text-tag-warm-foreground",

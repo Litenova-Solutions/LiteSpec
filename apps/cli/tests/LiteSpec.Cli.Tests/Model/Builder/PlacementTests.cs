@@ -15,7 +15,7 @@ public sealed class PlacementTests
     {
         using var temp = TestCli.Temp("placement");
         WriteProject(temp.Path);
-        Write(temp.Path, ".litespec/intent/product.yaml", """
+        Write(temp.Path, ".litespec/product.yaml", """
             type: product
             id: product/claimwick
             title: Claimwick
@@ -81,7 +81,7 @@ public sealed class PlacementTests
 
         var model = ModelBuilder.Build(ConsumerConfig.Load(temp.Path));
 
-        AssertPlaced(model, "product/claimwick", ".litespec/intent", null);
+        AssertPlaced(model, "product/claimwick", ".litespec", null);
         AssertPlaced(model, "goal/faster-reimbursement", ".litespec/intent/goals", null);
         AssertPlaced(model, "module/finance", ".litespec/behavior/modules/finance", "finance");
         AssertPlaced(model, "feature/payout", ".litespec/intent/features/payout", null);

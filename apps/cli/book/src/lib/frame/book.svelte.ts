@@ -245,6 +245,16 @@ export class Book {
         question: meta.question ?? "",
       };
     }
+    // The product root above every record layer: its label and writers from
+    // the lexicon, with no outline of its own.
+    const rootMeta = this.lex.layers["root"] ?? { label: "", writes: "" };
+    this.layerByKey["root"] = {
+      key: "root",
+      label: rootMeta.label || "root",
+      outline: [],
+      writes: rootMeta.writes,
+      question: rootMeta.question ?? "",
+    };
   }
 
   /** Reads the intent layer, the layer of the start record, and every record when the project is small. */
@@ -255,6 +265,9 @@ export class Book {
     const startLayer = this.layerFor(start);
     if (startLayer && !keys.includes(startLayer) && this.layerByKey[startLayer]) keys.push(startLayer);
     await this.loadLayers(keys);
+    // The product record loads with the first layers, so its title shows at boot.
+    const pid = this.productId();
+    if (pid) await this.ensureRecords([pid]);
     if (man.unplaced.length) console.info("Unplaced records: " + man.unplaced.join(", "));
     const total = Object.values(man.totals).reduce((a, b) => a + b, 0);
     if (total && total <= 500) await this.preloadAll();
@@ -577,17 +590,26 @@ export class Book {
     return layer ? (this.rootsOf[layer] ?? []) : [];
   }
 
+  /** The product record id from the manifest, or null when the model holds no product. */
   productId(): string | null {
     this.outlineRev;
     this.recRev;
-    return this.man?.project.id || this.order.find((id) => this.typeOf(id) === "product") || null;
+    return this.man?.productId || null;
   }
 
-  /** The record layer a type belongs to, from LiteSpec's model page. */
-  kindOf(id: string): "intent" | "behavior" | "governance" | "unlayered" {
+  /** Every record id with the product first: the outline order plus the product, which no outline shard carries. */
+  orderWithProduct(): string[] {
+    const pid = this.productId();
+    if (!pid) return [...this.order];
+    return [pid, ...this.order.filter((id) => id !== pid)];
+  }
+
+  /** The record layer a type belongs to, or the product root, from LiteSpec's model page. */
+  kindOf(id: string): "root" | "intent" | "behavior" | "governance" | "unlayered" {
     const layerText = this.lex.types[this.typeOf(id)]?.layer ?? "";
     const layer = (layerText.split(",")[0] ?? "").trim();
     if (!layer) return "unlayered";
+    if (layer.startsWith("root")) return "root";
     if (layer.startsWith("intent")) return "intent";
     if (layer.startsWith("behavior")) return "behavior";
     if (layer.startsWith("governance")) return "governance";
@@ -831,7 +853,7 @@ export class Book {
     this.outlineRev;
     this.recRev;
     this.searchRev;
-    return visibleMapFor(this.order, this.parentOf, (id) => this.passesFilters(id), this.anyFilter());
+    return visibleMapFor(this.orderWithProduct(), this.parentOf, (id) => this.passesFilters(id), this.anyFilter());
   });
 
   isVisible(id: string): boolean {
@@ -849,7 +871,7 @@ export class Book {
 
   /** The record Enter opens from the search box: the best title hit, else the best hit. */
   bestSearchHit(): string | null {
-    return bestSearchHitFor(this.order, (id) => this.passesFilters(id), this.hits, this.query, (id) => this.title(id));
+    return bestSearchHitFor(this.orderWithProduct(), (id) => this.passesFilters(id), this.hits, this.query, (id) => this.title(id));
   }
 
   // ---------- sorting ----------
@@ -987,6 +1009,6 @@ export class Book {
     if (this.renderedNav !== null) {
       return this.renderedNav.filter((id) => !this.anyFilter() || this.passesFilters(id));
     }
-    return this.order.filter((id) => !this.anyFilter() || this.passesFilters(id));
+    return this.orderWithProduct().filter((id) => !this.anyFilter() || this.passesFilters(id));
   }
 }

@@ -48,7 +48,7 @@ Keep the `agent-protocol` region in the project's `AGENTS.md` current, so every 
 
 ### Write the First Records
 
-Write `.litespec/intent/product.yaml` first. It states what the product is, who it is for, and what it never does. Then run `dotnet litespec new <type> <id>` for each further record, which writes the record in its legal folder and reserves its identifier before any prose exists. Work one slice at a time, from the problem to the Behavior scenario that proves it, as the [model page](../core/model.md) describes.
+Write `.litespec/product.yaml` first. It states what the product is, who it is for, and what it never does. Then run `dotnet litespec new <type> <id>` for each further record, which writes the record in its legal folder and reserves its identifier before any prose exists. Work one slice at a time, from the problem to the Behavior scenario that proves it, as the [model page](../core/model.md) describes.
 
 A rule the team cannot meet yet gets a departure in `.litespec/governance/departures/`, as the [departure page](../core/departures.md) states.
 

@@ -45,7 +45,11 @@ public sealed class BookViewsTests
         foreach (var id in details.Keys)
         {
             Assert.Contains(id, searchIds);
-            if (unplaced.Contains(id))
+            if (id == "product/library")
+            {
+                Assert.False(ancestors.ContainsKey(id), $"{id} holds an outline node.");
+            }
+            else if (unplaced.Contains(id))
             {
                 Assert.False(ancestors.ContainsKey(id), $"{id} is unplaced but holds an outline node.");
             }
@@ -55,11 +59,12 @@ public sealed class BookViewsTests
             }
         }
 
-        Assert.Equal(details.Count - unplaced.Count, ancestors.Count);
+        // The product holds no outline node, so the outline holds every other detail.
+        Assert.Equal(details.Count - unplaced.Count - 1, ancestors.Count);
 
         // Each detail parent agrees with the outline nesting: under its parent record,
-        // or under a group when the product parents it outside Intent. An unplaced
-        // record has no node at all.
+        // or at the top of its own layer when the product parents it. An unplaced
+        // record has no node at all, and neither does the product.
         foreach (var pair in details)
         {
             var parent = Str(pair.Value, "parent");
@@ -67,7 +72,7 @@ public sealed class BookViewsTests
             {
                 if (pair.Key == "product/library")
                 {
-                    Assert.Null(ancestors[pair.Key]);
+                    Assert.False(ancestors.ContainsKey(pair.Key), $"{pair.Key} holds an outline node.");
                 }
                 else
                 {
@@ -116,7 +121,7 @@ public sealed class BookViewsTests
         Assert.Equal("product/library", Str(details["flow/borrowing"], "parent"));
 
         // Group nodes carry their layer and type; record nodes carry their records shard.
-        // The flow nests under the product, so it leaves no group behind.
+        // The flow tops the intent layer as a direct node, so it leaves no group behind.
         Assert.Null(TryFindNode(tops, "intent/flow"));
         var roleGroup = FindNode(tops, "behavior/role");
         Assert.Equal("group", Str(roleGroup, "kind"));
@@ -749,10 +754,12 @@ public sealed class BookViewsTests
 
     /// <summary>Whether a product-parented type tops its own layer instead of nesting under the product.</summary>
     /// <param name="type">The record type to classify, or null when the node has no type.</param>
-    /// <returns>True when the type starts its own outline layer.</returns>
+    /// <returns>True when the type starts its own outline layer. A feature naming solved problems nests under each problem instead.</returns>
     static bool TopsItsLayer(string? type) =>
         type is "module" or "role" or "entry-point" or "external-system" or "runbook"
-            or "departure" or "term";
+            or "departure" or "term" or "goal" or "vision" or "problem" or "feature"
+            or "requirement" or "constraint" or "decision" or "research" or "flow"
+            or "actor" or "rule";
 
     /// <summary>The result a scenario shows, from its outgoing result edge, or null when it shows none.</summary>
     /// <param name="detail">The scenario detail whose outgoing edges are read.</param>

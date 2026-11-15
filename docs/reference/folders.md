@@ -8,7 +8,7 @@ Use this generated page to find the folder and file each record type lives in, r
 
 | Type | Folder | File |
 |:---|:---|:---|
-| `product` | `intent` | `product.yaml` |
+| `product` | `` | `product.yaml` |
 | `goal` | `intent/goals/{name}` | `{name}.yaml` |
 | `vision` | `intent/visions/{name}` | `{name}.yaml` |
 | `problem` | `intent/problems/{name}` | `{name}.yaml` |

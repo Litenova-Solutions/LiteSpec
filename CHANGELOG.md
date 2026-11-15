@@ -116,6 +116,7 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 
 ### Part N: Removals and Names
 
+- The product is the root record above the record layers. It is stored at `.litespec/product.yaml` with its explanation file `.litespec/product.md`, its layer key is `root`, and every layer hangs under it: the book opens the outline with the product and starts the Intent layer at goals, problems, features and flows. Decision 0091, Place the Product Above the Layers, records why.
 - Removed: the `compensated` consistency mode, the `manual` job kind, the `default` and `cross-aggregate` rule kinds, the `not-pending` idempotency mode, `builtAsynchronously`, the external-system prose fields `sends`, `receives` and `failure`, `writes` on reactions and jobs, the screen `floorplan` link (the design contract maps screens to floorplans), and the retention-schedule record type.
 - Renamed: `view` to `read-model`, `event` entries to `domain-event` (`domain-event/<aggregate>.<name>`, folder `domain-events/`), `changes` to `writes`, `transitions.by` to `movedBy`, `runsWhere` to `runsWhen`, `onFailure.then` to `ifExhausted`, audit `exempt` to `exemptBecause`, rule kind `commercial-data` to `frozen-value`, `permission-list` and `entry-point-list` to `permission-set` and `entry-point-set`, and the provision part `Deviation` to `Departure`.
 - Finding codes renamed: `atomic-group-*` to `atomicity-*`, `constituent-parent-missing` to `part-parent-missing`, `notification-sender-missing` to `notification-effect-missing`, `permission-orphaned` and `role-orphaned` to `permission-unused` and `role-unused`, `use-case-journey-missing` to `use-case-flow-missing`, and the `view-*` codes to `read-model-*`.
@@ -139,6 +140,8 @@ The new rules are `litespec/core/automation#declare-each-read-model-field-from-a
 - Every record type shows as a short code badge colored by its record layer, such as F for a feature and U for a use case; hovering it explains the type. A new About this book page lists every code with its record count, and holds the build time, the test run and the completion that every page used to repeat.
 - The rail lists the record's Trace to the other record layers only, its Completion and an On this page list. The keyboard shortcuts dialog is removed, and explanations open only on hover or focus.
 - A flow's branches show inside the steps they leave from, and the step a branch continues at names where else it is reached from.
+- The record page and its rail form one block centered beside the outline, so a wide screen keeps them together.
+- `litespec context` writes the project's records and explanation files as one compact text file for an AI chat, filtered by `--layers`, `--modules`, `--types` and `--include records|explanations|both`, compacted unless `--full` is given. It is read-only.
 
 ### Part Q: Provision Changes Since v6.0.0
 

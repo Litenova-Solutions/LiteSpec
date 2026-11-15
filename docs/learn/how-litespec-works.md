@@ -25,12 +25,12 @@ Every record answers one layer's question, and each layer is written from the la
 
 | Layer | Question | Records |
 |:--|:--|:--|
-| Intent | Why build it, and what do we promise? | Product, goal, problem, feature, requirement, constraint, decision, research, flow, actor, role |
+| Intent | Why build it, and what do we promise? | goal, problem, feature, requirement, constraint, decision, research, flow, actor, role |
 | Behavior | How does the system behave to keep the promises? | Aggregate, rule, domain event, integration event, use case, result, scenario, reaction, job, read model, notification, setting, permission, entry point, screen, external system |
 | Implementation | How is it built? | Code, technical decisions, runbooks |
 | Proof | How do we know it holds? | Tests, check results, the computed completion, the rendered book |
 
-A project claims the layers it uses in `layers` in `.litespec/project.yaml`. Three translation rules join them. **Specify** turns Intent into Behavior: it adds states, refusals, data with its retention, and access with its tenant scope. It never invents a value that Intent does not state, such as a price, a rate or a retention period; the agent takes that question to the owner. **Implement** turns Behavior into code, and it adds no outcome, edge or access that no record declares. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
+The product record stands above the four layers at `.litespec/product.yaml`: it states what is built, for whom, and where it stops. A project claims the layers it uses in `layers` in `.litespec/project.yaml`. Three translation rules join them. **Specify** turns Intent into Behavior: it adds states, refusals, data with its retention, and access with its tenant scope. It never invents a value that Intent does not state, such as a price, a rate or a retention period; the agent takes that question to the owner. **Implement** turns Behavior into code, and it adds no outcome, edge or access that no record declares. **Verify** turns code into Proof: one test proves each scenario through the public boundary.
 
 Records state only software; [Record Layers](../core/layers.md) states how company matters enter. A departure sets a provision, a page, or a finding code aside; [Read the Standard](reading-the-standard.md#departures-from-the-rules) explains the departure record.
 
@@ -39,29 +39,30 @@ Records state only software; [Record Layers](../core/layers.md) states how compa
 The folder is part of the record: it names the parent, and every other folder name comes from a closed set per layer. The Claimwick tree shows the pattern:
 
 ```text
-.litespec/intent/
-  product.yaml
-  goals/  constraints/  decisions/  research/  actors/  roles/  flows/
-  features/
-    approval/
-      approval.yaml        the feature, naming its problems in solves
-      requirements/
-        decided-within-five-days/
-          decided-within-five-days.yaml   a requirement, in its own folder
-  problems/
-    expenses-wait-weeks/
-      expenses-wait-weeks.yaml
-.litespec/behavior/
-  modules/
-    spending/
-      aggregates/
-        expenses/                an aggregate's folder
-          aggregate.yaml
-          use-cases/
-            submit-expense/
-              submit-expense.yaml  a use case
-          rules/
-            ...
+.litespec/
+  product.yaml                 the product, above the record layers
+  intent/
+    goals/  constraints/  decisions/  research/  actors/  roles/  flows/
+    features/
+      approval/
+        approval.yaml        the feature, naming its problems in solves
+        requirements/
+          decided-within-five-days/
+            decided-within-five-days.yaml   a requirement, in its own folder
+    problems/
+      expenses-wait-weeks/
+        expenses-wait-weeks.yaml
+  behavior/
+    modules/
+      spending/
+        aggregates/
+          expenses/                an aggregate's folder
+            aggregate.yaml
+            use-cases/
+              submit-expense/
+                submit-expense.yaml  a use case
+            rules/
+              ...
 ```
 
 Each record has one identifier, short and unique in the product, such as `use-case/spending.submit-expense`, and every link uses it. A record that moves to another module changes its identifier and every citation in the same change.

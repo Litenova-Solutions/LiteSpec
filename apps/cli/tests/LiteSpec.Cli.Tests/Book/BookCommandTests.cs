@@ -57,7 +57,7 @@ public sealed class BookCommandTests
         Assert.DoesNotContain("{{noscript}}", shell, StringComparison.Ordinal);
     }
 
-    /// <summary>The manifest carries the project, source links, release, claims, coverage, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
+    /// <summary>The manifest carries the project, the product id, source links, release, claims, coverage, totals, layers, shard map, search shards, unplaced ids and generation date, and no approvals.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void ManifestCarriesTheBookContract()
@@ -74,6 +74,7 @@ public sealed class BookCommandTests
         var project = manifest["project"]!.AsObject();
         Assert.Equal("product/library", project["id"]!.GetValue<string>());
         Assert.Equal("Library", project["title"]!.GetValue<string>());
+        Assert.Equal("product/library", manifest["productId"]!.GetValue<string>());
 
         // A static export without --links links no sources.
         Assert.Null(manifest["links"]);

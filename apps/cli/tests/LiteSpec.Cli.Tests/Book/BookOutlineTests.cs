@@ -51,7 +51,7 @@ public sealed class BookOutlineTests
         }
     }
 
-    /// <summary>The fixture model places every record exactly once under six layer roots, with none unplaced.</summary>
+    /// <summary>The fixture model places every record except the product exactly once under six layer roots, with none unplaced.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void FixtureModelPlacesEveryRecordExactlyOnce()
@@ -74,12 +74,19 @@ public sealed class BookOutlineTests
 
         Assert.Empty(outline.Unplaced);
 
+        // The product holds no outline node: its children top their own layers instead.
+        Assert.Null(Find(outline.Layers, "product/library"));
+
         var placed = RecordIds(outline.Layers);
-        Assert.Equal(ids.Count - outline.Unplaced.Count, placed.Count);
+        Assert.Equal(ids.Count - outline.Unplaced.Count - 1, placed.Count);
         Assert.Equal(placed.Count, new HashSet<string>(placed, StringComparer.Ordinal).Count);
         foreach (var id in ids)
         {
-            if (outline.Unplaced.Contains(id))
+            if (id == "product/library")
+            {
+                Assert.DoesNotContain(id, placed);
+            }
+            else if (outline.Unplaced.Contains(id))
             {
                 Assert.DoesNotContain(id, placed);
                 Assert.Null(Find(outline.Layers, id));
@@ -126,9 +133,9 @@ public sealed class BookOutlineTests
         Assert.Equal(1, placed.Count(id => string.Equals(id, "feature/self-checkout", StringComparison.Ordinal)));
         Assert.DoesNotContain("feature/self-checkout", outline.Unplaced);
 
-        var product = Find(outline.Layers, "product/library");
-        Assert.NotNull(product);
-        Assert.Contains(product!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
+        var intent = Find(outline.Layers, "intent");
+        Assert.NotNull(intent);
+        Assert.Contains(intent!.Children, child => string.Equals(child.Id, "feature/self-checkout", StringComparison.Ordinal));
 
         var fileless = Model(
             Record("product", "product/library", "Library", "approved"),
@@ -645,12 +652,12 @@ public sealed class BookOutlineTests
 
         var outline = BookOutline.Build(model);
         Assert.DoesNotContain("goal/faster-borrowing", outline.Unplaced);
-        var product = Find(outline.Layers, "product/library");
-        Assert.NotNull(product);
-        Assert.Contains(product!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
+        var intent = Find(outline.Layers, "intent");
+        Assert.NotNull(intent);
+        Assert.Contains(intent!.Children, child => string.Equals(child.Id, "goal/faster-borrowing", StringComparison.Ordinal));
     }
 
-    /// <summary>A technical decision tops the implementation layer at product and module level alike, and a product decision sits under the product or its module.</summary>
+    /// <summary>A technical decision tops the implementation layer at product and module level alike, and a product decision tops the intent layer.</summary>
     /// <proves>litespec/core/model#organize-the-book-by-the-record-layers</proves>
     [Fact]
     public void TechnicalDecisionsTopTheImplementationLayer()
@@ -696,11 +703,11 @@ public sealed class BookOutlineTests
         Assert.Contains(implementation!.Children, child => string.Equals(child.Id, "decision/0004-serve-receipts", StringComparison.Ordinal));
         Assert.Contains(implementation.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));
 
-        var product = Find(outline.Layers, "product/library");
-        Assert.NotNull(product);
-        Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/library-pick-a-format", StringComparison.Ordinal));
+        var intent = Find(outline.Layers, "intent");
+        Assert.NotNull(intent);
+        Assert.Contains(intent!.Children, child => string.Equals(child.Id, "decision/library-pick-a-format", StringComparison.Ordinal));
 
-        Assert.Contains(product!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
+        Assert.Contains(intent!.Children, child => string.Equals(child.Id, "decision/lending-pick-a-queue", StringComparison.Ordinal));
         var module = Find(outline.Layers, "module/lending");
         Assert.NotNull(module);
         Assert.DoesNotContain(module!.Children, child => string.Equals(child.Id, "decision/0005-render-receipts", StringComparison.Ordinal));

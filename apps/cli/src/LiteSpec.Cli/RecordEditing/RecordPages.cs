@@ -142,6 +142,12 @@ static class RecordPages
             return Path.Combine(DocsRoot(config), "implementation", "decisions");
         }
 
+        // The product is one fixed file at the documentation root, so a rename keeps it there.
+        if (type == "product")
+        {
+            return DocsRoot(config);
+        }
+
         // A type whose identifier carries no home, such as an integration event, keeps the folder it sits in.
         if (newHome is null && RecordFolders.NeedsHome(type))
         {

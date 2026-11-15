@@ -6,7 +6,7 @@ namespace LiteSpec.Cli.Tests.Consumer;
 /// <summary>Consumer validator cases for the required sections of each page kind.</summary>
 public sealed partial class ConsumerValidatorTests
 {
-    const string BriefPage = ".litespec/intent/product.yaml";
+    const string BriefPage = ".litespec/product.yaml";
     const string RequirementPage = ".litespec/intent/features/pricing/pricing.yaml";
     const string RequirementExplanation = ".litespec/intent/features/pricing/pricing.md";
     const string DecisionPage = ".litespec/intent/decisions/0001-launch/0001-launch.yaml";

@@ -6,7 +6,7 @@
 
 ## Intent
 
-Intent is why the product exists and what it promises: the product, actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
+Intent is why the product exists and what it promises: actors, goals, visions, problems, features, requirements, flows, constraints, research, decisions, and terms, under the product record that stands above the record layers at `.litespec/product.yaml`. This page states where Intent lives, what shape each record takes, and what Intent never holds, before Behavior states how the system keeps the promises. The [record language page](language.md) states how each field, value and record name is written.
 
 ## Concepts
 
@@ -56,30 +56,31 @@ A record that states company operation fails the test, even when its folder is r
 Each record sits in the folder of its parent, and the folder names that parent:
 
 ```text
-.litespec/intent/
-  product.yaml
-  goals/  visions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
-  problems/
-    payouts-wait/
-      payouts-wait.yaml
-      payouts-wait.md          its explanation
-  features/
-    payout/
-      payout.yaml              the feature
-      payout.md                its explanation, optional
-      requirements/
-        paid-once/             requirement
-          paid-once.yaml
-          paid-once.md         its explanation, optional
-  requirements/
-    tenant-isolation/
-      tenant-isolation.yaml    product requirement
-  flows/
-    pay-a-payout/
-      pay-a-payout.yaml
+.litespec/
+  product.yaml               the product, above the record layers
+  intent/
+    goals/  visions/  constraints/  decisions/  research/  actors/  roles/  flows/  features/  requirements/
+    problems/
+      payouts-wait/
+        payouts-wait.yaml
+        payouts-wait.md          its explanation
+    features/
+      payout/
+        payout.yaml              the feature
+        payout.md                its explanation, optional
+        requirements/
+          paid-once/             requirement
+            paid-once.yaml
+            paid-once.md         its explanation, optional
+    requirements/
+      tenant-isolation/
+        tenant-isolation.yaml    product requirement
+    flows/
+      pay-a-payout/
+        pay-a-payout.yaml
 ```
 
-Product level holds the product, visions, goals, constraints, decisions, research, actors, roles, flows, features and product requirements. Each problem's folder holds the problem. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
+The product record stands at the root of `.litespec/` as `product.yaml`, above the record layers. Product level holds visions, goals, constraints, decisions, research, actors, roles, flows, features and product requirements. Each problem's folder holds the problem. Each feature's folder holds the feature and its requirements. Flows cross modules through their steps. Every folder is one of a closed set per layer; a record of a type in the wrong folder and a record type outside its allowed levels are blocking findings.
 
 Modules are not declared here. A module is a code boundary, so it is declared in Behavior, and [Modules as Product Areas](behavior.md#modules-as-product-areas) states how one module name runs through Behavior and code.
 
@@ -142,7 +143,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product, record:goal, record:vision, record:problem, record:constraint, record:decision, record:research, record:actor, record:role, record:flow, record:feature, record:requirement
 
-**Statement:** A consumer MUST keep its product record at `.litespec/intent/product.yaml`, each vision, goal, problem, constraint, decision, research record, actor and flow in its own folder under `.litespec/intent/`, each feature in `intent/features/<name>/`, each feature requirement in its own folder in its feature's `requirements/` folder, and each product requirement in `intent/requirements/<name>/`.
+**Statement:** A consumer MUST keep its product record at `.litespec/product.yaml`, each vision, goal, problem, constraint, decision, research record, actor and flow in its own folder under `.litespec/intent/`, each feature in `intent/features/<name>/`, each feature requirement in its own folder in its feature's `requirements/` folder, and each product requirement in `intent/requirements/<name>/`.
 
 **Rationale:** Intent split across notes and books gives no single answer to the question an agent asks before building. One home per kind, with the product record, visions, goals, problems, constraints, decisions, research, actors, flows, features and product requirements at product level, gives every reader one place to look. A second home for any kind starts a second truth about the product. The folder is the parent: product level holds the product-wide kinds, and a feature's folder holds its requirements. A module is declared in Behavior, not here, because a module is a code boundary and Intent is organized by reason. Proposed by [decision/0051-declare-modules-only-in-behavior](decision/0051-declare-modules-only-in-behavior).
 
@@ -156,7 +157,7 @@ Intent never holds Behavior detail. `litespec/core/intent#keep-behavior-out-of-i
 
 **Applies to:** artifact: record:product
 
-**Statement:** A consumer MUST state exactly one product record at `.litespec/intent/product.yaml`, with `boundary`, `addresses`, and `summary`.
+**Statement:** A consumer MUST state exactly one product record at `.litespec/product.yaml`, with `boundary`, `addresses`, and `summary`.
 
 **Rationale:** One product record gives every reader one answer to what the product is and who it serves. The `boundary` and `addresses` focus every later choice. Two product statements let each plan cite the one it prefers. `summary` states what the product is in one place. The product lists what it leaves out in `excludes`, in plain sentences; only an `excludes` entry sets a requirement aside, and the summary is never read as one.
 

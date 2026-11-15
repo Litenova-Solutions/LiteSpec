@@ -19,8 +19,8 @@ A record file carries its record in YAML, with the entries in `records`. A named
 
 | Template | Target | Purpose |
 |:---|:---|:---|
-| `product.yaml` | `.litespec/intent/product.yaml` | Defines the product boundary, the actors it addresses, what it excludes, and the brand every screen keeps. |
-| `product.md` | `.litespec/intent/product.md` | Explains the product beside its record file. |
+| `product.yaml` | `.litespec/product.yaml` | Defines the product boundary, the actors it addresses, what it excludes, and the brand every screen keeps. |
+| `product.md` | `.litespec/product.md` | Explains the product beside its record file. |
 | `goal.yaml` | `.litespec/intent/goals/<name>/<name>.yaml` | States one measurable outcome the product serves, with the observations that show it. |
 | `goal.md` | `.litespec/intent/goals/<name>/<name>.md` | Explains one goal beside its record file. |
 | `vision.yaml` | `.litespec/intent/visions/<name>/<name>.yaml` | States where the product is heading beyond what it promises now. |

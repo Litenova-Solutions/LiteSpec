@@ -154,13 +154,15 @@ public static class RecordTypes
     };
 
     /// <summary>
-    ///     The record layer of each written type: intent, behavior or governance. A term
+    ///     The record layer of each written type: root for the product, which stands above
+    ///     the record layers, and intent, behavior or governance for the rest. A term
     ///     names its own layer in its layer field; this table gives it intent by default.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, string> LayerByType =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
-            ["product"] = "intent", ["goal"] = "intent", ["vision"] = "intent", ["constraint"] = "intent",
+            ["product"] = "root",
+            ["goal"] = "intent", ["vision"] = "intent", ["constraint"] = "intent",
             ["research"] = "intent", ["decision"] = "intent", ["requirement"] = "intent",
             ["problem"] = "intent", ["feature"] = "intent",
             ["actor"] = "intent", ["flow"] = "intent", ["term"] = "intent",

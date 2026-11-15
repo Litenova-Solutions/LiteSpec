@@ -53,7 +53,7 @@ static class ConsumerFixture
             {"type":"problem","id":"problem/slow-delivery","title":"Slow Delivery","summary":"Orders take weeks to arrive.","statement":"Orders take weeks to arrive.","affects":["actor/customer"]}
             """,
             null),
-        new(".litespec/intent/product.yaml",
+        new(".litespec/product.yaml",
             """
             {"type":"product","id":"product/fixture","title":"Fixture Shop","summary":"The shop sells printed books to readers in one city.","boundary":"The shop sells printed books to readers.","addresses":["actor/customer"]}
             """,
